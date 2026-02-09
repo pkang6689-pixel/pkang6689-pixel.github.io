@@ -716,6 +716,7 @@
     }
   </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="theme_manager.js"></script>
 </head>
 <body class="h-full logo-font">
   <nav class="taskbar">
@@ -866,7 +867,7 @@
 
         <div id="account-view" class="form-hidden">
           <div class="auth-header">
-            <h2 class="auth-title" id="account-name">Account</h2>
+            <h2 class="auth-title" id="account-name">Welcome Back</h2>
             <p class="auth-subtitle">You are signed in.</p>
           </div>
           <div class="form-divider">or</div>
@@ -1256,7 +1257,21 @@
     const existingUser = localStorage.getItem('user');
     if (existingUser) {
       try {
-        showAccountView(JSON.parse(existingUser));
+        const userObj = JSON.parse(existingUser);
+        showAccountView(userObj);
+        
+        // Update welcome text to include username
+        const welcomeTitle = document.querySelector('#account-view .auth-title');
+        const username = userObj.name || userObj.email;
+        const displayDetails = username.includes('@') ? username.split('@')[0] : username;
+        
+        if (welcomeTitle) {
+          welcomeTitle.textContent = `Welcome back, ${displayDetails}`;
+          // Make title bit smaller if name is long
+          if(displayDetails.length > 15) {
+             welcomeTitle.style.fontSize = '1.75rem';
+          }
+        }
       } catch (error) {
         localStorage.removeItem('user');
       }
