@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Preferences</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      transition: background 0.3s;
+    }
+    body.dark-mode {
+      background: #0f172a;
+    }
+    .taskbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .taskbar.sunset-theme {
+      background: linear-gradient(to right, #FF7E5F, #00C9A7, #1A2A6C) !important;
+    }
+    .settings-container {
+      background: transparent;
+      transition: background 0.3s;
+    }
+    body.dark-mode .settings-container {
+      background: #1e293b;
+    }
+    body.aurora-mode .settings-container {
+      background: linear-gradient(to right, #23243a, #334155, #1A2A6C);
+    }
+    body.aurora-mode.dark-mode .settings-container {
+      background: linear-gradient(to right, #23243a, #334155, #1A2A6C);
+    }
+    .taskbar-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.5rem 1rem;
+      max-width: 1200px;
+      width: 100%;
+    }
+    .taskbar-button {
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      color: white;
+      font-size: 0.875rem;
+      transition: opacity 0.3s, transform 0.2s;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .taskbar-button:hover {
+      opacity: 0.9;
+      scale: 1.05;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .settings-menu {
+      width: 13rem;
+      padding: 0.5rem;
+      background: #ffffff;
+      border-radius: 0.5rem;
+      box-shadow: 0 8px 20px rgba(2,6,23,0.12);
+      color: #0f172a;
+      font-size: 0.95rem;
+      visibility: hidden;
+      opacity: 0;
+      /* Removed conflicting transform for proper centering */
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      right: auto;
+      bottom: auto;
+      transform: translate(-50%, calc(-50% + 3rem));
+    }
+    body.dark-mode .settings-menu {
+      background: #0f172a;
+      color: #cbd5e1;
+    }
+    
+    /* Custom Select Styles */
+    .custom-select-wrapper {
+        position: relative;
+        user-select: none;
+        width: 100%;
+        max-width: 300px;
+        margin-left: 0.75rem;
+    }
+    .custom-select {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    .custom-select-trigger {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    body.dark-mode .custom-select-trigger {
+        background: #273244;
+        color: #e2e8f0;
+        border-color: #334155;
+    }
+    .custom-options {
+        position: absolute;
+        display: block;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-top: 0;
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        z-index: 50;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(-10px);
+        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        margin-top: 0.5rem;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    body.dark-mode .custom-options {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    .custom-select.open .custom-options {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: all;
+        transform: translateY(0);
+    }
+    .custom-option {
+        position: relative;
+        display: block;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-bottom: 1px solid #f1f5f9;
+        
+        /* Gradient Text Base Styles */
+        background-clip: text !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        color: transparent; 
+    }
+    body.dark-mode .custom-option {
+        border-color: #334155;
+    }
+    .custom-option:last-of-type {
+        border-bottom: 0;
+    }
+    .custom-option:hover {
+        background-color: #f8fafc;
+        transform: padding-left 5px;
+    }
+    body.dark-mode .custom-option:hover {
+        background-color: #334155;
+    }
+    .custom-option.selected {
+        background-color: #f1f5f9;
+    }
+    body.dark-mode .custom-option.selected {
+        background-color: #475569;
+    }
+  </style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+<nav class="taskbar">
+  <div class="taskbar-container">
+    <button class="taskbar-button" id="search-button">🔍 Search</button>
+    <a class="taskbar-button" id="homepage-button" href="/index.html">🏠 Homepage</a>
+    <a class="taskbar-button" id="course-button" href="/ArisEdu Project Folder/Courses.html">📚 Courses</a>
+    <button class="taskbar-button" id="settings-button">⚙️ Settings</button>
+    <a class="taskbar-button" id="login-signup-button" href="/ArisEdu Project Folder/LoginSignup.html">🔐 Login/Signup</a>
+  </div>
+  <div class="settings-menu" id="settings-menu" aria-hidden="true">
+    <div class="settings-item">
+      <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+        <input type="checkbox" id="dark-mode-checkbox" />
+        <span>Dark Mode</span>
+      </label>
+    </div>
+    <a class="settings-item" href="/ArisEdu Project Folder/Preferences.html">Preferences</a>
+  </div>
+</nav>
+<div class="settings-container" style="width: 90vw; height: 85vh; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.12); font-family: 'Poppins', sans-serif; display: flex; flex-direction: row; background: transparent;">
+  <aside style="width: 18vw; min-width: 220px; background: #e0e7ef; border-radius: 2rem 0 0 2rem; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 1.5rem;">
+    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; text-align: left; background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">Settings</h2>
+    <div id="sidebar-categories" style="display: flex; flex-direction: column; gap: 1rem;">
+      <button class="settings-category" data-category="appearance" style="background: #fff; border: none; border-radius: 0.7rem; padding: 1rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">Appearance</button>
+      <button class="settings-category" data-category="account" style="background: #fff; border: none; border-radius: 0.7rem; padding: 1rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">Account</button>
+      <button class="settings-category" data-category="notifications" style="background: #fff; border: none; border-radius: 0.7rem; padding: 1rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">Notifications</button>
+    </div>
+  </aside>
+  <section id="settings-panel" style="flex: 1; padding: 3rem; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;">
+    <!-- Settings options will be rendered here -->
+  </section>
+</div>
+<script>
+    // ...existing code...
+// Sidebar and taskbar translations
+const sidebarLabels = {
+  english: {
+    settings: 'Settings',
+    appearance: 'Appearance',
+    account: 'Account',
+    notifications: 'Notifications',
+    search: '🔍 Search',
+    homepage: '🏠 Homepage',
+    courses: '📚 Courses',
+    play: '▶️ Play',
+    settingsBtn: '⚙️ Settings',
+    loginSignup: '🔐 Login/Signup',
+    preferences: 'Preferences',
+    darkMode: 'Dark Mode',
+  },
+  chinese: {
+    settings: '设置',
+    appearance: '外观',
+    account: '账户',
+    notifications: '通知',
+    search: '🔍 搜索',
+    homepage: '🏠 首页',
+    courses: '📚 课程',
+    play: '▶️ 玩',
+    settingsBtn: '⚙️ 设置',
+    loginSignup: '🔐 登录/注册',
+    preferences: '偏好设置',
+    darkMode: '深色模式',
+  }
+};
+
+function updateSidebarLanguage() {
+  const lang = localStorage.getItem('arisEduLanguage') || 'english';
+  const labels = sidebarLabels[lang];
+  document.querySelector('aside h2').textContent = labels.settings;
+  const buttons = document.querySelectorAll('.settings-category');
+  if (buttons.length === 3) {
+    buttons[0].textContent = labels.appearance;
+    buttons[1].textContent = labels.account;
+    buttons[2].textContent = labels.notifications;
+  }
+  document.getElementById('search-button').textContent = labels.search;
+  document.getElementById('homepage-button').textContent = labels.homepage;
+  document.getElementById('course-button').textContent = labels.courses;
+  
+  document.getElementById('settings-button').textContent = labels.settingsBtn;
+  document.getElementById('login-signup-button').textContent = labels.loginSignup;
+  // Settings menu
+  document.querySelector('#settings-menu .settings-item span').textContent = labels.darkMode;
+  document.querySelector('#settings-menu .settings-item + a').textContent = labels.preferences;
+}
+const settingsOptions = {
+  appearance_en: `
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">Appearance Settings</h2>
+    <form id="appearance-form">
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
+          <input type="checkbox" id="darkModeToggle" />
+          <span>Enable Dark Mode</span>
+        </label>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+          <label style="font-size: 1.1rem;">Language:
+            <select id="languageSelect" style="margin-left: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 0.4rem;">
+              <option value="english">English</option>
+              <option value="chinese">中文</option>
+            </select>
+          </label>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="font-size: 1.1rem;">Color Theme:</label>
+        <div class="custom-select-wrapper">
+            <div class="custom-select" id="customThemeSelect">
+                <div class="custom-select-trigger" id="customThemeTrigger">
+                    <span>Select Theme</span>
+                    <div class="arrow">▼</div>
+                </div>
+                <div class="custom-options">
+                    <span class="custom-option" data-value="blue-green" style="background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);">Aurora (Default)</span>
+                    <span class="custom-option" data-value="aurora-veil" style="background: linear-gradient(to right, #32CD32, #00FFFF, #8A2BE2);">Aurora veil</span>
+                    <span class="custom-option" data-value="twilight" style="background: linear-gradient(to right, #50C878, #0F52BA, #FF00FF);">Twilight</span>
+                    <span class="custom-option" data-value="forest" style="background: linear-gradient(to right, #228B22, #87CEEB, #E6E6FA);">Forest mist</span>
+                    <span class="custom-option" data-value="ocean-mist" style="background: linear-gradient(to right, #001F3F, #3D9970, #E0FFFF);">Ocean Mist</span>
+                    <span class="custom-option" data-value="sunset" style="background: linear-gradient(to right, #FF7E5F, #00C9A7, #1A2A6C);">Sunset</span>
+                    <span class="custom-option" data-value="coral" style="background: linear-gradient(to right, #FF6F61, #40E0D0, #4B0082);">Coral reef</span>
+                    <span class="custom-option" data-value="solar" style="background: linear-gradient(to right, #FFD700, #DC143C, #2E0854);">Solar</span>
+                    <span class="custom-option" data-value="autumn" style="background: linear-gradient(to right, #CC5500, #DAA520, #8B4513);">Autumn</span>
+                    <span class="custom-option" data-value="crimson" style="background: linear-gradient(to right, #FFC0CB, #C21E56, #420D09);">Crimson</span>
+                    <span class="custom-option" data-value="sunrise" style="background: linear-gradient(to right, #FFDAB9, #FF7F50, #FFFACD);">Sunrise</span>
+                    <span class="custom-option" data-value="lavender" style="background: linear-gradient(to right, #C8A2C8, #9DC183, #FFFDD0);">Lavender</span>
+                    <span class="custom-option" data-value="monochrome" style="background: linear-gradient(to right, #2C2C2C, #C0C0C0, #FFFFFF);">Monochrome</span>
+                    <span class="custom-option" data-value="cyber" style="background: linear-gradient(to right, #000000, #00FFFF);">Cyber</span>
+                    <span class="custom-option" data-value="horizon" style="background: linear-gradient(to right, #708090, #4682B4, #FFFFF0);">Horizon</span>
+                </div>
+            </div>
+            <input type="hidden" id="colorThemeSelect">  
+        </div>
+      </div>
+    </form>
+  `,
+  appearance_zh: `
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">外观设置</h2>
+    <form id="appearance-form">
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
+          <input type="checkbox" id="darkModeToggle" />
+          <span>启用深色模式</span>
+        </label>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+          <label style="font-size: 1.1rem;">语言:
+            <select id="languageSelect" style="margin-left: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 0.4rem;">
+              <option value="english">English</option>
+              <option value="chinese">中文</option>
+            </select>
+          </label>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="font-size: 1.1rem;">主题颜色:</label>
+        <div class="custom-select-wrapper">
+            <div class="custom-select" id="customThemeSelect">
+                <div class="custom-select-trigger" id="customThemeTrigger">
+                    <span>Select Theme</span>
+                    <div class="arrow">▼</div>
+                </div>
+                <div class="custom-options">
+                    <span class="custom-option" data-value="blue-green" style="background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);">极光 (默认)</span>
+                    <span class="custom-option" data-value="aurora-veil" style="background: linear-gradient(to right, #32CD32, #00FFFF, #8A2BE2);">极光面纱</span>
+                    <span class="custom-option" data-value="twilight" style="background: linear-gradient(to right, #50C878, #0F52BA, #FF00FF);">暮光</span>
+                    <span class="custom-option" data-value="forest" style="background: linear-gradient(to right, #228B22, #87CEEB, #E6E6FA);">迷雾森林</span>
+                    <span class="custom-option" data-value="ocean-mist" style="background: linear-gradient(to right, #001F3F, #3D9970, #E0FFFF);">海洋迷雾</span>
+                    <span class="custom-option" data-value="sunset" style="background: linear-gradient(to right, #FF7E5F, #00C9A7, #1A2A6C);">日落</span>
+                    <span class="custom-option" data-value="coral" style="background: linear-gradient(to right, #FF6F61, #40E0D0, #4B0082);">珊瑚礁</span>
+                    <span class="custom-option" data-value="solar" style="background: linear-gradient(to right, #FFD700, #DC143C, #2E0854);">太阳能</span>
+                    <span class="custom-option" data-value="autumn" style="background: linear-gradient(to right, #CC5500, #DAA520, #8B4513);">秋天</span>
+                    <span class="custom-option" data-value="crimson" style="background: linear-gradient(to right, #FFC0CB, #C21E56, #420D09);">绯红</span>
+                    <span class="custom-option" data-value="sunrise" style="background: linear-gradient(to right, #FFDAB9, #FF7F50, #FFFACD);">日出</span>
+                    <span class="custom-option" data-value="lavender" style="background: linear-gradient(to right, #C8A2C8, #9DC183, #FFFDD0);">薰衣草</span>
+                    <span class="custom-option" data-value="monochrome" style="background: linear-gradient(to right, #2C2C2C, #C0C0C0, #FFFFFF);">单色</span>
+                    <span class="custom-option" data-value="cyber" style="background: linear-gradient(to right, #000000, #00FFFF);">赛博</span>
+                    <span class="custom-option" data-value="horizon" style="background: linear-gradient(to right, #708090, #4682B4, #FFFFF0);">地平线</span>
+                </div>
+            </div>
+            <input type="hidden" id="colorThemeSelect"> 
+        </div>
+      </div>
+    </form>
+  `,
+  account_en: `
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">Account Settings</h2>
+    <form id="account-form">
+      <div style="margin-bottom: 1.5rem;">
+        <label style="font-size: 1.1rem;">Email:
+          <input type="email" id="accountEmail" style="margin-left: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 0.4rem;" placeholder="user@example.com" />
+        </label>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="font-size: 1.1rem;">Password:
+          <input type="password" id="accountPassword" style="margin-left: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 0.4rem;" placeholder="••••••••" />
+        </label>
+      </div>
+    </form>
+  `,
+  account_zh: `
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">账户设置</h2>
+    <form id="account-form">
+      <div style="margin-bottom: 1.5rem;">
+        <label style="font-size: 1.1rem;">邮箱:
+          <input type="email" id="accountEmail" style="margin-left: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 0.4rem;" placeholder="user@example.com" />
+        </label>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="font-size: 1.1rem;">密码:
+          <input type="password" id="accountPassword" style="margin-left: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 0.4rem;" placeholder="••••••••" />
+        </label>
+      </div>
+    </form>
+  `,
+  notifications_en: `
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">Notification Settings</h2>
+    <form id="notifications-form">
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
+          <input type="checkbox" id="emailNotifToggle" />
+          <span>Email Notifications</span>
+        </label>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
+          <input type="checkbox" id="pushNotifToggle" />
+          <span>Push Notifications</span>
+        </label>
+      </div>
+    </form>
+  `,
+  notifications_zh: `
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">通知设置</h2>
+    <form id="notifications-form">
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
+          <input type="checkbox" id="emailNotifToggle" />
+          <span>邮件通知</span>
+        </label>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
+          <input type="checkbox" id="pushNotifToggle" />
+          <span>推送通知</span>
+        </label>
+      </div>
+    </form>
+  `
+};
+
+function renderSettings(category) {
+    updateSidebarLanguage();
+    // Reapply dark mode after rendering panel
+    const darkModeStored = localStorage.getItem('arisEduDarkMode') === 'true';
+    setTimeout(() => applyDarkMode(darkModeStored), 0);
+  // Language switching
+  const lang = localStorage.getItem('arisEduLanguage') || 'english';
+  let key = category;
+  if (category === 'appearance') key = lang === 'chinese' ? 'appearance_zh' : 'appearance_en';
+  if (category === 'account') key = lang === 'chinese' ? 'account_zh' : 'account_en';
+  if (category === 'notifications') key = lang === 'chinese' ? 'notifications_zh' : 'notifications_en';
+  document.getElementById('settings-panel').innerHTML = settingsOptions[key] || '';
+  // Add form logic for each category
+  if (category === 'appearance') {
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const languageSelect = document.getElementById('languageSelect');
+    const colorThemeSelect = document.getElementById('colorThemeSelect');
+    // Ensure language dropdown is always visible
+    if (languageSelect) languageSelect.style.display = '';
+    // Set initial values from localStorage
+    if (darkModeToggle) darkModeToggle.checked = localStorage.getItem('arisEduDarkMode') === 'true';
+    if (languageSelect) languageSelect.value = localStorage.getItem('arisEduLanguage') || 'english';
+    
+    // Custom Select Logic
+    if (colorThemeSelect) {
+        const savedTheme = localStorage.getItem('arisEduColorTheme') || 'blue-green';
+        colorThemeSelect.value = savedTheme;
+        
+        const wrapper = document.getElementById('customThemeSelect');
+        const trigger = document.getElementById('customThemeTrigger');
+        const options = wrapper.querySelectorAll('.custom-option');
+        const triggerSpan = trigger.querySelector('span');
+
+        // Set initial trigger text and style
+        const matchingOption = Array.from(options).find(opt => opt.dataset.value === savedTheme);
+        if (matchingOption) {
+            triggerSpan.textContent = matchingOption.textContent;
+            // Apply gradient to trigger text too
+            triggerSpan.style.backgroundImage = matchingOption.style.backgroundImage;
+            triggerSpan.style.backgroundClip = 'text';
+            triggerSpan.style.webkitBackgroundClip = 'text';
+            triggerSpan.style.color = 'transparent';
+            triggerSpan.style.webkitTextFillColor = 'transparent';
+            triggerSpan.style.fontWeight = 'bold';
+        }
+
+        // Toggle dropdown
+        trigger.addEventListener('click', function(e) {
+            wrapper.classList.toggle('open');
+            e.stopPropagation();
+        });
+
+        // Close on outside click
+        document.addEventListener('click', function(e) {
+            if (!wrapper.contains(e.target)) {
+                wrapper.classList.remove('open');
+            }
+        });
+
+        // Handle selection
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                 const value = this.dataset.value;
+                 
+                 // Update Hidden Input (for compatibility if needed)
+                 colorThemeSelect.value = value;
+                 
+                 // Update visual trigger
+                 triggerSpan.textContent = this.textContent;
+                 triggerSpan.style.backgroundImage = this.style.backgroundImage;
+                 triggerSpan.style.backgroundClip = 'text';
+                 triggerSpan.style.webkitBackgroundClip = 'text';
+                 triggerSpan.style.color = 'transparent';
+                 triggerSpan.style.webkitTextFillColor = 'transparent';
+                 triggerSpan.style.fontWeight = 'bold';
+                 
+                 wrapper.classList.remove('open');
+                 
+                 // Trigger Change Logic
+                 localStorage.setItem('arisEduColorTheme', value);
+                 const darkModeStored = localStorage.getItem('arisEduDarkMode') === 'true';
+                 applyDarkMode(darkModeStored);
+                 // Force global theme update immediately
+                 if (window.applyGlobalTheme) window.applyGlobalTheme();
+            });
+        });
+    }
+
+    // Save settings automatically
+    if (darkModeToggle) darkModeToggle.addEventListener('change', function() {
+      localStorage.setItem('arisEduDarkMode', darkModeToggle.checked);
+      applyDarkMode(darkModeToggle.checked);
+    });
+    if (languageSelect) languageSelect.addEventListener('change', function() {
+      const prevLang = localStorage.getItem('arisEduLanguage') || 'english';
+      localStorage.setItem('arisEduLanguage', languageSelect.value);
+      renderSettings(category);
+      const darkModeStored = localStorage.getItem('arisEduDarkMode') === 'true';
+      applyDarkMode(darkModeStored);
+      // Show BETA disclaimer if switching to Chinese
+      if (prevLang === 'english' && languageSelect.value === 'chinese') {
+        const disclaimer = document.createElement('div');
+        disclaimer.textContent = '中文模式 (BETA): 部分内容可能尚未完全翻译或优化。';
+        disclaimer.style.position = 'fixed';
+        disclaimer.style.bottom = '32px';
+        disclaimer.style.right = '32px';
+        disclaimer.style.background = '#fbbf24';
+        disclaimer.style.color = '#222';
+        disclaimer.style.padding = '1rem 2rem';
+        disclaimer.style.borderRadius = '1rem';
+        disclaimer.style.fontWeight = 'bold';
+        disclaimer.style.boxShadow = '0 4px 16px rgba(0,0,0,0.12)';
+        disclaimer.style.zIndex = '9999';
+        document.body.appendChild(disclaimer);
+        setTimeout(() => {
+          disclaimer.remove();
+        }, 5000);
+      }
+    });
+
+  }
+  if (category === 'account') {
+    const accountEmail = document.getElementById('accountEmail');
+    const accountPassword = document.getElementById('accountPassword');
+    if (accountEmail) accountEmail.value = localStorage.getItem('arisEduAccountEmail') || '';
+    if (accountPassword) accountPassword.value = localStorage.getItem('arisEduAccountPassword') || '';
+    if (accountEmail) accountEmail.addEventListener('input', function() {
+      localStorage.setItem('arisEduAccountEmail', accountEmail.value);
+      updateTaskbarUsername();
+    });
+    if (accountPassword) accountPassword.addEventListener('input', function() {
+      localStorage.setItem('arisEduAccountPassword', accountPassword.value);
+    });
+  }
+  // Always update taskbar username after rendering
+  updateTaskbarUsername();
+  if (category === 'notifications') {
+    const emailNotifToggle = document.getElementById('emailNotifToggle');
+    const pushNotifToggle = document.getElementById('pushNotifToggle');
+    if (emailNotifToggle) emailNotifToggle.checked = localStorage.getItem('arisEduEmailNotif') === 'true';
+    if (pushNotifToggle) pushNotifToggle.checked = localStorage.getItem('arisEduPushNotif') === 'true';
+    if (emailNotifToggle) emailNotifToggle.addEventListener('change', function() {
+      localStorage.setItem('arisEduEmailNotif', emailNotifToggle.checked);
+    });
+    if (pushNotifToggle) pushNotifToggle.addEventListener('change', function() {
+      localStorage.setItem('arisEduPushNotif', pushNotifToggle.checked);
+    });
+  }
+}
+
+document.querySelectorAll('.settings-category').forEach(btn => {
+  btn.addEventListener('click', function() {
+    renderSettings(this.dataset.category);
+    document.querySelectorAll('.settings-category').forEach(b => b.style.background = '#fff');
+    this.style.background = '#dbeafe';
+    // Reapply dark mode if enabled
+    const darkModeStored = localStorage.getItem('arisEduDarkMode') === 'true';
+    applyDarkMode(darkModeStored);
+    updateTaskbarUsername();
+  });
+});
+
+function applyDarkMode(darkMode) {
+  // Account input boxes
+  const accountEmail = document.getElementById('accountEmail');
+  const accountPassword = document.getElementById('accountPassword');
+  if (accountEmail) {
+    accountEmail.style.background = darkMode ? '#273244' : '#fff';
+    accountEmail.style.color = darkMode ? '#e2e8f0' : '#0f172a';
+    accountEmail.style.border = darkMode ? '1px solid #334155' : '';
+  }
+  if (accountPassword) {
+    accountPassword.style.background = darkMode ? '#273244' : '#fff';
+    accountPassword.style.color = darkMode ? '#e2e8f0' : '#0f172a';
+    accountPassword.style.border = darkMode ? '1px solid #334155' : '';
+  }
+  document.body.classList.toggle('dark-mode', darkMode);
+  let colorTheme = localStorage.getItem('arisEduColorTheme') || 'blue-green';
+  
+  // Elements
+  const taskbar = document.querySelector('.taskbar');
+  const settingsContainer = document.querySelector('.settings-container');
+  const sidebar = document.querySelector('aside');
+  const sidebarTitle = document.querySelector('aside h2');
+  const panel = document.getElementById('settings-panel');
+  const taskbarContainer = document.querySelector('.taskbar-container');
+  const settingsMenu = document.getElementById('settings-menu');
+
+  // Gradients
+  const gradients = {
+    'blue-green': 'linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%)',
+    'sunset': 'linear-gradient(to right, #FF7E5F, #00C9A7, #1A2A6C)',
+    'forest': 'linear-gradient(to right, #228B22, #87CEEB, #E6E6FA)',
+    'aurora-veil': 'linear-gradient(to right, #32CD32, #00FFFF, #8A2BE2)',
+    'coral': 'linear-gradient(to right, #FF6F61, #40E0D0, #4B0082)',
+    'twilight': 'linear-gradient(to right, #50C878, #0F52BA, #FF00FF)',
+    'solar': 'linear-gradient(to right, #FFD700, #DC143C, #2E0854)',
+    'autumn': 'linear-gradient(to right, #CC5500, #DAA520, #8B4513)',
+    'crimson': 'linear-gradient(to right, #FFC0CB, #C21E56, #420D09)',
+    'sunrise': 'linear-gradient(to right, #FFDAB9, #FF7F50, #FFFACD)',
+    'ocean-mist': 'linear-gradient(to right, #001F3F, #3D9970, #E0FFFF)',
+    'lavender': 'linear-gradient(to right, #C8A2C8, #9DC183, #FFFDD0)',
+    'monochrome': 'linear-gradient(to right, #2C2C2C, #C0C0C0, #FFFFFF)',
+    'cyber': 'linear-gradient(to right, #000000, #00FFFF)',
+    'horizon': 'linear-gradient(to right, #708090, #4682B4, #FFFFF0)'
+  };
+
+  // Defaults
+  document.body.classList.remove('aurora-mode');
+  let activeGradient = gradients[colorTheme] || gradients['blue-green'];
+
+  // Theme Logic
+  if (darkMode) {
+    // In Dark Mode, user wants the dark background for ALL themes (including Cyber),
+    // but the taskbar should still show the theme gradient.
+    document.body.style.background = ''; // Allow body.dark-mode CSS (#0f172a) to take effect
+  } else {
+    // In Light Mode, apply the active gradient
+    if (colorTheme === 'blue-green') {
+        document.body.style.background = ''; // Default Blue/Green handled by CSS
+    } else {
+        document.body.style.background = activeGradient;
+    }
+  }
+  
+  if (settingsContainer) {
+       // Settings logic:
+       // Standard dark or customized gradient in light mode.
+       if (colorTheme === 'blue-green') {
+           settingsContainer.style.background = darkMode ? '#1e293b' : activeGradient;
+       } else {
+           settingsContainer.style.background = activeGradient;
+       }
+  }
+  
+  // Apply Common Styles
+  document.body.style.color = darkMode ? '#e2e8f0' : '#0f172a';
+
+  if (taskbar) {
+    // Taskbar reflects the active theme gradient always
+    taskbar.style.removeProperty('background'); 
+    taskbar.style.backgroundImage = activeGradient;
+  }
+
+  if (sidebarTitle) {
+      sidebarTitle.style.background = activeGradient;
+      sidebarTitle.style.webkitBackgroundClip = 'text';
+      sidebarTitle.style.webkitTextFillColor = 'transparent';
+      sidebarTitle.style.backgroundClip = 'text';
+      sidebarTitle.style.color = 'transparent';
+  }
+  
+  // Apply to sidebar buttons if they are active
+  document.querySelectorAll('.settings-category').forEach(btn => {
+      // If button is active (blue/selected), change its background
+      // Note: This relies on the inline style being set to '#dbeafe' or dark mode
+      // But we might want to highlight the active tab with the gradient in future
+  });
+  
+  if (sidebar) {
+    sidebar.style.background = darkMode ? '#273244' : '#e0e7ef';
+    sidebar.style.color = darkMode ? '#e2e8f0' : '#0f172a';
+  }
+  
+  if (panel) {
+    panel.style.background = 'transparent';
+    panel.style.color = darkMode ? '#e2e8f0' : '#0f172a';
+  }
+  
+  if (taskbarContainer) {
+    taskbarContainer.style.color = darkMode ? '#e2e8f0' : '#fff';
+  }
+  
+  if (settingsMenu) {
+    settingsMenu.style.background = darkMode ? '#0f172a' : '#ffffff';
+    settingsMenu.style.color = darkMode ? '#cbd5e1' : '#0f172a';
+  }
+  document.querySelectorAll('.taskbar-button').forEach(btn => {
+    btn.style.background = darkMode ? 'rgba(38, 38, 38, 0.2)' : 'rgba(255, 255, 255, 0.1)';
+    btn.style.color = darkMode ? '#e2e8f0' : '#fff';
+  });
+  document.querySelectorAll('.settings-category').forEach(btn => {
+    btn.style.color = darkMode ? '#e2e8f0' : '#0f172a';
+    if (
+      btn.textContent.trim() === 'Appearance' ||
+      btn.textContent.trim() === 'Account' ||
+      btn.textContent.trim() === 'Notifications'
+    ) {
+      btn.style.background = darkMode ? '#273244' : '#fff';
+    }
+  });
+  const languageBox = document.getElementById('languageSelect');
+  if (languageBox) languageBox.style.background = darkMode ? '#273244' : '#fff';
+  languageBox && (languageBox.style.color = darkMode ? '#e2e8f0' : '#0f172a');
+  const colorThemeBox = document.getElementById('colorThemeSelect');
+  if (colorThemeBox) colorThemeBox.style.background = darkMode ? '#273244' : '#fff';
+  colorThemeBox && (colorThemeBox.style.color = darkMode ? '#e2e8f0' : '#0f172a');
+  // Set checkbox state
+  const darkModeCheckbox = document.getElementById('darkModeToggle');
+  if (darkModeCheckbox) darkModeCheckbox.checked = !!darkMode;
+  // Debug log for darkMode
+  console.log('applyDarkMode called. darkMode:', darkMode);
+}
+
+// On load, apply dark mode if stored
+function initialRender() {
+  const darkModeStored = localStorage.getItem('arisEduDarkMode') === 'true';
+  const langStored = localStorage.getItem('arisEduLanguage') || 'english';
+  renderSettings('appearance');
+  // Always reapply dark mode after rendering
+  setTimeout(() => {
+    applyDarkMode(darkModeStored);
+    // Fix sidebar button backgrounds for dark mode
+    document.querySelectorAll('.settings-category').forEach(btn => {
+      btn.style.background = darkModeStored ? '#273244' : '#fff';
+      btn.style.color = darkModeStored ? '#e2e8f0' : '#0f172a';
+    });
+    // Highlight the selected category
+    const selectedBtn = document.querySelector('.settings-category[data-category="appearance"]');
+    if (selectedBtn) {
+      selectedBtn.style.background = darkModeStored ? '#273244' : '#dbeafe';
+      selectedBtn.style.color = darkModeStored ? '#e2e8f0' : '#0f172a';
+    }
+  }, 0);
+}
+initialRender();
+
+// After rendering, update category and selectors for dark mode
+setTimeout(() => {
+  const darkModeStored = localStorage.getItem('arisEduDarkMode') === 'true';
+  document.querySelectorAll('.settings-category').forEach(btn => {
+    if (btn.textContent.trim() === 'Appearance') {
+      btn.style.background = darkModeStored ? '#273244' : '#dbeafe';
+      btn.style.color = darkModeStored ? '#e2e8f0' : '#0f172a';
+    }
+  });
+  const fontSizeBox = document.getElementById('fontSizeSelect');
+  if (fontSizeBox) {
+    fontSizeBox.style.background = darkModeStored ? '#273244' : '#fff';
+    fontSizeBox.style.color = darkModeStored ? '#e2e8f0' : '#0f172a';
+  }
+  const colorThemeBox = document.getElementById('colorThemeSelect');
+  if (colorThemeBox) {
+    colorThemeBox.style.background = darkModeStored ? '#273244' : '#fff';
+    colorThemeBox.style.color = darkModeStored ? '#e2e8f0' : '#0f172a';
+  }
+}, 0);
+function updateTaskbarUsername() {
+  let username = localStorage.getItem('arisEduAccountEmail') || '';
+  // Check for user JSON object
+  const userJson = localStorage.getItem('user');
+  if (userJson) {
+    try {
+      const userObj = JSON.parse(userJson);
+      if (userObj && (userObj.name || userObj.email)) {
+        username = userObj.name || userObj.email;
+      }
+    } catch (e) {}
+  }
+  const loginBtn = document.getElementById('login-signup-button');
+  if (loginBtn) {
+    if (username) {
+      loginBtn.textContent = `👤 ${username}`;
+      loginBtn.href = '#';
+    } else {
+      loginBtn.textContent = '🔐 Login/Signup';
+      loginBtn.href = '/ArisEdu Project Folder/LoginSignup.html';
+    }
+  }
+}
+
+// Listen for dark mode toggle
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.id === 'darkModeToggle') {
+    const darkMode = e.target.checked;
+    localStorage.setItem('arisEduDarkMode', darkMode);
+    applyDarkMode(darkMode);
+  }
+});
+</script>
+<script>
+(function(){
+  const translations = {
+    "Settings": "设置", "Appearance": "外观", "Account": "账户", "Notifications": "通知", "Search": "搜索", "Homepage": "首页", "Courses": "课程", "Play": "玩", "Preferences": "偏好设置", "Dark Mode": "深色模式", "Enable Dark Mode": "启用深色模式", "Language:": "语言:", "Color Theme:": "主题颜色:", "Email:": "邮箱:", "Password:": "密码:", "Notification Settings": "通知设置", "Email Notifications": "邮件通知", "Push Notifications": "推送通知"
+  };
+  function translateNode(node) {
+    if (node.nodeType === 3) {
+      let text = node.nodeValue;
+      Object.keys(translations).forEach(function(en) {
+        text = text.replace(new RegExp(en, "g"), translations[en]);
+      });
+      node.nodeValue = text;
+    } else if (node.nodeType === 1 && node.childNodes.length) {
+      for (let i = 0; i < node.childNodes.length; i++) {
+        translateNode(node.childNodes[i]);
+      }
+    }
+  }
+  function translateAll() {
+    if (localStorage.getItem("arisEduLanguage") === "chinese") {
+      translateNode(document.body);
+    }
+  }
+  window.addEventListener("DOMContentLoaded", translateAll);
+})();
+</script>
+<script>
+(function(){
+  const translations = {
+    "Settings": "设置", "Appearance": "外观", "Account": "账户", "Notifications": "通知", "Search": "搜索", "Homepage": "首页", "Courses": "课程", "Play": "玩", "Preferences": "偏好设置", "Dark Mode": "深色模式", "Enable Dark Mode": "启用深色模式", "Language:": "语言:", "Color Theme:": "主题颜色:", "Email:": "邮箱:", "Password:": "密码:", "Notification Settings": "通知设置", "Email Notifications": "邮件通知", "Push Notifications": "推送通知", "Lesson": "课", "Summary": "总结", "Game": "游戏", "Unit": "单元", "Login/Signup": "登录/注册", "Homepage": "首页", "Play": "玩", "Courses": "课程", "Account Settings": "账户设置", "Appearance Settings": "外观设置", "Notification Settings": "通知设置", "Email": "邮箱", "Password": "密码", "Push": "推送", "Email": "邮件", "Lesson": "课", "Summary": "总结", "Game": "游戏", "Unit": "单元"
+  };
+  function translateNode(node) {
+    if (node.nodeType === 3) {
+      let text = node.nodeValue;
+      Object.keys(translations).forEach(function(en) {
+        text = text.replace(new RegExp(en, "g"), translations[en]);
+      });
+      node.nodeValue = text;
+    } else if (node.nodeType === 1 && node.childNodes.length) {
+      for (let i = 0; i < node.childNodes.length; i++) {
+        translateNode(node.childNodes[i]);
+      }
+    }
+  }
+  function translateAll() {
+    if (localStorage.getItem("arisEduLanguage") === "chinese") {
+      translateNode(document.body);
+    }
+  }
+  window.addEventListener("DOMContentLoaded", translateAll);
+  // MutationObserver for dynamic content
+  const observer = new MutationObserver(function(mutations) {
+    if (localStorage.getItem("arisEduLanguage") === "chinese") {
+      mutations.forEach(function(mutation) {
+        mutation.addedNodes.forEach(function(node) {
+          translateNode(node);
+        });
+      });
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+
+    <!-- ArisEdu Global Search -->
+    <script src="../search_data.js"></script>
+    <script src="../search_logic.js"></script>
+</body>
+</html>
