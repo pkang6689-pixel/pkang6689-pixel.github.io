@@ -3475,13 +3475,44 @@ window.exitClimbGame = function() {
         [[1, 1], [1, 1]], [[1, 0], [1, 1]], 
         [[1, 1, 1], [0, 1, 0]], [[1, 1, 0], [0, 1, 1]]
     ];
-    let activeSelection = null;
+    
+    // Drag State
+    let draggedBlock = null;
+    let dragStartPos = { x: 0, y: 0 };
+    let dragOffset = { x: 0, y: 0 };
+    let currentPreview = [];
 
     window.initBlockPuzzle = function() {
         if(window.bpInitialized) return;
         window.bpInitialized = true;
         window.resetBlockGame();
+        
+        // Global listeners for drag
+        document.addEventListener('mousemove', handleDragMove);
+        document.addEventListener('touchmove', handleDragMove, {passive: false});
+        document.addEventListener('mouseup', handleDragEnd);
+        document.addEventListener('touchend', handleDragEnd);
+        
+        // Create Modal if it doesn't exist
+        if(!document.getElementById('bp-question-modal')) {
+             createQuestionModal();
+        }
     };
+    
+    function createQuestionModal() {
+        const modal = document.createElement('div');
+        modal.id = 'bp-question-modal';
+        modal.className = 'hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm';
+        modal.innerHTML = `
+            <div class="bg-gray-800 p-6 rounded-2xl border border-gray-700 max-w-lg w-full text-center shadow-2xl">
+                <h3 class="text-2xl font-bold text-white mb-4">Bonus Question!</h3>
+                <p class="text-gray-400 mb-6">Answer correctly to get more blocks.</p>
+                <div id="bp-q-text" class="text-lg text-white mb-6 font-medium"></div>
+                <div id="bp-q-options" class="grid gap-3"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
 
     window.resetBlockGame = function() {
         grid = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
@@ -3498,21 +3529,16 @@ window.exitClimbGame = function() {
         const boardEl = document.getElementById('bp-board');
         if(!boardEl) return;
         boardEl.innerHTML = '';
+        
         for(let y=0; y<BOARD_SIZE; y++) {
             for(let x=0; x<BOARD_SIZE; x++) {
                 const cell = document.createElement('div');
-                cell.className = 'w-full h-full bg-gray-800 rounded-sm';
+                cell.className = 'w-full h-full bg-gray-800 rounded-sm border border-gray-700/50';
                 cell.dataset.x = x;
                 cell.dataset.y = y;
-                cell.onclick = (e) => handleBoardClick(x, y);
                 boardEl.appendChild(cell);
             }
         }
-    }
-
-    function handleBoardClick(x, y) {
-        if(!activeSelection) return;
-        tryPlaceBlock(x, y);
     }
 
     function spawnBlocks() {
@@ -3525,57 +3551,236 @@ window.exitClimbGame = function() {
             createDraggableBlock(shape, color);
         }
     }
+    
+    function triggerQuestion() {
+        // Find question
+        const flashcards = window.lessonFlashcards || [];
+        if(flashcards.length === 0) {
+            spawnBlocks();
+            checkGameOver();
+            return;
+        }
+        
+        const qIdx = Math.floor(Math.random() * flashcards.length);
+        const q = flashcards[qIdx];
+        
+        const modal = document.getElementById('bp-question-modal');
+        const qText = document.getElementById('bp-q-text');
+        const qOpts = document.getElementById('bp-q-options');
+        
+        qText.textContent = q.question;
+        qOpts.innerHTML = '';
+        
+        // Generate Distractors
+        let answers = [q.answer];
+        const pool = flashcards.filter((_, i) => i !== qIdx);
+        // Shuffle pool
+        pool.sort(() => Math.random() - 0.5);
+        pool.slice(0, 3).forEach(c => answers.push(c.answer));
+        answers.sort(() => Math.random() - 0.5);
+        
+        answers.forEach(ans => {
+            const btn = document.createElement('button');
+            btn.className = 'w-full text-left p-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-200 transition-colors border border-gray-600';
+            btn.textContent = ans;
+            btn.onclick = () => {
+                if(ans === q.answer) {
+                    // Correct
+                    modal.classList.add('hidden');
+                    spawnBlocks();
+                    checkGameOver();
+                } else {
+                    // Incorrect
+                    btn.className = 'w-full text-left p-3 rounded-lg bg-red-900/50 border border-red-500 text-red-200';
+                    setTimeout(() => {
+                         btn.className = 'w-full text-left p-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-200 transition-colors border border-gray-600';
+                    }, 1000);
+                }
+            };
+            qOpts.appendChild(btn);
+        });
+        
+        modal.classList.remove('hidden');
+    }
 
     function createDraggableBlock(shapeMatrix, color) {
         const handEl = document.getElementById('bp-hand');
-        if(!handEl) return;
         const container = document.createElement('div');
-        container.className = 'block-shape relative cursor-pointer';
-        const size = 15;
-        const w = shapeMatrix[0].length * size;
-        const h = shapeMatrix.length * size;
+        container.className = 'block-shape relative touch-none select-none';
+        const displaySize = 15; 
+        const w = shapeMatrix[0].length * displaySize;
+        const h = shapeMatrix.length * displaySize;
         container.style.width = `${w}px`;
         container.style.height = `${h}px`;
         
+        container.dataset.shape = JSON.stringify(shapeMatrix);
+        container.dataset.color = color;
+
         shapeMatrix.forEach((row, r) => {
             row.forEach((active, c) => {
                 if(active) {
                     const block = document.createElement('div');
                     block.style.position = 'absolute';
-                    block.style.left = `${c * size}px`;
-                    block.style.top = `${r * size}px`;
-                    block.style.width = `${size-1}px`;
-                    block.style.height = `${size-1}px`;
+                    block.style.left = `${c * displaySize}px`;
+                    block.style.top = `${r * displaySize}px`;
+                    block.style.width = `${displaySize-1}px`;
+                    block.style.height = `${displaySize-1}px`;
                     block.style.backgroundColor = color;
+                    block.style.borderRadius = '2px';
+                    block.style.pointerEvents = 'none';
                     container.appendChild(block);
                 }
             });
         });
 
-        container.onclick = (e) => selectBlock(container, shapeMatrix, color);
+        const startDrag = (e) => {
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            draggedBlock = container;
+            const rect = container.getBoundingClientRect();
+            dragOffset.x = clientX - rect.left;
+            dragOffset.y = clientY - rect.top;
+            
+            container.style.position = 'fixed';
+            container.style.left = `${rect.left}px`;
+            container.style.top = `${rect.top}px`;
+            container.style.zIndex = '1000';
+            container.style.transform = 'scale(2.8)';
+            container.style.transformOrigin = 'top left';
+            container.style.opacity = '0.9';
+            container.style.cursor = 'grabbing';
+        };
+
+        container.addEventListener('mousedown', startDrag);
+        container.addEventListener('touchstart', startDrag, {passive: false});
+
         handEl.appendChild(container);
     }
 
-    function selectBlock(el, shape, color) {
-        if (activeSelection) {
-            activeSelection.el.style.opacity = '1';
-            activeSelection.el.style.border = 'none';
-        }
-        activeSelection = { el, shape, color };
-        el.style.opacity = '0.7';
-        el.style.border = '2px dashed white';
+    function handleDragMove(e) {
+        if(!draggedBlock) return;
+        e.preventDefault();
+        
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        const x = clientX - dragOffset.x;
+        const y = clientY - dragOffset.y;
+        
+        draggedBlock.style.left = `${x}px`;
+        draggedBlock.style.top = `${y}px`;
+
+        updatePreview(clientX, clientY);
     }
 
-    function tryPlaceBlock(x, y) {
-        const { shape, color } = activeSelection;
+    function handleDragEnd(e) {
+        if(!draggedBlock) return;
+        
+        const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+        
+        // FIX: Clear preview BEFORE attempting place so we don't wipe the new color
+        const previewCells = [...currentPreview]; // Copy
+        clearPreview();
+        
+        const success = attemptPlace(clientX, clientY);
+        
+        if (success) {
+            draggedBlock.remove();
+            checkLines();
+            if (document.getElementById('bp-hand').children.length === 0) {
+                triggerQuestion();
+            } else {
+                checkGameOver();
+            }
+        } else {
+            draggedBlock.style.position = '';
+            draggedBlock.style.left = '';
+            draggedBlock.style.top = '';
+            draggedBlock.style.zIndex = '';
+            draggedBlock.style.transform = '';
+            draggedBlock.style.opacity = '';
+            draggedBlock.style.cursor = 'pointer';
+        }
+        
+        draggedBlock = null;
+    }
+
+    function getBoardCoords(clientX, clientY) {
+        const board = document.getElementById('bp-board');
+        if(!board) return null;
+        const rect = board.getBoundingClientRect();
+        
+        if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) {
+            return null;
+        }
+
+        const cellSize = rect.width / BOARD_SIZE;
+        const blockRect = draggedBlock.getBoundingClientRect();
+        // Target using center of top-left block cell
+        const sampleX = blockRect.left + (cellSize / 2); 
+        const sampleY = blockRect.top + (cellSize / 2);
+
+        const col = Math.floor((sampleX - rect.left) / cellSize);
+        const row = Math.floor((sampleY - rect.top) / cellSize);
+
+        if (col >= 0 && col < BOARD_SIZE && row >= 0 && row < BOARD_SIZE) {
+            return { x: col, y: row };
+        }
+        return null;
+    }
+
+    function updatePreview(cX, cY) {
+        clearPreview();
+        const coords = getBoardCoords(cX, cY);
+        if(!coords) return;
+        
+        const shape = JSON.parse(draggedBlock.dataset.shape);
+        const {x, y} = coords;
+        
+        if (canPlace(shape, x, y)) {
+            const color = draggedBlock.dataset.color;
+            const boardEl = document.getElementById('bp-board');
+            
+            for (let r=0; r<shape.length; r++) {
+                for (let c=0; c<shape[0].length; c++) {
+                    if (shape[r][c]) {
+                        const cellIdx = (y+r) * BOARD_SIZE + (x+c);
+                        if(cellIdx < boardEl.children.length) {
+                             const cell = boardEl.children[cellIdx];
+                             cell.style.backgroundColor = color;
+                             cell.style.opacity = '0.5';
+                             currentPreview.push(cell);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    function clearPreview() {
+        currentPreview.forEach(cell => {
+            cell.style.backgroundColor = '';
+            cell.style.opacity = '';
+        });
+        currentPreview = [];
+    }
+
+    function attemptPlace(cX, cY) {
+        const coords = getBoardCoords(cX, cY);
+        if(!coords) return false;
+        
+        const shape = JSON.parse(draggedBlock.dataset.shape);
+        const {x, y} = coords;
+        const color = draggedBlock.dataset.color;
+
         if (canPlace(shape, x, y)) {
             place(shape, x, y, color);
-            activeSelection.el.remove();
-            activeSelection = null;
-            checkLines();
-            if (document.getElementById('bp-hand').children.length === 0) spawnBlocks();
-            // checkGameOver(); // Simplified for now
+            return true;
         }
+        return false;
     }
 
     function canPlace(shape, x, y) {
@@ -3592,31 +3797,34 @@ window.exitClimbGame = function() {
     }
 
     function place(shape, x, y, color) {
+        const boardEl = document.getElementById('bp-board');
         for (let r=0; r<shape.length; r++) {
             for (let c=0; c<shape[0].length; c++) {
                 if (shape[r][c]) {
                     grid[y+r][x+c] = 1;
-                    const cell = document.getElementById('bp-board').children[(y+r) * BOARD_SIZE + (x+c)];
+                    const cell = boardEl.children[(y+r) * BOARD_SIZE + (x+c)];
                     cell.style.backgroundColor = color;
                     cell.style.boxShadow = `0 0 10px ${color}`;
+                    // Important: Reset classes to ensure color visibility if class conflict exists
+                    // cell.className = 'w-full h-full rounded-sm'; 
+                    // Actually, keeping the class is fine if style.backgroundColor is set inline.
+                    cell.style.opacity = '1';
                 }
             }
         }
         score += 10;
-        const sEl = document.getElementById('bp-score');
-        if(sEl) sEl.innerText = score;
+        const scoreEl = document.getElementById('bp-score');
+        if(scoreEl) scoreEl.innerText = score;
     }
 
     function checkLines() {
         let linesCleared = 0;
-        // Rows
         for(let y=0; y<BOARD_SIZE; y++) {
             if(grid[y].every(v => v === 1)) {
                 clearRow(y);
                 linesCleared++;
             }
         }
-        // Cols
         for(let x=0; x<BOARD_SIZE; x++) {
             if(grid.every(row => row[x] === 1)) {
                 clearCol(x);
@@ -3625,8 +3833,8 @@ window.exitClimbGame = function() {
         }
         if(linesCleared > 0) {
             score += linesCleared * 100;
-            const sEl = document.getElementById('bp-score');
-            if(sEl) sEl.innerText = score;
+            const scoreEl = document.getElementById('bp-score');
+            if(scoreEl) scoreEl.innerText = score;
         }
     }
 
@@ -3643,12 +3851,39 @@ window.exitClimbGame = function() {
     }
 
     function resetCell(x, y) {
-        const cell = document.getElementById('bp-board').children[y * BOARD_SIZE + x];
-        cell.style.backgroundColor = '';
-        cell.style.boxShadow = '';
-        cell.className = 'w-full h-full bg-gray-800 rounded-sm transform scale-0 transaction-all';
-        setTimeout(() => cell.className = 'w-full h-full bg-gray-800 rounded-sm', 300);
+        const boardEl = document.getElementById('bp-board');
+        if(boardEl) {
+            const cell = boardEl.children[y * BOARD_SIZE + x];
+            cell.style.backgroundColor = ''; 
+            cell.className = 'w-full h-full bg-gray-800 rounded-sm border border-gray-700/50';
+            cell.style.boxShadow = '';
+            cell.style.opacity = '';
+        }
     }
+
+    function checkGameOver() {
+        const hand = document.getElementById('bp-hand');
+        if(hand.children.length === 0) return;
+        
+        let canMove = false;
+        
+        Array.from(hand.children).forEach(block => {
+            const shape = JSON.parse(block.dataset.shape);
+            for(let y=0; y<BOARD_SIZE; y++) {
+                for(let x=0; x<BOARD_SIZE; x++) {
+                    if(canPlace(shape, x, y)) {
+                        canMove = true;
+                    }
+                }
+            }
+        });
+        
+        if(!canMove) {
+            document.getElementById('bp-game-over').classList.remove('hidden');
+            document.getElementById('bp-final-score').innerText = score;
+        }
+    }
+
 })();
 </script><script>
 // Game Switcher Logic
