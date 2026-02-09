@@ -1,13 +1,14 @@
-<!doctype html>
-<html lang="en" class="h-full">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lesson 9.3: Molarity</title>
-  <script src="/_sdk/element_sdk.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
-  <style>
+<!DOCTYPE html>
+
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lesson 9.3: Molarity</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<style>
     body {
       box-sizing: border-box;
       background-color: white;
@@ -882,10 +883,238 @@
       transform: scale(1);
     }
 
-</style>
-   <style>@view-transition { navigation: auto; }</style>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 
+
+    /* Embedded Game Styles Swapped In */
+    .Practices-menu {
+      position: relative;
+      display: inline-block;
+    }
+    .Practices-panel {
+      position: absolute;
+      bottom: 100%;
+      right: 0;
+      width: 12rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.2s ease-out;
+      z-index: 50;
+    }
+    .Practices-panel.is-open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    body.dark-mode .Practices-panel {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    .Practices-panel-item a {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: #334155;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      transition: background-color 0.15s;
+    }
+    .Practices-panel-item a:hover {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+    body.dark-mode .Practices-panel-item a {
+      color: #cbd5e1;
+    }
+    body.dark-mode .Practices-panel-item a:hover {
+      background-color: #334155;
+      color: #f8fafc;
+    }
+
+    /* Mix & Match Styles */
+    .mix-match-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+      width: 100%;
+    }
+    .mm-card {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 500;
+      color: #334155;
+      transition: all 0.2s;
+      user-select: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    body.dark-mode .mm-card {
+      background: #1e293b;
+      border-color: #334155;
+      color: #cbd5e1;
+    }
+    .mm-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border-color: #94a3b8;
+    }
+    .mm-card.selected {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      color: #1d4ed8;
+      transform: scale(1.02);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    body.dark-mode .mm-card.selected {
+      background: #172554;
+      border-color: #60a5fa;
+      color: #bfdbfe;
+    }
+    .mm-card.matched {
+      background: #f0fdf4;
+      border-color: #22c55e;
+      color: #15803d;
+      opacity: 0.8;
+      cursor: default;
+    }
+    body.dark-mode .mm-card.matched {
+      background: #052e16;
+      border-color: #22c55e;
+      color: #86efac;
+    }
+    .mm-card.wrong {
+      background: #fef2f2;
+      border-color: #ef4444;
+      animation: shake 0.5s;
+    }
+    body.dark-mode .mm-card.wrong {
+      background: #450a0a;
+      border-color: #ef4444;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    .mm-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+    .mm-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .mm-modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      max-width: 90%;
+      width: 400px;
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .mm-modal.active .mm-modal-content {
+      transform: scale(1);
+    }
+    body.dark-mode .mm-modal-content {
+      background: #1e293b;
+      color: #ffffff;
+    }
+
+    /* Block Puzzle Styles */
+    .block-puzzle-container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .bp-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 2px;
+      background: #cbd5e1;
+      padding: 2px;
+      border-radius: 0.5rem;
+      width: 100%;
+      aspect-ratio: 1;
+    }
+    body.dark-mode .bp-grid {
+      background: #475569;
+    }
+    .bp-cell {
+      background: #f1f5f9;
+      border-radius: 2px;
+      position: relative;
+    }
+    body.dark-mode .bp-cell {
+      background: #334155;
+    }
+    .bp-cell.filled {
+      background: #3b82f6; 
+      box-shadow: inset 0 0 4px rgba(0,0,0,0.2);
+    }
+    .bp-blocks-area {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      min-height: 120px;
+      width: 100%;
+      padding: 1rem;
+      background: rgba(241, 245, 249, 0.5);
+      border-radius: 1rem;
+    }
+    body.dark-mode .bp-blocks-area {
+      background: rgba(30, 41, 59, 0.5);
+    }
+    .bp-block-option {
+      cursor: grab;
+      transition: transform 0.2s;
+    }
+    .bp-block-option:active {
+      cursor: grabbing;
+      transform: scale(1.1);
+    }
+    .bp-preview {
+      display: grid;
+      gap: 2px;
+      pointer-events: none;
+    }
+    .bp-preview-cell {
+      width: 20px;
+      height: 20px;
+      border-radius: 2px;
+    }
+    </style>
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
 <style>
 /* Quiz View Styles */
 #quiz-content-view .quiz-container {
@@ -911,176 +1140,156 @@ body.dark-mode #quiz-content-view .quiz-question {
     font-style: italic;
 }
 </style>
-
-  <script src="../../theme_manager.js"></script>
+<script src="../../theme_manager.js"></script>
 </head>
- <body class="h-full">
-  <nav class="taskbar">
-    <div class="taskbar-container">
-    
-      <button class="taskbar-button" id="back-button">← Back to Unit 9</button>
-      <button class="taskbar-button" id="search-button">🔍 Search</button>
-      <a class="taskbar-button" id="homepage-button" href="../../../index.html">🏠 Homepage</a>
-      <a class="taskbar-button" id="course-button" href="../../Courses.html">📚 Courses</a>
-      <button class="taskbar-button" id="settings-button">⚙️ Settings</button>
-      <a class="taskbar-button" id="login-signup-button" href="../../LoginSignup.html">🔐 Login/Signup</a>
-
-    </div>
-    <div class="settings-menu" id="settings-menu" aria-hidden="true">
-      <div class="settings-item">
-        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-          <input type="checkbox" id="dark-mode-checkbox" />
-          <span>Dark Mode</span>
-        </label> 
-      </div>
-      <a class="settings-item" href="../../Preferences.html">Preferences</a>
-    </div>
-  </nav>
-  <main class="main-container">
-    <div id="lesson-content-view">
-
-    <h2 class="page-title">Lesson 9.3: Molarity</h2>
-    <div class="courses-container">
-      <div class="lesson-layout">
-        <div class="video-embed">
-          <iframe
-            src="https://www.youtube.com/"
-            title="Lesson 9.3 videos placeholder"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen
-          ></iframe>
-        </div>
-        <div class="side-buttons">
-          <button class="side-button view-other-videos" type="button" onclick="toggleVideosPanel(this)">View other videos</button>
-                                        <div class="videos-panel" aria-hidden="true">
-            <div class="videos-panel-title">Lesson 9.3 videos</div>
-            <div class="videos-panel-legend" aria-hidden="true">
-              <span>D</span>
-              <span>Dt</span>
-              <span>S</span>
-              <span>P</span>
-            </div>
-            <div class="videos-panel-item">
-            <a href="https://www.youtube.com/results?search_query=Molarity+Chem+Academy" data-rating-difficulty="TBD" data-color-difficulty="#e2e8f0" data-rating-detail="TBD" data-color-detail="#e2e8f0" data-rating-speed="TBD" data-color-speed="#e2e8f0" data-rating-pace="TBD" data-color-pace="#e2e8f0" data-video-title="Chem Academy: Molarity">Chem Academy</a>
-            <div class="mini-rubric" aria-hidden="true">
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            </div>
-            </div>
-            <div class="videos-panel-item">
-            <a href="https://www.youtube.com/results?search_query=Molarity+Khan+Academy" data-rating-difficulty="TBD" data-color-difficulty="#e2e8f0" data-rating-detail="TBD" data-color-detail="#e2e8f0" data-rating-speed="TBD" data-color-speed="#e2e8f0" data-rating-pace="TBD" data-color-pace="#e2e8f0" data-video-title="Khan Academy: Molarity">Khan Academy</a>
-            <div class="mini-rubric" aria-hidden="true">
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            </div>
-            </div>
-            <div class="videos-panel-item">
-            <a href="https://www.youtube.com/results?search_query=Molarity+Organic+Chemistry+Tutor" data-rating-difficulty="TBD" data-color-difficulty="#e2e8f0" data-rating-detail="TBD" data-color-detail="#e2e8f0" data-rating-speed="TBD" data-color-speed="#e2e8f0" data-rating-pace="TBD" data-color-pace="#e2e8f0" data-video-title="Organic Chemistry Tutor: Molarity">Organic Chemistry Tutor</a>
-            <div class="mini-rubric" aria-hidden="true">
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            </div>
-            </div>
-            <div class="videos-panel-item">
-            <a href="https://www.youtube.com/results?search_query=Molarity+Cognito" data-rating-difficulty="TBD" data-color-difficulty="#e2e8f0" data-rating-detail="TBD" data-color-detail="#e2e8f0" data-rating-speed="TBD" data-color-speed="#e2e8f0" data-rating-pace="TBD" data-color-pace="#e2e8f0" data-video-title="Cognito: Molarity">Cognito</a>
-            <div class="mini-rubric" aria-hidden="true">
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            </div>
-            </div>
-            <div class="videos-panel-item">
-            <a href="https://www.youtube.com/results?search_query=Molarity+Tyler+Dewitt" data-rating-difficulty="TBD" data-color-difficulty="#e2e8f0" data-rating-detail="TBD" data-color-detail="#e2e8f0" data-rating-speed="TBD" data-color-speed="#e2e8f0" data-rating-pace="TBD" data-color-pace="#e2e8f0" data-video-title="Tyler Dewitt: Molarity">Tyler Dewitt</a>
-            <div class="mini-rubric" aria-hidden="true">
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            <span style="background:#e2e8f0"></span>
-            </div>
-            </div>
-          </div>
-
-          <button class="side-button" onclick="toggleToSummary(event)">Next Up: Summary</button>
-        </div>
-      </div>
-      <div class="rubric-box">
-        <div class="rubric-hover-wrap">
-          <div class="rubric-hover-dot" aria-hidden="true"><span>i</span></div>
-          <div class="rubric-hover-panel" aria-hidden="true">
-            <p>This lesson is intended to prepare students for AP classes, and is not necessary to complete.</p>
-          </div>
-        </div>
-        <h2 class="page-title">Rubric</h2>
-                  <div class="rubric-card">
-            <div class="rubric-grid">
-              <div class="rubric-item" style="background:#e2e8f0">
-                <div class="rubric-text">
-                  <span class="rubric-label">Difficulty</span>
-                  <span class="rubric-rating">TBD</span>
-                </div>
-              </div>
-              <div class="rubric-item" style="background:#e2e8f0">
-                <div class="rubric-text">
-                  <span class="rubric-label">Detail</span>
-                  <span class="rubric-rating">TBD</span>
-                </div>
-              </div>
-              <div class="rubric-item" style="background:#e2e8f0">
-                <div class="rubric-text">
-                  <span class="rubric-label">Speed</span>
-                  <span class="rubric-rating">TBD</span>
-                </div>
-              </div>
-              <div class="rubric-item" style="background:#e2e8f0">
-                <div class="rubric-text">
-                  <span class="rubric-label">Pace</span>
-                  <span class="rubric-rating">TBD</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  
-    </div>
-
-    <!-- Embedded Summary View -->
-    <div id="summary-content-view" style="display: none;">
-        <h2 class="page-title">Lesson 9.3 Molarity Summary</h2>
-        <div class="diagram-card">
-                      <div class="lesson-summary-content">
-              <h3>Key Concepts: Molarity</h3>
-              <p><b>Core Definitions</b></p>
-              <ul>
-                <li><b>Molarity (M) formula</b>: Moles of solute / Liters of solution</li>
-                <li><b>Unit for Molarity</b>: M or mol/L</li>
-                <li><b>Moles in 2L of 3M solution</b>: 6 moles</li>
-              </ul>
-            </div>
-          <div class="summary-actions">
-            <button class="side-button" onclick="toggleToPractice(event)">Next Up: Play</button>
-          </div>
-        </div>
-    </div>
-
-
-    <!-- Embedded Practice View -->
-    <div id="practice-content-view" style="display: none;">
-      <h2 class="page-title">Lesson 9.3 Molarity Practice</h2>
-      <div class="diagram-card">
-        <div class="flashcard-game" style="perspective:1000px;overflow:hidden;margin-top:2rem;display:flex;flex-direction:column;align-items:center;">
-        <div id="flashcard" class="flashcard-box" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
-          <span id="flashcard-content" style="width:100%;display:block;"></span>
-                <style>
+<body class="h-full">
+<nav class="taskbar">
+<div class="taskbar-container">
+<button class="taskbar-button" id="back-button">← Back to Unit 9</button>
+<button class="taskbar-button" id="search-button">🔍 Search</button>
+<a class="taskbar-button" href="../../../index.html" id="homepage-button">🏠 Homepage</a>
+<a class="taskbar-button" href="../../Courses.html" id="course-button">📚 Courses</a>
+<button class="taskbar-button" id="settings-button">⚙️ Settings</button>
+<a class="taskbar-button" href="../../LoginSignup.html" id="login-signup-button">🔐 Login/Signup</a>
+</div>
+<div aria-hidden="true" class="settings-menu" id="settings-menu">
+<div class="settings-item">
+<label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+<input id="dark-mode-checkbox" type="checkbox"/>
+<span>Dark Mode</span>
+</label>
+</div>
+<a class="settings-item" href="../../Preferences.html">Preferences</a>
+</div>
+</nav>
+<main class="main-container">
+<div id="lesson-content-view">
+<h2 class="page-title">Lesson 9.3: Molarity</h2>
+<div class="courses-container">
+<div class="lesson-layout">
+<div class="video-embed">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/" title="Lesson 9.3 videos placeholder"></iframe>
+</div>
+<div class="side-buttons">
+<button class="side-button view-other-videos" onclick="toggleVideosPanel(this)" type="button">View other videos</button>
+<div aria-hidden="true" class="videos-panel">
+<div class="videos-panel-title">Lesson 9.3 videos</div>
+<div class="videos-panel-item">
+<a data-color-detail="#ccc" data-color-difficulty="#ccc" data-color-pace="#ccc" data-color-speed="#ccc" data-rating-detail="N/A" data-rating-difficulty="N/A" data-rating-pace="N/A" data-rating-speed="N/A" data-video-id="" data-video-src="" data-video-title="Chem Academy: Molarity" href="#">
+                 Chem Academy
+              </a>
+<div aria-hidden="true" class="mini-rubric">
+<span style="background:#ccc"></span>
+<span style="background:#ccc"></span>
+<span style="background:#ccc"></span>
+<span style="background:#ccc"></span>
+</div>
+</div>
+<div class="videos-panel-item">
+<a data-color-detail="#ccc" data-color-difficulty="#ccc" data-color-pace="#ccc" data-color-speed="#ccc" data-rating-detail="N/A" data-rating-difficulty="N/A" data-rating-pace="N/A" data-rating-speed="N/A" data-video-id="" data-video-src="" data-video-title="Khan Academy: Molarity" href="#">
+                 Khan Academy
+              </a>
+<div aria-hidden="true" class="mini-rubric">
+<span style="background:#ccc"></span>
+<span style="background:#ccc"></span>
+<span style="background:#ccc"></span>
+<span style="background:#ccc"></span>
+</div>
+</div>
+<div class="videos-panel-item">
+<a data-color-detail="#ccc" data-color-difficulty="#ccc" data-color-pace="#ccc" data-color-speed="#ccc" data-rating-detail="N/A" data-rating-difficulty="N/A" data-rating-pace="N/A" data-rating-speed="N/A" data-video-id="" data-video-src="" data-video-title="Organic Chemistry Tutor: Molarity" href="#">
+                 Organic Chemistry Tutor
+              </a>
+<div aria-hidden="true" class="mini-rubric">
+<span style="background:#ccc"></span>
+<span style="background:#ccc"></span>
+<span style="background:#ccc"></span>
+<span style="background:#ccc"></span>
+</div>
+</div>
+<div class="videos-panel-item">
+<a data-color-detail="#ccc" data-color-difficulty="#ccc" data-color-pace="#ccc" data-color-speed="#ccc" data-rating-detail="N/A" data-rating-difficulty="N/A" data-rating-pace="N/A" data-rating-speed="N/A" data-video-id="" data-video-src="" data-video-title="Cognito: Molarity" href="#">
+                 Cognito
+              </a>
+<div aria-hidden="true" class="mini-rubric">
+<span style="background:#ccc"></span>
+<span style="background:#ccc"></span>
+<span style="background:#ccc"></span>
+<span style="background:#ccc"></span>
+</div>
+</div>
+</div>
+<button class="side-button" onclick="toggleToSummary(event)">Next Up: Summary</button>
+</div>
+</div>
+<div class="rubric-box">
+<div class="rubric-hover-wrap">
+<div aria-hidden="true" class="rubric-hover-dot"><span>i</span></div>
+<div aria-hidden="true" class="rubric-hover-panel">
+<p><strong>Difficulty:</strong> How hard topic is &amp; how well they explained it</p>
+<p><strong>Detail:</strong> Depth of content covered</p>
+<p><strong>Speed:</strong> How long the video is</p>
+<p><strong>Pace:</strong> How fast the video runs</p>
+</div>
+</div>
+<h2 class="page-title">Rubric</h2>
+<div class="rubric-card">
+<div class="rubric-grid">
+<div class="rubric-item" style="background:#e2e8f0">
+<div class="rubric-text">
+<span class="rubric-label">Difficulty</span>
+<span class="rubric-rating">TBD</span>
+</div>
+</div>
+<div class="rubric-item" style="background:#e2e8f0">
+<div class="rubric-text">
+<span class="rubric-label">Detail</span>
+<span class="rubric-rating">TBD</span>
+</div>
+</div>
+<div class="rubric-item" style="background:#e2e8f0">
+<div class="rubric-text">
+<span class="rubric-label">Speed</span>
+<span class="rubric-rating">TBD</span>
+</div>
+</div>
+<div class="rubric-item" style="background:#e2e8f0">
+<div class="rubric-text">
+<span class="rubric-label">Pace</span>
+<span class="rubric-rating">TBD</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Embedded Summary View -->
+<div id="summary-content-view" style="display: none;">
+<h2 class="page-title">Lesson 9.3 Molarity Summary</h2>
+<div class="diagram-card">
+<div class="lesson-summary-content">
+<h3>Key Concepts: Molarity</h3>
+<p><b>Core Definitions</b></p>
+<ul>
+<li><b>Molarity (M) formula</b>: Moles of solute / Liters of solution</li>
+<li><b>Unit for Molarity</b>: M or mol/L</li>
+<li><b>Moles in 2L of 3M solution</b>: 6 moles</li>
+</ul>
+</div>
+<div class="summary-actions">
+<button class="side-button" onclick="toggleToPractice(event)">Next Up: Play</button>
+</div>
+</div>
+</div>
+<!-- Embedded Practice View -->
+<div id="practice-content-view" style="display: none;">
+<h2 class="page-title">Lesson 9.3 Molarity Practice</h2>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="perspective:1000px;overflow:hidden;margin-top:2rem;display:flex;flex-direction:column;align-items:center;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+<style>
                   body.dark-mode .flashcard-box {
                     background: #1e293b !important;
                     color: #e2e8f0 !important;
@@ -1262,115 +1471,103 @@ body.dark-mode #quiz-content-view .quiz-question {
     }
 
 </style>
-        </div>
-          <div style="display:flex;gap:1rem;">
-            <button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24">
-                <path d="M15 6l-6 6 6 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24">
-                <path d="M9 6l6 6-6 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <button id="shuffle-flashcard" title="Shuffle flashcards">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewbox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewbox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
               Shuffle
             </button>
-          </div>
-      </div>
-        
-        <div id="climb-game-container" style="display:none; width:100%;">        <div id="climb-game-ui" style="display:none; height: 100%; display:flex; flex-direction:column; position:relative; overflow:hidden; background-color: #e2e8f0; border-radius: 1rem; height: 64rem; font-family: 'Orbitron', sans-serif;">
-            <div id="climb-space-bg" style="position:absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(ellipse at bottom, #1e293b 0%, #020617 100%); z-index:0; overflow:hidden;">
-                <!-- Stars container -->
-                <div id="climb-stars" style="position:absolute; top:0; left:0; width:100%; height:100%;"></div>
-                <!-- Planet 1 (Greenish) -->
-                <div class="climb-planet" style="position:absolute; top:15%; left:10%; width:100px; height:100px; border-radius:50%; background: linear-gradient(135deg, #4ade80, #166534); box-shadow: inset -20px -20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(74, 222, 128, 0.3); opacity:0.9; animation: floatPlanet 20s infinite ease-in-out;"></div>
-                <!-- Planet 2 (Reddish Giant) -->
-                <div class="climb-planet" style="position:absolute; bottom:20%; right:15%; width:180px; height:180px; border-radius:50%; background: linear-gradient(135deg, #fca5a5, #991b1b); box-shadow: inset -30px -30px 60px rgba(0,0,0,0.5), 0 0 30px rgba(248, 113, 113, 0.3); opacity:0.8; animation: floatPlanet 25s infinite ease-in-out reverse;"></div>
-                <!-- Planet 3 (Small Yellow Moon) -->
-                <div class="climb-planet" style="position:absolute; top:40%; right:30%; width:40px; height:40px; border-radius:50%; background: #fbbf24; box-shadow: 0 0 15px #fbbf24; opacity:0.9; animation: floatPlanet 15s infinite ease-in-out;"></div>
-            </div>
-
-                        <button id="climb-fullscreen-btn" onclick="toggleClimbFullscreen()" style="position:absolute; bottom:1rem; right:1rem; z-index:50; background:rgba(255,255,255,0.9); border:none; border-radius:50%; width:3rem; height:3rem; cursor:pointer; box-shadow:0 4px 6px rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Toggle Fullscreen">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2-2h3"/></svg>
-            </button>
+</div>
+</div>
+<div id="climb-game-container" style="display:none; width:100%;"> <div id="climb-game-ui" style="display:none; height: 100%; display:flex; flex-direction:column; position:relative; overflow:hidden; background-color: #e2e8f0; border-radius: 1rem; height: 64rem; font-family: 'Orbitron', sans-serif;">
+<div id="climb-space-bg" style="position:absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(ellipse at bottom, #1e293b 0%, #020617 100%); z-index:0; overflow:hidden;">
+<!-- Stars container -->
+<div id="climb-stars" style="position:absolute; top:0; left:0; width:100%; height:100%;"></div>
+<!-- Planet 1 (Greenish) -->
+<div class="climb-planet" style="position:absolute; top:15%; left:10%; width:100px; height:100px; border-radius:50%; background: linear-gradient(135deg, #4ade80, #166534); box-shadow: inset -20px -20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(74, 222, 128, 0.3); opacity:0.9; animation: floatPlanet 20s infinite ease-in-out;"></div>
+<!-- Planet 2 (Reddish Giant) -->
+<div class="climb-planet" style="position:absolute; bottom:20%; right:15%; width:180px; height:180px; border-radius:50%; background: linear-gradient(135deg, #fca5a5, #991b1b); box-shadow: inset -30px -30px 60px rgba(0,0,0,0.5), 0 0 30px rgba(248, 113, 113, 0.3); opacity:0.8; animation: floatPlanet 25s infinite ease-in-out reverse;"></div>
+<!-- Planet 3 (Small Yellow Moon) -->
+<div class="climb-planet" style="position:absolute; top:40%; right:30%; width:40px; height:40px; border-radius:50%; background: #fbbf24; box-shadow: 0 0 15px #fbbf24; opacity:0.9; animation: floatPlanet 15s infinite ease-in-out;"></div>
+</div>
+<button id="climb-fullscreen-btn" onclick="toggleClimbFullscreen()" onmouseout="this.style.transform='scale(1)'" onmouseover="this.style.transform='scale(1.1)'" style="position:absolute; bottom:1rem; right:1rem; z-index:50; background:rgba(255,255,255,0.9); border:none; border-radius:50%; width:3rem; height:3rem; cursor:pointer; box-shadow:0 4px 6px rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center; transition: transform 0.2s;" title="Toggle Fullscreen">
+<svg fill="none" height="24" stroke="#334155" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2-2h3"></path></svg>
+</button>
 <!-- Moving Background (The Ladder) -->
-            <div id="climb-ladder-bg" style="position:absolute; top:0; left:0; width:100%; height:200%; background: repeating-linear-gradient(180deg, #94a3b8 0, #94a3b8 2px, transparent 2px, transparent 40px); opacity:0.3; animation: slideLadder 10s linear infinite;"></div>
-            
-            <!-- Header / Status -->
-            <div id="climb-header" style="z-index:10; padding:1rem; background:rgba(255,255,255,0.95); display:flex; justify-content:space-between; align-items:center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <span id="climb-score" style="font-weight: bold; color: #334155;">Score: 0</span>
-                
-                <button onclick="resetToClimbMenu()" style="background:#ef4444; color:white; border:none; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor:pointer; font-weight: 600; margin-right: 0.5rem;">Restart</button>
-                <button id="climb-pause-btn" onclick="toggleClimbPause()" style="background:#f59e0b; color:white; border:none; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor:pointer; font-weight: 600;">Pause</button>
-            </div>
-
-            <!-- Game Area -->
-            <div style="flex:1; position:relative; width:100%; overflow:hidden;">
-                                  <!-- Fuel Bar -->
-                 <div id="climb-fuel-text" style="position:absolute; left:2rem; bottom:calc(2rem + 605px); width:60px; text-align:center; font-weight:bold; font-size:1rem; color:#334155; white-space:nowrap; z-index:20;">Fuel Bar</div>
-                 <div id="climb-fuel-container" style="position:absolute; bottom:2rem; left:2rem; width:60px; height:600px; background:rgba(255,255,255,0.3); border:2px solid #334155; border-radius:10px; overflow:hidden; z-index:10; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+<div id="climb-ladder-bg" style="position:absolute; top:0; left:0; width:100%; height:200%; background: repeating-linear-gradient(180deg, #94a3b8 0, #94a3b8 2px, transparent 2px, transparent 40px); opacity:0.3; animation: slideLadder 10s linear infinite;"></div>
+<!-- Header / Status -->
+<div id="climb-header" style="z-index:10; padding:1rem; background:rgba(255,255,255,0.95); display:flex; justify-content:space-between; align-items:center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+<span id="climb-score" style="font-weight: bold; color: #334155;">Score: 0</span>
+<button onclick="resetToClimbMenu()" style="background:#ef4444; color:white; border:none; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor:pointer; font-weight: 600; margin-right: 0.5rem;">Restart</button>
+<button id="climb-pause-btn" onclick="toggleClimbPause()" style="background:#f59e0b; color:white; border:none; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor:pointer; font-weight: 600;">Pause</button>
+</div>
+<!-- Game Area -->
+<div style="flex:1; position:relative; width:100%; overflow:hidden;">
+<!-- Fuel Bar -->
+<div id="climb-fuel-text" style="position:absolute; left:2rem; bottom:calc(2rem + 605px); width:60px; text-align:center; font-weight:bold; font-size:1rem; color:#334155; white-space:nowrap; z-index:20;">Fuel Bar</div>
+<div id="climb-fuel-container" style="position:absolute; bottom:2rem; left:2rem; width:60px; height:600px; background:rgba(255,255,255,0.3); border:2px solid #334155; border-radius:10px; overflow:hidden; z-index:10; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
 <div id="climb-fuel-fill" style="position:absolute; bottom:0; left:0; width:100%; height:50%; background:linear-gradient(to top, #f59e0b, #ef4444); transition: height 0.5s ease;"></div>
-                 </div>
-                 <!-- Player -->
-                 <div id="climb-player" style="position:absolute; bottom:35%; left:50%; transform:translateX(-50%); width:240px; height:240px; transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 5;"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));">
-  <!-- Left Fin -->
-  <path d="M18 42 L 8 58 L 22 58 L 24 48 Z" fill="#ef4444" stroke="#991b1b" stroke-width="1.5" stroke-linejoin="round"/>
-  <!-- Right Fin -->
-  <path d="M46 42 L 56 58 L 42 58 L 40 48 Z" fill="#ef4444" stroke="#991b1b" stroke-width="1.5" stroke-linejoin="round"/>
-  <!-- Main Body -->
-  <ellipse cx="32" cy="32" rx="14" ry="28" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
-  <!-- Window -->
-  <circle cx="32" cy="24" r="7" fill="#3b82f6" stroke="#1d4ed8" stroke-width="1.5"/>
-  <circle cx="33" cy="22" r="2.5" fill="white" opacity="0.6"/>
-  <!-- Engine Flame -->
-  <path id="climb-flame-outer" d="M26 56 Q 32 72 38 56" fill="#f59e0b" stroke="#d97706" stroke-width="1" style="transform-origin: 32px 56px; transition: transform 0.1s ease-out;"/><path id="climb-flame-inner" d="M29 56 Q 32 66 35 56" fill="#fef3c7" style="transform-origin: 32px 56px; transition: transform 0.1s ease-out;"/>
+</div>
+<!-- Player -->
+<div id="climb-player" style="position:absolute; bottom:35%; left:50%; transform:translateX(-50%); width:240px; height:240px; transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 5;"><svg style="width:100%; height:100%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<!-- Left Fin -->
+<path d="M18 42 L 8 58 L 22 58 L 24 48 Z" fill="#ef4444" stroke="#991b1b" stroke-linejoin="round" stroke-width="1.5"></path>
+<!-- Right Fin -->
+<path d="M46 42 L 56 58 L 42 58 L 40 48 Z" fill="#ef4444" stroke="#991b1b" stroke-linejoin="round" stroke-width="1.5"></path>
+<!-- Main Body -->
+<ellipse cx="32" cy="32" fill="#e2e8f0" rx="14" ry="28" stroke="#475569" stroke-width="2"></ellipse>
+<!-- Window -->
+<circle cx="32" cy="24" fill="#3b82f6" r="7" stroke="#1d4ed8" stroke-width="1.5"></circle>
+<circle cx="33" cy="22" fill="white" opacity="0.6" r="2.5"></circle>
+<!-- Engine Flame -->
+<path d="M26 56 Q 32 72 38 56" fill="#f59e0b" id="climb-flame-outer" stroke="#d97706" stroke-width="1" style="transform-origin: 32px 56px; transition: transform 0.1s ease-out;"></path><path d="M29 56 Q 32 66 35 56" fill="#fef3c7" id="climb-flame-inner" style="transform-origin: 32px 56px; transition: transform 0.1s ease-out;"></path>
 </svg></div>
-                 
-            </div>
-
-            <!-- Interaction Area (Question) -->
-                        <!-- Overlay: Start Screen -->
-            <div id="climb-start-screen" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:60; background:rgba(255,255,255,0.95); padding:2rem; border-radius:1rem; box-shadow:0 10px 25px rgba(0,0,0,0.2); width:80%; max-width:400px; text-align:center; border:1px solid #cbd5e1; display:flex; flex-direction:column; align-items:center;">
-                <h3 style="color:#1e293b; margin-top:0;">Ready to Fly?</h3>
-                <p style="color:#64748b; margin-bottom:1.5rem;">Answer correctly to fly up against the moving ladder!</p>
-                <div style="font-size:0.9rem; color:#64748b; margin-bottom:1rem;">Spacebar = Boost (Uses Fuel)<br>Correct Answer = +Fuel</div>
-                <button onclick="startClimbGame()" style="background:#0f172a; color:white; padding:0.75rem 2rem; border:none; border-radius:0.5rem; cursor:pointer; font-weight:600; font-size:1.1rem; transition: background 0.2s;">Start Flying</button>
-            </div>
-
-            <!-- Overlay: Game Over -->
-            <div id="climb-game-over" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:60; background:rgba(255,255,255,0.95); padding:2rem; border-radius:1rem; box-shadow:0 10px 25px rgba(0,0,0,0.2); width:80%; max-width:400px; text-align:center; border:1px solid #cbd5e1; flex-direction:column; align-items:center;">
-                <h3 id="climb-result-title" style="font-size: 1.5rem; margin-bottom: 0.5rem; color:#1e293b;">Game Over!</h3>
-                <p id="climb-final-score" style="color:#64748b; margin-bottom: 1.5rem;"></p>
-                <div style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
-                    <button onclick="startClimbGame()" style="background:#10b981; color:white; padding:0.75rem 1.5rem; border:none; border-radius:0.5rem; cursor:pointer; font-weight:600;">Play Again</button>
-                    <button onclick="alert('Leaderboard coming soon!')" style="background:#f59e0b; color:white; padding:0.75rem 1.5rem; border:none; border-radius:0.5rem; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:0.5rem;">🏆 Leaderboard</button>
-                </div>
-            </div>
-            <!-- Overlay: Pause Screen -->
-            <div id="climb-paused-screen" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:60; background:rgba(255,255,255,0.95); padding:2rem; border-radius:1rem; box-shadow:0 10px 25px rgba(0,0,0,0.2); width:80%; max-width:400px; text-align:center; border:1px solid #cbd5e1; flex-direction:column; align-items:center;">
-                <h3 style="color:#1e293b; margin-top:0;">Game Paused</h3>
-                <button onclick="toggleClimbPause()" style="background:#f59e0b; color:white; padding:0.75rem 2rem; border:none; border-radius:0.5rem; cursor:pointer; font-weight:600; font-size:1.1rem; transition: background 0.2s;">Resume</button>
-            </div>
-
-            <!-- Interaction Area (Question Only) -->
-            <div id="climb-interaction" style="position: absolute; position: absolute; z-index:20; background:rgba(255,255,255,0.95); padding:1.5rem; border-radius:1rem; box-shadow:0 10px 25px rgba(0,0,0,0.2); border:1px solid #cbd5e1; min-height: 200px; display:none; flex-direction:column; justify-content:center; top: 50%; right: 2rem; transform: translateY(-50%); width: 300px">
-                <div id="climb-question-area" style="display:block; text-align:center; width:100%; max-width:600px; margin:0 auto;">
-                    <p id="climb-question-text" style="font-weight:bold; margin-bottom:1.5rem; font-size:1.1rem; color: #1e293b; line-height:1.5;"></p>
-                    <div id="climb-options" style="display:grid; gap:0.75rem; grid-template-columns: 1fr;">
-                        <!-- Buttons injected here -->
-                    </div>
-                    <div id="climb-feedback" style="margin-top:1rem; height:1.5rem; font-weight:bold;"></div>
-                </div>
-            </div>
-            
-            
-            
-            <style>
+</div>
+<!-- Interaction Area (Question) -->
+<!-- Overlay: Start Screen -->
+<div id="climb-start-screen" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:60; background:rgba(255,255,255,0.95); padding:2rem; border-radius:1rem; box-shadow:0 10px 25px rgba(0,0,0,0.2); width:80%; max-width:400px; text-align:center; border:1px solid #cbd5e1; display:flex; flex-direction:column; align-items:center;">
+<h3 style="color:#1e293b; margin-top:0;">Ready to Fly?</h3>
+<p style="color:#64748b; margin-bottom:1.5rem;">Answer correctly to fly up against the moving ladder!</p>
+<div style="font-size:0.9rem; color:#64748b; margin-bottom:1rem;">Spacebar = Boost (Uses Fuel)<br/>Correct Answer = +Fuel</div>
+<button onclick="startClimbGame()" style="background:#0f172a; color:white; padding:0.75rem 2rem; border:none; border-radius:0.5rem; cursor:pointer; font-weight:600; font-size:1.1rem; transition: background 0.2s;">Start Flying</button>
+</div>
+<!-- Overlay: Game Over -->
+<div id="climb-game-over" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:60; background:rgba(255,255,255,0.95); padding:2rem; border-radius:1rem; box-shadow:0 10px 25px rgba(0,0,0,0.2); width:80%; max-width:400px; text-align:center; border:1px solid #cbd5e1; flex-direction:column; align-items:center;">
+<h3 id="climb-result-title" style="font-size: 1.5rem; margin-bottom: 0.5rem; color:#1e293b;">Game Over!</h3>
+<p id="climb-final-score" style="color:#64748b; margin-bottom: 1.5rem;"></p>
+<div style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
+<button onclick="startClimbGame()" style="background:#10b981; color:white; padding:0.75rem 1.5rem; border:none; border-radius:0.5rem; cursor:pointer; font-weight:600;">Play Again</button>
+<button onclick="alert('Leaderboard coming soon!')" style="background:#f59e0b; color:white; padding:0.75rem 1.5rem; border:none; border-radius:0.5rem; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:0.5rem;">🏆 Leaderboard</button>
+</div>
+</div>
+<!-- Overlay: Pause Screen -->
+<div id="climb-paused-screen" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:60; background:rgba(255,255,255,0.95); padding:2rem; border-radius:1rem; box-shadow:0 10px 25px rgba(0,0,0,0.2); width:80%; max-width:400px; text-align:center; border:1px solid #cbd5e1; flex-direction:column; align-items:center;">
+<h3 style="color:#1e293b; margin-top:0;">Game Paused</h3>
+<button onclick="toggleClimbPause()" style="background:#f59e0b; color:white; padding:0.75rem 2rem; border:none; border-radius:0.5rem; cursor:pointer; font-weight:600; font-size:1.1rem; transition: background 0.2s;">Resume</button>
+</div>
+<!-- Interaction Area (Question Only) -->
+<div id="climb-interaction" style="position: absolute; position: absolute; z-index:20; background:rgba(255,255,255,0.95); padding:1.5rem; border-radius:1rem; box-shadow:0 10px 25px rgba(0,0,0,0.2); border:1px solid #cbd5e1; min-height: 200px; display:none; flex-direction:column; justify-content:center; top: 50%; right: 2rem; transform: translateY(-50%); width: 300px">
+<div id="climb-question-area" style="display:block; text-align:center; width:100%; max-width:600px; margin:0 auto;">
+<p id="climb-question-text" style="font-weight:bold; margin-bottom:1.5rem; font-size:1.1rem; color: #1e293b; line-height:1.5;"></p>
+<div id="climb-options" style="display:grid; gap:0.75rem; grid-template-columns: 1fr;">
+<!-- Buttons injected here -->
+</div>
+<div id="climb-feedback" style="margin-top:1rem; height:1.5rem; font-weight:bold;"></div>
+</div>
+</div>
+<style>
                 
                 @keyframes twinkle { 0% { opacity:0.3; transform:scale(0.8); } 100% { opacity:1; transform:scale(1.2); } }
                 @keyframes floatPlanet { 0% { transform:translateY(0px); } 50% { transform:translateY(-20px); } 100% { transform:translateY(0px); } }
@@ -1420,48 +1617,92 @@ body.dark-mode #quiz-content-view .quiz-question {
                 body.dark-mode #climb-fuel-text { color: #e2e8f0 !important; }
 
 </style>
-        </div></div>
-        </div>
-<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
-          <div class="Practices-menu" style="position:relative; margin-right: 1rem;">
-            <button class="side-button view-other-Practices" type="button" onclick="window.togglePracticesPanel(this)">Other games</button>
-            <div class="Practices-panel" aria-hidden="true">
-              <div class="Practices-panel-item">
-                <a href="#flashcard-game">Flashcard Game</a>
-              
-          
+</div></div>
+<div id="mixmatch-container" style="display:none; flex-direction:column; align-items:center; width:100%;">
+<div class="w-full max-w-4xl flex justify-between items-center mb-8">
+<div>
+<h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">Mix &amp; Match</h1>
+<p class="text-slate-400">Match the terms to their definitions!</p>
 </div>
-              <div class="Practices-panel-item">
-                <a href="#climb">Boost</a>
-              </div>
-            </div>
-          </div>
-          <button class="side-button" onclick="toggleToQuiz(event)">Next Up: Quiz</button>
-          
-        </div>
-      </div>
-    </div>
+<div class="text-right">
+<div class="text-sm text-slate-400">Streak</div>
+<div class="text-2xl font-bold text-yellow-400" id="mixmatch-streak-display">0</div>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-4xl" id="mixmatch-game-board">
+<!-- Cards injected here -->
+</div>
+<div class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50" id="mixmatch-win-screen">
+<div class="bg-slate-800 p-8 rounded-2xl text-center border border-slate-700 max-w-md mx-4">
+<div class="text-6xl mb-4">🎉</div>
+<h2 class="text-3xl font-bold mb-2">Level Complete!</h2>
+<p class="text-slate-400 mb-6">You matched all terms correctly.</p>
+<button class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-full transition-all hover:scale-105 active:scale-95" onclick="window.startMixMatchGame()">
+                Play Again
+            </button>
+</div>
+</div>
+</div>
+<div id="blockpuzzle-container" style="display:none; flex-direction:column; align-items:center; justify-content:center; width:100%;">
+<div class="relative w-full max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h1 class="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-600 bg-clip-text text-transparent">BLOCK PUZZLE</h1>
+<p class="text-xs text-gray-400">Clear lines to score!</p>
+</div>
+<div class="text-right">
+<div class="text-xs text-gray-400 font-sans">SCORE</div>
+<div class="text-3xl font-bold text-white" id="bp-score">0</div>
+</div>
+</div>
+<div class="grid grid-cols-8 gap-1 bg-gray-900 p-2 rounded-lg border-2 border-gray-700 mx-auto" id="bp-board" style="width: 340px; height: 340px;">
+</div>
+<div class="mt-8 flex justify-center gap-4 h-24 items-center min-h-[6rem]" id="bp-hand">
+</div>
+<div class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm" id="bp-game-over">
+<h2 class="text-3xl text-red-500 font-bold mb-2">GAME OVER</h2>
+<p class="text-gray-300 mb-6">No more moves possible!</p>
+<div class="text-4xl font-bold text-white mb-8" id="bp-final-score">0</div>
+<button class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95" onclick="window.resetBlockGame()">
+                TRY AGAIN
+            </button>
+</div>
+</div>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<div class="Practices-menu" style="position:relative; margin-right: 1rem;">
+<button class="side-button view-other-Practices" onclick="togglePracticesPanel(this)" type="button">Other games</button>
+<div aria-hidden="true" class="Practices-panel">
+<div class="Practices-panel-item"><a href="#flashcard-game">Flashcard Game</a></div>
+<div class="Practices-panel-item"><a href="#climb">Boost</a></div>
+<div class="Practices-panel-item"><a href="#mixmatch">Mix &amp; Match</a></div>
+<div class="Practices-panel-item"><a href="#blockpuzzle">Block Puzzle</a></div>
+</div>
+</div>
 
 
-    <!-- Quiz View (Hidden by default) -->
-    <div id="quiz-content-view" style="display: none;">
-      <h2 class="page-title">Lesson 9.3: Quiz</h2>
-      <div class="diagram-card">
-        <div class="quiz-container">
-          <form id="quiz-form">
-             <!-- Questions will be auto-generated here -->
-             <div style="text-align:center; padding:2rem;">Loading Quiz...</div>
-          </form>
-          <div id="quiz-results" style="margin-top: 2rem; font-weight: bold; display:none; padding: 1rem; border-radius: 0.5rem;"></div>
-          <div style="display:flex; justify-content:flex-end; margin-top: 2rem; margin-bottom: 2rem;">
-            <button class="side-button" onclick="window.location.href='Lesson%209.4%20Solution_Types.html'">Next Up: Lesson 9.4</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
+<button class="side-button" onclick="toggleToQuiz(event)">Next Up: Quiz</button>
+</div>
+</div>
+<!-- Quiz View (Hidden by default) -->
+<div id="quiz-content-view" style="display: none;">
+<h2 class="page-title">Lesson 9.3: Quiz</h2>
+<div class="diagram-card">
+<div class="quiz-container">
+<form id="quiz-form">
+<!-- Questions will be auto-generated here -->
+<div style="text-align:center; padding:2rem;">Loading Quiz...</div>
+</form>
+<div id="quiz-results" style="margin-top: 2rem; font-weight: bold; display:none; padding: 1rem; border-radius: 0.5rem;"></div>
+<div style="display:flex; justify-content:flex-end; margin-top: 2rem; margin-bottom: 2rem;">
+<button class="side-button" onclick="window.location.href='Lesson%209.4%20Solution_Types.html'">Next Up: Lesson 9.4</button>
+</div>
+</div>
+</div>
+</div>
 </main>
-  <script>
+<script>
 
     function toggleVideosPanel(button) {
       if (!button) {
@@ -1784,14 +2025,6 @@ body.dark-mode #quiz-content-view .quiz-question {
     });
   })();
 </script>
-
-
-
-
-
-
-
-
 <script>
   // settings-menu-align
   (function () {
@@ -1905,7 +2138,6 @@ body.dark-mode #quiz-content-view .quiz-question {
 })();
 </script>
 <script> window.originalBackLink = 'ChemistryUnit9Solutions.html'; </script>
-
 <script>
   window.togglePracticesPanel = function(button) {
     if (!button) return;
@@ -2065,14 +2297,14 @@ body.dark-mode #quiz-content-view .quiz-question {
   };
   
 </script>
-
-
 <script>
   let flashcardsInitialized = false;
   window.initFlashcards = function() {
       if (flashcardsInitialized) return;
       
       const flashcards = [
+          { question: "(Recap) Formula for dilution?", answer: "M1V1 = M2V2" },
+          { question: "(Recap) Does moles of solute change during dilution?", answer: "No" },
           { question: "Molarity (M) formula?", answer: "Moles of solute / Liters of solution" },
           { question: "Unit for Molarity?", answer: "M or mol/L" },
           { question: "Moles in 2L of 3M solution?", answer: "6 moles" }
@@ -2303,8 +2535,6 @@ body.dark-mode #quiz-content-view .quiz-question {
       flashcardsInitialized = true;
   };
 </script>
-
-
 <script>
   window.switchToClimb = function() {
     const flashcardGame = document.querySelector('.flashcard-game');
@@ -2350,7 +2580,6 @@ body.dark-mode #quiz-content-view .quiz-question {
     });
   });
 </script>
-
 <script>
 // Climb Game Logic
 (function() {
@@ -2704,12 +2933,9 @@ window.exitClimbGame = function() {
     }
 })();
 </script>
-
-
-    <!-- ArisEdu Global Search -->
-    <script src="../../../search_data.js"></script>
-    <script src="../../../search_logic.js"></script>
-
+<!-- ArisEdu Global Search -->
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
 <script>
   // Quiz Feature Logic
   window.quizInitialized = false;
@@ -3020,6 +3246,610 @@ window.exitClimbGame = function() {
     }
   };
 </script>
+<script>
+(function() {
+    window.initMixMatch = function() {
+        if(window.mixMatchInitialized) return;
+        window.mixMatchInitialized = true;
+        window.startMixMatchGame();
+    };
 
-</body>
+    // vocabulary removed, utilizing window.lessonFlashcards
+
+    let selectedCards = [];
+    let matchedPairs = 0;
+    let streak = 0;
+
+    window.startMixMatchGame = function() {
+        const gameContainer = document.getElementById('mixmatch-game-board');
+        const winScreen = document.getElementById('mixmatch-win-screen');
+        
+        if (!gameContainer) return;
+
+        gameContainer.innerHTML = '';
+        if(winScreen) winScreen.classList.add('hidden');
+        selectedCards = [];
+        matchedPairs = 0;
+        streak = 0;
+        updateStreak(0);
+
+        let gameItems = [];
+        if ((!window.lessonFlashcards || window.lessonFlashcards.length === 0) && window.initFlashcards) {
+             window.initFlashcards();
+        }
+        const data = window.lessonFlashcards || [];
+        data.forEach((item, index) => {
+            gameItems.push({ id: index, text: item.question, type: 'term' });
+            gameItems.push({ id: index, text: item.answer, type: 'def' });
+        });
+
+        gameItems.sort(() => Math.random() - 0.5).forEach(item => {
+            gameContainer.appendChild(createCard(item.id, item.text, item.type));
+        });
+    }
+
+    function createCard(id, text, type) {
+        const div = document.createElement('div');
+        div.className = 'bg-slate-800 border-2 border-slate-700 rounded-xl p-4 h-32 flex items-center justify-center text-center cursor-pointer transition-all hover:border-blue-500 hover:bg-slate-750 select-none';
+        div.dataset.id = id;
+        div.dataset.type = type;
+        div.innerHTML = `<span class="font-semibold text-sm md:text-base">${text}</span>`;
+        div.onclick = () => handleCardClick(div);
+        return div;
+    }
+
+    function handleCardClick(card) {
+        if (card.classList.contains('bg-blue-600') || card.classList.contains('invisible')) return;
+        if (selectedCards.length >= 2) return;
+
+        card.classList.remove('bg-slate-800', 'border-slate-700');
+        card.classList.add('bg-blue-600', 'border-blue-400', 'transform', 'scale-105');
+        selectedCards.push(card);
+
+        if (selectedCards.length === 2) {
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        const [c1, c2] = selectedCards;
+        const isMatch = c1.dataset.id === c2.dataset.id && c1.dataset.type !== c2.dataset.type;
+
+        if (isMatch) {
+            setTimeout(() => {
+                c1.classList.add('invisible', 'opacity-0', 'transition-opacity', 'duration-500');
+                c2.classList.add('invisible', 'opacity-0', 'transition-opacity', 'duration-500');
+                matchedPairs++;
+                updateStreak(1);
+                if (matchedPairs === (window.lessonFlashcards ? window.lessonFlashcards.length : 0)) {
+                    setTimeout(() => {
+                        const win = document.getElementById('mixmatch-win-screen');
+                        if(win) win.classList.remove('hidden');
+                    }, 500);
+                }
+            }, 300);
+        } else {
+            updateStreak(-streak);
+            setTimeout(() => {
+                [c1, c2].forEach(c => {
+                    c.classList.remove('bg-blue-600', 'border-blue-400', 'transform', 'scale-105');
+                    c.classList.add('bg-slate-800', 'border-slate-700');
+                });
+            }, 800);
+        }
+        selectedCards = [];
+    }
+
+    function updateStreak(change) {
+        streak = change === -streak ? 0 : streak + change;
+        const disp = document.getElementById('mixmatch-streak-display');
+        if(disp) {
+            disp.textContent = streak;
+            disp.classList.add('pop-anim');
+            setTimeout(() => disp.classList.remove('pop-anim'), 300);
+        }
+    }
+})();
+</script><script>
+(function() {
+    const BOARD_SIZE = 8;
+    let grid = [];
+    let score = 0;
+    const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+    const SHAPES = [
+        [[1]], [[1, 1]], [[1, 1, 1]], [[1, 1, 1, 1]], 
+        [[1, 1], [1, 1]], [[1, 0], [1, 1]], 
+        [[1, 1, 1], [0, 1, 0]], [[1, 1, 0], [0, 1, 1]]
+    ];
+    let activeSelection = null;
+
+    window.initBlockPuzzle = function() {
+        if(window.bpInitialized) return;
+        window.bpInitialized = true;
+        window.resetBlockGame();
+    };
+
+    window.resetBlockGame = function() {
+        grid = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
+        score = 0;
+        const scoreEl = document.getElementById('bp-score');
+        if(scoreEl) scoreEl.innerText = 0;
+        initBoard();
+        spawnBlocks();
+        const go = document.getElementById('bp-game-over');
+        if(go) go.classList.add('hidden');
+    };
+
+    function initBoard() {
+        const boardEl = document.getElementById('bp-board');
+        if(!boardEl) return;
+        boardEl.innerHTML = '';
+        for(let y=0; y<BOARD_SIZE; y++) {
+            for(let x=0; x<BOARD_SIZE; x++) {
+                const cell = document.createElement('div');
+                cell.className = 'w-full h-full bg-gray-800 rounded-sm';
+                cell.dataset.x = x;
+                cell.dataset.y = y;
+                cell.onclick = (e) => handleBoardClick(x, y);
+                boardEl.appendChild(cell);
+            }
+        }
+    }
+
+    function handleBoardClick(x, y) {
+        if(!activeSelection) return;
+        tryPlaceBlock(x, y);
+    }
+
+    function spawnBlocks() {
+        const handEl = document.getElementById('bp-hand');
+        if(!handEl) return;
+        handEl.innerHTML = '';
+        for(let i=0; i<3; i++) {
+            const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            createDraggableBlock(shape, color);
+        }
+    }
+
+    function createDraggableBlock(shapeMatrix, color) {
+        const handEl = document.getElementById('bp-hand');
+        if(!handEl) return;
+        const container = document.createElement('div');
+        container.className = 'block-shape relative cursor-pointer';
+        const size = 15;
+        const w = shapeMatrix[0].length * size;
+        const h = shapeMatrix.length * size;
+        container.style.width = `${w}px`;
+        container.style.height = `${h}px`;
+        
+        shapeMatrix.forEach((row, r) => {
+            row.forEach((active, c) => {
+                if(active) {
+                    const block = document.createElement('div');
+                    block.style.position = 'absolute';
+                    block.style.left = `${c * size}px`;
+                    block.style.top = `${r * size}px`;
+                    block.style.width = `${size-1}px`;
+                    block.style.height = `${size-1}px`;
+                    block.style.backgroundColor = color;
+                    container.appendChild(block);
+                }
+            });
+        });
+
+        container.onclick = (e) => selectBlock(container, shapeMatrix, color);
+        handEl.appendChild(container);
+    }
+
+    function selectBlock(el, shape, color) {
+        if (activeSelection) {
+            activeSelection.el.style.opacity = '1';
+            activeSelection.el.style.border = 'none';
+        }
+        activeSelection = { el, shape, color };
+        el.style.opacity = '0.7';
+        el.style.border = '2px dashed white';
+    }
+
+    function tryPlaceBlock(x, y) {
+        const { shape, color } = activeSelection;
+        if (canPlace(shape, x, y)) {
+            place(shape, x, y, color);
+            activeSelection.el.remove();
+            activeSelection = null;
+            checkLines();
+            if (document.getElementById('bp-hand').children.length === 0) spawnBlocks();
+            // checkGameOver(); // Simplified for now
+        }
+    }
+
+    function canPlace(shape, x, y) {
+        for (let r=0; r<shape.length; r++) {
+            for (let c=0; c<shape[0].length; c++) {
+                if (shape[r][c]) {
+                    const boardX = x + c;
+                    const boardY = y + r;
+                    if (boardX >= BOARD_SIZE || boardY >= BOARD_SIZE || grid[boardY][boardX]) return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    function place(shape, x, y, color) {
+        for (let r=0; r<shape.length; r++) {
+            for (let c=0; c<shape[0].length; c++) {
+                if (shape[r][c]) {
+                    grid[y+r][x+c] = 1;
+                    const cell = document.getElementById('bp-board').children[(y+r) * BOARD_SIZE + (x+c)];
+                    cell.style.backgroundColor = color;
+                    cell.style.boxShadow = `0 0 10px ${color}`;
+                }
+            }
+        }
+        score += 10;
+        const sEl = document.getElementById('bp-score');
+        if(sEl) sEl.innerText = score;
+    }
+
+    function checkLines() {
+        let linesCleared = 0;
+        // Rows
+        for(let y=0; y<BOARD_SIZE; y++) {
+            if(grid[y].every(v => v === 1)) {
+                clearRow(y);
+                linesCleared++;
+            }
+        }
+        // Cols
+        for(let x=0; x<BOARD_SIZE; x++) {
+            if(grid.every(row => row[x] === 1)) {
+                clearCol(x);
+                linesCleared++;
+            }
+        }
+        if(linesCleared > 0) {
+            score += linesCleared * 100;
+            const sEl = document.getElementById('bp-score');
+            if(sEl) sEl.innerText = score;
+        }
+    }
+
+    function clearRow(y) {
+        grid[y].fill(0);
+        for(let x=0; x<BOARD_SIZE; x++) resetCell(x, y);
+    }
+
+    function clearCol(x) {
+        for(let y=0; y<BOARD_SIZE; y++) {
+            grid[y][x] = 0;
+            resetCell(x, y);
+        }
+    }
+
+    function resetCell(x, y) {
+        const cell = document.getElementById('bp-board').children[y * BOARD_SIZE + x];
+        cell.style.backgroundColor = '';
+        cell.style.boxShadow = '';
+        cell.className = 'w-full h-full bg-gray-800 rounded-sm transform scale-0 transaction-all';
+        setTimeout(() => cell.className = 'w-full h-full bg-gray-800 rounded-sm', 300);
+    }
+})();
+</script><script>
+// Game Switcher Logic
+document.addEventListener('DOMContentLoaded', () => {
+    
+    function hideAllGames() {
+        ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.style.display = 'none';
+        });
+    }
+
+    window.switchToMixMatch = function() {
+        hideAllGames();
+        const el = document.getElementById('mixmatch-container');
+        if(el) {
+            el.style.display = 'flex';
+            if(window.initMixMatch) window.initMixMatch();
+        }
+    };
+
+    window.switchToBlockPuzzle = function() {
+        hideAllGames();
+        const el = document.getElementById('blockpuzzle-container');
+        if(el) {
+            el.style.display = 'flex';
+            if(window.initBlockPuzzle) window.initBlockPuzzle();
+        }
+    };
+
+    // Patch Flashcards
+    const oldFlash = window.switchToFlashcards;
+    window.switchToFlashcards = function() {
+        hideAllGames();
+        const el = document.getElementById('flashcard-game');
+        if(el) el.style.display = 'flex';
+    };
+
+    // Patch Climb
+    const oldClimb = window.switchToClimb;
+    window.switchToClimb = function() {
+        hideAllGames();
+        const el = document.getElementById('climb-game-container');
+        if(el) {
+            el.style.display = 'block';
+            if(window.initClimbGame) window.initClimbGame();
+        }
+    };
+
+    // Listeners for Menu Links
+    document.querySelectorAll('a[href="#mixmatch"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchToMixMatch();
+            if(window.togglePracticesPanel && el.closest('.Practices-menu')) {
+                 const btn = el.closest('.Practices-menu').querySelector('button') || el.closest('.Practices-menu').querySelector('.view-other-Practices');
+                 if(btn) window.togglePracticesPanel(btn);
+            }
+        });
+    });
+
+    document.querySelectorAll('a[href="#blockpuzzle"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchToBlockPuzzle();
+             if(window.togglePracticesPanel && el.closest('.Practices-menu')) {
+                 const btn = el.closest('.Practices-menu').querySelector('button') || el.closest('.Practices-menu').querySelector('.view-other-Practices');
+                 if(btn) window.togglePracticesPanel(btn);
+            }
+        });
+    });
+});
+</script><script>
+// Game Switcher Logic
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Helper to hide all
+    function hideAllGames() {
+        const games = ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'];
+        games.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.style.display = 'none';
+        });
+    }
+
+    // MixMatch Switch
+    window.switchToMixMatch = function() {
+        hideAllGames();
+        const el = document.getElementById('mixmatch-container');
+        if(el) {
+            el.style.display = 'flex';
+            if(window.initMixMatch) window.initMixMatch();
+        }
+    };
+
+    // BlockPuzzle Switch
+    window.switchToBlockPuzzle = function() {
+        hideAllGames();
+        const el = document.getElementById('blockpuzzle-container');
+        if(el) {
+            el.style.display = 'flex';
+            if(window.initBlockPuzzle) window.initBlockPuzzle();
+        }
+    };
+
+    // Listeners for Menu Links
+    document.querySelectorAll('a[href="#mixmatch"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchToMixMatch();
+            if(window.togglePracticesPanel) window.togglePracticesPanel(el.closest('.Practices-menu').querySelector('button'));
+        });
+    });
+
+    document.querySelectorAll('a[href="#blockpuzzle"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchToBlockPuzzle();
+            if(window.togglePracticesPanel) window.togglePracticesPanel(el.closest('.Practices-menu').querySelector('button'));
+        });
+    });
+    
+    // Also patch existing Flashcards/Climb listeners to ensure they hide new games
+    const oldFlash = window.switchToFlashcards;
+    window.switchToFlashcards = function() {
+        hideAllGames();
+        const el = document.getElementById('flashcard-game');
+        if(el) el.style.display = 'flex';
+    };
+
+    // Hook into Boost link if it exists and uses a global function?
+    // Usually it just toggles display manually in its own listener, so hideAllGames helped.
+});
+</script><script>
+// Game Switcher Logic
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Helper to hide all
+    function hideAllGames() {
+        const games = ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'];
+        games.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.style.display = 'none';
+        });
+    }
+
+    // MixMatch Switch
+    window.switchToMixMatch = function() {
+        hideAllGames();
+        const el = document.getElementById('mixmatch-container');
+        if(el) {
+            el.style.display = 'flex';
+            if(window.initMixMatch) window.initMixMatch();
+        }
+    };
+
+    // BlockPuzzle Switch
+    window.switchToBlockPuzzle = function() {
+        hideAllGames();
+        const el = document.getElementById('blockpuzzle-container');
+        if(el) {
+            el.style.display = 'flex';
+            if(window.initBlockPuzzle) window.initBlockPuzzle();
+        }
+    };
+
+    // Listeners for Menu Links
+    document.querySelectorAll('a[href="#mixmatch"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchToMixMatch();
+            if(window.togglePracticesPanel) window.togglePracticesPanel(el.closest('.Practices-menu').querySelector('button'));
+        });
+    });
+
+    document.querySelectorAll('a[href="#blockpuzzle"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchToBlockPuzzle();
+            if(window.togglePracticesPanel) window.togglePracticesPanel(el.closest('.Practices-menu').querySelector('button'));
+        });
+    });
+    
+    // Also patch existing Flashcards/Climb listeners to ensure they hide new games
+    const oldFlash = window.switchToFlashcards;
+    window.switchToFlashcards = function() {
+        hideAllGames();
+        const el = document.getElementById('flashcard-game');
+        if(el) el.style.display = 'flex';
+    };
+
+    // Hook into Boost link if it exists and uses a global function?
+    // Usually it just toggles display manually in its own listener, so hideAllGames helped.
+});
+</script><script>
+// Game Switcher Logic
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Helper to hide all
+    function hideAllGames() {
+        const games = ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'];
+        games.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.style.display = 'none';
+        });
+    }
+
+    // MixMatch Switch
+    window.switchToMixMatch = function() {
+        hideAllGames();
+        const el = document.getElementById('mixmatch-container');
+        if(el) {
+            el.style.display = 'flex';
+            if(window.initMixMatch) window.initMixMatch();
+        }
+    };
+
+    // BlockPuzzle Switch
+    window.switchToBlockPuzzle = function() {
+        hideAllGames();
+        const el = document.getElementById('blockpuzzle-container');
+        if(el) {
+            el.style.display = 'flex';
+            if(window.initBlockPuzzle) window.initBlockPuzzle();
+        }
+    };
+
+    // Listeners for Menu Links
+    document.querySelectorAll('a[href="#mixmatch"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchToMixMatch();
+            if(window.togglePracticesPanel) window.togglePracticesPanel(el.closest('.Practices-menu').querySelector('button'));
+        });
+    });
+
+    document.querySelectorAll('a[href="#blockpuzzle"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchToBlockPuzzle();
+            if(window.togglePracticesPanel) window.togglePracticesPanel(el.closest('.Practices-menu').querySelector('button'));
+        });
+    });
+    
+    // Also patch existing Flashcards/Climb listeners to ensure they hide new games
+    const oldFlash = window.switchToFlashcards;
+    window.switchToFlashcards = function() {
+        hideAllGames();
+        const el = document.getElementById('flashcard-game');
+        if(el) el.style.display = 'flex';
+    };
+
+    // Hook into Boost link if it exists and uses a global function?
+    // Usually it just toggles display manually in its own listener, so hideAllGames helped.
+});
+</script><script>
+// Game Switcher Logic
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Helper to hide all
+    function hideAllGames() {
+        const games = ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'];
+        games.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.style.display = 'none';
+        });
+    }
+
+    // MixMatch Switch
+    window.switchToMixMatch = function() {
+        hideAllGames();
+        const el = document.getElementById('mixmatch-container');
+        if(el) {
+            el.style.display = 'flex';
+            if(window.initMixMatch) window.initMixMatch();
+        }
+    };
+
+    // BlockPuzzle Switch
+    window.switchToBlockPuzzle = function() {
+        hideAllGames();
+        const el = document.getElementById('blockpuzzle-container');
+        if(el) {
+            el.style.display = 'flex';
+            if(window.initBlockPuzzle) window.initBlockPuzzle();
+        }
+    };
+
+    // Listeners for Menu Links
+    document.querySelectorAll('a[href="#mixmatch"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchToMixMatch();
+            if(window.togglePracticesPanel) window.togglePracticesPanel(el.closest('.Practices-menu').querySelector('button'));
+        });
+    });
+
+    document.querySelectorAll('a[href="#blockpuzzle"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchToBlockPuzzle();
+            if(window.togglePracticesPanel) window.togglePracticesPanel(el.closest('.Practices-menu').querySelector('button'));
+        });
+    });
+    
+    // Also patch existing Flashcards/Climb listeners to ensure they hide new games
+    const oldFlash = window.switchToFlashcards;
+    window.switchToFlashcards = function() {
+        hideAllGames();
+        const el = document.getElementById('flashcard-game');
+        if(el) el.style.display = 'flex';
+    };
+
+    // Hook into Boost link if it exists and uses a global function?
+    // Usually it just toggles display manually in its own listener, so hideAllGames helped.
+});
+</script></body>
 </html>

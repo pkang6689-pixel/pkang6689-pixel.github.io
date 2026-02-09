@@ -996,6 +996,76 @@
     });
   })();
 </script>
+<!-- Welcome Modal -->
+  <div id="welcome-modal" class="welcome-modal-overlay">
+    <div class="welcome-card">
+       <div class="welcome-header">
+         <h1 id="welcome-title" class="welcome-title">Welcome Back</h1>
+         <p class="welcome-subtitle">We're glad to see you again</p>
+       </div>
+       <div class="welcome-divider">Continue Learning</div>
+       <button class="cta-button" onclick="window.location.href='ArisEdu Project Folder/Courses.html'">Continue to Courses</button>
+       <div class="welcome-footer-text">
+         <button class="welcome-close-btn" onclick="closeWelcomeModal()">Dismiss</button>
+       </div>
+    </div>
+  </div>
+
+  <script>
+    // Welcome Modal Logic
+    (function() {
+      // Check for user login
+      const userStr = localStorage.getItem('user');
+      // Or 'arisEduAccountEmail' ? LoginSignup uses 'user' object mostly nowadays?
+      // The snippet I saw earlier checked 'user' then 'arisEduAccountEmail'.
+      // Let's implement robust check.
+      let isLoggedIn = false;
+      let displayName = 'User';
+
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          if (user && (user.firstName || user.name || user.email)) {
+            isLoggedIn = true;
+            displayName = user.firstName || user.name || user.email.split('@')[0];
+          }
+        } catch(e) {}
+      }
+      
+      if (!isLoggedIn) {
+        const email = localStorage.getItem('arisEduAccountEmail');
+        if (email) {
+          isLoggedIn = true;
+          displayName = email.split('@')[0];
+        }
+      }
+
+      if (isLoggedIn) {
+        const modal = document.getElementById('welcome-modal');
+        const title = document.getElementById('welcome-title');
+        
+        // Optional: formatting name
+        // Capitalize first letter
+        displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+
+        if (title) title.textContent = `Welcome Back, ${displayName}`;
+        
+        if (modal) {
+          // Show with small delay
+          setTimeout(() => {
+            modal.classList.add('show');
+          }, 100);
+        }
+      }
+    })();
+
+    function closeWelcomeModal() {
+      const modal = document.getElementById('welcome-modal');
+      if (modal) {
+        modal.classList.remove('show');
+      }
+    }
+  </script>
 <script src="search_data.js"></script>
 <script src="search_logic.js"></script>
 </body>
