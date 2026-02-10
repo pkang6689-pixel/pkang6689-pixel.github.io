@@ -7,6 +7,28 @@
   <script src="/_sdk/element_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FIREBASE SDKs -->
+  <script type="module">
+    import { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, doc, setDoc, getDoc } from "./firebase-config.js";
+
+    // Expose for non-module scripts (legacy support for existing code)
+    if (auth) {
+        window.authInstance = auth;
+        window.dbInstance = db;
+        window.firebaseFunctions = { 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            updateProfile,
+            doc,
+            setDoc,
+            getDoc
+        };
+    } else {
+        // Fallback for UI visualization if config fails
+        window.firebaseMissing = true;
+    }
+  </script>
   <style>
     /* === BASE STYLES === */
     * {
@@ -973,24 +995,41 @@
       submitButton.disabled = true;
       submitButton.textContent = 'Signing in...';
 
-      const users = getStoredUsers();
-      const user = users.find((storedUser) => storedUser.email.toLowerCase() == email.toLowerCase());
-
-      if (!user || user.password !== password) {
-        showFormMessage('login-form', 'Invalid email or password.', 'error');
-        submitButton.disabled = false;
-        submitButton.textContent = 'Sign In';
-        return;
+      // --- FIREBASE LOGIN ---
+      if (window.firebaseMissing) {
+          showFormMessage('login-form', 'Missing Firebase Config. Please edit LoginSignup.html to add your API keys.', 'error');
+          submitButton.disabled = false;
+          submitButton.textContent = 'Sign In';
+          return;
       }
+      
+      try {
+          const { signInWithEmailAndPassword } = window.firebaseFunctions;
+          const userCredential = await signInWithEmailAndPassword(window.authInstance, email, password);
+          const user = userCredential.user;
+          
+          showFormMessage('login-form', 'Login successful! Redirecting...', 'success');
+          
+          // Save session to localStorage for other pages to use
+          const storedUser = { name: user.displayName || user.email.split('@')[0], email: user.email };
+          localStorage.setItem('user', JSON.stringify(storedUser));
+          showAccountView(storedUser);
 
-      showFormMessage('login-form', 'Login successful! Redirecting...', 'success');
-      const storedUser = { name: user.name, email: user.email };
-      localStorage.setItem('user', JSON.stringify(storedUser));
-      showAccountView(storedUser);
+          setTimeout(() => {
+              window.location.href="../index.html";
+          }, 1200);
 
-      setTimeout(() => {
-        window.location.href="../index.html";
-      }, 1200);
+      } catch (error) {
+          console.error("Login Error:", error);
+          let msg = 'Invalid email or password.';
+          if (error.code === 'auth/user-not-found') msg = 'No account found with this email.';
+          if (error.code === 'auth/wrong-password') msg = 'Incorrect password.';
+          if (error.code === 'auth/invalid-credential') msg = 'Invalid credentials.';
+          
+          showFormMessage('login-form', msg, 'error');
+          submitButton.disabled = false;
+          submitButton.textContent = 'Sign In';
+      }
     });
 
     // Form Submission - Signup
@@ -1050,27 +1089,57 @@
       submitButton.disabled = true;
       submitButton.textContent = 'Creating account...';
 
-      const users = getStoredUsers();
-      const exists = users.some((storedUser) => storedUser.email.toLowerCase() == email.toLowerCase());
-
-      if (exists) {
-        showFormMessage('signup-form', 'An account with this email already exists.', 'error');
-        submitButton.disabled = false;
-        submitButton.textContent = 'Sign Up';
-        return;
+      // --- FIREBASE SIGNUP ---
+      if (window.firebaseMissing) {
+          showFormMessage('signup-form', 'Missing Firebase Config. Please edit LoginSignup.html to add your API keys.', 'error');
+          submitButton.disabled = false;
+          submitButton.textContent = 'Sign Up';
+          return;
       }
 
-      users.push({ name: name.trim(), email: email.trim(), password });
-      saveStoredUsers(users);
+      try {
+          const { createUserWithEmailAndPassword, updateProfile, doc, setDoc } = window.firebaseFunctions;
+          const db = window.dbInstance;
+          
+          // 1. Create User
+          const userCredential = await createUserWithEmailAndPassword(window.authInstance, email, password);
+          const user = userCredential.user;
 
-      showFormMessage('signup-form', 'Account created! Logging you in...', 'success');
-      const storedUser = { name: name.trim(), email: email.trim() };
-      localStorage.setItem('user', JSON.stringify(storedUser));
-      showAccountView(storedUser);
+          // 2. Update Display Name
+          await updateProfile(user, {
+              displayName: name.trim()
+          });
 
-      setTimeout(() => {
-        window.location.href="../index.html";
-      }, 1200);
+          // 3. Save User Data to Database
+          await setDoc(doc(db, "users", user.uid), {
+            uid: user.uid,
+            name: name.trim(),
+            email: email.trim(),
+            createdAt: new Date().toISOString(),
+            role: "student" // Default role
+          });
+
+          showFormMessage('signup-form', 'Account created! Logging you in...', 'success');
+          
+          // Save session to localStorage
+          const storedUser = { name: name.trim(), email: email.trim() };
+          localStorage.setItem('user', JSON.stringify(storedUser));
+          showAccountView(storedUser);
+
+          setTimeout(() => {
+            window.location.href="../index.html";
+          }, 1200);
+
+      } catch (error) {
+          console.error("Signup Error:", error);
+          let msg = 'Error creating account.';
+          if (error.code === 'auth/email-already-in-use') msg = 'An account with this email already exists.';
+          if (error.code === 'auth/weak-password') msg = 'Password is too weak.';
+          
+          showFormMessage('signup-form', msg, 'error');
+          submitButton.disabled = false;
+          submitButton.textContent = 'Sign Up';
+      }
     });
 
     // Settings Menu Toggle

@@ -108,9 +108,13 @@
     .courses-container {
       background: rgba(255, 255, 255, 0.95);
       border-radius: 2rem;
-      height:32rem;
+      min-height: 125rem;
       padding: 2rem;
       margin-bottom: 2rem;
+      position: relative;
+    }
+    .flask-bg {
+      overflow: visible;
     }
     body.dark-mode .courses-container {
       background: #273244;
@@ -146,8 +150,33 @@
     .course-box:hover {
       transform: translateY(-4px);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-      background: linear-gradient(#3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+            background: linear-gradient(#3b82f6 0%, #10b981 50%, #8b5cf6 100%);
       filter: brightness(1.05);
+    }
+    
+    /* Lesson Tooltip Styles */
+    #lesson-tooltip {
+      position: fixed;
+      background: #0f172a;
+      border: 2px solid #334155;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: #e2e8f0;
+      font-size: 0.9rem;
+      font-weight: 500;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease, transform 0.1s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      max-width: 250px;
+      visibility: hidden;
+      transform: translateY(10px);
+    }
+    #lesson-tooltip.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
     }
     .course-box a {
       text-decoration: none;
@@ -260,23 +289,1212 @@
   <main class="main-container">
     <div class="logo-title-wrapper">
       <h1 id="company-name" class="logo-font company-title">High School: Chemistry</h1>
+      <button onclick="clearAllProgress()" style="margin-left:auto; z-index:999; background:#ef4444; color:white; border:none; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer; font-size:0.8rem;">Dev: Clear Progress</button>
     </div>
     <div class="courses-container">
-      <div class="courses-section">
-        <h2 class="courses-section-title">Chemistry Curriculum</h2>
-        <div class="courses-grid">
-          <div class="course-box"><a href="ChemistryLessons/Unit1/ChemistryUnit1Matter.html">Unit 1: Matter (Classification, properties, and changes)</a></div>
-          <div class="course-box"><a href="ChemistryLessons/Unit2/ChemistryUnit2Measurement.html">Unit 2: Measurement (Mathematical notations and conversions)</a></div>
-          <div class="course-box"><a href="ChemistryLessons/Unit3/ChemistryUnit3TheAtom.html">Unit 3: The Atom (Structure and nuclear reactions)</a></div>
-          <div class="course-box"><a href="ChemistryLessons/Unit4/ChemistryUnit4ThePeriodicTable.html">Unit 4: The Periodic Table (Periodicity and periodic trends)</a></div>
-          <div class="course-box"><a href="ChemistryLessons/Unit5/ChemistryUnit5Namingcompoundsformulas.html">Unit 5: Naming compounds &amp; formulas</a></div>
-          <div class="course-box"><a href="ChemistryLessons/Unit6/ChemistryUnit6Chemicalreactions.html">Unit 6: Chemical reactions</a></div>
-          <div class="course-box"><a href="ChemistryLessons/Unit7/ChemistryUnit7Massandmolerelationships.html">Unit 7: Mass and mole relationships</a></div>
-          <div class="course-box"><a href="ChemistryLessons/Unit8/ChemistryUnit8GasLaws.html">Unit 8: Gas Laws</a></div>
-          <div class="course-box"><a href="ChemistryLessons/Unit9/ChemistryUnit9Solutions.html">Unit 9: Solutions</a></div>
-          <div class="course-box"><a href="ChemistryLessons/Unit10/ChemistryUnit10Acidsandbases.html">Unit 10: Acids and bases</a></div>
-          <div class="course-box"><a href="ChemistryLessons/Unit11/ChemistryUnit11Thermochemistry.html">Unit 11: Thermochemistry</a></div>
-          <div class="course-box"><a href="ChemistryLessons/Unit12/ChemistryUnit12NuclearChemistry.html">Unit 12: Nuclear Chemistry</a></div>
+      
+      <!-- Decorative Background Grid -->
+      <div style="position: absolute; inset: 0; transform: translateY(3rem); display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); pointer-events: none; opacity: 1; z-index: 0;">
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+             <svg viewBox="0 0 24 36" fill="none" class="flask-bg" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem; color: inherit;">
+                
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3" />
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" id="liquid-unit-1" fill="#9ca3af" stroke="none"><animate attributeName="d" dur="3s" repeatCount="indefinite" values="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 4.5 10.5 1.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" /></path>
+                <!-- Bubbles -->
+                <circle cx="11.94" cy="30.35" r="0.56" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.35" to="3" dur="2.9s" begin="0.9s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.9s" begin="0.9s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="14.49" cy="31.66" r="0.36" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.66" to="3" dur="2.4s" begin="0.6s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.4s" begin="0.6s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.13" cy="31.77" r="0.30" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.77" to="3" dur="4.7s" begin="1.8s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.7s" begin="1.8s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.99" cy="33.51" r="0.56" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.51" to="3" dur="2.7s" begin="0.9s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.7s" begin="0.9s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.06" cy="31.58" r="0.45" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.58" to="3" dur="2.2s" begin="0.7s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.2s" begin="0.7s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="11.34" cy="31.89" r="0.25" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.89" to="3" dur="2.1s" begin="0.4s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.1s" begin="0.4s" repeatCount="indefinite" />
+                </circle>
+                <g class="bubbles" style="pointer-events: none;">
+                  <circle cx="10" cy="30" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="30;3" dur="4s" repeatCount="indefinite" begin="0s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4s" repeatCount="indefinite" begin="0s" />
+                  </circle>
+                  <circle cx="13" cy="32" r="0.6" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="32;8" dur="5s" repeatCount="indefinite" begin="1s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="5s" repeatCount="indefinite" begin="1s" />
+                  </circle>
+                   <circle cx="11.5" cy="28" r="0.3" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="28;10" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                  </circle>
+                  <circle cx="14" cy="25" r="0.5" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="25;7" dur="6s" repeatCount="indefinite" begin="2s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="6s" repeatCount="indefinite" begin="2s" />
+                  </circle>
+                   <circle cx="12.5" cy="33" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="33;9" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                  </circle>
+                </g>
+             
+                <g id="segments-unit-1">
+  <a href="ChemistryLessons/Unit1/Lesson 1.1 States_Of_Matter.html" onclick="markLessonStarted(1, 1)">
+    <rect id="u1-l1" x="9.0" y="29.250" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 1.1: 1 States Of Matter')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="29.250" x2="15.0" y2="29.250" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit1/Lesson 1.2 Phase_Changes.html" onclick="markLessonStarted(1, 2)">
+    <rect id="u1-l2" x="9.0" y="25.500" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 1.2: 2 Phase Changes')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="25.500" x2="15.0" y2="25.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit1/Lesson 1.3 Intensive_And_Extensive_Properties.html" onclick="markLessonStarted(1, 3)">
+    <rect id="u1-l3" x="9.0" y="21.750" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 1.3: 3 Intensive And Extensive Properties')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="21.750" x2="15.0" y2="21.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit1/Lesson 1.4 Mass_Volume_And_Density.html" onclick="markLessonStarted(1, 4)">
+    <rect id="u1-l4" x="9.0" y="18.000" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 1.4: 4 Mass Volume And Density')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="18.000" x2="15.0" y2="18.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit1/Lesson 1.5 Heterogeneous_And_Homogeneous_Mixtures.html" onclick="markLessonStarted(1, 5)">
+    <rect id="u1-l5" x="9.0" y="14.250" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 1.5: 5 Heterogeneous And Homogeneous Mixtures')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="14.250" x2="15.0" y2="14.250" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit1/Lesson 1.6 Physical_And_Chemical_Properties.html" onclick="markLessonStarted(1, 6)">
+    <rect id="u1-l6" x="9.0" y="10.500" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 1.6: 6 Physical And Chemical Properties')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="10.500" x2="15.0" y2="10.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit1/Lesson 1.7 Physical_And_Chemical_Changes.html" onclick="markLessonStarted(1, 7)">
+    <rect id="u1-l7" x="9.0" y="6.750" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 1.7: 7 Physical And Chemical Changes')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="6.750" x2="15.0" y2="6.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit1/Lesson 1.8 Endothermic_And_Exothermic_Reactions.html" onclick="markLessonStarted(1, 8)">
+    <rect id="u1-l8" x="9.0" y="3.000" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 1.8: 8 Endothermic And Exothermic Reactions')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+</g>
+<text x="12" y="1" text-anchor="middle" fill="currentColor" stroke="none" font-size="2" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none; ">Unit 1</text></svg>
+        </div>
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+             <svg viewBox="0 0 24 36" fill="none" class="flask-bg" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem; color: inherit;">
+                
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3" />
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" id="liquid-unit-2" fill="#9ca3af" stroke="none"><animate attributeName="d" dur="3s" repeatCount="indefinite" values="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 4.5 10.5 1.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" /></path>
+                <!-- Bubbles -->
+                <circle cx="10.28" cy="30.34" r="0.23" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.34" to="3" dur="2.5s" begin="0.1s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.5s" begin="0.1s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="13.98" cy="31.98" r="0.20" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.98" to="3" dur="2.8s" begin="0.6s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.8s" begin="0.6s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="14.57" cy="32.78" r="0.54" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.78" to="3" dur="4.9s" begin="1.7s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.9s" begin="1.7s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="9.81" cy="30.21" r="0.28" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.21" to="3" dur="3.6s" begin="0.1s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.6s" begin="0.1s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.34" cy="33.88" r="0.58" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.88" to="3" dur="2.4s" begin="1.2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.4s" begin="1.2s" repeatCount="indefinite" />
+                </circle>
+                <g class="bubbles" style="pointer-events: none;">
+                  <circle cx="10" cy="30" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="30;3" dur="4s" repeatCount="indefinite" begin="0s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4s" repeatCount="indefinite" begin="0s" />
+                  </circle>
+                  <circle cx="13" cy="32" r="0.6" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="32;8" dur="5s" repeatCount="indefinite" begin="1s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="5s" repeatCount="indefinite" begin="1s" />
+                  </circle>
+                   <circle cx="11.5" cy="28" r="0.3" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="28;10" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                  </circle>
+                  <circle cx="14" cy="25" r="0.5" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="25;7" dur="6s" repeatCount="indefinite" begin="2s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="6s" repeatCount="indefinite" begin="2s" />
+                  </circle>
+                   <circle cx="12.5" cy="33" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="33;9" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                  </circle>
+                </g>
+             
+                <g id="segments-unit-2">
+  <a href="ChemistryLessons/Unit2/Lesson 2.1 Scientific_Notation.html" onclick="markLessonStarted(2, 1)">
+    <rect id="u2-l1" x="9.0" y="27.000" width="6.0" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 2.1: 1 Scientific Notation')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="27.000" x2="15.0" y2="27.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit2/Lesson 2.2 Significant_Figures.html" onclick="markLessonStarted(2, 2)">
+    <rect id="u2-l2" x="9.0" y="21.000" width="6.0" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 2.2: 2 Significant Figures')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="21.000" x2="15.0" y2="21.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit2/Lesson 2.3 Accuracy_Vs_Precision.html" onclick="markLessonStarted(2, 3)">
+    <rect id="u2-l3" x="9.0" y="15.000" width="6.0" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 2.3: 3 Accuracy Vs Precision')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="15.000" x2="15.0" y2="15.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit2/Lesson 2.4 Metric_System.html" onclick="markLessonStarted(2, 4)">
+    <rect id="u2-l4" x="9.0" y="9.000" width="6.0" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 2.4: 4 Metric System')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="9.000" x2="15.0" y2="9.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit2/Lesson 2.5 Unit_Conversions.html" onclick="markLessonStarted(2, 5)">
+    <rect id="u2-l5" x="9.0" y="3.000" width="6.0" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 2.5: 5 Unit Conversions')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+</g>
+<text x="12" y="1" text-anchor="middle" fill="currentColor" stroke="none" font-size="2" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none; ">Unit 2</text></svg>
+        </div>
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+             <svg viewBox="0 0 24 36" fill="none" class="flask-bg" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem; color: inherit;">
+                
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3" />
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" id="liquid-unit-3" fill="#9ca3af" stroke="none"><animate attributeName="d" dur="3s" repeatCount="indefinite" values="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 4.5 10.5 1.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" /></path>
+                <!-- Bubbles -->
+                <circle cx="10.74" cy="31.29" r="0.56" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.29" to="3" dur="2.8s" begin="0.9s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.8s" begin="0.9s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="9.69" cy="32.75" r="0.36" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.75" to="3" dur="2.1s" begin="1.0s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.1s" begin="1.0s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.24" cy="33.21" r="0.45" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.21" to="3" dur="4.6s" begin="1.0s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.6s" begin="1.0s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.86" cy="31.10" r="0.43" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.10" to="3" dur="3.0s" begin="2.0s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.0s" begin="2.0s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="14.86" cy="32.19" r="0.44" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.19" to="3" dur="2.7s" begin="1.2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.7s" begin="1.2s" repeatCount="indefinite" />
+                </circle>
+                <g class="bubbles" style="pointer-events: none;">
+                  <circle cx="10" cy="30" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="30;3" dur="4s" repeatCount="indefinite" begin="0s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4s" repeatCount="indefinite" begin="0s" />
+                  </circle>
+                  <circle cx="13" cy="32" r="0.6" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="32;8" dur="5s" repeatCount="indefinite" begin="1s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="5s" repeatCount="indefinite" begin="1s" />
+                  </circle>
+                   <circle cx="11.5" cy="28" r="0.3" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="28;10" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                  </circle>
+                  <circle cx="14" cy="25" r="0.5" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="25;7" dur="6s" repeatCount="indefinite" begin="2s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="6s" repeatCount="indefinite" begin="2s" />
+                  </circle>
+                   <circle cx="12.5" cy="33" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="33;9" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                  </circle>
+                </g>
+             
+                <g id="segments-unit-3">
+  <a href="ChemistryLessons/Unit3/Lesson 3.1 Electrons_Protons_And_Neutrons.html" onclick="markLessonStarted(3, 1)">
+    <rect id="u3-l1" x="9.0" y="29.250" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 3.1: 1 Electrons Protons And Neutrons')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="29.250" x2="15.0" y2="29.250" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit3/Lesson 3.2 Atomic_Structure.html" onclick="markLessonStarted(3, 2)">
+    <rect id="u3-l2" x="9.0" y="25.500" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 3.2: 2 Atomic Structure')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="25.500" x2="15.0" y2="25.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit3/Lesson 3.3 Quantum_Mechanical_Model_And_Orbitals.html" onclick="markLessonStarted(3, 3)">
+    <rect id="u3-l3" x="9.0" y="21.750" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 3.3: 3 Quantum Mechanical Model And Orbitals')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="21.750" x2="15.0" y2="21.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit3/Lesson 3.4 Electromagnetic_Spectrum_And_Atomic_Emission_Spectra.html" onclick="markLessonStarted(3, 4)">
+    <rect id="u3-l4" x="9.0" y="18.000" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 3.4: 4 Electromagnetic Spectrum And Atomic Emission Spectra')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="18.000" x2="15.0" y2="18.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit3/Lesson 3.5 Radioactivity_And_Stability.html" onclick="markLessonStarted(3, 5)">
+    <rect id="u3-l5" x="9.0" y="14.250" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 3.5: 5 Radioactivity And Stability')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="14.250" x2="15.0" y2="14.250" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit3/Lesson 3.6 Isotopes_And_Radioisotopes.html" onclick="markLessonStarted(3, 6)">
+    <rect id="u3-l6" x="9.0" y="10.500" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 3.6: 6 Isotopes And Radioisotopes')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="10.500" x2="15.0" y2="10.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit3/Lesson 3.7 Element_Synthesis.html" onclick="markLessonStarted(3, 7)">
+    <rect id="u3-l7" x="9.0" y="6.750" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 3.7: 7 Element Synthesis')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="6.750" x2="15.0" y2="6.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit3/Lesson 3.8 Atomic_Theory.html" onclick="markLessonStarted(3, 8)">
+    <rect id="u3-l8" x="9.0" y="3.000" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 3.8: 8 Atomic Theory')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+</g>
+<text x="12" y="1" text-anchor="middle" fill="currentColor" stroke="none" font-size="2" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none; ">Unit 3</text></svg>
+        </div>
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+             <svg viewBox="0 0 24 36" fill="none" class="flask-bg" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem; color: inherit;">
+                
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3" />
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" id="liquid-unit-4" fill="#9ca3af" stroke="none"><animate attributeName="d" dur="3s" repeatCount="indefinite" values="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 4.5 10.5 1.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" /></path>
+                <!-- Bubbles -->
+                <circle cx="11.92" cy="30.98" r="0.58" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.98" to="3" dur="4.9s" begin="1.0s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.9s" begin="1.0s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.79" cy="31.88" r="0.47" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.88" to="3" dur="3.1s" begin="1.2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.1s" begin="1.2s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.24" cy="33.77" r="0.58" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.77" to="3" dur="3.3s" begin="1.3s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.3s" begin="1.3s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="9.58" cy="32.40" r="0.55" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.40" to="3" dur="2.1s" begin="0.5s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.1s" begin="0.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.65" cy="32.40" r="0.25" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.40" to="3" dur="2.1s" begin="1.1s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.1s" begin="1.1s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="13.50" cy="33.77" r="0.26" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.77" to="3" dur="2.0s" begin="0.4s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.0s" begin="0.4s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="9.19" cy="30.93" r="0.23" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.93" to="3" dur="2.5s" begin="1.3s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.5s" begin="1.3s" repeatCount="indefinite" />
+                </circle>
+                <g class="bubbles" style="pointer-events: none;">
+                  <circle cx="10" cy="30" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="30;3" dur="4s" repeatCount="indefinite" begin="0s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4s" repeatCount="indefinite" begin="0s" />
+                  </circle>
+                  <circle cx="13" cy="32" r="0.6" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="32;8" dur="5s" repeatCount="indefinite" begin="1s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="5s" repeatCount="indefinite" begin="1s" />
+                  </circle>
+                   <circle cx="11.5" cy="28" r="0.3" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="28;10" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                  </circle>
+                  <circle cx="14" cy="25" r="0.5" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="25;7" dur="6s" repeatCount="indefinite" begin="2s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="6s" repeatCount="indefinite" begin="2s" />
+                  </circle>
+                   <circle cx="12.5" cy="33" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="33;9" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                  </circle>
+                </g>
+             
+                <g id="segments-unit-4">
+  <a href="ChemistryLessons/Unit4/Lesson 4.1 Chemical_Symbols.html" onclick="markLessonStarted(4, 1)">
+    <rect id="u4-l1" x="9.0" y="29.667" width="6.0" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 4.1: 1 Chemical Symbols')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="29.667" x2="15.0" y2="29.667" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit4/Lesson 4.2 Periodic_Table_Arrangement.html" onclick="markLessonStarted(4, 2)">
+    <rect id="u4-l2" x="9.0" y="26.333" width="6.0" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 4.2: 2 Periodic Table Arrangement')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="26.333" x2="15.0" y2="26.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit4/Lesson 4.3 Valence_Electrons_And_Reactivity.html" onclick="markLessonStarted(4, 3)">
+    <rect id="u4-l3" x="9.0" y="23.000" width="6.0" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 4.3: 3 Valence Electrons And Reactivity')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="23.000" x2="15.0" y2="23.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit4/Lesson 4.4 Electron_Suborbitals.html" onclick="markLessonStarted(4, 4)">
+    <rect id="u4-l4" x="9.0" y="19.667" width="6.0" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 4.4: 4 Electron Suborbitals')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="19.667" x2="15.0" y2="19.667" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit4/Lesson 4.5 Electron_Configuration.html" onclick="markLessonStarted(4, 5)">
+    <rect id="u4-l5" x="9.0" y="16.333" width="6.0" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 4.5: 5 Electron Configuration')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="16.333" x2="15.0" y2="16.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit4/Lesson 4.6 Periodic_Trends.html" onclick="markLessonStarted(4, 6)">
+    <rect id="u4-l6" x="9.0" y="13.000" width="6.0" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 4.6: 6 Periodic Trends')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="13.000" x2="15.0" y2="13.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit4/Lesson 4.7 Shielding_Effect.html" onclick="markLessonStarted(4, 7)">
+    <rect id="u4-l7" x="9.0" y="9.667" width="6.0" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 4.7: 7 Shielding Effect')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="9.667" x2="15.0" y2="9.667" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit4/Lesson 4.8 VSEPR_Molecule_Shapes.html" onclick="markLessonStarted(4, 8)">
+    <rect id="u4-l8" x="9.0" y="6.333" width="6.0" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 4.8: 8 VSEPR Molecule Shapes')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="6.333" x2="15.0" y2="6.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit4/Lesson 4.9 Suborbital_Shapes.html" onclick="markLessonStarted(4, 9)">
+    <rect id="u4-l9" x="9.0" y="3.000" width="6.0" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 4.9: 9 Suborbital Shapes')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+</g>
+<text x="12" y="1" text-anchor="middle" fill="currentColor" stroke="none" font-size="2" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none; ">Unit 4</text></svg>
+        </div>
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+             <svg viewBox="0 0 24 36" fill="none" class="flask-bg" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem; color: inherit;">
+                
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3" />
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" id="liquid-unit-5" fill="#9ca3af" stroke="none"><animate attributeName="d" dur="3s" repeatCount="indefinite" values="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 4.5 10.5 1.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" /></path>
+                <!-- Bubbles -->
+                <circle cx="10.31" cy="32.06" r="0.25" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.06" to="3" dur="4.5s" begin="0.9s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.5s" begin="0.9s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="14.87" cy="30.41" r="0.32" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.41" to="3" dur="3.0s" begin="0.5s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.0s" begin="0.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.12" cy="31.70" r="0.54" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.70" to="3" dur="4.0s" begin="1.5s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.0s" begin="1.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="14.30" cy="30.02" r="0.54" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.02" to="3" dur="4.5s" begin="1.9s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.5s" begin="1.9s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="14.25" cy="31.98" r="0.58" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.98" to="3" dur="2.2s" begin="1.7s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.2s" begin="1.7s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.05" cy="30.83" r="0.47" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.83" to="3" dur="2.0s" begin="1.3s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.0s" begin="1.3s" repeatCount="indefinite" />
+                </circle>
+                <g class="bubbles" style="pointer-events: none;">
+                  <circle cx="10" cy="30" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="30;3" dur="4s" repeatCount="indefinite" begin="0s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4s" repeatCount="indefinite" begin="0s" />
+                  </circle>
+                  <circle cx="13" cy="32" r="0.6" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="32;8" dur="5s" repeatCount="indefinite" begin="1s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="5s" repeatCount="indefinite" begin="1s" />
+                  </circle>
+                   <circle cx="11.5" cy="28" r="0.3" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="28;10" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                  </circle>
+                  <circle cx="14" cy="25" r="0.5" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="25;7" dur="6s" repeatCount="indefinite" begin="2s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="6s" repeatCount="indefinite" begin="2s" />
+                  </circle>
+                   <circle cx="12.5" cy="33" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="33;9" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                  </circle>
+                </g>
+             
+                <g id="segments-unit-5">
+  <a href="ChemistryLessons/Unit5/Lesson 5.1 Net_Charge.html" onclick="markLessonStarted(5, 1)">
+    <rect id="u5-l1" x="9.0" y="30.500" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 5.1: 1 Net Charge')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="30.500" x2="15.0" y2="30.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit5/Lesson 5.2 Bond_Formation.html" onclick="markLessonStarted(5, 2)">
+    <rect id="u5-l2" x="9.0" y="28.000" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 5.2: 2 Bond Formation')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="28.000" x2="15.0" y2="28.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit5/Lesson 5.3 Covalent_Bonds.html" onclick="markLessonStarted(5, 3)">
+    <rect id="u5-l3" x="9.0" y="25.500" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 5.3: 3 Covalent Bonds')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="25.500" x2="15.0" y2="25.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit5/Lesson 5.4 Naming_Covalent_Bonds.html" onclick="markLessonStarted(5, 4)">
+    <rect id="u5-l4" x="9.0" y="23.000" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 5.4: 4 Naming Covalent Bonds')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="23.000" x2="15.0" y2="23.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit5/Lesson 5.5 Metallic_Bonds.html" onclick="markLessonStarted(5, 5)">
+    <rect id="u5-l5" x="9.0" y="20.500" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 5.5: 5 Metallic Bonds')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="20.500" x2="15.0" y2="20.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit5/Lesson 5.6 Ionic_Bonds.html" onclick="markLessonStarted(5, 6)">
+    <rect id="u5-l6" x="9.0" y="18.000" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 5.6: 6 Ionic Bonds')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="18.000" x2="15.0" y2="18.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit5/Lesson 5.7 Crisscross_Method.html" onclick="markLessonStarted(5, 7)">
+    <rect id="u5-l7" x="9.0" y="15.500" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 5.7: 7 Crisscross Method')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="15.500" x2="15.0" y2="15.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit5/Lesson 5.8 Naming_Ionic_Bonds.html" onclick="markLessonStarted(5, 8)">
+    <rect id="u5-l8" x="9.0" y="13.000" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 5.8: 8 Naming Ionic Bonds')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="13.000" x2="15.0" y2="13.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit5/Lesson 5.9 OrganicCompounds.html" onclick="markLessonStarted(5, 9)">
+    <rect id="u5-l9" x="9.0" y="10.500" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 5.9: 9 OrganicCompounds')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="10.500" x2="15.0" y2="10.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit5/Lesson 5.9 Polyatomic_Ions.html" onclick="markLessonStarted(5, 10)">
+    <rect id="u5-l10" x="9.0" y="8.000" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 5.10: 9 Polyatomic Ions')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="8.000" x2="15.0" y2="8.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit5/Lesson 5.10 Organic_Compounds.html" onclick="markLessonStarted(5, 11)">
+    <rect id="u5-l11" x="9.0" y="5.500" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 5.11: 10 Organic Compounds')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="5.500" x2="15.0" y2="5.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit5/Lesson 5.11 Acid_Naming_Rules.html" onclick="markLessonStarted(5, 12)">
+    <rect id="u5-l12" x="9.0" y="3.000" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 5.12: 11 Acid Naming Rules')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+</g>
+<text x="12" y="1" text-anchor="middle" fill="currentColor" stroke="none" font-size="2" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none; ">Unit 5</text></svg>
+        </div>
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+             <svg viewBox="0 0 24 36" fill="none" class="flask-bg" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem; color: inherit;">
+                
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3" />
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" id="liquid-unit-6" fill="#9ca3af" stroke="none"><animate attributeName="d" dur="3s" repeatCount="indefinite" values="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 4.5 10.5 1.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" /></path>
+                <!-- Bubbles -->
+                <circle cx="13.69" cy="31.44" r="0.41" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.44" to="3" dur="4.3s" begin="1.2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.3s" begin="1.2s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="11.28" cy="30.73" r="0.47" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.73" to="3" dur="5.0s" begin="1.6s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="5.0s" begin="1.6s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.40" cy="33.10" r="0.54" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.10" to="3" dur="4.6s" begin="0.5s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.6s" begin="0.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="11.86" cy="33.70" r="0.28" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.70" to="3" dur="3.1s" begin="0.9s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.1s" begin="0.9s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="14.54" cy="32.64" r="0.42" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.64" to="3" dur="4.2s" begin="1.5s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.2s" begin="1.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="9.74" cy="30.68" r="0.54" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.68" to="3" dur="2.8s" begin="0.0s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.8s" begin="0.0s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="9.68" cy="32.07" r="0.47" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.07" to="3" dur="2.6s" begin="0.0s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.6s" begin="0.0s" repeatCount="indefinite" />
+                </circle>
+                <g class="bubbles" style="pointer-events: none;">
+                  <circle cx="10" cy="30" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="30;3" dur="4s" repeatCount="indefinite" begin="0s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4s" repeatCount="indefinite" begin="0s" />
+                  </circle>
+                  <circle cx="13" cy="32" r="0.6" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="32;8" dur="5s" repeatCount="indefinite" begin="1s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="5s" repeatCount="indefinite" begin="1s" />
+                  </circle>
+                   <circle cx="11.5" cy="28" r="0.3" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="28;10" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                  </circle>
+                  <circle cx="14" cy="25" r="0.5" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="25;7" dur="6s" repeatCount="indefinite" begin="2s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="6s" repeatCount="indefinite" begin="2s" />
+                  </circle>
+                   <circle cx="12.5" cy="33" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="33;9" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                  </circle>
+                </g>
+             
+                <g id="segments-unit-6">
+  <a href="ChemistryLessons/Unit6/Lesson 6.1 TypesofReactions.html" onclick="markLessonStarted(6, 1)">
+    <rect id="u6-l1" x="9.0" y="30.500" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 6.1: 1 TypesofReactions')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="30.500" x2="15.0" y2="30.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit6/Lesson 6.1 Types_Of_Reactions.html" onclick="markLessonStarted(6, 2)">
+    <rect id="u6-l2" x="9.0" y="28.000" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 6.2: 1 Types Of Reactions')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="28.000" x2="15.0" y2="28.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit6/Lesson 6.2 Combustion_Reactions.html" onclick="markLessonStarted(6, 3)">
+    <rect id="u6-l3" x="9.0" y="25.500" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 6.3: 2 Combustion Reactions')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="25.500" x2="15.0" y2="25.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit6/Lesson 6.2 TypesofChemicalReactions.html" onclick="markLessonStarted(6, 4)">
+    <rect id="u6-l4" x="9.0" y="23.000" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 6.4: 2 TypesofChemicalReactions')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="23.000" x2="15.0" y2="23.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit6/Lesson 6.3 Redox_Reactions.html" onclick="markLessonStarted(6, 5)">
+    <rect id="u6-l5" x="9.0" y="20.500" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 6.5: 3 Redox Reactions')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="20.500" x2="15.0" y2="20.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit6/Lesson 6.3 PredictingProducts.html" onclick="markLessonStarted(6, 6)">
+    <rect id="u6-l6" x="9.0" y="18.000" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 6.6: 3 PredictingProducts')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="18.000" x2="15.0" y2="18.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit6/Lesson 6.4 Activation_Energy.html" onclick="markLessonStarted(6, 7)">
+    <rect id="u6-l7" x="9.0" y="15.500" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 6.7: 4 Activation Energy')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="15.500" x2="15.0" y2="15.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit6/Lesson 6.4 NetIonicEquations.html" onclick="markLessonStarted(6, 8)">
+    <rect id="u6-l8" x="9.0" y="13.000" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 6.8: 4 NetIonicEquations')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="13.000" x2="15.0" y2="13.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit6/Lesson 6.5 Balancing_Equations.html" onclick="markLessonStarted(6, 9)">
+    <rect id="u6-l9" x="9.0" y="10.500" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 6.9: 5 Balancing Equations')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="10.500" x2="15.0" y2="10.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit6/Lesson 6.5 BalancingEquations.html" onclick="markLessonStarted(6, 10)">
+    <rect id="u6-l10" x="9.0" y="8.000" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 6.10: 5 BalancingEquations')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="8.000" x2="15.0" y2="8.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit6/Lesson 6.6 Reaction_Rates_And_Catalysts.html" onclick="markLessonStarted(6, 11)">
+    <rect id="u6-l11" x="9.0" y="5.500" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 6.11: 6 Reaction Rates And Catalysts')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="5.500" x2="15.0" y2="5.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit6/Lesson 6.7 Chemical_Equilibrium_And_Le_Chatelier_S_Principle.html" onclick="markLessonStarted(6, 12)">
+    <rect id="u6-l12" x="9.0" y="3.000" width="6.0" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 6.12: 7 Chemical Equilibrium And Le Chatelier S Principle')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+</g>
+<text x="12" y="1" text-anchor="middle" fill="currentColor" stroke="none" font-size="2" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none; ">Unit 6</text></svg>
+        </div>
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+             <svg viewBox="0 0 24 36" fill="none" class="flask-bg" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem; color: inherit;">
+                
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3" />
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" id="liquid-unit-7" fill="#9ca3af" stroke="none"><animate attributeName="d" dur="3s" repeatCount="indefinite" values="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 4.5 10.5 1.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" /></path>
+                <!-- Bubbles -->
+                <circle cx="11.68" cy="33.51" r="0.24" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.51" to="3" dur="4.6s" begin="1.9s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.6s" begin="1.9s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="13.87" cy="31.27" r="0.33" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.27" to="3" dur="2.9s" begin="1.1s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.9s" begin="1.1s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="13.77" cy="33.06" r="0.48" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.06" to="3" dur="3.1s" begin="2.0s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.1s" begin="2.0s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="9.54" cy="32.16" r="0.38" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.16" to="3" dur="3.4s" begin="0.8s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.4s" begin="0.8s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="11.67" cy="31.12" r="0.49" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.12" to="3" dur="2.6s" begin="0.1s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.6s" begin="0.1s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.22" cy="33.10" r="0.46" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.10" to="3" dur="2.2s" begin="0.3s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.2s" begin="0.3s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.74" cy="30.64" r="0.53" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.64" to="3" dur="4.3s" begin="1.5s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.3s" begin="1.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.84" cy="30.60" r="0.32" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.60" to="3" dur="2.6s" begin="1.0s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.6s" begin="1.0s" repeatCount="indefinite" />
+                </circle>
+                <g class="bubbles" style="pointer-events: none;">
+                  <circle cx="10" cy="30" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="30;3" dur="4s" repeatCount="indefinite" begin="0s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4s" repeatCount="indefinite" begin="0s" />
+                  </circle>
+                  <circle cx="13" cy="32" r="0.6" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="32;8" dur="5s" repeatCount="indefinite" begin="1s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="5s" repeatCount="indefinite" begin="1s" />
+                  </circle>
+                   <circle cx="11.5" cy="28" r="0.3" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="28;10" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                  </circle>
+                  <circle cx="14" cy="25" r="0.5" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="25;7" dur="6s" repeatCount="indefinite" begin="2s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="6s" repeatCount="indefinite" begin="2s" />
+                  </circle>
+                   <circle cx="12.5" cy="33" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="33;9" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                  </circle>
+                </g>
+             
+                <g id="segments-unit-7">
+  <a href="ChemistryLessons/Unit7/Lesson 7.1 MolarMassMolecularMass.html" onclick="markLessonStarted(7, 1)">
+    <rect id="u7-l1" x="9.0" y="30.273" width="6.0" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 7.1: 1 MolarMassMolecularMass')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="30.273" x2="15.0" y2="30.273" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit7/Lesson 7.1 Molar_Mass_And_Molecular_Mass.html" onclick="markLessonStarted(7, 2)">
+    <rect id="u7-l2" x="9.0" y="27.545" width="6.0" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 7.2: 1 Molar Mass And Molecular Mass')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="27.545" x2="15.0" y2="27.545" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit7/Lesson 7.2 MassandMoleRelationships.html" onclick="markLessonStarted(7, 3)">
+    <rect id="u7-l3" x="9.0" y="24.818" width="6.0" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 7.3: 2 MassandMoleRelationships')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="24.818" x2="15.0" y2="24.818" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit7/Lesson 7.2 Avogadro_S_Number.html" onclick="markLessonStarted(7, 4)">
+    <rect id="u7-l4" x="9.0" y="22.091" width="6.0" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 7.4: 2 Avogadro S Number')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="22.091" x2="15.0" y2="22.091" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit7/Lesson 7.3 Molar_Conversions.html" onclick="markLessonStarted(7, 5)">
+    <rect id="u7-l5" x="9.0" y="19.364" width="6.0" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 7.5: 3 Molar Conversions')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="19.364" x2="15.0" y2="19.364" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit7/Lesson 7.3 LimitingReactants.html" onclick="markLessonStarted(7, 6)">
+    <rect id="u7-l6" x="9.0" y="16.636" width="6.0" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 7.6: 3 LimitingReactants')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="16.636" x2="15.0" y2="16.636" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit7/Lesson 7.4 Empirical_Vs_Molecular_Formulas.html" onclick="markLessonStarted(7, 7)">
+    <rect id="u7-l7" x="9.0" y="13.909" width="6.0" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 7.7: 4 Empirical Vs Molecular Formulas')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="13.909" x2="15.0" y2="13.909" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit7/Lesson 7.4 PercentYield.html" onclick="markLessonStarted(7, 8)">
+    <rect id="u7-l8" x="9.0" y="11.182" width="6.0" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 7.8: 4 PercentYield')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="11.182" x2="15.0" y2="11.182" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit7/Lesson 7.5 Limiting_Reagents.html" onclick="markLessonStarted(7, 9)">
+    <rect id="u7-l9" x="9.0" y="8.455" width="6.0" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 7.9: 5 Limiting Reagents')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="8.455" x2="15.0" y2="8.455" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit7/Lesson 7.6 Stoichiometric_Calculations.html" onclick="markLessonStarted(7, 10)">
+    <rect id="u7-l10" x="9.0" y="5.727" width="6.0" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 7.10: 6 Stoichiometric Calculations')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="5.727" x2="15.0" y2="5.727" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit7/Lesson 7.7 Percent_Yield.html" onclick="markLessonStarted(7, 11)">
+    <rect id="u7-l11" x="9.0" y="3.000" width="6.0" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 7.11: 7 Percent Yield')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+</g>
+<text x="12" y="1" text-anchor="middle" fill="currentColor" stroke="none" font-size="2" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none; ">Unit 7</text></svg>
+        </div>
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+             <svg viewBox="0 0 24 36" fill="none" class="flask-bg" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem; color: inherit;">
+                
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3" />
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" id="liquid-unit-8" fill="#9ca3af" stroke="none"><animate attributeName="d" dur="3s" repeatCount="indefinite" values="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 4.5 10.5 1.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" /></path>
+                <!-- Bubbles -->
+                <circle cx="10.08" cy="33.40" r="0.27" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.40" to="3" dur="4.7s" begin="1.7s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.7s" begin="1.7s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="13.82" cy="32.83" r="0.41" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.83" to="3" dur="3.5s" begin="1.1s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.5s" begin="1.1s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.71" cy="33.05" r="0.54" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.05" to="3" dur="2.8s" begin="0.4s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.8s" begin="0.4s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="11.95" cy="30.96" r="0.46" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.96" to="3" dur="2.6s" begin="0.9s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.6s" begin="0.9s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="13.63" cy="31.13" r="0.30" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.13" to="3" dur="2.3s" begin="1.3s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.3s" begin="1.3s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.94" cy="32.82" r="0.37" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.82" to="3" dur="3.3s" begin="1.5s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.3s" begin="1.5s" repeatCount="indefinite" />
+                </circle>
+                <g class="bubbles" style="pointer-events: none;">
+                  <circle cx="10" cy="30" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="30;3" dur="4s" repeatCount="indefinite" begin="0s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4s" repeatCount="indefinite" begin="0s" />
+                  </circle>
+                  <circle cx="13" cy="32" r="0.6" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="32;8" dur="5s" repeatCount="indefinite" begin="1s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="5s" repeatCount="indefinite" begin="1s" />
+                  </circle>
+                   <circle cx="11.5" cy="28" r="0.3" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="28;10" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                  </circle>
+                  <circle cx="14" cy="25" r="0.5" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="25;7" dur="6s" repeatCount="indefinite" begin="2s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="6s" repeatCount="indefinite" begin="2s" />
+                  </circle>
+                   <circle cx="12.5" cy="33" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="33;9" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                  </circle>
+                </g>
+             
+                <g id="segments-unit-8">
+  <a href="ChemistryLessons/Unit8/Lesson 8.1 Monatomic_And_Diatomic_Gases.html" onclick="markLessonStarted(8, 1)">
+    <rect id="u8-l1" x="9.0" y="30.000" width="6.0" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 8.1: 1 Monatomic And Diatomic Gases')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="30.000" x2="15.0" y2="30.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit8/Lesson 8.1 MonatomicDiatomicGases.html" onclick="markLessonStarted(8, 2)">
+    <rect id="u8-l2" x="9.0" y="27.000" width="6.0" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 8.2: 1 MonatomicDiatomicGases')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="27.000" x2="15.0" y2="27.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit8/Lesson 8.2 Pressure_Standard_Atmosphere.html" onclick="markLessonStarted(8, 3)">
+    <rect id="u8-l3" x="9.0" y="24.000" width="6.0" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 8.3: 2 Pressure Standard Atmosphere')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="24.000" x2="15.0" y2="24.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit8/Lesson 8.3 Kinetic_Molecular_Theory.html" onclick="markLessonStarted(8, 4)">
+    <rect id="u8-l4" x="9.0" y="21.000" width="6.0" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 8.4: 3 Kinetic Molecular Theory')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="21.000" x2="15.0" y2="21.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit8/Lesson 8.4 Boyle_S_Law.html" onclick="markLessonStarted(8, 5)">
+    <rect id="u8-l5" x="9.0" y="18.000" width="6.0" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 8.5: 4 Boyle S Law')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="18.000" x2="15.0" y2="18.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit8/Lesson 8.5 Charles_Law.html" onclick="markLessonStarted(8, 6)">
+    <rect id="u8-l6" x="9.0" y="15.000" width="6.0" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 8.6: 5 Charles Law')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="15.000" x2="15.0" y2="15.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit8/Lesson 8.6 Gay_Lussac_S_Law.html" onclick="markLessonStarted(8, 7)">
+    <rect id="u8-l7" x="9.0" y="12.000" width="6.0" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 8.7: 6 Gay Lussac S Law')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="12.000" x2="15.0" y2="12.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit8/Lesson 8.7 Combined_Gas_Law.html" onclick="markLessonStarted(8, 8)">
+    <rect id="u8-l8" x="9.0" y="9.000" width="6.0" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 8.8: 7 Combined Gas Law')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="9.000" x2="15.0" y2="9.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit8/Lesson 8.8 Ideal_Gas_Law.html" onclick="markLessonStarted(8, 9)">
+    <rect id="u8-l9" x="9.0" y="6.000" width="6.0" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 8.9: 8 Ideal Gas Law')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="6.000" x2="15.0" y2="6.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit8/Lesson 8.9 Real_Gases_And_Deviations.html" onclick="markLessonStarted(8, 10)">
+    <rect id="u8-l10" x="9.0" y="3.000" width="6.0" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 8.10: 9 Real Gases And Deviations')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+</g>
+<text x="12" y="1" text-anchor="middle" fill="currentColor" stroke="none" font-size="2" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none; ">Unit 8</text></svg>
+        </div>
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+             <svg viewBox="0 0 24 36" fill="none" class="flask-bg" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem; color: inherit;">
+                
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3" />
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" id="liquid-unit-9" fill="#9ca3af" stroke="none"><animate attributeName="d" dur="3s" repeatCount="indefinite" values="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 4.5 10.5 1.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" /></path>
+                <!-- Bubbles -->
+                <circle cx="12.10" cy="30.80" r="0.46" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.80" to="3" dur="2.3s" begin="0.4s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.3s" begin="0.4s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="14.19" cy="33.79" r="0.42" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.79" to="3" dur="2.0s" begin="0.3s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.0s" begin="0.3s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="14.61" cy="31.36" r="0.26" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.36" to="3" dur="4.5s" begin="1.2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.5s" begin="1.2s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="13.99" cy="32.19" r="0.51" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.19" to="3" dur="4.1s" begin="1.4s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.1s" begin="1.4s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.06" cy="32.39" r="0.46" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.39" to="3" dur="3.1s" begin="1.0s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.1s" begin="1.0s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="14.17" cy="33.59" r="0.40" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.59" to="3" dur="4.1s" begin="0.3s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.1s" begin="0.3s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="14.42" cy="31.09" r="0.41" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.09" to="3" dur="5.0s" begin="0.6s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="5.0s" begin="0.6s" repeatCount="indefinite" />
+                </circle>
+                <g class="bubbles" style="pointer-events: none;">
+                  <circle cx="10" cy="30" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="30;3" dur="4s" repeatCount="indefinite" begin="0s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4s" repeatCount="indefinite" begin="0s" />
+                  </circle>
+                  <circle cx="13" cy="32" r="0.6" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="32;8" dur="5s" repeatCount="indefinite" begin="1s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="5s" repeatCount="indefinite" begin="1s" />
+                  </circle>
+                   <circle cx="11.5" cy="28" r="0.3" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="28;10" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                  </circle>
+                  <circle cx="14" cy="25" r="0.5" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="25;7" dur="6s" repeatCount="indefinite" begin="2s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="6s" repeatCount="indefinite" begin="2s" />
+                  </circle>
+                   <circle cx="12.5" cy="33" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="33;9" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                  </circle>
+                </g>
+             
+                <g id="segments-unit-9">
+  <a href="ChemistryLessons/Unit9/Lesson 9.1 Concentration.html" onclick="markLessonStarted(9, 1)">
+    <rect id="u9-l1" x="9.0" y="28.714" width="6.0" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 9.1: 1 Concentration')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="28.714" x2="15.0" y2="28.714" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit9/Lesson 9.2 Dilution.html" onclick="markLessonStarted(9, 2)">
+    <rect id="u9-l2" x="9.0" y="24.429" width="6.0" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 9.2: 2 Dilution')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="24.429" x2="15.0" y2="24.429" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit9/Lesson 9.3 Molarity.html" onclick="markLessonStarted(9, 3)">
+    <rect id="u9-l3" x="9.0" y="20.143" width="6.0" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 9.3: 3 Molarity')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="20.143" x2="15.0" y2="20.143" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit9/Lesson 9.4 Solution_Types.html" onclick="markLessonStarted(9, 4)">
+    <rect id="u9-l4" x="9.0" y="15.857" width="6.0" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 9.4: 4 Solution Types')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="15.857" x2="15.0" y2="15.857" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit9/Lesson 9.5 Factors_Affecting_Solubility.html" onclick="markLessonStarted(9, 5)">
+    <rect id="u9-l5" x="9.0" y="11.571" width="6.0" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 9.5: 5 Factors Affecting Solubility')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="11.571" x2="15.0" y2="11.571" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit9/Lesson 9.6 Colligative_Properties.html" onclick="markLessonStarted(9, 6)">
+    <rect id="u9-l6" x="9.0" y="7.286" width="6.0" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 9.6: 6 Colligative Properties')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="7.286" x2="15.0" y2="7.286" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit9/Lesson 9.7 Solubility_Curves.html" onclick="markLessonStarted(9, 7)">
+    <rect id="u9-l7" x="9.0" y="3.000" width="6.0" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 9.7: 7 Solubility Curves')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+</g>
+<text x="12" y="1" text-anchor="middle" fill="currentColor" stroke="none" font-size="2" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none; ">Unit 9</text></svg>
+        </div>
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+             <svg viewBox="0 0 24 36" fill="none" class="flask-bg" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem; color: inherit;">
+                
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3" />
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" id="liquid-unit-10" fill="#9ca3af" stroke="none"><animate attributeName="d" dur="3s" repeatCount="indefinite" values="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 4.5 10.5 1.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" /></path>
+                <!-- Bubbles -->
+                <circle cx="10.37" cy="33.00" r="0.58" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.00" to="3" dur="2.5s" begin="1.5s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.5s" begin="1.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="13.92" cy="31.31" r="0.53" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.31" to="3" dur="2.1s" begin="2.0s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.1s" begin="2.0s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.39" cy="32.61" r="0.41" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.61" to="3" dur="4.0s" begin="0.9s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.0s" begin="0.9s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="14.44" cy="32.51" r="0.26" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.51" to="3" dur="3.7s" begin="1.6s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.7s" begin="1.6s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="9.29" cy="33.80" r="0.30" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.80" to="3" dur="2.4s" begin="1.7s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.4s" begin="1.7s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.28" cy="30.59" r="0.46" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.59" to="3" dur="4.2s" begin="1.6s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.2s" begin="1.6s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="13.86" cy="33.83" r="0.25" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="33.83" to="3" dur="4.2s" begin="1.3s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.2s" begin="1.3s" repeatCount="indefinite" />
+                </circle>
+                <g class="bubbles" style="pointer-events: none;">
+                  <circle cx="10" cy="30" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="30;3" dur="4s" repeatCount="indefinite" begin="0s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4s" repeatCount="indefinite" begin="0s" />
+                  </circle>
+                  <circle cx="13" cy="32" r="0.6" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="32;8" dur="5s" repeatCount="indefinite" begin="1s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="5s" repeatCount="indefinite" begin="1s" />
+                  </circle>
+                   <circle cx="11.5" cy="28" r="0.3" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="28;10" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                  </circle>
+                  <circle cx="14" cy="25" r="0.5" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="25;7" dur="6s" repeatCount="indefinite" begin="2s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="6s" repeatCount="indefinite" begin="2s" />
+                  </circle>
+                   <circle cx="12.5" cy="33" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="33;9" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                  </circle>
+                </g>
+             
+                <g id="segments-unit-10">
+  <a href="ChemistryLessons/Unit10/Lesson 10.1 Acid_And_Base_Properties.html" onclick="markLessonStarted(10, 1)">
+    <rect id="u10-l1" x="9.0" y="29.250" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 10.1: 1 Acid And Base Properties')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="29.250" x2="15.0" y2="29.250" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit10/Lesson 10.2 Naming_Acids.html" onclick="markLessonStarted(10, 2)">
+    <rect id="u10-l2" x="9.0" y="25.500" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 10.2: 2 Naming Acids')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="25.500" x2="15.0" y2="25.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit10/Lesson 10.3 Ph_And_Poh_Scale.html" onclick="markLessonStarted(10, 3)">
+    <rect id="u10-l3" x="9.0" y="21.750" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 10.3: 3 Ph And Poh Scale')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="21.750" x2="15.0" y2="21.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit10/Lesson 10.4 Identifying_Acids_And_Bases.html" onclick="markLessonStarted(10, 4)">
+    <rect id="u10-l4" x="9.0" y="18.000" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 10.4: 4 Identifying Acids And Bases')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="18.000" x2="15.0" y2="18.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit10/Lesson 10.5 Strong_Vs_Weak_Acids_Bases.html" onclick="markLessonStarted(10, 5)">
+    <rect id="u10-l5" x="9.0" y="14.250" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 10.5: 5 Strong Vs Weak Acids Bases')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="14.250" x2="15.0" y2="14.250" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit10/Lesson 10.6 Neutralization_Reactions.html" onclick="markLessonStarted(10, 6)">
+    <rect id="u10-l6" x="9.0" y="10.500" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 10.6: 6 Neutralization Reactions')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="10.500" x2="15.0" y2="10.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit10/Lesson 10.7 Buffer_Solutions.html" onclick="markLessonStarted(10, 7)">
+    <rect id="u10-l7" x="9.0" y="6.750" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 10.7: 7 Buffer Solutions')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="6.750" x2="15.0" y2="6.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit10/Lesson 10.8 Calculating_Ph_And_Poh_Using_Log.html" onclick="markLessonStarted(10, 8)">
+    <rect id="u10-l8" x="9.0" y="3.000" width="6.0" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 10.8: 8 Calculating Ph And Poh Using Log')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+</g>
+<text x="12" y="1" text-anchor="middle" fill="currentColor" stroke="none" font-size="2" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none; ">Unit 10</text></svg>
+        </div>
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+             <svg viewBox="0 0 24 36" fill="none" class="flask-bg" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem; color: inherit;">
+                
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3" />
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" id="liquid-unit-11" fill="#9ca3af" stroke="none"><animate attributeName="d" dur="3s" repeatCount="indefinite" values="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 4.5 10.5 1.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" /></path>
+                <!-- Bubbles -->
+                <circle cx="14.76" cy="30.04" r="0.48" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.04" to="3" dur="4.6s" begin="1.3s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.6s" begin="1.3s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.04" cy="31.65" r="0.27" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.65" to="3" dur="3.3s" begin="0.6s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.3s" begin="0.6s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.26" cy="32.58" r="0.35" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.58" to="3" dur="4.9s" begin="0.4s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.9s" begin="0.4s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.29" cy="30.96" r="0.31" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.96" to="3" dur="2.4s" begin="0.0s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.4s" begin="0.0s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="11.08" cy="32.59" r="0.44" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.59" to="3" dur="2.9s" begin="0.8s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.9s" begin="0.8s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="9.17" cy="32.49" r="0.51" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.49" to="3" dur="4.5s" begin="0.4s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.5s" begin="0.4s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="9.94" cy="31.76" r="0.57" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.76" to="3" dur="4.7s" begin="0.1s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.7s" begin="0.1s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="9.01" cy="31.25" r="0.28" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.25" to="3" dur="3.9s" begin="0.7s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="3.9s" begin="0.7s" repeatCount="indefinite" />
+                </circle>
+                <g class="bubbles" style="pointer-events: none;">
+                  <circle cx="10" cy="30" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="30;3" dur="4s" repeatCount="indefinite" begin="0s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4s" repeatCount="indefinite" begin="0s" />
+                  </circle>
+                  <circle cx="13" cy="32" r="0.6" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="32;8" dur="5s" repeatCount="indefinite" begin="1s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="5s" repeatCount="indefinite" begin="1s" />
+                  </circle>
+                   <circle cx="11.5" cy="28" r="0.3" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="28;10" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                  </circle>
+                  <circle cx="14" cy="25" r="0.5" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="25;7" dur="6s" repeatCount="indefinite" begin="2s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="6s" repeatCount="indefinite" begin="2s" />
+                  </circle>
+                   <circle cx="12.5" cy="33" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="33;9" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                  </circle>
+                </g>
+             
+                <g id="segments-unit-11">
+  <a href="ChemistryLessons/Unit11/Lesson 11.1 Heat_Conversion.html" onclick="markLessonStarted(11, 1)">
+    <rect id="u11-l1" x="9.0" y="28.000" width="6.0" height="5.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 11.1: 1 Heat Conversion')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="28.000" x2="15.0" y2="28.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit11/Lesson 11.2 Specific_Heat.html" onclick="markLessonStarted(11, 2)">
+    <rect id="u11-l2" x="9.0" y="23.000" width="6.0" height="5.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 11.2: 2 Specific Heat')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="23.000" x2="15.0" y2="23.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit11/Lesson 11.3 Heat_Capacity.html" onclick="markLessonStarted(11, 3)">
+    <rect id="u11-l3" x="9.0" y="18.000" width="6.0" height="5.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 11.3: 3 Heat Capacity')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="18.000" x2="15.0" y2="18.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit11/Lesson 11.4 Calorimetry.html" onclick="markLessonStarted(11, 4)">
+    <rect id="u11-l4" x="9.0" y="13.000" width="6.0" height="5.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 11.4: 4 Calorimetry')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="13.000" x2="15.0" y2="13.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit11/Lesson 11.5 Enthalpy_Entropy_Free_Energy.html" onclick="markLessonStarted(11, 5)">
+    <rect id="u11-l5" x="9.0" y="8.000" width="6.0" height="5.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 11.5: 5 Enthalpy Entropy Free Energy')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="8.000" x2="15.0" y2="8.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit11/Lesson 11.6 Hess_S_Law.html" onclick="markLessonStarted(11, 6)">
+    <rect id="u11-l6" x="9.0" y="3.000" width="6.0" height="5.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 11.6: 6 Hess S Law')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+</g>
+<text x="12" y="1" text-anchor="middle" fill="currentColor" stroke="none" font-size="2" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none; ">Unit 11</text></svg>
+        </div>
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+             <svg viewBox="0 0 24 36" fill="none" class="flask-bg" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem; color: inherit;">
+                
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3" />
+                <path d="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" id="liquid-unit-12" fill="#9ca3af" stroke="none"><animate attributeName="d" dur="3s" repeatCount="indefinite" values="M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 4.5 10.5 1.5 9 3 Z; M9 3 v29.98 a0.02 0.02 0 0 0 0.02 0.02 h5.96 a0.02 0.02 0 0 0 0.02 -0.02 V3 C 13.5 1.5 10.5 4.5 9 3 Z" /></path>
+                <!-- Bubbles -->
+                <circle cx="11.07" cy="31.54" r="0.36" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.54" to="3" dur="4.5s" begin="0.8s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.5s" begin="0.8s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.33" cy="30.92" r="0.46" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.92" to="3" dur="4.8s" begin="0.4s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.8s" begin="0.4s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="11.40" cy="32.83" r="0.54" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="32.83" to="3" dur="2.6s" begin="1.9s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.6s" begin="1.9s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="10.71" cy="30.92" r="0.33" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.92" to="3" dur="4.8s" begin="0.6s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.8s" begin="0.6s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="13.67" cy="31.18" r="0.26" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="31.18" to="3" dur="2.9s" begin="0.0s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="2.9s" begin="0.0s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="12.54" cy="30.62" r="0.43" fill="rgba(255,255,255,0.4)" stroke="none">
+                    <animate attributeName="cy" from="30.62" to="3" dur="4.2s" begin="0.4s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0;1;0" dur="4.2s" begin="0.4s" repeatCount="indefinite" />
+                </circle>
+                <g class="bubbles" style="pointer-events: none;">
+                  <circle cx="10" cy="30" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="30;3" dur="4s" repeatCount="indefinite" begin="0s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4s" repeatCount="indefinite" begin="0s" />
+                  </circle>
+                  <circle cx="13" cy="32" r="0.6" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="32;8" dur="5s" repeatCount="indefinite" begin="1s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="5s" repeatCount="indefinite" begin="1s" />
+                  </circle>
+                   <circle cx="11.5" cy="28" r="0.3" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="28;10" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+                  </circle>
+                  <circle cx="14" cy="25" r="0.5" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="25;7" dur="6s" repeatCount="indefinite" begin="2s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="6s" repeatCount="indefinite" begin="2s" />
+                  </circle>
+                   <circle cx="12.5" cy="33" r="0.4" fill="white" fill-opacity="0.3">
+                    <animate attributeName="cy" values="33;9" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                    <animate attributeName="opacity" values="0.3;0" dur="4.5s" repeatCount="indefinite" begin="1.5s" />
+                  </circle>
+                </g>
+             
+                <g id="segments-unit-12">
+  <a href="ChemistryLessons/Unit12/Lesson 12.1 Nuclear_Fusion_And_Fission.html" onclick="markLessonStarted(12, 1)">
+    <rect id="u12-l1" x="9.0" y="27.000" width="6.0" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 12.1: 1 Nuclear Fusion And Fission')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="27.000" x2="15.0" y2="27.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit12/Lesson 12.2 Alpha_Beta_And_Gamma_Decay.html" onclick="markLessonStarted(12, 2)">
+    <rect id="u12-l2" x="9.0" y="21.000" width="6.0" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 12.2: 2 Alpha Beta And Gamma Decay')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="21.000" x2="15.0" y2="21.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit12/Lesson 12.3 Nuclear_Reactions.html" onclick="markLessonStarted(12, 3)">
+    <rect id="u12-l3" x="9.0" y="15.000" width="6.0" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 12.3: 3 Nuclear Reactions')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="15.000" x2="15.0" y2="15.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit12/Lesson 12.4 Half_Life_Calculations.html" onclick="markLessonStarted(12, 4)">
+    <rect id="u12-l4" x="9.0" y="9.000" width="6.0" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 12.4: 4 Half Life Calculations')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+  <line x1="9.0" y1="9.000" x2="15.0" y2="9.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" stroke-linecap="round" pointer-events="none" />
+  <a href="ChemistryLessons/Unit12/Lesson 12.5 Applications_Of_Nuclear_Chemistry.html" onclick="markLessonStarted(12, 5)">
+    <rect id="u12-l5" x="9.0" y="3.000" width="6.0" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(evt, 'Lesson 12.5: 5 Applications Of Nuclear Chemistry')" onmousemove="moveLessonPopup(evt)" onmouseleave="hideLessonPopup()">
+    </rect>
+  </a>
+</g>
+<text x="12" y="1" text-anchor="middle" fill="currentColor" stroke="none" font-size="2" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none; ">Unit 12</text></svg>
         </div>
       </div>
     </div>
@@ -510,5 +1728,86 @@
     <script src="/global_translations.js"></script>
     <script src="../search_data.js"></script>
     <script src="../search_logic.js"></script>
+
+    <!-- Lesson Tooltip Script -->
+    <div id="lesson-tooltip"></div>
+    <script>
+      const tooltip = document.getElementById('lesson-tooltip');
+      
+      function showLessonPopup(event, text) {
+        if (!text) return;
+        tooltip.textContent = text;
+        tooltip.classList.add('visible');
+        moveLessonPopup(event);
+      }
+      
+      function hideLessonPopup() {
+        tooltip.classList.remove('visible');
+      }
+      
+      function moveLessonPopup(event) {
+        if (!tooltip.classList.contains('visible')) return;
+        
+        // Position slightly offset from mouse
+        const x = event.clientX + 15;
+        const y = event.clientY + 15;
+        
+        // Boundary checks can be added here if needed to prevent off-screen
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      }
+
+      // Progress Tracking
+      function markLessonStarted(unit, lesson) {
+        localStorage.setItem(`chem_u${unit}_l${lesson}_started`, 'true');
+        updateLessonColor(unit, lesson);
+      }
+
+      function updateLessonColor(unit, lesson) {
+        const rect = document.getElementById(`u${unit}-l${lesson}`);
+        if (rect) {
+          rect.setAttribute('fill', '#f97316'); // Orange
+          rect.setAttribute('fill-opacity', '0.6'); // Semi-transparent
+        }
+      }
+
+      function applyProgressColors() {
+        // We don't know exactly how many lessons each unit has here easily without hardcoding or querySelectorAll.
+        // Let's use querySelectorAll to find all lesson rects.
+        const rects = document.querySelectorAll('rect[id^="u"]');
+        rects.forEach(rect => {
+          const match = rect.id.match(/u(\d+)-l(\d+)/);
+          if (match) {
+            const u = match[1];
+            const l = match[2];
+            if (localStorage.getItem(`chem_u${u}_l${l}_started`) === 'true') {
+              updateLessonColor(u, l);
+            }
+          }
+        });
+      }
+
+      function clearAllProgress() {
+        // Clear all local storage keys starting with chem_u
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('chem_u')) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+        
+        // Reset colors
+        const rects = document.querySelectorAll('rect[id^="u"]');
+        rects.forEach(rect => {
+          rect.setAttribute('fill', 'white');
+          rect.setAttribute('fill-opacity', '0');
+        });
+      }
+
+      // Run on load
+      document.addEventListener('DOMContentLoaded', applyProgressColors);
+    </script>
 </body>
 </html>
