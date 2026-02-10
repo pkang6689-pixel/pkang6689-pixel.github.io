@@ -2734,16 +2734,21 @@ window.exitClimbGame = function() {
         
         // Generate Distractors
         const options = [currentQuestion.answer];
+        const uniqueOptions = new Set([currentQuestion.answer]);
         
-        // Try to get 2 unique distractors
-        const maxDistractors = Math.min(2, window.lessonFlashcards.length - 1);
-        const usedIndices = new Set([qIdx]);
+        // Try to get 2 unique distractors (or fewer if not enough unique answers exist)
+        const allAnswers = window.lessonFlashcards.map(f => f.answer);
+        // Shuffle all answers first to ensure randomness in selection
+        for (let i = allAnswers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allAnswers[i], allAnswers[j]] = [allAnswers[j], allAnswers[i]];
+        }
         
-        while(options.length < 1 + maxDistractors) {
-            const dIdx = Math.floor(Math.random() * window.lessonFlashcards.length);
-            if(!usedIndices.has(dIdx)) {
-                options.push(window.lessonFlashcards[dIdx].answer);
-                usedIndices.add(dIdx);
+        for(let ans of allAnswers) {
+            if(!uniqueOptions.has(ans)) {
+                options.push(ans);
+                uniqueOptions.add(ans);
+                if(options.length >= 3) break; // 1 correct + 2 distractors
             }
         }
         
@@ -3228,7 +3233,20 @@ window.exitClimbGame = function() {
 
     function checkMatch() {
         const [c1, c2] = selectedCards;
-        const isMatch = c1.dataset.id === c2.dataset.id && c1.dataset.type !== c2.dataset.type;
+        let isMatch = false;
+        
+        if (c1.dataset.type !== c2.dataset.type) {
+            const termCard = c1.dataset.type === 'term' ? c1 : c2;
+            const defCard = c1.dataset.type === 'def' ? c1 : c2;
+            // Lookup expected answer for the term
+            const flashcards = window.lessonFlashcards || [];
+            const cardData = flashcards[termCard.dataset.id];
+            if(cardData) {
+                const expected = cardData.answer;
+                const actual = defCard.innerText; 
+                isMatch = expected.trim() === actual.trim();
+            }
+        }
 
         if (isMatch) {
             setTimeout(() => {
@@ -3374,10 +3392,20 @@ window.exitClimbGame = function() {
         
         // Generate Distractors
         let answers = [q.answer];
+        const uniqueSet = new Set([q.answer]);
+        
         const pool = flashcards.filter((_, i) => i !== qIdx);
         // Shuffle pool
         pool.sort(() => Math.random() - 0.5);
-        pool.slice(0, 3).forEach(c => answers.push(c.answer));
+        
+        for(let item of pool) {
+             if(!uniqueSet.has(item.answer)) {
+                 answers.push(item.answer);
+                 uniqueSet.add(item.answer);
+                 if(answers.length >= 4) break;
+             }
+        }
+        
         answers.sort(() => Math.random() - 0.5);
         
         answers.forEach(ans => {
