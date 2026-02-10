@@ -3044,7 +3044,7 @@ window.exitClimbGame = function() {
 
     function createCard(id, text, type) {
         const div = document.createElement('div');
-        div.className = 'bg-slate-800 border-2 border-slate-700 rounded-xl p-4 h-32 flex items-center justify-center text-center cursor-pointer transition-all hover:border-blue-500 hover:bg-slate-750 select-none';
+        div.className = 'mm-card';
         div.dataset.id = id;
         div.dataset.type = type;
         div.innerHTML = `<span class="font-semibold text-sm md:text-base">${text}</span>`;
@@ -3053,11 +3053,10 @@ window.exitClimbGame = function() {
     }
 
     function handleCardClick(card) {
-        if (card.classList.contains('bg-blue-600') || card.classList.contains('invisible')) return;
+        if (card.classList.contains('selected') || card.classList.contains('invisible')) return;
         if (selectedCards.length >= 2) return;
 
-        card.classList.remove('bg-slate-800', 'border-slate-700');
-        card.classList.add('bg-blue-600', 'border-blue-400', 'transform', 'scale-105');
+        card.classList.add('selected');
         selectedCards.push(card);
 
         if (selectedCards.length === 2) {
@@ -3096,8 +3095,7 @@ window.exitClimbGame = function() {
             updateStreak(-streak);
             setTimeout(() => {
                 [c1, c2].forEach(c => {
-                    c.classList.remove('bg-blue-600', 'border-blue-400', 'transform', 'scale-105');
-                    c.classList.add('bg-slate-800', 'border-slate-700');
+                    c.classList.remove('selected');
                 });
             }, 800);
         }

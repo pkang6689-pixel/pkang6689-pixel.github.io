@@ -976,12 +976,10 @@
 
 
         // Apply to taskbar if exists
+        const taskbar = document.querySelector('.taskbar');
         if (taskbar) {
-             const tb = document.querySelector('.taskbar');
-             if(tb) {
-                tb.style.removeProperty('background'); 
-                tb.style.backgroundImage = activeGradient;
-             }
+             taskbar.style.removeProperty('background'); 
+             taskbar.style.backgroundImage = activeGradient;
              
              // Audio Button Injection
              if (!document.getElementById('audio-toggle-btn')) {

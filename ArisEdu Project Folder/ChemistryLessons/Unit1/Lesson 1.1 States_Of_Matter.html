@@ -1444,6 +1444,159 @@
 
 </style>
 </div></div>
+<style>
+    /* Mix & Match Styles */
+    .mm-card {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 500;
+      color: #334155;
+      transition: all 0.2s;
+      user-select: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    body.dark-mode .mm-card {
+      background: #1e293b;
+      border-color: #334155;
+      color: #cbd5e1;
+    }
+    .mm-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border-color: #94a3b8;
+      background: #f1f5f9;
+    }
+    body.dark-mode .mm-card:hover {
+       background: #1e293b;
+       border-color: #475569;
+    }
+    .mm-card.selected {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      color: #1d4ed8;
+      transform: scale(1.02);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    body.dark-mode .mm-card.selected {
+      background: #172554;
+      border-color: #60a5fa;
+      color: #bfdbfe;
+    }
+    .mm-card.matched {
+      background: #f0fdf4;
+      border-color: #22c55e;
+      color: #15803d;
+      opacity: 0.8;
+      cursor: default;
+    }
+    body.dark-mode .mm-card.matched {
+      background: #052e16;
+      border-color: #22c55e;
+      color: #86efac;
+    }
+    .mm-card.wrong {
+      background: #fef2f2;
+      border-color: #ef4444;
+      animation: shake 0.5s;
+    }
+    body.dark-mode .mm-card.wrong {
+      background: #450a0a;
+      border-color: #ef4444;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+</style>
+<style>
+    /* Mix & Match Styles */
+    .mix-match-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+      width: 100%;
+    }
+    .mm-card {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 500;
+      color: #334155;
+      transition: all 0.2s;
+      user-select: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    body.dark-mode .mm-card {
+      background: #1e293b;
+      border-color: #334155;
+      color: #cbd5e1;
+    }
+    .mm-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border-color: #94a3b8;
+      background: #f1f5f9;
+    }
+    body.dark-mode .mm-card:hover {
+       background: #1e293b;
+       border-color: #475569;
+    }
+    .mm-card.selected {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      color: #1d4ed8;
+      transform: scale(1.02);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    body.dark-mode .mm-card.selected {
+      background: #172554;
+      border-color: #60a5fa;
+      color: #bfdbfe;
+    }
+    .mm-card.matched {
+      background: #f0fdf4;
+      border-color: #22c55e;
+      color: #15803d;
+      opacity: 0.8;
+      cursor: default;
+    }
+    body.dark-mode .mm-card.matched {
+      background: #052e16;
+      border-color: #22c55e;
+      color: #86efac;
+    }
+    .mm-card.wrong {
+      background: #fef2f2;
+      border-color: #ef4444;
+      animation: shake 0.5s;
+    }
+    body.dark-mode .mm-card.wrong {
+      background: #450a0a;
+      border-color: #ef4444;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+</style>
 <div id="mixmatch-container" style="display:none; flex-direction:column; align-items:center; width:100%;">
 <div class="w-full max-w-4xl flex justify-between items-center mb-8">
 <div>
@@ -3133,7 +3286,7 @@ window.exitClimbGame = function() {
 
     function createCard(id, text, type) {
         const div = document.createElement('div');
-        div.className = 'bg-slate-800 border-2 border-slate-700 rounded-xl p-4 h-32 flex items-center justify-center text-center cursor-pointer transition-all hover:border-blue-500 hover:bg-slate-750 select-none';
+        div.className = 'mm-card';
         div.dataset.id = id;
         div.dataset.type = type;
         div.innerHTML = `<span class="font-semibold text-sm md:text-base">${text}</span>`;
@@ -3142,11 +3295,10 @@ window.exitClimbGame = function() {
     }
 
     function handleCardClick(card) {
-        if (card.classList.contains('bg-blue-600') || card.classList.contains('invisible')) return;
+        if (card.classList.contains('selected') || card.classList.contains('invisible')) return;
         if (selectedCards.length >= 2) return;
 
-        card.classList.remove('bg-slate-800', 'border-slate-700');
-        card.classList.add('bg-blue-600', 'border-blue-400', 'transform', 'scale-105');
+        card.classList.add('selected');
         selectedCards.push(card);
 
         if (selectedCards.length === 2) {
@@ -3185,8 +3337,7 @@ window.exitClimbGame = function() {
             updateStreak(-streak);
             setTimeout(() => {
                 [c1, c2].forEach(c => {
-                    c.classList.remove('bg-blue-600', 'border-blue-400', 'transform', 'scale-105');
-                    c.classList.add('bg-slate-800', 'border-slate-700');
+                    c.classList.remove('selected');
                 });
             }, 800);
         }
