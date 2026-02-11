@@ -333,7 +333,7 @@
   <div class="settings-menu" id="settings-menu" aria-hidden="true">
     <div class="settings-item">
       <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-        <input type="checkbox" id="dark-mode-checkbox" />
+        <input type="checkbox" id="dark-mode-checkbox" / checked>
         <span>Dark Mode</span>
       </label>
     </div>
@@ -602,7 +602,7 @@ const settingsOptions = {
 function renderSettings(category) {
     updateSidebarLanguage();
     // Reapply dark mode after rendering panel
-    const darkModeStored = localStorage.getItem('arisEduDarkMode') === 'true';
+    const darkModeStored = (localStorage.getItem('arisEduDarkMode') === null ? true : localStorage.getItem('arisEduDarkMode') === 'true');
     setTimeout(() => applyDarkMode(darkModeStored), 0);
   // Language switching
   const lang = localStorage.getItem('arisEduLanguage') || 'english';
@@ -619,7 +619,7 @@ function renderSettings(category) {
     // Ensure language dropdown is always visible
     if (languageSelect) languageSelect.style.display = '';
     // Set initial values from localStorage
-    if (darkModeToggle) darkModeToggle.checked = localStorage.getItem('arisEduDarkMode') === 'true';
+    if (darkModeToggle) darkModeToggle.checked = (localStorage.getItem('arisEduDarkMode') === null ? true : localStorage.getItem('arisEduDarkMode') === 'true');
     if (languageSelect) languageSelect.value = localStorage.getItem('arisEduLanguage') || 'english';
     
     // Custom Select Logic
@@ -683,7 +683,7 @@ function renderSettings(category) {
                      
                      // Update LocalStorage & App
                      localStorage.setItem('arisEduColorTheme', value);
-                     const darkModeStored = localStorage.getItem('arisEduDarkMode') === 'true';
+                     const darkModeStored = (localStorage.getItem('arisEduDarkMode') === null ? true : localStorage.getItem('arisEduDarkMode') === 'true');
                      applyDarkMode(darkModeStored);
                      if (window.applyGlobalTheme) window.applyGlobalTheme();
 
@@ -720,7 +720,7 @@ function renderSettings(category) {
       const prevLang = localStorage.getItem('arisEduLanguage') || 'english';
       localStorage.setItem('arisEduLanguage', languageSelect.value);
       renderSettings(category);
-      const darkModeStored = localStorage.getItem('arisEduDarkMode') === 'true';
+      const darkModeStored = (localStorage.getItem('arisEduDarkMode') === null ? true : localStorage.getItem('arisEduDarkMode') === 'true');
       applyDarkMode(darkModeStored);
       // Show BETA disclaimer if switching to Chinese
       if (prevLang === 'english' && languageSelect.value === 'chinese') {
@@ -784,7 +784,7 @@ document.querySelectorAll('.settings-category').forEach(btn => {
     this.classList.add('active');
     
     // Reapply dark mode if enabled
-    const darkModeStored = localStorage.getItem('arisEduDarkMode') === 'true';
+    const darkModeStored = (localStorage.getItem('arisEduDarkMode') === null ? true : localStorage.getItem('arisEduDarkMode') === 'true');
     applyDarkMode(darkModeStored);
     updateTaskbarUsername();
   });
@@ -818,7 +818,7 @@ function applyDarkMode(darkMode) {
 
 // On load, apply dark mode if stored
 function initialRender() {
-  const darkModeStored = localStorage.getItem('arisEduDarkMode') === 'true';
+  const darkModeStored = (localStorage.getItem('arisEduDarkMode') === null ? true : localStorage.getItem('arisEduDarkMode') === 'true');
   const category = 'appearance'; // Default category
   renderSettings(category);
   

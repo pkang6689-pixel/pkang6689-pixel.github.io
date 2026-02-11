@@ -936,7 +936,8 @@
     };
 
     window.applyArisTheme = function() {
-        const darkMode = localStorage.getItem('arisEduDarkMode') === 'true';
+        const storedDarkMode = localStorage.getItem('arisEduDarkMode');
+        const darkMode = storedDarkMode === null ? true : storedDarkMode === 'true';
         const colorTheme = localStorage.getItem('arisEduColorTheme') || 'blue-green';
         let activeGradient = gradients[colorTheme] || gradients['blue-green'];
 
