@@ -402,7 +402,7 @@
     <div class="settings-menu" id="settings-menu" aria-hidden="true">
       <div class="settings-item">
         <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-          <input type="checkbox" id="dark-mode-checkbox" checked />
+          <input type="checkbox" id="dark-mode-checkbox" checked>
           <span>Dark Mode</span>
         </label> 
       </div>
@@ -728,20 +728,9 @@
     // Settings Toggle
     const settingsToggle = document.getElementById('settings-toggle');
     const darkModeCheckbox = document.getElementById('dark-mode-checkbox');
-    let isDarkMode = document.body.classList.contains('dark-mode');
 
-    // Initialize checkbox state
-    if (darkModeCheckbox) darkModeCheckbox.checked = isDarkMode;
-
-    if (darkModeCheckbox) {
-      darkModeCheckbox.addEventListener('change', () => {
-        isDarkMode = darkModeCheckbox.checked;
-        if (isDarkMode) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
-        updateBackgroundColor();
-      });
-    }
-
-    function updateBackgroundColor() {
+    window.updateBackgroundColor = function() {
+      const isDarkMode = document.body.classList.contains('dark-mode');
       if (isDarkMode) {
         document.body.style.backgroundColor = '#1e293b';
       } else {
@@ -782,19 +771,6 @@
         menu.style.transform = 'translateY(-6px)';
       }
     });
-
-    // Dark mode toggle
-    document.getElementById('dark-mode-checkbox').addEventListener('change', (e) => {
-      if (e.target.checked) {
-        document.body.classList.add('dark-mode');
-      } else {
-        document.body.classList.remove('dark-mode');
-      }
-    });
-
-    // Set dark mode active by default
-    document.body.classList.add('dark-mode');
-    document.getElementById('dark-mode-checkbox').checked = true;
 
     // Apply additional theme settings (like sunset gradient)
     function applyTheme() {
@@ -1001,6 +977,7 @@
       document.body.classList.remove('dark-mode');
     }
     checkbox.checked = prefersDark;
+    if (window.updateBackgroundColor) { window.updateBackgroundColor(); }
 
     checkbox.addEventListener('change', (event) => {
       const isDark = event.target.checked;
@@ -1010,6 +987,7 @@
       } else {
         document.body.classList.remove('dark-mode');
       }
+      if (window.updateBackgroundColor) { window.updateBackgroundColor(); }
       if (window.applyArisTheme) { window.applyArisTheme(); }
     });
   })();
