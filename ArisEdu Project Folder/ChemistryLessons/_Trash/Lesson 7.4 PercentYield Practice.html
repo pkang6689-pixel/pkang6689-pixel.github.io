@@ -1,0 +1,3312 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lesson 7.4: PercentYield Practice</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="/global_translations.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<style>
+    body {
+      box-sizing: border-box;
+      background-color: white;
+      color: #0f172a;
+    }
+    
+    .logo-font {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    
+    .main-container {
+      height: 100%;
+      width: 100%;
+      padding: 5rem 2rem 2rem 2rem;
+      overflow: auto;
+    }
+    
+    .taskbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .taskbar-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.5rem 1rem;
+      max-width: 1200px;
+      width: 100%;
+    }
+    
+    .taskbar-button {
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      color: white;
+      font-size: 0.875rem;
+      transition: opacity 0.3s, transform 0.2s;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .taskbar-button:hover {
+      opacity: 0.9;
+      scale: 1.05;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .settings-menu {
+      width: 13rem;
+      padding: 0.5rem;
+      background: #ffffff;
+      border-radius: 0.5rem;
+      box-shadow: 0 8px 20px rgba(2,6,23,0.12);
+      color: #0f172a;
+      font-size: 0.95rem;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+      position: absolute;
+      top: 100%;
+      right: 1rem;
+    }
+
+    body.dark-mode .settings-menu {
+      background: #0f172a;
+      color: #cbd5e1;
+    }
+
+    .page-title {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+    }
+
+    .courses-container {
+      background: #f8fafc;
+      border-radius: 2rem;
+      border: 2px solid rgba(15, 23, 42, 0.15);
+      min-height: 32rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .courses-section {
+      margin-bottom: 2rem;
+    }
+
+    .lesson-layout {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+      width: 100%;
+    }
+
+    /* Embedded Summary Styles */
+    .lesson-notes {
+      margin-top: 1.5rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.5rem 1.75rem;
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12);
+      color: #0f172a;
+    }
+
+    .lesson-notes h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+
+    .lesson-notes p {
+      margin-bottom: 1rem;
+      color: #1e293b;
+    }
+
+    .lesson-notes ul {
+      margin: 0 0 1.25rem 1.25rem;
+      color: #1e293b;
+      list-style: disc;
+    }
+
+    .lesson-notes li {
+      margin-bottom: 0.35rem;
+    }
+    
+    .diagram-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-top: 1.5rem;
+      position: relative;
+    }
+
+    body.dark-mode .lesson-notes {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      box-shadow: 0 10px 18px rgba(2, 6, 23, 0.35);
+      color: #e2e8f0;
+    }
+
+    body.dark-mode .lesson-notes h3 {
+      color: #f8fafc;
+    }
+
+    body.dark-mode .lesson-notes p,
+    body.dark-mode .lesson-notes ul {
+      color: #e2e8f0;
+    }
+
+    body.dark-mode .diagram-card {
+      background: rgba(15, 23, 42, 0.85);
+    }
+    
+    .summary-actions {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .side-buttons {
+      position: absolute;
+      right: 2rem;
+      bottom: 9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      z-index: 30;
+      align-items: flex-end;
+      pointer-events: auto;
+    }
+
+    /* Flashcard Styles */
+    body.dark-mode .flashcard-box {
+      background: #1e293b !important;
+      color: #e2e8f0 !important;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.35) !important;
+      border: 1.5px solid #334155;
+    }
+    body.dark-mode #prev-flashcard {
+      background: #b91c1c !important;
+      color: #fff !important;
+    }
+    body.dark-mode #next-flashcard {
+      background: #059669 !important;
+      color: #fff !important;
+    }
+    body.dark-mode .flashcard-box svg {
+      filter: drop-shadow(0 0 2px #0f172a);
+    }
+    #shuffle-flashcard {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      margin-left: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      transition: background 0.2s;
+    }
+    #shuffle-flashcard:hover {
+      background: #4f46e5;
+    }
+    body.dark-mode #shuffle-flashcard {
+      background: #3730a3;
+    }
+    body.dark-mode #shuffle-flashcard:hover {
+      background: #312e81;
+    }
+
+    .side-button {
+      padding: 1rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      color: #ffffff;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #8b5cf6 0%, #10b981 50%, #3b82f6 100%);
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.2);
+      min-width: 11rem;
+    }
+    .side-button:hover {
+      opacity: 0.9;
+      transform: scale(1.1);
+    }
+    .videos-panel {
+      width: 12rem;
+      min-height: 6rem;
+      pointer-events: auto;
+      background: #0f172a;
+      border: 2px solid #334155;
+      border-radius: 0.75rem;
+      display: block;
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 0.25rem);
+      z-index: 10;
+      opacity: 0;
+      transform-origin: bottom right;
+      transform: scale(3);
+      visibility: hidden;
+      pointer-events: none;
+      padding: 0.6rem 0.7rem;
+    }
+
+    .videos-panel.is-open {
+      opacity: 0.9;
+      visibility: visible;
+      pointer-events: auto;
+      animation: panelFadeIn 0.25s ease-out;
+    }
+
+    .Practice-actions {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* Scaled Quiz Styles */
+    #quiz-content-view .quiz-question p {
+      font-size: 1.45rem !important; /* Scaled from 1.1rem */
+    }
+    #quiz-content-view label {
+      font-size: 1.3rem !important; /* Scaled from base */
+    }
+    #quiz-content-view .side-button {
+      font-size: 1.3rem !important;
+    }
+    #quiz-content-view input[type="radio"] {
+      transform: scale(1.3);
+      margin-right: 0.75rem !important;
+    }
+    #quiz-content-view .attempts-indicator {
+      font-size: 1.25rem !important;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .Practices-menu {
+      position: relative;
+    }
+
+    .Practices-panel {
+      width: 12rem;
+      min-height: 3rem;
+      background: #0f172a;
+      border: 2px solid #334155;
+      border-radius: 0.75rem;
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 0.25rem);
+      z-index: 10;
+      opacity: 0;
+      transform: scale(0.95);
+      transform-origin: bottom right;
+      visibility: hidden;
+      pointer-events: none;
+      padding: 0.6rem;
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    }
+
+    .Practices-panel.is-open {
+      opacity: 0.95;
+      visibility: visible;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+    
+    .Practices-panel a {
+      display: block;
+      color: #e2e8f0;
+      text-decoration: none;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .Practices-panel a:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .videos-panel-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #cbd5f5;
+      margin-bottom: 0.45rem;
+    }
+
+    .videos-panel a {
+      display: block;
+      font-size: 0.7rem;
+      line-height: 1.2;
+      color: #e2e8f0;
+      text-decoration: none;
+      margin-bottom: 0.35rem;
+    }
+
+    .videos-panel a:hover {
+      color: #93c5fd;
+    }
+
+    .videos-panel-legend {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.2rem;
+      margin-bottom: 0.35rem;
+      margin-left: auto;
+      width: 3.2rem;
+    }
+
+    .videos-panel-legend span {
+      font-size: 0.45rem;
+      font-weight: 700;
+      color: #cbd5f5;
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+
+    .videos-panel-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .video-info-text {
+      position: absolute;
+      left: 0.75rem;
+      top: calc(100% - 5.25rem);
+      width: calc(100% - 0.75rem);
+      z-index: 5;
+      border: 2px solid #334155;
+      border-radius: 0.9rem;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 0.8rem 1.1rem;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      display: none;
+    }
+
+    .video-info-text.is-visible {
+      display: block;
+      opacity: 0.95;
+    }
+
+    .video-info-text.is-fading {
+      opacity: 0;
+    }
+
+    .videos-panel-item:last-child a {
+      margin-bottom: 0;
+    }
+
+    .mini-rubric {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      width: 3.2rem;
+      height: 0.45rem;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      flex-shrink: 0;
+    }
+
+    .mini-rubric span {
+      display: block;
+      height: 100%;
+    }
+
+    .side-buttons.videos-open .videos-panel {
+      display: block;
+    }
+
+    .rubric-box {
+      position: absolute;
+      top: 1.5rem;
+      right: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
+      z-index: 8;
+    }
+
+    .rubric-hover-wrap {
+      position: absolute;
+      top: 4.3rem;
+      right: 0;
+      z-index: 20;
+    }
+
+    .rubric-hover-dot {
+      scale: 2.2;
+      width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 999px;
+      margin-right: -0.5rem;
+      transform: translateY(-0.25rem);
+      border: 2px solid #1f2937;
+      background: #0f172a;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.35);
+      cursor: pointer;
+      position: relative;
+      z-index: 21;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .rubric-hover-dot span {
+      font-family: 'Playfair Display', 'Poppins', serif;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .rubric-hover-panel {
+      position: absolute;
+      margin-right: 1.5rem;
+      scale: 1.6;
+      right: 0;
+      bottom: calc(100% + 5.5rem);
+      width: 10rem;
+      min-height: 3rem;
+      background: #0f172a;
+      color: #e2e8f0;
+      border: 2px solid #334155;
+      border-radius: 0.75rem;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-0.25rem);
+      transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    }
+
+    .rubric-hover-panel p {
+      font-size: 0.7rem;
+      line-height: 1.2;
+      margin: 0.25rem 0;
+      color: #fff;
+    
+      color: #fff;
+      color: #fff;}
+
+    .rubric-hover-wrap:hover .rubric-hover-panel {
+      opacity: 0.9;
+      visibility: visible;
+      transform: translateY(5rem);
+    }
+
+    .rubric-box .page-title {
+      margin-bottom: 0;
+      transform: translateX(-4rem);
+    }
+
+    .rubric-card {
+      background: #f8fafc;
+      border-radius: 1rem;
+      border: 3px solid transparent;
+      --rubric-border-gradient: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      background:
+        linear-gradient(#f8fafc, #f8fafc) padding-box,
+        var(--rubric-border-gradient) border-box;
+      width: 20rem;
+      height: 9rem;
+      margin-top: 25rem;
+      padding: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transform: scale(1.2) rotate(90deg);  
+      transform-origin: top right;
+      overflow: hidden;
+    }
+    .rubric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      height: 100%;
+    }
+
+    .rubric-item {
+      padding: 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-right: 2px solid rgba(15, 23, 42, 0.85);
+      border-left: none;
+      height: 100%;
+      border-bottom: none;
+      border-top: none;
+    }
+
+    .rubric-item:first-child {
+      border-left: none;
+    }
+
+    .rubric-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      transform: rotate(-90deg);
+      white-space: nowrap;
+    }
+
+    .rubric-label {
+      font-weight: 600;
+    }
+
+    .rubric-rating {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .rubric-item:nth-child(1) {
+      background: #90EE90;
+    }
+
+    .rubric-item:nth-child(2) {
+      background: #FFD700;
+    }
+
+    .rubric-item:nth-child(3) {
+      background: #7FFF00;
+    }
+
+    .rubric-item:nth-child(4) {
+      background: #FFD700;
+    }
+
+    .rubric-item:last-child {
+      border-right: none;
+    }
+
+    body.dark-mode .rubric-item {
+      color: #0f172a;
+      border-right-color: rgba(226, 232, 240, 0.85);
+      border-left-color: transparent;
+      border-top-color: transparent;
+      border-bottom-color: transparent;
+      border-top-width: 0;
+      border-bottom-width: 0;
+    }
+
+    body.dark-mode .rubric-card {
+      background:
+        linear-gradient(#0f172a, #0f172a) padding-box,
+        var(--rubric-border-gradient) border-box;
+    }
+
+    body.dark-mode .rubric-item:nth-child(1) {
+      background: #90EE90;
+    }
+
+    body.dark-mode .rubric-item:nth-child(2) {
+      background: #FFD700;
+    }
+
+    body.dark-mode .rubric-item:nth-child(3) {
+      background: #7FFF00;
+    }
+
+    body.dark-mode .rubric-item:nth-child(4) {
+      background: #FFD700;
+    }
+
+    .video-stack {
+      flex: 1 1 0;
+      min-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+    }
+
+    .video-embed {
+      position: relative;
+      transform: scale(0.85);
+      transform-origin: top left;
+      width: 100%;
+      padding-top: 56.25%;
+      margin-left: 0.75rem;
+      margin-top: 0.5rem;
+      border-radius: 1rem;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
+    }
+
+    .video-embed iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      z-index: 1;
+    }
+
+    body.dark-mode .video-embed {
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .courses-section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .course-box {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      color: #1e293b;
+    }
+
+    .course-box:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      background: white;
+    }
+
+    .course-box a {
+      text-decoration: none;
+      color: #1e293b;
+      font-size: 1.125rem;
+      font-weight: 600;
+      display: block;
+    }
+
+    .course-box a:hover {
+      color: #3b82f6;
+    }
+
+    body.dark-mode .course-box {
+      background: rgba(15, 23, 42, 0.8);
+      color: #cbd5e1;
+    }
+
+    body.dark-mode .course-box a {
+      color: #cbd5e1;
+    }
+
+    body.dark-mode .course-box a:hover {
+      color: #3b82f6;
+    }
+
+    body.dark-mode {
+      background-color: #1e293b;
+      color: #e2e8f0;
+    }
+
+    body.dark-mode .courses-container {
+      background: #273244;
+      border: 2px solid rgba(226, 232, 240, 0.22);
+    }
+    @keyframes panelFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(2.7);
+      }
+      to {
+        opacity: 0.8;
+        transform: scale(3);
+      }
+    }
+
+    .lesson-notes {
+      margin-top: 1.5rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.5rem 1.75rem;
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12);
+      color: #0f172a;
+    }
+
+    .lesson-notes h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+
+    .lesson-notes p {
+      margin-bottom: 1rem;
+      color: #1e293b;
+    }
+
+    .lesson-notes ul {
+      margin: 0 0 1.25rem 1.25rem;
+      color: #1e293b;
+      list-style: disc;
+    }
+
+    .lesson-notes li {
+      margin-bottom: 0.35rem;
+    }
+
+    body.dark-mode .lesson-notes {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      box-shadow: 0 10px 18px rgba(2, 6, 23, 0.35);
+      color: #e2e8f0;
+    }
+
+    body.dark-mode .lesson-notes h3 {
+      color: #f8fafc;
+    }
+
+    body.dark-mode .lesson-notes p,
+    body.dark-mode .lesson-notes ul {
+      color: #e2e8f0;
+    }
+
+    body.dark-mode .diagram-card {
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .diagram-placeholder {
+      border: 2px dashed rgba(59, 130, 246, 0.6);
+      border-radius: 0.75rem;
+      padding: 2.5rem;
+      text-align: center;
+      color: #475569;
+    }
+
+    body.dark-mode .diagram-placeholder {
+      color: #cbd5e1;
+      border-color: rgba(148, 163, 184, 0.6);
+    }
+    
+    .diagram-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-top: 1.5rem;
+      position: relative;
+    }
+    .summary-actions {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* videos-panel-overrides */
+    .side-buttons {
+      z-index: 30;
+      pointer-events: auto;
+    }
+
+    .videos-panel {
+      width: 12rem;
+      min-height: 6rem;
+      background: #0f172a;
+      border: 2px solid #334155;
+      border-radius: 0.75rem;
+      display: block;
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 0.25rem);
+      z-index: 10;
+      opacity: 0;
+      transform-origin: bottom right;
+      transform: scale(3);
+      visibility: hidden;
+      pointer-events: none;
+      padding: 0.6rem 0.7rem;
+    }
+
+    .videos-panel.is-open {
+      opacity: 0.9;
+      visibility: visible;
+      pointer-events: auto;
+      animation: panelFadeIn 0.25s ease-out;
+    }
+
+    .videos-panel-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #cbd5f5;
+      margin-bottom: 0.45rem;
+    }
+
+    .videos-panel a {
+      display: block;
+      font-size: 0.7rem;
+      line-height: 1.2;
+      color: #e2e8f0;
+      text-decoration: none;
+      margin-bottom: 0.35rem;
+    }
+
+    .videos-panel a:hover {
+      color: #93c5fd;
+    }
+
+    .videos-panel-legend {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.2rem;
+      margin-bottom: 0.35rem;
+      margin-left: auto;
+      width: 3.2rem;
+    }
+
+    .videos-panel-legend span {
+      font-size: 0.45rem;
+      font-weight: 700;
+      color: #cbd5f5;
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+
+    .videos-panel-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .videos-panel-item:last-child a {
+      margin-bottom: 0;
+    }
+
+    .mini-rubric {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      width: 3.2rem;
+      height: 0.45rem;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      flex-shrink: 0;
+    }
+
+    .mini-rubric span {
+      display: block;
+      height: 100%;
+    }
+
+    .side-buttons.videos-open .videos-panel {
+      display: block;
+    }
+
+    .rubric-hover-wrap {
+      position: absolute;
+      top: 4.3rem;
+      right: 0;
+      z-index: 20;
+    }
+
+    .rubric-hover-dot {
+      scale: 2.2;
+      width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 999px;
+      margin-right: -0.5rem;
+      transform: translateY(-0.25rem);
+      border: 2px solid #1f2937;
+      background: #0f172a;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.35);
+      cursor: pointer;
+      position: relative;
+      z-index: 21;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .rubric-hover-dot span {
+      font-family: 'Playfair Display', 'Poppins', serif;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .rubric-hover-panel {
+      position: absolute;
+      margin-right: 1.5rem;
+      scale: 1.6;
+      right: 0;
+      bottom: calc(100% + 5.5rem);
+      width: 10rem;
+      min-height: 3rem;
+      background: #0f172a;
+      color: #e2e8f0;
+      border: 2px solid #334155;
+      border-radius: 0.75rem;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-0.25rem);
+      transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    }
+
+    .rubric-hover-panel p {
+      font-size: 0.7rem;
+      line-height: 1.2;
+      margin: 0.25rem 0;
+      color: #fff;
+    
+      color: #fff;
+      color: #fff;}
+
+    .rubric-hover-wrap:hover .rubric-hover-panel {
+      opacity: 0.9;
+      visibility: visible;
+      transform: translateY(5rem);
+    }
+
+    /* rubric-overrides */
+    .rubric-box .page-title {
+      margin-bottom: 0;
+      transform: translateX(-4rem);
+    }
+
+    .rubric-card {
+      background: #f8fafc;
+      border-radius: 1rem;
+      border: 3px solid transparent;
+      --rubric-border-gradient: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      background:
+        linear-gradient(#f8fafc, #f8fafc) padding-box,
+        var(--rubric-border-gradient) border-box;
+      width: 20rem;
+      height: 9rem;
+      margin-top: 25rem;
+      padding: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transform: scale(1.2) rotate(90deg);
+      transform-origin: top right;
+      overflow: hidden;
+    }
+
+    .rubric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      height: 100%;
+    }
+
+    .rubric-item {
+      padding: 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-right: 2px solid rgba(15, 23, 42, 0.85);
+      border-left: none;
+      height: 100%;
+      border-bottom: none;
+      border-top: none;
+    }
+
+    .rubric-item:first-child {
+      border-left: none;
+    }
+
+    .rubric-item:last-child {
+      border-right: none;
+    }
+
+    .rubric-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      transform: rotate(-90deg);
+      white-space: nowrap;
+    }
+
+    .rubric-label {
+      font-weight: 600;
+    }
+
+    .rubric-rating {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    body.dark-mode .rubric-item {
+      color: #0f172a;
+      border-right-color: rgba(226, 232, 240, 0.85);
+      border-left-color: transparent;
+      border-top-color: transparent;
+      border-bottom-color: transparent;
+      border-top-width: 0;
+      border-bottom-width: 0;
+    }
+
+    body.dark-mode .rubric-card {
+      background:
+        linear-gradient(#0f172a, #0f172a) padding-box,
+        var(--rubric-border-gradient) border-box;
+    }
+
+    /* rubric-hover-interactions */
+    .rubric-hover-wrap {
+      pointer-events: auto;
+    }
+
+    .rubric-hover-dot {
+      pointer-events: auto;
+    }
+
+    .rubric-hover-panel {
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .rubric-hover-wrap.is-open .rubric-hover-panel,
+    .rubric-hover-wrap:focus-within .rubric-hover-panel {
+      opacity: 0.9;
+      visibility: visible;
+      transform: translateY(5rem);
+      pointer-events: auto;
+    }
+
+  </style>
+<style>@view-transition { navigation: auto; }
+    /* Fixed Practices Menu CSS */
+    .Practices-menu {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .Practices-panel {
+      width: 12rem;
+      min-height: 3rem;
+      background: #0f172a;
+      border: 2px solid #334155;
+      border-radius: 0.75rem;
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 0.5rem);
+      z-index: 50; /* Increased z-index */
+      opacity: 0;
+      transform: scale(0.95);
+      transform-origin: bottom right;
+      visibility: hidden;
+      pointer-events: none;
+      padding: 0.6rem;
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .Practices-panel.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .Practices-panel-item {
+      margin-bottom: 0.5rem;
+    }
+    
+    .Practices-panel a {
+      display: block;
+      color: #e2e8f0;
+      text-decoration: none;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .Practices-panel a:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<nav class="taskbar">
+<div class="taskbar-container">
+<button class="taskbar-button" id="back-button">← Back to Summary</button>
+<button class="taskbar-button" id="search-button">🔍 Search</button>
+<a class="taskbar-button" href="../../../index.html" id="homepage-button">🏠 Homepage</a>
+<a class="taskbar-button" href="../../Courses.html" id="course-button">📚 Courses</a>
+<button class="taskbar-button" id="settings-button">⚙️ Settings</button>
+<a class="taskbar-button" href="../../LoginSignup.html" id="login-signup-button">🔐 Login/Signup</a>
+</div>
+<div aria-hidden="true" class="settings-menu" id="settings-menu">
+<div class="settings-item">
+<label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+<input checked="" id="dark-mode-checkbox" type="checkbox"/>
+<span>Dark Mode</span>
+</label>
+</div>
+<a class="settings-item" href="../../Preferences.html">Preferences</a>
+</div>
+</nav>
+<main class="main-container">
+<!-- Embedded Summary View (Hidden by default) -->
+<!-- Embedded Practice View (Hidden by default) -->
+<div id="practice-content-view"><h1>Content Missing</h1></div>
+<!-- Quiz View (Hidden by default) -->
+</main>
+<script>
+
+    let videoStopTimer = null;
+
+    function appendVideoParam(src, key, value) {
+      if (!src || src.includes(`${key}=`)) {
+        return src;
+      }
+      const joiner = src.includes('?') ? '&' : '?';
+      return `${src}${joiner}${key}=${value}`;
+    }
+
+    function buildVideoSrc(videoSrc, videoId) {
+      const baseSrc = videoSrc || (videoId ? `https://www.youtube.com/embed/${videoId}` : '');
+      if (!baseSrc) {
+        return '';
+      }
+      if (!baseSrc.includes('youtube.com/embed/')) {
+        return baseSrc;
+      }
+      let nextSrc = appendVideoParam(baseSrc, 'enablejsapi', '1');
+      if (window.location && window.location.origin) {
+        nextSrc = appendVideoParam(nextSrc, 'origin', encodeURIComponent(window.location.origin));
+      }
+      return nextSrc;
+    }
+
+    function scheduleVideoStop(iframe, link) {
+      if (videoStopTimer) {
+        window.clearTimeout(videoStopTimer);
+        videoStopTimer = null;
+      }
+      if (!iframe || !link) {
+        return;
+      }
+      const endValue = Number.parseInt(link.getAttribute('data-video-end'), 10);
+      if (!Number.isFinite(endValue)) {
+        return;
+      }
+      const startValue = Number.parseInt(link.getAttribute('data-video-start'), 10);
+      const start = Number.isFinite(startValue) ? startValue : 0;
+      if (endValue <= start) {
+        return;
+      }
+      videoStopTimer = window.setTimeout(() => {
+        if (iframe.contentWindow) {
+          iframe.contentWindow.postMessage(JSON.stringify({
+            event: 'command',
+            func: 'stopVideo',
+            args: [],
+          }), '*');
+        }
+        const currentSrc = iframe.src;
+        window.setTimeout(() => {
+          if (iframe.src === currentSrc) {
+            iframe.src = 'about:blank';
+          }
+        }, 500);
+      }, (endValue - start) * 1000);
+    }
+
+    const videoInfoText = document.getElementById('video-info-text');
+    let videoInfoTimer = null;
+
+    function updateVideoInfo(link) {
+      if (!videoInfoText) {
+        return;
+      }
+      const message = link ? link.getAttribute('data-info-message') : null;
+      if (message) {
+        videoInfoText.textContent = message;
+        videoInfoText.classList.remove('is-fading');
+        videoInfoText.classList.add('is-visible');
+      } else {
+        videoInfoText.textContent = '';
+        videoInfoText.classList.remove('is-visible');
+        videoInfoText.classList.remove('is-fading');
+      }
+    }
+
+    function toggleVideosPanel(button) {
+      if (!button) {
+        return;
+      }
+      const container = button.closest('.side-buttons');
+      if (!container) {
+        return;
+      }
+      const panel = container.querySelector('.videos-panel');
+      if (!panel) {
+        return;
+      }
+      const isOpen = panel.classList.toggle('is-open');
+      container.classList.toggle('videos-open', isOpen);
+      panel.setAttribute('aria-hidden', (!isOpen).toString());
+    }
+
+    document.querySelectorAll('.view-other-videos').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        toggleVideosPanel(button);
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('.view-other-videos');
+      if (!button) {
+        return;
+      }
+      event.preventDefault();
+      toggleVideosPanel(button);
+    }, true);
+
+    document.querySelectorAll('.videos-panel a[data-video-id], .videos-panel a[data-video-src]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        const videoSrc = link.getAttribute('data-video-src');
+        const videoId = link.getAttribute('data-video-id');
+        const videoTitle = link.getAttribute('data-video-title') || 'Lesson video';
+        const iframe = document.querySelector('.video-embed iframe');
+        const nextSrc = buildVideoSrc(videoSrc, videoId);
+        if (!nextSrc || !iframe) {
+          return;
+        }
+        iframe.src = nextSrc;
+        iframe.title = videoTitle;
+        scheduleVideoStop(iframe, link);
+        updateVideoInfo(link);
+
+        const panel = link.closest('.videos-panel');
+        const container = link.closest('.side-buttons');
+        if (panel) {
+          panel.classList.remove('is-open');
+          panel.setAttribute('aria-hidden', 'true');
+        }
+        if (container) {
+          container.classList.remove('videos-open');
+        }
+      });
+
+    });
+
+    // videos-panel overrides
+    function updateRubricFromLink(link) {
+      if (!link) {
+        return;
+      }
+      const rubricBox = document.querySelector('.rubric-box');
+      if (!rubricBox) {
+        return;
+      }
+      const keyMap = {
+        Difficulty: 'difficulty',
+        Detail: 'detail',
+        Speed: 'speed',
+        Pace: 'pace',
+      };
+      rubricBox.querySelectorAll('.rubric-item').forEach((item) => {
+        const labelEl = item.querySelector('.rubric-label');
+        const ratingEl = item.querySelector('.rubric-rating');
+        if (!labelEl || !ratingEl) {
+          return;
+        }
+        const label = labelEl.textContent.trim();
+        const key = keyMap[label];
+        if (!key) {
+          return;
+        }
+        const rating = link.getAttribute(`data-rating-${key}`) || label;
+        const color = link.getAttribute(`data-color-${key}`) || '#334155';
+        ratingEl.textContent = rating;
+        item.style.background = color;
+      });
+    }
+
+    function toggleVideosPanel(button) {
+      if (!button) {
+        return;
+      }
+      const container = button.closest('.side-buttons');
+      if (!container) {
+        return;
+      }
+      const panel = container.querySelector('.videos-panel');
+      if (!panel) {
+        return;
+      }
+      const isOpen = panel.classList.toggle('is-open');
+      container.classList.toggle('videos-open', isOpen);
+      panel.setAttribute('aria-hidden', (!isOpen).toString());
+    }
+
+    document.querySelectorAll('.view-other-videos').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        toggleVideosPanel(button);
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('.view-other-videos');
+      if (!button) {
+        return;
+      }
+      event.preventDefault();
+      toggleVideosPanel(button);
+    }, true);
+
+    document.querySelectorAll('.videos-panel a').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        const videoSrc = link.getAttribute('data-video-src');
+        const videoId = link.getAttribute('data-video-id');
+        const videoTitle = link.getAttribute('data-video-title') || 'Lesson video';
+        const iframe = document.querySelector('.video-embed iframe');
+        const nextSrc = buildVideoSrc(videoSrc, videoId);
+        if (!nextSrc || !iframe) {
+          updateRubricFromLink(link);
+          updateVideoInfo(link);
+          return;
+        }
+        iframe.src = nextSrc;
+        iframe.title = videoTitle;
+        scheduleVideoStop(iframe, link);
+        updateRubricFromLink(link);
+        updateVideoInfo(link);
+
+        const panel = link.closest('.videos-panel');
+        const container = link.closest('.side-buttons');
+        if (panel) {
+          panel.classList.remove('is-open');
+          panel.setAttribute('aria-hidden', 'true');
+        }
+        if (container) {
+          container.classList.remove('videos-open');
+        }
+      });
+    });
+
+    // Ensure dark mode on load
+    document.body.classList.add('dark-mode');
+    const darkCheckbox = document.getElementById('dark-mode-checkbox');
+    if (darkCheckbox) {
+      darkCheckbox.checked = true;
+    }
+
+    // Taskbar Button Handlers
+        document.getElementById('back-button').addEventListener('click', () => {
+      window.location.href = 'Lesson 7.4 PercentYield Summary.html';
+    });
+
+    document.getElementById('homepage-button').addEventListener('click', () => {
+    
+    });
+
+    document.getElementById('course-button').addEventListener('click', () => {
+   
+    });
+
+    document.getElementById('search-button').addEventListener('click', () => {
+    
+    });
+
+    document.getElementById('login-signup-button').addEventListener('click', () => {
+    
+    });
+
+    document.getElementById('settings-button').addEventListener('click', () => {
+      // Toggle settings menu
+      const menu = document.getElementById('settings-menu');
+      const isHidden = menu.getAttribute('aria-hidden') === 'true';
+      menu.setAttribute('aria-hidden', !isHidden);
+      if (isHidden) {
+        menu.style.visibility = 'visible';
+        menu.style.opacity = '1';
+        menu.style.transform = 'translateY(0)';
+      } else {
+        menu.style.visibility = 'hidden';
+        menu.style.opacity = '0';
+        menu.style.transform = 'translateY(-6px)';
+      }
+    });
+
+    // Dark mode toggle
+    document.getElementById('dark-mode-checkbox').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    });
+
+    // Set dark mode active by default
+    document.body.classList.add('dark-mode');
+    document.getElementById('dark-mode-checkbox').checked = true;
+
+  </script>
+<script>
+  // login-signup-account-display
+  (function () {
+    const loginButton = document.getElementById('login-signup-button');
+    if (!loginButton) {
+      return;
+    }
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      return;
+    }
+    let user;
+    try {
+      user = JSON.parse(storedUser);
+    } catch (error) {
+      return;
+    }
+    const name = user && (user.name || user.email);
+    if (!name) {
+      return;
+    }
+
+    loginButton.textContent = '👤 ' + name;
+    loginButton.removeAttribute('href');
+    loginButton.setAttribute('aria-haspopup', 'true');
+    loginButton.setAttribute('aria-expanded', 'false');
+
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const menu = document.createElement('div');
+    menu.className = 'account-menu';
+    menu.setAttribute('role', 'menu');
+    menu.setAttribute('aria-hidden', 'true');
+    menu.style.position = 'absolute';
+    menu.style.top = '100%';
+    menu.style.left = '0';
+    menu.style.right = 'auto';
+    menu.style.minWidth = '160px';
+    menu.style.marginTop = '0.35rem';
+    menu.style.background = isDarkMode ? '#0f172a' : 'white';
+    menu.style.border = isDarkMode ? '1px solid #1f2937' : '1px solid #e2e8f0';
+    menu.style.borderRadius = '0.5rem';
+    menu.style.boxShadow = isDarkMode
+      ? '0 12px 24px rgba(2, 6, 23, 0.6)'
+      : '0 10px 20px rgba(2, 6, 23, 0.15)';
+    menu.style.padding = '0.4rem';
+    menu.style.display = 'none';
+    menu.style.zIndex = '2000';
+
+    const logoutButton = document.createElement('button');
+    logoutButton.type = 'button';
+    logoutButton.textContent = 'Log out';
+    logoutButton.setAttribute('role', 'menuitem');
+    logoutButton.style.width = '100%';
+    logoutButton.style.background = 'transparent';
+    logoutButton.style.border = 'none';
+    logoutButton.style.textAlign = 'left';
+    logoutButton.style.padding = '0.5rem 0.75rem';
+    logoutButton.style.borderRadius = '0.4rem';
+    logoutButton.style.cursor = 'pointer';
+    logoutButton.style.fontWeight = '600';
+    logoutButton.style.color = isDarkMode ? '#e2e8f0' : '#0f172a';
+
+    logoutButton.addEventListener('mouseenter', () => {
+      logoutButton.style.background = isDarkMode
+        ? 'rgba(148, 163, 184, 0.2)'
+        : 'rgba(15, 23, 42, 0.08)';
+    });
+    logoutButton.addEventListener('mouseleave', () => {
+      logoutButton.style.background = 'transparent';
+    });
+
+    logoutButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      localStorage.removeItem('user');
+      menu.style.display = 'none';
+      loginButton.setAttribute('aria-expanded', 'false');
+      window.location.href="../../LoginSignup.html";
+    });
+
+    menu.appendChild(logoutButton);
+
+    const parent = loginButton.parentElement;
+    if (parent) {
+      const wrapper = document.createElement('span');
+      wrapper.style.position = 'relative';
+      wrapper.style.display = 'inline-flex';
+      parent.insertBefore(wrapper, loginButton);
+      wrapper.appendChild(loginButton);
+      wrapper.appendChild(menu);
+    }
+
+    function closeMenu() {
+      menu.style.display = 'none';
+      loginButton.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('aria-hidden', 'true');
+    }
+
+    function toggleMenu(event) {
+      event.preventDefault();
+      const isOpen = menu.style.display == 'block';
+      if (isOpen) {
+        closeMenu();
+      } else {
+        menu.style.display = 'block';
+        menu.setAttribute('aria-hidden', 'false');
+        loginButton.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    loginButton.addEventListener('click', toggleMenu);
+
+    document.addEventListener('click', (event) => {
+      if (!menu.contains(event.target) && event.target != loginButton) {
+        closeMenu();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key == 'Escape') {
+        closeMenu();
+      }
+    });
+  })();
+</script>
+<script>
+  // settings-menu-align
+  (function () {
+    const settingsButton = document.getElementById('settings-button');
+    const settingsMenu = document.getElementById('settings-menu');
+    if (!settingsButton || !settingsMenu) {
+      return;
+    }
+    const wrapper = document.createElement('span');
+    wrapper.style.position = 'relative';
+    wrapper.style.display = 'inline-flex';
+    settingsButton.parentElement.insertBefore(wrapper, settingsButton);
+    wrapper.appendChild(settingsButton);
+    wrapper.appendChild(settingsMenu);
+
+    settingsMenu.style.position = 'absolute';
+    settingsMenu.style.top = '100%';
+    settingsMenu.style.left = '0';
+    settingsMenu.style.right = 'auto';
+    settingsMenu.style.marginTop = '0.35rem';
+  })();
+</script>
+<script>
+  // dark-mode-sync
+  (function () {
+    const checkbox = document.getElementById('dark-mode-checkbox');
+    if (!checkbox) {
+      return;
+    }
+    const stored = localStorage.getItem('arisEduDarkMode');
+    const prefersDark = stored === null ? true : stored === 'true';
+    if (prefersDark) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+    checkbox.checked = prefersDark;
+
+    checkbox.addEventListener('change', (event) => {
+      const isDark = event.target.checked;
+      localStorage.setItem('arisEduDarkMode', String(isDark));
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+      if (window.applyArisTheme) { window.applyArisTheme(); }
+    });
+  })();
+</script>
+<script>
+  window.togglePracticesPanel = function(button) {
+    if (!button) return;
+    const menu = button.closest('.Practices-menu') || button.closest('.side-buttons'); 
+    if (!menu) return;
+    const panel = menu.querySelector('.Practices-panel');
+    if (!panel) return;
+    const isOpen = panel.classList.toggle('is-open');
+    panel.setAttribute('aria-hidden', (!isOpen).toString());
+  };
+
+  function attachPracticeListeners() {
+      document.querySelectorAll('.view-other-Practices').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        window.togglePracticesPanel(button);
+      });
+    });
+  }
+
+  window.toggleToSummary = function(event) {
+    if (event) event.preventDefault();
+    const lessonView = document.getElementById('lesson-content-view');
+    const practiceView = document.getElementById('practice-content-view');
+    const summaryView = document.getElementById('summary-content-view');
+    const quizView = document.getElementById('quiz-content-view');
+    
+    if (lessonView) lessonView.style.display = 'none';
+    if (practiceView) practiceView.style.display = 'none';
+    if (quizView) quizView.style.display = 'none';
+    if (summaryView) summaryView.style.display = 'block';
+    
+    // Update Back Button
+    const backBtn = document.getElementById('back-button');
+    if (backBtn) {
+        backBtn.innerText = "← Back to Summary";
+        // Clone to clear previous listeners
+        const newBackBtn = backBtn.cloneNode(true);
+        if (backBtn.parentNode) {
+            backBtn.parentNode.replaceChild(newBackBtn, backBtn);
+            newBackBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (summaryView) summaryView.style.display = 'none';
+                if (lessonView) lessonView.style.display = 'block';
+                
+                // Restore original Back Button behavior for Unit 1
+                const restoreBtn = newBackBtn.cloneNode(true);
+                newBackBtn.parentNode.replaceChild(restoreBtn, newBackBtn);
+                restoreBtn.innerText = "← Back to Summary";
+                restoreBtn.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    window.location.href = 'Lesson 7.4 PercentYield Summary.html';
+                });
+            });
+        }
+    }
+    
+    if(window.randomizeQuizQuestions) window.randomizeQuizQuestions();
+    window.scrollTo(0, 0);
+  };
+
+  window.toggleToPractice = function(event) {
+    if (event) event.preventDefault();
+    const lessonView = document.getElementById('lesson-content-view');
+    const practiceView = document.getElementById('practice-content-view');
+    const summaryView = document.getElementById('summary-content-view');
+    const quizView = document.getElementById('quiz-content-view');
+
+    if (lessonView) lessonView.style.display = 'none';
+    if (summaryView) summaryView.style.display = 'none';
+    if (quizView) quizView.style.display = 'none';
+    if (practiceView) practiceView.style.display = 'block';
+
+    // Update Back Button first to ensure navigation works
+    const backBtn = document.getElementById('back-button');
+    if (backBtn) {
+        backBtn.innerText = "← Back to Summary";
+        const newBackBtn = backBtn.cloneNode(true);
+        if (backBtn.parentNode) {
+            backBtn.parentNode.replaceChild(newBackBtn, backBtn);
+            newBackBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.toggleToSummary(e);
+            });
+        }
+    }
+
+    // Initialize flashcards last
+    if (typeof initFlashcards === 'function') {
+        try {
+            initFlashcards();
+        } catch (err) {
+            console.error("Error initializing flashcards:", err);
+        }
+    }
+    
+    if(window.randomizeQuizQuestions) window.randomizeQuizQuestions();
+    window.scrollTo(0, 0);
+  };
+
+  window.randomizeQuizQuestions = function() {
+    const form = document.getElementById('quiz-form');
+    if (!form) return;
+    
+    // Collect questions
+    let questions = Array.from(form.querySelectorAll('.quiz-question'));
+    if (questions.length === 0) return;
+    
+    // If we already have 5 or less, we might not need to do anything, 
+    // UNLESS we want to shuffle static ones.
+    // If dataset.shuffled is true, skip.
+    if (form.dataset.shuffled === 'true') return;
+
+    // Shuffle
+    for (let i = questions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questions[i], questions[j]] = [questions[j], questions[i]];
+    }
+
+    // Limit to 5
+    const selected = questions.slice(0, 5);
+    
+    // Clear and Append
+    form.innerHTML = '';
+    selected.forEach((q, index) => {
+        // Fix Numbering
+        const p = q.querySelector('p');
+        if (p) {
+            p.textContent = p.textContent.replace(/^\d+\.\s*/, `${index + 1}. `);
+        }
+        form.appendChild(q);
+    });
+    
+    form.dataset.shuffled = 'true';
+  };
+
+  window.toggleToQuiz = function(event) {
+    window.usedFlashcardIndices = [];
+    if (event) event.preventDefault();
+    const lessonView = document.getElementById('lesson-content-view');
+    const practiceView = document.getElementById('practice-content-view');
+    const summaryView = document.getElementById('summary-content-view');
+    const quizView = document.getElementById('quiz-content-view');
+    
+    if (lessonView) lessonView.style.display = 'none';
+    if (practiceView) practiceView.style.display = 'none';
+    if (summaryView) summaryView.style.display = 'none';
+    if (quizView) quizView.style.display = 'block';
+    
+    // Update Back Button
+    const backBtn = document.getElementById('back-button');
+    if (backBtn) {
+        backBtn.innerText = "← Back to Summary";
+        const newBackBtn = backBtn.cloneNode(true);
+        if (backBtn.parentNode) {
+            backBtn.parentNode.replaceChild(newBackBtn, backBtn);
+            newBackBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.toggleToPractice(e);
+            });
+        }
+    }
+    if(window.randomizeQuizQuestions) window.randomizeQuizQuestions();
+    window.scrollTo(0, 0);
+  };
+    
+  window.checkQuizAnswer = function(name, correct, btn) {
+    const parent = btn.closest('.quiz-question');
+    if(!parent) return;
+
+    // Get or Init Attempts
+    let attemptsElem = parent.querySelector('.attempts-indicator');
+    if (!attemptsElem) return;
+    
+    let attempts = parseInt(parent.dataset.attempts || '2');
+
+    const selected = parent.querySelector(`input[name="${name}"]:checked`);
+    let feedback = parent.querySelector('.feedback');
+    if(!feedback) {
+        feedback = document.createElement('div');
+        feedback.className = 'feedback';
+        feedback.style.marginTop = '1rem';
+        feedback.style.fontWeight = 'bold';
+        feedback.style.padding = '0.5rem';
+        feedback.style.borderRadius = '0.5rem';
+        parent.appendChild(feedback);
+    }
+    
+    if (!selected) {
+        feedback.textContent = "Please select an answer first.";
+        feedback.style.color = "#ea580c";
+        feedback.style.background = "#fff7ed";
+        return;
+    }
+
+    if (attempts <= 0 || btn.disabled) return;
+    
+    if (selected.value === correct) {
+        feedback.textContent = "Correct! Great job.";
+        feedback.style.color = "#16a34a"; 
+        feedback.style.background = "#dcfce7";
+        btn.disabled = true;
+        const inputs = parent.querySelectorAll('input');
+        inputs.forEach(i => i.disabled = true);
+        attemptsElem.style.display = 'none';
+    } else {
+        attempts--;
+        parent.dataset.attempts = attempts;
+        attemptsElem.textContent = `Attempts left: ${attempts}`;
+
+        if (attempts <= 0) {
+             feedback.textContent = `Incorrect. The correct answer was option ${correct.toUpperCase()}.`;
+             feedback.style.color = "#dc2626";
+             feedback.style.background = "#fee2e2";
+             btn.disabled = true;
+             const inputs = parent.querySelectorAll('input');
+             inputs.forEach(i => i.disabled = true);
+        } else {
+             feedback.textContent = "Incorrect. Try again!";
+             feedback.style.color = "#dc2626";
+             feedback.style.background = "#fee2e2";
+        }
+    }
+  };
+
+  window.getAnotherQuestion = function(btn) {
+    // Ensure flashcards exist
+    if ((!window.lessonFlashcards || window.lessonFlashcards.length === 0) && window.initFlashcards) {
+        window.initFlashcards();
+    }
+    if (!window.lessonFlashcards || window.lessonFlashcards.length === 0) {
+        alert("No other questions available.");
+        return;
+    }
+
+    const parent = btn.closest('.quiz-question');
+    if(!parent) return;
+    
+    // Reset UI
+    const feedback = parent.querySelector('.feedback');
+    if(feedback) feedback.remove();
+    
+    const attemptsElem = parent.querySelector('.attempts-indicator');
+    if(attemptsElem) {
+        attemptsElem.textContent = 'Attempts left: 2';
+        attemptsElem.style.display = 'block';
+    }
+    parent.dataset.attempts = '2';
+    
+    const checkBtn = parent.querySelector('button[onclick^="checkQuizAnswer"]');
+    if(checkBtn) checkBtn.disabled = false;
+
+    // 1. Pick Random Question
+        // Unique Question Logic
+    if (!window.usedFlashcardIndices) window.usedFlashcardIndices = [];
+    
+    // Safety check for flashcards
+    if (!window.lessonFlashcards) {
+        if (typeof window.initFlashcards === 'function') window.initFlashcards();
+    }
+    
+    // Filter available indices
+    let availablePool = [];
+    if (window.lessonFlashcards) {
+        availablePool = window.lessonFlashcards
+            .map((_, i) => i)
+            .filter(i => !window.usedFlashcardIndices.includes(i));
+    }
+    
+    let qIdx;
+    if (availablePool.length > 0) {
+        const randomPoolIdx = Math.floor(Math.random() * availablePool.length);
+        qIdx = availablePool[randomPoolIdx];
+    } else {
+        // Reset if exhausted to avoid infinite loops or empty
+        window.usedFlashcardIndices = [];
+        qIdx = Math.floor(Math.random() * (window.lessonFlashcards ? window.lessonFlashcards.length : 0));
+    }
+    window.usedFlashcardIndices.push(qIdx);
+    const q = window.lessonFlashcards[qIdx];
+    
+    // 2. Update Text
+    const p = parent.querySelector('p');
+    // Preserve numbering "1. ", "10. "
+    const currentNum = p.textContent.match(/^\d+\./) ? p.textContent.match(/^\d+\./)[0] : "";
+    p.textContent = currentNum + " " + q.question;
+
+    // 3. Generate Options
+    const answers = [q.answer];
+    const uniqueAnswers = new Set([q.answer]);
+    
+    const pool = window.lessonFlashcards.filter((_, i) => i !== qIdx);
+    
+    // Shuffle pool to pick distractors
+    for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    
+    // Pick unique distractors
+    for(let item of pool) {
+        if(!uniqueAnswers.has(item.answer)) {
+            answers.push(item.answer);
+            uniqueAnswers.add(item.answer);
+            if(answers.length >= 4) break;
+        }
+    }
+    
+    // Shuffle answers for display
+    for (let i = answers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [answers[i], answers[j]] = [answers[j], answers[i]];
+    }
+    
+    const letters = ['a', 'b', 'c', 'd'];
+    const correctIndex = answers.indexOf(q.answer);
+    const correctLetter = letters[correctIndex];
+    
+    // 4. Update DOM Labels
+    let labels = Array.from(parent.querySelectorAll('label'));
+     // Get the input name from the first input found
+    const firstInput = parent.querySelector('input');
+    const name = firstInput ? firstInput.name : ('q_dynamic_' + Date.now());
+
+    // Make sure we have enough labels
+    while(labels.length < answers.length) {
+        const newLabel = document.createElement('label');
+        newLabel.style.display = 'block';
+        newLabel.style.marginBottom = '0.5rem';
+        newLabel.style.cursor = 'pointer';
+        newLabel.style.fontSize = '1.3rem'; // Match scaled style
+        // Insert before check button
+        parent.insertBefore(newLabel, checkBtn);
+        labels.push(newLabel);
+    }
+
+    answers.forEach((ans, i) => {
+        const label = labels[i];
+        label.style.display = 'block';
+        // Re-create inner HTML with new values
+        // Note: scaling style is applied via CSS ID, but inline style on input was manually set in previous turns?
+        // Let's stick to the structure: <input ...> Text
+        label.innerHTML = `<input type="radio" name="${name}" value="${letters[i]}" style="margin-right:0.75rem; transform: scale(1.3);"> ${ans}`;
+        const input = label.querySelector('input');
+        input.disabled = false;
+    });
+
+    // Hide unused labels
+    for(let i=answers.length; i<labels.length; i++) {
+        labels[i].style.display = 'none';
+    }
+
+    // 5. Update Check Button Logic
+    checkBtn.setAttribute('onclick', `checkQuizAnswer('${name}', '${correctLetter}', this)`);
+  };
+
+  // Flashcard Logic
+  let flashcardsInitialized = false;
+  window.initFlashcards = function() {
+      if (flashcardsInitialized) return;
+      
+        const flashcards = [
+          { question: "Which state of matter has a definite shape and volume?", answer: "Solid" },
+          { question: "Which state of matter has a definite volume but takes the shape of its container?", answer: "Liquid" },
+          { question: "Which state of matter has no definite shape or volume?", answer: "Gas" },
+          { question: "In which state do particles vibrate in fixed positions?", answer: "Solid" },
+          { question: "In which state do particles move freely at high speeds?", answer: "Gas" },
+          { question: "In which state do particles slide past one another?", answer: "Liquid" },
+          { question: "What happens to the shape of a liquid when poured into a new container?", answer: "It takes the shape of the container" },
+          { question: "Do gases have a definite volume?", answer: "No, they expand to fill the container" },
+          { question: "Which state of matter is the most compressible?", answer: "Gas" },
+          { question: "Which state has the strongest attraction between particles?", answer: "Solid" }
+      ];
+        window.lessonFlashcards = flashcards; 
+        
+        let currentFlashcard = 0;
+        let flashcardOrder = [...Array(flashcards.length).keys()];
+        
+        const flashcardContent = document.getElementById('flashcard-content');
+        const flashcardDiv = document.getElementById('flashcard');
+        const nextFlashcardBtn = document.getElementById('next-flashcard');
+        const prevFlashcardBtn = document.getElementById('prev-flashcard');
+        const shuffleFlashcardBtn = document.getElementById('shuffle-flashcard');
+        
+        if (!flashcardContent || !flashcardDiv || !nextFlashcardBtn || !prevFlashcardBtn || !shuffleFlashcardBtn) {
+            console.error("Flashcard elements not found");
+            return;
+        }
+
+        let showingAnswer = false;
+
+        function updateFlashcard() {
+          showingAnswer = false;
+          const idx = flashcardOrder[currentFlashcard];
+          const text = flashcards[idx].question;
+          flashcardContent.textContent = text;
+          autoAdjustFontSize(text);
+        }
+
+        function autoAdjustFontSize(text) {
+          if (!flashcardContent) return;
+          // Estimate font size based on text length
+          let baseSize = 1.25; // rem
+          let minSize = 0.8; // rem
+          let maxSize = 2.5; // rem
+          let length = text.length;
+          let size = baseSize;
+          if (length < 60) {
+            size = maxSize;
+          } else if (length < 120) {
+            size = 1.5;
+          } else if (length < 200) {
+            size = 1.1;
+          } else {
+            size = minSize;
+          }
+          flashcardContent.style.fontSize = size + 'rem';
+        }
+
+        let isFlipping = false;
+        flashcardDiv.addEventListener('click', () => {
+          if (isFlipping) return;
+          isFlipping = true;
+          
+          // Direction: Q->A (Bottom-to-Up = +1), A->Q (Up-to-Bottom = -1)
+          const direction = !showingAnswer ? 1 : -1;
+          
+          flashcardDiv.style.transition = "transform 0.15s ease-in, background 0.2s, color 0.2s";
+          flashcardDiv.style.transform = `rotateX(${90 * direction}deg)`;
+          
+          setTimeout(() => {
+              const idx = flashcardOrder[currentFlashcard];
+              if (!showingAnswer) {
+                const answer = flashcards[idx].answer;
+                flashcardContent.textContent = answer;
+                autoAdjustFontSize(answer);
+                showingAnswer = true;
+              } else {
+                const question = flashcards[idx].question;
+                flashcardContent.textContent = question;
+                autoAdjustFontSize(question);
+                showingAnswer = false;
+              }
+              
+              // Complete the full flip illusion
+              flashcardDiv.style.transition = "none";
+              flashcardDiv.style.transform = `rotateX(${-90 * direction}deg)`;
+              
+              // Force reflow
+              void flashcardDiv.offsetWidth;
+              
+              flashcardDiv.style.transition = "transform 0.15s ease-out, background 0.2s, color 0.2s";
+              flashcardDiv.style.transform = "rotateX(0deg)";
+              
+              setTimeout(() => {
+                  isFlipping = false;
+              }, 150);
+          }, 150);
+        });
+        nextFlashcardBtn.addEventListener('click', () => {
+          if (isFlipping) return;
+          isFlipping = true;
+
+          // Swipe Left Animation
+          flashcardDiv.style.transition = "transform 0.25s ease-in, opacity 0.25s ease-in";
+          flashcardDiv.style.transform = "translateX(-120%) rotate(-10deg)";
+          flashcardDiv.style.opacity = "0";
+
+          setTimeout(() => {
+              currentFlashcard = (currentFlashcard + 1) % flashcardOrder.length;
+              updateFlashcard();
+              
+              // Reset to right side (hidden)
+              flashcardDiv.style.transition = "none";
+              flashcardDiv.style.transform = "translateX(120%) rotate(10deg)";
+              
+              // Force reflow
+              void flashcardDiv.offsetWidth;
+              
+              // Animate in from right
+              flashcardDiv.style.transition = "transform 0.25s ease-out, opacity 0.25s ease-out, background 0.2s, color 0.2s";
+              flashcardDiv.style.transform = "translateX(0) rotate(0)";
+              flashcardDiv.style.opacity = "1";
+              
+              setTimeout(() => {
+                  isFlipping = false;
+              }, 250);
+          }, 250);
+        });
+        prevFlashcardBtn.addEventListener('click', () => {
+          if (isFlipping) return;
+          isFlipping = true;
+
+          // Swipe Right Animation (Exit to Right)
+          flashcardDiv.style.transition = "transform 0.25s ease-in, opacity 0.25s ease-in";
+          flashcardDiv.style.transform = "translateX(120%) rotate(10deg)";
+          flashcardDiv.style.opacity = "0";
+
+          setTimeout(() => {
+              currentFlashcard = (currentFlashcard - 1 + flashcardOrder.length) % flashcardOrder.length;
+              updateFlashcard();
+              
+              // Reset to left side (hidden)
+              flashcardDiv.style.transition = "none";
+              flashcardDiv.style.transform = "translateX(-120%) rotate(-10deg)";
+              
+              // Force reflow
+              void flashcardDiv.offsetWidth;
+              
+              // Animate in from left
+              flashcardDiv.style.transition = "transform 0.25s ease-out, opacity 0.25s ease-out, background 0.2s, color 0.2s";
+              flashcardDiv.style.transform = "translateX(0) rotate(0)";
+              flashcardDiv.style.opacity = "1";
+              
+              setTimeout(() => {
+                  isFlipping = false;
+              }, 250);
+          }, 250);
+        });
+        shuffleFlashcardBtn.addEventListener('click', () => {
+          if (isFlipping) return;
+          isFlipping = true;
+
+          // 1. Shuffle Data
+          const lastCardIdx = flashcardOrder[currentFlashcard]; // Capture current card
+          function shuffleArray(array) {
+            let arr = array.slice();
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+          }
+          flashcardOrder = shuffleArray(flashcardOrder);
+          
+          // Ensure we don't start with the same card (feels like "shuffle failed")
+          if (flashcardOrder.length > 1 && flashcardOrder[0] === lastCardIdx) {
+              // Swap 0 with a random other index or just index 1
+             const swapTarget = 1;
+             [flashcardOrder[0], flashcardOrder[swapTarget]] = [flashcardOrder[swapTarget], flashcardOrder[0]];
+          }
+
+          currentFlashcard = 0;
+
+          // 2. Visual Scramble Animation
+          const container = flashcardDiv.parentElement;
+          if (getComputedStyle(container).position === 'static') {
+              container.style.position = 'relative';
+          }
+
+          // Create clones to simulate a deck being mixed
+          const numClones = 3;
+          const clones = [];
+
+          flashcardDiv.style.transition = 'all 0.3s ease';
+          flashcardDiv.style.zIndex = '10';
+
+          for (let i = 0; i < numClones; i++) {
+              const clone = flashcardDiv.cloneNode(true);
+              clone.removeAttribute('id');
+              clone.style.position = 'absolute';
+              clone.style.left = flashcardDiv.offsetLeft + 'px';
+              clone.style.top = flashcardDiv.offsetTop + 'px';
+              clone.style.width = flashcardDiv.offsetWidth + 'px';
+              clone.style.height = flashcardDiv.offsetHeight + 'px';
+              clone.style.zIndex = '5';
+              clone.style.transition = 'all 0.3s ease';
+              clone.style.opacity = '1';
+              
+              // Remove duplicate IDs from children
+              clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+              
+              container.appendChild(clone);
+              clones.push(clone);
+          }
+
+          // Trigger Scatter
+          requestAnimationFrame(() => {
+              // Shake main card
+              flashcardDiv.style.transform = `translate(${Math.random()*30-15}px, ${Math.random()*30-15}px) rotate(${Math.random()*10-5}deg)`;
+
+              // Scatter clones randomly
+              clones.forEach((clone) => {
+                  const x = (Math.random() * 120 - 60);
+                  const y = (Math.random() * 80 - 40);
+                  const rot = (Math.random() * 40 - 20);
+                  clone.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg) scale(0.95)`;
+                  clone.style.opacity = '0.8';
+                  clone.style.boxShadow = '0 10px 20px rgba(0,0,0,0.2)';
+              });
+          });
+
+          // Converge and Cleanup
+          setTimeout(() => {
+             updateFlashcard();
+
+             flashcardDiv.style.transform = 'translate(0,0) rotate(0deg)';
+             clones.forEach(clone => {
+                 clone.style.transform = 'translate(0,0) rotate(0) scale(1)';
+                 clone.style.opacity = '0';
+             });
+
+             setTimeout(() => {
+                 clones.forEach(c => c.remove());
+                 flashcardDiv.style.zIndex = '';
+                 isFlipping = false;
+             }, 300);
+          }, 300);
+        });
+
+        updateFlashcard();
+        flashcardsInitialized = true;
+  };
+</script>
+<script>
+  window.switchToClimb = function() {
+    const flashcardGame = document.querySelector('.flashcard-game');
+    const climbGame = document.getElementById('climb-game-container');
+    if(flashcardGame) flashcardGame.style.display = 'none';
+    if(climbGame) { climbGame.style.display = 'block'; if(window.initClimbGame) window.initClimbGame(); }
+  };
+
+  window.switchToFlashcards = function() {
+    const flashcardGame = document.querySelector('.flashcard-game');
+    const climbGame = document.getElementById('climb-game-container');
+    if(flashcardGame) flashcardGame.style.display = 'flex';
+    if(climbGame) climbGame.style.display = 'none';
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Attach listeners to practice menu items
+    
+    // Climb Link
+    document.querySelectorAll('a[href="#climb"]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.switchToClimb();
+        // Close menu if possible
+        if (window.togglePracticesPanel && el.closest('.Practices-menu')) {
+             const btn = el.closest('.Practices-menu').querySelector('.view-other-Practices');
+             if(btn) window.togglePracticesPanel(btn);
+        }
+      });
+    });
+
+    // Flashcard Link
+    document.querySelectorAll('a[href="#flashcard-game"]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.switchToFlashcards();
+        // Close menu if possible
+         if (window.togglePracticesPanel && el.closest('.Practices-menu')) {
+             const btn = el.closest('.Practices-menu').querySelector('.view-other-Practices');
+             if(btn) window.togglePracticesPanel(btn);
+        }
+      });
+    });
+  });
+</script>
+<script>
+// Climb Game Logic
+(function() {
+    let climbScore = 0;
+    
+    let playerPosition = 35; // percent from bottom
+    let isGameRunning = false; let isPaused = false; let spacePressed = false;
+    let gameLoopId = null;
+    let currentQuestion = null;
+    document.addEventListener('keydown', (e) => { if(e.code === 'Space') { spacePressed = true; if(isGameRunning) e.preventDefault(); } });
+    document.addEventListener('keyup', (e) => { if(e.code === 'Space') spacePressed = false; });
+    let climbFuel = 50; let downwardAccel = 0;
+    
+    // Config
+    const WIN_HEIGHT = 90; // percent
+    const CLIMB_STEP = 15; // percent
+    const FALL_RATE = 0.04; // percent per tick (simulates moving ladder)
+    const TICK_RATE = 20; // ms
+    
+    window.initClimbGame = function() {
+    const bg = document.getElementById('climb-stars');
+    if(bg && bg.innerHTML === '') {
+        for(let i=0; i<60; i++) {
+            const m = document.createElement('div');
+            m.style.position = 'absolute';
+            m.style.left = Math.random()*100 + '%';
+            m.style.top = Math.random()*100 + '%';
+            const size = Math.random()*2 + 1;
+            m.style.width = size + 'px';
+            m.style.height = size + 'px';
+            m.style.background = '#fff';
+            m.style.borderRadius = '50%';
+            m.style.opacity = Math.random()*0.7 + 0.3;
+            m.style.animation = `twinkle ${Math.random()*4+2}s infinite alternate ease-in-out`;
+            bg.appendChild(m);
+        }
+    }
+
+        const ui = document.getElementById('climb-game-ui');
+        if(ui) ui.style.display = 'flex';
+        const interaction = document.getElementById('climb-interaction'); if(interaction) interaction.style.display = 'none';
+        const start = document.getElementById('climb-start-screen'); if(start) start.style.display = 'flex';
+    }
+
+    window.toggleClimbFullscreen = function() {
+        const elem = document.getElementById('climb-game-ui');
+        if (!document.fullscreenElement) {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { /* IE11 */
+                document.msExitFullscreen();
+            }
+        }
+    };
+window.exitClimbGame = function() {
+        const ui = document.getElementById('climb-game-ui');
+        if(ui) ui.style.display = 'none';
+        isGameRunning = false;
+        if(gameLoopId) clearInterval(gameLoopId);
+        window.switchToFlashcards();
+    }
+
+    window.toggleClimbPause = function() {
+        if (!isGameRunning && !isPaused) return;
+        isPaused = !isPaused;
+        const btn = document.getElementById('climb-pause-btn');
+        if (btn) btn.innerText = isPaused ? "Resume" : "Pause";
+        
+        const pauseScreen = document.getElementById('climb-paused-screen');
+        if(pauseScreen) pauseScreen.style.display = isPaused ? 'flex' : 'none';
+    };
+
+    window.resetToClimbMenu = function() {
+        isGameRunning = false;
+        isPaused = false;
+        if(gameLoopId) clearInterval(gameLoopId);
+        
+        document.getElementById('climb-game-ui').style.display = 'flex';
+        document.getElementById('climb-start-screen').style.display = 'flex';
+        document.getElementById('climb-game-over').style.display = 'none';
+        document.getElementById('climb-interaction').style.display = 'none';
+        
+        const pauseScreen = document.getElementById('climb-paused-screen');
+        if(pauseScreen) pauseScreen.style.display = 'none';
+        
+        const pBtn = document.getElementById('climb-pause-btn');
+        if(pBtn) pBtn.innerText = "Pause";
+        
+        const interaction = document.getElementById('climb-interaction');
+        if (interaction) interaction.style.opacity = "1";
+    }
+
+    window.startClimbGame = function() {
+        isPaused = false;
+        const pBtn = document.getElementById('climb-pause-btn');
+        if(pBtn) pBtn.innerText = "Pause";
+        const interaction = document.getElementById('climb-interaction');
+        if (interaction) interaction.style.opacity = "1";
+
+        // Reset State
+        climbScore = 0;
+        climbFuel = 50;
+        
+        playerPosition = 35;
+        isGameRunning = true;
+        
+        document.getElementById('climb-start-screen').style.display = 'none';
+        document.getElementById('climb-game-over').style.display = 'none';
+        document.getElementById('climb-question-area').style.display = 'block';
+        document.getElementById('climb-interaction').style.display = 'flex';
+        
+        updateDisplay();
+        nextClimbQuestion();
+        
+        // Start "Ladder Going Down" Mechanics
+        if(gameLoopId) clearInterval(gameLoopId);
+        gameLoopId = setInterval(gameLoop, TICK_RATE);
+    }
+    
+    function gameLoop() {
+        if(!isGameRunning || isPaused) return;
+        
+        const isBoosting = spacePressed && climbFuel > 0;
+        if(isBoosting) {
+            playerPosition = Math.min(95, playerPosition + 0.5);
+            climbFuel = Math.max(0, climbFuel - 0.2);
+            if(typeof updateFuelDisplay === 'function') updateFuelDisplay();
+        }
+        
+        // Visual Boost Effect
+        const fOut = document.getElementById('climb-flame-outer');
+        const fIn = document.getElementById('climb-flame-inner');
+        if(fOut && fIn) {
+            const scale = isBoosting ? "scale(1.2, 2.0)" : "scale(1, 1)";
+            fOut.style.transform = scale;
+            fIn.style.transform = scale;
+        }
+
+        // Ladder moves down, so character moves down relative to viewport if they don't climb
+        // Or simply: Gravity pulls them down
+        let effectiveFall = FALL_RATE;
+        if (climbFuel <= 0) {
+            downwardAccel += 0.007;
+            effectiveFall += downwardAccel;
+        } else {
+            downwardAccel = 0;
+        }
+        playerPosition -= effectiveFall;
+        climbFuel = Math.max(0, climbFuel - 0.1); // Faster at higher levels?
+        
+        if (playerPosition <= 0) {
+            endGame();
+        }
+        
+        updatePlayerPos();
+        updateFuelDisplay();
+    }
+    
+    function updateDisplay() {
+        document.getElementById('climb-score').innerText = `Score: ${climbScore}`;
+        
+        updatePlayerPos();
+        updateFuelDisplay();
+    }
+    
+        function updateFuelDisplay() {
+        const fill = document.getElementById('climb-fuel-fill');
+        if(fill) fill.style.height = `${climbFuel}%`;
+    }
+    
+    function updatePlayerPos() {
+        const player = document.getElementById('climb-player');
+        if(player) player.style.bottom = `${Math.max(0, playerPosition)}%`;
+    }
+    
+    function nextClimbQuestion() {
+        const feedback = document.getElementById('climb-feedback');
+        feedback.innerText = '';
+        feedback.className = '';
+        
+        if (!window.lessonFlashcards || window.lessonFlashcards.length === 0) {
+            document.getElementById('climb-question-text').innerText = "No flashcards found for this lesson!";
+            return;
+        }
+        
+        // Pick random question
+            // Unique Question Logic
+    if (!window.usedFlashcardIndices) window.usedFlashcardIndices = [];
+    
+    // Safety check for flashcards
+    if (!window.lessonFlashcards) {
+        if (typeof window.initFlashcards === 'function') window.initFlashcards();
+    }
+    
+    // Filter available indices
+    let availablePool = [];
+    if (window.lessonFlashcards) {
+        availablePool = window.lessonFlashcards
+            .map((_, i) => i)
+            .filter(i => !window.usedFlashcardIndices.includes(i));
+    }
+    
+    let qIdx;
+    if (availablePool.length > 0) {
+        const randomPoolIdx = Math.floor(Math.random() * availablePool.length);
+        qIdx = availablePool[randomPoolIdx];
+    } else {
+        // Reset if exhausted to avoid infinite loops or empty
+        window.usedFlashcardIndices = [];
+        qIdx = Math.floor(Math.random() * (window.lessonFlashcards ? window.lessonFlashcards.length : 0));
+    }
+    window.usedFlashcardIndices.push(qIdx);
+        currentQuestion = window.lessonFlashcards[qIdx];
+        
+        document.getElementById('climb-question-text').innerText = currentQuestion.question;
+        
+        // Generate Distractors
+        const options = [currentQuestion.answer];
+        const uniqueOptions = new Set([currentQuestion.answer]);
+        
+        // Try to get 2 unique distractors (or fewer if not enough unique answers exist)
+        const allAnswers = window.lessonFlashcards.map(f => f.answer);
+        // Shuffle all answers first to ensure randomness in selection
+        for (let i = allAnswers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allAnswers[i], allAnswers[j]] = [allAnswers[j], allAnswers[i]];
+        }
+        
+        for(let ans of allAnswers) {
+            if(!uniqueOptions.has(ans)) {
+                options.push(ans);
+                uniqueOptions.add(ans);
+                if(options.length >= 3) break; // 1 correct + 2 distractors
+            }
+        }
+        
+        // Shuffle Options
+        for (let i = options.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [options[i], options[j]] = [options[j], options[i]];
+        }
+        
+        // Render Options
+        const optionsContainer = document.getElementById('climb-options');
+        optionsContainer.innerHTML = '';
+        
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'climb-option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => handleClimbAnswer(opt);
+            optionsContainer.appendChild(btn);
+        });
+    }
+    
+    function handleClimbAnswer(selected) { if(isPaused) return;
+        if(!isGameRunning || isPaused) return;
+        
+        const isBoosting = spacePressed && climbFuel > 0;
+        if(isBoosting) {
+            playerPosition = Math.min(95, playerPosition + 0.5);
+            climbFuel = Math.max(0, climbFuel - 0.2);
+            if(typeof updateFuelDisplay === 'function') updateFuelDisplay();
+        }
+        
+        // Visual Boost Effect
+        const fOut = document.getElementById('climb-flame-outer');
+        const fIn = document.getElementById('climb-flame-inner');
+        if(fOut && fIn) {
+            const scale = isBoosting ? "scale(1.2, 2.0)" : "scale(1, 1)";
+            fOut.style.transform = scale;
+            fIn.style.transform = scale;
+        }
+
+        const feedback = document.getElementById('climb-feedback');
+        
+        if(selected === currentQuestion.answer) {
+            // Correct
+            climbScore += 10;
+            climbFuel = Math.min(100, climbFuel + 20);
+            // playerPosition += CLIMB_STEP; // Disabled for manual boost
+            feedback.innerText = "Correct! Adding fuel...";
+            feedback.style.color = "#16a34a";
+
+        } else {
+            // Incorrect
+            playerPosition -= 5; // Slip down
+            feedback.innerText = "Oops! Slipping down...";
+            feedback.style.color = "#dc2626";
+        }
+        
+        updateDisplay();
+        
+        // Disable buttons temporarily
+        const btns = document.querySelectorAll('.climb-option-btn');
+        btns.forEach(b => b.disabled = true);
+        
+        setTimeout(() => {
+            nextClimbQuestion();
+        }, 1000);
+    }
+    
+        function endGame() {
+        isGameRunning = false;
+        clearInterval(gameLoopId);
+        
+        document.getElementById('climb-question-area').style.display = 'none';
+        document.getElementById('climb-interaction').style.display = 'none';
+        const gameOverScreen = document.getElementById('climb-game-over');
+        gameOverScreen.style.display = 'flex';
+        
+        const title = document.getElementById('climb-result-title');
+        const msg = document.getElementById('climb-final-score');
+        
+        // High Score Logic
+        let storageKey = 'climbHighScore';
+        try {
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            if(currentUser && currentUser.email) {
+                storageKey = 'climbHighScore_' + currentUser.email;
+            }
+        } catch(e) { console.error(e); }
+
+        let highScore = localStorage.getItem(storageKey) || 0;
+        highScore = parseInt(highScore);
+        if(climbScore > highScore) {
+            highScore = climbScore;
+            localStorage.setItem(storageKey, highScore);
+            title.innerText = "🏆 New High Score! 🏆";
+            title.style.color = "#f59e0b";
+        } else {
+            title.innerText = "Game Over";
+            title.style.color = "#1e293b";
+        }
+        
+        msg.innerHTML = `Score: ${climbScore}<br><span style="font-size:0.9em; color:#64748b">Best: ${highScore}</span>`;
+    }
+})();
+</script>
+<!-- ArisEdu Global Search -->
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script>
+(function() {
+    window.initMixMatch = function() {
+        if(window.mixMatchInitialized) return;
+        window.mixMatchInitialized = true;
+        window.startMixMatchGame();
+    };
+
+    let selectedCards = [];
+    let matchedPairs = 0;
+    let streak = 0;
+
+    window.startMixMatchGame = function() {
+        if ((!window.lessonFlashcards || window.lessonFlashcards.length === 0) && window.initFlashcards) {
+            window.initFlashcards();
+        }
+        const gameContainer = document.getElementById('mixmatch-game-board');
+        const winScreen = document.getElementById('mixmatch-win-screen');
+        
+        gameContainer.innerHTML = '';
+        winScreen.classList.add('hidden');
+        selectedCards = [];
+        matchedPairs = 0;
+        streak = 0;
+        updateStreak(0);
+
+        const data = window.lessonFlashcards || [];
+        let gameItems = [];
+        data.forEach((item, index) => {
+            gameItems.push({ id: index, text: item.question, type: 'term' });
+            gameItems.push({ id: index, text: item.answer, type: 'def' });
+        });
+
+        gameItems.sort(() => Math.random() - 0.5).forEach(item => {
+            gameContainer.appendChild(createCard(item.id, item.text, item.type));
+        });
+    }
+
+    function createCard(id, text, type) {
+        const div = document.createElement('div');
+        div.className = 'mm-card';
+        div.dataset.id = id;
+        div.dataset.type = type;
+        div.innerHTML = `<span class="font-semibold text-sm md:text-base">${text}</span>`;
+        div.onclick = () => handleCardClick(div);
+        return div;
+    }
+
+    function handleCardClick(card) {
+        if (card.classList.contains('selected') || card.classList.contains('invisible')) return;
+        if (selectedCards.length >= 2) return;
+
+        card.classList.add('selected');
+        selectedCards.push(card);
+
+        if (selectedCards.length === 2) {
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        const [c1, c2] = selectedCards;
+        let isMatch = false;
+        
+        if (c1.dataset.type !== c2.dataset.type) {
+            const termCard = c1.dataset.type === 'term' ? c1 : c2;
+            const defCard = c1.dataset.type === 'def' ? c1 : c2;
+            // Lookup expected answer for the term
+            const flashcards = window.lessonFlashcards || [];
+            const cardData = flashcards[termCard.dataset.id];
+            if(cardData) {
+                const expected = cardData.answer;
+                const actual = defCard.innerText; 
+                isMatch = expected.trim() === actual.trim();
+            }
+        }
+
+        if (isMatch) {
+            setTimeout(() => {
+                c1.classList.add('invisible', 'opacity-0', 'transition-opacity', 'duration-500');
+                c2.classList.add('invisible', 'opacity-0', 'transition-opacity', 'duration-500');
+                matchedPairs++;
+                updateStreak(1);
+                if (matchedPairs === (window.lessonFlashcards ? window.lessonFlashcards.length : 0)) {
+                    setTimeout(() => document.getElementById('mixmatch-win-screen').classList.remove('hidden'), 500);
+                }
+            }, 300);
+        } else {
+            updateStreak(-streak);
+            setTimeout(() => {
+                [c1, c2].forEach(c => {
+                    c.classList.remove('selected');
+                });
+            }, 800);
+        }
+        selectedCards = [];
+    }
+
+    function updateStreak(change) {
+        streak = change === -streak ? 0 : streak + change;
+        const disp = document.getElementById('mixmatch-streak-display');
+        if(disp) {
+            disp.textContent = streak;
+            disp.classList.add('pop-anim');
+            setTimeout(() => disp.classList.remove('pop-anim'), 300);
+        }
+    }
+})();
+</script><script>
+(function() {
+    const BOARD_SIZE = 8;
+    let grid = [];
+    let score = 0;
+    const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+    const SHAPES = [
+        [[1]], [[1, 1]], [[1, 1, 1]], [[1, 1, 1, 1]], 
+        [[1, 1], [1, 1]], [[1, 0], [1, 1]], 
+        [[1, 1, 1], [0, 1, 0]], [[1, 1, 0], [0, 1, 1]]
+    ];
+    
+    // Drag State
+    let draggedBlock = null;
+    let dragStartPos = { x: 0, y: 0 };
+    let dragOffset = { x: 0, y: 0 };
+    let currentPreview = [];
+
+    window.initBlockPuzzle = function() {
+        if(window.bpInitialized) return;
+        window.bpInitialized = true;
+        window.resetBlockGame();
+        
+        // Global listeners for drag
+        document.addEventListener('mousemove', handleDragMove);
+        document.addEventListener('touchmove', handleDragMove, {passive: false});
+        document.addEventListener('mouseup', handleDragEnd);
+        document.addEventListener('touchend', handleDragEnd);
+        
+        // Create Modal if it doesn't exist
+        if(!document.getElementById('bp-question-modal')) {
+             createQuestionModal();
+        }
+    };
+    
+    function createQuestionModal() {
+        const modal = document.createElement('div');
+        modal.id = 'bp-question-modal';
+        modal.className = 'hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm';
+        modal.innerHTML = `
+            <div class="bg-gray-800 p-6 rounded-2xl border border-gray-700 max-w-lg w-full text-center shadow-2xl">
+                <h3 class="text-2xl font-bold text-white mb-4">Bonus Question!</h3>
+                <p class="text-gray-400 mb-6">Answer correctly to get more blocks.</p>
+                <div id="bp-q-text" class="text-lg text-white mb-6 font-medium"></div>
+                <div id="bp-q-options" class="grid gap-3"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    window.resetBlockGame = function() {
+        grid = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
+        score = 0;
+        const scoreEl = document.getElementById('bp-score');
+        if(scoreEl) scoreEl.innerText = 0;
+        initBoard();
+        spawnBlocks();
+        const go = document.getElementById('bp-game-over');
+        if(go) go.classList.add('hidden');
+    };
+
+    function initBoard() {
+        const boardEl = document.getElementById('bp-board');
+        if(!boardEl) return;
+        boardEl.innerHTML = '';
+        
+        for(let y=0; y<BOARD_SIZE; y++) {
+            for(let x=0; x<BOARD_SIZE; x++) {
+                const cell = document.createElement('div');
+                cell.className = 'w-full h-full bg-gray-800 rounded-sm border border-gray-700/50';
+                cell.dataset.x = x;
+                cell.dataset.y = y;
+                boardEl.appendChild(cell);
+            }
+        }
+    }
+
+    function spawnBlocks() {
+        const handEl = document.getElementById('bp-hand');
+        if(!handEl) return;
+        handEl.innerHTML = '';
+        for(let i=0; i<3; i++) {
+            const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            createDraggableBlock(shape, color);
+        }
+    }
+    
+    function triggerQuestion() {
+        // Find question
+        const flashcards = window.lessonFlashcards || [];
+        if(flashcards.length === 0) {
+            spawnBlocks();
+            checkGameOver();
+            return;
+        }
+        
+        const qIdx = Math.floor(Math.random() * flashcards.length);
+        const q = flashcards[qIdx];
+        
+        const modal = document.getElementById('bp-question-modal');
+        const qText = document.getElementById('bp-q-text');
+        const qOpts = document.getElementById('bp-q-options');
+        
+        qText.textContent = q.question;
+        qOpts.innerHTML = '';
+        
+        // Generate Distractors
+        let answers = [q.answer];
+        const uniqueSet = new Set([q.answer]);
+        
+        const pool = flashcards.filter((_, i) => i !== qIdx);
+        // Shuffle pool
+        pool.sort(() => Math.random() - 0.5);
+        
+        for(let item of pool) {
+             if(!uniqueSet.has(item.answer)) {
+                 answers.push(item.answer);
+                 uniqueSet.add(item.answer);
+                 if(answers.length >= 4) break;
+             }
+        }
+        
+        answers.sort(() => Math.random() - 0.5);
+        
+        answers.forEach(ans => {
+            const btn = document.createElement('button');
+            btn.className = 'w-full text-left p-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-200 transition-colors border border-gray-600';
+            btn.textContent = ans;
+            btn.onclick = () => {
+                if(ans === q.answer) {
+                    // Correct
+                    modal.classList.add('hidden');
+                    spawnBlocks();
+                    checkGameOver();
+                } else {
+                    // Incorrect
+                    btn.className = 'w-full text-left p-3 rounded-lg bg-red-900/50 border border-red-500 text-red-200';
+                    setTimeout(() => {
+                         btn.className = 'w-full text-left p-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-200 transition-colors border border-gray-600';
+                    }, 1000);
+                }
+            };
+            qOpts.appendChild(btn);
+        });
+        
+        modal.classList.remove('hidden');
+    }
+
+    function createDraggableBlock(shapeMatrix, color) {
+        const handEl = document.getElementById('bp-hand');
+        const container = document.createElement('div');
+        container.className = 'block-shape relative touch-none select-none';
+        const displaySize = 15; 
+        const w = shapeMatrix[0].length * displaySize;
+        const h = shapeMatrix.length * displaySize;
+        container.style.width = `${w}px`;
+        container.style.height = `${h}px`;
+        
+        container.dataset.shape = JSON.stringify(shapeMatrix);
+        container.dataset.color = color;
+
+        shapeMatrix.forEach((row, r) => {
+            row.forEach((active, c) => {
+                if(active) {
+                    const block = document.createElement('div');
+                    block.style.position = 'absolute';
+                    block.style.left = `${c * displaySize}px`;
+                    block.style.top = `${r * displaySize}px`;
+                    block.style.width = `${displaySize-1}px`;
+                    block.style.height = `${displaySize-1}px`;
+                    block.style.backgroundColor = color;
+                    block.style.borderRadius = '2px';
+                    block.style.pointerEvents = 'none';
+                    container.appendChild(block);
+                }
+            });
+        });
+
+        const startDrag = (e) => {
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            draggedBlock = container;
+            const rect = container.getBoundingClientRect();
+            dragOffset.x = clientX - rect.left;
+            dragOffset.y = clientY - rect.top;
+            
+            container.style.position = 'fixed';
+            container.style.left = `${rect.left}px`;
+            container.style.top = `${rect.top}px`;
+            container.style.zIndex = '1000';
+            container.style.transform = 'scale(2.8)';
+            container.style.transformOrigin = 'top left';
+            container.style.opacity = '0.9';
+            container.style.cursor = 'grabbing';
+        };
+
+        container.addEventListener('mousedown', startDrag);
+        container.addEventListener('touchstart', startDrag, {passive: false});
+
+        handEl.appendChild(container);
+    }
+
+    function handleDragMove(e) {
+        if(!draggedBlock) return;
+        e.preventDefault();
+        
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        const x = clientX - dragOffset.x;
+        const y = clientY - dragOffset.y;
+        
+        draggedBlock.style.left = `${x}px`;
+        draggedBlock.style.top = `${y}px`;
+
+        updatePreview(clientX, clientY);
+    }
+
+    function handleDragEnd(e) {
+        if(!draggedBlock) return;
+        
+        const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+        
+        // FIX: Clear preview BEFORE attempting place so we don't wipe the new color
+        const previewCells = [...currentPreview]; // Copy
+        clearPreview();
+        
+        const success = attemptPlace(clientX, clientY);
+        
+        if (success) {
+            draggedBlock.remove();
+            checkLines();
+            if (document.getElementById('bp-hand').children.length === 0) {
+                triggerQuestion();
+            } else {
+                checkGameOver();
+            }
+        } else {
+            draggedBlock.style.position = '';
+            draggedBlock.style.left = '';
+            draggedBlock.style.top = '';
+            draggedBlock.style.zIndex = '';
+            draggedBlock.style.transform = '';
+            draggedBlock.style.opacity = '';
+            draggedBlock.style.cursor = 'pointer';
+        }
+        
+        draggedBlock = null;
+    }
+
+    function getBoardCoords(clientX, clientY) {
+        const board = document.getElementById('bp-board');
+        if(!board) return null;
+        const rect = board.getBoundingClientRect();
+        
+        if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) {
+            return null;
+        }
+
+        const cellSize = rect.width / BOARD_SIZE;
+        const blockRect = draggedBlock.getBoundingClientRect();
+        // Target using center of top-left block cell
+        const sampleX = blockRect.left + (cellSize / 2); 
+        const sampleY = blockRect.top + (cellSize / 2);
+
+        const col = Math.floor((sampleX - rect.left) / cellSize);
+        const row = Math.floor((sampleY - rect.top) / cellSize);
+
+        if (col >= 0 && col < BOARD_SIZE && row >= 0 && row < BOARD_SIZE) {
+            return { x: col, y: row };
+        }
+        return null;
+    }
+
+    function updatePreview(cX, cY) {
+        clearPreview();
+        const coords = getBoardCoords(cX, cY);
+        if(!coords) return;
+        
+        const shape = JSON.parse(draggedBlock.dataset.shape);
+        const {x, y} = coords;
+        
+        if (canPlace(shape, x, y)) {
+            const color = draggedBlock.dataset.color;
+            const boardEl = document.getElementById('bp-board');
+            
+            for (let r=0; r<shape.length; r++) {
+                for (let c=0; c<shape[0].length; c++) {
+                    if (shape[r][c]) {
+                        const cellIdx = (y+r) * BOARD_SIZE + (x+c);
+                        if(cellIdx < boardEl.children.length) {
+                             const cell = boardEl.children[cellIdx];
+                             cell.style.backgroundColor = color;
+                             cell.style.opacity = '0.5';
+                             currentPreview.push(cell);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    function clearPreview() {
+        currentPreview.forEach(cell => {
+            cell.style.backgroundColor = '';
+            cell.style.opacity = '';
+        });
+        currentPreview = [];
+    }
+
+    function attemptPlace(cX, cY) {
+        const coords = getBoardCoords(cX, cY);
+        if(!coords) return false;
+        
+        const shape = JSON.parse(draggedBlock.dataset.shape);
+        const {x, y} = coords;
+        const color = draggedBlock.dataset.color;
+
+        if (canPlace(shape, x, y)) {
+            place(shape, x, y, color);
+            return true;
+        }
+        return false;
+    }
+
+    function canPlace(shape, x, y) {
+        for (let r=0; r<shape.length; r++) {
+            for (let c=0; c<shape[0].length; c++) {
+                if (shape[r][c]) {
+                    const boardX = x + c;
+                    const boardY = y + r;
+                    if (boardX >= BOARD_SIZE || boardY >= BOARD_SIZE || grid[boardY][boardX]) return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    function place(shape, x, y, color) {
+        const boardEl = document.getElementById('bp-board');
+        for (let r=0; r<shape.length; r++) {
+            for (let c=0; c<shape[0].length; c++) {
+                if (shape[r][c]) {
+                    grid[y+r][x+c] = 1;
+                    const cell = boardEl.children[(y+r) * BOARD_SIZE + (x+c)];
+                    cell.style.backgroundColor = color;
+                    cell.style.boxShadow = `0 0 10px ${color}`;
+                    // Important: Reset classes to ensure color visibility if class conflict exists
+                    // cell.className = 'w-full h-full rounded-sm'; 
+                    // Actually, keeping the class is fine if style.backgroundColor is set inline.
+                    cell.style.opacity = '1';
+                }
+            }
+        }
+        score += 10;
+        const scoreEl = document.getElementById('bp-score');
+        if(scoreEl) scoreEl.innerText = score;
+    }
+
+    function checkLines() {
+        let linesCleared = 0;
+        for(let y=0; y<BOARD_SIZE; y++) {
+            if(grid[y].every(v => v === 1)) {
+                clearRow(y);
+                linesCleared++;
+            }
+        }
+        for(let x=0; x<BOARD_SIZE; x++) {
+            if(grid.every(row => row[x] === 1)) {
+                clearCol(x);
+                linesCleared++;
+            }
+        }
+        if(linesCleared > 0) {
+            score += linesCleared * 100;
+            const scoreEl = document.getElementById('bp-score');
+            if(scoreEl) scoreEl.innerText = score;
+        }
+    }
+
+    function clearRow(y) {
+        grid[y].fill(0);
+        for(let x=0; x<BOARD_SIZE; x++) resetCell(x, y);
+    }
+
+    function clearCol(x) {
+        for(let y=0; y<BOARD_SIZE; y++) {
+            grid[y][x] = 0;
+            resetCell(x, y);
+        }
+    }
+
+    function resetCell(x, y) {
+        const boardEl = document.getElementById('bp-board');
+        if(boardEl) {
+            const cell = boardEl.children[y * BOARD_SIZE + x];
+            cell.style.backgroundColor = ''; 
+            cell.className = 'w-full h-full bg-gray-800 rounded-sm border border-gray-700/50';
+            cell.style.boxShadow = '';
+            cell.style.opacity = '';
+        }
+    }
+
+    function checkGameOver() {
+        const hand = document.getElementById('bp-hand');
+        if(hand.children.length === 0) return;
+        
+        let canMove = false;
+        
+        Array.from(hand.children).forEach(block => {
+            const shape = JSON.parse(block.dataset.shape);
+            for(let y=0; y<BOARD_SIZE; y++) {
+                for(let x=0; x<BOARD_SIZE; x++) {
+                    if(canPlace(shape, x, y)) {
+                        canMove = true;
+                    }
+                }
+            }
+        });
+        
+        if(!canMove) {
+            document.getElementById('bp-game-over').classList.remove('hidden');
+            document.getElementById('bp-final-score').innerText = score;
+        }
+    }
+
+})();
+</script><script>
+// Game Switcher Logic
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Helper to hide all
+    function hideAllGames() {
+        const games = ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'];
+        games.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.style.display = 'none';
+        });
+    }
+
+    // MixMatch Switch
+    window.switchToMixMatch = function() {
+        hideAllGames();
+        const el = document.getElementById('mixmatch-container');
+        if(el) {
+            el.style.display = 'flex';
+            if(window.initMixMatch) window.initMixMatch();
+        }
+    };
+
+    // BlockPuzzle Switch
+    window.switchToBlockPuzzle = function() {
+        hideAllGames();
+        const el = document.getElementById('blockpuzzle-container');
+        if(el) {
+            el.style.display = 'flex';
+            if(window.initBlockPuzzle) window.initBlockPuzzle();
+        }
+    };
+
+    // Listeners for Menu Links
+    document.querySelectorAll('a[href="#mixmatch"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchToMixMatch();
+            if(window.togglePracticesPanel) window.togglePracticesPanel(el.closest('.Practices-menu').querySelector('button'));
+        });
+    });
+
+    document.querySelectorAll('a[href="#blockpuzzle"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchToBlockPuzzle();
+            if(window.togglePracticesPanel) window.togglePracticesPanel(el.closest('.Practices-menu').querySelector('button'));
+        });
+    });
+    
+    // Also patch existing Flashcards/Climb listeners to ensure they hide new games
+    const oldFlash = window.switchToFlashcards;
+    window.switchToFlashcards = function() {
+        hideAllGames();
+        const el = document.getElementById('flashcard-game');
+        if(el) el.style.display = 'flex';
+    };
+
+    // Hook into Boost link if it exists and uses a global function?
+    // Usually it just toggles display manually in its own listener, so hideAllGames helped.
+});
+</script>
+</body></html>
