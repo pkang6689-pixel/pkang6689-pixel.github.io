@@ -12,10 +12,16 @@ def count_lines_in_directory(directory):
     for root, _, files in os.walk(directory):
         for file in files:
             if file.endswith(('.py', '.js', '.html', '.css', '.json', '.sh', '.txt')) or file == 'index.html':
-                total_lines += count_lines_in_file(os.path.join(root, file))
+                if 'node_modules' in root.split(os.sep) or '.git' in root.split(os.sep):
+                    continue
+                full_path = os.path.join(root, file)
+                count = count_lines_in_file(full_path)
+                total_lines += count
     return total_lines
 
 if __name__ == "__main__":
-    workspace_dir = os.path.dirname(os.path.abspath(__file__))
+    # Get the project root (parent of 'scripts' folder)
+    workspace_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    print(f"Counting lines in: {workspace_dir}")
     total = count_lines_in_directory(workspace_dir)
     print(f"Total lines of code: {total}")
