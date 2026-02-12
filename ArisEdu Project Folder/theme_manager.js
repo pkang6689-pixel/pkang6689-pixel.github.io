@@ -944,12 +944,18 @@
         // Apply dark mode class
         document.body.classList.toggle('dark-mode', darkMode);
 
-        // Special Themes List
-        const specialThemes = ['blue-green', 'sunset', 'coral', 'autumn', 'cyber', 'lavender', 'sunrise'];
-        const isSpecialTheme = specialThemes.includes(colorTheme);
+        // Special Themes List (Backgrounds that need transparency)
+        const specialBackgrounds = ['aurora', 'sunset', 'coral', 'autumn', 'cyber', 'lavender', 'sunrise', 'blue-green'];
+        
+        // Determine effective background
+        const storedBackground = localStorage.getItem('arisEduBackgroundTheme');
+        let effectiveBackground = (storedBackground && storedBackground !== 'default') ? storedBackground : colorTheme;
+        if (effectiveBackground === 'blue-green') effectiveBackground = 'aurora';
+        
+        const isSpecialBackground = specialBackgrounds.includes(effectiveBackground);
 
         // Background Logic
-        if (isSpecialTheme) {
+        if (isSpecialBackground) {
              document.body.style.background = 'transparent';
         } else {
              // Standard Themes
@@ -961,19 +967,15 @@
         }
 
         // Manage Interactive Backgrounds
-        // Map colorTheme to internal ID if different
-        let themeId = colorTheme;
-        if (colorTheme === 'blue-green') themeId = 'aurora';
-        
-        window.clearAllBackgrounds(themeId);
+        window.clearAllBackgrounds(effectiveBackground);
 
-        if (colorTheme === 'blue-green') window.manageAuroraBackground(true, darkMode);
-        else if (colorTheme === 'sunset') window.manageSunsetBackground(true, darkMode);
-        else if (colorTheme === 'coral') window.manageCoralBackground(true, darkMode);
-        else if (colorTheme === 'autumn') window.manageAutumnBackground(true, darkMode);
-        else if (colorTheme === 'cyber') window.manageCyberBackground(true, darkMode);
-        else if (colorTheme === 'lavender') window.manageLavenderBackground(true, darkMode);
-        else if (colorTheme === 'sunrise') window.manageSunriseBackground(true, darkMode);
+        if (effectiveBackground === 'aurora') window.manageAuroraBackground(true, darkMode);
+        else if (effectiveBackground === 'sunset') window.manageSunsetBackground(true, darkMode);
+        else if (effectiveBackground === 'coral') window.manageCoralBackground(true, darkMode);
+        else if (effectiveBackground === 'autumn') window.manageAutumnBackground(true, darkMode);
+        else if (effectiveBackground === 'cyber') window.manageCyberBackground(true, darkMode);
+        else if (effectiveBackground === 'lavender') window.manageLavenderBackground(true, darkMode);
+        else if (effectiveBackground === 'sunrise') window.manageSunriseBackground(true, darkMode);
 
 
         // Apply to taskbar if exists
@@ -1021,7 +1023,7 @@
                  settingsContainer.style.color = '#e2e8f0';
              } else {
                  // Light Mode
-                 if (isSpecialTheme) {
+                 if (isSpecialBackground) {
                      // On special backgrounds, make container white glassy.
                      settingsContainer.style.background = 'rgba(255, 255, 255, 0.85)';
                      settingsContainer.style.backdropFilter = 'blur(10px)';

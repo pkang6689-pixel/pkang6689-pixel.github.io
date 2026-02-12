@@ -1011,7 +1011,12 @@
           showFormMessage('login-form', 'Login successful! Redirecting...', 'success');
           
           // Save session to localStorage for other pages to use
-          const storedUser = { name: user.displayName || user.email.split('@')[0], email: user.email };
+          // NOTE: Saving password to localStorage is not secure for production apps, but added per user request for demo purposes.
+          const storedUser = { 
+              name: user.displayName || user.email.split('@')[0], 
+              email: user.email,
+              password: password // Save password for Preferences display
+          };
           localStorage.setItem('user', JSON.stringify(storedUser));
           showAccountView(storedUser);
 
@@ -1122,7 +1127,12 @@
           showFormMessage('signup-form', 'Account created! Logging you in...', 'success');
           
           // Save session to localStorage
-          const storedUser = { name: name.trim(), email: email.trim() };
+          // NOTE: Saving password to localStorage is not secure in production.
+          const storedUser = { 
+              name: name.trim(), 
+              email: email.trim(),
+              password: password // Save password for Preferences display
+          };
           localStorage.setItem('user', JSON.stringify(storedUser));
           showAccountView(storedUser);
 

@@ -3,10 +3,68 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchBtn = document.getElementById('search-button');
     if (!searchBtn) return; // Exit if no button
 
-    // 2. Create Modal HTML
+    // 2. Create Modal HTML (With injected styles for Dark Mode support)
     const modalHTML = `
+        <style>
+            /* Light Mode Default Styles */
+            .aris-search-result-item {
+                display: block;
+                padding: 1rem;
+                border-bottom: 1px solid #f1f5f9;
+                text-decoration: none;
+                color: inherit;
+                transition: background 0.2s;
+                background: white;
+            }
+            .aris-search-result-item:hover {
+                background: #f8fafc;
+            }
+            .aris-search-result-title {
+                font-weight: 600;
+                color: #334155;
+                font-size: 1rem;
+            }
+            .aris-search-result-subtitle {
+                font-size: 0.85rem;
+                color: #64748b;
+            }
+
+            /* Dynamic Dark Mode Support */
+            body.dark-mode #aris-search-content {
+                background: #1e293b !important;
+                color: #e2e8f0 !important;
+            }
+            body.dark-mode #aris-search-input {
+                background: #0f172a !important;
+                color: white !important;
+                border-color: #334155 !important;
+            }
+            body.dark-mode #aris-search-footer {
+                background: #0f172a !important;
+                border-color: #334155 !important;
+                color: #94a3b8 !important;
+            }
+            body.dark-mode #aris-search-close {
+                color: #e2e8f0 !important;
+            }
+            /* Results Item in Dark Mode */
+            body.dark-mode .aris-search-result-item {
+                 background: transparent !important;
+                 border-bottom-color: #334155 !important;
+            }
+            /* Results Hover in Dark Mode */
+            body.dark-mode .aris-search-result-item:hover {
+                background: #334155 !important;
+            }
+            body.dark-mode .aris-search-result-title {
+                color: #e2e8f0 !important;
+            }
+            body.dark-mode .aris-search-result-subtitle {
+                color: #cbd5e1 !important;
+            }
+        </style>
         <div id="aris-search-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.8); z-index:9999; backdrop-filter:blur(4px); align-items:flex-start; justify-content:center; padding-top:5rem;">
-            <div style="background:white; width:90%; max-width:600px; border-radius:1rem; box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow:hidden; display:flex; flex-direction:column; max-height:80vh;">
+            <div id="aris-search-content" style="background:white; width:90%; max-width:600px; border-radius:1rem; box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow:hidden; display:flex; flex-direction:column; max-height:80vh;">
                 <!-- Header -->
                 <div style="padding:1rem; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; gap:0.5rem;">
                     <span style="font-size:1.5rem;">🔍</span>
@@ -18,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="padding:2rem; text-align:center; color:#94a3b8;">Type to start searching...</div>
                 </div>
                 <!-- Footer -->
-                <div style="padding:0.75rem; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.8rem; color:#64748b; text-align:right;">
+                <div id="aris-search-footer" style="padding:0.75rem; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.8rem; color:#64748b; text-align:right;">
                     ArisEdu Search
                 </div>
             </div>
@@ -80,9 +138,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let html = '';
         items.forEach(item => {
             html += `
-                <a href="${item.url}" style="display:block; padding:1rem; border-bottom:1px solid #f1f5f9; text-decoration:none; color:inherit; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
-                    <div style="font-weight:600; color:#334155; font-size:1rem;">${highlight(item.title, input.value)}</div>
-                    <div style="font-size:0.85rem; color:#64748b;">${highlight(item.subtitle, input.value)}</div>
+                <a href="${item.url}" class="aris-search-result-item">
+                    <div class="aris-search-result-title">${highlight(item.title, input.value)}</div>
+                    <div class="aris-search-result-subtitle">${highlight(item.subtitle, input.value)}</div>
                 </a>
             `;
         });
@@ -121,27 +179,9 @@ document.addEventListener('DOMContentLoaded', () => {
         performSearch(e.target.value);
     });
     
-    // Dark Mode Support for Modal
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    if(isDarkMode) {
-        // Simple dark mode styles via JS
-        const modalContent = modal.querySelector('div[style*="background:white"]');
-        if(modalContent) {
-           modalContent.style.background = '#1e293b'; 
-           modalContent.style.color = '#e2e8f0'; 
-        }
-        const inputEl = document.getElementById('aris-search-input');
-        if(inputEl) {
-            inputEl.style.background = '#0f172a';
-            inputEl.style.color = 'white';
-            inputEl.style.border = '2px solid #334155';
-        }
-        const footer = modal.querySelector('div[style*="background:#f8fafc"]');
-        if(footer) {
-            footer.style.background = '#0f172a';
-            footer.style.borderTop = '1px solid #334155';
-        }
-    }
+    // Dark Mode Support for Modal (Handled by CSS injection above)
+    // Removed legacy JS-based static styling
+
 
     // 7. Global Theme Application (Enhanced for Full Site Coverage)
     function applyGlobalTheme() {

@@ -463,6 +463,28 @@ const settingsOptions = {
         </div>
       </div>
       <div style="margin-bottom: 1.5rem;">
+        <label style="font-size: 1.1rem;">Background Theme:</label>
+        <div class="custom-select-wrapper">
+            <div class="custom-select" id="customBackgroundSelect">
+                <div class="custom-select-trigger">
+                    <span>Select Background</span>
+                    <div class="arrow">▼</div>
+                </div>
+                <div class="custom-options">
+                    <span class="custom-option" data-value="default" style="-webkit-text-fill-color: initial !important; color: inherit !important;">Default (None)</span>
+                    <span class="custom-option" data-value="aurora" style="background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);">Aurora</span>
+                    <span class="custom-option" data-value="sunset" style="background: linear-gradient(to right, #FF7E5F, #00C9A7, #1A2A6C);">Sunset</span>
+                    <span class="custom-option" data-value="coral" style="background: linear-gradient(to right, #FF6F61, #40E0D0, #4B0082);">Coral reef</span>
+                    <span class="custom-option" data-value="autumn" style="background: linear-gradient(to right, #CC5500, #DAA520, #8B4513);">Autumn</span>
+                    <span class="custom-option" data-value="sunrise" style="background: linear-gradient(to right, #FFDAB9, #FF7F50, #FFFACD);">Sunrise</span>
+                    <span class="custom-option" data-value="lavender" style="background: linear-gradient(to right, #C8A2C8, #9DC183, #FFFDD0);">Lavender</span>
+                    <span class="custom-option" data-value="cyber" style="background: linear-gradient(to right, #000000, #00FFFF);">Cyber</span>
+                </div>
+            </div>
+            <input type="hidden" id="backgroundThemeInput"> 
+        </div>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
         <label style="font-size: 1.1rem;">Other Color Themes:</label>
         <div class="custom-select-wrapper">
             <div class="custom-select" id="customThemeSelectOther">
@@ -525,6 +547,28 @@ const settingsOptions = {
         </div>
       </div>
       <div style="margin-bottom: 1.5rem;">
+        <label style="font-size: 1.1rem;">背景主题:</label>
+        <div class="custom-select-wrapper">
+            <div class="custom-select" id="customBackgroundSelect">
+                <div class="custom-select-trigger">
+                    <span>选择背景</span>
+                    <div class="arrow">▼</div>
+                </div>
+                <div class="custom-options">
+                    <span class="custom-option" data-value="default" style="-webkit-text-fill-color: initial !important; color: inherit !important;">默认 (无)</span>
+                    <span class="custom-option" data-value="aurora" style="background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);">极光</span>
+                    <span class="custom-option" data-value="sunset" style="background: linear-gradient(to right, #FF7E5F, #00C9A7, #1A2A6C);">日落</span>
+                    <span class="custom-option" data-value="coral" style="background: linear-gradient(to right, #FF6F61, #40E0D0, #4B0082);">珊瑚礁</span>
+                    <span class="custom-option" data-value="autumn" style="background: linear-gradient(to right, #CC5500, #DAA520, #8B4513);">秋天</span>
+                    <span class="custom-option" data-value="sunrise" style="background: linear-gradient(to right, #FFDAB9, #FF7F50, #FFFACD);">日出</span>
+                    <span class="custom-option" data-value="lavender" style="background: linear-gradient(to right, #C8A2C8, #9DC183, #FFFDD0);">薰衣草</span>
+                    <span class="custom-option" data-value="cyber" style="background: linear-gradient(to right, #000000, #00FFFF);">赛博</span>
+                </div>
+            </div>
+            <input type="hidden" id="backgroundThemeInput"> 
+        </div>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
         <label style="font-size: 1.1rem;">其他主题颜色:</label>
         <div class="custom-select-wrapper">
             <div class="custom-select" id="customThemeSelectOther">
@@ -561,6 +605,9 @@ const settingsOptions = {
         <label style="font-size: 1.1rem;">Password:
           <input type="password" id="accountPassword" class="preferences-input" placeholder="••••••••" />
         </label>
+        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; margin-top: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="showPasswordToggle"> <span>Show Password</span>
+        </label>
       </div>
     </form>
   `,
@@ -575,6 +622,9 @@ const settingsOptions = {
       <div style="margin-bottom: 1.5rem;">
         <label style="font-size: 1.1rem;">密码:
           <input type="password" id="accountPassword" class="preferences-input" placeholder="••••••••" />
+        </label>
+        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; margin-top: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="showPasswordToggle"> <span>显示密码</span>
         </label>
       </div>
     </form>
@@ -638,104 +688,118 @@ function renderSettings(category) {
     if (darkModeToggle) darkModeToggle.checked = (localStorage.getItem('arisEduDarkMode') === null ? true : localStorage.getItem('arisEduDarkMode') === 'true');
     if (languageSelect) languageSelect.value = localStorage.getItem('arisEduLanguage') || 'english';
     
-    // Custom Select Logic
-    if (colorThemeSelect) {
-        const savedTheme = localStorage.getItem('arisEduColorTheme') || 'blue-green';
-        colorThemeSelect.value = savedTheme;
+    // Custom Select Logic: Shared for both Color Theme and Background selection
+    const colorThemeSelectElement = document.getElementById('colorThemeSelect');
+    const backgroundInputElement = document.getElementById('backgroundThemeInput');
+    
+    if (colorThemeSelectElement || backgroundInputElement) {
         
-        const refreshAllDropdowns = (currentValue) => {
-            ['customThemeSelectSuggested', 'customThemeSelectOther'].forEach(id => {
-                const wrapper = document.getElementById(id);
-                if(!wrapper) return;
-                
-                wrapper.classList.remove('open'); // Close all on selection
-                
-                const triggerSpan = wrapper.querySelector('.custom-select-trigger span');
-                const options = wrapper.querySelectorAll('.custom-option');
-                const matching = Array.from(options).find(o => o.dataset.value === currentValue);
-                
-                if(matching) {
-                    triggerSpan.textContent = matching.textContent.trim();
-                    
-                    // Copy the exact style attribute (gradient) from the option
-                    const gradientStyle = matching.getAttribute('style');
-                    if(gradientStyle) {
-                        triggerSpan.setAttribute('style', gradientStyle);
-                    }
-                    
-                    triggerSpan.classList.add('gradient-text-selected');
-                } else {
-                    const isChinese = localStorage.getItem('arisEduLanguage') === 'chinese';
-                    triggerSpan.textContent = isChinese ? "选择主题" : "Select Theme";
-                    triggerSpan.style.background = '';
-                    triggerSpan.classList.remove('gradient-text-selected');
-                }
-            });
+        // Helper to update UI specifically
+        const updateDropdownUI = (wrapperId, value) => {
+             const wrapper = document.getElementById(wrapperId);
+             if(!wrapper) return;
+             
+             const triggerSpan = wrapper.querySelector('.custom-select-trigger span');
+             const options = wrapper.querySelectorAll('.custom-option');
+             const matching = Array.from(options).find(o => o.dataset.value === value);
+             
+             if(matching) {
+                 triggerSpan.textContent = matching.textContent.trim();
+                 const style = matching.getAttribute('style');
+                 // Use cssText to copy fully, but ensure it overrides
+                 if(style && value !== 'default') {
+                     triggerSpan.style.cssText = style; 
+                     triggerSpan.classList.add('gradient-text-selected');
+                 } else {
+                     triggerSpan.style.cssText = ''; 
+                     triggerSpan.classList.remove('gradient-text-selected');
+                     const isChinese = localStorage.getItem('arisEduLanguage') === 'chinese';
+                     // Maintain placeholder if needed, but here we matched an option so we use its text.
+                 }
+             } else {
+                 // Fallback if no value match (e.g. initial load without saved value)
+                 const isChinese = localStorage.getItem('arisEduLanguage') === 'chinese';
+                 triggerSpan.textContent = isChinese ? "选择主题" : "Select Theme";
+                 triggerSpan.style.cssText = '';
+                 triggerSpan.classList.remove('gradient-text-selected');
+             }
         };
 
-        // Helper to setup a dropdown
-        const setupDropdown = (wrapperId) => {
+        const setupDropdown = (wrapperId, storageKey, syncGroup = []) => {
             const wrapper = document.getElementById(wrapperId);
             if (!wrapper) return;
             
             const trigger = wrapper.querySelector('.custom-select-trigger');
             const options = wrapper.querySelectorAll('.custom-option');
             
+            // Initialization
+            const savedValue = localStorage.getItem(storageKey) || (storageKey.includes('Background') ? 'default' : 'blue-green');
+            updateDropdownUI(wrapperId, savedValue);
+
             // Toggle
             trigger.addEventListener('click', function(e) {
-                // Close others
-                 document.querySelectorAll('.custom-select').forEach(w => {
-                     if(w !== wrapper) w.classList.remove('open');
-                 });
-                wrapper.classList.toggle('open');
+                document.querySelectorAll('.custom-select').forEach(w => {
+                    if(w !== wrapper) w.classList.remove('open');
+                });
                 e.stopPropagation();
+                wrapper.classList.toggle('open');
             });
 
             // Selection
             options.forEach(option => {
-                option.addEventListener('click', function() {
-                     const value = this.dataset.value;
-                     colorThemeSelect.value = value;
-                     
-                     // Update LocalStorage & App
-                     localStorage.setItem('arisEduColorTheme', value);
-                     const darkModeStored = (localStorage.getItem('arisEduDarkMode') === null ? true : localStorage.getItem('arisEduDarkMode') === 'true');
-                     applyDarkMode(darkModeStored);
-                     if (window.applyGlobalTheme) window.applyGlobalTheme();
+                option.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const value = this.dataset.value;
+                    localStorage.setItem(storageKey, value);
 
-                     // Update ALL dropdowns
-                     refreshAllDropdowns(value);
+                    // Update UI immediately (self)
+                    updateDropdownUI(wrapperId, value);
+                    
+                    // Sync others in group
+                    syncGroup.forEach(id => updateDropdownUI(id, value));
+                    
+                    wrapper.classList.remove('open');
+                    
+                    // Apply Global Theme
+                    if (window.applyGlobalTheme) window.applyGlobalTheme();
+                    else if (window.applyArisTheme) window.applyArisTheme();
+
+                    const isDarkMode = (localStorage.getItem('arisEduDarkMode') === null ? true : localStorage.getItem('arisEduDarkMode') === 'true');
+                    applyDarkMode(isDarkMode);
                 });
             });
         };
 
-        // Initialize both
-        setupDropdown('customThemeSelectSuggested');
-        setupDropdown('customThemeSelectOther');
-        
-        // Initial Refresh
-        refreshAllDropdowns(savedTheme);
+        // Initialize Call
+        if(colorThemeSelectElement) {
+            setupDropdown('customThemeSelectSuggested', 'arisEduColorTheme', ['customThemeSelectOther']);
+            setupDropdown('customThemeSelectOther', 'arisEduColorTheme', ['customThemeSelectSuggested']);
+        }
+        if(backgroundInputElement) {
+            setupDropdown('customBackgroundSelect', 'arisEduBackgroundTheme');
+        }
 
-        // Close on outside click (Shared)
+        // Global Closer
         document.addEventListener('click', function(e) {
-            ['customThemeSelectSuggested', 'customThemeSelectOther'].forEach(id => {
-                 const wrapper = document.getElementById(id);
-                 if (wrapper && !wrapper.contains(e.target)) {
-                    wrapper.classList.remove('open');
-                 }
+            const dropdowns = document.querySelectorAll('.custom-select');
+            dropdowns.forEach(d => {
+                if(!d.contains(e.target)) d.classList.remove('open');
             });
         });
     }
 
+
     // Save settings automatically
     if (darkModeToggle) darkModeToggle.addEventListener('change', function() {
       localStorage.setItem('arisEduDarkMode', darkModeToggle.checked);
+      if (window.applyGlobalTheme) window.applyGlobalTheme();
       applyDarkMode(darkModeToggle.checked);
     });
     if (languageSelect) languageSelect.addEventListener('change', function() {
       const prevLang = localStorage.getItem('arisEduLanguage') || 'english';
       localStorage.setItem('arisEduLanguage', languageSelect.value);
       renderSettings(category);
+      if (window.applyGlobalTheme) window.applyGlobalTheme();
       const darkModeStored = (localStorage.getItem('arisEduDarkMode') === null ? true : localStorage.getItem('arisEduDarkMode') === 'true');
       applyDarkMode(darkModeStored);
       // Show BETA disclaimer if switching to Chinese
@@ -763,8 +827,26 @@ function renderSettings(category) {
   if (category === 'account') {
     const accountEmail = document.getElementById('accountEmail');
     const accountPassword = document.getElementById('accountPassword');
-    if (accountEmail) accountEmail.value = localStorage.getItem('arisEduAccountEmail') || '';
-    if (accountPassword) accountPassword.value = localStorage.getItem('arisEduAccountPassword') || '';
+    const showPasswordToggle = document.getElementById('showPasswordToggle');
+
+    // Load available email and password (prioritize preference, fallback to login user)
+    let savedEmail = localStorage.getItem('arisEduAccountEmail');
+    let savedPassword = localStorage.getItem('arisEduAccountPassword');
+
+    if (!savedEmail || !savedPassword) {
+         try {
+             const userJson = localStorage.getItem('user');
+             if (userJson) {
+                 const u = JSON.parse(userJson);
+                 if (!savedEmail && u.email) savedEmail = u.email;
+                 if (!savedPassword && u.password) savedPassword = u.password;
+             }
+         } catch(e){}
+    }
+    
+    if (accountEmail) accountEmail.value = savedEmail || '';
+    if (accountPassword) accountPassword.value = savedPassword || '';
+    
     if (accountEmail) accountEmail.addEventListener('input', function() {
       localStorage.setItem('arisEduAccountEmail', accountEmail.value);
       updateTaskbarUsername();
@@ -772,6 +854,13 @@ function renderSettings(category) {
     if (accountPassword) accountPassword.addEventListener('input', function() {
       localStorage.setItem('arisEduAccountPassword', accountPassword.value);
     });
+
+    // Toggle Password Visibility
+    if (showPasswordToggle && accountPassword) {
+        showPasswordToggle.addEventListener('change', function() {
+            accountPassword.type = this.checked ? 'text' : 'password';
+        });
+    }
   }
   // Always update taskbar username after rendering
   updateTaskbarUsername();
