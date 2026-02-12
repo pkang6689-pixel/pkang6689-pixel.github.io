@@ -1348,17 +1348,24 @@ body.dark-mode #quiz-content-view .quiz-question {
 </script>
 <script>
   window.switchToClimb = function() {
-    const flashcardGame = document.querySelector('.flashcard-game');
+    // Hide all games first
+    ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
     const climbGame = document.getElementById('climb-game-container');
-    if(flashcardGame) flashcardGame.style.display = 'none';
     if(climbGame) { climbGame.style.display = 'block'; if(window.initClimbGame) window.initClimbGame(); }
   };
 
   window.switchToFlashcards = function() {
+    // Hide all games first
+    ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
     const flashcardGame = document.querySelector('.flashcard-game');
-    const climbGame = document.getElementById('climb-game-container');
     if(flashcardGame) flashcardGame.style.display = 'flex';
-    if(climbGame) climbGame.style.display = 'none';
+    if(typeof window.initFlashcards === 'function') window.initFlashcards();
   };
 
   document.addEventListener('DOMContentLoaded', () => {

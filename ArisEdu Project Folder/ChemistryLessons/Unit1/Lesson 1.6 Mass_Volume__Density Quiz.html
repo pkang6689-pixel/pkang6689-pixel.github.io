@@ -1235,7 +1235,7 @@
 </ul>
 </div>
 <div class="summary-actions">
-<a class="side-button" href="#" style="text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center;">Next Up: Play</a>
+<a class="side-button" href="Lesson 1.7 Mixtures_Heterogeneous_vs_Homogeneous.html" style="text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center;">Next Up: Lesson 1.7</a>
 </div>
 </div>
 </div>
@@ -1490,7 +1490,7 @@
 
     // Taskbar Button Handlers
         document.getElementById('back-button').addEventListener('click', () => {
-      window.location.href = 'Lesson 3.8 Nuclear_Chemistry_Stability__Radioactivity.html';
+      window.location.href = 'Lesson 1.6 Mass_Volume__Density Practice.html';
     });
 
     document.getElementById('homepage-button').addEventListener('click', () => {
@@ -2329,17 +2329,24 @@
 </script>
 <script>
   window.switchToClimb = function() {
-    const flashcardGame = document.querySelector('.flashcard-game');
+    // Hide all games first
+    ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
     const climbGame = document.getElementById('climb-game-container');
-    if(flashcardGame) flashcardGame.style.display = 'none';
     if(climbGame) { climbGame.style.display = 'block'; if(window.initClimbGame) window.initClimbGame(); }
   };
 
   window.switchToFlashcards = function() {
+    // Hide all games first
+    ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
     const flashcardGame = document.querySelector('.flashcard-game');
-    const climbGame = document.getElementById('climb-game-container');
     if(flashcardGame) flashcardGame.style.display = 'flex';
-    if(climbGame) climbGame.style.display = 'none';
+    if(typeof window.initFlashcards === 'function') window.initFlashcards();
   };
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -3325,6 +3332,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Hook into Boost link if it exists and uses a global function?
     // Usually it just toggles display manually in its own listener, so hideAllGames helped.
+});
+</script>
+<script>
+// Auto-initialize flashcards on direct page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.initFlashcards === 'function') {
+        window.initFlashcards();
+    }
 });
 </script>
 </body></html>

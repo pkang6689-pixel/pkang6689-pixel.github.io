@@ -1222,7 +1222,24 @@
 <!-- Embedded Summary View (Hidden by default) -->
 <!-- Embedded Practice View (Hidden by default) -->
 <!-- Quiz View (Hidden by default) -->
-<div id="quiz-content-view"><h1>Content Missing</h1></div>
+<div id="quiz-content-view">
+<h2 class="page-title">Lesson 8.8: Daltons Law of Partial Pressures Quiz</h2>
+<div class="diagram-card">
+    <div class="quiz-container">
+        <form id="quiz-form">
+            <div class="quiz-question" style="margin-bottom: 2rem;">
+                <p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. What is the main focus of Daltons Law of Partial Pressures?</p>
+                <label style="display:block;margin-bottom:0.5rem;"><input type="radio" name="q1" value="a"> Concept A</label>
+                <label style="display:block;margin-bottom:0.5rem;"><input type="radio" name="q1" value="b"> Concept B</label>
+                <label style="display:block;margin-bottom:0.5rem;"><input type="radio" name="q1" value="c"> Concept C</label>
+            </div>
+        </form>
+         <div class="summary-actions">
+            <button class="side-button" onclick="location.href='Lesson 8.8 Daltons_Law_of_Partial_Pressures.html'">Back to Lesson</button>
+        </div>
+    </div>
+</div>
+</div>
 </main>
 <script>
 
@@ -2311,17 +2328,24 @@
 </script>
 <script>
   window.switchToClimb = function() {
-    const flashcardGame = document.querySelector('.flashcard-game');
+    // Hide all games first
+    ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
     const climbGame = document.getElementById('climb-game-container');
-    if(flashcardGame) flashcardGame.style.display = 'none';
     if(climbGame) { climbGame.style.display = 'block'; if(window.initClimbGame) window.initClimbGame(); }
   };
 
   window.switchToFlashcards = function() {
+    // Hide all games first
+    ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
     const flashcardGame = document.querySelector('.flashcard-game');
-    const climbGame = document.getElementById('climb-game-container');
     if(flashcardGame) flashcardGame.style.display = 'flex';
-    if(climbGame) climbGame.style.display = 'none';
+    if(typeof window.initFlashcards === 'function') window.initFlashcards();
   };
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -3307,6 +3331,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Hook into Boost link if it exists and uses a global function?
     // Usually it just toggles display manually in its own listener, so hideAllGames helped.
+});
+</script>
+<script>
+// Auto-initialize flashcards on direct page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.initFlashcards === 'function') {
+        window.initFlashcards();
+    }
 });
 </script>
 </body></html>

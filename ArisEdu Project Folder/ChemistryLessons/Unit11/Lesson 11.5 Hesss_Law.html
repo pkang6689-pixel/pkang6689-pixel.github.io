@@ -1710,7 +1710,7 @@ n&gt;
                 // "Back to Unit 1"
                 
                 // Re-read strictly:
-                // The original code had: window.location.href = '/ArisEdu Project Folder/ChemistryLessons/Unit2/ChemicalUnit2.html' (example)
+                // The original code had: window.location.href = '../../chem.html' (example)
                 // We can't easily parse that strictly from js logic without parsing the original file content.
                 // HOWEVER, we can just grab the 'href' if it was an <a> tag?
                 // The original back button is often a <button> with a JS listener.
@@ -2027,17 +2027,24 @@ n&gt;
 </script>
 <script>
   window.switchToClimb = function() {
-    const flashcardGame = document.querySelector('.flashcard-game');
+    // Hide all games first
+    ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
     const climbGame = document.getElementById('climb-game-container');
-    if(flashcardGame) flashcardGame.style.display = 'none';
     if(climbGame) { climbGame.style.display = 'block'; if(window.initClimbGame) window.initClimbGame(); }
   };
 
   window.switchToFlashcards = function() {
+    // Hide all games first
+    ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
     const flashcardGame = document.querySelector('.flashcard-game');
-    const climbGame = document.getElementById('climb-game-container');
     if(flashcardGame) flashcardGame.style.display = 'flex';
-    if(climbGame) climbGame.style.display = 'none';
+    if(typeof window.initFlashcards === 'function') window.initFlashcards();
   };
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -3594,5 +3601,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Usually it just toggles display manually in its own listener, so hideAllGames helped.
 });
 </script>
-</main></body>
+</main><script>
+// Auto-initialize flashcards on direct page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.initFlashcards === 'function') {
+        window.initFlashcards();
+    }
+});
+</script>
+</body>
 </html>

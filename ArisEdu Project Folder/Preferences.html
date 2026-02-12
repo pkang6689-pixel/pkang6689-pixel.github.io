@@ -390,23 +390,39 @@ const sidebarLabels = {
 
 function updateSidebarLanguage() {
   const lang = localStorage.getItem('arisEduLanguage') || 'english';
-  const labels = sidebarLabels[lang];
-  document.querySelector('aside h2').textContent = labels.settings;
+  const labels = sidebarLabels[lang] || sidebarLabels['english'];
+  const el = (sel) => document.querySelector(sel);
+  const byId = (id) => document.getElementById(id);
+  const safeText = (node, text) => { if (node) node.textContent = text; };
+
+  safeText(el('aside h2'), labels.settings);
   const buttons = document.querySelectorAll('.settings-category');
   if (buttons.length === 3) {
     buttons[0].textContent = labels.appearance;
     buttons[1].textContent = labels.account;
     buttons[2].textContent = labels.notifications;
   }
-  document.getElementById('search-button').textContent = labels.search;
-  document.getElementById('homepage-button').textContent = labels.homepage;
-  document.getElementById('course-button').textContent = labels.courses;
-  
-  document.getElementById('settings-button').textContent = labels.settingsBtn;
-  document.getElementById('login-signup-button').textContent = labels.loginSignup;
+  safeText(byId('search-button'), labels.search);
+  safeText(byId('homepage-button'), labels.homepage);
+  safeText(byId('course-button'), labels.courses);
+  safeText(byId('settings-button'), labels.settingsBtn);
+
+  // Preserve login-signup button username if logged in
+  const loginBtn = byId('login-signup-button');
+  if (loginBtn) {
+    const username = localStorage.getItem('arisEduAccountEmail') || '';
+    const userJson = localStorage.getItem('user');
+    let displayName = '';
+    if (userJson) { try { const u = JSON.parse(userJson); displayName = u.name || u.email || ''; } catch(e){} }
+    if (!displayName) displayName = username;
+    loginBtn.textContent = displayName ? `👤 ${displayName}` : labels.loginSignup;
+  }
+
   // Settings menu
-  document.querySelector('#settings-menu .settings-item span').textContent = labels.darkMode;
-  document.querySelector('#settings-menu .settings-item + a').textContent = labels.preferences;
+  const darkModeSpan = el('#settings-menu .settings-item span');
+  const prefsLink = el('#settings-menu .settings-item + a');
+  safeText(darkModeSpan, labels.darkMode);
+  safeText(prefsLink, labels.preferences);
 }
 const settingsOptions = {
   appearance_en: `

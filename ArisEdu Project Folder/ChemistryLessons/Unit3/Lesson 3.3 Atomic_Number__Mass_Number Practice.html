@@ -1221,7 +1221,54 @@
 <main class="main-container">
 <!-- Embedded Summary View (Hidden by default) -->
 <!-- Embedded Practice View (Hidden by default) -->
-<div id="practice-content-view"><h1>Content Missing</h1></div>
+<div id="practice-content-view">
+<h2 class="page-title">Lesson 3.3: Atomic Number  Mass Number Practice</h2>
+<div class="diagram-card">
+    <div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;">
+        <div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:320px;min-height:200px;font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;">
+            <span id="flashcard-content">Tap to flip<br>(Placeholder for Atomic Number  Mass Number)</span>
+        </div>
+        <div style="display:flex;gap:1rem;">
+            <button id="prev-flashcard" style="background:#ef4444;padding:0.5rem 1rem;border:none;border-radius:0.5rem;color:white;cursor:pointer;">Prev</button>
+            <button id="next-flashcard" style="background:#10b981;padding:0.5rem 1rem;border:none;border-radius:0.5rem;color:white;cursor:pointer;">Next</button>
+        </div>
+    </div>
+    <div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;">
+         <button class="side-button" onclick="location.href='Lesson 3.3 Atomic_Number__Mass_Number.html'">Back to Lesson</button>
+    </div>
+</div>
+<script>
+    // Simple Placeholder Flashcard Logic
+    const flashcards = [
+        { question: "What is Atomic Number  Mass Number?", answer: "A key concept in this unit." },
+        { question: "Key Term 1", answer: "Definition 1" },
+        { question: "Key Term 2", answer: "Definition 2" }
+    ];
+    let currentCard = 0;
+    const cardEl = document.getElementById('flashcard');
+    const contentEl = document.getElementById('flashcard-content');
+    
+    function updateCard() {
+        contentEl.textContent = flashcards[currentCard].question;
+    }
+    
+    if(cardEl) {
+        cardEl.addEventListener('click', () => {
+            const text = contentEl.textContent;
+            contentEl.textContent = (text === flashcards[currentCard].question) ? flashcards[currentCard].answer : flashcards[currentCard].question;
+        });
+        document.getElementById('next-flashcard').addEventListener('click', () => {
+            currentCard = (currentCard + 1) % flashcards.length;
+            updateCard();
+        });
+        document.getElementById('prev-flashcard').addEventListener('click', () => {
+            currentCard = (currentCard - 1 + flashcards.length) % flashcards.length;
+            updateCard();
+        });
+        updateCard();
+    }
+</script>
+</div>
 <!-- Quiz View (Hidden by default) -->
 </main>
 <script>
@@ -2311,17 +2358,24 @@
 </script>
 <script>
   window.switchToClimb = function() {
-    const flashcardGame = document.querySelector('.flashcard-game');
+    // Hide all games first
+    ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
     const climbGame = document.getElementById('climb-game-container');
-    if(flashcardGame) flashcardGame.style.display = 'none';
     if(climbGame) { climbGame.style.display = 'block'; if(window.initClimbGame) window.initClimbGame(); }
   };
 
   window.switchToFlashcards = function() {
+    // Hide all games first
+    ['flashcard-game', 'climb-game-container', 'mixmatch-container', 'blockpuzzle-container'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
     const flashcardGame = document.querySelector('.flashcard-game');
-    const climbGame = document.getElementById('climb-game-container');
     if(flashcardGame) flashcardGame.style.display = 'flex';
-    if(climbGame) climbGame.style.display = 'none';
+    if(typeof window.initFlashcards === 'function') window.initFlashcards();
   };
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -3307,6 +3361,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Hook into Boost link if it exists and uses a global function?
     // Usually it just toggles display manually in its own listener, so hideAllGames helped.
+});
+</script>
+<script>
+// Auto-initialize flashcards on direct page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.initFlashcards === 'function') {
+        window.initFlashcards();
+    }
 });
 </script>
 </body></html>

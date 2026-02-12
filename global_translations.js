@@ -2080,79 +2080,59 @@
   "unbalanced in nuclear reactions": "核反应中不平衡"
 };
 
+    // Pre-compute sorted keys (longest first) to prevent partial-match corruption.
+    // Also filter out self-referencing keys (en === zh) and keys where the
+    // translation contains the key (which would cause infinite growth).
+    const sortedKeys = Object.keys(translations)
+        .filter(function(en) {
+            var zh = translations[en];
+            // Skip identity translations (e.g. "K" → "K")
+            if (en === zh) return false;
+            // Skip keys where translation contains the key (e.g. "Ea" → "Ea (活化能)")
+            if (zh.indexOf(en) !== -1) return false;
+            // Skip single-character keys — too many false positives
+            if (en.length <= 1) return false;
+            return true;
+        })
+        .sort(function(a, b) { return b.length - a.length; });
+
+    // Guard flag to prevent MutationObserver re-entry
+    var isTranslating = false;
+
     function translateNode(node) {
         if (node.nodeType === 3) { // Text node
-             let text = node.nodeValue;
-             if (!text.trim()) return;
-             
-             // Exact match check first (Performance)
-             if (translations[text.trim()]) {
-                 node.nodeValue = node.nodeValue.replace(text.trim(), translations[text.trim()]);
+             var originalText = node.nodeValue;
+             if (!originalText.trim()) return;
+
+             // Exact match (fastest path)
+             if (translations[originalText.trim()] && translations[originalText.trim()] !== originalText.trim()) {
+                 var newVal = originalText.replace(originalText.trim(), translations[originalText.trim()]);
+                 if (newVal !== originalText) node.nodeValue = newVal;
                  return;
              }
-             
-             // Fallback for partial matches (as per original logic)
-             // Iterate keys efficiently? With 1000 keys, loop is slow.
-             // Original logic looped. Let's optimize: only loop if exact match fails.
-             // Actually, the original logic had a regex loop.
-             // "Object.keys(translations).forEach..." 
-             // With 1000 keys, doing this on every text node is very heavy.
-             // We should prioritize exact matches or larger-phrase matches.
-             
-             // Optimization: Use a regex to match any key?
-             // Constructing a regex of 1000 items is huge.
-             
-             // Let's stick to the original logic for now but maybe verify performance later?
-             // Or at least, only do it for English-looking text.
-             
-             // Wait, the original applied regex replace for EVERY key.
-             // That is O(N_keys * M_text_nodes). With 1000 keys, this will lag.
-             
-             // Improved Strategy:
-             // 1. Exact match lookup.
-             // 2. Only if needed, specific replacements for UI terms.
-             // Flashcards tend to be full sentences. Exact match is best.
-             
-             if (translations[text]) {
-                 node.nodeValue = translations[text];
-                 return;
+
+             // Check if text contains any ASCII letters — skip if it's all non-Latin
+             if (!/[A-Za-z]/.test(originalText)) return;
+
+             // Sorted-key replacement (longest keys first to prevent partial corruption)
+             var text = originalText;
+             for (var i = 0; i < sortedKeys.length; i++) {
+                 var en = sortedKeys[i];
+                 if (text.indexOf(en) !== -1) {
+                     var escapedEn = en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                     text = text.replace(new RegExp(escapedEn, "g"), translations[en]);
+                 }
              }
-             
-             // Try trimming
-             if (translations[text.trim()]) {
-                 node.nodeValue = text.replace(text.trim(), translations[text.trim()]);
-                 return;
+             // Only write back if something actually changed
+             if (text !== originalText) {
+                 node.nodeValue = text;
              }
-             
-             // Legacy loop for UI fragments
-             const uiKeys = [
-               "Settings", "Appearance", "Account", "Notifications", "Search", 
-               "Homepage", "Courses", "Play", "Preferences", "Dark Mode"
-               // ... (We might need to categorize them, but for now let's skip the massive loop for performance unless critical)
-             ];
-             
-             // To be safe, we will ONLY do exact/trimmed match for the flashcards.
-             // And we can run the loop for short strings?
-             
-             // Let's iterate ALL keys but check if the key is contained in text first?
-             // No, "text.includes(key)".
-             
-             // Basic implementation for now (might be slow but functional)
-             Object.keys(translations).forEach(function(en) {
-                if (text.includes(en)) {
-                   // Escape special regex chars
-                   const escapedEn = en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                   text = text.replace(new RegExp(escapedEn, "g"), translations[en]);
-                }
-             });
-             node.nodeValue = text;
-             
+
         } else if (node.nodeType === 1 && node.childNodes.length) {
-            // Validate it's not a script or style
-            const tag = node.tagName.toLowerCase();
-            if (tag === 'script' || tag === 'style') return;
-            
-            for (let i = 0; i < node.childNodes.length; i++) {
+            var tag = node.tagName.toLowerCase();
+            if (tag === 'script' || tag === 'style' || tag === 'textarea' || tag === 'input') return;
+
+            for (var i = 0; i < node.childNodes.length; i++) {
                 translateNode(node.childNodes[i]);
             }
         }
@@ -2160,11 +2140,16 @@
 
     window.applyTranslations = function() {
         if (localStorage.getItem("arisEduLanguage") === "chinese") {
-            translateNode(document.body);
+            isTranslating = true;
+            try {
+                translateNode(document.body);
+            } finally {
+                isTranslating = false;
+            }
             document.documentElement.lang = 'zh';
         }
     };
-    
+
     // Auto-run
     if (document.readyState === 'loading') {
         window.addEventListener("DOMContentLoaded", window.applyTranslations);
@@ -2172,32 +2157,33 @@
         window.applyTranslations();
     }
 
-    // Observer
-    const observer = new MutationObserver(function(mutations) {
-        if (localStorage.getItem("arisEduLanguage") === "chinese") {
+    // Observer — translates dynamically added/changed content
+    var observer = new MutationObserver(function(mutations) {
+        // Guard: skip if we're already translating (prevents infinite loop)
+        if (isTranslating) return;
+        if (localStorage.getItem("arisEduLanguage") !== "chinese") return;
+
+        isTranslating = true;
+        try {
             mutations.forEach(function(mutation) {
                 mutation.addedNodes.forEach(function(node) {
                     translateNode(node);
                 });
-                // Handle text content changes on existing nodes
-                 if (mutation.type === 'characterData') {
-                     // Infinite loop risk if we translate translated text? 
-                     // translateNode updates nodeValue -> triggers characterData
-                     // We need to check if it's already translated?
-                     // Or just check if the new text is in our english dictionary.
-                     // translations keys are English. If text is Chinese, it won't be in keys.
-                     translateNode(mutation.target);
-                 }
+                // characterData — only translate if the text still has Latin chars
+                if (mutation.type === 'characterData' && mutation.target.nodeValue &&
+                    /[A-Za-z]/.test(mutation.target.nodeValue)) {
+                    translateNode(mutation.target);
+                }
             });
+        } finally {
+            isTranslating = false;
         }
     });
-    
-    // observe characterData to catch simple text updates (like flashcards)
-    // NOTE: 'subtree: true' with 'characterData: true' is needed.
-    window.onload = function() {
-        if(document.body) {
+
+    window.addEventListener('load', function() {
+        if (document.body) {
             observer.observe(document.body, { childList: true, subtree: true, characterData: true });
         }
-    }
+    });
 
 })();
