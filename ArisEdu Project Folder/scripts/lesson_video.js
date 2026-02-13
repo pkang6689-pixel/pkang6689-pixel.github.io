@@ -234,3 +234,46 @@ let videoStopTimer = null;
         }
       });
     });
+// Auto-Render Rubric from Data Attributes
+document.addEventListener('DOMContentLoaded', () => {
+    const rubricData = document.querySelector('.rubric-data');
+    if (rubricData) {
+        const createItem = (label, key) => {
+            const rating = rubricData.getAttribute(`data-${key}`) || 'TBD';
+            const color = rubricData.getAttribute(`data-${key}-color`) || '#e2e8f0';
+            return `
+                <div class="rubric-item" style="background:${color}">
+                    <div class="rubric-text">
+                        <span class="rubric-label">${label}</span>
+                        <span class="rubric-rating">${rating}</span>
+                    </div>
+                </div>`;
+        };
+
+        const html = `
+            <div class="rubric-hover-wrap">
+                <div aria-hidden="true" class="rubric-hover-dot"><span>i</span></div>
+                <div aria-hidden="true" class="rubric-hover-panel">
+                    <p><strong>Difficulty:</strong> How hard topic is & how well they explained it</p>
+                    <p><strong>Detail:</strong> Depth of content covered</p>
+                    <p><strong>Speed:</strong> How long the video is</p>
+                    <p><strong>Pace:</strong> How fast the video runs</p>
+                </div>
+            </div>
+            <h2 class="page-title">Rubric</h2>
+            <div class="rubric-card">
+                <div class="rubric-grid">
+                    ${createItem('Difficulty', 'difficulty')}
+                    ${createItem('Detail', 'detail')}
+                    ${createItem('Speed', 'speed')}
+                    ${createItem('Pace', 'pace')}
+                </div>
+            </div>
+        `;
+        
+        const wrapper = document.createElement('div');
+        wrapper.className = 'rubric-box';
+        wrapper.innerHTML = html;
+        rubricData.replaceWith(wrapper);
+    }
+});
