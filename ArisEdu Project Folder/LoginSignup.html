@@ -658,23 +658,7 @@
   <script src="theme_manager.js"></script>
 </head>
 <body class="dark-mode h-full logo-font">
-  <nav class="taskbar">
-    <div class="taskbar-container">
-      <button class="taskbar-button" id="search-button">🔍 Search</button>
-      <a class="taskbar-button" id="homepage-button" href="../index.html">🏠 Homepage</a>
-      <a class="taskbar-button" id="course-button" href="Courses.html">📚 Courses</a>
-      <button class="taskbar-button" id="settings-button">⚙️ Settings</button>
-    </div>
-    <div class="settings-menu" id="settings-menu" aria-hidden="true">
-      <div class="settings-item">
-        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-          <input type="checkbox" id="dark-mode-checkbox"  checked>
-          <span>Dark Mode</span>
-        </label>
-      </div>
-      <a class="settings-item" href="Preferences.html">Preferences</a>
-    </div>
-  </nav>
+<script src="scripts/taskbar.js"></script>
 
   <main class="main-container">
     <div class="deco-circle deco-circle-1"></div>
@@ -1213,56 +1197,6 @@
       }
     }
   </script>
-<script>
-  // settings-menu-align
-  (function () {
-    const settingsButton = document.getElementById('settings-button');
-    const settingsMenu = document.getElementById('settings-menu');
-    if (!settingsButton || !settingsMenu) {
-      return;
-    }
-    const wrapper = document.createElement('span');
-    wrapper.style.position = 'relative';
-    wrapper.style.display = 'inline-flex';
-    settingsButton.parentElement.insertBefore(wrapper, settingsButton);
-    wrapper.appendChild(settingsButton);
-    wrapper.appendChild(settingsMenu);
-
-    settingsMenu.style.position = 'absolute';
-    settingsMenu.style.top = '100%';
-    settingsMenu.style.left = '0';
-    settingsMenu.style.right = 'auto';
-    settingsMenu.style.marginTop = '0.35rem';
-  })();
-</script>
-<script>
-  // dark-mode-sync
-  (function () {
-    const checkbox = document.getElementById('dark-mode-checkbox');
-    if (!checkbox) {
-      return;
-    }
-    const stored = localStorage.getItem('arisEduDarkMode');
-    const prefersDark = stored === null ? true : stored === 'true';
-    if (prefersDark) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-    checkbox.checked = prefersDark;
-
-    checkbox.addEventListener('change', (event) => {
-      const isDark = event.target.checked;
-      localStorage.setItem('arisEduDarkMode', String(isDark));
-      if (isDark) {
-        document.body.classList.add('dark-mode');
-      } else {
-        document.body.classList.remove('dark-mode');
-      }
-      if (window.applyArisTheme) { window.applyArisTheme(); }
-    });
-  })();
-</script>
 
     <!-- ArisEdu Global Search -->
 
