@@ -24,13 +24,29 @@
     GeometryLessons:  '/ArisEdu Project Folder/geometry.html'
   };
 
-  // --- Chemistry lesson files (space-separated names) ---
-  if (filename.indexOf(' Practice') !== -1) {
+  // --- Chemistry lesson files (underscore suffixes) ---
+  if (filename.indexOf('_Practice') !== -1) {
+    backText = '\u2190 Back to Summary';
+    backUrl = filename.replace('_Practice.html', '_Summary.html');
+  } else if (filename.indexOf('_Summary') !== -1) {
+    backText = '\u2190 Back to Lesson';
+    backUrl = filename.replace('_Summary.html', '_Video.html');
+  } else if (filename.indexOf('_Quiz') !== -1) {
+    backText = '\u2190 Back to Practice';
+    backUrl = filename.replace('_Quiz.html', '_Practice.html');
+  }
+  // --- Legacy check (space-separated names) ---
+  else if (filename.indexOf(' Practice') !== -1) {
     backText = '\u2190 Back to Summary';
     backUrl = filename.replace(' Practice.html', ' Summary.html');
   } else if (filename.indexOf(' Summary') !== -1) {
     backText = '\u2190 Back to Lesson';
-    backUrl = filename.replace(' Summary.html', '.html');
+    var lessonMatch = filename.match(/Lesson\s(\d+\.\d+)/);
+    if (lessonMatch) {
+        backUrl = 'Lesson ' + lessonMatch[1] + '_Video.html';
+    } else {
+        backUrl = filename.replace(' Summary.html', '.html');
+    }
   } else if (filename.indexOf(' Quiz') !== -1) {
     backText = '\u2190 Back to Practice';
     backUrl = filename.replace(' Quiz.html', ' Practice.html');
