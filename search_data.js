@@ -66,681 +66,609 @@ const ARIS_EDU_SEARCH_INDEX = [
     "content": "\ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Settings Appearance Account Notifications"
   },
   {
-    "title": "Unit 1: Matter (Classification, properties, and changes)",
-    "subtitle": "Chemistry Unit 1 Matter",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/ChemistryUnit1Matter.html",
-    "content": "\u2190 Back to Chemistry \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Unit 1: Matter (Classification, properties, and changes) Lesson 1: States of Matter Lesson 2: Phase Changes Lesson 2: Phase Changes Lesson 3: Intensive & Extensive Properties Lesson 4: Mass, Volume, & Density Lesson 5: Heterogeneous & Homogeneous Mixtures Lesson 6: Physical & Chemical Properties Lesson 7: Physical & Chemical Changes Lesson 8: Endothermic & Exothermic Reactions"
-  },
-  {
     "title": "Lesson 1.1: States of Matter",
     "subtitle": "Lesson 1.1 States Of Matter",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.1 States_Of_Matter.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.1_Video.html",
     "content": "&#8592; Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.1: States of Matter View other videos Lesson 1.1 videos D Dt S P Khan Academy OChem Tutor (Segment) Chem Academy (Segment) Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Easy-Medium Detail Medium-Low Speed Fast Pace Fast Lesson 1.1: States of Matter Summary Key Concepts: States of Matter The Three States of Matter Solid: Particles are tightly packed in a fixed structure. They vibrate in place but do not move freely. Solids have a definite shape and volume. Liquid: Particles are close together but can move past one another. Liquids have a definite volume but take the shape of their container. Gas: Particles are far apart and move freely at high speeds. Gases have no definite shape or volume and will expand to fill their container. Next Up: Play Lesson 1.1 States Of Matter Practice"
   },
   {
     "title": "Lesson 1.2: Phase Changes",
     "subtitle": "Lesson 1.2 Phase Changes",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.2 Phase_Changes.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.2_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.2: Phase Changes View other videos Lesson 1.2 videos D Dt S P Khan Academy: States of Matter Khan Academy: Phase Changes OChem Tutor (Part 2) Chem Academy (Part 2) Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Easy-Medium Detail Medium Speed Fast Pace Fast Lesson 1.2 Phase Changes Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 1.2 Phase Changes Practice Practice content could not be parsed. Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 1.3: Intensive & Extensive Properties",
     "subtitle": "Lesson 1.3 Intensive And Extensive Properties",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.3 Intensive_And_Extensive_Properties.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.3_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.3: Intensive & Extensive Properties View other videos Lesson 1.3 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Phil Mcordic Science Bits Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Medium-Slow Lesson 1.3 Intensive And Extensive Properties Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 1.3 Intensive And Extensive Properties Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 1.4: Mass, Volume, & Density",
     "subtitle": "Lesson 1.4 Mass Volume And Density",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.4 Mass_Volume_And_Density.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.4_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.4: Mass, Volume, & Density View other videos Lesson 1.4 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Digital Classroom Experience Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 1.4 Mass Volume And Density Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 1.4 Mass Volume And Density Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 1.5: Heterogeneous & Homogeneous Mixtures",
     "subtitle": "Lesson 1.5 Heterogeneous And Homogeneous Mixtures",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.5 Heterogeneous_And_Homogeneous_Mixtures.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.5_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u25b6\ufe0f Play \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.5: Heterogeneous & Homogeneous Mixtures View other videos Lesson 1.5 videos D Dt S P Chem Academy Khan Academy: Mixtures and Compounds Khan Academy: Separation of Mixtures Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Easy Detail Medium Speed Fast Pace Medium Lesson 1.5 Heterogeneous And Homogeneous Mixtures Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 1.5 Heterogeneous And Homogeneous Mixtures Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 1.6: Physical & Chemical Properties",
     "subtitle": "Lesson 1.6 Physical And Chemical Properties",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.6 Physical_And_Chemical_Properties.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.6_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u25b6\ufe0f Play \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.6: Physical & Chemical Properties View other videos Lesson 1.6 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium-Fast Pace Medium-Slow Lesson 1.6 Physical And Chemical Properties Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 1.6 Physical And Chemical Properties Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 1.7: Physical & Chemical Changes",
     "subtitle": "Lesson 1.7 Physical And Chemical Changes",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.7 Physical_And_Chemical_Changes.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.7_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u25b6\ufe0f Play \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.7: Physical & Chemical Changes View other videos Lesson 1.7 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Easy Detail Medium-Low Speed Fast Pace Fast Lesson 1.7 Physical And Chemical Changes Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 1.7 Physical And Chemical Changes Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 1.8: Endothermic & Exothermic Reactions",
     "subtitle": "Lesson 1.8 Endothermic And Exothermic Reactions",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.8 Endothermic_And_Exothermic_Reactions.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit1/Lesson 1.8_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u25b6\ufe0f Play \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.8: Endothermic & Exothermic Reactions View other videos Lesson 1.8 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Slow Lesson 1.8 Endothermic And Exothermic Reactions Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 1.8 Endothermic And Exothermic Reactions Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
-  },
-  {
-    "title": "Unit 10: Acids and Bases",
-    "subtitle": "Chemistry Unit 10 Acidsandbases",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/ChemistryUnit10Acidsandbases.html",
-    "content": "\u2190 Back to Chemistry \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Unit 10: Acids and Bases Lesson 1: Acid & Base Properties Lesson 2: Naming Acids Lesson 3: pH & pOH Scale Lesson 4: Identifying Acids & Bases Lesson 5: \u2b50 Strong vs. Weak Acids/Bases Lesson 6: Neutralization Reactions Lesson 7: \u2b50 Buffer Solutions Lesson 8: \u2b50 Calculating pH and pOH using Log"
   },
   {
     "title": "Lesson 10.1: Acid & Base Properties",
     "subtitle": "Lesson 10.1 Acid And Base Properties",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.1 Acid_And_Base_Properties.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.1_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.1: Acid & Base Properties View other videos Lesson 10.1 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 10.1 Acid And Base Properties Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 10.1 Acid And Base Properties Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 10.2: Naming Acids",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.2 Naming_Acids.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.2_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.2: Naming Acids View other videos Lesson 10.2 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 10.2 Naming Acids Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 10.2 Naming Acids Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 10.3: pH & pOH Scale",
     "subtitle": "Lesson 10.3 Ph And Poh Scale",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.3 Ph_And_Poh_Scale.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.3_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.3: pH & pOH Scale View other videos Lesson 10.3 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 10.3 Ph And Poh Scale Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 10.3 Ph And Poh Scale Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 10.4: Identifying Acids & Bases",
     "subtitle": "Lesson 10.4 Identifying Acids And Bases",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.4 Identifying_Acids_And_Bases.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.4_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.4: Identifying Acids & Bases View other videos Lesson 10.4 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 10.4 Identifying Acids And Bases Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 10.4 Identifying Acids And Bases Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 10.5: \u2b50 Strong vs. Weak Acids/Bases",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.5 Strong_Vs_Weak_Acids_Bases.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.5_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.5: \u2b50 Strong vs. Weak Acids/Bases View other videos Lesson 10.5 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 10.5 Strong Vs Weak Acids Bases Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 10.5 Strong Vs Weak Acids Bases Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 10.6: Neutralization Reactions",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.6 Neutralization_Reactions.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.6_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.6: Neutralization Reactions View other videos Lesson 10.6 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 10.6 Neutralization Reactions Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 10.6 Neutralization Reactions Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 10.7: \u2b50 Buffer Solutions",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.7 Buffer_Solutions.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.7_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.7: \u2b50 Buffer Solutions View other videos Lesson 10.7 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 10.7 Buffer Solutions Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 10.7 Buffer Solutions Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 10.8: \u2b50 Calculating pH and pOH using Log",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.8 Calculating_Ph_And_Poh_Using_Log.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit10/Lesson 10.8_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.8: \u2b50 Calculating pH and pOH using Log View other videos Lesson 10.8 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 10.8 Calculating Ph And Poh Using Log Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 10.8 Calculating Ph And Poh Using Log Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
-  },
-  {
-    "title": "Unit 11: Thermochemistry",
-    "subtitle": "Chemistry Unit 11 Thermochemistry",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/ChemistryUnit11Thermochemistry.html",
-    "content": "\u2190 Back to Chemistry \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Unit 11: Thermochemistry Lesson 1: Heat Conversion Lesson 2: Specific Heat Lesson 3: Heat Capacity Lesson 4: Calorimetry Lesson 5: \u2b50 Enthalpy (\u0394H), Entropy (\u0394S), Free Energy (\u0394G) Lesson 6: \u2b50 Hess's Law"
   },
   {
     "title": "Lesson 11.1: Heat Conversion",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/Lesson 11.1 Heat_Conversion.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/Lesson 11.1_Video.html",
     "content": "\u2190 Back to Unit 11 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.1: Heat Conversion View other videos Lesson 11.1 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 11.1 Heat Conversion Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 11.1 Heat Conversion Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 11.2: Specific Heat",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/Lesson 11.2 Specific_Heat.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/Lesson 11.2_Video.html",
     "content": "\u2190 Back to Unit 11 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.2: Specific Heat View other videos Lesson 11.2 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 11.2 Specific Heat Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 11.2 Specific Heat Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 11.3: Heat Capacity",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/Lesson 11.3 Heat_Capacity.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/Lesson 11.3_Video.html",
     "content": "\u2190 Back to Unit 11 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.3: Heat Capacity View other videos Lesson 11.3 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 11.3 Heat Capacity Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 11.3 Heat Capacity Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 11.4: Calorimetry",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/Lesson 11.4 Calorimetry.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/Lesson 11.4_Video.html",
     "content": "\u2190 Back to Unit 11 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.4: Calorimetry View other videos Lesson 11.4 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 11.4 Calorimetry Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 11.4 Calorimetry Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 11.5: \u2b50 Enthalpy (\u0394H), Entropy (\u0394S), Free Energy (\u0394G)",
     "subtitle": "Lesson 11.5 Enthalpy Entropy Free Energy",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/Lesson 11.5 Enthalpy_Entropy_Free_Energy.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/Lesson 11.5_Video.html",
     "content": "\u2190 Back to Unit 11 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.5: \u2b50 Enthalpy (\u0394H), Entropy (\u0394S), Free Energy (\u0394G) View other videos Lesson 11.5 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 11.5 Enthalpy Entropy Free Energy Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 11.5 Enthalpy Entropy Free Energy Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 11.6: \u2b50 Hess's Law",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/Lesson 11.6 Hess_S_Law.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit11/Lesson 11.6_Video.html",
     "content": "\u2190 Back to Unit 11 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.6: \u2b50 Hess's Law View other videos Lesson 11.6 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 11.6 Hess S Law Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 11.6 Hess S Law Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
-  },
-  {
-    "title": "Unit 12: Nuclear Chemistry",
-    "subtitle": "Chemistry Unit 12 Nuclear Chemistry",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit12/ChemistryUnit12NuclearChemistry.html",
-    "content": "\u2190 Back to Chemistry \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Unit 12: Nuclear Chemistry Lesson 1: Nuclear Fusion and Fission Lesson 2: Alpha, Beta, & Gamma Decay Lesson 3: Nuclear Reactions Lesson 4: \u2b50 Half-Life Calculations Lesson 5: \u2b50 Applications of Nuclear Chemistry (medicine, dating, energy)"
   },
   {
     "title": "Lesson 12.1: Nuclear Fusion and Fission",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit12/Lesson 12.1 Nuclear_Fusion_And_Fission.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit12/Lesson 12.1_Video.html",
     "content": "\u2190 Back to Unit 12 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 12.1: Nuclear Fusion and Fission View other videos Lesson 12.1 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 12.1 Nuclear Fusion And Fission Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 12.1 Nuclear Fusion And Fission Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 12.2: Alpha, Beta, & Gamma Decay",
     "subtitle": "Lesson 12.2 Alpha Beta And Gamma Decay",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit12/Lesson 12.2 Alpha_Beta_And_Gamma_Decay.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit12/Lesson 12.2_Video.html",
     "content": "\u2190 Back to Unit 12 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 12.2: Alpha, Beta, & Gamma Decay View other videos Lesson 12.2 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 12.2 Alpha Beta And Gamma Decay Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 12.2 Alpha Beta And Gamma Decay Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 12.3: Nuclear Reactions",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit12/Lesson 12.3 Nuclear_Reactions.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit12/Lesson 12.3_Video.html",
     "content": "\u2190 Back to Unit 12 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 12.3: Nuclear Reactions View other videos Lesson 12.3 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 12.3 Nuclear Reactions Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 12.3 Nuclear Reactions Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 12.4: \u2b50 Half-Life Calculations",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit12/Lesson 12.4 Half_Life_Calculations.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit12/Lesson 12.4_Video.html",
     "content": "\u2190 Back to Unit 12 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 12.4: \u2b50 Half-Life Calculations View other videos Lesson 12.4 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 12.4 Half Life Calculations Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 12.4 Half Life Calculations Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 12.5: \u2b50 Applications of Nuclear Chemistry (medicine, dating, energy)",
     "subtitle": "Lesson 12.5 Applications Of Nuclear Chemistry",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit12/Lesson 12.5 Applications_Of_Nuclear_Chemistry.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit12/Lesson 12.5_Video.html",
     "content": "\u2190 Back to Unit 12 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 12.5: \u2b50 Applications of Nuclear Chemistry (medicine, dating, energy) View other videos Lesson 12.5 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 12.5 Applications Of Nuclear Chemistry Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 12.5 Applications Of Nuclear Chemistry Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
-  },
-  {
-    "title": "Unit 2: Measurement (Mathematical notations and conversions)",
-    "subtitle": "Chemistry Unit 2 Measurement",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit2/ChemistryUnit2Measurement.html",
-    "content": "\u2190 Back to Chemistry \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Unit 2: Measurement (Mathematical notations and conversions) Lesson 1: Scientific Notation Lesson 2: Significant Figures Lesson 3: Accuracy vs. Precision Lesson 4: Metric System (Prefixes) Lesson 5: Unit Conversions"
   },
   {
     "title": "Lesson 2.1: Scientific Notation",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit2/Lesson 2.1 Scientific_Notation.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit2/Lesson 2.1_Video.html",
     "content": "\u2190 Back to Unit 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.1: Scientific Notation View other videos Lesson 2.1 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 2.1 Scientific Notation Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 2.1 Scientific Notation Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 2.2: Significant Figures",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit2/Lesson 2.2 Significant_Figures.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit2/Lesson 2.2_Video.html",
     "content": "\u2190 Back to Unit 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.2: Significant Figures View other videos Lesson 2.2 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Professor Dave Explains Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 2.2 Significant Figures Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 2.2 Significant Figures Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 2.3: Accuracy vs. Precision",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit2/Lesson 2.3 Accuracy_Vs_Precision.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit2/Lesson 2.3_Video.html",
     "content": "\u2190 Back to Unit 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.3: Accuracy vs. Precision View other videos Lesson 2.3 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Slow Lesson 2.3 Accuracy Vs Precision Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 2.3 Accuracy Vs Precision Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 2.4: Metric System (Prefixes)",
     "subtitle": "Lesson 2.4 Metric System",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit2/Lesson 2.4 Metric_System.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit2/Lesson 2.4_Video.html",
     "content": "\u2190 Back to Unit 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.4: Metric System (Prefixes) View other videos Lesson 2.4 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Ketzbook Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Easy Detail Medium-High Speed Medium Pace Medium-Slow Lesson 2.4 Metric System Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 2.4 Metric System Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 2.5: Unit Conversions",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit2/Lesson 2.5 Unit_Conversions.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit2/Lesson 2.5_Video.html",
     "content": "\u2190 Back to Unit 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.5: Unit Conversions View other videos Lesson 2.5 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 2.5 Unit Conversions Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 2.5 Unit Conversions Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
-  },
-  {
-    "title": "Unit 3: The Atom (Structure and nuclear reactions)",
-    "subtitle": "Chemistry Unit 3 The Atom",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/ChemistryUnit3TheAtom.html",
-    "content": "\u2190 Back to Chemistry \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Unit 3: The Atom (Structure and nuclear reactions) Lesson 1: Electrons, Protons, and Neutrons Lesson 2: Atomic Structure (Models) Lesson 3: \u2b50 Quantum Mechanical Model & Orbitals Lesson 4: \u2b50 Electromagnetic Spectrum & Atomic Emission Spectra Lesson 5: Radioactivity & Stability Lesson 6: Isotopes & Radioisotopes Lesson 7: \u2b50 Element Synthesis Lesson 8: Atomic Theory"
   },
   {
     "title": "Lesson 3.1: Electrons, Protons, and Neutrons",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.1 Electrons_Protons_And_Neutrons.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.1_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.1: Electrons, Protons, and Neutrons View other videos Lesson 3.1 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt 2 Minute Classroom Learn Bright Tidlybit Learn Bright Ricochetscience Whats Up Dude Fuseschool Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 3.1 Electrons Protons And Neutrons Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 3.1 Electrons Protons And Neutrons Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 3.2: Atomic Structure (Models)",
     "subtitle": "Lesson 3.2 Atomic Structure",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.2 Atomic_Structure.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.2_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.2: Atomic Structure (Models) View other videos Lesson 3.2 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail Medium-High Speed Medium Pace Medium-Slow Lesson 3.2 Atomic Structure Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 3.2 Atomic Structure Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 3.3: \u2b50 Quantum Mechanical Model & Orbitals",
     "subtitle": "Lesson 3.3 Quantum Mechanical Model And Orbitals",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.3 Quantum_Mechanical_Model_And_Orbitals.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.3_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.3: \u2b50 Quantum Mechanical Model & Orbitals View other videos Lesson 3.3 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 3.3 Quantum Mechanical Model And Orbitals Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 3.3 Quantum Mechanical Model And Orbitals Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 3.4: \u2b50 Electromagnetic Spectrum & Atomic Emission Spectra",
     "subtitle": "Lesson 3.4 Electromagnetic Spectrum And Atomic Emission Spectra",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.4 Electromagnetic_Spectrum_And_Atomic_Emission_Spectra.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.4_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.4: \u2b50 Electromagnetic Spectrum & Atomic Emission Spectra View other videos Lesson 3.4 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 3.4 Electromagnetic Spectrum And Atomic Emission Spectra Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 3.4 Electromagnetic Spectrum And Atomic Emission Spectra Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 3.5: Radioactivity & Stability",
     "subtitle": "Lesson 3.5 Radioactivity And Stability",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.5 Radioactivity_And_Stability.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.5_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.5: Radioactivity & Stability View other videos Lesson 3.5 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Hard Detail High Speed Medium Pace Slow Lesson 3.5 Radioactivity And Stability Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 3.5 Radioactivity And Stability Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 3.6: Isotopes & Radioisotopes",
     "subtitle": "Lesson 3.6 Isotopes And Radioisotopes",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.6 Isotopes_And_Radioisotopes.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.6_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.6: Isotopes & Radioisotopes View other videos Lesson 3.6 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 3.6 Isotopes And Radioisotopes Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 3.6 Isotopes And Radioisotopes Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 3.7: \u2b50 Element Synthesis",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.7 Element_Synthesis.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.7_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.7: \u2b50 Element Synthesis View other videos Lesson 3.7 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 3.7 Element Synthesis Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 3.7 Element Synthesis Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 3.8: Atomic Theory",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.8 Atomic_Theory.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit3/Lesson 3.8_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.8: Atomic Theory View other videos Lesson 3.8 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 3.8 Atomic Theory Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 3.8 Atomic Theory Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
-  },
-  {
-    "title": "Unit 4: The Periodic Table (Periodicity and periodic trends)",
-    "subtitle": "Chemistry Unit 4 The Periodic Table",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/ChemistryUnit4ThePeriodicTable.html",
-    "content": "\u2190 Back to Chemistry \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Unit 4: The Periodic Table (Periodicity and periodic trends) Lesson 1: Chemical Symbols Lesson 2: Periodic Table Arrangement Lesson 3: Valence Electrons & Reactivity Lesson 4: Electron Suborbitals Lesson 5: Electron Configuration Lesson 6: Periodic Trends Lesson 7: Shielding Effect Lesson 8: \u2b50 VSEPR Molecule Shapes Lesson 9: \u2b50 Suborbital Shapes"
   },
   {
     "title": "Lesson 4.1: Chemical Symbols",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.1 Chemical_Symbols.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.1_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.1: Chemical Symbols View other videos Lesson 4.1 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 4.1 Chemical Symbols Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 4.1 Chemical Symbols Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 4.2: Periodic Table Arrangement",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.2 Periodic_Table_Arrangement.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.2_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.2: Periodic Table Arrangement View other videos Lesson 4.2 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium Lesson 4.2 Periodic Table Arrangement Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 4.2 Periodic Table Arrangement Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 4.3: Valence Electrons & Reactivity",
     "subtitle": "Lesson 4.3 Valence Electrons And Reactivity",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.3 Valence_Electrons_And_Reactivity.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.3_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.3: Valence Electrons & Reactivity View other videos Lesson 4.3 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Medium-Slow Lesson 4.3 Valence Electrons And Reactivity Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 4.3 Valence Electrons And Reactivity Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 4.4: Electron Suborbitals",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.4 Electron_Suborbitals.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.4_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.4: Electron Suborbitals View other videos Lesson 4.4 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Medium-Slow Lesson 4.4 Electron Suborbitals Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 4.4 Electron Suborbitals Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 4.5: Electron Configuration",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.5 Electron_Configuration.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.5_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.5: Electron Configuration View other videos Lesson 4.5 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Medium-Slow Lesson 4.5 Electron Configuration Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 4.5 Electron Configuration Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 4.6: Periodic Trends",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.6 Periodic_Trends.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.6_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.6: Periodic Trends View other videos Lesson 4.6 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Medium-Slow Lesson 4.6 Periodic Trends Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 4.6 Periodic Trends Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 4.7: Shielding Effect",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.7 Shielding_Effect.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.7_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.7: Shielding Effect View other videos Lesson 4.7 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Slow Lesson 4.7 Shielding Effect Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 4.7 Shielding Effect Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 4.8: \u2b50 VSEPR Molecule Shapes",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.8 VSEPR_Molecule_Shapes.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.8_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.8: \u2b50 VSEPR Molecule Shapes View other videos Lesson 4.8 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 4.8 VSEPR Molecule Shapes Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 4.8 VSEPR Molecule Shapes Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 4.9: \u2b50 Suborbital Shapes",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.9 Suborbital_Shapes.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit4/Lesson 4.9_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.9: \u2b50 Suborbital Shapes View other videos Lesson 4.9 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 4.9 Suborbital Shapes Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 4.9 Suborbital Shapes Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
-  },
-  {
-    "title": "Unit 5: Naming Compounds & Formulas",
-    "subtitle": "Chemistry Unit 5 Namingcompoundsformulas",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/ChemistryUnit5Namingcompoundsformulas.html",
-    "content": "\u2190 Back to Chemistry \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Unit 5: Naming Compounds & Formulas Lesson 1: Net Charge Lesson 2: Bond Formation Lesson 3: Covalent Bonds Lesson 4: Naming Covalent Bonds Lesson 5: Metallic Bonds Lesson 6: Ionic Bonds Lesson 7: Crisscross Method Lesson 8: Naming Ionic Bonds Lesson 9: Polyatomic Ions Lesson 10: Organic Compounds Lesson 11: Acid Naming Rules"
   },
   {
     "title": "Lesson 5.1: Net Charge",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.1 Net_Charge.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.1_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.1: Net Charge View other videos Lesson 5.1 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 5.1 Net Charge Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 5.1 Net Charge Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 5.10: Organic Compounds",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.10 Organic_Compounds.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.10_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.10: Organic Compounds View other videos Lesson 5.10 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 5.10 Organic Compounds Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 5.10 Organic Compounds Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 5.11: Acid Naming Rules",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.11 Acid_Naming_Rules.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.11_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.11: Acid Naming Rules View other videos Lesson 5.11 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 5.11 Acid Naming Rules Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 5.11 Acid Naming Rules Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 5.2: Bond Formation",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.2 Bond_Formation.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.2_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.2: Bond Formation View other videos Lesson 5.2 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 5.2 Bond Formation Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 5.2 Bond Formation Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 5.3: Covalent Bonds",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.3 Covalent_Bonds.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.3_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.3: Covalent Bonds View other videos Lesson 5.3 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium Lesson 5.3 Covalent Bonds Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 5.3 Covalent Bonds Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 5.4: Naming Covalent Bonds",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.4 Naming_Covalent_Bonds.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.4_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.4: Naming Covalent Bonds View other videos Lesson 5.4 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 5.4 Naming Covalent Bonds Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 5.4 Naming Covalent Bonds Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 5.5: Metallic Bonds",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.5 Metallic_Bonds.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.5_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.5: Metallic Bonds View other videos Lesson 5.5 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 5.5 Metallic Bonds Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 5.5 Metallic Bonds Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 5.6: Ionic Bonds",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.6 Ionic_Bonds.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.6_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.6: Ionic Bonds View other videos Lesson 5.6 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium Lesson 5.6 Ionic Bonds Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 5.6 Ionic Bonds Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 5.7: Crisscross Method",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.7 Crisscross_Method.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.7_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.7: Crisscross Method View other videos Lesson 5.7 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 5.7 Crisscross Method Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 5.7 Crisscross Method Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 5.8: Naming Ionic Bonds",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.8 Naming_Ionic_Bonds.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.8_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.8: Naming Ionic Bonds View other videos Lesson 5.8 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 5.8 Naming Ionic Bonds Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 5.8 Naming Ionic Bonds Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 5.9: Organic Compounds",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.9 OrganicCompounds.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.9_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.9: Organic Compounds View other videos Lesson 5.9 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace"
   },
   {
     "title": "Lesson 5.9: Polyatomic Ions",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.9 Polyatomic_Ions.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit5/Lesson 5.9_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.9: Polyatomic Ions View other videos Lesson 5.9 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Medium-Slow Lesson 5.9 Polyatomic Ions Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 5.9 Polyatomic Ions Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
-  },
-  {
-    "title": "Unit 6: Chemical Reactions",
-    "subtitle": "Chemistry Unit 6 Chemicalreactions",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/ChemistryUnit6Chemicalreactions.html",
-    "content": "\u2190 Back to Chemistry \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Unit 6: Chemical Reactions Lesson 1: Types of Reactions Lesson 2: Combustion Reactions Lesson 3: Redox Reactions Lesson 4: Activation Energy Lesson 5: Balancing Equations Lesson 6: \u2b50 Reaction Rates & Catalysts Lesson 7: \u2b50 Chemical Equilibrium & Le Chatelier's Principle"
   },
   {
     "title": "Lesson 6.1: Types of Reactions",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.1 TypesofReactions.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.1_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.1: Types of Reactions View other videos Lesson 6.1 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium"
   },
   {
     "title": "Lesson 6.1: Types of Reactions",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.1 Types_Of_Reactions.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.1_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.1: Types of Reactions View other videos Lesson 6.1 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium Lesson 6.1 Types Of Reactions Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 6.1 Types Of Reactions Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 6.2: Combustion Reactions",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.2 Combustion_Reactions.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.2_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.2: Combustion Reactions View other videos Lesson 6.2 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 6.2 Combustion Reactions Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 6.2 Combustion Reactions Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 6.2: Types of Chemical Reactions",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.2 TypesofChemicalReactions.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.2_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.2: Types of Chemical Reactions View other videos Lesson 6.2 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace"
   },
   {
     "title": "Lesson 6.3: Predicting Products",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.3 PredictingProducts.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.3_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.3: Predicting Products View other videos Lesson 6.3 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace"
   },
   {
     "title": "Lesson 6.3: Redox Reactions",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.3 Redox_Reactions.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.3_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.3: Redox Reactions View other videos Lesson 6.3 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail Medium-High Speed Medium Pace Medium-Slow Lesson 6.3 Redox Reactions Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 6.3 Redox Reactions Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 6.4: Activation Energy",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.4 Activation_Energy.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.4_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.4: Activation Energy View other videos Lesson 6.4 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail Medium-High Speed Medium Pace Medium-Slow Lesson 6.4 Activation Energy Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 6.4 Activation Energy Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 6.4: Net Ionic Equations",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.4 NetIonicEquations.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.4_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.4: Net Ionic Equations View other videos Lesson 6.4 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace"
   },
   {
     "title": "Lesson 6.5: Balancing Equations",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.5 BalancingEquations.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.5_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.5: Balancing Equations View other videos Lesson 6.5 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium"
   },
   {
     "title": "Lesson 6.5: Balancing Equations",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.5 Balancing_Equations.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.5_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.5: Balancing Equations View other videos Lesson 6.5 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium Lesson 6.5 Balancing Equations Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 6.5 Balancing Equations Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 6.6: \u2b50 Reaction Rates & Catalysts",
     "subtitle": "Lesson 6.6 Reaction Rates And Catalysts",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.6 Reaction_Rates_And_Catalysts.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.6_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.6: \u2b50 Reaction Rates & Catalysts View other videos Lesson 6.6 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 6.6 Reaction Rates And Catalysts Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 6.6 Reaction Rates And Catalysts Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 6.7: \u2b50 Chemical Equilibrium & Le Chatelier's Principle",
     "subtitle": "Lesson 6.7 Chemical Equilibrium And Le Chatelier S Principle",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.7 Chemical_Equilibrium_And_Le_Chatelier_S_Principle.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit6/Lesson 6.7_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.7: \u2b50 Chemical Equilibrium & Le Chatelier's Principle View other videos Lesson 6.7 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 6.7 Chemical Equilibrium And Le Chatelier S Principle Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 6.7 Chemical Equilibrium And Le Chatelier S Principle Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
-  },
-  {
-    "title": "Unit 7: Mass and Mole Relationships",
-    "subtitle": "Chemistry Unit 7 Massandmolerelationships",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/ChemistryUnit7Massandmolerelationships.html",
-    "content": "\u2190 Back to Chemistry \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Unit 7: Mass and Mole Relationships Lesson 1: Molar Mass & Molecular Mass Lesson 2: Avogadro's Number Lesson 3: Molar Conversions (Atoms, Moles, Mass) Lesson 4: Empirical vs. Molecular Formulas Lesson 5: Limiting Reagents Lesson 6: Stoichiometric Calculations Lesson 7: Percent Yield"
   },
   {
     "title": "Lesson 7.1: Molar Mass Molecular Mass",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.1 MolarMassMolecularMass.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.1_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.1: Molar Mass Molecular Mass View other videos Lesson 7.1 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace"
   },
   {
     "title": "Lesson 7.1: Molar Mass & Molecular Mass",
     "subtitle": "Lesson 7.1 Molar Mass And Molecular Mass",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.1 Molar_Mass_And_Molecular_Mass.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.1_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.1: Molar Mass & Molecular Mass View other videos Lesson 7.1 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium Lesson 7.1 Molar Mass And Molecular Mass Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 7.1 Molar Mass And Molecular Mass Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 7.2: Avogadro's Number",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.2 Avogadro_S_Number.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.2_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.2: Avogadro's Number View other videos Lesson 7.2 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 7.2 Avogadro S Number Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 7.2 Avogadro S Number Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 7.2: Mass and Mole Relationships",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.2 MassandMoleRelationships.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.2_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.2: Mass and Mole Relationships View other videos Lesson 7.2 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace"
   },
   {
     "title": "Lesson 7.3: Limiting Reactants",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.3 LimitingReactants.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.3_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.3: Limiting Reactants View other videos Lesson 7.3 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace"
   },
   {
     "title": "Lesson 7.3: Molar Conversions (Atoms, Moles, Mass)",
     "subtitle": "Lesson 7.3 Molar Conversions",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.3 Molar_Conversions.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.3_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.3: Molar Conversions (Atoms, Moles, Mass) View other videos Lesson 7.3 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Medium-Slow Lesson 7.3 Molar Conversions Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 7.3 Molar Conversions Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 7.4: Empirical vs. Molecular Formulas",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.4 Empirical_Vs_Molecular_Formulas.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.4_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.4: Empirical vs. Molecular Formulas View other videos Lesson 7.4 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Medium-Slow Lesson 7.4 Empirical Vs Molecular Formulas Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 7.4 Empirical Vs Molecular Formulas Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 7.4: Percent Yield",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.4 PercentYield.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.4_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.4: Percent Yield View other videos Lesson 7.4 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace"
   },
   {
     "title": "Lesson 7.5: Limiting Reagents",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.5 Limiting_Reagents.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.5_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.5: Limiting Reagents View other videos Lesson 7.5 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Medium-Slow Lesson 7.5 Limiting Reagents Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 7.5 Limiting Reagents Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 7.6: Stoichiometric Calculations",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.6 Stoichiometric_Calculations.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.6_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.6: Stoichiometric Calculations View other videos Lesson 7.6 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 7.6 Stoichiometric Calculations Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 7.6 Stoichiometric Calculations Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 7.7: Percent Yield",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.7 Percent_Yield.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit7/Lesson 7.7_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.7: Percent Yield View other videos Lesson 7.7 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 7.7 Percent Yield Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 7.7 Percent Yield Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
-  },
-  {
-    "title": "Unit 8: Gas Laws",
-    "subtitle": "Chemistry Unit 8 Gas Laws",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/ChemistryUnit8GasLaws.html",
-    "content": "\u2190 Back to Chemistry \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Unit 8: Gas Laws Lesson 1: Monatomic & Diatomic Gases Lesson 2: Pressure, Standard Atmosphere Lesson 3: Kinetic Molecular Theory Lesson 4: Boyle's Law Lesson 5: Charles' Law Lesson 6: Gay-Lussac's Law Lesson 7: Combined Gas Law Lesson 8: Ideal Gas Law Lesson 9: \u2b50 Real Gases & Deviations (Van der Waals)"
   },
   {
     "title": "Lesson 8.1: Monatomic Diatomic Gases",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.1 MonatomicDiatomicGases.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.1_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.1: Monatomic Diatomic Gases View other videos Lesson 8.1 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace"
   },
   {
     "title": "Lesson 8.1: Monatomic & Diatomic Gases",
     "subtitle": "Lesson 8.1 Monatomic And Diatomic Gases",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.1 Monatomic_And_Diatomic_Gases.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.1_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.1: Monatomic & Diatomic Gases View other videos Lesson 8.1 videos D Dt S P Organic Chemistry Tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Medium Pace Medium-Slow Lesson 8.1 Monatomic And Diatomic Gases Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 8.1 Monatomic And Diatomic Gases Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 8.2: Pressure, Standard Atmosphere",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.2 Pressure_Standard_Atmosphere.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.2_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.2: Pressure, Standard Atmosphere View other videos Lesson 8.2 videos D Dt S P Organic Chemistry Tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium-Slow Lesson 8.2 Pressure Standard Atmosphere Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 8.2 Pressure Standard Atmosphere Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 8.3: Kinetic Molecular Theory",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.3 Kinetic_Molecular_Theory.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.3_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.3: Kinetic Molecular Theory View other videos Lesson 8.3 videos D Dt S P Organic Chemistry Tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Medium-Slow Lesson 8.3 Kinetic Molecular Theory Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 8.3 Kinetic Molecular Theory Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 8.4: Boyle's Law",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.4 Boyle_S_Law.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.4_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.4: Boyle's Law View other videos Lesson 8.4 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium Lesson 8.4 Boyle S Law Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 8.4 Boyle S Law Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 8.5: Charles' Law",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.5 Charles_Law.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.5_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.5: Charles' Law View other videos Lesson 8.5 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium Lesson 8.5 Charles Law Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 8.5 Charles Law Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 8.6: Gay-Lussac's Law",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.6 Gay_Lussac_S_Law.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.6_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.6: Gay-Lussac's Law View other videos Lesson 8.6 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium Lesson 8.6 Gay Lussac S Law Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 8.6 Gay Lussac S Law Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 8.7: Combined Gas Law",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.7 Combined_Gas_Law.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.7_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.7: Combined Gas Law View other videos Lesson 8.7 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium Lesson 8.7 Combined Gas Law Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 8.7 Combined Gas Law Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 8.8: Ideal Gas Law",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.8 Ideal_Gas_Law.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.8_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.8: Ideal Gas Law View other videos Lesson 8.8 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Medium-Slow Lesson 8.8 Ideal Gas Law Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 8.8 Ideal Gas Law Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 8.9: \u2b50 Real Gases & Deviations (Van der Waals)",
     "subtitle": "Lesson 8.9 Real Gases And Deviations",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.9 Real_Gases_And_Deviations.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit8/Lesson 8.9_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.9: \u2b50 Real Gases & Deviations (Van der Waals) View other videos Lesson 8.9 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 8.9 Real Gases And Deviations Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 8.9 Real Gases And Deviations Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
-  },
-  {
-    "title": "Unit 9: Solutions",
-    "subtitle": "Chemistry Unit 9 Solutions",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/ChemistryUnit9Solutions.html",
-    "content": "\u2190 Back to Chemistry \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Unit 9: Solutions Lesson 1: Concentration Lesson 2: Dilution Lesson 3: Molarity Lesson 4: Solution Types (unsaturated, saturated, supersaturated) Lesson 5: Factors Affecting Solubility Lesson 6: Colligative Properties Lesson 7: Solubility Curves"
   },
   {
     "title": "Lesson 9.1: Concentration",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.1 Concentration.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.1_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.1: Concentration View other videos Lesson 9.1 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 9.1 Concentration Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 9.1 Concentration Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 9.2: Dilution",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.2 Dilution.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.2_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.2: Dilution View other videos Lesson 9.2 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 9.2 Dilution Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 9.2 Dilution Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 9.3: Molarity",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.3 Molarity.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.3_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.3: Molarity View other videos Lesson 9.3 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium-High Speed Medium Pace Medium Lesson 9.3 Molarity Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 9.3 Molarity Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 9.4: Solution Types (unsaturated, saturated, supersaturated)",
     "subtitle": "Lesson 9.4 Solution Types",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.4 Solution_Types.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.4_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.4: Solution Types (unsaturated, saturated, supersaturated) View other videos Lesson 9.4 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium-Hard Detail High Speed Medium Pace Medium-Slow Lesson 9.4 Solution Types Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 9.4 Solution Types Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 9.5: Factors Affecting Solubility",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.5 Factors_Affecting_Solubility.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.5_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.5: Factors Affecting Solubility View other videos Lesson 9.5 videos D Dt S P Chem Academy Khan Academy Organic Chemistry Tutor Cognito Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Medium Detail Medium Speed Fast Pace Medium Lesson 9.5 Factors Affecting Solubility Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 9.5 Factors Affecting Solubility Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 9.6: Colligative Properties",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.6 Colligative_Properties.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.6_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.6: Colligative Properties View other videos Lesson 9.6 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 9.6 Colligative Properties Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 9.6 Colligative Properties Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
     "title": "Lesson 9.7: Solubility Curves",
     "subtitle": "",
-    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.7 Solubility_Curves.html",
+    "url": "/ArisEdu Project Folder/ChemistryLessons/Unit9/Lesson 9.7_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.7: Solubility Curves View other videos Lesson 9.7 videos D Dt S P Khan Academy Chem Academy Cognito Organic Chemistry tutor Tyler Dewitt Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 9.7 Solubility Curves Summary Summary placeholder. Add the summary content here. Next Up: Play Lesson 9.7 Solubility Curves Practice Shuffle Score: 0 Restart Pause Fuel Bar Ready to Fly? Answer correctly to fly up against the moving ladder! Spacebar = Boost (Uses Fuel) Correct Answer = +Fuel Start Flying Game Over! Play Again \ud83c\udfc6 Leaderboard Game Paused Resume Other games Flashcard Game Boost"
   },
   {
