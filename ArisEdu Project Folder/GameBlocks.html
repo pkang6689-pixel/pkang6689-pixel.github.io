@@ -9,8 +9,17 @@
     <style>
         body { font-family: 'Orbitron', monospace; }
         .grid-cell { transition: background-color 0.2s; }
-        .block-shape { touch-action: none; cursor: grab; }
-        .block-shape:active { cursor: grabbing; }
+        .block-shape { 
+            touch-action: none; 
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        .block-shape * {
+            pointer-events: none; /* Let clicks pass to container */
+        }
         .filled { animation: neonPulse 1.5s infinite alternate; }
         @keyframes neonPulse {
             from { box-shadow: 0 0 5px currentColor; }
@@ -104,6 +113,11 @@
         function createDraggableBlock(shapeMatrix, color) {
             const container = document.createElement('div');
             container.className = 'block-shape relative';
+            // Disable all drag behaviors explicitly
+            container.draggable = false;
+            container.ondragstart = (e) => { e.preventDefault(); return false; };
+            container.style.userSelect = 'none';
+            container.style.webkitUserSelect = 'none';
             // Render preview
             const size = 15; // smaller preview pixels
             const w = shapeMatrix[0].length * size;
@@ -129,19 +143,8 @@
                 });
             });
 
-            // Drag Logic
-            container.draggable = true;
-            container.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('shape', JSON.stringify(shapeMatrix));
-                e.dataTransfer.setData('color', color);
-                e.dataTransfer.setData('origin-id', i); // track which one was dragged
-                // container.style.opacity = '0.5';
-            });
-            // We'll use click-to-select for simplicity in mobile/web hybrid if full drag/drop is complex
-            // But let's implementing simple Click-Move logic? 
-            // Actually, for simplicity in iframe, let's just assume desktop/mouse or basic touch.
-            // HTML5 Drag and Drop API is finicky on mobile without polyfill.
-            // Let's implement a "Click to Select, Click to Place" approach for reliability.
+            // Drag Logic Removed to prevent "snapping" issues outside grid.
+            // Using Touch/Click interface only.
             
             container.onclick = (e) => selectBlock(container, shapeMatrix, color);
             
@@ -153,11 +156,12 @@
         function selectBlock(el, shape, color) {
             if (activeSelection) {
                 activeSelection.el.style.opacity = '1';
-                activeSelection.el.style.border = 'none';
+                activeSelection.el.style.transform = 'scale(1)';
             }
             activeSelection = { el, shape, color };
             el.style.opacity = '0.7';
-            el.style.border = '2px dashed white';
+            el.style.transform = 'scale(0.95)';
+            // Removed white border as requested
         }
 
         let activeSelection = null; // { el, shape, color }
@@ -202,7 +206,12 @@
                     if (shape[r][c]) {
                         const boardX = x + c;
                         const boardY = y + r;
-                        if (boardX >= BOARD_SIZE || boardY >= BOARD_SIZE || grid[boardY][boardX]) {
+                        // Strict bounds check preventing placement outside box
+                        if (boardX < 0 || boardX >= BOARD_SIZE || boardY < 0 || boardY >= BOARD_SIZE) {
+                            return false;
+                        }
+                        // Check collision
+                        if (grid[boardY][boardX] !== 0) {
                             return false;
                         }
                     }
