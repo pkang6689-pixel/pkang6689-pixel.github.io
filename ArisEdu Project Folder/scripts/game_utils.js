@@ -71,36 +71,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Global Quiz Reset Logic
-window.resetQuizQuestion = function(btn) {
-    const p = btn.closest('.quiz-question');
-    if (!p) return;
-    
-    // Remove feedback
-    const f = p.querySelector('.feedback');
-    if (f) f.remove();
-    
-    // Re-enable and uncheck inputs
-    p.querySelectorAll('input').forEach(i => {
-        i.disabled = false;
-        i.checked = false;
-    });
-    
-    // Reset status
-    p.dataset.status = '';
-    
-    // Reset attempts count and display
-    p.dataset.attempts = '2'; 
-    const attemptsIndicator = p.querySelector('.attempts-indicator');
-    if (attemptsIndicator) {
-        attemptsIndicator.style.display = 'none';
-        attemptsIndicator.textContent = '';
-    }
-    
-    // Re-enable Submit button
-    // Look for previous sibling usually, or query inside parent
-    const submitBtn = p.querySelector('.action-button');
-    if (submitBtn) {
-        submitBtn.disabled = false;
-    }
-};
+// resetQuizQuestion moved to quiz_ui.js

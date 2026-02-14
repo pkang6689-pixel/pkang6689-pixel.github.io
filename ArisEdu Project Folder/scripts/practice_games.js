@@ -649,8 +649,14 @@ window.exitClimbGame = function() {
         });
     }
     
+    let answerLocked = false;
     function handleClimbAnswer(selected) { if(isPaused) return;
         if(!isGameRunning || isPaused) return;
+        if(answerLocked) return;
+        answerLocked = true;
+        
+        // Disable all buttons immediately to prevent spam
+        document.querySelectorAll('.climb-option-btn').forEach(b => { b.disabled = true; b.style.opacity = '0.5'; });
         
         const isBoosting = spacePressed && climbFuel > 0;
         if(isBoosting) {
@@ -689,6 +695,7 @@ window.exitClimbGame = function() {
         btns.forEach(b => b.disabled = true);
         
         setTimeout(() => {
+            answerLocked = false;
             nextClimbQuestion();
         }, 1000);
     }

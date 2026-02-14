@@ -220,11 +220,16 @@
         // Convert to array and shuffle
         answers = [...answers].sort(() => 0.5 - Math.random());
         
+        let answered = false;
         answers.forEach(ans => {
             const btn = document.createElement('button');
             btn.className = 'w-full p-4 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-left transition-colors border border-slate-600 font-medium text-lg';
             btn.textContent = ans;
             btn.onclick = () => {
+                if (answered) return;
+                answered = true;
+                // Disable all buttons immediately to prevent spam
+                optionsEl.querySelectorAll('button').forEach(b => { b.disabled = true; b.style.opacity = '0.5'; b.style.cursor = 'default'; });
                 const box = document.getElementById('bp-modal-box');
                 
                 if (ans === card.answer) {

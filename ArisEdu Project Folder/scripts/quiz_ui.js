@@ -113,6 +113,21 @@
         panel.setAttribute('aria-hidden', (!isOpen).toString());
     };
 
+    // Reset a quiz question (clear answer, re-enable inputs)
+    window.resetQuizQuestion = function(btn) {
+        const p = btn.closest('.quiz-question');
+        if (!p) return;
+        const f = p.querySelector('.feedback');
+        if (f) f.remove();
+        p.querySelectorAll('input').forEach(i => { i.disabled = false; i.checked = false; });
+        p.dataset.status = '';
+        p.dataset.attempts = '2';
+        const attemptsIndicator = p.querySelector('.attempts-indicator');
+        if (attemptsIndicator) { attemptsIndicator.style.display = 'none'; attemptsIndicator.textContent = ''; }
+        const submitBtn = p.querySelector('.action-button');
+        if (submitBtn) submitBtn.disabled = false;
+    };
+
     // Auto-Initialization Logic
     document.addEventListener('DOMContentLoaded', () => {
         // Fix for Quiz pages showing Summary by default
