@@ -16,7 +16,7 @@
   <main class="main-container">
     <div class="logo-title-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
       <h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0;">High School: Chemistry</h1>
-      <button onclick="clearAllProgress()" style="z-index:999; background:#ef4444; color:white; border:none; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer; font-size:0.8rem;">Dev: Clear Progress</button>
+      <button onclick="clearAllProgress()" id="dev-clear-btn" style="z-index:999; background:#ef4444; color:white; border:none; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer; font-size:0.8rem; display:none;">Dev: Clear Progress</button>
     </div>
     <div class="courses-container" style="min-height: 130rem;">
       
@@ -630,27 +630,41 @@
     <script src="../search_logic.js"></script>
 
     <style>
-      /* Starred Lesson "Shining" Glow Animation */
+      /* Starred Lesson "Shining" Glow Animation — keep glow within flask bounds */
       @keyframes star-pulse {
         0% {
-          filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 5px rgba(255, 215, 0, 0.3));
+          filter: drop-shadow(0 0 1px rgba(255, 215, 0, 0.3));
+          stroke-opacity: 0.5;
         }
         50% {
-          filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 12px rgba(255, 215, 0, 0.8));
+          filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.7));
+          stroke-opacity: 1;
         }
         100% {
-          filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 5px rgba(255, 215, 0, 0.3));
+          filter: drop-shadow(0 0 1px rgba(255, 215, 0, 0.3));
+          stroke-opacity: 0.5;
         }
       }
 
       .starred-lesson-glow {
         animation: star-pulse 2.5s infinite ease-in-out;
         stroke: #FFD700;
-        stroke-width: 0.05px;
+        stroke-width: 0.15px;
+      }
+
+      /* Segment hover grow effect */
+      rect[id^="u"], path[id^="u"] {
+        transform-box: fill-box;
+        transform-origin: center;
+        transition: transform 0.2s ease;
+      }
+      .segment-hover {
+        transform: scale(1.3);
+        filter: drop-shadow(0 0 3px rgba(255,255,255,0.5));
       }
       
-      /* Only apply Gold fill if NOT started (started = orange #f97316) */
-      .starred-lesson-glow:not([fill="#f97316"]) {
+      /* Only apply Gold fill if NOT started (orange) or completed (green) */
+      .starred-lesson-glow:not([fill="#f97316"]):not([fill="#16a34a"]) {
         fill: #FFD700;
         fill-opacity: 0.08;
       }
@@ -702,6 +716,11 @@
         let displayText = text;
         const target = event.target;
 
+        // Scale up the hovered segment
+        if (target && target.id && target.id.match(/^u[\w]+-l\d+$/)) {
+            target.classList.add('segment-hover');
+        }
+
         // Add Lesson Number Prefix
         if (target && target.id) {
             const match = target.id.match(/^u([0-9a-zA-Z]+)-l(\d+)$/);
@@ -738,6 +757,8 @@
       
       function hideLessonPopup() {
         tooltip.classList.remove('visible');
+        // Remove scale from all segments
+        document.querySelectorAll('.segment-hover').forEach(el => el.classList.remove('segment-hover'));
       }
       
       function moveLessonPopup(event) {
@@ -1054,21 +1075,30 @@
           ensureWaveHighlight(unit, segment); 
           const hl = document.getElementById(`wave-highlight-unit-${unit}`);
           if(hl) {
+              // Determine the correct hover color based on completion state
+              const match = segment.id.match(/u[\w]+-l(\d+)/);
+              const l = match ? match[1] : '';
+              const isCompleted = localStorage.getItem(`chem_u${unit}_l${l}_completed`) === 'true';
               hl.style.display = 'block';
-              hl.setAttribute('fill', '#f97316');
+              hl.setAttribute('fill', isCompleted ? '#16a34a' : '#f97316');
               hl.setAttribute('fill-opacity', '0.8'); 
           }
       }
 
       function endWaveHover(unit, segment) {
-          const match = segment.id.match(/u(\d+)-l(\d+)/);
+          const match = segment.id.match(/u[\w]+-l(\d+)/);
           if(!match) return;
-          const l = match[2];
+          const l = match[1];
+          const isCompleted = localStorage.getItem(`chem_u${unit}_l${l}_completed`) === 'true';
           const isStarted = localStorage.getItem(`chem_u${unit}_l${l}_started`) === 'true';
           
           const hl = document.getElementById(`wave-highlight-unit-${unit}`);
           if(hl) {
-              if(isStarted) {
+              if(isCompleted) {
+                   hl.setAttribute('fill', '#16a34a');
+                   hl.setAttribute('fill-opacity', '0.7');
+                   hl.style.display = 'block';
+              } else if(isStarted) {
                    hl.setAttribute('fill', '#f97316');
                    hl.setAttribute('fill-opacity', '0.6');
                    hl.style.display = 'block';
@@ -1120,6 +1150,14 @@
 
          liquid.parentNode.insertBefore(highlight, liquid.nextSibling);
          return highlight;
+      }
+    </script>
+    <script src="scripts/dev_tools.js"></script>
+    <script>
+      // Show dev-only buttons if dev user
+      if (window._isDevUser && window._isDevUser()) {
+        var dcb = document.getElementById('dev-clear-btn');
+        if (dcb) dcb.style.display = '';
       }
     </script>
 </body>
