@@ -287,7 +287,6 @@
     <div id="sidebar-categories" class="sidebar-categories">
       <button class="settings-category" data-category="appearance">Appearance</button>
       <button class="settings-category" data-category="account">Account</button>
-      <button class="settings-category" data-category="notifications">Notifications</button>
     </div>
   </aside>
   <section id="settings-panel" class="preferences-panel">
@@ -302,7 +301,6 @@ const sidebarLabels = {
     settings: 'Settings',
     appearance: 'Appearance',
     account: 'Account',
-    notifications: 'Notifications',
     search: '🔍 Search',
     homepage: '🏠 Homepage',
     courses: '📚 Courses',
@@ -316,7 +314,6 @@ const sidebarLabels = {
     settings: '设置',
     appearance: '外观',
     account: '账户',
-    notifications: '通知',
     search: '🔍 搜索',
     homepage: '🏠 首页',
     courses: '📚 课程',
@@ -337,10 +334,9 @@ function updateSidebarLanguage() {
 
   safeText(el('aside h2'), labels.settings);
   const buttons = document.querySelectorAll('.settings-category');
-  if (buttons.length === 3) {
+  if (buttons.length >= 2) {
     buttons[0].textContent = labels.appearance;
     buttons[1].textContent = labels.account;
-    buttons[2].textContent = labels.notifications;
   }
   safeText(byId('search-button'), labels.search);
   safeText(byId('homepage-button'), labels.homepage);
@@ -549,6 +545,28 @@ const settingsOptions = {
             <input type="checkbox" id="showPasswordToggle"> <span>Show Password</span>
         </label>
       </div>
+      <div style="margin-bottom: 1.5rem;">
+        <button type="button" id="changePasswordBtn" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem; font-weight: 600; font-size: 1rem; cursor: pointer; border: none; color: white; background: linear-gradient(135deg, #3b82f6, #10b981); transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">🔒 Change Password</button>
+        <div id="changePasswordSection" style="display:none; margin-top: 1rem;">
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 1rem;">Current Password:
+              <input type="password" id="currentPassword" class="preferences-input" placeholder="Enter current password" style="display:block; margin-top:0.25rem; width:100%; max-width:300px;" />
+            </label>
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 1rem;">New Password:
+              <input type="password" id="newPassword" class="preferences-input" placeholder="Enter new password" style="display:block; margin-top:0.25rem; width:100%; max-width:300px;" />
+            </label>
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 1rem;">Confirm New Password:
+              <input type="password" id="confirmNewPassword" class="preferences-input" placeholder="Confirm new password" style="display:block; margin-top:0.25rem; width:100%; max-width:300px;" />
+            </label>
+          </div>
+          <button type="button" id="savePasswordBtn" style="padding: 0.5rem 1.25rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.95rem; cursor: pointer; border: none; color: white; background: #16a34a; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Save Password</button>
+          <span id="passwordMsg" style="margin-left: 0.75rem; font-size: 0.9rem;"></span>
+        </div>
+      </div>
     </form>
   `,
   account_zh: `
@@ -567,42 +585,31 @@ const settingsOptions = {
             <input type="checkbox" id="showPasswordToggle"> <span>显示密码</span>
         </label>
       </div>
+      <div style="margin-bottom: 1.5rem;">
+        <button type="button" id="changePasswordBtn" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem; font-weight: 600; font-size: 1rem; cursor: pointer; border: none; color: white; background: linear-gradient(135deg, #3b82f6, #10b981); transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">🔒 更改密码</button>
+        <div id="changePasswordSection" style="display:none; margin-top: 1rem;">
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 1rem;">当前密码:
+              <input type="password" id="currentPassword" class="preferences-input" placeholder="输入当前密码" style="display:block; margin-top:0.25rem; width:100%; max-width:300px;" />
+            </label>
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 1rem;">新密码:
+              <input type="password" id="newPassword" class="preferences-input" placeholder="输入新密码" style="display:block; margin-top:0.25rem; width:100%; max-width:300px;" />
+            </label>
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 1rem;">确认新密码:
+              <input type="password" id="confirmNewPassword" class="preferences-input" placeholder="确认新密码" style="display:block; margin-top:0.25rem; width:100%; max-width:300px;" />
+            </label>
+          </div>
+          <button type="button" id="savePasswordBtn" style="padding: 0.5rem 1.25rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.95rem; cursor: pointer; border: none; color: white; background: #16a34a; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">保存密码</button>
+          <span id="passwordMsg" style="margin-left: 0.75rem; font-size: 0.9rem;"></span>
+        </div>
+      </div>
     </form>
   `,
-  notifications_en: `
-    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">Notification Settings</h2>
-    <form id="notifications-form">
-      <div style="margin-bottom: 1.5rem;">
-        <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
-          <input type="checkbox" id="emailNotifToggle" />
-          <span>Email Notifications</span>
-        </label>
-      </div>
-      <div style="margin-bottom: 1.5rem;">
-        <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
-          <input type="checkbox" id="pushNotifToggle" />
-          <span>Push Notifications</span>
-        </label>
-      </div>
-    </form>
-  `,
-  notifications_zh: `
-    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">通知设置</h2>
-    <form id="notifications-form">
-      <div style="margin-bottom: 1.5rem;">
-        <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
-          <input type="checkbox" id="emailNotifToggle" />
-          <span>邮件通知</span>
-        </label>
-      </div>
-      <div style="margin-bottom: 1.5rem;">
-        <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
-          <input type="checkbox" id="pushNotifToggle" />
-          <span>推送通知</span>
-        </label>
-      </div>
-    </form>
-  `
+
 };
 
 function renderSettings(category) {
@@ -615,7 +622,6 @@ function renderSettings(category) {
   let key = category;
   if (category === 'appearance') key = lang === 'chinese' ? 'appearance_zh' : 'appearance_en';
   if (category === 'account') key = lang === 'chinese' ? 'account_zh' : 'account_en';
-  if (category === 'notifications') key = lang === 'chinese' ? 'notifications_zh' : 'notifications_en';
   document.getElementById('settings-panel').innerHTML = settingsOptions[key] || '';
   // Add form logic for each category
   if (category === 'appearance') {
@@ -801,21 +807,75 @@ function renderSettings(category) {
             accountPassword.type = this.checked ? 'text' : 'password';
         });
     }
+
+    // Change Password
+    const changePasswordBtn = document.getElementById('changePasswordBtn');
+    const changePasswordSection = document.getElementById('changePasswordSection');
+    if (changePasswordBtn && changePasswordSection) {
+      changePasswordBtn.addEventListener('click', function() {
+        const isVisible = changePasswordSection.style.display !== 'none';
+        changePasswordSection.style.display = isVisible ? 'none' : 'block';
+      });
+    }
+    const savePasswordBtn = document.getElementById('savePasswordBtn');
+    if (savePasswordBtn) {
+      savePasswordBtn.addEventListener('click', function() {
+        const currentPw = document.getElementById('currentPassword');
+        const newPw = document.getElementById('newPassword');
+        const confirmPw = document.getElementById('confirmNewPassword');
+        const msg = document.getElementById('passwordMsg');
+        const storedPw = localStorage.getItem('arisEduAccountPassword') || '';
+
+        if (!currentPw.value) {
+          msg.textContent = '❌ Please enter your current password.';
+          msg.style.color = '#ef4444';
+          return;
+        }
+        if (storedPw && currentPw.value !== storedPw) {
+          msg.textContent = '❌ Current password is incorrect.';
+          msg.style.color = '#ef4444';
+          return;
+        }
+        if (!newPw.value || newPw.value.length < 6) {
+          msg.textContent = '❌ New password must be at least 6 characters.';
+          msg.style.color = '#ef4444';
+          return;
+        }
+        if (newPw.value !== confirmPw.value) {
+          msg.textContent = '❌ Passwords do not match.';
+          msg.style.color = '#ef4444';
+          return;
+        }
+
+        // Save the new password
+        localStorage.setItem('arisEduAccountPassword', newPw.value);
+        // Also update the user object if it exists
+        try {
+          const userJson = localStorage.getItem('user');
+          if (userJson) {
+            const u = JSON.parse(userJson);
+            u.password = newPw.value;
+            localStorage.setItem('user', JSON.stringify(u));
+          }
+        } catch(e) {}
+
+        // Update the password field above
+        if (accountPassword) accountPassword.value = newPw.value;
+
+        msg.textContent = '✅ Password changed successfully!';
+        msg.style.color = '#16a34a';
+        currentPw.value = '';
+        newPw.value = '';
+        confirmPw.value = '';
+        setTimeout(function() {
+          changePasswordSection.style.display = 'none';
+          msg.textContent = '';
+        }, 2000);
+      });
+    }
   }
   // Always update taskbar username after rendering
   updateTaskbarUsername();
-  if (category === 'notifications') {
-    const emailNotifToggle = document.getElementById('emailNotifToggle');
-    const pushNotifToggle = document.getElementById('pushNotifToggle');
-    if (emailNotifToggle) emailNotifToggle.checked = localStorage.getItem('arisEduEmailNotif') === 'true';
-    if (pushNotifToggle) pushNotifToggle.checked = localStorage.getItem('arisEduPushNotif') === 'true';
-    if (emailNotifToggle) emailNotifToggle.addEventListener('change', function() {
-      localStorage.setItem('arisEduEmailNotif', emailNotifToggle.checked);
-    });
-    if (pushNotifToggle) pushNotifToggle.addEventListener('change', function() {
-      localStorage.setItem('arisEduPushNotif', pushNotifToggle.checked);
-    });
-  }
 }
 
 document.querySelectorAll('.settings-category').forEach(btn => {

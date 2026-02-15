@@ -321,6 +321,212 @@
        text-decoration: underline;
        font-size: inherit;
     }
+
+    /* === TUTORIAL OVERLAY === */
+    .tutorial-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .tutorial-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .tutorial-backdrop {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.65);
+      z-index: 9998;
+      transition: opacity 0.4s ease;
+    }
+    .tutorial-spotlight {
+      position: fixed;
+      border-radius: 8px;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.65);
+      z-index: 9999;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+    .tutorial-card {
+      position: fixed;
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      z-index: 10000;
+      max-width: 440px;
+      width: 90%;
+      transform: translateY(12px);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+    }
+    .tutorial-card.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .tutorial-card.centered {
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+    .tutorial-card.centered.visible {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    body.dark-mode .tutorial-card {
+      background: #1e293b;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .tutorial-icon {
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+      text-align: center;
+    }
+    .tutorial-card h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #1e293b;
+      text-align: center;
+    }
+    body.dark-mode .tutorial-card h2 {
+      color: #f1f5f9;
+    }
+    .tutorial-card p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #475569;
+      text-align: center;
+      margin-bottom: 0.25rem;
+    }
+    body.dark-mode .tutorial-card p {
+      color: #94a3b8;
+    }
+    .tutorial-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .tutorial-flow-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      background: #f1f5f9;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #334155;
+    }
+    body.dark-mode .tutorial-flow-step {
+      background: #334155;
+      color: #e2e8f0;
+    }
+    .tutorial-flow-step .flow-icon {
+      font-size: 1.4rem;
+    }
+    .tutorial-flow-arrow {
+      font-size: 1.2rem;
+      color: #94a3b8;
+    }
+    .tutorial-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+      gap: 0.75rem;
+    }
+    .tutorial-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .tutorial-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      transition: all 0.3s ease;
+    }
+    .tutorial-dot.active {
+      background: #3b82f6;
+      width: 24px;
+      border-radius: 4px;
+    }
+    body.dark-mode .tutorial-dot {
+      background: #475569;
+    }
+    body.dark-mode .tutorial-dot.active {
+      background: #60a5fa;
+    }
+    .tutorial-btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+    .tutorial-btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #10b981);
+      color: white;
+    }
+    .tutorial-btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .tutorial-btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+    }
+    body.dark-mode .tutorial-btn-secondary {
+      background: #334155;
+      color: #cbd5e1;
+    }
+    .tutorial-btn-secondary:hover {
+      background: #e2e8f0;
+    }
+    body.dark-mode .tutorial-btn-secondary:hover {
+      background: #475569;
+    }
+    .tutorial-btn-skip {
+      background: none;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+    }
+    .tutorial-btn-skip:hover {
+      color: #64748b;
+    }
+    .tutorial-pointer {
+      position: fixed;
+      width: 20px; height: 20px;
+      z-index: 10001;
+      pointer-events: none;
+      animation: tutorial-bounce 1s ease-in-out infinite;
+    }
+    @keyframes tutorial-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .tutorial-highlight-ring {
+      position: fixed;
+      border: 3px solid #3b82f6;
+      border-radius: 10px;
+      z-index: 9999;
+      pointer-events: none;
+      animation: tutorial-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes tutorial-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(59,130,246,0); }
+    }
   </style>
   <style>@view-transition { navigation: auto; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
@@ -685,6 +891,7 @@
       loginButton.href="ArisEdu Project Folder/LoginSignup.html";
     }
   })();
+</script>
 <!-- Welcome Modal -->
   <div id="welcome-modal" class="welcome-modal-overlay">
     <div class="welcome-card">
@@ -759,5 +966,217 @@
     <script src="/global_translations.js"></script>
     <script src="search_data.js"></script>
 <script src="search_logic.js"></script>
+
+<!-- Tutorial System -->
+<div id="tutorial-overlay" class="tutorial-overlay">
+  <div id="tutorial-backdrop" class="tutorial-backdrop"></div>
+  <div id="tutorial-spotlight" class="tutorial-spotlight" style="display:none;"></div>
+  <div id="tutorial-highlight-ring" class="tutorial-highlight-ring" style="display:none;"></div>
+  <div id="tutorial-card" class="tutorial-card"></div>
+</div>
+
+<script>
+(function() {
+  // Only show tutorial on first visit
+  if (localStorage.getItem('arisEdu_tutorialCompleted')) return;
+
+  const steps = [
+    {
+      type: 'center',
+      icon: '🎓',
+      title: 'Welcome to ArisEdu!',
+      body: 'A free platform for learning Math & Science at your own pace. Let us give you a quick tour!',
+      btnText: 'Start Tour'
+    },
+    {
+      type: 'highlight',
+      target: '#course-button',
+      icon: '📚',
+      title: 'Browse Courses',
+      body: 'Click here to explore available courses like Chemistry, Physics, Algebra, and more.',
+      position: 'below'
+    },
+    {
+      type: 'highlight',
+      target: '#search-button',
+      icon: '🔍',
+      title: 'Search Lessons',
+      body: 'Quickly find any lesson, topic, or concept across all courses using search.',
+      position: 'below'
+    },
+    {
+      type: 'highlight',
+      target: '#settings-button',
+      icon: '⚙️',
+      title: 'Settings & Dark Mode',
+      body: 'Toggle dark mode, change language, and customize your learning experience.',
+      position: 'below'
+    },
+    {
+      type: 'highlight',
+      target: '#login-signup-button',
+      icon: '👤',
+      title: 'Create an Account',
+      body: 'Sign up or log in to save your progress and track completed lessons.',
+      position: 'below'
+    },
+    {
+      type: 'center',
+      icon: '📖',
+      title: 'How Lessons Work',
+      body: 'Each lesson follows a simple 4-step flow:',
+      flow: [
+        { icon: '🎬', label: 'Video' },
+        { icon: '📝', label: 'Summary' },
+        { icon: '🎮', label: 'Practice' },
+        { icon: '✅', label: 'Quiz' }
+      ],
+      flowCaption: 'Complete all steps to master each topic!'
+    },
+    {
+      type: 'center',
+      icon: '🗺️',
+      title: 'Track Your Progress',
+      body: 'Each course has an interactive map. Lessons turn <b style="color:#f97316">orange</b> when started and <b style="color:#16a34a">green</b> when completed!'
+    },
+    {
+      type: 'center',
+      icon: '🚀',
+      title: "You're All Set!",
+      body: 'Start exploring courses and begin your learning journey. Have fun!',
+      btnText: 'Get Started!'
+    }
+  ];
+
+  let currentStep = 0;
+  const overlay = document.getElementById('tutorial-overlay');
+  const backdrop = document.getElementById('tutorial-backdrop');
+  const spotlight = document.getElementById('tutorial-spotlight');
+  const ring = document.getElementById('tutorial-highlight-ring');
+  const card = document.getElementById('tutorial-card');
+
+  function buildCard(step, index) {
+    let html = '';
+    if (step.icon) html += '<div class="tutorial-icon">' + step.icon + '</div>';
+    html += '<h2>' + step.title + '</h2>';
+    html += '<p>' + step.body + '</p>';
+
+    if (step.flow) {
+      html += '<div class="tutorial-flow">';
+      step.flow.forEach(function(f, i) {
+        html += '<div class="tutorial-flow-step"><span class="flow-icon">' + f.icon + '</span>' + f.label + '</div>';
+        if (i < step.flow.length - 1) html += '<span class="tutorial-flow-arrow">→</span>';
+      });
+      html += '</div>';
+      if (step.flowCaption) html += '<p style="font-size:0.85rem;color:#64748b;margin-top:0.25rem;">' + step.flowCaption + '</p>';
+    }
+
+    // Navigation
+    html += '<div class="tutorial-nav">';
+    if (index > 0) {
+      html += '<button class="tutorial-btn tutorial-btn-secondary" onclick="tutorialPrev()">← Back</button>';
+    } else {
+      html += '<button class="tutorial-btn tutorial-btn-skip" onclick="tutorialSkip()">Skip</button>';
+    }
+    html += '<div class="tutorial-dots">';
+    for (var i = 0; i < steps.length; i++) {
+      html += '<div class="tutorial-dot' + (i === index ? ' active' : '') + '"></div>';
+    }
+    html += '</div>';
+    var isLast = index === steps.length - 1;
+    var nextLabel = step.btnText || (isLast ? 'Finish' : 'Next →');
+    html += '<button class="tutorial-btn tutorial-btn-primary" onclick="' + (isLast ? 'tutorialFinish()' : 'tutorialNext()') + '">' + nextLabel + '</button>';
+    html += '</div>';
+
+    return html;
+  }
+
+  function showStep(index) {
+    currentStep = index;
+    var step = steps[index];
+    card.classList.remove('visible');
+
+    setTimeout(function() {
+      card.innerHTML = buildCard(step, index);
+
+      if (step.type === 'highlight' && step.target) {
+        var el = document.querySelector(step.target);
+        if (el) {
+          var rect = el.getBoundingClientRect();
+          var pad = 8;
+
+          // Hide backdrop, use spotlight box-shadow instead
+          backdrop.style.display = 'none';
+          spotlight.style.display = 'block';
+          spotlight.style.top = (rect.top - pad) + 'px';
+          spotlight.style.left = (rect.left - pad) + 'px';
+          spotlight.style.width = (rect.width + pad * 2) + 'px';
+          spotlight.style.height = (rect.height + pad * 2) + 'px';
+
+          ring.style.display = 'block';
+          ring.style.top = (rect.top - pad) + 'px';
+          ring.style.left = (rect.left - pad) + 'px';
+          ring.style.width = (rect.width + pad * 2) + 'px';
+          ring.style.height = (rect.height + pad * 2) + 'px';
+
+          // Position card below or above the element
+          card.classList.remove('centered');
+          card.style.position = 'fixed';
+          var cardWidth = 400;
+          var cardLeft = Math.max(16, Math.min(rect.left + rect.width / 2 - cardWidth / 2, window.innerWidth - cardWidth - 16));
+          card.style.left = cardLeft + 'px';
+          card.style.width = cardWidth + 'px';
+
+          if (step.position === 'below') {
+            card.style.top = (rect.bottom + 20) + 'px';
+            card.style.bottom = 'auto';
+          } else {
+            card.style.bottom = (window.innerHeight - rect.top + 20) + 'px';
+            card.style.top = 'auto';
+          }
+        }
+      } else {
+        // Centered card
+        backdrop.style.display = 'block';
+        spotlight.style.display = 'none';
+        ring.style.display = 'none';
+        card.classList.add('centered');
+        card.style.left = '50%';
+        card.style.top = '50%';
+        card.style.bottom = 'auto';
+        card.style.width = '';
+      }
+
+      requestAnimationFrame(function() {
+        card.classList.add('visible');
+      });
+    }, 200);
+  }
+
+  window.tutorialNext = function() {
+    if (currentStep < steps.length - 1) showStep(currentStep + 1);
+  };
+  window.tutorialPrev = function() {
+    if (currentStep > 0) showStep(currentStep - 1);
+  };
+  window.tutorialSkip = function() {
+    tutorialFinish();
+  };
+  window.tutorialFinish = function() {
+    localStorage.setItem('arisEdu_tutorialCompleted', 'true');
+    card.classList.remove('visible');
+    overlay.classList.remove('active');
+    setTimeout(function() {
+      overlay.style.display = 'none';
+    }, 400);
+  };
+
+  // Start tutorial after a brief delay
+  setTimeout(function() {
+    overlay.classList.add('active');
+    showStep(0);
+  }, 600);
+})();
+</script>
 </body>
 </html>

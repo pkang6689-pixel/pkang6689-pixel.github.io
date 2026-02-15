@@ -191,6 +191,15 @@
 
   // --- Always-available buttons ---
   buttons.push({
+    text: '\uD83C\uDF93 Watch Tutorial',
+    cls: '',
+    action: function () {
+      localStorage.removeItem('arisEdu_tutorialCompleted');
+      window.location.href = '/index.html';
+    }
+  });
+
+  buttons.push({
     text: '\uD83D\uDCCB Show localStorage Keys',
     cls: '',
     action: function () {
