@@ -85,6 +85,8 @@
             // Hide Try Again on correct answer
             const tryAgainBtn = parent.querySelector('.nav-button');
             if (tryAgainBtn) tryAgainBtn.style.display = 'none';
+            // Check if ALL questions are now correct
+            checkQuizCompletion();
         } else {
             attempts--;
             parent.dataset.attempts = attempts;
@@ -117,6 +119,38 @@
             }
         }
     };
+
+    // Check if every question on the quiz has been answered correctly
+    function checkQuizCompletion() {
+        const questions = document.querySelectorAll('.quiz-question');
+        if (questions.length === 0) return;
+
+        const allCorrect = Array.from(questions).every(q => {
+            const fb = q.querySelector('.feedback');
+            return fb && fb.textContent.startsWith('Correct');
+        });
+        if (!allCorrect) return;
+
+        // Parse lesson info from URL: "Lesson 3.1_Quiz.html" → unit='3', lesson='1'
+        const path = decodeURIComponent(window.location.pathname);
+        const match = path.match(/Lesson\s+(\w+)\.(\d+)_Quiz/);
+        if (match) {
+            const unit = match[1]; // e.g. '3', '5A'
+            const lesson = match[2]; // e.g. '1'
+            localStorage.setItem(`chem_u${unit}_l${lesson}_completed`, 'true');
+        }
+
+        // Show success banner
+        const resultsDiv = document.getElementById('quiz-results');
+        if (resultsDiv) {
+            resultsDiv.style.display = 'block';
+            resultsDiv.style.color = '#16a34a';
+            resultsDiv.style.background = '#dcfce7';
+            resultsDiv.style.textAlign = 'center';
+            resultsDiv.style.fontSize = '1.25rem';
+            resultsDiv.textContent = '\u2714 All Correct! Lesson completed.';
+        }
+    }
 
     // Navigation / UI Helpers
     window.togglePracticesPanel = function(button) {

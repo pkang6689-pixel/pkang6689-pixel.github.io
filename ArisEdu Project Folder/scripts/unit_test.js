@@ -283,6 +283,26 @@
       var endTime = Date.now();
       var timeSpent = endTime - quizStartTime;
 
+      // Mark unit test as completed in localStorage if all correct
+      if (correctCount === totalQuestions) {
+        var testPath = decodeURIComponent(window.location.pathname);
+        var unitMatch = testPath.match(/Unit(\w+)_Test/);
+        if (unitMatch) {
+          // Map unit → lesson number for the test segment on chem.html course map
+          var testLessonMap = {
+            '1': 9, '2': 6, '3': 9, '4': 10,
+            '5A': 9, '5B': 6,
+            '6': 8, '7': 9, '8': 10, '9': 9,
+            '10': 11, '11': 7, '12': 6
+          };
+          var unitId = unitMatch[1];
+          var lessonNum = testLessonMap[unitId];
+          if (lessonNum) {
+            localStorage.setItem('chem_u' + unitId + '_l' + lessonNum + '_completed', 'true');
+          }
+        }
+      }
+
       form.style.display = 'none';
 
       var finishScreen = document.getElementById('quiz-finish-screen');
