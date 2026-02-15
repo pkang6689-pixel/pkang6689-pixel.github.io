@@ -231,12 +231,29 @@ window.initFlashcards = function() {
     const nextFlashcardBtn = document.getElementById('next-flashcard');
     const prevFlashcardBtn = document.getElementById('prev-flashcard');
     const shuffleFlashcardBtn = document.getElementById('shuffle-flashcard');
+    const flashcardCounter = document.getElementById('flashcard-counter');
 
     if (!flashcardContent || !flashcardDiv || !nextFlashcardBtn || !prevFlashcardBtn || !shuffleFlashcardBtn) {
         return;
     }
 
     let showingAnswer = false;
+    let cardsViewed = 1;
+    const viewedSet = new Set([flashcardOrder[currentFlashcard]]);
+
+    function updateCounter() {
+        if (flashcardCounter) {
+            flashcardCounter.textContent = cardsViewed + ' / ' + flashcards.length;
+        }
+    }
+
+    function trackViewed() {
+        const idx = flashcardOrder[currentFlashcard];
+        if (!viewedSet.has(idx)) {
+            viewedSet.add(idx);
+            cardsViewed = viewedSet.size;
+        }
+    }
 
     function updateFlashcard() {
         showingAnswer = false;
@@ -244,6 +261,8 @@ window.initFlashcards = function() {
         const text = flashcards[idx].question;
         flashcardContent.textContent = text;
         autoAdjustFontSize(text);
+        trackViewed();
+        updateCounter();
     }
 
     function autoAdjustFontSize(text) {

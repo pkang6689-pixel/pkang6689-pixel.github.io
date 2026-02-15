@@ -82,18 +82,34 @@
             const inputs = parent.querySelectorAll('input');
             inputs.forEach(i => i.disabled = true);
             attemptsElem.style.display = 'none';
+            // Hide Try Again on correct answer
+            const tryAgainBtn = parent.querySelector('.nav-button');
+            if (tryAgainBtn) tryAgainBtn.style.display = 'none';
         } else {
             attempts--;
             parent.dataset.attempts = attempts;
             attemptsElem.textContent = `Attempts left: ${attempts}`;
+            attemptsElem.style.display = 'block';
 
             if (attempts <= 0) {
-                 feedback.textContent = `Incorrect. The correct answer was option ${correct.toUpperCase()}.`;
+                 // Find the correct answer text to display
+                 const correctInput = parent.querySelector(`input[name="${name}"][value="correct"]`);
+                 const correctText = correctInput ? correctInput.parentElement.textContent.trim() : '';
+                 feedback.textContent = correctText
+                     ? `Incorrect. The correct answer was: ${correctText}. Press "Try Again" for a new question.`
+                     : `Incorrect. Press "Try Again" for a new question.`;
                  feedback.style.color = "#dc2626";
                  feedback.style.background = "#fee2e2";
                  btn.disabled = true;
                  const inputs = parent.querySelectorAll('input');
                  inputs.forEach(i => i.disabled = true);
+                 // Highlight Try Again button
+                 const tryAgainBtn = parent.querySelector('.nav-button');
+                 if (tryAgainBtn) {
+                     tryAgainBtn.style.background = '#3b82f6';
+                     tryAgainBtn.style.color = '#fff';
+                     tryAgainBtn.style.animation = 'pulse 1.5s infinite';
+                 }
             } else {
                  feedback.textContent = "Incorrect. Try again!";
                  feedback.style.color = "#dc2626";
@@ -113,23 +129,56 @@
         panel.setAttribute('aria-hidden', (!isOpen).toString());
     };
 
-    // Reset a quiz question (clear answer, re-enable inputs)
+    // Reset a quiz question: clear answer, re-enable inputs, shuffle options for a fresh attempt
     window.resetQuizQuestion = function(btn) {
         const p = btn.closest('.quiz-question');
         if (!p) return;
+        // Remove feedback
         const f = p.querySelector('.feedback');
         if (f) f.remove();
+        // Re-enable and uncheck all inputs
         p.querySelectorAll('input').forEach(i => { i.disabled = false; i.checked = false; });
         p.dataset.status = '';
         p.dataset.attempts = '2';
+        // Reset attempts indicator
         const attemptsIndicator = p.querySelector('.attempts-indicator');
         if (attemptsIndicator) { attemptsIndicator.style.display = 'none'; attemptsIndicator.textContent = ''; }
+        // Re-enable submit button
         const submitBtn = p.querySelector('.action-button');
         if (submitBtn) submitBtn.disabled = false;
+        // Reset Try Again button styling
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.animation = '';
+
+        // Shuffle answer labels so it feels like a new question
+        const labels = Array.from(p.querySelectorAll('label'));
+        if (labels.length > 1) {
+            const container = labels[0].parentElement;
+            // Fisher-Yates shuffle
+            for (let i = labels.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [labels[i], labels[j]] = [labels[j], labels[i]];
+            }
+            // Re-insert before the attempts-indicator div
+            const refNode = p.querySelector('.attempts-indicator');
+            labels.forEach(label => container.insertBefore(label, refNode));
+        }
+
+        // Scroll this question into view
+        p.scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
 
     // Auto-Initialization Logic
     document.addEventListener('DOMContentLoaded', () => {
+        // Inject pulse animation for Try Again button highlight
+        if (!document.getElementById('quiz-ui-styles')) {
+            const style = document.createElement('style');
+            style.id = 'quiz-ui-styles';
+            style.textContent = '@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }';
+            document.head.appendChild(style);
+        }
+
         // Fix for Quiz pages showing Summary by default
         const path = window.location.pathname;
         // Check if we are on a Quiz page
