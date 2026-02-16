@@ -96,6 +96,7 @@
         '<button class="taskbar-button" id="search-button">\uD83D\uDD0D Search</button>' +
         '<a class="taskbar-button" href="/index.html" id="homepage-button">\uD83C\uDFE0 Homepage</a>' +
         '<a class="taskbar-button" href="/ArisEdu Project Folder/Courses.html" id="course-button">\uD83D\uDCDA Courses</a>' +
+        '<button class="taskbar-button" id="ai-assistant-button">\uD83E\uDD16 AI (WIP)</button>' +
         '<button class="taskbar-button" id="settings-button">\u2699\uFE0F Settings</button>' +
         '<a class="taskbar-button" href="/ArisEdu Project Folder/LoginSignup.html" id="login-signup-button">\uD83D\uDD10 Login/Signup</a>' +
       '</div>' +
@@ -110,6 +111,460 @@
       '</div>';
     document.body.insertBefore(nav, document.body.firstChild);
   }
+
+  // --- AI Assistant ---
+  (function() {
+    const AI_BUTTON_ID = 'ai-assistant-button';
+    const STORAGE_KEY_API_KEY = 'arisEdu_gemini_api_key';
+
+    // State
+    let apiKey = localStorage.getItem(STORAGE_KEY_API_KEY) || '';
+    let chatHistory = []; // format: { role: 'user'|'model', parts: [{ text: '...' }] }
+    let isSettingsOpen = false;
+    let isLoading = false;
+    let isOpen = false;
+
+    // DOM Elements
+    let container = null;
+    let chatContainer = null;
+    let inputField = null;
+    let sendButton = null;
+    let settingsPanel = null;
+    let msgList = null;
+
+    function init() {
+        const aiButton = document.getElementById(AI_BUTTON_ID);
+        if (!aiButton) {
+            // If button not found, it might be that taskbar hasn't injected it yet.
+            // Since this script runs after taskbar injection in the same file, it should be fine.
+            // But let's be safe.
+            setTimeout(init, 500); 
+            return;
+        }
+
+        // Override existing click handler by cloning
+        // (This removes the 'mock' event listener if any was attached before, 
+        // though we are replacing that code block entirely, existing DOM elements might persist if not reloaded)
+        const newButton = aiButton.cloneNode(true);
+        aiButton.parentNode.replaceChild(newButton, aiButton);
+        
+        newButton.onclick = (e) => {
+            e.preventDefault();
+            toggleAssistant();
+        };
+
+        // Create UI if not exists
+        if (!document.getElementById('ai-assistant-container')) {
+            createInterface();
+        }
+    }
+
+    function createInterface() {
+        // Main Container
+        container = document.createElement('div');
+        container.id = 'ai-assistant-container';
+        // Using existing CSS variables for theming
+        container.style.cssText = `
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: var(--card-bg, #ffffff);
+            color: var(--text-color, #000);
+            border: 1px solid var(--border-color, #ccc);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: none; 
+            flex-direction: column;
+            z-index: 9999;
+            overflow: hidden;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        `;
+
+        // Header
+        const header = document.createElement('div');
+        header.style.cssText = `
+            padding: 10px 15px;
+            background: var(--primary-color, #4a90e2);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        `;
+        header.innerHTML = `
+            <span style="font-size: 1.1em;">AI</span>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <button id="ai-settings-btn" style="background:none; border:none; color:white; cursor:pointer; font-size: 1.2em;" title="Settings">⚙️</button>
+                <button id="ai-close-btn" style="background:none; border:none; color:white; cursor:pointer; font-size: 1.2em;" title="Close">✕</button>
+            </div>
+        `;
+        container.appendChild(header);
+
+        // Body Wrapper
+        const bodyWrapper = document.createElement('div');
+        bodyWrapper.style.cssText = `
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        `;
+
+        // Settings Panel
+        settingsPanel = document.createElement('div');
+        settingsPanel.id = 'ai-settings-panel';
+        settingsPanel.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--card-bg, #ffffff);
+            padding: 20px;
+            box-sizing: border-box;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+        `;
+        
+        const keyInputVal = apiKey || '';
+        settingsPanel.innerHTML = `
+            <h3 style="margin: 0; border-bottom: 1px solid var(--border-color, #ccc); padding-bottom: 10px;">Settings</h3>
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight: bold; font-size:0.9em;">Google Gemini API Key</label>
+                <input type="password" id="ai-api-key-input" placeholder="Enter API Key" style="
+                    width: 100%;
+                    padding: 10px;
+                    border: 1px solid var(--border-color, #ccc);
+                    border-radius: 6px;
+                    background: var(--input-bg, #fff);
+                    color: var(--text-color, #000);
+                    box-sizing: border-box;
+                " value="${keyInputVal}">
+            </div>
+            <div style="font-size: 0.85em; color: var(--text-muted, #666); line-height: 1.4;">
+                To use the AI assistant, you need a free API key from Google. 
+                <br><br>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--primary-color, #4a90e2); text-decoration: underline;">Get a key here</a>
+            </div>
+            <div style="margin-top: auto; display: flex; gap: 10px;">
+                <button id="ai-save-key-btn" style="
+                    flex: 1;
+                    padding: 10px;
+                    background: var(--primary-color, #4a90e2);
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: bold;
+                ">Save API Key</button>
+            </div>
+        `;
+        bodyWrapper.appendChild(settingsPanel);
+
+        // Chat Interface
+        chatContainer = document.createElement('div');
+        chatContainer.style.cssText = `
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--card-bg, #ffffff);
+        `;
+
+        // Messages List
+        msgList = document.createElement('div');
+        msgList.id = 'ai-msg-list';
+        msgList.style.cssText = `
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        `;
+        
+        chatContainer.appendChild(msgList);
+
+        // Input Area
+        const inputArea = document.createElement('div');
+        inputArea.style.cssText = `
+            padding: 15px;
+            border-top: 1px solid var(--border-color, #eee);
+            display: flex;
+            gap: 10px;
+            background: var(--bg-secondary, rgba(0,0,0,0.02));
+            align-items: center;
+        `;
+        
+        inputField = document.createElement('input');
+        inputField.type = 'text';
+        inputField.placeholder = 'Type your question...';
+        inputField.style.cssText = `
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color, #ccc);
+            border-radius: 20px;
+            outline: none;
+            background: var(--input-bg, #fff);
+            color: var(--text-color, #000);
+            font-size: 0.95em;
+        `;
+        inputField.onkeydown = (e) => {
+            if (e.key === 'Enter') sendMessage();
+        };
+
+        sendButton = document.createElement('button');
+        sendButton.innerHTML = '➤';
+        sendButton.style.cssText = `
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary-color, #4a90e2);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            transition: opacity 0.2s;
+        `;
+        sendButton.onclick = sendMessage;
+
+        inputArea.appendChild(inputField);
+        inputArea.appendChild(sendButton);
+        chatContainer.appendChild(inputArea);
+
+        bodyWrapper.appendChild(chatContainer);
+        container.appendChild(bodyWrapper);
+        document.body.appendChild(container);
+
+        // Setup Event Listeners
+        setupListeners();
+    }
+
+    function setupListeners() {
+        document.getElementById('ai-close-btn').onclick = toggleAssistant;
+        
+        document.getElementById('ai-settings-btn').onclick = () => {
+            isSettingsOpen = !isSettingsOpen;
+            settingsPanel.style.display = isSettingsOpen ? 'flex' : 'none';
+        };
+
+        document.getElementById('ai-save-key-btn').onclick = () => {
+            const keyInput = document.getElementById('ai-api-key-input');
+            const newKey = keyInput.value.trim();
+            if (newKey) {
+                apiKey = newKey;
+                localStorage.setItem(STORAGE_KEY_API_KEY, apiKey);
+                isSettingsOpen = false;
+                settingsPanel.style.display = 'none';
+                
+                // Provide feedback
+                if (chatHistory.length === 0) {
+                   msgList.innerHTML = ''; // Clear initial warning
+                   appendMessage('model', 'API Key saved! I\'m ready to help.');
+                } else {
+                   appendMessage('system', 'API Key updated successfully.');
+                }
+            } else {
+                alert('Please enter a valid API key.');
+            }
+        };
+    }
+
+    function toggleAssistant() {
+        isOpen = !isOpen;
+        if (!container && isOpen) {
+             createInterface();
+        }
+        if (container) {
+             container.style.display = isOpen ? 'flex' : 'none';
+             if (isOpen) {
+                 if (!apiKey) {
+                     isSettingsOpen = true;
+                     settingsPanel.style.display = 'flex';
+                 } else if (msgList.children.length === 0) {
+                     appendMessage('model', 'Hello! I am your study assistant. How can I help you today?');
+                 }
+                 if (inputField) inputField.focus();
+             }
+        }
+    }
+
+    function appendMessage(role, text) {
+        if (!msgList) return;
+        const msgDiv = document.createElement('div');
+        const isUser = role === 'user';
+        const isSystem = role === 'system';
+        
+        // Message Bubble Styles
+        const bubbleStyle = isUser 
+            ? `
+                background: var(--primary-color, #4a90e2);
+                color: white;
+                align-self: flex-end;
+                border-bottom-right-radius: 4px;
+            ` 
+            : (isSystem ? `
+                background: transparent;
+                color: var(--text-muted, #777);
+                align-self: center;
+                text-align: center;
+                font-style: italic;
+                border: 1px dashed var(--border-color, #ccc);
+            ` : `
+                background: var(--bg-secondary, #f1f3f4);
+                color: var(--text-color, #000);
+                align-self: flex-start;
+                border-bottom-left-radius: 4px;
+                border: 1px solid var(--border-color, transparent);
+            `);
+
+        msgDiv.style.cssText = `
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.95em;
+            line-height: 1.5;
+            word-wrap: break-word;
+            margin-bottom: 5px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            ${bubbleStyle}
+        `;
+
+        if (isSystem) {
+             msgDiv.innerHTML = text;
+        } else {
+            msgDiv.innerHTML = formatMarkdown(text);
+        }
+
+        msgList.appendChild(msgDiv);
+        scrollToBottom();
+    }
+
+    function scrollToBottom() {
+        if (msgList) msgList.scrollTop = msgList.scrollHeight;
+    }
+
+    function formatMarkdown(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`(.*?)`/g, '<code style="background:rgba(127,127,127,0.2); padding:2px 4px; border-radius:3px; font-family:monospace;">$1</code>')
+            .replace(/\n/g, '<br>');
+    }
+
+    async function sendMessage() {
+        if (!apiKey) {
+            isSettingsOpen = true;
+            settingsPanel.style.display = 'flex';
+            if (document.getElementById('ai-api-key-input')) {
+                document.getElementById('ai-api-key-input').focus();
+            }
+            return;
+        }
+
+        const text = inputField.value.trim();
+        if (!text || isLoading) return;
+
+        // UI Updates
+        inputField.value = '';
+        isLoading = true;
+        sendButton.disabled = true;
+        sendButton.style.opacity = '0.5';
+        appendMessage('user', text);
+
+        // Update History
+        chatHistory.push({ role: 'user', parts: [{ text: text }] });
+        
+        // Limit History (Last 10 turns = 20 messages)
+        if (chatHistory.length > 20) {
+            chatHistory = chatHistory.slice(chatHistory.length - 20);
+        }
+
+        // Thinking Indicator
+        const thinkingId = 'ai-thinking-' + Date.now();
+        const thinkingDiv = document.createElement('div');
+        thinkingDiv.id = thinkingId;
+        thinkingDiv.textContent = 'Thinking...';
+        thinkingDiv.style.cssText = `
+            align-self: flex-start;
+            color: var(--text-muted, #999);
+            font-size: 0.85em;
+            margin-left: 10px;
+            margin-bottom: 5px;
+            font-style: italic;
+        `;
+        msgList.appendChild(thinkingDiv);
+        scrollToBottom();
+
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: chatHistory
+                })
+            });
+
+            // Remove thinking
+            const tDiv = document.getElementById(thinkingId);
+            if(tDiv) tDiv.remove();
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error?.message || response.statusText);
+            }
+
+            const data = await response.json();
+
+            if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+                const responseText = data.candidates[0].content.parts[0].text;
+                appendMessage('model', responseText);
+                chatHistory.push({ role: 'model', parts: [{ text: responseText }] });
+            } else {
+                appendMessage('system', 'Empty response from AI.');
+            }
+
+        } catch (error) {
+            console.error('AI Error:', error);
+            const tDiv = document.getElementById(thinkingId);
+            if(tDiv) tDiv.remove();
+            
+            let errorMsg = 'Error connecting to AI. Please try again.';
+            if (error.message.includes('API key') || error.message.includes('403') || error.message.includes('400')) {
+                errorMsg = 'Invalid API Key or Bad Request. Please check your settings.';
+                isSettingsOpen = true;
+                settingsPanel.style.display = 'flex';
+            }
+            appendMessage('system', errorMsg);
+        } finally {
+            isLoading = false;
+            sendButton.disabled = false;
+            sendButton.style.opacity = '1';
+            if (inputField) inputField.focus();
+            scrollToBottom();
+        }
+    }
+
+    // Initialize
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        setTimeout(init, 100); // Small delay to ensure button exists
+    }
+
+  })();
 
   // --- Back button ---
   var backBtn = document.getElementById('back-button');
