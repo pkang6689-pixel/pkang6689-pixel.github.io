@@ -92,6 +92,8 @@
     nav.className = 'taskbar';
     nav.innerHTML =
       '<div class="taskbar-container">' +
+        // Dev Tools Button (Left aligned, absolute)
+        '<button id="dev-icon-toggle" style="position:absolute; left:0; top:0; z-index:2000; background:none; border:none; color:rgba(255,255,255,0.3); font-size:1.2rem; cursor:pointer; padding:0.5rem;" title="Dev Tools">🛠️</button>' +
         backBtnHtml +
         '<button class="taskbar-button" id="search-button">\uD83D\uDD0D Search</button>' +
         '<a class="taskbar-button" href="/index.html" id="homepage-button">\uD83C\uDFE0 Homepage</a>' +
@@ -111,6 +113,24 @@
       '</div>';
     document.body.insertBefore(nav, document.body.firstChild);
   }
+
+    // Bind Dev Tools Button Logic
+    document.addEventListener('click', function(e) {
+        if(e.target && e.target.id === 'dev-icon-toggle') {
+             // Dispatch a custom event or check if dev_tools.js has exposed a toggle function
+             
+             var panel = document.getElementById('dev-tools-panel');
+             if(panel) {
+                 panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
+             } else {
+                 // Force override
+                 window._isDevUser = function() { return true; };
+                 var script = document.createElement('script');
+                 script.src = '/ArisEdu Project Folder/scripts/dev_tools.js?v=' + Date.now();
+                 document.body.appendChild(script);
+             }
+        }
+    });
 
   // --- AI Assistant ---
   (function() {
