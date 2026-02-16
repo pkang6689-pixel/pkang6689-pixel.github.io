@@ -375,6 +375,7 @@ const settingsOptions = {
             <select id="languageSelect" class="preferences-select">
               <option value="english">English</option>
               <option value="chinese">中文</option>
+              <option value="traditional">繁體中文</option>
             </select>
           </label>
       </div>
@@ -459,6 +460,7 @@ const settingsOptions = {
             <select id="languageSelect" class="preferences-select">
               <option value="english">English</option>
               <option value="chinese">中文</option>
+              <option value="traditional">繁體中文</option>
             </select>
           </label>
       </div>
@@ -620,8 +622,8 @@ function renderSettings(category) {
   // Language switching
   const lang = localStorage.getItem('arisEduLanguage') || 'english';
   let key = category;
-  if (category === 'appearance') key = lang === 'chinese' ? 'appearance_zh' : 'appearance_en';
-  if (category === 'account') key = lang === 'chinese' ? 'account_zh' : 'account_en';
+  if (category === 'appearance') key = (lang === 'chinese' || lang === 'traditional') ? 'appearance_zh' : 'appearance_en';
+  if (category === 'account') key = (lang === 'chinese' || lang === 'traditional') ? 'account_zh' : 'account_en';
   document.getElementById('settings-panel').innerHTML = settingsOptions[key] || '';
   // Add form logic for each category
   if (category === 'appearance') {

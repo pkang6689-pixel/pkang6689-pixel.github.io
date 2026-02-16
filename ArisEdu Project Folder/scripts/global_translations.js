@@ -8460,16 +8460,37 @@
     window.arisEduTranslations = translations;
 
     function translateNode(node) {
+        // Check for Traditional Chinese preference
+        const isTraditional = localStorage.getItem("arisEduLanguage") === "traditional";
+        // Helper to convert to traditional if needed
+        const toTraditional = (text) => {
+            if (isTraditional && window.OpenCCConverter) {
+                return window.OpenCCConverter(text);
+            }
+            return text;
+        };
+
         if (node.nodeType === 3) { // Text node
              var originalText = node.nodeValue;
              if (!originalText || !originalText.trim()) return;
 
              // Exact match (fastest path)
              var trimmed = originalText.trim();
-             if (translations[trimmed] && translations[trimmed] !== trimmed) {
-                 var newVal = originalText.replace(trimmed, translations[trimmed]);
-                 if (newVal !== originalText) node.nodeValue = newVal;
-                 return;
+             if (translations[trimmed]) {
+                 // Get the Simplified Chinese translation
+                 let translatedPhrase = translations[trimmed];
+                 // Convert to Traditional if needed
+                 translatedPhrase = toTraditional(translatedPhrase);
+                 
+                 // Apply replacement (handle whitespace preservation if needed, though here we replace trimmed)
+                 // If the node was JUST the key, we replace it all. 
+                 // If it was "  Key  ", trimmed is "Key". We replace "Key" with "TranslatedKey". Result "  TranslatedKey  ".
+                 // BUT if translations[trimmed] !== trimmed check was there...
+                 if (translatedPhrase !== trimmed) {
+                     var newVal = originalText.replace(trimmed, translatedPhrase);
+                     if (newVal !== originalText) node.nodeValue = newVal;
+                     return;
+                 }
              }
 
              // Check for numbered quiz questions
@@ -8480,7 +8501,10 @@
                  const numberPart = numMatch[1]; // "1."
                  const questionText = numMatch[2].trim(); 
                  if (translations[questionText]) {
-                     const translated = numberPart + " " + translations[questionText];
+                     let tText = translations[questionText];
+                     tText = toTraditional(tText);
+                     
+                     const translated = numberPart + " " + tText;
                      const newFullText = originalText.replace(trimmed, translated);
                      if (newFullText !== originalText) {
                          node.nodeValue = newFullText;
@@ -8508,16 +8532,22 @@
                      } else if (status.startsWith("IN PROGRESS")) {
                           status = (translations["IN PROGRESS"] || "进行中") + " ";
                      }
+                     // Convert status to traditional (just in case "已完成" -> "已完成", "进行中" -> "進行中")
+                     status = toTraditional(status);
 
                      // Translate Title
                      if (translations[title]) {
                           title = translations[title];
                      }
+                     // Convert Title
+                     title = toTraditional(title);
 
                      // Translate "Lesson X.Y: " -> "第 X.Y 课: "
                      const prefixMatch = prefix.match(/Lesson ([\w.]+):/);
                      if (prefixMatch) {
-                          prefix = "第 " + prefixMatch[1] + " 课: ";
+                          let pText = "第 " + prefixMatch[1] + " 课: "; // S-Chinese
+                          pText = toTraditional(pText); // Convert "课" -> "課"
+                          prefix = pText;
                      }
                      
                      // Translate Suffixes (Summary, Practice, Quiz)
@@ -8531,6 +8561,7 @@
                          } else if (trimmedSuffix === "Quiz") {
                              summary = " 测验";
                          }
+                         summary = toTraditional(summary);
                      }
 
                      const newText = status + prefix + title + summary + star;
@@ -8546,7 +8577,9 @@
                   // "Attempts left: 2" -> "剩余尝试次数: 2"
                   const attemptsMatch = originalText.match(/Attempts left:\s*(\d+)/);
                   if (attemptsMatch) {
-                      node.nodeValue = "剩余尝试次数: " + attemptsMatch[1];
+                      let tText = "剩余尝试次数: ";
+                      tText = toTraditional(tText);
+                      node.nodeValue = tText + attemptsMatch[1];
                       return;
                   }
              }
@@ -8556,7 +8589,9 @@
                   const nextLessonRegex = /^Next Lesson:\s*([\d.]+)$/;
                   const match = originalText.match(nextLessonRegex);
                   if (match) {
-                      node.nodeValue = "下一课: " + match[1];
+                      let tText = "下一课: ";
+                      tText = toTraditional(tText);
+                      node.nodeValue = tText + match[1];
                       return;
                   }
              }
@@ -8572,21 +8607,37 @@
                      if (translations[content]) {
                          content = translations[content];
                      }
-                     node.nodeValue = "关键概念: " + content;
+                     // Convert content + "Key Concepts" prefix
+                     let prefix = "关键概念: ";
+                     
+                     // Apply traditional
+                     content = toTraditional(content);
+                     prefix = toTraditional(prefix);
+                     
+                     node.nodeValue = prefix + content;
                      return;
+                 }
+             }
+
+             // If Traditional Chinese is enabled and text contains Chinese characters,
+             // but wasn't found in the translations map (e.g. static Chinese text in HTML),
+             // convert it to Traditional.
+             if (isTraditional && /[\u4e00-\u9fa5]/.test(originalText)) {
+                 const converted = toTraditional(originalText);
+                 if (converted !== originalText) {
+                     node.nodeValue = converted;
+                     // We continue here because there might still be English parts to translate?
+                     // Actually, if we converted the whole node, we should probably re-evaluate or just stop if it was pure Chinese.
+                     // But let's let it fall through to the A-Za-z check just in case.
+                     // However, modifying node.nodeValue and continuing could be tricky if we don't update 'originalText'.
+                     originalText = converted; 
                  }
              }
 
              // Check if text contains any ASCII letters — skip if it's all non-Latin
              if (!/[A-Za-z]/.test(originalText)) return;
 
-             // Sorted-key replacement setup
-             // We do this lazily or once? Usually once is better for perf, but here 
-             // we accept dynamic. Actually let's just do partial string logical replacements if needed.
-             // For now, let's stick to exact matches or simple phrases to avoid breaking DOM text.
-             
-             // If we really want partial replacement:
-             // (Logic omitted for simplicity unless user requested advanced matching)
+             // Sorted-key replacement setup omitted
         } else if (node.nodeType === 1) { // Element node
             var tag = node.tagName.toLowerCase();
             if (tag === 'script' || tag === 'style' || tag === 'textarea' || tag === 'input') return;
@@ -8595,13 +8646,13 @@
             if (node.hasAttribute('placeholder')) {
                 let ph = node.getAttribute('placeholder');
                 if (translations[ph]) {
-                    node.setAttribute('placeholder', translations[ph]);
+                    node.setAttribute('placeholder', toTraditional(translations[ph]));
                 }
             }
             if (node.hasAttribute('title')) {
                  let t = node.getAttribute('title');
                  if (translations[t]) {
-                     node.setAttribute('title', translations[t]);
+                     node.setAttribute('title', toTraditional(translations[t]));
                  }
             }
 
@@ -8610,18 +8661,45 @@
     }
 
     window.applyTranslations = function() {
-        if (localStorage.getItem("arisEduLanguage") === "chinese") {
+        const lang = localStorage.getItem("arisEduLanguage");
+        
+        // Handle Traditional Chinese loading
+        if (lang === "traditional") {
+             // If OpenCC not loaded, load it
+             if (!window.OpenCC && !document.getElementById('opencc-script')) {
+                 var script = document.createElement('script');
+                 script.id = 'opencc-script';
+                 script.src = "https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/cn2t.js";
+                 script.onload = function() {
+                      // Initialize
+                      window.OpenCCConverter = OpenCC.Converter({ from: 'cn', to: 'tw' });
+                      // Re-run translations
+                      window.applyTranslations();
+                 };
+                 document.head.appendChild(script);
+                 // Don't run translation yet, wait for load
+                 return;
+             }
+             // If script tag exists but window.OpenCCConverter not ready, wait (onload will trigger)
+             if (!window.OpenCCConverter) return;
+        }
+
+        if (lang === "chinese" || lang === "traditional") {
             isTranslating = true;
             try {
                 if (document.body) translateNode(document.body);
                 // Also translate title
                 if (document.title && translations[document.title]) {
-                    document.title = translations[document.title];
+                    let newTitle = translations[document.title];
+                    if (lang === "traditional" && window.OpenCCConverter) {
+                        newTitle = window.OpenCCConverter(newTitle);
+                    }
+                    document.title = newTitle;
                 }
             } finally {
                 isTranslating = false;
             }
-            document.documentElement.lang = 'zh';
+            document.documentElement.lang = lang === 'traditional' ? 'zh-TW' : 'zh';
         }
     };
 
@@ -8636,7 +8714,11 @@
     var isTranslating = false;
     var observer = new MutationObserver(function(mutations) {
         if (isTranslating) return;
-        if (localStorage.getItem("arisEduLanguage") !== "chinese") return;
+        const lang = localStorage.getItem("arisEduLanguage");
+        if (lang !== "chinese" && lang !== "traditional") return;
+        
+        // If traditional and converter not ready, do nothing (applyTranslations will handle it when loaded)
+        if (lang === "traditional" && !window.OpenCCConverter) return;
 
         isTranslating = true;
         try {
