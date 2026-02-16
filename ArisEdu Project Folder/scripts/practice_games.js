@@ -102,7 +102,8 @@ window.checkQuizAnswer = function(name, correct, btn) {
     }
     if (attempts <= 0 || btn.disabled) return;
     if (selected.value === correct) {
-        feedback.textContent = "Correct! Great job.";
+        const msg = (window.globalTranslations && window.globalTranslations["Correct! Great job."]) || "Correct! Great job.";
+        feedback.textContent = msg;
         feedback.style.color = "#16a34a";
         feedback.style.background = "#dcfce7";
         btn.disabled = true;
@@ -111,15 +112,18 @@ window.checkQuizAnswer = function(name, correct, btn) {
     } else {
         attempts--;
         parent.dataset.attempts = attempts;
-        attemptsElem.textContent = `Attempts left: ${attempts}`;
+        const attemptsPrefix = (window.globalTranslations && window.globalTranslations["Attempts left:"]) || "Attempts left:";
+        attemptsElem.textContent = `${attemptsPrefix} ${attempts}`;
         if (attempts <= 0) {
-            feedback.textContent = `Incorrect. The correct answer was option ${correct.toUpperCase()}.`;
+            const prefix = (window.globalTranslations && window.globalTranslations["Incorrect. The correct answer was option"]) || "Incorrect. The correct answer was option";
+            feedback.textContent = `${prefix} ${correct.toUpperCase()}.`;
             feedback.style.color = "#dc2626";
             feedback.style.background = "#fee2e2";
             btn.disabled = true;
             parent.querySelectorAll('input').forEach(i => i.disabled = true);
         } else {
-            feedback.textContent = "Incorrect. Try again!";
+            const msg = (window.globalTranslations && window.globalTranslations["Incorrect. Try again!"]) || "Incorrect. Try again!";
+            feedback.textContent = msg;
             feedback.style.color = "#dc2626";
             feedback.style.background = "#fee2e2";
         }
@@ -604,7 +608,8 @@ window.exitClimbGame = function() {
         
         if (!window.lessonFlashcards || window.lessonFlashcards.length === 0) {
             const qt = document.getElementById('climb-question-text');
-            if(qt) qt.innerText = "No flashcards found for this lesson!";
+            const msg = (window.globalTranslations && window.globalTranslations["No flashcards found for this lesson!"]) || "No flashcards found for this lesson!";
+            if(qt) qt.innerText = msg;
             return;
         }
         
@@ -698,13 +703,13 @@ window.exitClimbGame = function() {
             // Correct
             climbScore += 10;
             climbFuel = Math.min(100, climbFuel + 20);
-            feedback.innerText = "Correct! Adding fuel...";
+            feedback.innerText = (window.globalTranslations && window.globalTranslations["Correct! Adding fuel..."]) || "Correct! Adding fuel...";
             feedback.style.color = "#16a34a";
 
         } else {
             // Incorrect
             playerPosition -= 5;
-            feedback.innerText = "Oops! Slipping down...";
+            feedback.innerText = (window.globalTranslations && window.globalTranslations["Oops! Slipping down..."]) || "Oops! Slipping down...";
             feedback.style.color = "#dc2626";
         }
         
@@ -744,14 +749,16 @@ window.exitClimbGame = function() {
         if(climbScore > highScore) {
             highScore = climbScore;
             localStorage.setItem(storageKey, highScore);
-            title.innerText = "🏆 New High Score! 🏆";
+            title.innerText = (window.globalTranslations && window.globalTranslations["🏆 New High Score! 🏆"]) || "🏆 New High Score! 🏆";
             title.style.color = "#f59e0b";
         } else {
-            title.innerText = "Game Over";
+            title.innerText = (window.globalTranslations && window.globalTranslations["Game Over"]) || "Game Over";
             title.style.color = "#1e293b";
         }
         
-        msg.innerHTML = `Score: ${climbScore}<br><span style="font-size:0.9em; color:#64748b">Best: ${highScore}</span>`;
+        const scoreLabel = (window.globalTranslations && window.globalTranslations["Score:"]) || "Score:";
+        const bestLabel = (window.globalTranslations && window.globalTranslations["Best:"]) || "Best:";
+        msg.innerHTML = `${scoreLabel} ${climbScore}<br><span style="font-size:0.9em; color:#64748b">${bestLabel} ${highScore}</span>`;
     }
   } catch(e) { console.error("Climb Game Init Failed:", e); }
 })();

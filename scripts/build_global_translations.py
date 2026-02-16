@@ -164,10 +164,17 @@ def main():
     json_str = json.dumps(merged, ensure_ascii=False, indent=2)
     js_content = js_content.replace('%JSON_CONTENT%', json_str)
 
-    with open('global_translations.js', 'w', encoding='utf-8') as f:
-        f.write(js_content)
-    
-    print("Created global_translations.js")
+    output_path = 'ArisEdu Project Folder/scripts/global_translations.js'
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(js_content)
+        print(f"Created {output_path}")
+    except FileNotFoundError:
+        # Fallback
+        print(f"Path {output_path} not found. Writing to current directory.")
+        with open('global_translations.js', 'w', encoding='utf-8') as f:
+            f.write(js_content)
+        print("Created global_translations.js")
 
 if __name__ == '__main__':
     main()
