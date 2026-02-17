@@ -57,14 +57,7 @@
     backUrl = filename.replace('Summary.html', '.html');
   }
   else if (/^PhysicsLesson[\d]/.test(filename) && !/Summary\.html$/.test(filename)) {
-    // Main Physics lesson → back to PhysicsUnit overview
-    backText = '\u2190 Back to Unit';
-    var unitMatch = filename.match(/PhysicsLesson(\d+)\./);
-    if (unitMatch) backUrl = '/ArisEdu Project Folder/PhysicsLessons/PhysicsUnit' + unitMatch[1] + '.html';
-    else backUrl = courseMap[lessonFolder] || '/ArisEdu Project Folder/Courses.html';
-  }
-  // --- PhysicsUnit overview pages ---
-  else if (/^PhysicsUnit\d+\.html$/.test(filename)) {
+    // Main Physics lesson → back to Physics course page
     backText = '\u2190 Back to Physics';
     backUrl = '/ArisEdu Project Folder/physics.html';
   }
