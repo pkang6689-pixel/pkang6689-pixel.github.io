@@ -131,13 +131,20 @@
         });
         if (!allCorrect) return;
 
-        // Parse lesson info from URL: "Lesson 3.1_Quiz.html" → unit='3', lesson='1'
-        const path = decodeURIComponent(window.location.pathname);
-        const match = path.match(/Lesson\s+(\w+)\.(\d+)_Quiz/);
-        if (match) {
-            const unit = match[1]; // e.g. '3', '5A'
-            const lesson = match[2]; // e.g. '1'
-            localStorage.setItem(`chem_u${unit}_l${lesson}_completed`, 'true');
+        // Call the per-file markQuizComplete() if it exists (each quiz file defines its own)
+        if (typeof window.markQuizComplete === 'function') {
+            window.markQuizComplete();
+        } else {
+            // Fallback: parse lesson info from URL
+            const path = decodeURIComponent(window.location.pathname);
+            const match = path.match(/Lesson\s*(\w+)\.(\d+)_Quiz/);
+            if (match) {
+                const unit = match[1];
+                const lesson = match[2];
+                // Detect physics vs chemistry from path
+                const subject = path.includes('PhysicsLessons') ? 'physics' : 'chem';
+                localStorage.setItem(`${subject}_u${unit}_l${lesson}_completed`, 'true');
+            }
         }
 
         // Show success banner

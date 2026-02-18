@@ -128,24 +128,22 @@
       body.appendChild(btn);
   }
   
-  // --- Language Switcher ---
+  // --- Language Switcher (synced with Preferences.html) ---
   addSection('Language Shortcut');
   var langs = [
-      { code: 'en', label: 'English' },
-      { code: 'zh', label: 'Chinese' },
-      { code: 'es', label: 'Spanish' },
-      { code: 'fr', label: 'French' }
+      { code: 'english', label: 'English' },
+      { code: 'chinese', label: '中文' },
+      { code: 'traditional', label: '繁體中文' }
   ];
   
   var langContainer = document.createElement('div');
   langContainer.style.display = 'grid';
-  langContainer.style.gridTemplateColumns = '1fr 1fr';
+  langContainer.style.gridTemplateColumns = '1fr 1fr 1fr';
   langContainer.style.gap = '0.5rem';
   langContainer.style.marginTop = '0.4rem';
   
   langs.forEach(function(l) {
       var btn = document.createElement('button');
-      // style it small
       btn.textContent = l.label;
       btn.style.background = '#475569';
       btn.style.border = 'none';
@@ -156,14 +154,14 @@
       btn.style.padding = '0.3rem';
       
       // Highlight current
-      var current = localStorage.getItem('user_language') || 'en';
+      var current = localStorage.getItem('arisEduLanguage') || 'english';
       if(current === l.code) {
           btn.style.background = '#3b82f6';
           btn.style.fontWeight = 'bold';
       }
       
       btn.onclick = function() {
-          localStorage.setItem('user_language', l.code);
+          localStorage.setItem('arisEduLanguage', l.code);
           location.reload();
       };
       langContainer.appendChild(btn);
@@ -232,9 +230,8 @@
   }, 'red');
 
   // --- Quiz page Specific ---
-  var quizMatch = path.match(/Lesson\s+(\w+)\.(\d+)_Quiz/) || path.match(/PhysicsLesson(\d+)\.(\d+).*_Quiz/); 
-  // Need to handle Physics filenames too e.g. PhysicsLesson11.6..._Quiz.html
-  // Physics filenames: PhysicsLesson11.6ParticlePhysicsStandardModel_Quiz.html
+  // Matches both "Lesson 1.1_Quiz" (chemistry, space) and "Lesson7.1_Quiz" (physics, no space)
+  var quizMatch = path.match(/Lesson[\s]?(\w+)\.(\d+)_Quiz/);
   
   if (quizMatch) {
     var qUnit = quizMatch[1];

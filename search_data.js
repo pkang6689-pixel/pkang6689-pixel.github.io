@@ -1,4 +1,4 @@
-const ARIS_EDU_SEARCH_INDEX = [
+﻿const ARIS_EDU_SEARCH_INDEX = [
   {
     "title": "ArisEdu Logo - ArisEdu",
     "subtitle": "index",
@@ -740,877 +740,877 @@ const ARIS_EDU_SEARCH_INDEX = [
   {
     "title": "Lesson 1.1: Physical Quantities & Units",
     "subtitle": "Physics Lesson 1.1 Physical Quantities Units",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/PhysicsLesson1.1PhysicalQuantitiesUnits.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/Lesson1.1_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.1: Physical Quantities &amp; Units View other videos Lesson 1.1 videos D Dt S P Next Up: Summary i Difficulty (How hard it is to understand) Detail (Depth of lessons) Speed (How long the video is) Pace (How fast detail is covered) Rubric Difficulty Difficulty Detail Detail Speed Speed Pace Pace Lesson 1.1: Physical Quantities &amp; Units View other videos Lesson 1.1 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 1.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-de"
   },
   {
     "title": "Lesson 1.1: Physical Quantities &amp; Units Summary",
     "subtitle": "Physics Lesson 1.1 Physical Quantities Units Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/PhysicsLesson1.1PhysicalQuantitiesUnitsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/Lesson1.1_Summary.html",
     "content": "\u2190 Back to Lesson 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.1: Physical Quantities &amp; Units Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 1.2: SI System & Prefixes",
     "subtitle": "Physics Lesson 1.2 SISystem And Prefixes",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/PhysicsLesson1.2SISystemAndPrefixes.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/Lesson1.2_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.2: SI System & Prefixes View other videos Lesson 1.2 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 1.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 1.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-dif"
   },
   {
     "title": "Lesson 1.2: SI System &amp; Prefixes Summary",
     "subtitle": "Physics Lesson 1.2 SISystem And Prefixes Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/PhysicsLesson1.2SISystemAndPrefixesSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/Lesson1.2_Summary.html",
     "content": "\u2190 Back to Lesson 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.2: SI System &amp; Prefixes Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 1.3: Scalars vs Vectors",
     "subtitle": "Physics Lesson 1.3 Scalars Vs Vectors",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/PhysicsLesson1.3ScalarsVsVectors.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/Lesson1.3_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.3: Scalars vs Vectors View other videos Lesson 1.3 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 1.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 1.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diffi"
   },
   {
     "title": "Lesson 1.3: Scalars vs Vectors Summary",
     "subtitle": "Physics Lesson 1.3 Scalars Vs Vectors Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/PhysicsLesson1.3ScalarsVsVectorsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/Lesson1.3_Summary.html",
     "content": "\u2190 Back to Lesson 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.3: Scalars vs Vectors Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 1.4: Accuracy, Precision, & Significant Figures",
     "subtitle": "Physics Lesson 1.4 Accuracy Precision Significant Figures",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/PhysicsLesson1.4AccuracyPrecisionSignificantFigures.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/Lesson1.4_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.4: Accuracy, Precision, & Significant Figures View other videos Lesson 1.4 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 1.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 1.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube"
   },
   {
     "title": "Lesson 1.4: Accuracy, Precision, &amp; Significant Figures Summary",
     "subtitle": "Physics Lesson 1.4 Accuracy Precision Significant Figures Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/PhysicsLesson1.4AccuracyPrecisionSignificantFiguresSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/Lesson1.4_Summary.html",
     "content": "\u2190 Back to Lesson 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.4: Accuracy, Precision, &amp; Significant Figures Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 1.5: Dimensional Analysis",
     "subtitle": "Physics Lesson 1.5 Dimensional Analysis",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/PhysicsLesson1.5DimensionalAnalysis.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/Lesson1.5_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.5: Dimensional Analysis View other videos Lesson 1.5 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 1.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 1.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-dif"
   },
   {
     "title": "Lesson 1.5: Dimensional Analysis Summary",
     "subtitle": "Physics Lesson 1.5 Dimensional Analysis Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/PhysicsLesson1.5DimensionalAnalysisSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/Lesson1.5_Summary.html",
     "content": "\u2190 Back to Lesson 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.5: Dimensional Analysis Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 1.6: Measurement Uncertainty & Error Analysis \u2b50",
     "subtitle": "Physics Lesson 1.6 Measurement Uncertainty And Error Analysis",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/PhysicsLesson1.6MeasurementUncertaintyAndErrorAnalysis.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/Lesson1.6_Video.html",
     "content": "\u2190 Back to Unit 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.6: Measurement Uncertainty & Error Analysis \u2b50 View other videos Lesson 1.6 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 1.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 1.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube"
   },
   {
     "title": "Lesson 1.6: Measurement Uncertainty &amp; Error Analysis Summary",
     "subtitle": "Physics Lesson 1.6 Measurement Uncertainty And Error Analysis Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/PhysicsLesson1.6MeasurementUncertaintyAndErrorAnalysisSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit1/Lesson1.6_Summary.html",
     "content": "\u2190 Back to Lesson 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 1.6: Measurement Uncertainty &amp; Error Analysis Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 10.1: Electric Charge & Coulomb's Law",
     "subtitle": "Physics Lesson 10.1 Electric Charge Coulombs Law",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.1ElectricChargeCoulombsLaw.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.1_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.1: Electric Charge & Coulomb's Law View other videos Lesson 10.1 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 10.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 10.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\""
   },
   {
     "title": "Lesson 10.1: Electric Charge &amp; Coulomb&#x27;s Law Summary",
     "subtitle": "Physics Lesson 10.1 Electric Charge Coulombs Law Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.1ElectricChargeCoulombsLawSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.1_Summary.html",
     "content": "\u2190 Back to Lesson 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.1: Electric Charge &amp; Coulomb&#x27;s Law Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 10.2: Electric Field & Potential",
     "subtitle": "Physics Lesson 10.2 Electric Field And Potential",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.2ElectricFieldAndPotential.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.2_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.2: Electric Field & Potential View other videos Lesson 10.2 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 10.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 10.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data"
   },
   {
     "title": "Lesson 10.2: Electric Field &amp; Potential Summary",
     "subtitle": "Physics Lesson 10.2 Electric Field And Potential Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.2ElectricFieldAndPotentialSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.2_Summary.html",
     "content": "\u2190 Back to Lesson 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.2: Electric Field &amp; Potential Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 10.3: Capacitance \u2b50",
     "subtitle": "Physics Lesson 10.3 Capacitance",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.3Capacitance.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.3_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.3: Capacitance \u2b50 View other videos Lesson 10.3 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 10.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 10.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diffi"
   },
   {
     "title": "Lesson 10.3: Capacitance Summary",
     "subtitle": "Physics Lesson 10.3 Capacitance Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.3CapacitanceSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.3_Summary.html",
     "content": "\u2190 Back to Lesson 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.3: Capacitance Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 10.4: Current, Resistance, & Ohm's Law",
     "subtitle": "Physics Lesson 10.4 Current Resistance Ohms Law",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.4CurrentResistanceOhmsLaw.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.4_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.4: Current, Resistance, & Ohm's Law View other videos Lesson 10.4 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 10.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 10.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/"
   },
   {
     "title": "Lesson 10.4: Current, Resistance, &amp; Ohm&#x27;s Law Summary",
     "subtitle": "Physics Lesson 10.4 Current Resistance Ohms Law Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.4CurrentResistanceOhmsLawSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.4_Summary.html",
     "content": "\u2190 Back to Lesson 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.4: Current, Resistance, &amp; Ohm&#x27;s Law Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 10.5: DC Circuits & Kirchhoff's Laws",
     "subtitle": "Physics Lesson 10.5 DCCircuits Kirchhoffs Laws",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.5DCCircuitsKirchhoffsLaws.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.5_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.5: DC Circuits & Kirchhoff's Laws View other videos Lesson 10.5 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 10.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 10.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" "
   },
   {
     "title": "Lesson 10.5: DC Circuits &amp; Kirchhoff&#x27;s Laws Summary",
     "subtitle": "Physics Lesson 10.5 DCCircuits Kirchhoffs Laws Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.5DCCircuitsKirchhoffsLawsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.5_Summary.html",
     "content": "\u2190 Back to Lesson 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.5: DC Circuits &amp; Kirchhoff&#x27;s Laws Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 10.6: Magnetic Fields & Forces",
     "subtitle": "Physics Lesson 10.6 Magnetic Fields And Forces",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.6MagneticFieldsAndForces.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.6_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.6: Magnetic Fields & Forces View other videos Lesson 10.6 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 10.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 10.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-r"
   },
   {
     "title": "Lesson 10.6: Magnetic Fields &amp; Forces Summary",
     "subtitle": "Physics Lesson 10.6 Magnetic Fields And Forces Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.6MagneticFieldsAndForcesSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.6_Summary.html",
     "content": "\u2190 Back to Lesson 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.6: Magnetic Fields &amp; Forces Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 10.7: Electromagnetic Induction",
     "subtitle": "Physics Lesson 10.7 Electromagnetic Induction",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.7ElectromagneticInduction.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.7_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.7: Electromagnetic Induction View other videos Lesson 10.7 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 10.7 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 10.7 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-"
   },
   {
     "title": "Lesson 10.7: Electromagnetic Induction Summary",
     "subtitle": "Physics Lesson 10.7 Electromagnetic Induction Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.7ElectromagneticInductionSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.7_Summary.html",
     "content": "\u2190 Back to Lesson 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.7: Electromagnetic Induction Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 10.8: Alternating Current (AC) Circuits \u2b50",
     "subtitle": "Physics Lesson 10.8 Alternating Current Circuits",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.8AlternatingCurrentCircuits.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.8_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.8: Alternating Current (AC) Circuits \u2b50 View other videos Lesson 10.8 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 10.8 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 10.8 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.c"
   },
   {
     "title": "Lesson 10.8: Alternating Current (AC) Circuits Summary",
     "subtitle": "Physics Lesson 10.8 Alternating Current Circuits Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.8AlternatingCurrentCircuitsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.8_Summary.html",
     "content": "\u2190 Back to Lesson 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.8: Alternating Current (AC) Circuits Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 10.9: Maxwell's Equations (introductory) \u2b50",
     "subtitle": "Physics Lesson 10.9 Maxwells Equations",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.9MaxwellsEquations.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.9_Video.html",
     "content": "\u2190 Back to Unit 10 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.9: Maxwell's Equations (introductory) \u2b50 View other videos Lesson 10.9 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 10.9 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 10.9 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube."
   },
   {
     "title": "Lesson 10.9: Maxwell&#x27;s Equations (introductory) Summary",
     "subtitle": "Physics Lesson 10.9 Maxwells Equations Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/PhysicsLesson10.9MaxwellsEquationsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit10/Lesson10.9_Summary.html",
     "content": "\u2190 Back to Lesson 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 10.9: Maxwell&#x27;s Equations (introductory) Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 11.1: Photoelectric Effect \u2b50",
     "subtitle": "Physics Lesson 11.1 Photoelectric Effect",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/PhysicsLesson11.1PhotoelectricEffect.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/Lesson11.1_Video.html",
     "content": "\u2190 Back to Unit 11 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.1: Photoelectric Effect \u2b50 View other videos Lesson 11.1 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 11.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 11.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rat"
   },
   {
     "title": "Lesson 11.1: Photoelectric Effect Summary",
     "subtitle": "Physics Lesson 11.1 Photoelectric Effect Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/PhysicsLesson11.1PhotoelectricEffectSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/Lesson11.1_Summary.html",
     "content": "\u2190 Back to Lesson 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.1: Photoelectric Effect Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 11.2: Atomic Models \u2b50",
     "subtitle": "Physics Lesson 11.2 Atomic Models",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/PhysicsLesson11.2AtomicModels.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/Lesson11.2_Video.html",
     "content": "\u2190 Back to Unit 11 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.2: Atomic Models \u2b50 View other videos Lesson 11.2 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 11.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 11.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-dif"
   },
   {
     "title": "Lesson 11.2: Atomic Models Summary",
     "subtitle": "Physics Lesson 11.2 Atomic Models Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/PhysicsLesson11.2AtomicModelsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/Lesson11.2_Summary.html",
     "content": "\u2190 Back to Lesson 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.2: Atomic Models Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 11.3: Nuclear Physics (fission, fusion, decay) \u2b50",
     "subtitle": "Physics Lesson 11.3 Nuclear Physics",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/PhysicsLesson11.3NuclearPhysics.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/Lesson11.3_Video.html",
     "content": "\u2190 Back to Unit 11 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.3: Nuclear Physics (fission, fusion, decay) \u2b50 View other videos Lesson 11.3 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 11.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 11.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.yo"
   },
   {
     "title": "Lesson 11.3: Nuclear Physics (fission, fusion, decay) Summary",
     "subtitle": "Physics Lesson 11.3 Nuclear Physics Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/PhysicsLesson11.3NuclearPhysicsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/Lesson11.3_Summary.html",
     "content": "\u2190 Back to Lesson 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.3: Nuclear Physics (fission, fusion, decay) Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 11.4: Relativity (special relativity basics) \u2b50",
     "subtitle": "Physics Lesson 11.4 Relativity",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/PhysicsLesson11.4Relativity.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/Lesson11.4_Video.html",
     "content": "\u2190 Back to Unit 11 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.4: Relativity (special relativity basics) \u2b50 View other videos Lesson 11.4 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 11.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 11.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.yout"
   },
   {
     "title": "Lesson 11.4: Relativity (special relativity basics) Summary",
     "subtitle": "Physics Lesson 11.4 Relativity Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/PhysicsLesson11.4RelativitySummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/Lesson11.4_Summary.html",
     "content": "\u2190 Back to Lesson 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.4: Relativity (special relativity basics) Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 11.5: Quantum Mechanics (wavefunctions, uncertainty principle) \u2b50",
     "subtitle": "Physics Lesson 11.5 Quantum Mechanics",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/PhysicsLesson11.5QuantumMechanics.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/Lesson11.5_Video.html",
     "content": "\u2190 Back to Unit 11 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.5: Quantum Mechanics (wavefunctions, uncertainty principle) \u2b50 View other videos Lesson 11.5 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 11.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 11.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+["
   },
   {
     "title": "Lesson 11.5: Quantum Mechanics (wavefunctions, uncertainty principle) Summary",
     "subtitle": "Physics Lesson 11.5 Quantum Mechanics Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/PhysicsLesson11.5QuantumMechanicsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/Lesson11.5_Summary.html",
     "content": "\u2190 Back to Lesson 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.5: Quantum Mechanics (wavefunctions, uncertainty principle) Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 11.6: Particle Physics & Standard Model \u2b50",
     "subtitle": "Physics Lesson 11.6 Particle Physics Standard Model",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/PhysicsLesson11.6ParticlePhysicsStandardModel.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/Lesson11.6_Video.html",
     "content": "\u2190 Back to Unit 11 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.6: Particle Physics & Standard Model \u2b50 View other videos Lesson 11.6 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 11.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 11.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.c"
   },
   {
     "title": "Lesson 11.6: Particle Physics &amp; Standard Model Summary",
     "subtitle": "Physics Lesson 11.6 Particle Physics Standard Model Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/PhysicsLesson11.6ParticlePhysicsStandardModelSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit11/Lesson11.6_Summary.html",
     "content": "\u2190 Back to Lesson 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 11.6: Particle Physics &amp; Standard Model Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 2.1: Distance, Displacement, Speed, Velocity",
     "subtitle": "Physics Lesson 2.1 Distance Displacement Speed Velocity",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/PhysicsLesson2.1DistanceDisplacementSpeedVelocity.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/Lesson2.1_Video.html",
     "content": "\u2190 Back to Unit 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.1: Distance, Displacement, Speed, Velocity View other videos Lesson 2.1 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 2.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 2.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.co"
   },
   {
     "title": "Lesson 2.1: Distance, Displacement, Speed, Velocity Summary",
     "subtitle": "Physics Lesson 2.1 Distance Displacement Speed Velocity Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/PhysicsLesson2.1DistanceDisplacementSpeedVelocitySummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/Lesson2.1_Summary.html",
     "content": "\u2190 Back to Lesson 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.1: Distance, Displacement, Speed, Velocity Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 2.2: Acceleration",
     "subtitle": "Physics Lesson 2.2 Acceleration",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/PhysicsLesson2.2Acceleration.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/Lesson2.2_Video.html",
     "content": "\u2190 Back to Unit 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.2: Acceleration View other videos Lesson 2.2 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 2.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 2.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty="
   },
   {
     "title": "Lesson 2.2: Acceleration Summary",
     "subtitle": "Physics Lesson 2.2 Acceleration Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/PhysicsLesson2.2AccelerationSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/Lesson2.2_Summary.html",
     "content": "\u2190 Back to Lesson 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.2: Acceleration Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 2.3: Graphical Analysis of Motion",
     "subtitle": "Physics Lesson 2.3 Graphical Analysis Of Motion",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/PhysicsLesson2.3GraphicalAnalysisOfMotion.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/Lesson2.3_Video.html",
     "content": "\u2190 Back to Unit 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.3: Graphical Analysis of Motion View other videos Lesson 2.3 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 2.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 2.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-ra"
   },
   {
     "title": "Lesson 2.3: Graphical Analysis of Motion Summary",
     "subtitle": "Physics Lesson 2.3 Graphical Analysis Of Motion Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/PhysicsLesson2.3GraphicalAnalysisOfMotionSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/Lesson2.3_Summary.html",
     "content": "\u2190 Back to Lesson 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.3: Graphical Analysis of Motion Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 2.4: Equations of Motion (constant acceleration)",
     "subtitle": "Physics Lesson 2.4 Equations Of Motion Constant Acceleration",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/PhysicsLesson2.4EquationsOfMotionConstantAcceleration.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/Lesson2.4_Video.html",
     "content": "\u2190 Back to Unit 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.4: Equations of Motion (constant acceleration) View other videos Lesson 2.4 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 2.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 2.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtub"
   },
   {
     "title": "Lesson 2.4: Equations of Motion (constant acceleration) Summary",
     "subtitle": "Physics Lesson 2.4 Equations Of Motion Constant Acceleration Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/PhysicsLesson2.4EquationsOfMotionConstantAccelerationSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/Lesson2.4_Summary.html",
     "content": "\u2190 Back to Lesson 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.4: Equations of Motion (constant acceleration) Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 2.5: Free Fall & Projectile Motion",
     "subtitle": "Physics Lesson 2.5 Free Fall And Projectile Motion",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/PhysicsLesson2.5FreeFallAndProjectileMotion.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/Lesson2.5_Video.html",
     "content": "\u2190 Back to Unit 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.5: Free Fall & Projectile Motion View other videos Lesson 2.5 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 2.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 2.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-r"
   },
   {
     "title": "Lesson 2.5: Free Fall &amp; Projectile Motion Summary",
     "subtitle": "Physics Lesson 2.5 Free Fall And Projectile Motion Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/PhysicsLesson2.5FreeFallAndProjectileMotionSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/Lesson2.5_Summary.html",
     "content": "\u2190 Back to Lesson 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.5: Free Fall &amp; Projectile Motion Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 2.6: Relative Motion & Reference Frames \u2b50",
     "subtitle": "Physics Lesson 2.6 Relative Motion Reference Frames",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/PhysicsLesson2.6RelativeMotionReferenceFrames.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/Lesson2.6_Video.html",
     "content": "\u2190 Back to Unit 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.6: Relative Motion & Reference Frames \u2b50 View other videos Lesson 2.6 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 2.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 2.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\""
   },
   {
     "title": "Lesson 2.6: Relative Motion &amp; Reference Frames Summary",
     "subtitle": "Physics Lesson 2.6 Relative Motion Reference Frames Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/PhysicsLesson2.6RelativeMotionReferenceFramesSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit2/Lesson2.6_Summary.html",
     "content": "\u2190 Back to Lesson 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 2.6: Relative Motion &amp; Reference Frames Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 3.1: Force & Interaction",
     "subtitle": "Physics Lesson 3.1 Force And Interaction",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.1ForceAndInteraction.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.1_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.1: Force & Interaction View other videos Lesson 3.1 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 3.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 3.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diff"
   },
   {
     "title": "Lesson 3.1: Force &amp; Interaction Summary",
     "subtitle": "Physics Lesson 3.1 Force And Interaction Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.1ForceAndInteractionSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.1_Summary.html",
     "content": "\u2190 Back to Lesson 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.1: Force &amp; Interaction Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 3.2: Newton's First Law",
     "subtitle": "Physics Lesson 3.2 Newtons First Law",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.2NewtonsFirstLaw.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.2_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.2: Newton's First Law View other videos Lesson 3.2 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 3.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 3.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diffi"
   },
   {
     "title": "Lesson 3.2: Newton&#x27;s First Law Summary",
     "subtitle": "Physics Lesson 3.2 Newtons First Law Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.2NewtonsFirstLawSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.2_Summary.html",
     "content": "\u2190 Back to Lesson 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.2: Newton&#x27;s First Law Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 3.3: Newton's Second Law (F = ma)",
     "subtitle": "Physics Lesson 3.3 Newtons Second Law FEquals Ma",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.3NewtonsSecondLawFEqualsMa.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.3_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.3: Newton's Second Law (F = ma) View other videos Lesson 3.3 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 3.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 3.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-ra"
   },
   {
     "title": "Lesson 3.3: Newton&#x27;s Second Law (F = ma) Summary",
     "subtitle": "Physics Lesson 3.3 Newtons Second Law FEquals Ma Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.3NewtonsSecondLawFEqualsMaSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.3_Summary.html",
     "content": "\u2190 Back to Lesson 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.3: Newton&#x27;s Second Law (F = ma) Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 3.4: Newton's Third Law",
     "subtitle": "Physics Lesson 3.4 Newtons Third Law",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.4NewtonsThirdLaw.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.4_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.4: Newton's Third Law View other videos Lesson 3.4 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 3.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 3.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diffi"
   },
   {
     "title": "Lesson 3.4: Newton&#x27;s Third Law Summary",
     "subtitle": "Physics Lesson 3.4 Newtons Third Law Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.4NewtonsThirdLawSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.4_Summary.html",
     "content": "\u2190 Back to Lesson 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.4: Newton&#x27;s Third Law Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 3.5: Friction & Tension",
     "subtitle": "Physics Lesson 3.5 Friction And Tension",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.5FrictionAndTension.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.5_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.5: Friction & Tension View other videos Lesson 3.5 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 3.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 3.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diffi"
   },
   {
     "title": "Lesson 3.5: Friction &amp; Tension Summary",
     "subtitle": "Physics Lesson 3.5 Friction And Tension Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.5FrictionAndTensionSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.5_Summary.html",
     "content": "\u2190 Back to Lesson 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.5: Friction &amp; Tension Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 3.6: Normal Force & Inclined Planes",
     "subtitle": "Physics Lesson 3.6 Normal Force And Inclined Planes",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.6NormalForceAndInclinedPlanes.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.6_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.6: Normal Force & Inclined Planes View other videos Lesson 3.6 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 3.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 3.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-"
   },
   {
     "title": "Lesson 3.6: Normal Force &amp; Inclined Planes Summary",
     "subtitle": "Physics Lesson 3.6 Normal Force And Inclined Planes Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.6NormalForceAndInclinedPlanesSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.6_Summary.html",
     "content": "\u2190 Back to Lesson 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.6: Normal Force &amp; Inclined Planes Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 3.7: Circular Motion & Centripetal Force \u2b50",
     "subtitle": "Physics Lesson 3.7 Circular Motion Centripetal Force",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.7CircularMotionCentripetalForce.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.7_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.7: Circular Motion & Centripetal Force \u2b50 View other videos Lesson 3.7 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 3.7 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 3.7 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/"
   },
   {
     "title": "Lesson 3.7: Circular Motion &amp; Centripetal Force Summary",
     "subtitle": "Physics Lesson 3.7 Circular Motion Centripetal Force Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.7CircularMotionCentripetalForceSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.7_Summary.html",
     "content": "\u2190 Back to Lesson 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.7: Circular Motion &amp; Centripetal Force Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 3.8: Non-Inertial Frames & Pseudo-Forces \u2b50",
     "subtitle": "Physics Lesson 3.8 Non Inertial Frames Pseudo Forces",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.8NonInertialFramesPseudoForces.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.8_Video.html",
     "content": "\u2190 Back to Unit 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.8: Non-Inertial Frames & Pseudo-Forces \u2b50 View other videos Lesson 3.8 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 3.8 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 3.8 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/"
   },
   {
     "title": "Lesson 3.8: Non-Inertial Frames &amp; Pseudo-Forces Summary",
     "subtitle": "Physics Lesson 3.8 Non Inertial Frames Pseudo Forces Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/PhysicsLesson3.8NonInertialFramesPseudoForcesSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit3/Lesson3.8_Summary.html",
     "content": "\u2190 Back to Lesson 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 3.8: Non-Inertial Frames &amp; Pseudo-Forces Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 4.1: Work & Energy Transfer",
     "subtitle": "Physics Lesson 4.1 Work And Energy Transfer",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/PhysicsLesson4.1WorkAndEnergyTransfer.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/Lesson4.1_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.1: Work & Energy Transfer View other videos Lesson 4.1 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 4.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 4.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-d"
   },
   {
     "title": "Lesson 4.1: Work &amp; Energy Transfer Summary",
     "subtitle": "Physics Lesson 4.1 Work And Energy Transfer Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/PhysicsLesson4.1WorkAndEnergyTransferSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/Lesson4.1_Summary.html",
     "content": "\u2190 Back to Lesson 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.1: Work &amp; Energy Transfer Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 4.2: Kinetic Energy & Potential Energy",
     "subtitle": "Physics Lesson 4.2 Kinetic Potential Energy",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/PhysicsLesson4.2KineticPotentialEnergy.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/Lesson4.2_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.2: Kinetic Energy & Potential Energy View other videos Lesson 4.2 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 4.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 4.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" da"
   },
   {
     "title": "Lesson 4.2: Kinetic Energy &amp; Potential Energy Summary",
     "subtitle": "Physics Lesson 4.2 Kinetic Potential Energy Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/PhysicsLesson4.2KineticPotentialEnergySummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/Lesson4.2_Summary.html",
     "content": "\u2190 Back to Lesson 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.2: Kinetic Energy &amp; Potential Energy Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 4.3: Conservation of Energy",
     "subtitle": "Physics Lesson 4.3 Conservation Of Energy",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/PhysicsLesson4.3ConservationOfEnergy.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/Lesson4.3_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.3: Conservation of Energy View other videos Lesson 4.3 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 4.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 4.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-d"
   },
   {
     "title": "Lesson 4.3: Conservation of Energy Summary",
     "subtitle": "Physics Lesson 4.3 Conservation Of Energy Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/PhysicsLesson4.3ConservationOfEnergySummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/Lesson4.3_Summary.html",
     "content": "\u2190 Back to Lesson 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.3: Conservation of Energy Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 4.4: Power & Efficiency",
     "subtitle": "Physics Lesson 4.4 Power And Efficiency",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/PhysicsLesson4.4PowerAndEfficiency.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/Lesson4.4_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.4: Power & Efficiency View other videos Lesson 4.4 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 4.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 4.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diffi"
   },
   {
     "title": "Lesson 4.4: Power &amp; Efficiency Summary",
     "subtitle": "Physics Lesson 4.4 Power And Efficiency Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/PhysicsLesson4.4PowerAndEfficiencySummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/Lesson4.4_Summary.html",
     "content": "\u2190 Back to Lesson 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.4: Power &amp; Efficiency Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 4.5: Work-Energy Theorem \u2b50",
     "subtitle": "Physics Lesson 4.5 Work Energy Theorem",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/PhysicsLesson4.5WorkEnergyTheorem.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/Lesson4.5_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.5: Work-Energy Theorem \u2b50 View other videos Lesson 4.5 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 4.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 4.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-di"
   },
   {
     "title": "Lesson 4.5: Work-Energy Theorem Summary",
     "subtitle": "Physics Lesson 4.5 Work Energy Theorem Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/PhysicsLesson4.5WorkEnergyTheoremSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/Lesson4.5_Summary.html",
     "content": "\u2190 Back to Lesson 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.5: Work-Energy Theorem Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 4.6: Conservative vs Non-Conservative Forces \u2b50",
     "subtitle": "Physics Lesson 4.6 Conservative Vs Non Conservative Forces",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/PhysicsLesson4.6ConservativeVsNonConservativeForces.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/Lesson4.6_Video.html",
     "content": "\u2190 Back to Unit 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.6: Conservative vs Non-Conservative Forces \u2b50 View other videos Lesson 4.6 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 4.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 4.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube."
   },
   {
     "title": "Lesson 4.6: Conservative vs Non-Conservative Forces Summary",
     "subtitle": "Physics Lesson 4.6 Conservative Vs Non Conservative Forces Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/PhysicsLesson4.6ConservativeVsNonConservativeForcesSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit4/Lesson4.6_Summary.html",
     "content": "\u2190 Back to Lesson 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 4.6: Conservative vs Non-Conservative Forces Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 5.1: Linear Momentum",
     "subtitle": "Physics Lesson 5.1 Linear Momentum",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/PhysicsLesson5.1LinearMomentum.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/Lesson5.1_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.1: Linear Momentum View other videos Lesson 5.1 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 5.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 5.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficul"
   },
   {
     "title": "Lesson 5.1: Linear Momentum Summary",
     "subtitle": "Physics Lesson 5.1 Linear Momentum Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/PhysicsLesson5.1LinearMomentumSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/Lesson5.1_Summary.html",
     "content": "\u2190 Back to Lesson 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.1: Linear Momentum Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 5.2: Impulse",
     "subtitle": "Physics Lesson 5.2 Impulse",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/PhysicsLesson5.2Impulse.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/Lesson5.2_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.2: Impulse View other videos Lesson 5.2 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 5.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 5.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Diff"
   },
   {
     "title": "Lesson 5.2: Impulse Summary",
     "subtitle": "Physics Lesson 5.2 Impulse Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/PhysicsLesson5.2ImpulseSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/Lesson5.2_Summary.html",
     "content": "\u2190 Back to Lesson 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.2: Impulse Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 5.3: Conservation of Momentum",
     "subtitle": "Physics Lesson 5.3 Conservation Of Momentum",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/PhysicsLesson5.3ConservationOfMomentum.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/Lesson5.3_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.3: Conservation of Momentum View other videos Lesson 5.3 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 5.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 5.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating"
   },
   {
     "title": "Lesson 5.3: Conservation of Momentum Summary",
     "subtitle": "Physics Lesson 5.3 Conservation Of Momentum Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/PhysicsLesson5.3ConservationOfMomentumSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/Lesson5.3_Summary.html",
     "content": "\u2190 Back to Lesson 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.3: Conservation of Momentum Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 5.4: Elastic & Inelastic Collisions",
     "subtitle": "Physics Lesson 5.4 Elastic Inelastic Collisions",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/PhysicsLesson5.4ElasticInelasticCollisions.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/Lesson5.4_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.4: Elastic & Inelastic Collisions View other videos Lesson 5.4 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 5.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 5.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-"
   },
   {
     "title": "Lesson 5.4: Elastic &amp; Inelastic Collisions Summary",
     "subtitle": "Physics Lesson 5.4 Elastic Inelastic Collisions Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/PhysicsLesson5.4ElasticInelasticCollisionsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/Lesson5.4_Summary.html",
     "content": "\u2190 Back to Lesson 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.4: Elastic &amp; Inelastic Collisions Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 5.5: Center of Mass \u2b50",
     "subtitle": "Physics Lesson 5.5 Center Of Mass",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/PhysicsLesson5.5CenterOfMass.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/Lesson5.5_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.5: Center of Mass \u2b50 View other videos Lesson 5.5 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 5.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 5.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficu"
   },
   {
     "title": "Lesson 5.5: Center of Mass Summary",
     "subtitle": "Physics Lesson 5.5 Center Of Mass Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/PhysicsLesson5.5CenterOfMassSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/Lesson5.5_Summary.html",
     "content": "\u2190 Back to Lesson 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.5: Center of Mass Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 5.6: Rocket Propulsion \u2b50",
     "subtitle": "Physics Lesson 5.6 Rocket Propulsion",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/PhysicsLesson5.6RocketPropulsion.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/Lesson5.6_Video.html",
     "content": "\u2190 Back to Unit 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.6: Rocket Propulsion \u2b50 View other videos Lesson 5.6 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 5.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 5.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diff"
   },
   {
     "title": "Lesson 5.6: Rocket Propulsion Summary",
     "subtitle": "Physics Lesson 5.6 Rocket Propulsion Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/PhysicsLesson5.6RocketPropulsionSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit5/Lesson5.6_Summary.html",
     "content": "\u2190 Back to Lesson 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 5.6: Rocket Propulsion Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 6.1: Newton's Law of Gravitation",
     "subtitle": "Physics Lesson 6.1 Newtons Law Of Gravitation",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/PhysicsLesson6.1NewtonsLawOfGravitation.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/Lesson6.1_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.1: Newton's Law of Gravitation View other videos Lesson 6.1 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 6.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 6.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rat"
   },
   {
     "title": "Lesson 6.1: Newton&#x27;s Law of Gravitation Summary",
     "subtitle": "Physics Lesson 6.1 Newtons Law Of Gravitation Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/PhysicsLesson6.1NewtonsLawOfGravitationSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/Lesson6.1_Summary.html",
     "content": "\u2190 Back to Lesson 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.1: Newton&#x27;s Law of Gravitation Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 6.2: Gravitational Field Strength",
     "subtitle": "Physics Lesson 6.2 Gravitational Field Strength",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/PhysicsLesson6.2GravitationalFieldStrength.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/Lesson6.2_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.2: Gravitational Field Strength View other videos Lesson 6.2 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 6.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 6.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-ra"
   },
   {
     "title": "Lesson 6.2: Gravitational Field Strength Summary",
     "subtitle": "Physics Lesson 6.2 Gravitational Field Strength Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/PhysicsLesson6.2GravitationalFieldStrengthSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/Lesson6.2_Summary.html",
     "content": "\u2190 Back to Lesson 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.2: Gravitational Field Strength Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 6.3: Orbital Motion",
     "subtitle": "Physics Lesson 6.3 Orbital Motion",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/PhysicsLesson6.3OrbitalMotion.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/Lesson6.3_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.3: Orbital Motion View other videos Lesson 6.3 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 6.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 6.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficult"
   },
   {
     "title": "Lesson 6.3: Orbital Motion Summary",
     "subtitle": "Physics Lesson 6.3 Orbital Motion Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/PhysicsLesson6.3OrbitalMotionSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/Lesson6.3_Summary.html",
     "content": "\u2190 Back to Lesson 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.3: Orbital Motion Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 6.4: Satellite Motion \u2b50",
     "subtitle": "Physics Lesson 6.4 Satellite Motion",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/PhysicsLesson6.4SatelliteMotion.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/Lesson6.4_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.4: Satellite Motion \u2b50 View other videos Lesson 6.4 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 6.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 6.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diffi"
   },
   {
     "title": "Lesson 6.4: Satellite Motion Summary",
     "subtitle": "Physics Lesson 6.4 Satellite Motion Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/PhysicsLesson6.4SatelliteMotionSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/Lesson6.4_Summary.html",
     "content": "\u2190 Back to Lesson 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.4: Satellite Motion Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 6.5: Escape Velocity \u2b50",
     "subtitle": "Physics Lesson 6.5 Escape Velocity",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/PhysicsLesson6.5EscapeVelocity.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/Lesson6.5_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.5: Escape Velocity \u2b50 View other videos Lesson 6.5 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 6.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 6.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diffic"
   },
   {
     "title": "Lesson 6.5: Escape Velocity Summary",
     "subtitle": "Physics Lesson 6.5 Escape Velocity Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/PhysicsLesson6.5EscapeVelocitySummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/Lesson6.5_Summary.html",
     "content": "\u2190 Back to Lesson 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.5: Escape Velocity Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 6.6: Kepler's Laws \u2b50",
     "subtitle": "Physics Lesson 6.6 Keplers Laws",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/PhysicsLesson6.6KeplersLaws.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/Lesson6.6_Video.html",
     "content": "\u2190 Back to Unit 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.6: Kepler's Laws \u2b50 View other videos Lesson 6.6 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 6.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 6.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficul"
   },
   {
     "title": "Lesson 6.6: Kepler&#x27;s Laws Summary",
     "subtitle": "Physics Lesson 6.6 Keplers Laws Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/PhysicsLesson6.6KeplersLawsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit6/Lesson6.6_Summary.html",
     "content": "\u2190 Back to Lesson 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 6.6: Kepler&#x27;s Laws Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 7.1: Simple Harmonic Motion (SHM)",
     "subtitle": "Physics Lesson 7.1 Simple Harmonic Motion",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.1SimpleHarmonicMotion.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.1_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.1: Simple Harmonic Motion (SHM) View other videos Lesson 7.1 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 7.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 7.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-ra"
   },
   {
     "title": "Lesson 7.1: Simple Harmonic Motion (SHM) Summary",
     "subtitle": "Physics Lesson 7.1 Simple Harmonic Motion Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.1SimpleHarmonicMotionSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.1_Summary.html",
     "content": "\u2190 Back to Lesson 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.1: Simple Harmonic Motion (SHM) Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 7.2: Period, Frequency, Amplitude",
     "subtitle": "Physics Lesson 7.2 Period Frequency Amplitude",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.2PeriodFrequencyAmplitude.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.2_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.2: Period, Frequency, Amplitude View other videos Lesson 7.2 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 7.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 7.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-ra"
   },
   {
     "title": "Lesson 7.2: Period, Frequency, Amplitude Summary",
     "subtitle": "Physics Lesson 7.2 Period Frequency Amplitude Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.2PeriodFrequencyAmplitudeSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.2_Summary.html",
     "content": "\u2190 Back to Lesson 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.2: Period, Frequency, Amplitude Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 7.3: Energy in SHM",
     "subtitle": "Physics Lesson 7.3 Energy In SHM",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.3EnergyInSHM.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.3_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.3: Energy in SHM View other videos Lesson 7.3 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 7.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 7.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty"
   },
   {
     "title": "Lesson 7.3: Energy in SHM Summary",
     "subtitle": "Physics Lesson 7.3 Energy In SHMSummary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.3EnergyInSHMSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.3_Summary.html",
     "content": "\u2190 Back to Lesson 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.3: Energy in SHM Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 7.4: Wave Properties",
     "subtitle": "Physics Lesson 7.4 Wave Properties",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.4WaveProperties.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.4_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.4: Wave Properties View other videos Lesson 7.4 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 7.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 7.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficul"
   },
   {
     "title": "Lesson 7.4: Wave Properties Summary",
     "subtitle": "Physics Lesson 7.4 Wave Properties Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.4WavePropertiesSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.4_Summary.html",
     "content": "\u2190 Back to Lesson 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.4: Wave Properties Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 7.5: Wave Superposition & Interference \u2b50",
     "subtitle": "Physics Lesson 7.5 Wave Superposition Interference",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.5WaveSuperpositionInterference.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.5_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.5: Wave Superposition & Interference \u2b50 View other videos Lesson 7.5 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 7.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 7.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" "
   },
   {
     "title": "Lesson 7.5: Wave Superposition &amp; Interference Summary",
     "subtitle": "Physics Lesson 7.5 Wave Superposition Interference Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.5WaveSuperpositionInterferenceSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.5_Summary.html",
     "content": "\u2190 Back to Lesson 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.5: Wave Superposition &amp; Interference Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 7.6: Standing Waves & Resonance",
     "subtitle": "Physics Lesson 7.6 Standing Waves Resonance",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.6StandingWavesResonance.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.6_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.6: Standing Waves & Resonance View other videos Lesson 7.6 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 7.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 7.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rati"
   },
   {
     "title": "Lesson 7.6: Standing Waves &amp; Resonance Summary",
     "subtitle": "Physics Lesson 7.6 Standing Waves Resonance Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.6StandingWavesResonanceSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.6_Summary.html",
     "content": "\u2190 Back to Lesson 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.6: Standing Waves &amp; Resonance Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 7.7: Doppler Effect \u2b50",
     "subtitle": "Physics Lesson 7.7 Doppler Effect",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.7DopplerEffect.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.7_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.7: Doppler Effect \u2b50 View other videos Lesson 7.7 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 7.7 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 7.7 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficu"
   },
   {
     "title": "Lesson 7.7: Doppler Effect Summary",
     "subtitle": "Physics Lesson 7.7 Doppler Effect Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.7DopplerEffectSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.7_Summary.html",
     "content": "\u2190 Back to Lesson 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.7: Doppler Effect Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 7.8: Wave-Particle Duality \u2b50",
     "subtitle": "Physics Lesson 7.8 Wave Particle Duality",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.8WaveParticleDuality.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.8_Video.html",
     "content": "\u2190 Back to Unit 7 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.8: Wave-Particle Duality \u2b50 View other videos Lesson 7.8 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 7.8 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 7.8 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-"
   },
   {
     "title": "Lesson 7.8: Wave-Particle Duality Summary",
     "subtitle": "Physics Lesson 7.8 Wave Particle Duality Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/PhysicsLesson7.8WaveParticleDualitySummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit7/Lesson7.8_Summary.html",
     "content": "\u2190 Back to Lesson 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 7.8: Wave-Particle Duality Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 8.1: Nature of Sound Waves",
     "subtitle": "Physics Lesson 8.1 Nature Of Sound Waves",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/PhysicsLesson8.1NatureOfSoundWaves.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/Lesson8.1_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.1: Nature of Sound Waves View other videos Lesson 8.1 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 8.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 8.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-di"
   },
   {
     "title": "Lesson 8.1: Nature of Sound Waves Summary",
     "subtitle": "Physics Lesson 8.1 Nature Of Sound Waves Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/PhysicsLesson8.1NatureOfSoundWavesSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/Lesson8.1_Summary.html",
     "content": "\u2190 Back to Lesson 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.1: Nature of Sound Waves Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 8.2: Speed of Sound",
     "subtitle": "Physics Lesson 8.2 Speed Of Sound",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/PhysicsLesson8.2SpeedOfSound.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/Lesson8.2_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.2: Speed of Sound View other videos Lesson 8.2 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 8.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 8.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficult"
   },
   {
     "title": "Lesson 8.2: Speed of Sound Summary",
     "subtitle": "Physics Lesson 8.2 Speed Of Sound Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/PhysicsLesson8.2SpeedOfSoundSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/Lesson8.2_Summary.html",
     "content": "\u2190 Back to Lesson 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.2: Speed of Sound Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 8.3: Intensity & Loudness",
     "subtitle": "Physics Lesson 8.3 Intensity And Loudness",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/PhysicsLesson8.3IntensityAndLoudness.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/Lesson8.3_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.3: Intensity & Loudness View other videos Lesson 8.3 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 8.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 8.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-dif"
   },
   {
     "title": "Lesson 8.3: Intensity &amp; Loudness Summary",
     "subtitle": "Physics Lesson 8.3 Intensity And Loudness Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/PhysicsLesson8.3IntensityAndLoudnessSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/Lesson8.3_Summary.html",
     "content": "\u2190 Back to Lesson 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.3: Intensity &amp; Loudness Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 8.4: Pitch & Frequency",
     "subtitle": "Physics Lesson 8.4 Pitch And Frequency",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/PhysicsLesson8.4PitchAndFrequency.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/Lesson8.4_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.4: Pitch & Frequency View other videos Lesson 8.4 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 8.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 8.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diffic"
   },
   {
     "title": "Lesson 8.4: Pitch &amp; Frequency Summary",
     "subtitle": "Physics Lesson 8.4 Pitch And Frequency Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/PhysicsLesson8.4PitchAndFrequencySummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/Lesson8.4_Summary.html",
     "content": "\u2190 Back to Lesson 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.4: Pitch &amp; Frequency Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 8.5: Resonance in Air Columns",
     "subtitle": "Physics Lesson 8.5 Resonance In Air Columns",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/PhysicsLesson8.5ResonanceInAirColumns.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/Lesson8.5_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.5: Resonance in Air Columns View other videos Lesson 8.5 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 8.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 8.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating"
   },
   {
     "title": "Lesson 8.5: Resonance in Air Columns Summary",
     "subtitle": "Physics Lesson 8.5 Resonance In Air Columns Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/PhysicsLesson8.5ResonanceInAirColumnsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/Lesson8.5_Summary.html",
     "content": "\u2190 Back to Lesson 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.5: Resonance in Air Columns Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 8.6: Beats & Harmonics \u2b50",
     "subtitle": "Physics Lesson 8.6 Beats And Harmonics",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/PhysicsLesson8.6BeatsAndHarmonics.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/Lesson8.6_Video.html",
     "content": "\u2190 Back to Unit 8 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.6: Beats & Harmonics \u2b50 View other videos Lesson 8.6 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 8.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 8.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diff"
   },
   {
     "title": "Lesson 8.6: Beats &amp; Harmonics Summary",
     "subtitle": "Physics Lesson 8.6 Beats And Harmonics Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/PhysicsLesson8.6BeatsAndHarmonicsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit8/Lesson8.6_Summary.html",
     "content": "\u2190 Back to Lesson 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 8.6: Beats &amp; Harmonics Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 9.1: Reflection & Refraction",
     "subtitle": "Physics Lesson 9.1 Reflection Refraction",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/PhysicsLesson9.1ReflectionRefraction.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/Lesson9.1_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.1: Reflection & Refraction View other videos Lesson 9.1 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 9.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 9.1 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-"
   },
   {
     "title": "Lesson 9.1: Reflection &amp; Refraction Summary",
     "subtitle": "Physics Lesson 9.1 Reflection Refraction Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/PhysicsLesson9.1ReflectionRefractionSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/Lesson9.1_Summary.html",
     "content": "\u2190 Back to Lesson 1 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.1: Reflection &amp; Refraction Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 9.2: Lenses & Mirrors",
     "subtitle": "Physics Lesson 9.2 Lenses And Mirrors",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/PhysicsLesson9.2LensesAndMirrors.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/Lesson9.2_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.2: Lenses & Mirrors View other videos Lesson 9.2 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 9.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 9.2 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficu"
   },
   {
     "title": "Lesson 9.2: Lenses &amp; Mirrors Summary",
     "subtitle": "Physics Lesson 9.2 Lenses And Mirrors Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/PhysicsLesson9.2LensesAndMirrorsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/Lesson9.2_Summary.html",
     "content": "\u2190 Back to Lesson 2 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.2: Lenses &amp; Mirrors Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 9.3: Total Internal Reflection",
     "subtitle": "Physics Lesson 9.3 Total Internal Reflection",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/PhysicsLesson9.3TotalInternalReflection.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/Lesson9.3_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.3: Total Internal Reflection View other videos Lesson 9.3 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 9.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 9.3 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-ratin"
   },
   {
     "title": "Lesson 9.3: Total Internal Reflection Summary",
     "subtitle": "Physics Lesson 9.3 Total Internal Reflection Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/PhysicsLesson9.3TotalInternalReflectionSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/Lesson9.3_Summary.html",
     "content": "\u2190 Back to Lesson 3 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.3: Total Internal Reflection Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 9.4: Optical Instruments",
     "subtitle": "Physics Lesson 9.4 Optical Instruments",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/PhysicsLesson9.4OpticalInstruments.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/Lesson9.4_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.4: Optical Instruments View other videos Lesson 9.4 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 9.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 9.4 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-diff"
   },
   {
     "title": "Lesson 9.4: Optical Instruments Summary",
     "subtitle": "Physics Lesson 9.4 Optical Instruments Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/PhysicsLesson9.4OpticalInstrumentsSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/Lesson9.4_Summary.html",
     "content": "\u2190 Back to Lesson 4 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.4: Optical Instruments Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 9.5: Diffraction & Interference \u2b50",
     "subtitle": "Physics Lesson 9.5 Diffraction Interference",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/PhysicsLesson9.5DiffractionInterference.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/Lesson9.5_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.5: Diffraction & Interference \u2b50 View other videos Lesson 9.5 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 9.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 9.5 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-ra"
   },
   {
     "title": "Lesson 9.5: Diffraction &amp; Interference Summary",
     "subtitle": "Physics Lesson 9.5 Diffraction Interference Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/PhysicsLesson9.5DiffractionInterferenceSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/Lesson9.5_Summary.html",
     "content": "\u2190 Back to Lesson 5 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.5: Diffraction &amp; Interference Summary Summary placeholder. Add the summary content here."
   },
   {
     "title": "Lesson 9.6: Polarization \u2b50",
     "subtitle": "Physics Lesson 9.6 Polarization",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/PhysicsLesson9.6Polarization.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/Lesson9.6_Video.html",
     "content": "\u2190 Back to Unit 9 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.6: Polarization \u2b50 View other videos Lesson 9.6 videos D Dt S P \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Khan Academy: Lesson 9.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Khan Academy \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficulty=\"Difficulty\" data-color-difficulty=\"#334155\" data-rating-detail=\"Detail\" data-color-detail=\"#334155\" data-rating-speed=\"Speed\" data-color-speed=\"#334155\" data-rating-pace=\"Pace\" data-color-pace=\"#334155\" data-video-title=\"Crash Course: Lesson 9.6 placeholder\" data-video-src=\"https://www.youtube.com/\">Crash Course \"> Lesson [0-9]+[^ https://www.youtube.com/\" data-rating-difficult"
   },
   {
     "title": "Lesson 9.6: Polarization Summary",
     "subtitle": "Physics Lesson 9.6 Polarization Summary",
-    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/PhysicsLesson9.6PolarizationSummary.html",
+    "url": "/ArisEdu Project Folder/PhysicsLessons/Unit9/Lesson9.6_Summary.html",
     "content": "\u2190 Back to Lesson 6 \ud83d\udd0d Search \ud83c\udfe0 Homepage \ud83d\udcda Courses \u2699\ufe0f Settings \ud83d\udd10 Login/Signup Dark Mode Preferences Lesson 9.6: Polarization Summary Summary placeholder. Add the summary content here."
   }
 ];

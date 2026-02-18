@@ -153,6 +153,79 @@
   "Unit 10 Test": "第十单元测试",
   "Unit 11 Test": "第十一单元测试",
   "Unit 12 Test": "第十二单元测试",
+  "1.1 Physical Quantities & Units": "1.1 物理量与单位",
+  "1.2 SI System & Prefixes": "1.2 国际单位制与前缀",
+  "1.3 Scalars vs Vectors": "1.3 标量与矢量",
+  "1.4 Accuracy, Precision, & Significant Figures": "1.4 准确度、精确度与有效数字",
+  "1.5 Dimensional Analysis": "1.5 量纲分析",
+  "1.6 Measurement Uncertainty & Error Analysis": "1.6 测量不确定度与误差分析",
+  "2.1 Distance, Displacement, Speed, Velocity": "2.1 距离、位移、速率、速度",
+  "2.2 Acceleration": "2.2 加速度",
+  "2.3 Graphical Analysis of Motion": "2.3 运动的图解分析",
+  "2.4 Equations of Motion (constant acceleration)": "2.4 运动方程（匀加速）",
+  "2.5 Free Fall & Projectile Motion": "2.5 自由落体与抛体运动",
+  "2.6 ⭐ Relative Motion & Reference Frames": "2.6 ⭐ 相对运动与参考系",
+  "3.1 Force & Interaction": "3.1 力与相互作用",
+  "3.2 Newton\u2019s First Law": "3.2 牛顿第一定律",
+  "3.3 Newton\u2019s Second Law (F = ma)": "3.3 牛顿第二定律 (F = ma)",
+  "3.4 Newton\u2019s Third Law": "3.4 牛顿第三定律",
+  "3.5 Friction & Tension": "3.5 摩擦力与张力",
+  "3.6 Normal Force & Inclined Planes": "3.6 法向力与斜面",
+  "3.7 ⭐ Circular Motion & Centripetal Force": "3.7 ⭐ 圆周运动与向心力",
+  "3.8 ⭐ Non-Inertial Frames & Pseudo-Forces": "3.8 ⭐ 非惯性系与惯性力",
+  "4.1 Work & Energy Transfer": "4.1 功与能量传递",
+  "4.2 Kinetic Energy & Potential Energy": "4.2 动能与势能",
+  "4.3 Conservation of Energy": "4.3 能量守恒",
+  "4.4 Power & Efficiency": "4.4 功率与效率",
+  "4.5 ⭐ Work-Energy Theorem": "4.5 ⭐ 动能定理",
+  "4.6 ⭐ Conservative vs. Non-Conservative Forces": "4.6 ⭐ 保守力与非保守力",
+  "5.1 Linear Momentum": "5.1 线动量",
+  "5.2 Impulse": "5.2 冲量",
+  "5.3 Conservation of Momentum": "5.3 动量守恒",
+  "5.4 Elastic & Inelastic Collisions": "5.4 弹性碰撞与非弹性碰撞",
+  "5.5 ⭐ Center of Mass": "5.5 ⭐ 质心",
+  "5.6 ⭐ Rocket Propulsion": "5.6 ⭐ 火箭推进",
+  "6.1 Newton\u2019s Law of Gravitation": "6.1 牛顿万有引力定律",
+  "6.2 Gravitational Field Strength": "6.2 引力场强度",
+  "6.3 Orbital Motion": "6.3 轨道运动",
+  "6.4 ⭐ Satellite Motion": "6.4 ⭐ 卫星运动",
+  "6.5 ⭐ Escape Velocity": "6.5 ⭐ 逃逸速度",
+  "6.6 ⭐ Kepler\u2019s Laws": "6.6 ⭐ 开普勒定律",
+  "7.1 Simple Harmonic Motion (SHM)": "7.1 简谐运动 (SHM)",
+  "7.2 Period, Frequency, Amplitude": "7.2 周期、频率、振幅",
+  "7.3 Energy in SHM": "7.3 简谐运动中的能量",
+  "7.4 Wave Properties (wavelength, speed, frequency)": "7.4 波的性质（波长、波速、频率）",
+  "7.5 ⭐ Wave Superposition & Interference": "7.5 ⭐ 波的叠加与干涉",
+  "7.6 Standing Waves & Resonance": "7.6 驻波与共振",
+  "7.7 ⭐ Doppler Effect": "7.7 ⭐ 多普勒效应",
+  "7.8 ⭐ Wave-Particle Duality (introductory)": "7.8 ⭐ 波粒二象性（导论）",
+  "8.1 Nature of Sound Waves": "8.1 声波的本质",
+  "8.2 Speed of Sound": "8.2 声速",
+  "8.3 Intensity & Loudness": "8.3 声强与响度",
+  "8.4 Pitch & Frequency": "8.4 音调与频率",
+  "8.5 Resonance in Air Columns": "8.5 空气柱中的共振",
+  "8.6 ⭐ Beats & Harmonics": "8.6 ⭐ 拍频与谐波",
+  "9.1 Reflection & Refraction": "9.1 反射与折射",
+  "9.2 Lenses & Mirrors": "9.2 透镜与反射镜",
+  "9.3 Total Internal Reflection": "9.3 全内反射",
+  "9.4 Optical Instruments": "9.4 光学仪器",
+  "9.5 ⭐ Diffraction & Interference": "9.5 ⭐ 衍射与干涉",
+  "9.6 ⭐ Polarization": "9.6 ⭐ 偏振",
+  "10.1 Electric Charge & Coulomb\u2019s Law": "10.1 电荷与库仑定律",
+  "10.2 Electric Field & Potential": "10.2 电场与电势",
+  "10.3 ⭐ Capacitance": "10.3 ⭐ 电容",
+  "10.4 Current, Resistance, & Ohm\u2019s Law": "10.4 电流、电阻与欧姆定律",
+  "10.5 DC Circuits & Kirchhoff\u2019s Laws": "10.5 直流电路与基尔霍夫定律",
+  "10.6 Magnetic Fields & Forces": "10.6 磁场与磁力",
+  "10.7 Electromagnetic Induction": "10.7 电磁感应",
+  "10.8 ⭐ Alternating Current (AC) Circuits": "10.8 ⭐ 交流电路",
+  "10.9 ⭐ Maxwell\u2019s Equations (introductory)": "10.9 ⭐ 麦克斯韦方程组（导论）",
+  "11.1 ⭐ Photoelectric Effect": "11.1 ⭐ 光电效应",
+  "11.2 ⭐ Atomic Models": "11.2 ⭐ 原子模型",
+  "11.3 ⭐ Nuclear Physics (fission, fusion, decay)": "11.3 ⭐ 核物理（裂变、聚变、衰变）",
+  "11.4 ⭐ Relativity (special relativity basics)": "11.4 ⭐ 相对论（狭义相对论基础）",
+  "11.5 ⭐ Quantum Mechanics (wavefunctions, uncertainty principle)": "11.5 ⭐ 量子力学（波函数、不确定性原理）",
+  "11.6 ⭐ Particle Physics & Standard Model": "11.6 ⭐ 粒子物理与标准模型",
   "Practice": "练习",
   "Topic": "主题",
   "Description": "描述",
@@ -8536,14 +8609,22 @@
                      status = toTraditional(status);
 
                      // Translate Title
+                     const prefixMatch = prefix.match(/Lesson ([\w.]+):/);
                      if (translations[title]) {
                           title = translations[title];
+                     } else if (prefixMatch) {
+                          // Try numbered key (e.g. "6.3 Orbital Motion")
+                          var numberedKey = prefixMatch[1] + " " + title;
+                          if (translations[numberedKey]) {
+                              var tVal = translations[numberedKey];
+                              // Strip leading number prefix from value to avoid "第 6.3 课: 6.3 轨道运动"
+                              var numPre = prefixMatch[1] + " ";
+                              if (tVal.startsWith(numPre)) tVal = tVal.substring(numPre.length);
+                              title = tVal;
+                          }
                      }
                      // Convert Title
                      title = toTraditional(title);
-
-                     // Translate "Lesson X.Y: " -> "第 X.Y 课: "
-                     const prefixMatch = prefix.match(/Lesson ([\w.]+):/);
                      if (prefixMatch) {
                           let pText = "第 " + prefixMatch[1] + " 课: "; // S-Chinese
                           pText = toTraditional(pText); // Convert "课" -> "課"

@@ -34,6 +34,9 @@
   } else if (filename.indexOf('_Quiz') !== -1) {
     backText = '\u2190 Back to Practice';
     backUrl = filename.replace('_Quiz.html', '_Practice.html');
+  } else if (filename.indexOf('_Video') !== -1) {
+    backText = '\u2190 Back to Course';
+    backUrl = courseMap[lessonFolder] || '/ArisEdu Project Folder/Courses.html';
   }
   // --- Legacy check (space-separated names) ---
   else if (filename.indexOf(' Practice') !== -1) {
@@ -51,18 +54,8 @@
     backText = '\u2190 Back to Practice';
     backUrl = filename.replace(' Quiz.html', ' Practice.html');
   }
-  // --- Physics lesson files (camelCase, no spaces) ---
-  else if (/^PhysicsLesson[\d]/.test(filename) && /Summary\.html$/.test(filename)) {
-    backText = '\u2190 Back to Lesson';
-    backUrl = filename.replace('Summary.html', '.html');
-  }
-  else if (/^PhysicsLesson[\d]/.test(filename) && !/Summary\.html$/.test(filename)) {
-    // Main Physics lesson → back to Physics course page
-    backText = '\u2190 Back to Physics';
-    backUrl = '/ArisEdu Project Folder/physics.html';
-  }
-  // --- Chemistry/other main lesson files (inside a Unit folder) ---
-  else if (lessonFolder && /^Lesson\s/.test(filename)) {
+  // --- Any lesson file in a Unit folder (catches both physics and chemistry) ---
+  else if (lessonFolder && /^Lesson/.test(filename)) {
     backText = '\u2190 Back to Course';
     backUrl = courseMap[lessonFolder] || '/ArisEdu Project Folder/Courses.html';
   }
