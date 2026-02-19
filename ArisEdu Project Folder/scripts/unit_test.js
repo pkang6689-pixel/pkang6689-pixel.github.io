@@ -2,6 +2,11 @@
 // Injects practice games HTML, climb game logic, quiz/practice view switching, quiz completion tracking
 
 (function () {
+  function _t(key, fallback) {
+    var t = window.arisEduTranslations || window.globalTranslations;
+    return (t && t[key]) || fallback || key;
+  }
+
   // ========== 1. Inject Practice Games HTML ==========
   function injectPracticeGamesHTML() {
     const practiceView = document.getElementById('practice-content-view');
@@ -172,6 +177,11 @@
     const quizForm = document.getElementById('quiz-form');
     if (!quizForm) return;
 
+    // Detect physics vs chemistry from URL
+    var isPhysics = window.location.pathname.toLowerCase().includes('physicslessons');
+    var backUrl = isPhysics ? '../../physics.html' : '../../chem.html';
+    var backLabel = isPhysics ? 'Back to Physics' : 'Back to Chemistry';
+
     // Insert after quiz-form
     const finishHTML = `
       <div id="quiz-results" style="margin-top:2rem;font-weight:bold;display:none;padding:1rem;border-radius:0.5rem;"></div>
@@ -181,11 +191,11 @@
         <div style="font-size:1.25rem;margin-bottom:0.5rem;">Percentage: <span id="quiz-final-percent">0%</span></div>
         <div style="font-size:1.25rem;margin-bottom:1.5rem;">Time Spent: <span id="quiz-time-spent">00:00</span></div>
         <button class="side-button" onclick="location.reload()" style="margin-bottom:1rem;">Retake Quiz</button>
-        <button class="side-button" onclick="window.location.href='../../chem.html'">Back to Chemistry</button>
+        <button class="side-button" onclick="window.location.href='${backUrl}'">${backLabel}</button>
       </div>
       <div style="display:flex;justify-content:flex-end;margin-top:2rem;margin-bottom:2rem;">
         <button class="side-button" onclick="showPractice()" style="margin-right:1rem;">Back to Practice</button>
-        <button class="side-button" onclick="window.location.href='../../chem.html'">Back to Chemistry</button>
+        <button class="side-button" onclick="window.location.href='${backUrl}'">${backLabel}</button>
       </div>
     `;
 
@@ -287,18 +297,32 @@
       if (correctCount === totalQuestions) {
         var testPath = decodeURIComponent(window.location.pathname);
         var unitMatch = testPath.match(/Unit(\w+)_Test/);
+        var isPhysicsPath = testPath.toLowerCase().includes('physicslessons');
         if (unitMatch) {
-          // Map unit → lesson number for the test segment on chem.html course map
-          var testLessonMap = {
-            '1': 9, '2': 6, '3': 9, '4': 10,
-            '5A': 9, '5B': 6,
-            '6': 8, '7': 9, '8': 10, '9': 9,
-            '10': 11, '11': 7, '12': 6
-          };
           var unitId = unitMatch[1];
-          var lessonNum = testLessonMap[unitId];
-          if (lessonNum) {
-            localStorage.setItem('chem_u' + unitId + '_l' + lessonNum + '_completed', 'true');
+          var lessonNum;
+          if (isPhysicsPath) {
+            // Physics: unit → test lesson number on physics.html course map
+            var physicsTestLessonMap = {
+              '1': 7, '2': 7, '3': 9, '4': 7, '5': 7, '6': 7,
+              '7': 9, '8': 7, '9': 7, '10': 10, '11': 7
+            };
+            lessonNum = physicsTestLessonMap[unitId];
+            if (lessonNum) {
+              localStorage.setItem('phys_u' + unitId + '_l' + lessonNum + '_completed', 'true');
+            }
+          } else {
+            // Chemistry: original map
+            var chemTestLessonMap = {
+              '1': 9, '2': 6, '3': 9, '4': 10,
+              '5A': 9, '5B': 6,
+              '6': 8, '7': 9, '8': 10, '9': 9,
+              '10': 11, '11': 7, '12': 6
+            };
+            lessonNum = chemTestLessonMap[unitId];
+            if (lessonNum) {
+              localStorage.setItem('chem_u' + unitId + '_l' + lessonNum + '_completed', 'true');
+            }
           }
         }
       }
@@ -390,7 +414,7 @@
       if (!isGameRunning && !isPaused) return;
       isPaused = !isPaused;
       var btn = document.getElementById('climb-pause-btn');
-      if (btn) btn.innerText = isPaused ? 'Resume' : 'Pause';
+      if (btn) btn.innerText = isPaused ? _t('Resume', '继续') : _t('Pause', '暂停');
       var pauseScreen = document.getElementById('climb-paused-screen');
       if (pauseScreen) pauseScreen.style.display = isPaused ? 'flex' : 'none';
     };
@@ -406,7 +430,7 @@
       var pauseScreen = document.getElementById('climb-paused-screen');
       if (pauseScreen) pauseScreen.style.display = 'none';
       var pBtn = document.getElementById('climb-pause-btn');
-      if (pBtn) pBtn.innerText = 'Pause';
+      if (pBtn) pBtn.innerText = _t('Pause', '暂停');
       var interaction = document.getElementById('climb-interaction');
       if (interaction) interaction.style.opacity = '1';
     };
@@ -414,7 +438,7 @@
     window.startClimbGame = function () {
       isPaused = false;
       var pBtn = document.getElementById('climb-pause-btn');
-      if (pBtn) pBtn.innerText = 'Pause';
+      if (pBtn) pBtn.innerText = _t('Pause', '暂停');
       var interaction = document.getElementById('climb-interaction');
       if (interaction) interaction.style.opacity = '1';
       climbScore = 0;
@@ -461,7 +485,7 @@
     }
 
     function updateDisplay() {
-      document.getElementById('climb-score').innerText = 'Score: ' + climbScore;
+      document.getElementById('climb-score').innerText = _t('Score:', '分数:') + ' ' + climbScore;
       updatePlayerPos();
       updateFuelDisplay();
     }
@@ -554,11 +578,11 @@
       if (selected === currentQuestion.answer) {
         climbScore += 10;
         climbFuel = Math.min(100, climbFuel + 20);
-        feedback.innerText = 'Correct! Adding fuel...';
+        feedback.innerText = _t('Correct! Adding fuel...');
         feedback.style.color = '#16a34a';
       } else {
         playerPosition -= 5;
-        feedback.innerText = 'Oops! Slipping down...';
+        feedback.innerText = _t('Oops! Slipping down...');
         feedback.style.color = '#dc2626';
       }
       updateDisplay();
@@ -585,13 +609,13 @@
       if (climbScore > highScore) {
         highScore = climbScore;
         localStorage.setItem(storageKey, highScore);
-        title.innerText = '🏆 New High Score! 🏆';
+        title.innerText = _t('🏆 New High Score! 🏆');
         title.style.color = '#f59e0b';
       } else {
-        title.innerText = 'Game Over';
+        title.innerText = _t('Game Over', '游戏结束');
         title.style.color = '#1e293b';
       }
-      msg.innerHTML = 'Score: ' + climbScore + '<br><span style="font-size:0.9em; color:#64748b">Best: ' + highScore + '</span>';
+      msg.innerHTML = _t('Score:', '分数:') + ' ' + climbScore + '<br><span style="font-size:0.9em; color:#64748b">' + _t('Best:', '最高：') + ' ' + highScore + '</span>';
     }
   })();
 

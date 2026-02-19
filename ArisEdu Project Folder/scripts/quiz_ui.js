@@ -1,6 +1,10 @@
 
 // Start of quiz logic
 (function() {
+    function _t(key, fallback) {
+        var t = window.arisEduTranslations || window.globalTranslations;
+        return (t && t[key]) || fallback || key;
+    }
     window.toggleToPractice = function(event) {
         // Find current quiz view
         const quizView = document.getElementById('quiz-content-view');
@@ -66,7 +70,7 @@
         }
         
         if (!selected) {
-            feedback.textContent = "Please select an answer first.";
+            feedback.textContent = _t("Please select an answer first.");
             feedback.style.color = "#ea580c";
             feedback.style.background = "#fff7ed";
             return;
@@ -75,7 +79,7 @@
         if (attempts <= 0 || btn.disabled) return;
         
         if (selected.value === correct) {
-            feedback.textContent = "Correct! Great job.";
+            feedback.textContent = _t("Correct! Great job.");
             feedback.style.color = "#16a34a"; 
             feedback.style.background = "#dcfce7";
             btn.disabled = true;
@@ -90,7 +94,7 @@
         } else {
             attempts--;
             parent.dataset.attempts = attempts;
-            attemptsElem.textContent = `Attempts left: ${attempts}`;
+            attemptsElem.textContent = _t("Attempts left:") + " " + attempts;
             attemptsElem.style.display = 'block';
 
             if (attempts <= 0) {
@@ -98,8 +102,8 @@
                  const correctInput = parent.querySelector(`input[name="${name}"][value="correct"]`);
                  const correctText = correctInput ? correctInput.parentElement.textContent.trim() : '';
                  feedback.textContent = correctText
-                     ? `Incorrect. The correct answer was: ${correctText}. Press "Try Again" for a new question.`
-                     : `Incorrect. Press "Try Again" for a new question.`;
+                     ? _t("Incorrect. The correct answer was:", "\u4e0d\u6b63\u786e\u3002\u6b63\u786e\u7b54\u6848\u662f\uff1a") + " " + correctText
+                     : _t("Incorrect.", "\u4e0d\u6b63\u786e\u3002");
                  feedback.style.color = "#dc2626";
                  feedback.style.background = "#fee2e2";
                  btn.disabled = true;
@@ -113,7 +117,7 @@
                      tryAgainBtn.style.animation = 'pulse 1.5s infinite';
                  }
             } else {
-                 feedback.textContent = "Incorrect. Try again!";
+                 feedback.textContent = _t("Incorrect. Try again!");
                  feedback.style.color = "#dc2626";
                  feedback.style.background = "#fee2e2";
             }
@@ -127,7 +131,7 @@
 
         const allCorrect = Array.from(questions).every(q => {
             const fb = q.querySelector('.feedback');
-            return fb && fb.textContent.startsWith('Correct');
+            return fb && (fb.textContent.startsWith('Correct') || fb.textContent.startsWith(_t('Correct')));
         });
         if (!allCorrect) return;
 
@@ -155,7 +159,7 @@
             resultsDiv.style.background = '#dcfce7';
             resultsDiv.style.textAlign = 'center';
             resultsDiv.style.fontSize = '1.25rem';
-            resultsDiv.textContent = '\u2714 All Correct! Lesson completed.';
+            resultsDiv.textContent = _t('\u2714 All Correct! Lesson completed.');
         }
     }
 

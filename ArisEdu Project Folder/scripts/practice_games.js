@@ -1,5 +1,9 @@
 
 // Toggle Practices Panel
+function _t(key, fallback) {
+    var t = window.arisEduTranslations || window.globalTranslations;
+    return (t && t[key]) || fallback || key;
+}
 window.togglePracticesPanel = function(button) {
     if (!button) return;
     const menu = button.closest('.Practices-menu') || button.closest('.side-buttons'); 
@@ -497,7 +501,7 @@ window.exitClimbGame = function() {
         if (!isGameRunning && !isPaused) return;
         isPaused = !isPaused;
         const btn = document.getElementById('climb-pause-btn');
-        if (btn) btn.innerText = isPaused ? "Resume" : "Pause";
+        if (btn) btn.innerText = isPaused ? _t("Resume", "继续") : _t("Pause", "暂停");
         
         const pauseScreen = document.getElementById('climb-paused-screen');
         if(pauseScreen) pauseScreen.style.display = isPaused ? 'flex' : 'none';
@@ -517,7 +521,7 @@ window.exitClimbGame = function() {
         if(pauseScreen) pauseScreen.style.display = 'none';
         
         const pBtn = document.getElementById('climb-pause-btn');
-        if(pBtn) pBtn.innerText = "Pause";
+        if(pBtn) pBtn.innerText = _t("Pause", "暂停");
         
         const interaction = document.getElementById('climb-interaction');
         if (interaction) interaction.style.opacity = "1";
@@ -526,7 +530,7 @@ window.exitClimbGame = function() {
     window.startClimbGame = function() {
         isPaused = false;
         const pBtn = document.getElementById('climb-pause-btn');
-        if(pBtn) pBtn.innerText = "Pause";
+        if(pBtn) pBtn.innerText = _t("Pause", "暂停");
         const interaction = document.getElementById('climb-interaction');
         if (interaction) interaction.style.opacity = "1";
 
@@ -585,7 +589,7 @@ window.exitClimbGame = function() {
     }
     
     function updateDisplay() {
-        document.getElementById('climb-score').innerText = `Score: ${climbScore}`;
+        document.getElementById('climb-score').innerText = _t("Score:", "分数:") + " " + climbScore;
         
         updatePlayerPos();
         updateFuelDisplay();
@@ -774,7 +778,10 @@ window.exitClimbGame = function() {
 
     let selectedCards = [];
     let matchedPairs = 0;
+    let totalPairsInGame = 0;
     let streak = 0;
+
+    const MIX_MATCH_MAX_PAIRS = 10; // Cap similar to lesson Practice files
 
     window.startMixMatchGame = function() {
         if ((!window.lessonFlashcards || window.lessonFlashcards.length === 0) && window.initFlashcards) {
@@ -793,10 +800,17 @@ window.exitClimbGame = function() {
         updateStreak(0);
 
         const data = window.lessonFlashcards || [];
+        // Pick a random subset of pairs when there are more than the cap
+        let indices = data.map((_, i) => i);
+        if (data.length > MIX_MATCH_MAX_PAIRS) {
+            indices = indices.sort(() => Math.random() - 0.5).slice(0, MIX_MATCH_MAX_PAIRS);
+        }
+        totalPairsInGame = indices.length;
+
         let gameItems = [];
-        data.forEach((item, index) => {
-            gameItems.push({ id: index, text: item.question, type: 'term' });
-            gameItems.push({ id: index, text: item.answer, type: 'def' });
+        indices.forEach(idx => {
+            gameItems.push({ id: idx, text: data[idx].question, type: 'term' });
+            gameItems.push({ id: idx, text: data[idx].answer, type: 'def' });
         });
 
         gameItems.sort(() => Math.random() - 0.5).forEach(item => {
@@ -849,7 +863,7 @@ window.exitClimbGame = function() {
                 c2.classList.add('invisible', 'opacity-0', 'transition-opacity', 'duration-500');
                 matchedPairs++;
                 updateStreak(1);
-                if (matchedPairs === (window.lessonFlashcards ? window.lessonFlashcards.length : 0)) {
+                if (matchedPairs === totalPairsInGame) {
                     const winScrn = document.getElementById('mixmatch-win-screen');
                     if(winScrn) setTimeout(() => winScrn.classList.remove('hidden'), 500);
                 }

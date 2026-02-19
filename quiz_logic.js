@@ -4,6 +4,11 @@
     Contains functions for checking answers and handling quiz interactions.
 */
 
+function _t(key, fallback) {
+    var t = window.arisEduTranslations || window.globalTranslations;
+    return (t && t[key]) || fallback || key;
+}
+
 window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
     const parent = buttonElement.closest('.quiz-question');
     if (!parent) return;
@@ -24,14 +29,14 @@ window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
         // Visual feedback for no selection
         if (attemptsInfo) {
             const originalText = attemptsInfo.textContent;
-            attemptsInfo.textContent = "Please select an option.";
+            attemptsInfo.textContent = _t("Please select an option.");
             attemptsInfo.style.color = "#ef4444";
             setTimeout(() => {
                 attemptsInfo.textContent = originalText;
                 attemptsInfo.style.color = "#64748b";
             }, 2000);
         } else {
-            alert("Please select an answer first.");
+            alert(_t("Please select an answer first."));
         }
         return;
     }
@@ -42,14 +47,14 @@ window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
         // Correct Answer
         parent.dataset.status = 'correct';
         if (attemptsInfo) {
-            attemptsInfo.textContent = "Correct!";
+            attemptsInfo.textContent = _t("Correct!");
             attemptsInfo.style.color = "#10b981"; // Green
         }
         
         // Disable interactions
         inputs.forEach(i => i.disabled = true);
         buttonElement.disabled = true;
-        buttonElement.textContent = "Correct";
+        buttonElement.textContent = _t("Correct");
         buttonElement.style.background = "#10b981";
         buttonElement.style.color = "white";
         buttonElement.style.border = "none";
@@ -67,13 +72,13 @@ window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
         
         if (attempts > 0) {
             if (attemptsInfo) {
-                attemptsInfo.textContent = `Incorrect. ${attempts} attempts left.`;
+                attemptsInfo.textContent = _t("Incorrect.", "不正确。") + " " + attempts + " " + _t("attempts left.", "次尝试剩余。");
                 attemptsInfo.style.color = "#f59e0b"; // Orange/Yellow
             }
         } else {
             // No attempts left
             if (attemptsInfo) {
-                attemptsInfo.textContent = `Incorrect. The correct answer was ${correctValue.toUpperCase()}.`;
+                attemptsInfo.textContent = _t("Incorrect. The correct answer was", "不正确。正确答案是") + " " + correctValue.toUpperCase() + ".";
                 attemptsInfo.style.color = "#ef4444"; // Red
             }
             parent.dataset.status = 'incorrect';
@@ -81,7 +86,7 @@ window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
             // Disable interactions
             inputs.forEach(i => i.disabled = true);
             buttonElement.disabled = true;
-            buttonElement.textContent = "Incorrect";
+            buttonElement.textContent = _t("Incorrect", "不正确");
             buttonElement.style.background = "#ef4444";
             buttonElement.style.color = "white";
             buttonElement.style.border = "none";
@@ -103,5 +108,5 @@ window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
 window.getAnotherQuestion = function(buttonElement) {
     // Stub for future functionality
     // Since we don't have a backend or extra questions loaded, we alert the user.
-    alert("No additional questions are currently available for this topic.");
+    alert(_t("No additional questions are currently available for this topic."));
 };

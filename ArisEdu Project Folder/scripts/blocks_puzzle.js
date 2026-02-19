@@ -1,4 +1,8 @@
 (function() {
+    function _t(key, fallback) {
+        var t = window.arisEduTranslations || window.globalTranslations;
+        return (t && t[key]) || fallback || key;
+    }
     let climbScore = 0;
     
     let playerPosition = 35; // percent from bottom
@@ -74,7 +78,7 @@ window.exitClimbGame = function() {
         if (!isGameRunning && !isPaused) return;
         isPaused = !isPaused;
         const btn = document.getElementById('climb-pause-btn');
-        if (btn) btn.innerText = isPaused ? "Resume" : "Pause";
+        if (btn) btn.innerText = isPaused ? _t("Resume", "继续") : _t("Pause", "暂停");
         
         const pauseScreen = document.getElementById('climb-paused-screen');
         if(pauseScreen) pauseScreen.style.display = isPaused ? 'flex' : 'none';
@@ -94,7 +98,7 @@ window.exitClimbGame = function() {
         if(pauseScreen) pauseScreen.style.display = 'none';
         
         const pBtn = document.getElementById('climb-pause-btn');
-        if(pBtn) pBtn.innerText = "Pause";
+        if(pBtn) pBtn.innerText = _t("Pause", "暂停");
         
         const interaction = document.getElementById('climb-interaction');
         if (interaction) interaction.style.opacity = "1";
@@ -103,7 +107,7 @@ window.exitClimbGame = function() {
     window.startClimbGame = function() {
         isPaused = false;
         const pBtn = document.getElementById('climb-pause-btn');
-        if(pBtn) pBtn.innerText = "Pause";
+        if(pBtn) pBtn.innerText = _t("Pause", "暂停");
         const interaction = document.getElementById('climb-interaction');
         if (interaction) interaction.style.opacity = "1";
 
@@ -167,7 +171,7 @@ window.exitClimbGame = function() {
     }
     
     function updateDisplay() {
-        document.getElementById('climb-score').innerText = `Score: ${climbScore}`;
+        document.getElementById('climb-score').innerText = _t("Score:", "分数:") + " " + climbScore;
         
         updatePlayerPos();
         updateFuelDisplay();
@@ -189,7 +193,7 @@ window.exitClimbGame = function() {
         feedback.className = '';
         
         if (!window.lessonFlashcards || window.lessonFlashcards.length === 0) {
-            document.getElementById('climb-question-text').innerText = "No flashcards found for this lesson!";
+            document.getElementById('climb-question-text').innerText = _t("No flashcards found for this lesson!");
             return;
         }
         
@@ -289,13 +293,13 @@ window.exitClimbGame = function() {
             climbScore += 10;
             climbFuel = Math.min(100, climbFuel + 20);
             // playerPosition += CLIMB_STEP; // Disabled for manual boost
-            feedback.innerText = "Correct! Adding fuel...";
+            feedback.innerText = _t("Correct! Adding fuel...");
             feedback.style.color = "#16a34a";
 
         } else {
             // Incorrect
             playerPosition -= 5; // Slip down
-            feedback.innerText = "Oops! Slipping down...";
+            feedback.innerText = _t("Oops! Slipping down...");
             feedback.style.color = "#dc2626";
         }
         
@@ -336,14 +340,14 @@ window.exitClimbGame = function() {
         if(climbScore > highScore) {
             highScore = climbScore;
             localStorage.setItem(storageKey, highScore);
-            title.innerText = "🏆 New High Score! 🏆";
+            title.innerText = _t("🏆 New High Score! 🏆");
             title.style.color = "#f59e0b";
         } else {
-            title.innerText = "Game Over";
+            title.innerText = _t("Game Over", "游戏结束");
             title.style.color = "#1e293b";
         }
         
-        msg.innerHTML = `Score: ${climbScore}<br><span style="font-size:0.9em; color:#64748b">Best: ${highScore}</span>`;
+        msg.innerHTML = _t("Score:", "分数:") + " " + climbScore + '<br><span style="font-size:0.9em; color:#64748b">' + _t("Best:", "最高：") + " " + highScore + '</span>';
     }
 })();
 </script>
