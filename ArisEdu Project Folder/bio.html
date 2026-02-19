@@ -7,281 +7,957 @@
   <script src="/_sdk/element_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
-  <style>
-    body {
-      box-sizing: border-box;
-    }
-    
-    .logo-font {
-      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
-    
-    .main-container {
-      height: 100%;
-      width: 100%;
-      padding: 5rem 2rem 2rem 2rem;
-      overflow: auto;
-    }
-    .company-title {
-      font-size: 5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .taskbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
-      z-index: 1000;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    .taskbar-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.5rem 1rem;
-      max-width: 1200px;
-      width: 100%;
-    }
-    
-    .taskbar-button {
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-weight: 600;
-      color: white;
-      font-size: 0.875rem;
-      transition: opacity 0.3s, transform 0.2s;
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .taskbar-button:hover {
-      opacity: 0.9;
-      scale: 1.05;
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .settings-menu {
-      width: 13rem;
-      padding: 0.5rem;
-      background: #ffffff;
-      border-radius: 0.5rem;
-      box-shadow: 0 8px 20px rgba(2,6,23,0.12);
-      color: #0f172a;
-      font-size: 0.95rem;
-      visibility: hidden;
-      opacity: 0;
-      transform: translateY(-6px);
-      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
-      position: absolute;
-      top: 100%;
-      right: 1rem;
-    }
-
-    body.dark-mode .settings-menu {
-      background: #0f172a;
-      color: #cbd5e1;
-    }
-
-    body.dark-mode {
-      background-color: #1e293b;
-    }
-
-    .courses-container {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 2rem;
-      height:32rem;
-      padding: 2rem;
-      margin-bottom: 2rem;
-    }
-    body.dark-mode .courses-container {
-      background: #273244;
-      border: 2px solid rgba(226, 232, 240, 0.22);
-    }
-
-    .courses-section {
-      margin-bottom: 2rem;
-    }
-
-    .courses-section-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: white;
-      margin-bottom: 1rem;
-    }
-
-    .courses-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-    }
-
-    .course-box {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      text-align: center;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      color: #1e293b;
-    }
-
-    .course-box:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-      background: white;
-    }
-
-    .course-box a {
-      text-decoration: none;
-      color: #1e293b;
-      font-size: 1.125rem;
-      font-weight: 600;
-      display: block;
-    }
-
-    .course-box a:hover {
-      color: #3b82f6;
-    }
-
-    body.dark-mode .course-box {
-      background: rgba(15, 23, 42, 0.8);
-      color: #cbd5e1;
-    }
-
-    body.dark-mode .course-box a {
-      color: #cbd5e1;
-    }
-
-    body.dark-mode .course-box a:hover {
-      color: #3b82f6;
-    }
-
-    /* Rubric Info Button Styles */
-    .rubric-hover-wrap {
-      position: absolute;
-      top: 0;
-      right: 0;
-      z-index: 20;
-    }
-
-    .rubric-hover-dot {
-      scale: 1.5; /* Reduced scale to fit better in box */
-      width: 1.4rem;
-      height: 1.4rem;
-      border-radius: 999px;
-      margin-right: 0.5rem; /* Adjusted margin */
-      margin-top: 0.5rem; /* Adjusted margin to be inside top-right */
-      border: 2px solid #1f2937;
-      background: #0f172a;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.35);
-      cursor: pointer;
-      position: relative;
-      z-index: 21;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    .rubric-hover-dot span {
-      font-family: 'Playfair Display', 'Poppins', serif;
-      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .rubric-hover-panel {
-      position: absolute;
-      margin-right: 1.5rem;
-      scale: 1.2; /* Adjusted scale */
-      right: 0;
-      bottom: 100%; /* Position above the dot */
-      width: 10rem;
-      min-height: 3rem;
-      background: #0f172a;
-      border: 2px solid #334155;
-      border-radius: 0.75rem;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-0.5rem);
-      transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
-      z-index: 30;
-      pointer-events: none; /* Prevent interfering with hover on dot if overlapping */
-      padding: 0.5rem;
-    }
-
-    .rubric-hover-panel p {
-      font-size: 0.7rem;
-      line-height: 1.2;
-      margin: 0.25rem 0;
-      color: #cbd5e1;
-    }
-
-    .rubric-hover-wrap:hover .rubric-hover-panel {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-    
-    .course-box {
-        position: relative !important;
-    }
-</style>
- <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="theme_manager.js"></script>
 </head>
  <body class="dark-mode h-full">
 <script src="scripts/taskbar.js"></script>
   <main class="main-container">
-    <div class="logo-title-wrapper">
-    <h1 id="company-name" class="logo-font company-title">High School: Biology</h1>
+    <div class="logo-title-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+      <h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0; display: flex; align-items: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 15px;">
+          <!-- Simple DNA Double Helix -->
+          <!-- Left strand -->
+          <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none"/>
+          <!-- Right strand -->
+          <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none"/>
+          <!-- Base pair rungs -->
+          <line x1="9" y1="3.5" x2="15" y2="3.5"/>
+          <line x1="7" y1="6.5" x2="17" y2="6.5"/>
+          <line x1="9" y1="9.5" x2="15" y2="9.5"/>
+          <line x1="7" y1="12.5" x2="17" y2="12.5"/>
+          <line x1="9" y1="15.5" x2="15" y2="15.5"/>
+          <line x1="7" y1="18.5" x2="17" y2="18.5"/>
+          <line x1="9" y1="21" x2="15" y2="21"/>
+        </svg>
+        High School: Biology
+      </h1>
+      <!-- <button onclick="clearAllProgress()" style="z-index:999; background:#ef4444; color:white; border:none; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer; font-size:0.8rem;">Dev: Clear Progress</button> -->
     </div>
-    <div class="courses-container">
-      <div class="courses-section">
-        <h2 class="courses-section-title">Biology Units</h2>
-        <div class="courses-grid">
-          <div class="course-box">Unit 1 (WIP)</div>
-          <div class="course-box">Unit 2 (WIP)</div>
-          <div class="course-box">Unit 3 (WIP)</div>
-          <div class="course-box">Unit 4 (WIP)</div>
-          <div class="course-box">Unit 5 (WIP)</div>
-          <div class="course-box">Unit 6 (WIP)</div>
-          <div class="course-box">Unit 7 (WIP)</div>
-          <div class="course-box">Unit 8 (WIP)</div>
-          <div class="course-box">Unit 9 (WIP)</div>
-          <div class="course-box">Unit 10 (WIP)</div>
-          <div class="course-box">Unit 11 (WIP)</div>
-          <div class="course-box">Unit 12 (WIP)</div>
+    <div class="courses-container" style="min-height: auto; position: relative; padding-bottom: 4rem;">
+      
+      <!-- Decorative Background Grid (Interactive) -->
+      <div style="position: relative; width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; pointer-events: none; opacity: 1; z-index: 0;">
+
+        <!-- Unit 1 -->
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 40rem;">
+             <svg viewBox="0 0 24 32" fill="none" class="dna-helix-bg" stroke="#22c55e" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem;">
+                <defs>
+                  <!-- Top lobe clip (y=2 to y=11) - exact DNA strand curves -->
+                  <clipPath id="dna-top-u1">
+                    <path d="M9 2 C15 5 3 8 9 11 L15 11 C21 8 9 5 15 2 Z" />
+                  </clipPath>
+                  <!-- Bottom lobe clip (y=11 to y=22) - exact DNA strand curves -->
+                  <clipPath id="dna-bottom-u1">
+                    <path d="M9 11 C15 14 3 17 9 22 L15 22 C21 17 9 14 15 11 Z" />
+                  </clipPath>
+                </defs>
+                
+                <!-- DNA Double Helix strands -->
+                <!-- Left strand -->
+                <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none" opacity="0.6"/>
+                <!-- Right strand -->
+                <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none" opacity="0.6"/>
+                
+                <!-- Top lobe lesson segments -->
+                <g id="segments-top-unit-1" clip-path="url(#dna-top-u1)">
+                    <a href="BiologyLessons/Unit1/Unit1_Test.html" onclick="markLessonStarted('1', 8)">
+                        <rect id="u1-l8" x="0" y="2.000" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 1 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit1/Lesson1.7_Video.html" onclick="markLessonStarted('1', 7)">
+                        <rect id="u1-l7" x="0" y="4.250" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '1.7 Careers in Biology')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="6.500" x2="24" y2="6.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit1/Lesson1.6_Video.html" onclick="markLessonStarted('1', 6)">
+                        <rect id="u1-l6" x="0" y="6.500" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '1.6 Branches of Biology')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="8.750" x2="24" y2="8.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit1/Lesson1.5_Video.html" onclick="markLessonStarted('1', 5)">
+                        <rect id="u1-l5" x="0" y="8.750" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '1.5 Levels of Biological Organization')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <!-- Bottom lobe lesson segments -->
+                <g id="segments-bottom-unit-1" clip-path="url(#dna-bottom-u1)">
+                    <a href="BiologyLessons/Unit1/Lesson1.4_Video.html" onclick="markLessonStarted('1', 4)">
+                        <rect id="u1-l4" x="0" y="11.000" width="24" height="2.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '1.4 Characteristics of Life')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit1/Lesson1.3_Video.html" onclick="markLessonStarted('1', 3)">
+                        <rect id="u1-l3" x="0" y="13.750" width="24" height="2.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '1.3 The Nature of Science')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="16.500" x2="24" y2="16.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit1/Lesson1.2_Video.html" onclick="markLessonStarted('1', 2)">
+                        <rect id="u1-l2" x="0" y="16.500" width="24" height="2.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '1.2 The Science of Life')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="19.250" x2="24" y2="19.250" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit1/Lesson1.1_Video.html" onclick="markLessonStarted('1', 1)">
+                        <rect id="u1-l1" x="0" y="19.250" width="24" height="2.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '1.1 Introduction to Biology')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <text x="12" y="26" text-anchor="middle" fill="#22c55e" stroke="none" font-size="2.5" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 1</text>
+             </svg>
         </div>
+
+        <!-- Unit 2 -->
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 40rem;">
+             <svg viewBox="0 0 24 32" fill="none" class="dna-helix-bg" stroke="#22c55e" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem;">
+                <defs>
+                  <!-- Top lobe clip (y=2 to y=11) - exact DNA strand curves -->
+                  <clipPath id="dna-top-u2">
+                    <path d="M9 2 C15 5 3 8 9 11 L15 11 C21 8 9 5 15 2 Z" />
+                  </clipPath>
+                  <!-- Bottom lobe clip (y=11 to y=22) - exact DNA strand curves -->
+                  <clipPath id="dna-bottom-u2">
+                    <path d="M9 11 C15 14 3 17 9 22 L15 22 C21 17 9 14 15 11 Z" />
+                  </clipPath>
+                </defs>
+                
+                <!-- DNA Double Helix strands -->
+                <!-- Left strand -->
+                <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none" opacity="0.6"/>
+                <!-- Right strand -->
+                <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none" opacity="0.6"/>
+                
+                <!-- Top lobe lesson segments -->
+                <g id="segments-top-unit-2" clip-path="url(#dna-top-u2)">
+                    <a href="BiologyLessons/Unit2/Unit2_Test.html" onclick="markLessonStarted('2', 8)">
+                        <rect id="u2-l8" x="0" y="2.000" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 2 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit2/Lesson2.7_Video.html" onclick="markLessonStarted('2', 7)">
+                        <rect id="u2-l7" x="0" y="4.250" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '2.7 Human Impact on Ecosystems')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="6.500" x2="24" y2="6.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit2/Lesson2.6_Video.html" onclick="markLessonStarted('2', 6)">
+                        <rect id="u2-l6" x="0" y="6.500" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '2.6 Food Chains, Webs, and Trophic Levels')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="8.750" x2="24" y2="8.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit2/Lesson2.5_Video.html" onclick="markLessonStarted('2', 5)">
+                        <rect id="u2-l5" x="0" y="8.750" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '2.5 Niches and Habitat')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <!-- Bottom lobe lesson segments -->
+                <g id="segments-bottom-unit-2" clip-path="url(#dna-bottom-u2)">
+                    <a href="BiologyLessons/Unit2/Lesson2.4_Video.html" onclick="markLessonStarted('2', 4)">
+                        <rect id="u2-l4" x="0" y="11.000" width="24" height="2.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '2.4 Ecological Succession')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit2/Lesson2.3_Video.html" onclick="markLessonStarted('2', 3)">
+                        <rect id="u2-l3" x="0" y="13.750" width="24" height="2.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '2.3 Cycling of Matter')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="16.500" x2="24" y2="16.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit2/Lesson2.2_Video.html" onclick="markLessonStarted('2', 2)">
+                        <rect id="u2-l2" x="0" y="16.500" width="24" height="2.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '2.2 Flow of Energy in an Ecosystem')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="19.250" x2="24" y2="19.250" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit2/Lesson2.1_Video.html" onclick="markLessonStarted('2', 1)">
+                        <rect id="u2-l1" x="0" y="19.250" width="24" height="2.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '2.1 Organisms and Their Relationships')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <text x="12" y="26" text-anchor="middle" fill="#22c55e" stroke="none" font-size="2.5" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 2</text>
+             </svg>
+        </div>
+
+        <!-- Unit 3 -->
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 40rem;">
+             <svg viewBox="0 0 24 32" fill="none" class="dna-helix-bg" stroke="#22c55e" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem;">
+                <defs>
+                  <!-- Top lobe clip (y=2 to y=11) - exact DNA strand curves -->
+                  <clipPath id="dna-top-u3">
+                    <path d="M9 2 C15 5 3 8 9 11 L15 11 C21 8 9 5 15 2 Z" />
+                  </clipPath>
+                  <!-- Bottom lobe clip (y=11 to y=22) - exact DNA strand curves -->
+                  <clipPath id="dna-bottom-u3">
+                    <path d="M9 11 C15 14 3 17 9 22 L15 22 C21 17 9 14 15 11 Z" />
+                  </clipPath>
+                </defs>
+                
+                <!-- DNA Double Helix strands -->
+                <!-- Left strand -->
+                <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none" opacity="0.6"/>
+                <!-- Right strand -->
+                <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none" opacity="0.6"/>
+                
+                <!-- Top lobe lesson segments -->
+                <g id="segments-top-unit-3" clip-path="url(#dna-top-u3)">
+                    <a href="BiologyLessons/Unit3/Unit3_Test.html" onclick="markLessonStarted('3', 6)">
+                        <rect id="u3-l6" x="0" y="2.000" width="24" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 3 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit3/Lesson3.5_Video.html" onclick="markLessonStarted('3', 5)">
+                        <rect id="u3-l5" x="0" y="5.000" width="24" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '3.5 Aquatic Ecosystems')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="8.000" x2="24" y2="8.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit3/Lesson3.4_Video.html" onclick="markLessonStarted('3', 4)">
+                        <rect id="u3-l4" x="0" y="8.000" width="24" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '3.4 Terrestrial Biomes')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <!-- Bottom lobe lesson segments -->
+                <g id="segments-bottom-unit-3" clip-path="url(#dna-bottom-u3)">
+                    <a href="BiologyLessons/Unit3/Lesson3.3_Video.html" onclick="markLessonStarted('3', 3)">
+                        <rect id="u3-l3" x="0" y="11.000" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '3.3 Climate and Weather Patterns')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit3/Lesson3.2_Video.html" onclick="markLessonStarted('3', 2)">
+                        <rect id="u3-l2" x="0" y="14.667" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '3.2 Biomes and Biodiversity')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="18.333" x2="24" y2="18.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit3/Lesson3.1_Video.html" onclick="markLessonStarted('3', 1)">
+                        <rect id="u3-l1" x="0" y="18.333" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '3.1 Community Ecology')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <text x="12" y="26" text-anchor="middle" fill="#22c55e" stroke="none" font-size="2.5" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 3</text>
+             </svg>
+        </div>
+
+        <!-- Unit 4 -->
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 40rem;">
+             <svg viewBox="0 0 24 32" fill="none" class="dna-helix-bg" stroke="#22c55e" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem;">
+                <defs>
+                  <!-- Top lobe clip (y=2 to y=11) - exact DNA strand curves -->
+                  <clipPath id="dna-top-u4">
+                    <path d="M9 2 C15 5 3 8 9 11 L15 11 C21 8 9 5 15 2 Z" />
+                  </clipPath>
+                  <!-- Bottom lobe clip (y=11 to y=22) - exact DNA strand curves -->
+                  <clipPath id="dna-bottom-u4">
+                    <path d="M9 11 C15 14 3 17 9 22 L15 22 C21 17 9 14 15 11 Z" />
+                  </clipPath>
+                </defs>
+                
+                <!-- DNA Double Helix strands -->
+                <!-- Left strand -->
+                <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none" opacity="0.6"/>
+                <!-- Right strand -->
+                <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none" opacity="0.6"/>
+                
+                <!-- Top lobe lesson segments -->
+                <g id="segments-top-unit-4" clip-path="url(#dna-top-u4)">
+                    <a href="BiologyLessons/Unit4/Unit4_Test.html" onclick="markLessonStarted('4', 7)">
+                        <rect id="u4-l7" x="0" y="2.000" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 4 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit4/Lesson4.6_Video.html" onclick="markLessonStarted('4', 6)">
+                        <rect id="u4-l6" x="0" y="4.250" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '4.6 Population Dynamics')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="6.500" x2="24" y2="6.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit4/Lesson4.5_Video.html" onclick="markLessonStarted('4', 5)">
+                        <rect id="u4-l5" x="0" y="6.500" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '4.5 Natural Selection and Adaptation')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="8.750" x2="24" y2="8.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit4/Lesson4.4_Video.html" onclick="markLessonStarted('4', 4)">
+                        <rect id="u4-l4" x="0" y="8.750" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '4.4 Hardy-Weinberg Equilibrium')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <!-- Bottom lobe lesson segments -->
+                <g id="segments-bottom-unit-4" clip-path="url(#dna-bottom-u4)">
+                    <a href="BiologyLessons/Unit4/Lesson4.3_Video.html" onclick="markLessonStarted('4', 3)">
+                        <rect id="u4-l3" x="0" y="11.000" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '4.3 Sources of Genetic Variation')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit4/Lesson4.2_Video.html" onclick="markLessonStarted('4', 2)">
+                        <rect id="u4-l2" x="0" y="14.667" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '4.2 Evidence of Evolution')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="18.333" x2="24" y2="18.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit4/Lesson4.1_Video.html" onclick="markLessonStarted('4', 1)">
+                        <rect id="u4-l1" x="0" y="18.333" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '4.1 History of Evolutionary Thought')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <text x="12" y="26" text-anchor="middle" fill="#22c55e" stroke="none" font-size="2.5" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 4</text>
+             </svg>
+        </div>
+
+        <!-- Unit 5 -->
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 40rem;">
+             <svg viewBox="0 0 24 32" fill="none" class="dna-helix-bg" stroke="#22c55e" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem;">
+                <defs>
+                  <!-- Top lobe clip (y=2 to y=11) - exact DNA strand curves -->
+                  <clipPath id="dna-top-u5">
+                    <path d="M9 2 C15 5 3 8 9 11 L15 11 C21 8 9 5 15 2 Z" />
+                  </clipPath>
+                  <!-- Bottom lobe clip (y=11 to y=22) - exact DNA strand curves -->
+                  <clipPath id="dna-bottom-u5">
+                    <path d="M9 11 C15 14 3 17 9 22 L15 22 C21 17 9 14 15 11 Z" />
+                  </clipPath>
+                </defs>
+                
+                <!-- DNA Double Helix strands -->
+                <!-- Left strand -->
+                <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none" opacity="0.6"/>
+                <!-- Right strand -->
+                <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none" opacity="0.6"/>
+                
+                <!-- Top lobe lesson segments -->
+                <g id="segments-top-unit-5" clip-path="url(#dna-top-u5)">
+                    <a href="BiologyLessons/Unit5/Unit5_Test.html" onclick="markLessonStarted('5', 7)">
+                        <rect id="u5-l7" x="0" y="2.000" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 5 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit5/Lesson5.6_Video.html" onclick="markLessonStarted('5', 6)">
+                        <rect id="u5-l6" x="0" y="4.250" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '5.6 Domains and Kingdoms of Life')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="6.500" x2="24" y2="6.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit5/Lesson5.5_Video.html" onclick="markLessonStarted('5', 5)">
+                        <rect id="u5-l5" x="0" y="6.500" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '5.5 Speciation')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="8.750" x2="24" y2="8.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit5/Lesson5.4_Video.html" onclick="markLessonStarted('5', 4)">
+                        <rect id="u5-l4" x="0" y="8.750" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '5.4 Patterns of Evolution')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <!-- Bottom lobe lesson segments -->
+                <g id="segments-bottom-unit-5" clip-path="url(#dna-bottom-u5)">
+                    <a href="BiologyLessons/Unit5/Lesson5.3_Video.html" onclick="markLessonStarted('5', 3)">
+                        <rect id="u5-l3" x="0" y="11.000" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '5.3 Phylogenetic Trees')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit5/Lesson5.2_Video.html" onclick="markLessonStarted('5', 2)">
+                        <rect id="u5-l2" x="0" y="14.667" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '5.2 Cladistics and Classification')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="18.333" x2="24" y2="18.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit5/Lesson5.1_Video.html" onclick="markLessonStarted('5', 1)">
+                        <rect id="u5-l1" x="0" y="18.333" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '5.1 Taxonomy Basics')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <text x="12" y="26" text-anchor="middle" fill="#22c55e" stroke="none" font-size="2.5" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 5</text>
+             </svg>
+        </div>
+
+        <!-- Unit 6 -->
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 40rem;">
+             <svg viewBox="0 0 24 32" fill="none" class="dna-helix-bg" stroke="#22c55e" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem;">
+                <defs>
+                  <!-- Top lobe clip (y=2 to y=11) - exact DNA strand curves -->
+                  <clipPath id="dna-top-u6">
+                    <path d="M9 2 C15 5 3 8 9 11 L15 11 C21 8 9 5 15 2 Z" />
+                  </clipPath>
+                  <!-- Bottom lobe clip (y=11 to y=22) - exact DNA strand curves -->
+                  <clipPath id="dna-bottom-u6">
+                    <path d="M9 11 C15 14 3 17 9 22 L15 22 C21 17 9 14 15 11 Z" />
+                  </clipPath>
+                </defs>
+                
+                <!-- DNA Double Helix strands -->
+                <!-- Left strand -->
+                <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none" opacity="0.6"/>
+                <!-- Right strand -->
+                <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none" opacity="0.6"/>
+                
+                <!-- Top lobe lesson segments -->
+                <g id="segments-top-unit-6" clip-path="url(#dna-top-u6)">
+                    <a href="BiologyLessons/Unit6/Unit6_Test.html" onclick="markLessonStarted('6', 7)">
+                        <rect id="u6-l7" x="0" y="2.000" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 6 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit6/Lesson6.6_Video.html" onclick="markLessonStarted('6', 6)">
+                        <rect id="u6-l6" x="0" y="4.250" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '6.6 Homeostasis')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="6.500" x2="24" y2="6.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit6/Lesson6.5_Video.html" onclick="markLessonStarted('6', 5)">
+                        <rect id="u6-l5" x="0" y="6.500" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '6.5 Cell Communication')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="8.750" x2="24" y2="8.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit6/Lesson6.4_Video.html" onclick="markLessonStarted('6', 4)">
+                        <rect id="u6-l4" x="0" y="8.750" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '6.4 Membrane Transport')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <!-- Bottom lobe lesson segments -->
+                <g id="segments-bottom-unit-6" clip-path="url(#dna-bottom-u6)">
+                    <a href="BiologyLessons/Unit6/Lesson6.3_Video.html" onclick="markLessonStarted('6', 3)">
+                        <rect id="u6-l3" x="0" y="11.000" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '6.3 Organelles and Their Functions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit6/Lesson6.2_Video.html" onclick="markLessonStarted('6', 2)">
+                        <rect id="u6-l2" x="0" y="14.667" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '6.2 Prokaryotic vs Eukaryotic Cells')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="18.333" x2="24" y2="18.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit6/Lesson6.1_Video.html" onclick="markLessonStarted('6', 1)">
+                        <rect id="u6-l1" x="0" y="18.333" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '6.1 Introduction to Cells')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <text x="12" y="26" text-anchor="middle" fill="#22c55e" stroke="none" font-size="2.5" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 6</text>
+             </svg>
+        </div>
+
+        <!-- Unit 7 -->
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 40rem;">
+             <svg viewBox="0 0 24 32" fill="none" class="dna-helix-bg" stroke="#22c55e" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem;">
+                <defs>
+                  <!-- Top lobe clip (y=2 to y=11) - exact DNA strand curves -->
+                  <clipPath id="dna-top-u7">
+                    <path d="M9 2 C15 5 3 8 9 11 L15 11 C21 8 9 5 15 2 Z" />
+                  </clipPath>
+                  <!-- Bottom lobe clip (y=11 to y=22) - exact DNA strand curves -->
+                  <clipPath id="dna-bottom-u7">
+                    <path d="M9 11 C15 14 3 17 9 22 L15 22 C21 17 9 14 15 11 Z" />
+                  </clipPath>
+                </defs>
+                
+                <!-- DNA Double Helix strands -->
+                <!-- Left strand -->
+                <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none" opacity="0.6"/>
+                <!-- Right strand -->
+                <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none" opacity="0.6"/>
+                
+                <!-- Top lobe lesson segments -->
+                <g id="segments-top-unit-7" clip-path="url(#dna-top-u7)">
+                    <a href="BiologyLessons/Unit7/Unit7_Test.html" onclick="markLessonStarted('7', 7)">
+                        <rect id="u7-l7" x="0" y="2.000" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 7 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit7/Lesson7.6_Video.html" onclick="markLessonStarted('7', 6)">
+                        <rect id="u7-l6" x="0" y="4.250" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '7.6 Fermentation')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="6.500" x2="24" y2="6.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit7/Lesson7.5_Video.html" onclick="markLessonStarted('7', 5)">
+                        <rect id="u7-l5" x="0" y="6.500" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '7.5 The Electron Transport Chain')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="8.750" x2="24" y2="8.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit7/Lesson7.4_Video.html" onclick="markLessonStarted('7', 4)">
+                        <rect id="u7-l4" x="0" y="8.750" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '7.4 The Krebs Cycle')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <!-- Bottom lobe lesson segments -->
+                <g id="segments-bottom-unit-7" clip-path="url(#dna-bottom-u7)">
+                    <a href="BiologyLessons/Unit7/Lesson7.3_Video.html" onclick="markLessonStarted('7', 3)">
+                        <rect id="u7-l3" x="0" y="11.000" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '7.3 Glycolysis')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit7/Lesson7.2_Video.html" onclick="markLessonStarted('7', 2)">
+                        <rect id="u7-l2" x="0" y="14.667" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '7.2 ATP and Cellular Energy')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="18.333" x2="24" y2="18.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit7/Lesson7.1_Video.html" onclick="markLessonStarted('7', 1)">
+                        <rect id="u7-l1" x="0" y="18.333" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '7.1 Overview of Cellular Respiration')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <text x="12" y="26" text-anchor="middle" fill="#22c55e" stroke="none" font-size="2.5" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 7</text>
+             </svg>
+        </div>
+
+        <!-- Unit 8 -->
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 40rem;">
+             <svg viewBox="0 0 24 32" fill="none" class="dna-helix-bg" stroke="#22c55e" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem;">
+                <defs>
+                  <!-- Top lobe clip (y=2 to y=11) - exact DNA strand curves -->
+                  <clipPath id="dna-top-u8">
+                    <path d="M9 2 C15 5 3 8 9 11 L15 11 C21 8 9 5 15 2 Z" />
+                  </clipPath>
+                  <!-- Bottom lobe clip (y=11 to y=22) - exact DNA strand curves -->
+                  <clipPath id="dna-bottom-u8">
+                    <path d="M9 11 C15 14 3 17 9 22 L15 22 C21 17 9 14 15 11 Z" />
+                  </clipPath>
+                </defs>
+                
+                <!-- DNA Double Helix strands -->
+                <!-- Left strand -->
+                <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none" opacity="0.6"/>
+                <!-- Right strand -->
+                <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none" opacity="0.6"/>
+                
+                <!-- Top lobe lesson segments -->
+                <g id="segments-top-unit-8" clip-path="url(#dna-top-u8)">
+                    <a href="BiologyLessons/Unit8/Unit8_Test.html" onclick="markLessonStarted('8', 6)">
+                        <rect id="u8-l6" x="0" y="2.000" width="24" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 8 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit8/Lesson8.5_Video.html" onclick="markLessonStarted('8', 5)">
+                        <rect id="u8-l5" x="0" y="5.000" width="24" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '8.5 Factors Affecting Photosynthesis')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="8.000" x2="24" y2="8.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit8/Lesson8.4_Video.html" onclick="markLessonStarted('8', 4)">
+                        <rect id="u8-l4" x="0" y="8.000" width="24" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '8.4 The Calvin Cycle')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <!-- Bottom lobe lesson segments -->
+                <g id="segments-bottom-unit-8" clip-path="url(#dna-bottom-u8)">
+                    <a href="BiologyLessons/Unit8/Lesson8.3_Video.html" onclick="markLessonStarted('8', 3)">
+                        <rect id="u8-l3" x="0" y="11.000" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '8.3 Light-Dependent Reactions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit8/Lesson8.2_Video.html" onclick="markLessonStarted('8', 2)">
+                        <rect id="u8-l2" x="0" y="14.667" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '8.2 Chloroplast Structure')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="18.333" x2="24" y2="18.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit8/Lesson8.1_Video.html" onclick="markLessonStarted('8', 1)">
+                        <rect id="u8-l1" x="0" y="18.333" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '8.1 Overview of Photosynthesis')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <text x="12" y="26" text-anchor="middle" fill="#22c55e" stroke="none" font-size="2.5" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 8</text>
+             </svg>
+        </div>
+
+        <!-- Unit 9 -->
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 40rem;">
+             <svg viewBox="0 0 24 32" fill="none" class="dna-helix-bg" stroke="#22c55e" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem;">
+                <defs>
+                  <!-- Top lobe clip (y=2 to y=11) - exact DNA strand curves -->
+                  <clipPath id="dna-top-u9">
+                    <path d="M9 2 C15 5 3 8 9 11 L15 11 C21 8 9 5 15 2 Z" />
+                  </clipPath>
+                  <!-- Bottom lobe clip (y=11 to y=22) - exact DNA strand curves -->
+                  <clipPath id="dna-bottom-u9">
+                    <path d="M9 11 C15 14 3 17 9 22 L15 22 C21 17 9 14 15 11 Z" />
+                  </clipPath>
+                </defs>
+                
+                <!-- DNA Double Helix strands -->
+                <!-- Left strand -->
+                <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none" opacity="0.6"/>
+                <!-- Right strand -->
+                <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none" opacity="0.6"/>
+                
+                <!-- Top lobe lesson segments -->
+                <g id="segments-top-unit-9" clip-path="url(#dna-top-u9)">
+                    <a href="BiologyLessons/Unit9/Unit9_Test.html" onclick="markLessonStarted('9', 6)">
+                        <rect id="u9-l6" x="0" y="2.000" width="24" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 9 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit9/Lesson9.5_Video.html" onclick="markLessonStarted('9', 5)">
+                        <rect id="u9-l5" x="0" y="5.000" width="24" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '9.5 Cell Cycle Regulation and Cancer')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="8.000" x2="24" y2="8.000" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit9/Lesson9.4_Video.html" onclick="markLessonStarted('9', 4)">
+                        <rect id="u9-l4" x="0" y="8.000" width="24" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '9.4 Cytokinesis')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <!-- Bottom lobe lesson segments -->
+                <g id="segments-bottom-unit-9" clip-path="url(#dna-bottom-u9)">
+                    <a href="BiologyLessons/Unit9/Lesson9.3_Video.html" onclick="markLessonStarted('9', 3)">
+                        <rect id="u9-l3" x="0" y="11.000" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '9.3 Mitosis')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit9/Lesson9.2_Video.html" onclick="markLessonStarted('9', 2)">
+                        <rect id="u9-l2" x="0" y="14.667" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '9.2 The Cell Cycle')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="18.333" x2="24" y2="18.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit9/Lesson9.1_Video.html" onclick="markLessonStarted('9', 1)">
+                        <rect id="u9-l1" x="0" y="18.333" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '9.1 Cell Growth and Division')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <text x="12" y="26" text-anchor="middle" fill="#22c55e" stroke="none" font-size="2.5" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 9</text>
+             </svg>
+        </div>
+
+        <!-- Unit 10 -->
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 40rem;">
+             <svg viewBox="0 0 24 32" fill="none" class="dna-helix-bg" stroke="#22c55e" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem;">
+                <defs>
+                  <!-- Top lobe clip (y=2 to y=11) - exact DNA strand curves -->
+                  <clipPath id="dna-top-u10">
+                    <path d="M9 2 C15 5 3 8 9 11 L15 11 C21 8 9 5 15 2 Z" />
+                  </clipPath>
+                  <!-- Bottom lobe clip (y=11 to y=22) - exact DNA strand curves -->
+                  <clipPath id="dna-bottom-u10">
+                    <path d="M9 11 C15 14 3 17 9 22 L15 22 C21 17 9 14 15 11 Z" />
+                  </clipPath>
+                </defs>
+                
+                <!-- DNA Double Helix strands -->
+                <!-- Left strand -->
+                <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none" opacity="0.6"/>
+                <!-- Right strand -->
+                <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none" opacity="0.6"/>
+                
+                <!-- Top lobe lesson segments -->
+                <g id="segments-top-unit-10" clip-path="url(#dna-top-u10)">
+                    <a href="BiologyLessons/Unit10/Unit10_Test.html" onclick="markLessonStarted('10', 7)">
+                        <rect id="u10-l7" x="0" y="2.000" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 10 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit10/Lesson10.6_Video.html" onclick="markLessonStarted('10', 6)">
+                        <rect id="u10-l6" x="0" y="4.250" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '10.6 Nondisjunction and Genetic Disorders')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="6.500" x2="24" y2="6.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit10/Lesson10.5_Video.html" onclick="markLessonStarted('10', 5)">
+                        <rect id="u10-l5" x="0" y="6.500" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '10.5 Crossing Over and Genetic Variation')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="8.750" x2="24" y2="8.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit10/Lesson10.4_Video.html" onclick="markLessonStarted('10', 4)">
+                        <rect id="u10-l4" x="0" y="8.750" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '10.4 Meiosis II')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <!-- Bottom lobe lesson segments -->
+                <g id="segments-bottom-unit-10" clip-path="url(#dna-bottom-u10)">
+                    <a href="BiologyLessons/Unit10/Lesson10.3_Video.html" onclick="markLessonStarted('10', 3)">
+                        <rect id="u10-l3" x="0" y="11.000" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '10.3 Meiosis I')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit10/Lesson10.2_Video.html" onclick="markLessonStarted('10', 2)">
+                        <rect id="u10-l2" x="0" y="14.667" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '10.2 Sexual Reproduction')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="18.333" x2="24" y2="18.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit10/Lesson10.1_Video.html" onclick="markLessonStarted('10', 1)">
+                        <rect id="u10-l1" x="0" y="18.333" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '10.1 Overview of Meiosis')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <text x="12" y="26" text-anchor="middle" fill="#22c55e" stroke="none" font-size="2.5" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 10</text>
+             </svg>
+        </div>
+
+        <!-- Unit 11 -->
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 40rem;">
+             <svg viewBox="0 0 24 32" fill="none" class="dna-helix-bg" stroke="#22c55e" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem;">
+                <defs>
+                  <!-- Top lobe clip (y=2 to y=11) - exact DNA strand curves -->
+                  <clipPath id="dna-top-u11">
+                    <path d="M9 2 C15 5 3 8 9 11 L15 11 C21 8 9 5 15 2 Z" />
+                  </clipPath>
+                  <!-- Bottom lobe clip (y=11 to y=22) - exact DNA strand curves -->
+                  <clipPath id="dna-bottom-u11">
+                    <path d="M9 11 C15 14 3 17 9 22 L15 22 C21 17 9 14 15 11 Z" />
+                  </clipPath>
+                </defs>
+                
+                <!-- DNA Double Helix strands -->
+                <!-- Left strand -->
+                <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none" opacity="0.6"/>
+                <!-- Right strand -->
+                <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none" opacity="0.6"/>
+                
+                <!-- Top lobe lesson segments -->
+                <g id="segments-top-unit-11" clip-path="url(#dna-top-u11)">
+                    <a href="BiologyLessons/Unit11/Unit11_Test.html" onclick="markLessonStarted('11', 7)">
+                        <rect id="u11-l7" x="0" y="2.000" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 11 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit11/Lesson11.6_Video.html" onclick="markLessonStarted('11', 6)">
+                        <rect id="u11-l6" x="0" y="4.250" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '11.6 Human Genetics and Pedigrees')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="6.500" x2="24" y2="6.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit11/Lesson11.5_Video.html" onclick="markLessonStarted('11', 5)">
+                        <rect id="u11-l5" x="0" y="6.500" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '11.5 Polygenic and Multifactorial Traits')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="8.750" x2="24" y2="8.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit11/Lesson11.4_Video.html" onclick="markLessonStarted('11', 4)">
+                        <rect id="u11-l4" x="0" y="8.750" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '11.4 Non-Mendelian Inheritance')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <!-- Bottom lobe lesson segments -->
+                <g id="segments-bottom-unit-11" clip-path="url(#dna-bottom-u11)">
+                    <a href="BiologyLessons/Unit11/Lesson11.3_Video.html" onclick="markLessonStarted('11', 3)">
+                        <rect id="u11-l3" x="0" y="11.000" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '11.3 Dihybrid Crosses')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit11/Lesson11.2_Video.html" onclick="markLessonStarted('11', 2)">
+                        <rect id="u11-l2" x="0" y="14.667" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '11.2 Monohybrid Crosses')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="18.333" x2="24" y2="18.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit11/Lesson11.1_Video.html" onclick="markLessonStarted('11', 1)">
+                        <rect id="u11-l1" x="0" y="18.333" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '11.1 Mendel and the Laws of Inheritance')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <text x="12" y="26" text-anchor="middle" fill="#22c55e" stroke="none" font-size="2.5" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 11</text>
+             </svg>
+        </div>
+
+        <!-- Unit 12 -->
+        <div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 40rem;">
+             <svg viewBox="0 0 24 32" fill="none" class="dna-helix-bg" stroke="#22c55e" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round" style="width: 130%; height: 130%; max-height: 45rem;">
+                <defs>
+                  <!-- Top lobe clip (y=2 to y=11) - exact DNA strand curves -->
+                  <clipPath id="dna-top-u12">
+                    <path d="M9 2 C15 5 3 8 9 11 L15 11 C21 8 9 5 15 2 Z" />
+                  </clipPath>
+                  <!-- Bottom lobe clip (y=11 to y=22) - exact DNA strand curves -->
+                  <clipPath id="dna-bottom-u12">
+                    <path d="M9 11 C15 14 3 17 9 22 L15 22 C21 17 9 14 15 11 Z" />
+                  </clipPath>
+                </defs>
+                
+                <!-- DNA Double Helix strands -->
+                <!-- Left strand -->
+                <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none" opacity="0.6"/>
+                <!-- Right strand -->
+                <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none" opacity="0.6"/>
+                
+                <!-- Top lobe lesson segments -->
+                <g id="segments-top-unit-12" clip-path="url(#dna-top-u12)">
+                    <a href="BiologyLessons/Unit12/Unit12_Test.html" onclick="markLessonStarted('12', 7)">
+                        <rect id="u12-l7" x="0" y="2.000" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 12 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit12/Lesson12.6_Video.html" onclick="markLessonStarted('12', 6)">
+                        <rect id="u12-l6" x="0" y="4.250" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '12.6 Biotechnology Applications')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="6.500" x2="24" y2="6.500" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit12/Lesson12.5_Video.html" onclick="markLessonStarted('12', 5)">
+                        <rect id="u12-l5" x="0" y="6.500" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '12.5 Genetic Engineering')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="8.750" x2="24" y2="8.750" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit12/Lesson12.4_Video.html" onclick="markLessonStarted('12', 4)">
+                        <rect id="u12-l4" x="0" y="8.750" width="24" height="2.250" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '12.4 Protein Synthesis')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <!-- Bottom lobe lesson segments -->
+                <g id="segments-bottom-unit-12" clip-path="url(#dna-bottom-u12)">
+                    <a href="BiologyLessons/Unit12/Lesson12.3_Video.html" onclick="markLessonStarted('12', 3)">
+                        <rect id="u12-l3" x="0" y="11.000" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '12.3 RNA and Transcription')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <a href="BiologyLessons/Unit12/Lesson12.2_Video.html" onclick="markLessonStarted('12', 2)">
+                        <rect id="u12-l2" x="0" y="14.667" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '12.2 DNA Replication')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                    <line x1="0" y1="18.333" x2="24" y2="18.333" stroke="white" stroke-width="0.04" stroke-opacity="0.6" />
+                    <a href="BiologyLessons/Unit12/Lesson12.1_Video.html" onclick="markLessonStarted('12', 1)">
+                        <rect id="u12-l1" x="0" y="18.333" width="24" height="3.667" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, '12.1 DNA Structure')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"/>
+                    </a>
+                </g>
+                
+                <text x="12" y="26" text-anchor="middle" fill="#22c55e" stroke="none" font-size="2.5" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 12</text>
+             </svg>
+        </div>
+
       </div>
     </div>
   </main>
+
+  <!-- Popup & Game Logic Scripts -->
+
+  <!-- Popup & Game Logic Scripts -->
+  <style>
+      #lesson-tooltip {
+          position: fixed;
+          background: rgba(15, 23, 42, 0.95);
+          backdrop-filter: blur(12px);
+          color: #f1f5f9;
+          padding: 0.75rem 1.25rem;
+          border-radius: 0.75rem;
+          font-size: 0.95rem;
+          font-weight: 600;
+          pointer-events: none;
+          z-index: 10000;
+          opacity: 0;
+          transition: opacity 0.15s ease;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+          white-space: nowrap;
+      }
+      #lesson-tooltip.visible {
+          opacity: 1;
+      }
+      /* Hover interactions & Transitions */
+      rect[id^="u"], path[id^="u"] {
+          transform-box: fill-box;
+          transform-origin: center;
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, stroke-width 0.2s ease;
+      }
+      .segment-hover {
+          transform: scale(1.05);
+          filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+          fill-opacity: 0.15;
+      }
+
+      /* Starred Lesson Glow & Animation */
+      @keyframes star-pulse {
+        0%, 100% { stroke-opacity: 0.8; stroke-width: 0.12; filter: drop-shadow(0 0 2px #22c55e); }
+        50% { stroke-opacity: 1; stroke-width: 0.25; filter: drop-shadow(0 0 6px #16a34a); }
+      }
+      .starred-lesson-glow {
+        stroke: #86efac !important;
+        stroke-dasharray: 0.3, 0.1;
+        animation: star-pulse 1.5s infinite ease-in-out;
+      }
+      @keyframes star-twinkle {
+          0%, 100% { opacity: 0.4; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.3); }
+      }
+      .star-icon {
+          animation: star-twinkle 2s infinite ease-in-out;
+          font-family: inherit;
+          pointer-events: none;
+          transform-box: fill-box;
+          transform-origin: center;
+          font-size: 0.6px;
+          user-select: none;
+      }
+  </style>
+
+  <div id="lesson-tooltip"></div>
+  
+  <script>
+    const tooltip = document.getElementById('lesson-tooltip');
+
+    function showLessonPopup(e, title) {
+      if(!title) return;
+      let displayText = title;
+      const target = e.target;
+      
+      if (target && target.id && target.id.match(/^u[\w]+-l\d+$/)) {
+          target.classList.add('segment-hover');
+      }
+
+      // Translate title if in Chinese mode
+      const lang = localStorage.getItem("arisEduLanguage");
+      const isChinese = (lang === "chinese" || lang === "traditional");
+      const t = window.arisEduTranslations;
+
+      if (isChinese && t) {
+          if (t[displayText]) {
+              displayText = t[displayText];
+          }
+          if (lang === "traditional" && window.OpenCCConverter) {
+              displayText = window.OpenCCConverter(displayText);
+          }
+      }
+
+      // Check Progress & add status prefix
+      if(target) {
+           const fill = target.getAttribute('fill');
+           if (fill === '#16a34a' || fill === '#16A34A') {
+                if (isChinese && t) {
+                    let status = t["COMPLETED"] || "已完成";
+                    if (lang === "traditional" && window.OpenCCConverter) status = window.OpenCCConverter(status);
+                    displayText = status + " \u2714 " + displayText;
+                } else {
+                    displayText = "COMPLETED \u2714 " + displayText;
+                }
+           } else if (fill === '#f97316' || fill === '#F97316') {
+                if (isChinese && t) {
+                    let status = t["IN PROGRESS"] || "进行中";
+                    if (lang === "traditional" && window.OpenCCConverter) status = window.OpenCCConverter(status);
+                    displayText = status + " " + displayText;
+                } else {
+                    displayText = "IN PROGRESS " + displayText;
+                }
+           }
+      }
+
+      tooltip.textContent = displayText;
+      tooltip.classList.add('visible');
+      moveLessonPopup(e);
+    }
+
+    function moveLessonPopup(e) {
+      if (!tooltip.classList.contains('visible')) return;
+      const offset = 15;
+      let x = e.clientX + offset;
+      let y = e.clientY + offset;
+      
+      const rect = tooltip.getBoundingClientRect();
+      const winW = window.innerWidth;
+      const winH = window.innerHeight;
+      
+      if (x + rect.width > winW) x = e.clientX - rect.width - offset;
+      if (y + rect.height > winH) y = e.clientY - rect.height - offset;
+      
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+    }
+
+    function hideLessonPopup() {
+      tooltip.classList.remove('visible');
+      document.querySelectorAll('.segment-hover').forEach(el => el.classList.remove('segment-hover'));
+    }
+
+    function markLessonStarted(unit, lesson) {
+      localStorage.setItem(`bio_u${unit}_l${lesson}_started`, 'true');
+    }
+
+    function applyProgressColors() {
+        // Iterate localStorage keys to find all progress entries for Biology
+        const progressMap = {};
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!key || !key.startsWith('bio_u')) continue;
+          const match = key.match(/^bio_u(.+)_l(\d+)_(started|completed)$/);
+          if (!match) continue;
+          const u = match[1], l = match[2], type = match[3];
+          const mapKey = `${u}_${l}`;
+          if (!progressMap[mapKey]) progressMap[mapKey] = { unit: u, lesson: l };
+          if (localStorage.getItem(key) === 'true') progressMap[mapKey][type] = true;
+        }
+
+        // Apply colors
+        for (const mapKey in progressMap) {
+          const { unit, lesson, started, completed } = progressMap[mapKey];
+          const elementId = `u${unit}-l${lesson}`;
+          const el = document.getElementById(elementId);
+          if(el) {
+              if (completed) {
+                el.setAttribute('fill', '#16a34a'); // Green
+                el.setAttribute('fill-opacity', '0.7');
+              } else if (started) {
+                el.setAttribute('fill', '#f97316'); // Orange
+                el.setAttribute('fill-opacity', '0.6');
+              }
+          }
+        }
+    }
+
+    function addStarEffects() {
+        const lessons = document.querySelectorAll('rect');
+        lessons.forEach(el => {
+            const onmouseenter = el.getAttribute('onmouseenter');
+            if (onmouseenter && onmouseenter.includes('⭐')) {
+                if (!el.id || !el.id.startsWith('u')) return;
+
+                el.classList.add('starred-lesson-glow');
+
+                const x = parseFloat(el.getAttribute('x'));
+                const y = parseFloat(el.getAttribute('y'));
+                const w = parseFloat(el.getAttribute('width'));
+                const h = parseFloat(el.getAttribute('height'));
+
+                if (!isNaN(x) && !isNaN(y) && !isNaN(w) && !isNaN(h)) {
+                    const positions = [
+                        { cx: x + w - 1.0, cy: y + 0.5, delay: '0.2s' },
+                        { cx: x + 1.0, cy: y + h - 0.5, delay: '1.2s' }
+                    ];
+
+                    positions.forEach(pos => {
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.textContent = '✨';
+                        text.setAttribute('x', pos.cx);
+                        text.setAttribute('y', pos.cy);
+                        text.setAttribute('text-anchor', 'middle');
+                        text.setAttribute('dominant-baseline', 'middle');
+                        text.classList.add('star-icon');
+                        text.style.animationDelay = pos.delay;
+                        
+                        if (el.parentNode) {
+                             el.parentNode.insertBefore(text, el.nextSibling);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    function clearAllProgress() {
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('bio_u')) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+        
+        // Reset colors
+        document.querySelectorAll('rect[id^="u"], path[id^="u"]').forEach(seg => {
+            seg.setAttribute('fill', 'white');
+            seg.setAttribute('fill-opacity', '0');
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyProgressColors();
+        addStarEffects();
+        
+        if (window._isDevUser && window._isDevUser()) {
+            const dcb = document.getElementById('dev-clear-btn');
+            if (dcb) dcb.style.display = '';
+        }
+    });
+  </script>
 
 
     <!-- ArisEdu Global Search -->
 
     <script src="scripts/global_translations.js?v=3.2"></script>
     <script src="../search_data.js"></script>
-    <script src="../search_logic.js"></script>
+
+        <script src="../search_logic.js"></script>
 </body>
 </html>
