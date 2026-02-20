@@ -17,36 +17,371 @@
 <script src="../../scripts/taskbar.js"></script>
 <main class="main-container">
 <div id="practice-content-view">
-<h2 class="page-title">Unit 5 Practice</h2>
+<h2 class="page-title">Unit 5 Review Flashcards</h2>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="document.getElementById('practice-content-view').style.display='none';document.getElementById('quiz-content-view').style.display='block';" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
 </div>
 
-<div id="quiz-content-view" style="display:none;">
-<h2 class="page-title">Unit 5: Unit Test</h2>
+<div id="quiz-content-view">
+<h2 class="page-title">Unit 5: Classification and Taxonomy - Unit Test</h2>
 <div class="diagram-card">
 <div class="quiz-container">
 <form id="quiz-form">
-<!-- Placeholder: Unit Test questions for Unit 5 – Biodiversity and Conservation -->
 <div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
 <div class="attempts-indicator">Attempts left: 2</div>
-<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. Sample unit test question for Biodiversity and Conservation</p>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. The science of classifying and naming organisms is called:</p>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> Option A
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> Physiology
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> Option B (correct)
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> Genetics
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> Option C
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> Taxonomy
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> Option D
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> Ecology
 </label>
-<button class="side-button" onclick="checkQuizAnswer('q1', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="checkQuizAnswer('q1', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">2. Binomial nomenclature uses which two taxonomic levels?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="a"/> Kingdom and phylum
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="b"/> Class and order
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="c"/> Genus and species
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="d"/> Family and order
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q2', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">3. Which taxonomic level is most inclusive?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="a"/> Species
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="b"/> Genus
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="c"/> Domain
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="d"/> Family
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q3', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">4. Cladistics classifies organisms based on:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="a"/> Shared derived characteristics
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="b"/> Habitat
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="c"/> Physical appearance only
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="d"/> Size and color
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q4', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">5. A phylogenetic tree shows:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="a"/> The size of organisms
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="b"/> Geographic distribution
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="c"/> Evolutionary relationships
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="d"/> Population sizes
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q5', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">6. Organisms that share a more recent common ancestor are:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="a"/> From different domains
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="b"/> Less closely related
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="c"/> More closely related
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="d"/> Always the same species
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q6', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">7. Convergent evolution produces:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="a"/> Identical DNA
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="b"/> Homologous structures
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="c"/> Vestigial structures
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="d"/> Analogous structures
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q7', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">8. Allopatric speciation occurs when:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="a"/> No barriers exist
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="b"/> Populations live together
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="c"/> Populations are physically separated
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="d"/> Only in water
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q8', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">9. Sympatric speciation can occur through:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="a"/> Geographic isolation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="b"/> Polyploidy or habitat differentiation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="c"/> Extinction
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="d"/> Migration only
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q9', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">10. The three domains of life are:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="a"/> Protists, Bacteria, Animals
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="b"/> Bacteria, Archaea, Eukarya
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="c"/> Plants, Animals, Fungi
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="d"/> Vertebrates, Invertebrates, Plants
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q10', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">11. Which domain includes organisms with membrane-bound organelles?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="a"/> All of them
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="b"/> Bacteria
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="c"/> Archaea
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="d"/> Eukarya
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q11', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">12. Archaea differ from Bacteria in:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="a"/> Having no DNA
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="b"/> Being multicellular
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="c"/> Not being prokaryotes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="d"/> Cell wall composition and genetics
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q12', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">13. The kingdom Animalia includes organisms that are:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="a"/> Autotrophic and unicellular
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="b"/> Heterotrophic and multicellular
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="c"/> Photosynthetic
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="d"/> All prokaryotic
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q13', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">14. A derived character is:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="a"/> Not useful in classification
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="b"/> A trait that evolved in a recent ancestor
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="c"/> An ancestral trait
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="d"/> Found in all organisms
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q14', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">15. An outgroup in cladistics is used to:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="a"/> Show the oldest organisms
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="b"/> Measure DNA
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="c"/> Include all organisms
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="d"/> Determine which characters are ancestral vs derived
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q15', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">16. Linnaeus organized his classification system based primarily on:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="a"/> Geographic location
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="b"/> Behavior
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="c"/> DNA sequences
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="d"/> Physical similarities
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q16', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">17. Reproductive isolation is important for speciation because:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="a"/> It increases migration
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="b"/> It has no effect
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="c"/> It increases mutation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="d"/> It prevents gene flow between populations
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q17', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">18. The correct order of taxonomic classification from broadest to most specific is:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="a"/> Kingdom, Domain, Phylum, Order, Class, Family, Genus, Species
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="b"/> Domain, Phylum, Kingdom, Class, Order, Family, Genus, Species
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="c"/> Species, Genus, Family, Order, Class, Phylum, Kingdom, Domain
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="d"/> Domain, Kingdom, Phylum, Class, Order, Family, Genus, Species
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q18', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
 <button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
 </div>
 </form>
 <div id="quiz-results" style="margin-top: 2rem; font-weight: bold; display:none; padding: 1rem; border-radius: 0.5rem;"></div>
 <div class="summary-actions" style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+<button type="button" class="side-button" onclick="document.getElementById('quiz-content-view').style.display='none';document.getElementById('practice-content-view').style.display='block';" style="background: #64748b;">Review Flashcards</button>
 <button type="button" class="side-button" onclick="window.location.href='../../bio.html'">Back to Biology</button>
 </div>
 </div>
@@ -60,4 +395,61 @@
 <script src="../../../search_data.js"></script>
 <script src="../../../search_logic.js"></script>
 <script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+
+<script>
+    window.lessonFlashcards = [
+        { question: "What is biodiversity?", answer: "A key topic in biology covering important concepts related to biodiversity" },
+        { question: "Why is biodiversity important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in biodiversity?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does biodiversity relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of biodiversity?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of biodiversity in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is biodiversity studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does biodiversity have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for biodiversity?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about biodiversity?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is threats to biodiversity?", answer: "A key topic in biology covering important concepts related to threats to biodiversity" },
+        { question: "Why is threats to biodiversity important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in threats to biodiversity?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does threats to biodiversity relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of threats to biodiversity?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of threats to biodiversity in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is threats to biodiversity studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does threats to biodiversity have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for threats to biodiversity?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about threats to biodiversity?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is conserving biodiversity?", answer: "A key topic in biology covering important concepts related to conserving biodiversity" },
+        { question: "Why is conserving biodiversity important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in conserving biodiversity?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does conserving biodiversity relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of conserving biodiversity?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of conserving biodiversity in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is conserving biodiversity studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does conserving biodiversity have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for conserving biodiversity?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about conserving biodiversity?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is endangered species and conservation strategies?", answer: "A key topic in biology covering important concepts related to endangered species and conservation strategies" },
+        { question: "Why is endangered species and conservation strategies important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in endangered species and conservation strategies?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does endangered species and conservation strategies relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of endangered species and conservation strategies?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of endangered species and conservation strategies in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is endangered species and conservation strategies studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does endangered species and conservation strategies have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for endangered species and conservation strategies?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about endangered species and conservation strategies?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is global conservation efforts?", answer: "A key topic in biology covering important concepts related to global conservation efforts" },
+        { question: "Why is global conservation efforts important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in global conservation efforts?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does global conservation efforts relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of global conservation efforts?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of global conservation efforts in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is global conservation efforts studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does global conservation efforts have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for global conservation efforts?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about global conservation efforts?", answer: "Key concepts, processes, and their significance" }
+    ];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
 </body></html>

@@ -207,6 +207,33 @@
          }
         location.reload();
       }, 'green');
+  } else if (path.indexOf('bio.html') !== -1 || path.indexOf('BiologyLessons') !== -1) {
+      contextKeyPrefix = 'bio_u';
+      
+      addButton('\u2714 Finish All Biology', function() {
+        if(!confirm('Complete ALL Biology lessons?')) return;
+        // Biology units from bio.html (max lesson number per unit including test)
+        // Unit 1: 7 lessons + test (l8) = 8
+        // Unit 2: 7 lessons + test (l8) = 8
+        // Unit 3: 5 lessons + test (l6) = 6
+        // Unit 4: 6 lessons + test (l7) = 7
+        // Unit 5: 6 lessons + test (l7) = 7
+        // Unit 6: 6 lessons + test (l7) = 7
+        // Unit 7: 6 lessons + test (l7) = 7
+        // Unit 8: 5 lessons + test (l6) = 6
+        // Unit 9: 5 lessons + test (l6) = 6
+        // Unit 10: 6 lessons + test (l7) = 7
+        // Unit 11: 6 lessons + test (l7) = 7
+        // Unit 12: 6 lessons + test (l7) = 7
+        var allLessons = { '1': 8, '2': 8, '3': 6, '4': 7, '5': 7, '6': 7, '7': 7, '8': 6, '9': 6, '10': 7, '11': 7, '12': 7 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('bio_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('bio_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        location.reload();
+      }, 'green');
   }
 
   // Common Clear
@@ -278,6 +305,56 @@
   }
 
   // --- Misc ---
+  addSection('Time Tracking');
+  
+  function addTimeMinutes(minutes) {
+    var today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    var storageKey = 'arisEdu_time_' + today;
+    var existing = parseInt(localStorage.getItem(storageKey)) || 0;
+    localStorage.setItem(storageKey, existing + minutes);
+    alert('Added ' + minutes + ' minutes.\nTotal today: ' + (existing + minutes) + ' minutes.');
+  }
+  
+  var timeContainer = document.createElement('div');
+  timeContainer.style.display = 'grid';
+  timeContainer.style.gridTemplateColumns = '1fr 1fr 1fr';
+  timeContainer.style.gap = '0.5rem';
+  timeContainer.style.marginTop = '0.4rem';
+  
+  var timeAmounts = [
+    { label: '+5m', minutes: 5 },
+    { label: '+30m', minutes: 30 },
+    { label: '+1h', minutes: 60 }
+  ];
+  
+  timeAmounts.forEach(function(t) {
+    var btn = document.createElement('button');
+    btn.textContent = t.label;
+    btn.style.background = '#16a34a';
+    btn.style.border = 'none';
+    btn.style.color = '#fff';
+    btn.style.borderRadius = '0.25rem';
+    btn.style.cursor = 'pointer';
+    btn.style.fontSize = '0.75rem';
+    btn.style.padding = '0.3rem';
+    btn.onmouseover = function() { btn.style.background = '#15803d'; };
+    btn.onmouseout = function() { btn.style.background = '#16a34a'; };
+    btn.onclick = function() { addTimeMinutes(t.minutes); };
+    timeContainer.appendChild(btn);
+  });
+  body.appendChild(timeContainer);
+  
+  addButton('\u274C Clear Time Data', function() {
+    if(!confirm('Clear all time tracking data?')) return;
+    var toRemove = [];
+    for(var i=0; i<localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if(k && k.startsWith('arisEdu_time_')) toRemove.push(k);
+    }
+    toRemove.forEach(k => localStorage.removeItem(k));
+    alert('Cleared ' + toRemove.length + ' time entries.');
+  }, 'red');
+  
   addSection('Debug Stats');
   addButton('\uD83D\uDCCB Show Storage Keys', function () {
       var keys = [];

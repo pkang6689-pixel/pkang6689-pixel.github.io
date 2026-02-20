@@ -17,36 +17,353 @@
 <script src="../../scripts/taskbar.js"></script>
 <main class="main-container">
 <div id="practice-content-view">
-<h2 class="page-title">Unit 9 Practice</h2>
+<h2 class="page-title">Unit 9 Review Flashcards</h2>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="document.getElementById('practice-content-view').style.display='none';document.getElementById('quiz-content-view').style.display='block';" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
 </div>
 
-<div id="quiz-content-view" style="display:none;">
-<h2 class="page-title">Unit 9: Unit Test</h2>
+<div id="quiz-content-view">
+<h2 class="page-title">Unit 9: Cell Division - Mitosis - Unit Test</h2>
 <div class="diagram-card">
 <div class="quiz-container">
 <form id="quiz-form">
-<!-- Placeholder: Unit Test questions for Unit 9 – Cellular Reproduction and Sexual Reproduction -->
 <div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
 <div class="attempts-indicator">Attempts left: 2</div>
-<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. Sample unit test question for Cellular Reproduction and Sexual Reproduction</p>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. Why is cell division necessary for living organisms?</p>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> Option A
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> To release oxygen
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> Option B (correct)
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> To break down food
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> Option C
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> To produce energy
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> Option D
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> For growth, repair, and reproduction
 </label>
-<button class="side-button" onclick="checkQuizAnswer('q1', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="checkQuizAnswer('q1', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">2. The cell cycle consists of:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="a"/> Only mitosis
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="b"/> Interphase and M phase (mitosis and cytokinesis)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="c"/> Only DNA replication
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="d"/> Only cytokinesis
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q2', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">3. During which phase does DNA replication occur?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="a"/> Mitosis
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="b"/> G1 phase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="c"/> Cytokinesis
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="d"/> S phase of interphase
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q3', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">4. The correct order of mitosis phases is:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="a"/> Telophase, Prophase, Anaphase, Metaphase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="b"/> Anaphase, Metaphase, Prophase, Telophase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="c"/> Prophase, Metaphase, Anaphase, Telophase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="d"/> Metaphase, Prophase, Telophase, Anaphase
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q4', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">5. During prophase:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="a"/> The cell divides
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="b"/> Chromatin condenses into chromosomes and the nuclear envelope breaks down
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="c"/> Sister chromatids separate
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="d"/> Chromosomes line up at the cell center
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q5', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">6. Chromosomes align at the cell's equator during:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="a"/> Prophase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="b"/> Anaphase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="c"/> Telophase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="d"/> Metaphase
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q6', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">7. Sister chromatids separate and move to opposite poles during:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="a"/> Metaphase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="b"/> Telophase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="c"/> Anaphase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="d"/> Prophase
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q7', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">8. During telophase:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="a"/> DNA replicates
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="b"/> Chromosomes align
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="c"/> Nuclear envelopes reform and chromosomes decondense
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="d"/> Chromosomes condense
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q8', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">9. Cytokinesis in animal cells involves:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="a"/> Cell plate formation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="b"/> No division
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="c"/> DNA replication
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="d"/> Cleavage furrow pinching the cell in two
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q9', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">10. In plant cells, cytokinesis involves formation of:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="a"/> Centrioles
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="b"/> Cleavage furrow
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="c"/> Cell plate
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="d"/> Spindle fibers only
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q10', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">11. The spindle fibers attach to chromosomes at the:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="a"/> Telomere
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="b"/> Chromatid arm
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="c"/> Centromere (kinetochore)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="d"/> Nuclear envelope
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q11', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">12. Checkpoints in the cell cycle:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="a"/> Only occur in cancer
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="b"/> Speed up division
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="c"/> Have no function
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="d"/> Ensure proper cell division and prevent errors
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q12', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">13. Cancer cells differ from normal cells because they:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="a"/> Divide uncontrollably, ignoring checkpoints
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="b"/> Only divide once
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="c"/> Do not divide
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="d"/> Divide in a controlled manner
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q13', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">14. The G1 checkpoint checks for:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="a"/> Spindle attachment
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="b"/> Chromosome alignment
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="c"/> Cytokinesis completion
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="d"/> Cell size, nutrients, and DNA damage
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q14', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">15. The G2 checkpoint ensures:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="a"/> Cell size is adequate
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="b"/> Chromosomes are aligned
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="c"/> Cell plate has formed
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="d"/> DNA has replicated completely and correctly
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q15', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">16. Cyclins and CDKs regulate:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="a"/> Respiration
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="b"/> The cell cycle
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="c"/> Digestion
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="d"/> Photosynthesis
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q16', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">17. Tumor suppressor genes normally function to:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="a"/> Slow or stop cell division
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="b"/> Cause cancer
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="c"/> Increase mutation rate
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="d"/> Promote cell division
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q17', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
 <button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
 </div>
 </form>
 <div id="quiz-results" style="margin-top: 2rem; font-weight: bold; display:none; padding: 1rem; border-radius: 0.5rem;"></div>
 <div class="summary-actions" style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+<button type="button" class="side-button" onclick="document.getElementById('quiz-content-view').style.display='none';document.getElementById('practice-content-view').style.display='block';" style="background: #64748b;">Review Flashcards</button>
 <button type="button" class="side-button" onclick="window.location.href='../../bio.html'">Back to Biology</button>
 </div>
 </div>
@@ -60,4 +377,61 @@
 <script src="../../../search_data.js"></script>
 <script src="../../../search_logic.js"></script>
 <script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+
+<script>
+    window.lessonFlashcards = [
+        { question: "What is cellular reproduction?", answer: "A key topic in biology covering important concepts related to cellular reproduction" },
+        { question: "Why is cellular reproduction important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in cellular reproduction?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does cellular reproduction relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of cellular reproduction?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of cellular reproduction in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is cellular reproduction studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does cellular reproduction have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for cellular reproduction?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about cellular reproduction?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is mitosis?", answer: "A key topic in biology covering important concepts related to mitosis" },
+        { question: "Why is mitosis important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in mitosis?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does mitosis relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of mitosis?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of mitosis in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is mitosis studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does mitosis have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for mitosis?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about mitosis?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is meiosis and sexual reproduction?", answer: "A key topic in biology covering important concepts related to meiosis and sexual reproduction" },
+        { question: "Why is meiosis and sexual reproduction important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in meiosis and sexual reproduction?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does meiosis and sexual reproduction relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of meiosis and sexual reproduction?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of meiosis and sexual reproduction in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is meiosis and sexual reproduction studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does meiosis and sexual reproduction have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for meiosis and sexual reproduction?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about meiosis and sexual reproduction?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is the cell cycle and cancer?", answer: "A key topic in biology covering important concepts related to the cell cycle and cancer" },
+        { question: "Why is the cell cycle and cancer important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in the cell cycle and cancer?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does the cell cycle and cancer relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of the cell cycle and cancer?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of the cell cycle and cancer in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is the cell cycle and cancer studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does the cell cycle and cancer have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for the cell cycle and cancer?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about the cell cycle and cancer?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is stem cells and regenerative medicine?", answer: "A key topic in biology covering important concepts related to stem cells and regenerative medicine" },
+        { question: "Why is stem cells and regenerative medicine important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in stem cells and regenerative medicine?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does stem cells and regenerative medicine relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of stem cells and regenerative medicine?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of stem cells and regenerative medicine in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is stem cells and regenerative medicine studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does stem cells and regenerative medicine have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for stem cells and regenerative medicine?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about stem cells and regenerative medicine?", answer: "Key concepts, processes, and their significance" }
+    ];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
 </body></html>

@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Account Information</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <script src="theme_manager.js?v=2.1"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      transition: background 0.3s;
+    }
+    body.dark-mode {
+      background: #0f172a;
+    }
+
+    .settings-menu {
+      width: 13rem;
+      padding: 0.5rem;
+      background: #ffffff;
+      border-radius: 0.5rem;
+      box-shadow: 0 8px 20px rgba(2,6,23,0.12);
+      color: #0f172a;
+      font-size: 0.95rem;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+      position: absolute;
+      top: 100%;
+      right: 1rem;
+      left: auto;
+      bottom: auto;
+    }
+    body.dark-mode .settings-menu {
+      background: #0f172a;
+      color: #cbd5e1;
+    }
+
+    /* Account Info Layout */
+    .account-layout {
+      width: 90vw;
+      max-width: 900px;
+      height: auto;
+      min-height: 60vh;
+      max-height: 90vh;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      transition: background 0.3s, color 0.3s;
+      padding: 3rem;
+      overflow-y: auto;
+    }
+    
+    body.dark-mode .account-layout {
+      background: rgba(30, 41, 59, 0.95);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      color: #e2e8f0;
+    }
+
+    .account-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .account-section {
+      margin-bottom: 2rem;
+    }
+
+    .account-section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #334155;
+    }
+
+    body.dark-mode .account-section-title {
+      color: #94a3b8;
+    }
+
+    .account-field {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 0.75rem;
+      margin-bottom: 0.75rem;
+      transition: background 0.2s;
+    }
+
+    body.dark-mode .account-field {
+      background: #1e293b;
+    }
+
+    .account-field-label {
+      font-weight: 600;
+      color: #64748b;
+      min-width: 150px;
+    }
+
+    body.dark-mode .account-field-label {
+      color: #94a3b8;
+    }
+
+    .account-field-value {
+      color: #1e293b;
+      font-weight: 500;
+    }
+
+    body.dark-mode .account-field-value {
+      color: #e2e8f0;
+    }
+
+    .course-breakdown {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    body.dark-mode .course-breakdown {
+      border-top-color: #334155;
+    }
+
+    .time-period-toggle {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .time-period-btn {
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.4rem;
+      border: 1px solid #e2e8f0;
+      background: transparent;
+      color: #64748b;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.85rem;
+    }
+
+    body.dark-mode .time-period-btn {
+      border-color: #475569;
+      color: #94a3b8;
+    }
+
+    .time-period-btn.active {
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      color: white;
+      border-color: transparent;
+    }
+
+    .time-period-btn:hover:not(.active) {
+      background: #f1f5f9;
+    }
+
+    body.dark-mode .time-period-btn:hover:not(.active) {
+      background: #334155;
+    }
+
+    .time-display {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .account-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: white;
+      margin-bottom: 1.5rem;
+    }
+
+    .account-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .account-btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .account-btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      color: white;
+    }
+
+    .account-btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .account-btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    body.dark-mode .account-btn-secondary {
+      background: #334155;
+      color: #e2e8f0;
+    }
+
+    .account-btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    body.dark-mode .account-btn-secondary:hover {
+      background: #475569;
+    }
+
+    .account-btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .account-btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .no-account-message {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .no-account-message h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #334155;
+    }
+
+    body.dark-mode .no-account-message h2 {
+      color: #e2e8f0;
+    }
+
+    .no-account-message p {
+      color: #64748b;
+      margin-bottom: 2rem;
+    }
+
+    body.dark-mode .no-account-message p {
+      color: #94a3b8;
+    }
+
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body class="dark-mode">
+<script src="scripts/taskbar.js"></script>
+
+<div class="account-layout" id="account-layout">
+  <!-- Content will be injected by JavaScript -->
+</div>
+
+<script>
+(function() {
+  const layout = document.getElementById('account-layout');
+  const storedUser = localStorage.getItem('user');
+  
+  if (!storedUser) {
+    // No user logged in
+    layout.innerHTML = `
+      <div class="no-account-message">
+        <h2 data-i18n="Not Logged In">Not Logged In</h2>
+        <p data-i18n="You need to log in to view your account information.">You need to log in to view your account information.</p>
+        <a href="LoginSignup.html" class="account-btn account-btn-primary" data-i18n="Log In / Sign Up">Log In / Sign Up</a>
+      </div>
+    `;
+    return;
+  }
+
+  let user;
+  try {
+    user = JSON.parse(storedUser);
+  } catch (e) {
+    layout.innerHTML = `
+      <div class="no-account-message">
+        <h2 data-i18n="Error">Error</h2>
+        <p data-i18n="There was an error loading your account information.">There was an error loading your account information.</p>
+        <a href="LoginSignup.html" class="account-btn account-btn-primary" data-i18n="Log In Again">Log In Again</a>
+      </div>
+    `;
+    return;
+  }
+
+  const name = user.name || 'User';
+  const email = user.email || 'Not provided';
+  const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown';
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
+
+  layout.innerHTML = `
+    <h1 class="account-title" data-i18n="Account Information">Account Information</h1>
+    
+    <div style="display: flex; align-items: flex-start; gap: 2rem; flex-wrap: wrap;">
+      <div class="account-avatar">${initials}</div>
+      
+      <div style="flex: 1; min-width: 300px;">
+        <div class="account-section">
+          <h3 class="account-section-title" data-i18n="Profile Details">Profile Details</h3>
+          <div class="account-field">
+            <span class="account-field-label" data-i18n="Display Name">Display Name</span>
+            <span class="account-field-value">${name}</span>
+          </div>
+          <div class="account-field">
+            <span class="account-field-label" data-i18n="Email Address">Email Address</span>
+            <span class="account-field-value">${email}</span>
+          </div>
+          <div class="account-field">
+            <span class="account-field-label" data-i18n="Member Since">Member Since</span>
+            <span class="account-field-value">${createdAt}</span>
+          </div>
+        </div>
+
+        <div class="account-section">
+          <h3 class="account-section-title" data-i18n="Learning Progress">Learning Progress</h3>
+          <div class="account-field">
+            <span class="account-field-label" data-i18n="Total Lessons Started:">Total Lessons Started:</span>
+            <span class="account-field-value" id="lessons-started">0</span>
+          </div>
+          <div class="account-field">
+            <span class="account-field-label" data-i18n="Total Lessons Completed:">Total Lessons Completed:</span>
+            <span class="account-field-value" id="lessons-completed">0</span>
+          </div>
+          <div class="course-breakdown">
+            <div class="account-field">
+              <span class="account-field-label" data-i18n="⚡ Physics">⚡ Physics</span>
+              <span class="account-field-value"><span id="physics-started">0</span> <span data-i18n="started">started</span> / <span id="physics-completed">0</span> <span data-i18n="completed">completed</span></span>
+            </div>
+            <div class="account-field">
+              <span class="account-field-label" data-i18n="🧪 Chemistry">🧪 Chemistry</span>
+              <span class="account-field-value"><span id="chem-started">0</span> <span data-i18n="started">started</span> / <span id="chem-completed">0</span> <span data-i18n="completed">completed</span></span>
+            </div>
+            <div class="account-field">
+              <span class="account-field-label" data-i18n="🧬 Biology">🧬 Biology</span>
+              <span class="account-field-value"><span id="bio-started">0</span> <span data-i18n="started">started</span> / <span id="bio-completed">0</span> <span data-i18n="completed">completed</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="account-section">
+          <h3 class="account-section-title" data-i18n="Time Spent Learning">Time Spent Learning</h3>
+          <div class="time-period-toggle">
+            <button class="time-period-btn active" data-period="today" data-i18n="Today">Today</button>
+            <button class="time-period-btn" data-period="week" data-i18n="This Week">This Week</button>
+            <button class="time-period-btn" data-period="month" data-i18n="This Month">This Month</button>
+          </div>
+          <div class="account-field" style="justify-content: center;">
+            <span class="time-display" id="time-spent">0h 0m</span>
+          </div>
+        </div>
+
+        <div class="account-actions">
+          <button class="account-btn account-btn-secondary" onclick="window.location.href='Preferences.html'" data-i18n="⚙️ Preferences">
+            ⚙️ Preferences
+          </button>
+          <button class="account-btn account-btn-danger" id="logout-btn" data-i18n="🚪 Log Out">
+            🚪 Log Out
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Calculate learning progress from localStorage
+  // Key patterns: {subject}_u{unit}_l{lesson}_{started|completed} = 'true'
+  // Subjects: physics, phys, chem, bio
+  const startedLessons = new Set();
+  const completedLessons = new Set();
+  
+  // Per-course tracking
+  const courseProgress = {
+    physics: { started: new Set(), completed: new Set() },
+    chem: { started: new Set(), completed: new Set() },
+    bio: { started: new Set(), completed: new Set() }
+  };
+  
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key) continue;
+    
+    // Match patterns like physics_u1_l2_started, chem_u3_l4_completed, bio_u1_l1_started
+    const startedMatch = key.match(/^(physics|phys|chem|bio)_u(\d+)_l(\d+)_started$/);
+    const completedMatch = key.match(/^(physics|phys|chem|bio)_u(\d+)_l(\d+)_completed$/);
+    
+    if (startedMatch && localStorage.getItem(key) === 'true') {
+      const subject = startedMatch[1] === 'phys' ? 'physics' : startedMatch[1];
+      const lessonKey = `${subject}_u${startedMatch[2]}_l${startedMatch[3]}`;
+      startedLessons.add(lessonKey);
+      
+      // Track per-course
+      if (subject === 'physics' || startedMatch[1] === 'phys') {
+        courseProgress.physics.started.add(lessonKey);
+      } else if (subject === 'chem') {
+        courseProgress.chem.started.add(lessonKey);
+      } else if (subject === 'bio') {
+        courseProgress.bio.started.add(lessonKey);
+      }
+    }
+    
+    if (completedMatch && localStorage.getItem(key) === 'true') {
+      const subject = completedMatch[1] === 'phys' ? 'physics' : completedMatch[1];
+      const lessonKey = `${subject}_u${completedMatch[2]}_l${completedMatch[3]}`;
+      completedLessons.add(lessonKey);
+      
+      // Track per-course
+      if (subject === 'physics' || completedMatch[1] === 'phys') {
+        courseProgress.physics.completed.add(lessonKey);
+      } else if (subject === 'chem') {
+        courseProgress.chem.completed.add(lessonKey);
+      } else if (subject === 'bio') {
+        courseProgress.bio.completed.add(lessonKey);
+      }
+    }
+  }
+  
+  // Update totals
+  document.getElementById('lessons-started').textContent = startedLessons.size;
+  document.getElementById('lessons-completed').textContent = completedLessons.size;
+  
+  // Update per-course counts
+  document.getElementById('physics-started').textContent = courseProgress.physics.started.size;
+  document.getElementById('physics-completed').textContent = courseProgress.physics.completed.size;
+  document.getElementById('chem-started').textContent = courseProgress.chem.started.size;
+  document.getElementById('chem-completed').textContent = courseProgress.chem.completed.size;
+  document.getElementById('bio-started').textContent = courseProgress.bio.started.size;
+  document.getElementById('bio-completed').textContent = courseProgress.bio.completed.size;
+
+  // --- Time Spent Feature ---
+  function getTimeSpent(period) {
+    // Time data is stored as: arisEdu_time_{YYYY-MM-DD} = minutes (number)
+    const now = new Date();
+    let totalMinutes = 0;
+    
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith('arisEdu_time_')) continue;
+      
+      const dateStr = key.replace('arisEdu_time_', '');
+      const entryDate = new Date(dateStr);
+      if (isNaN(entryDate.getTime())) continue;
+      
+      const minutes = parseInt(localStorage.getItem(key)) || 0;
+      
+      if (period === 'today') {
+        // Same day
+        if (entryDate.toDateString() === now.toDateString()) {
+          totalMinutes += minutes;
+        }
+      } else if (period === 'week') {
+        // Same week (last 7 days)
+        const weekAgo = new Date(now);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        if (entryDate >= weekAgo && entryDate <= now) {
+          totalMinutes += minutes;
+        }
+      } else if (period === 'month') {
+        // Same month
+        const monthAgo = new Date(now);
+        monthAgo.setDate(monthAgo.getDate() - 30);
+        if (entryDate >= monthAgo && entryDate <= now) {
+          totalMinutes += minutes;
+        }
+      }
+    }
+    
+    return totalMinutes;
+  }
+  
+  function formatTime(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    }
+    return `${mins}m`;
+  }
+  
+  function updateTimeDisplay(period) {
+    const minutes = getTimeSpent(period);
+    const timeEl = document.getElementById('time-spent');
+    if (timeEl) {
+      timeEl.textContent = formatTime(minutes);
+    }
+  }
+  
+  // Initialize time display
+  updateTimeDisplay('today');
+  
+  // Handle time period toggle
+  document.querySelectorAll('.time-period-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.time-period-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      updateTimeDisplay(this.dataset.period);
+    });
+  });
+
+  // Logout button handler
+  document.getElementById('logout-btn').addEventListener('click', function() {
+    localStorage.removeItem('user');
+    window.location.href = 'LoginSignup.html';
+  });
+})();
+</script>
+
+<script src="scripts/global_translations.js?v=3.2"></script>
+</body>
+</html>

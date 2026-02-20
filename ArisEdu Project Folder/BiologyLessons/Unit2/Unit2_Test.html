@@ -17,36 +17,371 @@
 <script src="../../scripts/taskbar.js"></script>
 <main class="main-container">
 <div id="practice-content-view">
-<h2 class="page-title">Unit 2 Practice</h2>
+<h2 class="page-title">Unit 2 Review Flashcards</h2>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="document.getElementById('practice-content-view').style.display='none';document.getElementById('quiz-content-view').style.display='block';" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
 </div>
 
-<div id="quiz-content-view" style="display:none;">
-<h2 class="page-title">Unit 2: Unit Test</h2>
+<div id="quiz-content-view">
+<h2 class="page-title">Unit 2: Ecology - Unit Test</h2>
 <div class="diagram-card">
 <div class="quiz-container">
 <form id="quiz-form">
-<!-- Placeholder: Unit Test questions for Unit 2 – Principles of Ecology -->
 <div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
 <div class="attempts-indicator">Attempts left: 2</div>
-<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. Sample unit test question for Principles of Ecology</p>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. What is the primary role of producers in an ecosystem?</p>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> Option A
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> Decompose dead organic matter
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> Option B (correct)
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> Break down nutrients in the soil
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> Option C
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> Convert sunlight into chemical energy through photosynthesis
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> Option D
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> Hunt and consume other organisms
 </label>
-<button class="side-button" onclick="checkQuizAnswer('q1', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="checkQuizAnswer('q1', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">2. In a food web, what would happen if all the primary consumers were removed?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="a"/> Producers would decrease
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="b"/> Nothing would change
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="c"/> Secondary consumers would increase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="d"/> Producer populations would increase initially
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q2', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">3. Which biogeochemical cycle involves the process of nitrogen fixation by bacteria?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="a"/> Carbon cycle
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="b"/> Phosphorus cycle
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="c"/> Water cycle
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="d"/> Nitrogen cycle
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q3', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">4. During ecological succession, which community would you expect to appear first on bare rock?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="a"/> Lichens and mosses
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="b"/> Grasses
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="c"/> Trees
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="d"/> Shrubs
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q4', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">5. An organism's niche includes:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="a"/> Only its predators
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="b"/> Its role, resources used, and interactions with other species
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="c"/> Only its food sources
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="d"/> Only its physical location
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q5', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">6. At which trophic level is the most energy available?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="a"/> Secondary consumers
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="b"/> Primary consumers
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="c"/> Tertiary consumers
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="d"/> Producers
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q6', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">7. What percentage of energy is typically transferred from one trophic level to the next?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="a"/> 50%
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="b"/> 10%
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="c"/> 100%
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="d"/> 1%
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q7', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">8. Deforestation primarily affects the carbon cycle by:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="a"/> Having no effect
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="b"/> Increasing carbon absorption
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="c"/> Increasing photosynthesis rates
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="d"/> Releasing stored carbon and reducing carbon uptake
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q8', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">9. Which type of relationship describes both organisms benefiting?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="a"/> Parasitism
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="b"/> Predation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="c"/> Mutualism
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="d"/> Commensalism
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q9', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">10. The greenhouse effect is primarily caused by:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="a"/> Ozone depletion
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="b"/> Increased precipitation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="c"/> Volcanic activity only
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="d"/> Atmospheric gases trapping heat
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q10', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">11. What is the term for the maximum population size an environment can sustain?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="a"/> Growth rate
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="b"/> Population density
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="c"/> Birth rate
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="d"/> Carrying capacity
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q11', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">12. Primary succession differs from secondary succession because primary succession:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="a"/> Requires no pioneer species
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="b"/> Only occurs in water
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="c"/> Begins in an area with no existing soil
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="d"/> Occurs faster
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q12', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">13. A climax community is characterized by:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="a"/> Stability and self-perpetuation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="b"/> No decomposers
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="c"/> Absence of biodiversity
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="d"/> Constant rapid change
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q13', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">14. Eutrophication in aquatic ecosystems is caused by:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="a"/> Decreased water temperature
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="b"/> Increased predation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="c"/> Reduced sunlight
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="d"/> Excess nutrients leading to algal blooms
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q14', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">15. Which organism would be classified as a decomposer?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="a"/> Mushroom
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="b"/> Eagle
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="c"/> Grass
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="d"/> Rabbit
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q15', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">16. Biomagnification refers to:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="a"/> Decreasing biodiversity
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="b"/> Increasing organism size
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="c"/> Concentration of toxins increasing up the food chain
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="d"/> Increasing temperatures
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q16', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">17. What is the relationship between a tick and a dog?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="a"/> Mutualism
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="b"/> Parasitism
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="c"/> Competition
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="d"/> Commensalism
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q17', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">18. Invasive species often cause problems because they:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="a"/> Improve ecosystem stability
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="b"/> Reduce competition
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="c"/> Increase biodiversity
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="d"/> Lack natural predators in the new environment
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q18', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
 <button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
 </div>
 </form>
 <div id="quiz-results" style="margin-top: 2rem; font-weight: bold; display:none; padding: 1rem; border-radius: 0.5rem;"></div>
 <div class="summary-actions" style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+<button type="button" class="side-button" onclick="document.getElementById('quiz-content-view').style.display='none';document.getElementById('practice-content-view').style.display='block';" style="background: #64748b;">Review Flashcards</button>
 <button type="button" class="side-button" onclick="window.location.href='../../bio.html'">Back to Biology</button>
 </div>
 </div>
@@ -60,4 +395,81 @@
 <script src="../../../search_data.js"></script>
 <script src="../../../search_logic.js"></script>
 <script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+
+<script>
+    window.lessonFlashcards = [
+        { question: "What is predation?", answer: "When one organism kills and eats another" },
+        { question: "What is symbiosis?", answer: "A close, long-term relationship between two different species" },
+        { question: "What is mutualism?", answer: "A symbiotic relationship where both species benefit" },
+        { question: "What is commensalism?", answer: "A relationship where one species benefits and the other is unaffected" },
+        { question: "What is parasitism?", answer: "A relationship where one species benefits while harming the other" },
+        { question: "Give an example of mutualism.", answer: "Bees pollinating flowers while getting nectar" },
+        { question: "Give an example of parasitism.", answer: "Ticks feeding on dogs, tapeworms in intestines" },
+        { question: "What is competition?", answer: "When organisms compete for the same limited resources" },
+        { question: "What is a predator?", answer: "An organism that hunts and kills other organisms for food" },
+        { question: "What is prey?", answer: "An organism that is hunted and eaten by a predator" },
+        { question: "What are producers?", answer: "Organisms that make their own food through photosynthesis" },
+        { question: "What are consumers?", answer: "Organisms that obtain energy by eating other organisms" },
+        { question: "What do decomposers do?", answer: "Break down dead organisms and recycle nutrients" },
+        { question: "What is the 10% rule?", answer: "Only about 10% of energy transfers to the next trophic level" },
+        { question: "What is an autotroph?", answer: "An organism that produces its own food" },
+        { question: "Where does most energy in an ecosystem go?", answer: "Lost as heat through metabolism" },
+        { question: "What is a heterotroph?", answer: "An organism that must eat other organisms for energy" },
+        { question: "Why are there few top predators?", answer: "Because only 10% of energy passes to each level" },
+        { question: "What is the ultimate source of energy?", answer: "The sun" },
+        { question: "What is a trophic level?", answer: "A feeding level in an ecosystem" },
+        { question: "What is a biogeochemical cycle?", answer: "The recycling of matter through living and non-living parts of an ecosystem" },
+        { question: "Name the four main biogeochemical cycles.", answer: "Water, carbon, nitrogen, and phosphorus cycles" },
+        { question: "What is nitrogen fixation?", answer: "The conversion of atmospheric nitrogen into usable forms by bacteria" },
+        { question: "How is carbon released into the atmosphere?", answer: "Through respiration, decomposition, and combustion" },
+        { question: "Unlike energy, matter is:", answer: "Recycled through ecosystems" },
+        { question: "What are the steps of the water cycle?", answer: "Evaporation, condensation, precipitation, collection" },
+        { question: "What is unique about the phosphorus cycle?", answer: "It does not have an atmospheric component" },
+        { question: "What organisms perform nitrogen fixation?", answer: "Certain bacteria" },
+        { question: "How do plants get carbon?", answer: "Through photosynthesis, taking in CO2" },
+        { question: "What is decomposition\\'s role in cycles?", answer: "It releases nutrients back into the environment" },
+        { question: "What is ecological succession?", answer: "The gradual change in species composition of a community over time" },
+        { question: "What is primary succession?", answer: "Succession that occurs in lifeless areas with no soil" },
+        { question: "What is secondary succession?", answer: "Succession that occurs after a disturbance when soil remains" },
+        { question: "What are pioneer species?", answer: "The first organisms to colonize an area during succession" },
+        { question: "What is a climax community?", answer: "A stable, mature ecological community" },
+        { question: "Give an example of where primary succession occurs.", answer: "Bare rock or hardened lava" },
+        { question: "Give an example of where secondary succession occurs.", answer: "After a forest fire or abandoned farmland" },
+        { question: "What organisms are pioneer species?", answer: "Lichens and mosses" },
+        { question: "Why is secondary succession faster?", answer: "Because soil and seeds are already present" },
+        { question: "What comes after pioneer species?", answer: "Grasses, shrubs, then trees" },
+        { question: "What is a habitat?", answer: "The physical place where an organism lives" },
+        { question: "What is a niche?", answer: "An organism\\'s role in its ecosystem, including all its interactions" },
+        { question: "What is the competitive exclusion principle?", answer: "Two species cannot occupy the exact same niche indefinitely" },
+        { question: "What\\'s the difference between habitat and niche?", answer: "Habitat is where an organism lives; niche is what it does" },
+        { question: "Name two components of a niche.", answer: "What it eats, when it\\'s active, how it interacts with others" },
+        { question: "What happens when niches overlap too much?", answer: "One species will outcompete the other" },
+        { question: "What is a fundamental niche?", answer: "The full range of conditions an organism could potentially use" },
+        { question: "What is a realized niche?", answer: "The actual conditions an organism uses due to competition" },
+        { question: "Why can\\'t two species share the same niche?", answer: "Competition would eliminate one of them" },
+        { question: "What is resource partitioning?", answer: "Species dividing resources to reduce competition" },
+        { question: "What is a food chain?", answer: "A single pathway showing how energy flows from one organism to another" },
+        { question: "What is a food web?", answer: "Interconnected food chains in an ecosystem" },
+        { question: "What is a trophic level?", answer: "A feeding level in a food chain or web" },
+        { question: "What is a primary consumer?", answer: "An organism that eats producers (herbivore)" },
+        { question: "What is a secondary consumer?", answer: "An organism that eats primary consumers (carnivore)" },
+        { question: "What is a tertiary consumer?", answer: "A top predator that eats secondary consumers" },
+        { question: "What are herbivores?", answer: "Animals that eat only plants" },
+        { question: "What are carnivores?", answer: "Animals that eat only other animals" },
+        { question: "What are omnivores?", answer: "Animals that eat both plants and animals" },
+        { question: "Which trophic level has the most energy?", answer: "Producers (level 1)" },
+        { question: "What is habitat destruction?", answer: "The elimination of natural habitats through human activities" },
+        { question: "What is an invasive species?", answer: "A non-native species that causes harm when introduced to a new ecosystem" },
+        { question: "What is overexploitation?", answer: "Harvesting a resource faster than it can naturally replenish" },
+        { question: "Name three types of pollution.", answer: "Air pollution, water pollution, soil pollution" },
+        { question: "What are sustainable practices?", answer: "Activities that meet current needs without compromising future generations" },
+        { question: "What is deforestation?", answer: "The clearing of forests for human use" },
+        { question: "What is urbanization?", answer: "The growth of cities and conversion of natural areas to urban use" },
+        { question: "How do invasive species harm ecosystems?", answer: "They outcompete native species for resources" },
+        { question: "What is conservation?", answer: "The protection and preservation of natural resources" },
+        { question: "What is renewable energy?", answer: "Energy from sources that are naturally replenished, like solar and wind" }
+    ];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
 </body></html>

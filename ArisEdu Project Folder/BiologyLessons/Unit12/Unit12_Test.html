@@ -17,36 +17,371 @@
 <script src="../../scripts/taskbar.js"></script>
 <main class="main-container">
 <div id="practice-content-view">
-<h2 class="page-title">Unit 12 Practice</h2>
+<h2 class="page-title">Unit 12 Review Flashcards</h2>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="document.getElementById('practice-content-view').style.display='none';document.getElementById('quiz-content-view').style.display='block';" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
 </div>
 
-<div id="quiz-content-view" style="display:none;">
-<h2 class="page-title">Unit 12: Unit Test</h2>
+<div id="quiz-content-view">
+<h2 class="page-title">Unit 12: DNA and Biotechnology - Unit Test</h2>
 <div class="diagram-card">
 <div class="quiz-container">
 <form id="quiz-form">
-<!-- Placeholder: Unit Test questions for Unit 12 – Modern Biology and Applications -->
 <div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
 <div class="attempts-indicator">Attempts left: 2</div>
-<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. Sample unit test question for Modern Biology and Applications</p>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. DNA is composed of nucleotides, each containing:</p>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> Option A
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> Sugar, phosphate, and a nitrogenous base
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> Option B (correct)
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> Lipids
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> Option C
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> Only phosphate
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> Option D
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> Amino acids
 </label>
-<button class="side-button" onclick="checkQuizAnswer('q1', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="checkQuizAnswer('q1', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">2. The four nitrogenous bases in DNA are:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="a"/> Adenine, Thymine, Guanine, Uracil
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="b"/> Only Adenine and Thymine
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="c"/> Adenine, Thymine, Guanine, Cytosine
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="d"/> Adenine, Uracil, Guanine, Cytosine
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q2', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">3. According to base-pairing rules, adenine pairs with:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="a"/> Thymine
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="b"/> Uracil
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="c"/> Cytosine
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="d"/> Guanine
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q3', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">4. DNA replication is described as semiconservative because:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="a"/> DNA is not conserved
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="b"/> Each new DNA molecule contains one original and one new strand
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="c"/> Both strands are copied together
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="d"/> Both strands are new
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q4', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">5. The enzyme that unwinds DNA during replication is:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="a"/> Primase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="b"/> Ligase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="c"/> Helicase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="d"/> DNA polymerase
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q5', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">6. DNA polymerase functions to:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="a"/> Add nucleotides to the new strand
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="b"/> Produce RNA
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="c"/> Join Okazaki fragments
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="d"/> Unwind DNA
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q6', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">7. RNA differs from DNA because RNA:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="a"/> Contains uracil instead of thymine and has ribose sugar
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="b"/> Contains thymine
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="c"/> Is double-stranded
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="d"/> Has no bases
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q7', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">8. Transcription produces:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="a"/> Protein
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="b"/> Lipids
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="c"/> DNA
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="d"/> mRNA from a DNA template
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q8', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">9. Transcription occurs in the:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="a"/> Cytoplasm
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="b"/> Nucleus
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="c"/> Ribosome
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="d"/> Mitochondria only
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q9', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">10. Translation occurs at the:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="a"/> Golgi
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="b"/> Ribosome
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="c"/> Chloroplast
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="d"/> Nucleus
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q10', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">11. A codon is:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="a"/> A single nucleotide
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="b"/> A protein
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="c"/> Part of DNA only
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="d"/> A three-nucleotide sequence in mRNA coding for an amino acid
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q11', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">12. The start codon AUG codes for:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="a"/> Glycine
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="b"/> Tryptophan
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="c"/> Methionine
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="d"/> Stop signal
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q12', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">13. tRNA functions to:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="a"/> Copy DNA
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="b"/> Bring amino acids to the ribosome
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="c"/> Carry genetic information
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="d"/> Store energy
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q13', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">14. CRISPR-Cas9 is used for:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="a"/> Energy production
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="b"/> Precise gene editing
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="c"/> Protein synthesis
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="d"/> Copying DNA only
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q14', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">15. PCR (polymerase chain reaction) is used to:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="a"/> Delete genes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="b"/> Amplify specific DNA sequences
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="c"/> Edit genes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="d"/> Translate mRNA
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q15', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">16. A GMO (genetically modified organism) has:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="a"/> No genes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="b"/> No DNA
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="c"/> DNA that has been altered using genetic engineering
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="d"/> Only natural mutations
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q16', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">17. Gel electrophoresis separates DNA fragments based on:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="a"/> Shape only
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="b"/> Size
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="c"/> Temperature
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="d"/> Color
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q17', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">18. Gene therapy aims to:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="a"/> Create new species
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="b"/> Treat diseases by correcting defective genes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="c"/> Eliminate DNA
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="d"/> Remove all genes
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q18', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
 <button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
 </div>
 </form>
 <div id="quiz-results" style="margin-top: 2rem; font-weight: bold; display:none; padding: 1rem; border-radius: 0.5rem;"></div>
 <div class="summary-actions" style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+<button type="button" class="side-button" onclick="document.getElementById('quiz-content-view').style.display='none';document.getElementById('practice-content-view').style.display='block';" style="background: #64748b;">Review Flashcards</button>
 <button type="button" class="side-button" onclick="window.location.href='../../bio.html'">Back to Biology</button>
 </div>
 </div>
@@ -60,4 +395,61 @@
 <script src="../../../search_data.js"></script>
 <script src="../../../search_logic.js"></script>
 <script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+
+<script>
+    window.lessonFlashcards = [
+        { question: "What is biotechnology and genetic engineering?", answer: "A key topic in biology covering important concepts related to biotechnology and genetic engineering" },
+        { question: "Why is biotechnology and genetic engineering important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in biotechnology and genetic engineering?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does biotechnology and genetic engineering relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of biotechnology and genetic engineering?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of biotechnology and genetic engineering in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is biotechnology and genetic engineering studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does biotechnology and genetic engineering have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for biotechnology and genetic engineering?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about biotechnology and genetic engineering?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is bioethics (cloning, stem cells, genetic privacy)?", answer: "A key topic in biology covering important concepts related to bioethics (cloning, stem cells, genetic privacy)" },
+        { question: "Why is bioethics (cloning, stem cells, genetic privacy) important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in bioethics (cloning, stem cells, genetic privacy)?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does bioethics (cloning, stem cells, genetic privacy) relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of bioethics (cloning, stem cells, genetic privacy)?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of bioethics (cloning, stem cells, genetic privacy) in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is bioethics (cloning, stem cells, genetic privacy) studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does bioethics (cloning, stem cells, genetic privacy) have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for bioethics (cloning, stem cells, genetic privacy)?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about bioethics (cloning, stem cells, genetic privacy)?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is medicine and pharmacology?", answer: "A key topic in biology covering important concepts related to medicine and pharmacology" },
+        { question: "Why is medicine and pharmacology important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in medicine and pharmacology?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does medicine and pharmacology relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of medicine and pharmacology?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of medicine and pharmacology in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is medicine and pharmacology studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does medicine and pharmacology have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for medicine and pharmacology?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about medicine and pharmacology?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is environmental biology?", answer: "A key topic in biology covering important concepts related to environmental biology" },
+        { question: "Why is environmental biology important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in environmental biology?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does environmental biology relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of environmental biology?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of environmental biology in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is environmental biology studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does environmental biology have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for environmental biology?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about environmental biology?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is astrobiology and the search for life beyond earth?", answer: "A key topic in biology covering important concepts related to astrobiology and the search for life beyond earth" },
+        { question: "Why is astrobiology and the search for life beyond earth important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in astrobiology and the search for life beyond earth?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does astrobiology and the search for life beyond earth relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of astrobiology and the search for life beyond earth?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of astrobiology and the search for life beyond earth in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is astrobiology and the search for life beyond earth studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does astrobiology and the search for life beyond earth have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for astrobiology and the search for life beyond earth?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about astrobiology and the search for life beyond earth?", answer: "Key concepts, processes, and their significance" }
+    ];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
 </body></html>

@@ -17,36 +17,371 @@
 <script src="../../scripts/taskbar.js"></script>
 <main class="main-container">
 <div id="practice-content-view">
-<h2 class="page-title">Unit 10 Practice</h2>
+<h2 class="page-title">Unit 10 Review Flashcards</h2>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="document.getElementById('practice-content-view').style.display='none';document.getElementById('quiz-content-view').style.display='block';" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
 </div>
 
-<div id="quiz-content-view" style="display:none;">
-<h2 class="page-title">Unit 10: Unit Test</h2>
+<div id="quiz-content-view">
+<h2 class="page-title">Unit 10: Meiosis - Unit Test</h2>
 <div class="diagram-card">
 <div class="quiz-container">
 <form id="quiz-form">
-<!-- Placeholder: Unit Test questions for Unit 10 – Genetics -->
 <div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
 <div class="attempts-indicator">Attempts left: 2</div>
-<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. Sample unit test question for Genetics</p>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. The purpose of meiosis is to:</p>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> Option A
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> Produce gametes with half the chromosome number
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> Option B (correct)
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> Grow larger
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> Option C
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> Repair damaged tissue
 </label>
 <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> Option D
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> Produce identical cells
 </label>
-<button class="side-button" onclick="checkQuizAnswer('q1', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="checkQuizAnswer('q1', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">2. Meiosis produces:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="a"/> 4 haploid cells
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="b"/> 2 diploid cells
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="c"/> 4 diploid cells
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="d"/> 2 haploid cells
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q2', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">3. Diploid (2n) means:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="a"/> Four sets of chromosomes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="b"/> One set of chromosomes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="c"/> No chromosomes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="d"/> Two sets of chromosomes
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q3', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">4. Haploid (n) cells contain:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="a"/> No DNA
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="b"/> One set of chromosomes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="c"/> Twice the normal DNA
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="d"/> Two sets of chromosomes
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q4', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">5. Homologous chromosomes pair up during:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="a"/> Meiosis I prophase
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="b"/> Meiosis II
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="c"/> Mitosis
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="d"/> Interphase
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q5', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">6. Crossing over occurs during:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="a"/> Telophase II
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="b"/> Anaphase I
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="c"/> Prophase I
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="d"/> Metaphase II
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q6', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">7. Crossing over increases genetic variation by:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="a"/> Deleting genes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="b"/> Doubling DNA
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="c"/> Exchanging genetic material between homologous chromosomes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="d"/> Creating mutations
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q7', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">8. During Meiosis I, what separates?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="a"/> Organelles
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="b"/> Homologous chromosomes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="c"/> Sister chromatids
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="d"/> Centrioles
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q8', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">9. During Meiosis II, what separates?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="a"/> Homologous chromosomes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="b"/> Sister chromatids
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="c"/> Nuclei
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="d"/> Spindle fibers
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q9', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">10. How does Meiosis II differ from mitosis?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="a"/> They are identical
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="b"/> Meiosis II has DNA replication
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="c"/> Meiosis II starts with haploid cells, not diploid
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="d"/> Meiosis II separates homologs
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q10', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">11. Independent assortment refers to:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="a"/> Random orientation of homologous pairs at metaphase I
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="b"/> Sister chromatid separation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="c"/> Crossing over
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="d"/> Chromosomes always lining up the same way
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q11', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">12. How many genetically unique gametes can be produced from one human cell undergoing meiosis?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="a"/> 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="b"/> Millions due to crossing over and independent assortment
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="c"/> 46
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="d"/> 4
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q12', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">13. Nondisjunction is:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="a"/> Crossing over
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="b"/> DNA replication
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="c"/> The failure of chromosomes to separate properly
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="d"/> Normal chromosome separation
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q13', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">14. Down syndrome results from:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="a"/> Too few chromosomes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="b"/> Deletion
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="c"/> Nondisjunction causing trisomy 21
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="d"/> Missing sex chromosome
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q14', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">15. Klinefelter syndrome (XXY) results from:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="a"/> Deletion
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="b"/> Normal meiosis
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="c"/> Autosomal trisomy
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="d"/> Nondisjunction of sex chromosomes
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q15', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">16. Turner syndrome (XO) is characterized by:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="a"/> Normal chromosomes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="b"/> Having only one X chromosome and no second sex chromosome
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="c"/> Extra X chromosome
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="d"/> Extra Y chromosome
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q16', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">17. Synapsis is:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="a"/> Sister chromatid separation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="b"/> Spindle formation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="c"/> The pairing of homologous chromosomes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="d"/> Cell division
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q17', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+<button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">18. A tetrad consists of:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="a"/> Four sister chromatids (two homologous chromosomes paired)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="b"/> Four cells
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="c"/> Two chromosomes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="d"/> One chromosome
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q18', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
 <button class="side-button" onclick="getAnotherQuestion(this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto; margin-left:0.5rem; background: #64748b;" type="button">Get another question</button>
 </div>
 </form>
 <div id="quiz-results" style="margin-top: 2rem; font-weight: bold; display:none; padding: 1rem; border-radius: 0.5rem;"></div>
 <div class="summary-actions" style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+<button type="button" class="side-button" onclick="document.getElementById('quiz-content-view').style.display='none';document.getElementById('practice-content-view').style.display='block';" style="background: #64748b;">Review Flashcards</button>
 <button type="button" class="side-button" onclick="window.location.href='../../bio.html'">Back to Biology</button>
 </div>
 </div>
@@ -60,4 +395,71 @@
 <script src="../../../search_data.js"></script>
 <script src="../../../search_logic.js"></script>
 <script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+
+<script>
+    window.lessonFlashcards = [
+        { question: "What is mendelian genetics?", answer: "A key topic in biology covering important concepts related to mendelian genetics" },
+        { question: "Why is mendelian genetics important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in mendelian genetics?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does mendelian genetics relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of mendelian genetics?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of mendelian genetics in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is mendelian genetics studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does mendelian genetics have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for mendelian genetics?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about mendelian genetics?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is non-mendelian genetics?", answer: "A key topic in biology covering important concepts related to non-mendelian genetics" },
+        { question: "Why is non-mendelian genetics important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in non-mendelian genetics?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does non-mendelian genetics relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of non-mendelian genetics?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of non-mendelian genetics in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is non-mendelian genetics studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does non-mendelian genetics have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for non-mendelian genetics?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about non-mendelian genetics?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is dna replication, transcription, and translation?", answer: "A key topic in biology covering important concepts related to dna replication, transcription, and translation" },
+        { question: "Why is dna replication, transcription, and translation important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in dna replication, transcription, and translation?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does dna replication, transcription, and translation relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of dna replication, transcription, and translation?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of dna replication, transcription, and translation in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is dna replication, transcription, and translation studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does dna replication, transcription, and translation have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for dna replication, transcription, and translation?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about dna replication, transcription, and translation?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is gene regulation and expression?", answer: "A key topic in biology covering important concepts related to gene regulation and expression" },
+        { question: "Why is gene regulation and expression important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in gene regulation and expression?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does gene regulation and expression relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of gene regulation and expression?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of gene regulation and expression in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is gene regulation and expression studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does gene regulation and expression have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for gene regulation and expression?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about gene regulation and expression?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is biotechnology (crispr, cloning, gmos)?", answer: "A key topic in biology covering important concepts related to biotechnology (crispr, cloning, gmos)" },
+        { question: "Why is biotechnology (crispr, cloning, gmos) important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in biotechnology (crispr, cloning, gmos)?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does biotechnology (crispr, cloning, gmos) relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of biotechnology (crispr, cloning, gmos)?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of biotechnology (crispr, cloning, gmos) in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is biotechnology (crispr, cloning, gmos) studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does biotechnology (crispr, cloning, gmos) have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for biotechnology (crispr, cloning, gmos)?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about biotechnology (crispr, cloning, gmos)?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is human genetics and genetic disorders?", answer: "A key topic in biology covering important concepts related to human genetics and genetic disorders" },
+        { question: "Why is human genetics and genetic disorders important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in human genetics and genetic disorders?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does human genetics and genetic disorders relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of human genetics and genetic disorders?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of human genetics and genetic disorders in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is human genetics and genetic disorders studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does human genetics and genetic disorders have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for human genetics and genetic disorders?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about human genetics and genetic disorders?", answer: "Key concepts, processes, and their significance" }
+    ];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
 </body></html>

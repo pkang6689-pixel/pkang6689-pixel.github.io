@@ -709,6 +709,34 @@
       window.location.href = '/ArisEdu Project Folder/LoginSignup.html';
     });
 
+    // Account Information link
+    var accountInfoLink = document.createElement('a');
+    accountInfoLink.href = '/ArisEdu Project Folder/AccountInfo.html';
+    accountInfoLink.textContent = 'Account Information';
+    accountInfoLink.setAttribute('role', 'menuitem');
+    accountInfoLink.style.display = 'block';
+    accountInfoLink.style.width = '100%';
+    accountInfoLink.style.background = 'transparent';
+    accountInfoLink.style.border = 'none';
+    accountInfoLink.style.textAlign = 'left';
+    accountInfoLink.style.padding = '0.5rem 0.75rem';
+    accountInfoLink.style.borderRadius = '0.4rem';
+    accountInfoLink.style.cursor = 'pointer';
+    accountInfoLink.style.fontWeight = '600';
+    accountInfoLink.style.color = isDarkMode ? '#e2e8f0' : '#0f172a';
+    accountInfoLink.style.textDecoration = 'none';
+    accountInfoLink.style.boxSizing = 'border-box';
+
+    accountInfoLink.addEventListener('mouseenter', function () {
+      accountInfoLink.style.background = isDarkMode
+        ? 'rgba(148, 163, 184, 0.2)'
+        : 'rgba(15, 23, 42, 0.08)';
+    });
+    accountInfoLink.addEventListener('mouseleave', function () {
+      accountInfoLink.style.background = 'transparent';
+    });
+
+    menu.appendChild(accountInfoLink);
     menu.appendChild(logoutButton);
 
     var parent = loginButton.parentElement;
@@ -750,6 +778,42 @@
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape') {
         closeMenu();
+      }
+    });
+  })();
+
+  // --- Time Tracking ---
+  // Track time spent on lesson pages and save to localStorage
+  (function() {
+    var path = decodeURIComponent(window.location.pathname);
+    // Only track time on lesson pages (inside Lessons folders)
+    if (path.indexOf('Lessons') === -1) return;
+    
+    var startTime = Date.now();
+    var today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    var storageKey = 'arisEdu_time_' + today;
+    
+    function saveTimeSpent() {
+      var elapsed = Math.floor((Date.now() - startTime) / 1000 / 60); // minutes
+      if (elapsed < 1) return; // Don't save if less than 1 minute
+      
+      var existing = parseInt(localStorage.getItem(storageKey)) || 0;
+      localStorage.setItem(storageKey, existing + elapsed);
+      startTime = Date.now(); // Reset for next interval
+    }
+    
+    // Save on page unload
+    window.addEventListener('beforeunload', saveTimeSpent);
+    
+    // Also save periodically (every 5 minutes) in case user doesn't close tab
+    setInterval(saveTimeSpent, 5 * 60 * 1000);
+    
+    // Save on visibility change (tab switch)
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        saveTimeSpent();
+      } else {
+        startTime = Date.now(); // Reset when tab becomes visible again
       }
     });
   })();

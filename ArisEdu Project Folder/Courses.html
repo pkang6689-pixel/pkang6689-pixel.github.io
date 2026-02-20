@@ -178,7 +178,6 @@
       background: #f8fafc;
       border: 2px solid rgba(226, 232, 240, 0.8);
       border-radius: 2rem;
-      height: 23rem;
       padding: 2rem;
       margin-bottom: 2rem;
     }
@@ -205,32 +204,66 @@
     }
 
     .course-box {
-      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
-      border-radius: 0.75rem;
-      padding: 1.5rem;
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      padding: 0;
       text-align: center;
       transition: all 0.3s ease;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
-      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: none !important;
     }
 
     .course-box:hover {
       transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.28);
-      filter: brightness(1.05);
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    .course-box:hover .course-icon {
+      filter: brightness(1.2);
     }
 
     .course-box a {
       text-decoration: none;
-      color: #ffffff;
-      font-size: 1.125rem;
+      font-size: 1rem;
       font-weight: 600;
-      display: block;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
     }
 
-    .course-box a:hover {
-      color: #ffffff;
+    .course-icon {
+      width: 120px;
+      height: 180px;
+      transition: filter 0.3s ease;
+    }
+
+    .course-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    /* Physics lightbulb */
+    .course-box.physics .course-title { color: #fbbf24; }
+    /* Chemistry flask */
+    .course-box.chemistry .course-title { color: #3b82f6; }
+    /* Biology DNA */
+    .course-box.biology .course-title { color: #22c55e; }
+    /* Math - gradient */
+    .course-box.math .course-title {
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     body.dark-mode .courses-container {
@@ -243,15 +276,8 @@
     }
 
     body.dark-mode .course-box {
-      color: #ffffff;
-    }
-
-    body.dark-mode .course-box a {
-      color: #ffffff;
-    }
-
-    body.dark-mode .course-box a:hover {
-      color: #ffffff;
+      background: transparent !important;
+      box-shadow: none !important;
     }
   </style>
   <style>@view-transition { navigation: auto; }
@@ -349,18 +375,81 @@
         <div class="courses-section">
           <h2 class="courses-section-title">Mathematics</h2>
           <div class="courses-grid">
-            <div class="course-box"><a id="algebra1-link" href="algebra1.html">High School Algebra 1(WIP)</a></div>
-            <div class="course-box"><a id="algebra2-link" href="algebra2.html">High School Algebra 2(WIP)</a></div>
-            <div class="course-box"><a id="geometry-link" href="geometry.html">High School Geometry (WIP)</a></div>
+            <div class="course-box math">
+              <a id="algebra1-link" href="algebra1.html">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <defs>
+                    <linearGradient id="math-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#3b82f6"/>
+                      <stop offset="50%" style="stop-color:#10b981"/>
+                      <stop offset="100%" style="stop-color:#8b5cf6"/>
+                    </linearGradient>
+                  </defs>
+                  <text x="12" y="20" text-anchor="middle" fill="url(#math-grad)" font-size="14" font-weight="700" font-family="serif">x</text>
+                </svg>
+                <span class="course-title">High School Algebra 1 (WIP)</span>
+              </a>
+            </div>
+            <div class="course-box math">
+              <a id="algebra2-link" href="algebra2.html">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <text x="12" y="20" text-anchor="middle" fill="url(#math-grad)" font-size="12" font-weight="700" font-family="serif">x²</text>
+                </svg>
+                <span class="course-title">High School Algebra 2 (WIP)</span>
+              </a>
+            </div>
+            <div class="course-box math">
+              <a id="geometry-link" href="geometry.html">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12,6 4,26 20,26" fill="none" stroke="url(#math-grad)" stroke-width="0.6"/>
+                </svg>
+                <span class="course-title">High School Geometry (WIP)</span>
+              </a>
+            </div>
           </div>
         </div>
         <!-- Science Section -->
         <div class="courses-section">
           <h2 class="courses-section-title">Science</h2>
           <div class="courses-grid">
-            <div class="course-box"><a id="physics-link" href="physics.html">High School Physics</a></div>
-            <div class="course-box"><a id="chem-link" href="chem.html">High School Chemistry</a></div>
-            <div class="course-box"><a id="bio-link" href="bio.html">High School Biology (WIP)</a></div>
+            <div class="course-box physics">
+              <a id="physics-link" href="physics.html">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#fbbf24" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17H9v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
+                  <line x1="9" y1="19" x2="15" y2="19" />
+                  <line x1="10" y1="21" x2="14" y2="21" />
+                </svg>
+                <span class="course-title">High School Physics</span>
+              </a>
+            </div>
+            <div class="course-box chemistry">
+              <a id="chem-link" href="chem.html">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#3b82f6" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 3 V30 A 3 3 0 0 0 15 30 V3"/>
+                  <circle cx="11" cy="20" r="0.5" fill="white" fill-opacity="0.5" stroke="none"/>
+                  <circle cx="13" cy="15" r="0.4" fill="white" fill-opacity="0.5" stroke="none"/>
+                  <circle cx="12" cy="25" r="0.6" fill="white" fill-opacity="0.5" stroke="none"/>
+                </svg>
+                <span class="course-title">High School Chemistry</span>
+              </a>
+            </div>
+            <div class="course-box biology">
+              <a id="bio-link" href="bio.html">
+                <svg class="course-icon" viewBox="0 0 24 32" fill="none" stroke="#22c55e" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <!-- DNA Double Helix -->
+                  <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none"/>
+                  <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none"/>
+                  <!-- Rungs -->
+                  <line x1="9" y1="3.5" x2="15" y2="3.5" opacity="0.4"/>
+                  <line x1="6" y1="6.5" x2="18" y2="6.5" opacity="0.4"/>
+                  <line x1="9" y1="9.5" x2="15" y2="9.5" opacity="0.4"/>
+                  <line x1="15" y1="12.5" x2="9" y2="12.5" opacity="0.4"/>
+                  <line x1="18" y1="15.5" x2="6" y2="15.5" opacity="0.4"/>
+                  <line x1="15" y1="18.5" x2="9" y2="18.5" opacity="0.4"/>
+                </svg>
+                <span class="course-title">High School Biology (WIP)</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
