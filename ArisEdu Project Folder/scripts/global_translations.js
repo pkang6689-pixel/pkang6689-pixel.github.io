@@ -17641,7 +17641,7 @@
              if (originalText.includes("Lesson")) {
                  // Regex for: (Status?)(Lesson X.Y: )(Title)(⭐?)( Summary?)
                  // Note: \u2714 is ✔
-                 const lessonRegex = /^(COMPLETED \u2714 |IN PROGRESS )?(Lesson [\w.]+:\s+)(.+?)(\s(?:Summary|Practice|Quiz))?(\s⭐)?$/;
+                 const lessonRegex = /^(COMPLETED \u2714 |IN PROGRESS )?(Lesson [\w.]+:\s+)(.+?)((?::\s|\s)(?:Summary|Practice|Quiz))?(\s⭐)?$/;
                  const match = originalText.match(lessonRegex);
                  if (match) {
                      let status = match[1] || "";
@@ -17907,19 +17907,35 @@
         if (lang === "traditional" && !window.OpenCCConverter) return;
 
         isTranslating = true;
-        try {
-            mutations.forEach(function(mutation) {
-                mutation.addedNodes.forEach(function(node) {
-                    translateNode(node);
+        
+        // Use requestAnimationFrame to avoid blocking the main thread and batch updates
+        requestAnimationFrame(() => {
+            try {
+                if (!mutations) return; // safety
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        // Ignore script, style, and debug panel to prevent loops
+                        // Careful with Text nodes that don't have tagName or id
+                        if (node.nodeType === 1) {
+                             if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE' || 
+                                 (node.id === 'translation-debug-panel')) return;
+                        }
+                        translateNode(node);
+                    });
+                    if (mutation.type === 'characterData' && mutation.target.nodeValue && 
+                        /[A-Za-z]/.test(mutation.target.nodeValue)) {
+                        translateNode(mutation.target);
+                    }
                 });
-                if (mutation.type === 'characterData' && mutation.target.nodeValue && 
-                    /[A-Za-z]/.test(mutation.target.nodeValue)) {
-                    translateNode(mutation.target);
-                }
-            });
-        } finally {
-            isTranslating = false;
-        }
+            } catch(e) {
+                console.error("ArisEdu: Translation observer error", e);
+            } finally {
+                // Add a small delay to prevent rapid-fire loops
+                setTimeout(() => {
+                    isTranslating = false;
+                }, 100);
+            }
+        });
     });
 
     window.addEventListener('load', function() {

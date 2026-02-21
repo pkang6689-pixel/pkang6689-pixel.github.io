@@ -48,79 +48,91 @@
     };
 
     window.checkQuizAnswer = function(name, correct, btn) {
-        const parent = btn.closest('.quiz-question');
-        if(!parent) return;
+        try {
+            const parent = btn.closest('.quiz-question');
+            if(!parent) return;
 
-        // Get or Init Attempts
-        let attemptsElem = parent.querySelector('.attempts-indicator');
-        if (!attemptsElem) return;
-        
-        let attempts = parseInt(parent.dataset.attempts || '2');
+            // Get or Init Attempts
+            let attemptsElem = parent.querySelector('.attempts-indicator');
+            if (!attemptsElem) return;
+            
+            let attempts = parseInt(parent.dataset.attempts || '2');
 
-        const selected = parent.querySelector(`input[name="${name}"]:checked`);
-        let feedback = parent.querySelector('.feedback');
-        if(!feedback) {
-            feedback = document.createElement('div');
-            feedback.className = 'feedback';
-            feedback.style.marginTop = '1rem';
-            feedback.style.fontWeight = 'bold';
-            feedback.style.padding = '0.5rem';
-            feedback.style.borderRadius = '0.5rem';
-            parent.appendChild(feedback);
-        }
-        
-        if (!selected) {
-            feedback.textContent = _t("Please select an answer first.");
-            feedback.style.color = "#ea580c";
-            feedback.style.background = "#fff7ed";
-            return;
-        }
-
-        if (attempts <= 0 || btn.disabled) return;
-        
-        if (selected.value === correct) {
-            feedback.textContent = _t("Correct! Great job.");
-            feedback.style.color = "#16a34a"; 
-            feedback.style.background = "#dcfce7";
-            btn.disabled = true;
-            const inputs = parent.querySelectorAll('input');
-            inputs.forEach(i => i.disabled = true);
-            attemptsElem.style.display = 'none';
-            // Hide Try Again on correct answer
-            const tryAgainBtn = parent.querySelector('.nav-button');
-            if (tryAgainBtn) tryAgainBtn.style.display = 'none';
-            // Check if ALL questions are now correct
-            checkQuizCompletion();
-        } else {
-            attempts--;
-            parent.dataset.attempts = attempts;
-            attemptsElem.textContent = _t("Attempts left:") + " " + attempts;
-            attemptsElem.style.display = 'block';
-
-            if (attempts <= 0) {
-                 // Find the correct answer text to display
-                 const correctInput = parent.querySelector(`input[name="${name}"][value="correct"]`);
-                 const correctText = correctInput ? correctInput.parentElement.textContent.trim() : '';
-                 feedback.textContent = correctText
-                     ? _t("Incorrect. The correct answer was:", "\u4e0d\u6b63\u786e\u3002\u6b63\u786e\u7b54\u6848\u662f\uff1a") + " " + correctText
-                     : _t("Incorrect.", "\u4e0d\u6b63\u786e\u3002");
-                 feedback.style.color = "#dc2626";
-                 feedback.style.background = "#fee2e2";
-                 btn.disabled = true;
-                 const inputs = parent.querySelectorAll('input');
-                 inputs.forEach(i => i.disabled = true);
-                 // Highlight Try Again button
-                 const tryAgainBtn = parent.querySelector('.nav-button');
-                 if (tryAgainBtn) {
-                     tryAgainBtn.style.background = '#3b82f6';
-                     tryAgainBtn.style.color = '#fff';
-                     tryAgainBtn.style.animation = 'pulse 1.5s infinite';
-                 }
-            } else {
-                 feedback.textContent = _t("Incorrect. Try again!");
-                 feedback.style.color = "#dc2626";
-                 feedback.style.background = "#fee2e2";
+            const selected = parent.querySelector(`input[name="${name}"]:checked`);
+            let feedback = parent.querySelector('.feedback');
+            if(!feedback) {
+                feedback = document.createElement('div');
+                feedback.className = 'feedback';
+                feedback.style.marginTop = '1rem';
+                feedback.style.fontWeight = 'bold';
+                feedback.style.padding = '0.5rem';
+                feedback.style.borderRadius = '0.5rem';
+                parent.appendChild(feedback);
             }
+            
+            if (!selected) {
+                feedback.textContent = _t("Please select an answer first.");
+                feedback.style.color = "#ea580c";
+                feedback.style.background = "#fff7ed";
+                return;
+            }
+
+            if (btn.disabled) return;
+            // Ensure attempts doesn't go below 0 logically before checking
+             if (attempts <= 0 && selected.value !== correct) {
+                 // Already failed, just show correct/incorrect state again if needed or return
+                 // But wait, if attempts <= 0, we shouldn't even be here unless button is enabled
+                 // If button is enabled but attempts <= 0, we should disable it
+                 btn.disabled = true;
+                 return;
+             }
+
+            if (selected.value === correct) {
+                feedback.textContent = _t("Correct! Great job.");
+                feedback.style.color = "#16a34a"; 
+                feedback.style.background = "#dcfce7";
+                btn.disabled = true;
+                const inputs = parent.querySelectorAll('input');
+                inputs.forEach(i => i.disabled = true);
+                attemptsElem.style.display = 'none';
+                // Hide Try Again on correct answer
+                const tryAgainBtn = parent.querySelector('.nav-button');
+                if (tryAgainBtn) tryAgainBtn.style.display = 'none';
+                // Check if ALL questions are now correct
+                checkQuizCompletion();
+            } else {
+                attempts--;
+                parent.dataset.attempts = attempts;
+                attemptsElem.textContent = _t("Attempts left:") + " " + attempts;
+                attemptsElem.style.display = 'block';
+
+                if (attempts <= 0) {
+                     // Find the correct answer text to display
+                     const correctInput = parent.querySelector(`input[name="${name}"][value="correct"]`);
+                     const correctText = correctInput ? correctInput.parentElement.textContent.trim() : '';
+                     feedback.textContent = correctText
+                         ? _t("Incorrect. The correct answer was:", "\u4e0d\u6b63\u786e\u3002\u6b63\u786e\u7b54\u6848\u662f\uff1a") + " " + correctText
+                         : _t("Incorrect.", "\u4e0d\u6b63\u786e\u3002");
+                     feedback.style.color = "#dc2626";
+                     feedback.style.background = "#fee2e2";
+                     btn.disabled = true;
+                     const inputs = parent.querySelectorAll('input');
+                     inputs.forEach(i => i.disabled = true);
+                     // Highlight Try Again button
+                     const tryAgainBtn = parent.querySelector('.nav-button');
+                     if (tryAgainBtn) {
+                         tryAgainBtn.style.background = '#3b82f6';
+                         tryAgainBtn.style.color = '#fff';
+                         tryAgainBtn.style.animation = 'pulse 1.5s infinite';
+                     }
+                } else {
+                     feedback.textContent = _t("Incorrect. Try again!");
+                     feedback.style.color = "#dc2626";
+                     feedback.style.background = "#fee2e2";
+                }
+            }
+        } catch (e) {
+            console.error("Quiz Error:", e);
         }
     };
 
