@@ -941,6 +941,20 @@
         const colorTheme = localStorage.getItem('arisEduColorTheme') || 'blue-green';
         let activeGradient = gradients[colorTheme] || gradients['blue-green'];
 
+        // --- Extract Colors for SVG Usage ---
+        // Simple regex to extract hex or rgb colors from the gradient string
+        const colorMatches = activeGradient.match(/#[0-9a-fA-F]{3,6}|rgba?\(.*?\)/g);
+        if (colorMatches && colorMatches.length >= 2) {
+            document.documentElement.style.setProperty('--theme-color-1', colorMatches[0]);
+            document.documentElement.style.setProperty('--theme-color-2', colorMatches[1]);
+            document.documentElement.style.setProperty('--theme-color-3', colorMatches[2] || colorMatches[1]);
+        } else {
+             // Fallback
+            document.documentElement.style.setProperty('--theme-color-1', '#3b82f6');
+            document.documentElement.style.setProperty('--theme-color-2', '#10b981');
+            document.documentElement.style.setProperty('--theme-color-3', '#8b5cf6');
+        }
+
         // Apply dark mode class
         document.body.classList.toggle('dark-mode', darkMode);
 

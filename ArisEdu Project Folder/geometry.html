@@ -7,272 +7,1304 @@
   <script src="/_sdk/element_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
-  <style>
-    body {
-      box-sizing: border-box;
-    }
-    
-    .logo-font {
-      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
-    
-    .main-container {
-      height: 100%;
-      width: 100%;
-      padding: 5rem 2rem 2rem 2rem;
-      overflow: auto;
-    }
-    .company-title {
-      font-size: 5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .taskbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
-      z-index: 1000;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    .taskbar-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.5rem 1rem;
-      max-width: 1200px;
-      width: 100%;
-    }
-    
-    .taskbar-button {
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-weight: 600;
-      color: white;
-      font-size: 0.875rem;
-      transition: opacity 0.3s, transform 0.2s;
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .taskbar-button:hover {
-      opacity: 0.9;
-      scale: 1.05;
-      background: rgba(255, 255, 255, 0.2);
-    }
+  <link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
 
-    .settings-menu {
-      width: 13rem;
-      padding: 0.5rem;
-      background: #ffffff;
-      border-radius: 0.5rem;
-      box-shadow: 0 8px 20px rgba(2,6,23,0.12);
-      color: #0f172a;
-      font-size: 0.95rem;
-      visibility: hidden;
-      opacity: 0;
-      transform: translateY(-6px);
-      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
-      position: absolute;
-      top: 100%;
-      right: 1rem;
-    }
-
-    body.dark-mode .settings-menu {
-      background: #0f172a;
-      color: #cbd5e1;
-    }
-
-    body.dark-mode {
-      background-color: #1e293b;
-    }
-
-    .courses-container {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 2rem;
-      height:32rem;
-      padding: 2rem;
-      margin-bottom: 2rem;
-    }
-    body.dark-mode .courses-container {
-      background: #273244;
-      border: 2px solid rgba(226, 232, 240, 0.22);
-    }
-
-    .courses-section {
-      margin-bottom: 2rem;
-    }
-
-    .courses-section-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: white;
-      margin-bottom: 1rem;
-    }
-
-    .courses-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-    }
-
-    .course-box {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      text-align: center;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      color: #1e293b;
-    }
-
-    .course-box:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-      background: white;
-    }
-
-    .course-box a {
-      text-decoration: none;
-      color: #1e293b;
-      font-size: 1.125rem;
-      font-weight: 600;
-      display: block;
-    }
-
-    .course-box a:hover {
-      color: #3b82f6;
-    }
-
-    body.dark-mode .course-box {
-      background: rgba(15, 23, 42, 0.8);
-      color: #cbd5e1;
-    }
-
-    body.dark-mode .course-box a {
-      color: #cbd5e1;
-    }
-
-    body.dark-mode .course-box a:hover {
-      color: #3b82f6;
-    }
-
-    /* Rubric Info Button Styles */
-    .rubric-hover-wrap {
-      position: absolute;
-      top: 0;
-      right: 0;
-      z-index: 20;
-    }
-
-    .rubric-hover-dot {
-      scale: 1.5; /* Reduced scale to fit better in box */
-      width: 1.4rem;
-      height: 1.4rem;
-      border-radius: 999px;
-      margin-right: 0.5rem; /* Adjusted margin */
-      margin-top: 0.5rem; /* Adjusted margin to be inside top-right */
-      border: 2px solid #1f2937;
-      background: #0f172a;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.35);
-      cursor: pointer;
-      position: relative;
-      z-index: 21;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    .rubric-hover-dot span {
-      font-family: 'Playfair Display', 'Poppins', serif;
-      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .rubric-hover-panel {
-      position: absolute;
-      margin-right: 1.5rem;
-      scale: 1.2; /* Adjusted scale */
-      right: 0;
-      bottom: 100%; /* Position above the dot */
-      width: 10rem;
-      min-height: 3rem;
-      background: #0f172a;
-      border: 2px solid #334155;
-      border-radius: 0.75rem;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-0.5rem);
-      transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
-      z-index: 30;
-      pointer-events: none; /* Prevent interfering with hover on dot if overlapping */
-      padding: 0.5rem;
-    }
-
-    .rubric-hover-panel p {
-      font-size: 0.7rem;
-      line-height: 1.2;
-      margin: 0.25rem 0;
-      color: #cbd5e1;
-    }
-
-    .rubric-hover-wrap:hover .rubric-hover-panel {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-    
-    .course-box {
-        position: relative !important;
-    }
-</style>
  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="theme_manager.js"></script>
 </head>
  <body class="dark-mode h-full">
 <script src="scripts/taskbar.js"></script>
   <main class="main-container">
-    <div class="logo-title-wrapper">
-    <h1 id="company-name" class="logo-font company-title">High School: Geometry</h1>
+    <div class="logo-title-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+      <h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0; display: flex; align-items: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 15px;">
+          <defs>
+            <linearGradient id="title-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+              <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+              <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+            </linearGradient>
+          </defs>
+          <polygon points="12,2 2,22 22,22" stroke="url(#title-grad)" stroke-width="2" fill="none"/>
+          <circle cx="12" cy="2" r="1.5" fill="url(#title-grad)" stroke="none">
+            <animate attributeName="r" values="1.5;2;1.5" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="2" cy="22" r="1.5" fill="url(#title-grad)" stroke="none">
+            <animate attributeName="r" values="1.5;2;1.5" dur="2s" begin="0.7s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="22" cy="22" r="1.5" fill="url(#title-grad)" stroke="none">
+            <animate attributeName="r" values="1.5;2;1.5" dur="2s" begin="1.4s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+        High School: Geometry
+      </h1>
     </div>
     <div class="courses-container">
       <div class="courses-section">
-        <h2 class="courses-section-title">Geometry Units</h2>
-        <div class="courses-grid">
-          <div class="course-box">Unit 1 (WIP)</div>
-          <div class="course-box">Unit 2 (WIP)</div>
-          <div class="course-box">Unit 3 (WIP)</div>
-          <div class="course-box">Unit 4 (WIP)</div>
-          <div class="course-box">Unit 5 (WIP)</div>
-          <div class="course-box">Unit 6 (WIP)</div>
-          <div class="course-box">Unit 7 (WIP)</div>
-          <div class="course-box">Unit 8 (WIP)</div>
-          <div class="course-box">Unit 9 (WIP)</div>
-          <div class="course-box">Unit 10 (WIP)</div>
-          <div class="course-box">Unit 11 (WIP)</div>
-          <div class="course-box">Unit 12 (WIP)</div>
+        
+        
+        
+        
+        
+        
+        
+        
+        <div class="courses-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;">
+            
+        <!-- Unit 1 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-1" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u1">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-1)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u1)" stroke="none">
+                    <path fill="url(#math-grad-1)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-1)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-1" clip-path="url(#tri-clip-u1)">
+                    
+                    <a href="GeometryLessons/Unit1/Unit1_Test.html" onclick="markLessonStarted('1', 8)">
+                        <rect id="u1-l8" x="0" y="2.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 1 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 1 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="5.500" width="24" height="0.15" fill="url(#math-grad-1)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit1/Lesson1.7_Video.html" onclick="markLessonStarted('1', 7)">
+                        <rect id="u1-l7" x="0" y="5.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 1.7: Three-Dimensional Figures')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 1.7: Three-Dimensional Figures</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="9.000" width="24" height="0.15" fill="url(#math-grad-1)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit1/Lesson1.6_Video.html" onclick="markLessonStarted('1', 6)">
+                        <rect id="u1-l6" x="0" y="9.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 1.6: Two-Dimensional Figures')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 1.6: Two-Dimensional Figures</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="12.500" width="24" height="0.15" fill="url(#math-grad-1)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit1/Lesson1.5_Video.html" onclick="markLessonStarted('1', 5)">
+                        <rect id="u1-l5" x="0" y="12.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 1.5: Angle Relationships')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 1.5: Angle Relationships</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="16.000" width="24" height="0.15" fill="url(#math-grad-1)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit1/Lesson1.4_Video.html" onclick="markLessonStarted('1', 4)">
+                        <rect id="u1-l4" x="0" y="16.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 1.4: Angle Measure')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 1.4: Angle Measure</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="19.500" width="24" height="0.15" fill="url(#math-grad-1)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit1/Lesson1.3_Video.html" onclick="markLessonStarted('1', 3)">
+                        <rect id="u1-l3" x="0" y="19.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 1.3: Distance and Midpoints')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 1.3: Distance and Midpoints</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="23.000" width="24" height="0.15" fill="url(#math-grad-1)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit1/Lesson1.2_Video.html" onclick="markLessonStarted('1', 2)">
+                        <rect id="u1-l2" x="0" y="23.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 1.2: Linear Measure and Precision')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 1.2: Linear Measure and Precision</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="26.500" width="24" height="0.15" fill="url(#math-grad-1)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit1/Lesson1.1_Video.html" onclick="markLessonStarted('1', 1)">
+                        <rect id="u1-l1" x="0" y="26.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 1.1: Points, Lines, and Planes')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 1.1: Points, Lines, and Planes</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-1)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 1</text>
+             </svg>
         </div>
+    
+        <!-- Unit 2 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-2" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u2">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-2)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u2)" stroke="none">
+                    <path fill="url(#math-grad-2)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-2)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-2" clip-path="url(#tri-clip-u2)">
+                    
+                    <a href="GeometryLessons/Unit2/Unit2_Test.html" onclick="markLessonStarted('2', 10)">
+                        <rect id="u2-l10" x="0" y="2.000" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 2 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 2 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="4.800" width="24" height="0.15" fill="url(#math-grad-2)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit2/Lesson2.9_Video.html" onclick="markLessonStarted('2', 9)">
+                        <rect id="u2-l9" x="0" y="4.800" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 2.9: Proofs in Coordinate Geometry ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 2.9: Proofs in Coordinate Geometry ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="7.600" width="24" height="0.15" fill="url(#math-grad-2)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit2/Lesson2.8_Video.html" onclick="markLessonStarted('2', 8)">
+                        <rect id="u2-l8" x="0" y="7.600" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 2.8: Proving Angle Relationships')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 2.8: Proving Angle Relationships</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="10.400" width="24" height="0.15" fill="url(#math-grad-2)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit2/Lesson2.7_Video.html" onclick="markLessonStarted('2', 7)">
+                        <rect id="u2-l7" x="0" y="10.400" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 2.7: Proving Segment Relationships')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 2.7: Proving Segment Relationships</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="13.200" width="24" height="0.15" fill="url(#math-grad-2)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit2/Lesson2.6_Video.html" onclick="markLessonStarted('2', 6)">
+                        <rect id="u2-l6" x="0" y="13.200" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 2.6: Algebraic Proof')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 2.6: Algebraic Proof</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="16.000" width="24" height="0.15" fill="url(#math-grad-2)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit2/Lesson2.5_Video.html" onclick="markLessonStarted('2', 5)">
+                        <rect id="u2-l5" x="0" y="16.000" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 2.5: Postulates and Paragraph Proofs')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 2.5: Postulates and Paragraph Proofs</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="18.800" width="24" height="0.15" fill="url(#math-grad-2)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit2/Lesson2.4_Video.html" onclick="markLessonStarted('2', 4)">
+                        <rect id="u2-l4" x="0" y="18.800" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 2.4: Deductive Reasoning ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 2.4: Deductive Reasoning ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="21.600" width="24" height="0.15" fill="url(#math-grad-2)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit2/Lesson2.3_Video.html" onclick="markLessonStarted('2', 3)">
+                        <rect id="u2-l3" x="0" y="21.600" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 2.3: Conditional Statements')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 2.3: Conditional Statements</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="24.400" width="24" height="0.15" fill="url(#math-grad-2)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit2/Lesson2.2_Video.html" onclick="markLessonStarted('2', 2)">
+                        <rect id="u2-l2" x="0" y="24.400" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 2.2: Logic ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 2.2: Logic ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="27.200" width="24" height="0.15" fill="url(#math-grad-2)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit2/Lesson2.1_Video.html" onclick="markLessonStarted('2', 1)">
+                        <rect id="u2-l1" x="0" y="27.200" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 2.1: Inductive Reasoning and Conjecture')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 2.1: Inductive Reasoning and Conjecture</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-2)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 2</text>
+             </svg>
+        </div>
+    
+        <!-- Unit 3 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-3" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u3">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-3)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u3)" stroke="none">
+                    <path fill="url(#math-grad-3)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-3)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-3" clip-path="url(#tri-clip-u3)">
+                    
+                    <a href="GeometryLessons/Unit3/Unit3_Test.html" onclick="markLessonStarted('3', 8)">
+                        <rect id="u3-l8" x="0" y="2.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 3 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 3 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="5.500" width="24" height="0.15" fill="url(#math-grad-3)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit3/Lesson3.7_Video.html" onclick="markLessonStarted('3', 7)">
+                        <rect id="u3-l7" x="0" y="5.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 3.7: Analytic Geometry Applications ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 3.7: Analytic Geometry Applications ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="9.000" width="24" height="0.15" fill="url(#math-grad-3)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit3/Lesson3.6_Video.html" onclick="markLessonStarted('3', 6)">
+                        <rect id="u3-l6" x="0" y="9.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 3.6: Perpendiculars and Distance')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 3.6: Perpendiculars and Distance</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="12.500" width="24" height="0.15" fill="url(#math-grad-3)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit3/Lesson3.5_Video.html" onclick="markLessonStarted('3', 5)">
+                        <rect id="u3-l5" x="0" y="12.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 3.5: Proving Lines Parallel')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 3.5: Proving Lines Parallel</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="16.000" width="24" height="0.15" fill="url(#math-grad-3)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit3/Lesson3.4_Video.html" onclick="markLessonStarted('3', 4)">
+                        <rect id="u3-l4" x="0" y="16.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 3.4: Equations of Lines')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 3.4: Equations of Lines</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="19.500" width="24" height="0.15" fill="url(#math-grad-3)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit3/Lesson3.3_Video.html" onclick="markLessonStarted('3', 3)">
+                        <rect id="u3-l3" x="0" y="19.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 3.3: Slopes of Lines')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 3.3: Slopes of Lines</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="23.000" width="24" height="0.15" fill="url(#math-grad-3)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit3/Lesson3.2_Video.html" onclick="markLessonStarted('3', 2)">
+                        <rect id="u3-l2" x="0" y="23.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 3.2: Angles and Parallel Lines')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 3.2: Angles and Parallel Lines</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="26.500" width="24" height="0.15" fill="url(#math-grad-3)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit3/Lesson3.1_Video.html" onclick="markLessonStarted('3', 1)">
+                        <rect id="u3-l1" x="0" y="26.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 3.1: Parallel Lines and Transversals')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 3.1: Parallel Lines and Transversals</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-3)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 3</text>
+             </svg>
+        </div>
+    
+        <!-- Unit 4 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-4" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u4">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-4)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u4)" stroke="none">
+                    <path fill="url(#math-grad-4)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-4)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-4" clip-path="url(#tri-clip-u4)">
+                    
+                    <a href="GeometryLessons/Unit4/Unit4_Test.html" onclick="markLessonStarted('4', 9)">
+                        <rect id="u4-l9" x="0" y="2.000" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 4 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 4 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="5.111" width="24" height="0.15" fill="url(#math-grad-4)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit4/Lesson4.8_Video.html" onclick="markLessonStarted('4', 8)">
+                        <rect id="u4-l8" x="0" y="5.111" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 4.8: Triangles and Coordinate Proof ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 4.8: Triangles and Coordinate Proof ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="8.222" width="24" height="0.15" fill="url(#math-grad-4)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit4/Lesson4.7_Video.html" onclick="markLessonStarted('4', 7)">
+                        <rect id="u4-l7" x="0" y="8.222" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 4.7: Congruence Transformations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 4.7: Congruence Transformations</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="11.333" width="24" height="0.15" fill="url(#math-grad-4)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit4/Lesson4.6_Video.html" onclick="markLessonStarted('4', 6)">
+                        <rect id="u4-l6" x="0" y="11.333" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 4.6: Isosceles and Equilateral Triangles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 4.6: Isosceles and Equilateral Triangles</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="14.444" width="24" height="0.15" fill="url(#math-grad-4)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit4/Lesson4.5_Video.html" onclick="markLessonStarted('4', 5)">
+                        <rect id="u4-l5" x="0" y="14.444" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 4.5: Proving Congruence: ASA, AAS')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 4.5: Proving Congruence: ASA, AAS</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="17.556" width="24" height="0.15" fill="url(#math-grad-4)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit4/Lesson4.4_Video.html" onclick="markLessonStarted('4', 4)">
+                        <rect id="u4-l4" x="0" y="17.556" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 4.4: Proving Congruence: SSS, SAS')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 4.4: Proving Congruence: SSS, SAS</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="20.667" width="24" height="0.15" fill="url(#math-grad-4)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit4/Lesson4.3_Video.html" onclick="markLessonStarted('4', 3)">
+                        <rect id="u4-l3" x="0" y="20.667" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 4.3: Congruent Triangles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 4.3: Congruent Triangles</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="23.778" width="24" height="0.15" fill="url(#math-grad-4)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit4/Lesson4.2_Video.html" onclick="markLessonStarted('4', 2)">
+                        <rect id="u4-l2" x="0" y="23.778" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 4.2: Angles of Triangles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 4.2: Angles of Triangles</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="26.889" width="24" height="0.15" fill="url(#math-grad-4)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit4/Lesson4.1_Video.html" onclick="markLessonStarted('4', 1)">
+                        <rect id="u4-l1" x="0" y="26.889" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 4.1: Classifying Triangles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 4.1: Classifying Triangles</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-4)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 4</text>
+             </svg>
+        </div>
+    
+        <!-- Unit 5 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-5" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u5">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-5)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u5)" stroke="none">
+                    <path fill="url(#math-grad-5)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-5)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-5" clip-path="url(#tri-clip-u5)">
+                    
+                    <a href="GeometryLessons/Unit5/Unit5_Test.html" onclick="markLessonStarted('5', 7)">
+                        <rect id="u5-l7" x="0" y="2.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 5 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 5 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="6.000" width="24" height="0.15" fill="url(#math-grad-5)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit5/Lesson5.6_Video.html" onclick="markLessonStarted('5', 6)">
+                        <rect id="u5-l6" x="0" y="6.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 5.6: Inequalities in Two Triangles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 5.6: Inequalities in Two Triangles</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="10.000" width="24" height="0.15" fill="url(#math-grad-5)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit5/Lesson5.5_Video.html" onclick="markLessonStarted('5', 5)">
+                        <rect id="u5-l5" x="0" y="10.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 5.5: The Triangle Inequality')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 5.5: The Triangle Inequality</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="14.000" width="24" height="0.15" fill="url(#math-grad-5)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit5/Lesson5.4_Video.html" onclick="markLessonStarted('5', 4)">
+                        <rect id="u5-l4" x="0" y="14.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 5.4: Indirect Proof ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 5.4: Indirect Proof ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="18.000" width="24" height="0.15" fill="url(#math-grad-5)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit5/Lesson5.3_Video.html" onclick="markLessonStarted('5', 3)">
+                        <rect id="u5-l3" x="0" y="18.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 5.3: Inequalities in One Triangle')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 5.3: Inequalities in One Triangle</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="22.000" width="24" height="0.15" fill="url(#math-grad-5)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit5/Lesson5.2_Video.html" onclick="markLessonStarted('5', 2)">
+                        <rect id="u5-l2" x="0" y="22.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 5.2: Medians and Altitudes of Triangles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 5.2: Medians and Altitudes of Triangles</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="26.000" width="24" height="0.15" fill="url(#math-grad-5)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit5/Lesson5.1_Video.html" onclick="markLessonStarted('5', 1)">
+                        <rect id="u5-l1" x="0" y="26.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 5.1: Bisectors of Triangles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 5.1: Bisectors of Triangles</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-5)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 5</text>
+             </svg>
+        </div>
+    
+        <!-- Unit 6 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-6" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u6">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-6)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u6)" stroke="none">
+                    <path fill="url(#math-grad-6)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-6)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-6" clip-path="url(#tri-clip-u6)">
+                    
+                    <a href="GeometryLessons/Unit6/Unit6_Test.html" onclick="markLessonStarted('6', 8)">
+                        <rect id="u6-l8" x="0" y="2.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 6 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 6 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="5.500" width="24" height="0.15" fill="url(#math-grad-6)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit6/Lesson6.7_Video.html" onclick="markLessonStarted('6', 7)">
+                        <rect id="u6-l7" x="0" y="5.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 6.7: Regular Polygons and Symmetry ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 6.7: Regular Polygons and Symmetry ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="9.000" width="24" height="0.15" fill="url(#math-grad-6)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit6/Lesson6.6_Video.html" onclick="markLessonStarted('6', 6)">
+                        <rect id="u6-l6" x="0" y="9.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 6.6: Kites and Trapezoids')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 6.6: Kites and Trapezoids</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="12.500" width="24" height="0.15" fill="url(#math-grad-6)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit6/Lesson6.5_Video.html" onclick="markLessonStarted('6', 5)">
+                        <rect id="u6-l5" x="0" y="12.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 6.5: Rhombi and Squares')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 6.5: Rhombi and Squares</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="16.000" width="24" height="0.15" fill="url(#math-grad-6)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit6/Lesson6.4_Video.html" onclick="markLessonStarted('6', 4)">
+                        <rect id="u6-l4" x="0" y="16.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 6.4: Rectangles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 6.4: Rectangles</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="19.500" width="24" height="0.15" fill="url(#math-grad-6)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit6/Lesson6.3_Video.html" onclick="markLessonStarted('6', 3)">
+                        <rect id="u6-l3" x="0" y="19.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 6.3: Tests for Parallelograms')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 6.3: Tests for Parallelograms</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="23.000" width="24" height="0.15" fill="url(#math-grad-6)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit6/Lesson6.2_Video.html" onclick="markLessonStarted('6', 2)">
+                        <rect id="u6-l2" x="0" y="23.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 6.2: Parallelograms')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 6.2: Parallelograms</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="26.500" width="24" height="0.15" fill="url(#math-grad-6)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit6/Lesson6.1_Video.html" onclick="markLessonStarted('6', 1)">
+                        <rect id="u6-l1" x="0" y="26.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 6.1: Angles of Polygons')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 6.1: Angles of Polygons</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-6)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 6</text>
+             </svg>
+        </div>
+    
+        <!-- Unit 7 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-7" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u7">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-7)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u7)" stroke="none">
+                    <path fill="url(#math-grad-7)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-7)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-7" clip-path="url(#tri-clip-u7)">
+                    
+                    <a href="GeometryLessons/Unit7/Unit7_Test.html" onclick="markLessonStarted('7', 9)">
+                        <rect id="u7-l9" x="0" y="2.000" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 7 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 7 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="5.111" width="24" height="0.15" fill="url(#math-grad-7)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit7/Lesson7.8_Video.html" onclick="markLessonStarted('7', 8)">
+                        <rect id="u7-l8" x="0" y="5.111" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 7.8: Fractals and Self-Similarity ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 7.8: Fractals and Self-Similarity ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="8.222" width="24" height="0.15" fill="url(#math-grad-7)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit7/Lesson7.7_Video.html" onclick="markLessonStarted('7', 7)">
+                        <rect id="u7-l7" x="0" y="8.222" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 7.7: Scale Drawings and Models')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 7.7: Scale Drawings and Models</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="11.333" width="24" height="0.15" fill="url(#math-grad-7)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit7/Lesson7.6_Video.html" onclick="markLessonStarted('7', 6)">
+                        <rect id="u7-l6" x="0" y="11.333" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 7.6: Similarity Transformations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 7.6: Similarity Transformations</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="14.444" width="24" height="0.15" fill="url(#math-grad-7)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit7/Lesson7.5_Video.html" onclick="markLessonStarted('7', 5)">
+                        <rect id="u7-l5" x="0" y="14.444" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 7.5: Parts of Similar Triangles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 7.5: Parts of Similar Triangles</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="17.556" width="24" height="0.15" fill="url(#math-grad-7)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit7/Lesson7.4_Video.html" onclick="markLessonStarted('7', 4)">
+                        <rect id="u7-l4" x="0" y="17.556" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 7.4: Parallel Lines and Proportional Parts')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 7.4: Parallel Lines and Proportional Parts</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="20.667" width="24" height="0.15" fill="url(#math-grad-7)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit7/Lesson7.3_Video.html" onclick="markLessonStarted('7', 3)">
+                        <rect id="u7-l3" x="0" y="20.667" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 7.3: Similar Triangles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 7.3: Similar Triangles</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="23.778" width="24" height="0.15" fill="url(#math-grad-7)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit7/Lesson7.2_Video.html" onclick="markLessonStarted('7', 2)">
+                        <rect id="u7-l2" x="0" y="23.778" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 7.2: Similar Polygons')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 7.2: Similar Polygons</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="26.889" width="24" height="0.15" fill="url(#math-grad-7)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit7/Lesson7.1_Video.html" onclick="markLessonStarted('7', 1)">
+                        <rect id="u7-l1" x="0" y="26.889" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 7.1: Ratios and Proportions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 7.1: Ratios and Proportions</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-7)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 7</text>
+             </svg>
+        </div>
+    
+        <!-- Unit 8 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-8" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u8">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-8)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u8)" stroke="none">
+                    <path fill="url(#math-grad-8)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-8)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-8" clip-path="url(#tri-clip-u8)">
+                    
+                    <a href="GeometryLessons/Unit8/Unit8_Test.html" onclick="markLessonStarted('8', 9)">
+                        <rect id="u8-l9" x="0" y="2.000" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 8 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 8 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="5.111" width="24" height="0.15" fill="url(#math-grad-8)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit8/Lesson8.8_Video.html" onclick="markLessonStarted('8', 8)">
+                        <rect id="u8-l8" x="0" y="5.111" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 8.8: Polar Coordinates and Complex Numbers ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 8.8: Polar Coordinates and Complex Numbers ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="8.222" width="24" height="0.15" fill="url(#math-grad-8)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit8/Lesson8.7_Video.html" onclick="markLessonStarted('8', 7)">
+                        <rect id="u8-l7" x="0" y="8.222" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 8.7: Vectors ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 8.7: Vectors ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="11.333" width="24" height="0.15" fill="url(#math-grad-8)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit8/Lesson8.6_Video.html" onclick="markLessonStarted('8', 6)">
+                        <rect id="u8-l6" x="0" y="11.333" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 8.6: The Law of Sines and Cosines ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 8.6: The Law of Sines and Cosines ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="14.444" width="24" height="0.15" fill="url(#math-grad-8)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit8/Lesson8.5_Video.html" onclick="markLessonStarted('8', 5)">
+                        <rect id="u8-l5" x="0" y="14.444" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 8.5: Angles of Elevation and Depression')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 8.5: Angles of Elevation and Depression</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="17.556" width="24" height="0.15" fill="url(#math-grad-8)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit8/Lesson8.4_Video.html" onclick="markLessonStarted('8', 4)">
+                        <rect id="u8-l4" x="0" y="17.556" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 8.4: Trigonometry ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 8.4: Trigonometry ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="20.667" width="24" height="0.15" fill="url(#math-grad-8)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit8/Lesson8.3_Video.html" onclick="markLessonStarted('8', 3)">
+                        <rect id="u8-l3" x="0" y="20.667" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 8.3: Special Right Triangles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 8.3: Special Right Triangles</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="23.778" width="24" height="0.15" fill="url(#math-grad-8)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit8/Lesson8.2_Video.html" onclick="markLessonStarted('8', 2)">
+                        <rect id="u8-l2" x="0" y="23.778" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 8.2: The Pythagorean Theorem and Its Converse')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 8.2: The Pythagorean Theorem and Its Converse</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="26.889" width="24" height="0.15" fill="url(#math-grad-8)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit8/Lesson8.1_Video.html" onclick="markLessonStarted('8', 1)">
+                        <rect id="u8-l1" x="0" y="26.889" width="24" height="3.111" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 8.1: Geometric Mean')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 8.1: Geometric Mean</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-8)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 8</text>
+             </svg>
+        </div>
+    
+        <!-- Unit 9 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-9" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u9">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-9)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u9)" stroke="none">
+                    <path fill="url(#math-grad-9)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-9)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-9" clip-path="url(#tri-clip-u9)">
+                    
+                    <a href="GeometryLessons/Unit9/Unit9_Test.html" onclick="markLessonStarted('9', 8)">
+                        <rect id="u9-l8" x="0" y="2.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 9 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 9 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="5.500" width="24" height="0.15" fill="url(#math-grad-9)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit9/Lesson9.7_Video.html" onclick="markLessonStarted('9', 7)">
+                        <rect id="u9-l7" x="0" y="5.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 9.7: Transformations in the Coordinate Plane ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 9.7: Transformations in the Coordinate Plane ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="9.000" width="24" height="0.15" fill="url(#math-grad-9)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit9/Lesson9.6_Video.html" onclick="markLessonStarted('9', 6)">
+                        <rect id="u9-l6" x="0" y="9.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 9.6: Dilations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 9.6: Dilations</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="12.500" width="24" height="0.15" fill="url(#math-grad-9)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit9/Lesson9.5_Video.html" onclick="markLessonStarted('9', 5)">
+                        <rect id="u9-l5" x="0" y="12.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 9.5: Symmetry')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 9.5: Symmetry</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="16.000" width="24" height="0.15" fill="url(#math-grad-9)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit9/Lesson9.4_Video.html" onclick="markLessonStarted('9', 4)">
+                        <rect id="u9-l4" x="0" y="16.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 9.4: Compositions of Transformations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 9.4: Compositions of Transformations</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="19.500" width="24" height="0.15" fill="url(#math-grad-9)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit9/Lesson9.3_Video.html" onclick="markLessonStarted('9', 3)">
+                        <rect id="u9-l3" x="0" y="19.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 9.3: Rotations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 9.3: Rotations</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="23.000" width="24" height="0.15" fill="url(#math-grad-9)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit9/Lesson9.2_Video.html" onclick="markLessonStarted('9', 2)">
+                        <rect id="u9-l2" x="0" y="23.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 9.2: Translations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 9.2: Translations</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="26.500" width="24" height="0.15" fill="url(#math-grad-9)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit9/Lesson9.1_Video.html" onclick="markLessonStarted('9', 1)">
+                        <rect id="u9-l1" x="0" y="26.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 9.1: Reflections')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 9.1: Reflections</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-9)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 9</text>
+             </svg>
+        </div>
+    
+        <!-- Unit 10 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-10" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u10">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-10)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u10)" stroke="none">
+                    <path fill="url(#math-grad-10)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-10)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-10" clip-path="url(#tri-clip-u10)">
+                    
+                    <a href="GeometryLessons/Unit10/Unit10_Test.html" onclick="markLessonStarted('10', 10)">
+                        <rect id="u10-l10" x="0" y="2.000" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 10 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 10 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="4.800" width="24" height="0.15" fill="url(#math-grad-10)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit10/Lesson10.9_Video.html" onclick="markLessonStarted('10', 9)">
+                        <rect id="u10-l9" x="0" y="4.800" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 10.9: Conic Sections (intro) ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 10.9: Conic Sections (intro) ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="7.600" width="24" height="0.15" fill="url(#math-grad-10)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit10/Lesson10.8_Video.html" onclick="markLessonStarted('10', 8)">
+                        <rect id="u10-l8" x="0" y="7.600" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 10.8: Equations of Circles ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 10.8: Equations of Circles ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="10.400" width="24" height="0.15" fill="url(#math-grad-10)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit10/Lesson10.7_Video.html" onclick="markLessonStarted('10', 7)">
+                        <rect id="u10-l7" x="0" y="10.400" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 10.7: Special Segments in a Circle')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 10.7: Special Segments in a Circle</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="13.200" width="24" height="0.15" fill="url(#math-grad-10)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit10/Lesson10.6_Video.html" onclick="markLessonStarted('10', 6)">
+                        <rect id="u10-l6" x="0" y="13.200" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 10.6: Secants, Tangents, and Angle Measures')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 10.6: Secants, Tangents, and Angle Measures</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="16.000" width="24" height="0.15" fill="url(#math-grad-10)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit10/Lesson10.5_Video.html" onclick="markLessonStarted('10', 5)">
+                        <rect id="u10-l5" x="0" y="16.000" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 10.5: Tangents')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 10.5: Tangents</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="18.800" width="24" height="0.15" fill="url(#math-grad-10)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit10/Lesson10.4_Video.html" onclick="markLessonStarted('10', 4)">
+                        <rect id="u10-l4" x="0" y="18.800" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 10.4: Inscribed Angles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 10.4: Inscribed Angles</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="21.600" width="24" height="0.15" fill="url(#math-grad-10)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit10/Lesson10.3_Video.html" onclick="markLessonStarted('10', 3)">
+                        <rect id="u10-l3" x="0" y="21.600" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 10.3: Arcs and Chords')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 10.3: Arcs and Chords</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="24.400" width="24" height="0.15" fill="url(#math-grad-10)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit10/Lesson10.2_Video.html" onclick="markLessonStarted('10', 2)">
+                        <rect id="u10-l2" x="0" y="24.400" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 10.2: Measuring Angles and Arcs')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 10.2: Measuring Angles and Arcs</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="27.200" width="24" height="0.15" fill="url(#math-grad-10)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit10/Lesson10.1_Video.html" onclick="markLessonStarted('10', 1)">
+                        <rect id="u10-l1" x="0" y="27.200" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 10.1: Circles and Circumference')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 10.1: Circles and Circumference</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-10)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 10</text>
+             </svg>
+        </div>
+    
+        <!-- Unit 11 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-11" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u11">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-11)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u11)" stroke="none">
+                    <path fill="url(#math-grad-11)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-11)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-11" clip-path="url(#tri-clip-u11)">
+                    
+                    <a href="GeometryLessons/Unit11/Unit11_Test.html" onclick="markLessonStarted('11', 7)">
+                        <rect id="u11-l7" x="0" y="2.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 11 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 11 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="6.000" width="24" height="0.15" fill="url(#math-grad-11)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit11/Lesson11.6_Video.html" onclick="markLessonStarted('11', 6)">
+                        <rect id="u11-l6" x="0" y="6.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 11.6: Integration in Area Calculations ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 11.6: Integration in Area Calculations ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="10.000" width="24" height="0.15" fill="url(#math-grad-11)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit11/Lesson11.5_Video.html" onclick="markLessonStarted('11', 5)">
+                        <rect id="u11-l5" x="0" y="10.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 11.5: Areas of Similar Figures')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 11.5: Areas of Similar Figures</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="14.000" width="24" height="0.15" fill="url(#math-grad-11)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit11/Lesson11.4_Video.html" onclick="markLessonStarted('11', 4)">
+                        <rect id="u11-l4" x="0" y="14.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 11.4: Areas of Regular Polygons and Composite Figures')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 11.4: Areas of Regular Polygons and Composite Figures</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="18.000" width="24" height="0.15" fill="url(#math-grad-11)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit11/Lesson11.3_Video.html" onclick="markLessonStarted('11', 3)">
+                        <rect id="u11-l3" x="0" y="18.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 11.3: Areas of Circles and Sectors')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 11.3: Areas of Circles and Sectors</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="22.000" width="24" height="0.15" fill="url(#math-grad-11)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit11/Lesson11.2_Video.html" onclick="markLessonStarted('11', 2)">
+                        <rect id="u11-l2" x="0" y="22.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 11.2: Areas of Trapezoids, Rhombi, and Kites')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 11.2: Areas of Trapezoids, Rhombi, and Kites</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="26.000" width="24" height="0.15" fill="url(#math-grad-11)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit11/Lesson11.1_Video.html" onclick="markLessonStarted('11', 1)">
+                        <rect id="u11-l1" x="0" y="26.000" width="24" height="4.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 11.1: Areas of Parallelograms and Triangles')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 11.1: Areas of Parallelograms and Triangles</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-11)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 11</text>
+             </svg>
+        </div>
+    
+        <!-- Unit 12 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-12" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u12">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-12)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u12)" stroke="none">
+                    <path fill="url(#math-grad-12)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-12)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-12" clip-path="url(#tri-clip-u12)">
+                    
+                    <a href="GeometryLessons/Unit12/Unit12_Test.html" onclick="markLessonStarted('12', 10)">
+                        <rect id="u12-l10" x="0" y="2.000" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 12 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 12 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="4.800" width="24" height="0.15" fill="url(#math-grad-12)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit12/Lesson12.9_Video.html" onclick="markLessonStarted('12', 9)">
+                        <rect id="u12-l9" x="0" y="4.800" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 12.9: Cavalieri’s Principle and Applications ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 12.9: Cavalieri’s Principle and Applications ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="7.600" width="24" height="0.15" fill="url(#math-grad-12)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit12/Lesson12.8_Video.html" onclick="markLessonStarted('12', 8)">
+                        <rect id="u12-l8" x="0" y="7.600" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 12.8: Congruent and Similar Solids')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 12.8: Congruent and Similar Solids</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="10.400" width="24" height="0.15" fill="url(#math-grad-12)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit12/Lesson12.7_Video.html" onclick="markLessonStarted('12', 7)">
+                        <rect id="u12-l7" x="0" y="10.400" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 12.7: Spherical Geometry ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 12.7: Spherical Geometry ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="13.200" width="24" height="0.15" fill="url(#math-grad-12)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit12/Lesson12.6_Video.html" onclick="markLessonStarted('12', 6)">
+                        <rect id="u12-l6" x="0" y="13.200" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 12.6: Surface Areas and Volumes of Spheres')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 12.6: Surface Areas and Volumes of Spheres</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="16.000" width="24" height="0.15" fill="url(#math-grad-12)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit12/Lesson12.5_Video.html" onclick="markLessonStarted('12', 5)">
+                        <rect id="u12-l5" x="0" y="16.000" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 12.5: Volumes of Pyramids and Cones')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 12.5: Volumes of Pyramids and Cones</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="18.800" width="24" height="0.15" fill="url(#math-grad-12)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit12/Lesson12.4_Video.html" onclick="markLessonStarted('12', 4)">
+                        <rect id="u12-l4" x="0" y="18.800" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 12.4: Volumes of Prisms and Cylinders')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 12.4: Volumes of Prisms and Cylinders</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="21.600" width="24" height="0.15" fill="url(#math-grad-12)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit12/Lesson12.3_Video.html" onclick="markLessonStarted('12', 3)">
+                        <rect id="u12-l3" x="0" y="21.600" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 12.3: Surface Areas of Pyramids and Cones')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 12.3: Surface Areas of Pyramids and Cones</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="24.400" width="24" height="0.15" fill="url(#math-grad-12)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit12/Lesson12.2_Video.html" onclick="markLessonStarted('12', 2)">
+                        <rect id="u12-l2" x="0" y="24.400" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 12.2: Surface Areas of Prisms and Cylinders')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 12.2: Surface Areas of Prisms and Cylinders</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="27.200" width="24" height="0.15" fill="url(#math-grad-12)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit12/Lesson12.1_Video.html" onclick="markLessonStarted('12', 1)">
+                        <rect id="u12-l1" x="0" y="27.200" width="24" height="2.800" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 12.1: Representations of Three-Dimensional Figures')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 12.1: Representations of Three-Dimensional Figures</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-12)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 12</text>
+             </svg>
+        </div>
+    
+        <!-- Unit 13 -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 35rem;">
+             <svg viewBox="0 0 24 36" fill="none" class="bulb-bg" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 40rem;">
+                <defs>
+                  <!-- Gradient Units: userSpaceOnUse ensures correct scaling across elements -->
+                  <linearGradient id="math-grad-13" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="36">
+                      <stop offset="0%" stop-color="var(--theme-color-1, #3b82f6)"/>
+                      <stop offset="50%" stop-color="var(--theme-color-2, #10b981)"/>
+                      <stop offset="100%" stop-color="var(--theme-color-3, #8b5cf6)"/>
+                  </linearGradient>
+                  <clipPath id="tri-clip-u13">
+                    <polygon points="12,2 2,30 22,30" />
+                  </clipPath>
+                </defs>
+                
+                <!-- Main Outline - Reverted to gradient -->
+                <polygon points="12,2 2,30 22,30" stroke="url(#math-grad-13)" stroke-width="0.8" fill="none" />
+                
+                <!-- Inner Liquid/Glass Effect -->
+                <g clip-path="url(#tri-clip-u13)" stroke="none">
+                    <path fill="url(#math-grad-13)" fill-opacity="0.05" d="M0 0 H24 V36 H0 Z"></path>
+                    
+                     <!-- Animated Liquid Level (Decorative) -->
+                    <!-- <path fill="url(#math-grad-13)" fill-opacity="0.1">
+                        <animate attributeName="d" dur="6s" repeatCount="indefinite" values="M0 25 Q12 23 24 25 V36 H0 Z; M0 25 Q12 27 24 25 V36 H0 Z; M0 25 Q12 23 24 25 V36 H0 Z" />
+                    </path> -->
+                </g>
+
+                <!-- Interactive Segments -->
+                <g id="segments-unit-13" clip-path="url(#tri-clip-u13)">
+                    
+                    <a href="GeometryLessons/Unit13/Unit13_Test.html" onclick="markLessonStarted('13', 8)">
+                        <rect id="u13-l8" x="0" y="2.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 13 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Unit 13 Test</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="5.500" width="24" height="0.15" fill="url(#math-grad-13)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit13/Lesson13.7_Video.html" onclick="markLessonStarted('13', 7)">
+                        <rect id="u13-l7" x="0" y="5.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 13.7: Monte Carlo Methods in Geometry ⭐')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 13.7: Monte Carlo Methods in Geometry ⭐</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="9.000" width="24" height="0.15" fill="url(#math-grad-13)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit13/Lesson13.6_Video.html" onclick="markLessonStarted('13', 6)">
+                        <rect id="u13-l6" x="0" y="9.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 13.6: Probabilities of Mutually Exclusive Events')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 13.6: Probabilities of Mutually Exclusive Events</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="12.500" width="24" height="0.15" fill="url(#math-grad-13)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit13/Lesson13.5_Video.html" onclick="markLessonStarted('13', 5)">
+                        <rect id="u13-l5" x="0" y="12.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 13.5: Probabilities of Independent and Dependent Events')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 13.5: Probabilities of Independent and Dependent Events</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="16.000" width="24" height="0.15" fill="url(#math-grad-13)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit13/Lesson13.4_Video.html" onclick="markLessonStarted('13', 4)">
+                        <rect id="u13-l4" x="0" y="16.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 13.4: Simulations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 13.4: Simulations</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="19.500" width="24" height="0.15" fill="url(#math-grad-13)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit13/Lesson13.3_Video.html" onclick="markLessonStarted('13', 3)">
+                        <rect id="u13-l3" x="0" y="19.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 13.3: Geometric Probability')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 13.3: Geometric Probability</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="23.000" width="24" height="0.15" fill="url(#math-grad-13)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit13/Lesson13.2_Video.html" onclick="markLessonStarted('13', 2)">
+                        <rect id="u13-l2" x="0" y="23.000" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 13.2: Permutations and Combinations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 13.2: Permutations and Combinations</title>
+                        </rect>
+                    </a>
+        <rect x="0" y="26.500" width="24" height="0.15" fill="url(#math-grad-13)" fill-opacity="0.8" />
+
+                    <a href="GeometryLessons/Unit13/Lesson13.1_Video.html" onclick="markLessonStarted('13', 1)">
+                        <rect id="u13-l1" x="0" y="26.500" width="24" height="3.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson 13.1: Representing Sample Spaces')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()">
+                            <title>Lesson 13.1: Representing Sample Spaces</title>
+                        </rect>
+                    </a>
+        
+                </g>
+                
+                <text x="12" y="34" text-anchor="middle" fill="url(#math-grad-13)" stroke="none" font-size="2" font-family="Orbitron, sans-serif" font-weight="700" style="pointer-events: none;">Unit 13</text>
+             </svg>
+        </div>
+    
+        </div>
+    
+    
+    
+    
+    
+    
+    
+    
       </div>
     </div>
   </main>
@@ -283,5 +1315,237 @@
     <script src="scripts/global_translations.js?v=3.2"></script>
     <script src="../search_data.js"></script>
     <script src="../search_logic.js"></script>
+    <script src="scripts/dev_tools.js"></script>
+
+  <!-- Popup & Game Logic Scripts -->
+  <style>
+      #lesson-tooltip {
+          position: fixed;
+          background: rgba(15, 23, 42, 0.95);
+          backdrop-filter: blur(12px);
+          color: #f1f5f9;
+          padding: 0.75rem 1.25rem;
+          border-radius: 0.75rem;
+          font-size: 0.95rem;
+          font-weight: 600;
+          pointer-events: none;
+          z-index: 10000;
+          opacity: 0;
+          transition: opacity 0.15s ease;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+          white-space: nowrap;
+      }
+      #lesson-tooltip.visible {
+          opacity: 1;
+      }
+      /* Hover interactions & Transitions */
+      rect[id^="u"], path[id^="u"] {
+          transform-box: fill-box;
+          transform-origin: center;
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, stroke-width 0.2s ease;
+      }
+      .segment-hover {
+          transform: scale(1.05);
+          filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+          fill-opacity: 0.15;
+      }
+
+      /* Starred Lesson Glow & Animation */
+      @keyframes star-pulse {
+        0%, 100% { stroke-opacity: 0.8; stroke-width: 0.12; filter: drop-shadow(0 0 2px #a78bfa); }
+        50% { stroke-opacity: 1; stroke-width: 0.25; filter: drop-shadow(0 0 6px #8b5cf6); }
+      }
+      .starred-lesson-glow {
+        stroke: #c4b5fd !important;
+        stroke-dasharray: 0.3, 0.1;
+        animation: star-pulse 1.5s infinite ease-in-out;
+      }
+      @keyframes star-twinkle {
+          0%, 100% { opacity: 0.4; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.3); }
+      }
+      .star-icon {
+          animation: star-twinkle 2s infinite ease-in-out;
+          font-family: inherit;
+          pointer-events: none;
+          transform-box: fill-box;
+          transform-origin: center;
+          font-size: 0.6px;
+          user-select: none;
+      }
+  </style>
+
+  <div id="lesson-tooltip"></div>
+  
+  <script>
+    const tooltip = document.getElementById('lesson-tooltip');
+
+    function showLessonPopup(e, title) {
+      if(!title) return;
+      let displayText = title;
+      const target = e.target;
+      
+      if (target && target.id && target.id.match(/^u[\w]+-l\d+$/)) {
+          target.classList.add('segment-hover');
+      }
+
+      // Translate title if in Chinese mode
+      const lang = localStorage.getItem("arisEduLanguage");
+      const isChinese = (lang === "chinese" || lang === "traditional");
+      const t = window.arisEduTranslations;
+
+      if (isChinese && t) {
+          if (t[displayText]) {
+              displayText = t[displayText];
+          }
+          if (lang === "traditional" && window.OpenCCConverter) {
+              displayText = window.OpenCCConverter(displayText);
+          }
+      }
+
+      // Check Progress & add status prefix
+      if(target) {
+           const fill = target.getAttribute('fill');
+           if (fill === '#16a34a' || fill === '#16A34A') {
+                if (isChinese && t) {
+                    let status = t["COMPLETED"] || "已完成";
+                    if (lang === "traditional" && window.OpenCCConverter) status = window.OpenCCConverter(status);
+                    displayText = status + " \u2714 " + displayText;
+                } else {
+                    displayText = "COMPLETED \u2714 " + displayText;
+                }
+           } else if (fill === '#f97316' || fill === '#F97316') {
+                if (isChinese && t) {
+                    let status = t["IN PROGRESS"] || "进行中";
+                    if (lang === "traditional" && window.OpenCCConverter) status = window.OpenCCConverter(status);
+                    displayText = status + " " + displayText;
+                } else {
+                    displayText = "IN PROGRESS " + displayText;
+                }
+           }
+      }
+
+      tooltip.textContent = displayText;
+      tooltip.classList.add('visible');
+      moveLessonPopup(e);
+    }
+
+    function moveLessonPopup(e) {
+      if (!tooltip.classList.contains('visible')) return;
+      const offset = 15;
+      let x = e.clientX + offset;
+      let y = e.clientY + offset;
+      
+      const rect = tooltip.getBoundingClientRect();
+      const winW = window.innerWidth;
+      const winH = window.innerHeight;
+      
+      if (x + rect.width > winW) x = e.clientX - rect.width - offset;
+      if (y + rect.height > winH) y = e.clientY - rect.height - offset;
+      
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+    }
+
+    function hideLessonPopup() {
+      tooltip.classList.remove('visible');
+      document.querySelectorAll('.segment-hover').forEach(el => el.classList.remove('segment-hover'));
+    }
+
+    function markLessonStarted(unit, lesson) {
+      localStorage.setItem(`geometry_u${unit}_l${lesson}_started`, 'true');
+    }
+
+    function applyProgressColors() {
+        const progressMap = {};
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!key || !key.startsWith('geometry_u')) continue;
+          const match = key.match(/^geometry_u(.+)_l(\d+)_(started|completed)$/);
+          if (!match) continue;
+          const u = match[1], l = match[2], type = match[3];
+          const mapKey = `${u}_${l}`;
+          if (!progressMap[mapKey]) progressMap[mapKey] = { unit: u, lesson: l };
+          if (localStorage.getItem(key) === 'true') progressMap[mapKey][type] = true;
+        }
+
+        for (const mapKey in progressMap) {
+          const { unit, lesson, started, completed } = progressMap[mapKey];
+          const elementId = `u${unit}-l${lesson}`;
+          const el = document.getElementById(elementId);
+          if(el) {
+              if (completed) {
+                el.setAttribute('fill', '#16a34a');
+                el.setAttribute('fill-opacity', '0.7');
+              } else if (started) {
+                el.setAttribute('fill', '#f97316');
+                el.setAttribute('fill-opacity', '0.6');
+              }
+          }
+        }
+    }
+
+    function addStarEffects() {
+        const lessons = document.querySelectorAll('rect');
+        lessons.forEach(el => {
+            const onmouseenter = el.getAttribute('onmouseenter');
+            if (onmouseenter && onmouseenter.includes('\u2B50')) {
+                if (!el.id || !el.id.startsWith('u')) return;
+
+                el.classList.add('starred-lesson-glow');
+
+                const x = parseFloat(el.getAttribute('x'));
+                const y = parseFloat(el.getAttribute('y'));
+                const w = parseFloat(el.getAttribute('width'));
+                const h = parseFloat(el.getAttribute('height'));
+
+                if (!isNaN(x) && !isNaN(y) && !isNaN(w) && !isNaN(h)) {
+                    const positions = [
+                        { cx: x + w - 1.0, cy: y + 0.5, delay: '0.2s' },
+                        { cx: x + 1.0, cy: y + h - 0.5, delay: '1.2s' }
+                    ];
+
+                    positions.forEach(pos => {
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.textContent = '\u2728';
+                        text.setAttribute('x', pos.cx);
+                        text.setAttribute('y', pos.cy);
+                        text.setAttribute('text-anchor', 'middle');
+                        text.setAttribute('dominant-baseline', 'middle');
+                        text.classList.add('star-icon');
+                        text.style.animationDelay = pos.delay;
+                        
+                        if (el.parentNode) {
+                             el.parentNode.insertBefore(text, el.nextSibling);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    function clearAllProgress() {
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('geometry_u')) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+        
+        document.querySelectorAll('rect[id^="u"], path[id^="u"]').forEach(seg => {
+            seg.setAttribute('fill', 'white');
+            seg.setAttribute('fill-opacity', '0');
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyProgressColors();
+        addStarEffects();
+    });
+  </script>
+            
 </body>
 </html>

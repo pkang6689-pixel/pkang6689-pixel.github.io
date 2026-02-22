@@ -234,6 +234,20 @@
         }
         location.reload();
       }, 'green');
+  } else if (path.indexOf('geometry.html') !== -1 || path.indexOf('GeometryLessons') !== -1) {
+      contextKeyPrefix = 'geometry_u';
+
+      addButton('\u2714 Finish All Geometry', function() {
+        if(!confirm('Complete ALL Geometry lessons?')) return;
+        var allLessons = { '1': 8, '2': 10, '3': 8, '4': 9, '5': 7, '6': 8, '7': 9, '8': 9, '9': 8, '10': 10, '11': 7, '12': 10, '13': 8 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('geometry_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('geometry_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        location.reload();
+      }, 'green');
   }
 
   // Common Clear
@@ -360,7 +374,7 @@
       var keys = [];
       for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i);
-        if (k && (k.startsWith('chem_u') || k.startsWith('physics_u'))) keys.push(k + ' = ' + localStorage.getItem(k));
+        if (k && (k.startsWith('chem_u') || k.startsWith('physics_u') || k.startsWith('bio_u') || k.startsWith('geometry_u'))) keys.push(k + ' = ' + localStorage.getItem(k));
       }
       keys.sort();
       alert('Progress Keys (' + keys.length + '):\n\n' + (keys.length ? keys.slice(0,50).join('\n') + (keys.length > 50 ? '\n...and more' : '') : '(none)'));
