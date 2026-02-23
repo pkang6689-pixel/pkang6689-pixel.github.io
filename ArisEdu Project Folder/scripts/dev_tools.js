@@ -380,6 +380,68 @@
       alert('Progress Keys (' + keys.length + '):\n\n' + (keys.length ? keys.slice(0,50).join('\n') + (keys.length > 50 ? '\n...and more' : '') : '(none)'));
   });
 
+  // ── Translation Debugger (inline panel) ──
+  addSection('Translation Debugger');
+  
+  var transDebugContainer = document.createElement('div');
+  transDebugContainer.id = 'trans-debug-container';
+  transDebugContainer.style.cssText = 'display:none; margin-top:0.4rem; background:#0f172a; border:1px solid #334155; border-radius:0.4rem; padding:0.5rem 0.6rem; font-size:0.75rem; max-height:300px; overflow-y:auto;';
+  
+  addButton('\u2699 Open Translation Debugger', function() {
+      var container = document.getElementById('trans-debug-container');
+      if (!container) return;
+      var isOpen = container.style.display !== 'none';
+      if (isOpen) {
+          container.style.display = 'none';
+          return;
+      }
+      container.style.display = 'block';
+      
+      // Gather data
+      if (!window.getTranslationDebugData) {
+          container.innerHTML = '<span style="color:#f38ba8;">Translation script not loaded.</span>';
+          return;
+      }
+      var d = window.getTranslationDebugData();
+      var pct = d.matchableNodes > 0 ? Math.round(d.matchedNodes / d.matchableNodes * 100) : 0;
+      var statusColor = d.isChinese ? '#a6e3a1' : '#f9e2af';
+      
+      var h = '';
+      h += '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#94a3b8;">Language</span><span style="color:#f8fafc;font-weight:bold;">' + d.lang + '</span></div>';
+      h += '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#94a3b8;">Chinese Active</span><span style="color:' + statusColor + ';font-weight:bold;">' + (d.isChinese ? 'YES' : 'NO') + '</span></div>';
+      h += '<div style="background:#1e293b;border-radius:4px;padding:6px 8px;margin:6px 0;">';
+      h += r('Translation keys', d.totalKeys, '#a6e3a1');
+      h += r('.translatable els', d.translatableCount, '#89dceb');
+      h += r('[data-en] els', d.dataEnCount, '#89dceb');
+      h += r('Text nodes', d.matchableNodes, '#c4b5fd');
+      h += r('Matched', d.matchedNodes, '#a6e3a1');
+      h += r('Unmatched', d.unmatchedNodes, d.unmatchedNodes > 0 ? '#f38ba8' : '#a6e3a1');
+      h += '</div>';
+      // Progress bar
+      h += '<div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="color:#94a3b8;">Match Rate</span><span style="color:#f8fafc;">' + pct + '%</span></div>';
+      h += '<div style="background:#334155;border-radius:3px;height:5px;overflow:hidden;margin-bottom:8px;">';
+      h += '<div style="background:' + (pct > 70 ? '#a6e3a1' : pct > 40 ? '#f9e2af' : '#f38ba8') + ';height:100%;width:' + pct + '%;border-radius:3px;"></div></div>';
+      // Unmatched samples
+      if (d.unmatchedSamples.length > 0) {
+          h += '<div style="color:#f38ba8;font-weight:bold;margin-bottom:4px;">Unmatched (' + d.unmatchedSamples.length + ')</div>';
+          for (var i = 0; i < d.unmatchedSamples.length; i++) {
+              h += '<div style="padding:2px 0;border-bottom:1px solid #1e293b;color:#94a3b8;word-break:break-all;font-size:0.7rem;">' + esc(d.unmatchedSamples[i]) + '</div>';
+          }
+      }
+      // Refresh
+      h += '<div style="text-align:center;margin-top:8px;"><button onclick="document.getElementById(\'trans-debug-container\').style.display=\'none\';document.querySelector(\'[data-trans-debug-btn]\').click();" style="background:#3b82f6;color:#fff;border:none;border-radius:3px;padding:3px 12px;cursor:pointer;font-size:0.7rem;">Refresh</button></div>';
+      container.innerHTML = h;
+      
+      function r(label, val, color) {
+          return '<div style="display:flex;justify-content:space-between;padding:1px 0;"><span style="color:#94a3b8;">' + label + '</span><span style="color:' + color + ';font-weight:bold;">' + val + '</span></div>';
+      }
+      function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  });
+  
+  // Mark the button so refresh can find it
+  body.lastChild.setAttribute('data-trans-debug-btn', '1');
+  body.appendChild(transDebugContainer);
+
   // Add panel to DOM after page loads
   function mount() {
     if(!document.getElementById('dev-tools-panel')) {

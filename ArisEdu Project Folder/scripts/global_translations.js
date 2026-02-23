@@ -17957,18 +17957,60 @@
         console.warn("[ArisEdu] MutationObserver failed:", e);
     }
     
-    // Debug function
-    window.showTranslationDebug = function() {
-        console.log("=== ArisEdu Translation Debug ===");
-        console.log("Translations loaded:", Object.keys(translations).length);
-        console.log("Language preference:", localStorage.getItem("arisEduLanguage"));
-        console.log("Sample translations:", Object.entries(translations).slice(0, 5));
-        var sampleEnglish = "Key Concepts: Points, Lines, and Planes";
-        console.log("Test example - English: ", sampleEnglish);
-        console.log("Test example - Chinese: ", translations[sampleEnglish]);
+    // ── Translation Debugger (exposed for dev_tools.js) ──
+    window.getTranslationDebugData = function() {
+        var lang = localStorage.getItem('arisEduLanguage') || 'english';
+        var isChinese = (lang === 'chinese' || lang === 'traditional' || lang === 'zh' || !lang);
+        var translatableEls = document.querySelectorAll('.translatable');
+        var dataEnEls = document.querySelectorAll('[data-en]');
+        var totalKeys = Object.keys(translations).length;
+        
+        var matchableNodes = 0;
+        var matchedNodes = 0;
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+            var text = walker.currentNode.textContent.trim();
+            if (text.length > 2) {
+                matchableNodes++;
+                if (translations[text]) matchedNodes++;
+            }
+        }
+        
+        var unmatched = [];
+        var walker2 = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        while (walker2.nextNode()) {
+            var t = walker2.currentNode.textContent.trim();
+            if (t.length > 5 && !translations[t]) {
+                var p = walker2.currentNode.parentElement;
+                var tag = p ? p.tagName.toLowerCase() : '?';
+                if (tag !== 'script' && tag !== 'style') {
+                    unmatched.push(t.substring(0, 80));
+                }
+            }
+            if (unmatched.length >= 20) break;
+        }
+        
+        return {
+            lang: lang,
+            isChinese: isChinese,
+            totalKeys: totalKeys,
+            translatableCount: translatableEls.length,
+            dataEnCount: dataEnEls.length,
+            matchableNodes: matchableNodes,
+            matchedNodes: matchedNodes,
+            unmatchedNodes: matchableNodes - matchedNodes,
+            unmatchedSamples: unmatched
+        };
     };
     
-    // Log instruction on load
-    console.log("%c ArisEdu Translations Loaded. %c Type 'showTranslationDebug()' in console to debug.", "color: #22c55e; font-weight: bold;", "color: #888;");
+    window.translationDebug = function() {
+        var d = window.getTranslationDebugData();
+        console.log('%c === ArisEdu Translation Debugger === ', 'background: #667eea; color: white; font-size: 14px; padding: 8px;');
+        console.table(d);
+        return d;
+    };
+    window.showTranslationDebug = window.translationDebug;
+    
+    console.log("%c ArisEdu Translations Loaded. %c Type translationDebug() in console to debug.", "color: #22c55e; font-weight: bold;", "color: #888;");
 
 })();
