@@ -87,6 +87,12 @@
         '<button class="taskbar-button" id="ai-assistant-button">\uD83E\uDD16 AI (WIP)</button>' +
         '<button class="taskbar-button" id="settings-button">\u2699\uFE0F Settings</button>' +
         '<a class="taskbar-button" href="/ArisEdu Project Folder/LoginSignup.html" id="login-signup-button">\uD83D\uDD10 Login/Signup</a>' +
+        '<button id="language-toggle-button" title="Switch Language" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:2000;background:none;border:none;color:rgba(255,255,255,0.85);cursor:pointer;padding:0.3rem 0.5rem;display:inline-flex;align-items:center;"><svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg></button>' +
+        '<div id="language-dropdown" style="display:none;position:absolute;right:0;top:100%;z-index:2001;min-width:160px;background:var(--card-bg,#1e1e2e);border:1px solid var(--border-color,#444);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.35);overflow:hidden;">' +
+          '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">English</button>' +
+          '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">中文</button>' +
+          '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
+        '</div>' +
       '</div>' +
       '<div aria-hidden="true" class="settings-menu" id="settings-menu">' +
         '<div class="settings-item">' +
@@ -99,6 +105,64 @@
       '</div>';
     document.body.insertBefore(nav, document.body.firstChild);
   }
+
+  // --- Language Toggle (Globe Icon) with Dropdown ---
+  (function() {
+    var langBtn = document.getElementById('language-toggle-button');
+    var dropdown = document.getElementById('language-dropdown');
+    if (!langBtn || !dropdown) return;
+
+    // Highlight current language
+    function updateHighlight() {
+      var current = localStorage.getItem('arisEduLanguage') || 'english';
+      var opts = dropdown.querySelectorAll('.lang-option');
+      for (var i = 0; i < opts.length; i++) {
+        opts[i].style.background = opts[i].getAttribute('data-lang') === current
+          ? 'rgba(102,126,234,0.35)' : 'none';
+      }
+    }
+
+    // Toggle dropdown
+    langBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var open = dropdown.style.display !== 'none';
+      dropdown.style.display = open ? 'none' : 'block';
+      if (!open) updateHighlight();
+    });
+
+    // Hover effect on options
+    dropdown.addEventListener('mouseover', function(e) {
+      if (e.target.classList.contains('lang-option')) e.target.style.background = 'rgba(102,126,234,0.25)';
+    });
+    dropdown.addEventListener('mouseout', function(e) {
+      if (e.target.classList.contains('lang-option')) {
+        var current = localStorage.getItem('arisEduLanguage') || 'english';
+        e.target.style.background = e.target.getAttribute('data-lang') === current ? 'rgba(102,126,234,0.35)' : 'none';
+      }
+    });
+
+    // Language selection
+    dropdown.addEventListener('click', function(e) {
+      var btn = e.target.closest('.lang-option');
+      if (!btn) return;
+      var lang = btn.getAttribute('data-lang');
+      localStorage.setItem('arisEduLanguage', lang);
+      dropdown.style.display = 'none';
+      if (lang === 'english') {
+        location.reload();
+      } else if (window.applyTranslations) {
+        window.applyTranslations();
+        updateHighlight();
+      }
+    });
+
+    // Close dropdown when clicking elsewhere
+    document.addEventListener('click', function(e) {
+      if (!langBtn.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+  })();
 
     // Bind Dev Tools Button Logic
     document.addEventListener('click', function(e) {

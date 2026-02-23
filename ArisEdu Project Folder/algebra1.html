@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en" class="h-full">
  <head>
   <meta charset="UTF-8">
@@ -7,283 +7,753 @@
   <script src="/_sdk/element_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
-  <style>
-    body {
-      box-sizing: border-box;
-    }
-    
-    .logo-font {
-      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
-    
-    .main-container {
-      height: 100%;
-      width: 100%;
-      padding: 5rem 2rem 2rem 2rem;
-      overflow: auto;
-    }
-
-    .company-title {
-      font-size: 5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .taskbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
-      z-index: 1000;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    .taskbar-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.5rem 1rem;
-      max-width: 1200px;
-      width: 100%;
-    }
-    
-    .taskbar-button {
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-weight: 600;
-      color: white;
-      font-size: 0.875rem;
-      transition: opacity 0.3s, transform 0.2s;
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .taskbar-button:hover {
-      opacity: 0.9;
-      scale: 1.05;
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .settings-menu {
-      width: 13rem;
-      padding: 0.5rem;
-      background: #ffffff;
-      border-radius: 0.5rem;
-      box-shadow: 0 8px 20px rgba(2,6,23,0.12);
-      color: #0f172a;
-      font-size: 0.95rem;
-      visibility: hidden;
-      opacity: 0;
-      transform: translateY(-6px);
-      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
-      position: absolute;
-      top: 100%;
-      right: 1rem;
-    }
-
-    body.dark-mode .settings-menu {
-      background: #0f172a;
-      color: #cbd5e1;
-    }
-
-    body.dark-mode {
-      background-color: #1e293b;
-    }
-
-    .courses-container {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 2rem;
-      height:32rem;
-      padding: 2rem;
-      margin-bottom: 2rem;
-    }
-    body.dark-mode .courses-container {
-      background: #273244;
-      border: 2px solid rgba(226, 232, 240, 0.22);
-    }
-
-    .courses-section {
-      margin-bottom: 2rem;
-    }
-
-    .courses-section-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: white;
-      margin-bottom: 1rem;
-    }
-
-    .courses-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-    }
-
-    .course-box {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      text-align: center;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      color: #1e293b;
-    }
-
-    .course-box:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-      background: white;
-    }
-
-    .course-box a {
-      text-decoration: none;
-      color: #1e293b;
-      font-size: 1.125rem;
-      font-weight: 600;
-      display: block;
-    }
-
-    .course-box a:hover {
-      color: #3b82f6;
-    }
-
-    body.dark-mode .course-box {
-      background: rgba(15, 23, 42, 0.8);
-      color: #cbd5e1;
-    }
-
-    body.dark-mode .course-box a {
-      color: #cbd5e1;
-    }
-
-    body.dark-mode .course-box a:hover {
-      color: #3b82f6;
-    }
-
-    /* Rubric Info Button Styles */
-    .rubric-hover-wrap {
-      position: absolute;
-      top: 0;
-      right: 0;
-      z-index: 20;
-    }
-
-    .rubric-hover-dot {
-      scale: 1.5; /* Reduced scale to fit better in box */
-      width: 1.4rem;
-      height: 1.4rem;
-      border-radius: 999px;
-      margin-right: 0.5rem; /* Adjusted margin */
-      margin-top: 0.5rem; /* Adjusted margin to be inside top-right */
-      border: 2px solid #1f2937;
-      background: #0f172a;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.35);
-      cursor: pointer;
-      position: relative;
-      z-index: 21;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    .rubric-hover-dot span {
-      font-family: 'Playfair Display', 'Poppins', serif;
-      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .rubric-hover-panel {
-      position: absolute;
-      margin-right: 1.5rem;
-      scale: 1.2; /* Adjusted scale */
-      right: 0;
-      bottom: 100%; /* Position above the dot */
-      width: 10rem;
-      min-height: 3rem;
-      background: #0f172a;
-      border: 2px solid #334155;
-      border-radius: 0.75rem;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-0.5rem);
-      transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
-      z-index: 30;
-      pointer-events: none; /* Prevent interfering with hover on dot if overlapping */
-      padding: 0.5rem;
-    }
-
-    .rubric-hover-panel p {
-      font-size: 0.7rem;
-      line-height: 1.2;
-      margin: 0.25rem 0;
-      color: #cbd5e1;
-    }
-
-    .rubric-hover-wrap:hover .rubric-hover-panel {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-    
-    .course-box {
-        position: relative !important;
-    }
-</style>
- <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="theme_manager.js"></script>
 </head>
  <body class="dark-mode h-full">
 <script src="scripts/taskbar.js"></script>
   <main class="main-container">
-    <div class="logo-title-wrapper">
-    <h1 id="company-name" class="logo-font company-title">High School: Algebra 1</h1>
+    <div class="logo-title-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+      <h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0;">High School: Algebra 1</h1>
     </div>
-    <div class="courses-container">
-      <div class="courses-section">
-        <h2 class="courses-section-title">Algebra 1 Units</h2>
-        <div class="courses-grid">
-          <div class="course-box">Unit 1 (WIP)</div>
-          <div class="course-box">Unit 2 (WIP)</div>
-          <div class="course-box">Unit 3 (WIP)</div>
-          <div class="course-box">Unit 4 (WIP)</div>
-          <div class="course-box">Unit 5 (WIP)</div>
-          <div class="course-box">Unit 6 (WIP)</div>
-          <div class="course-box">Unit 7 (WIP)</div>
-          <div class="course-box">Unit 8 (WIP)</div>
-          <div class="course-box">Unit 9 (WIP)</div>
-          <div class="course-box">Unit 10 (WIP)</div>
-          <div class="course-box">Unit 11 (WIP)</div>
-          <div class="course-box">Unit 12 (WIP)</div>
-        </div>
+    <div class="courses-container" style="min-height: 110rem;">
+
+      <!-- Unit Grid -->
+      <div style="position: absolute; inset: 0; transform: translateY(6rem); display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); pointer-events: none; opacity: 1; z-index: 0; gap: 1rem; padding: 0 1rem;">
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+  <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;">
+    <!-- Box outline -->
+    <rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" />
+    <!-- Fill background -->
+    <rect id="fill-unit-1" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" />
+    <!-- Lesson segments -->
+    <g id="segments-unit-1">
+<a href="Algebra1Lessons/Unit1/Lesson%201.1_Video.html" onclick="markLessonStarted('1', 1)">
+    <rect id="u1-l1" stroke="none" x="3" y="29.250" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Measures of Center')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="29.250" x2="21" y2="29.250" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit1/Lesson%201.2_Video.html" onclick="markLessonStarted('1', 2)">
+    <rect id="u1-l2" stroke="none" x="3" y="25.500" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Measures of Spread')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="25.500" x2="21" y2="25.500" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit1/Lesson%201.3_Video.html" onclick="markLessonStarted('1', 3)">
+    <rect id="u1-l3" stroke="none" x="3" y="21.750" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Data Distributions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="21.750" x2="21" y2="21.750" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit1/Lesson%201.4_Video.html" onclick="markLessonStarted('1', 4)">
+    <rect id="u1-l4" stroke="none" x="3" y="18.000" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Describing Distributions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="18.000" x2="21" y2="18.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit1/Lesson%201.5_Video.html" onclick="markLessonStarted('1', 5)">
+    <rect id="u1-l5" stroke="none" x="3" y="14.250" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Box Plots & Dot Plots')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="14.250" x2="21" y2="14.250" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit1/Lesson%201.6_Video.html" onclick="markLessonStarted('1', 6)">
+    <rect id="u1-l6" stroke="none" x="3" y="10.500" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Two-Way Tables')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="10.500" x2="21" y2="10.500" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit1/Lesson%201.7_Video.html" onclick="markLessonStarted('1', 7)">
+    <rect id="u1-l7" stroke="none" x="3" y="6.750" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Outliers & Their Effects')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="6.750" x2="21" y2="6.750" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit1/Unit1_Test.html" onclick="markLessonStarted('1', 8)">
+    <rect id="u1-l8" stroke="none" x="3" y="3.000" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 1 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="3.000" x2="21" y2="3.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+    </g>
+    <text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit 1</text>
+  </svg>
+</div>
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+  <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;">
+    <!-- Box outline -->
+    <rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" />
+    <!-- Fill background -->
+    <rect id="fill-unit-2" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" />
+    <!-- Lesson segments -->
+    <g id="segments-unit-2">
+<a href="Algebra1Lessons/Unit2/Lesson%202.1_Video.html" onclick="markLessonStarted('2', 1)">
+    <rect id="u2-l1" stroke="none" x="3" y="30.000" width="18" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'One-Step & Two-Step Equations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="30.000" x2="21" y2="30.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit2/Lesson%202.2_Video.html" onclick="markLessonStarted('2', 2)">
+    <rect id="u2-l2" stroke="none" x="3" y="27.000" width="18" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Multi-Step Equations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="27.000" x2="21" y2="27.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit2/Lesson%202.3_Video.html" onclick="markLessonStarted('2', 3)">
+    <rect id="u2-l3" stroke="none" x="3" y="24.000" width="18" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Equations with Variables on Both Sides')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="24.000" x2="21" y2="24.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit2/Lesson%202.4_Video.html" onclick="markLessonStarted('2', 4)">
+    <rect id="u2-l4" stroke="none" x="3" y="21.000" width="18" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Literal Equations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="21.000" x2="21" y2="21.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit2/Lesson%202.5_Video.html" onclick="markLessonStarted('2', 5)">
+    <rect id="u2-l5" stroke="none" x="3" y="18.000" width="18" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'One-Step & Two-Step Inequalities')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="18.000" x2="21" y2="18.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit2/Lesson%202.6_Video.html" onclick="markLessonStarted('2', 6)">
+    <rect id="u2-l6" stroke="none" x="3" y="15.000" width="18" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Compound Inequalities')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="15.000" x2="21" y2="15.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit2/Lesson%202.7_Video.html" onclick="markLessonStarted('2', 7)">
+    <rect id="u2-l7" stroke="none" x="3" y="12.000" width="18" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Absolute Value Equations & Inequalities')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="12.000" x2="21" y2="12.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit2/Lesson%202.8_Video.html" onclick="markLessonStarted('2', 8)">
+    <rect id="u2-l8" stroke="none" x="3" y="9.000" width="18" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Systems of Equations — Substitution & Elimination')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="9.000" x2="21" y2="9.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit2/Lesson%202.9_Video.html" onclick="markLessonStarted('2', 9)">
+    <rect id="u2-l9" stroke="none" x="3" y="6.000" width="18" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Systems of Inequalities')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="6.000" x2="21" y2="6.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit2/Unit2_Test.html" onclick="markLessonStarted('2', 10)">
+    <rect id="u2-l10" stroke="none" x="3" y="3.000" width="18" height="3.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 2 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="3.000" x2="21" y2="3.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+    </g>
+    <text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit 2</text>
+  </svg>
+</div>
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+  <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;">
+    <!-- Box outline -->
+    <rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" />
+    <!-- Fill background -->
+    <rect id="fill-unit-3" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" />
+    <!-- Lesson segments -->
+    <g id="segments-unit-3">
+<a href="Algebra1Lessons/Unit3/Lesson%203.1_Video.html" onclick="markLessonStarted('3', 1)">
+    <rect id="u3-l1" stroke="none" x="3" y="29.250" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Scatter Plots & Correlation')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="29.250" x2="21" y2="29.250" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit3/Lesson%203.2_Video.html" onclick="markLessonStarted('3', 2)">
+    <rect id="u3-l2" stroke="none" x="3" y="25.500" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Line of Best Fit')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="25.500" x2="21" y2="25.500" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit3/Lesson%203.3_Video.html" onclick="markLessonStarted('3', 3)">
+    <rect id="u3-l3" stroke="none" x="3" y="21.750" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Residuals & Residual Plots')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="21.750" x2="21" y2="21.750" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit3/Lesson%203.4_Video.html" onclick="markLessonStarted('3', 4)">
+    <rect id="u3-l4" stroke="none" x="3" y="18.000" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Correlation vs. Causation')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="18.000" x2="21" y2="18.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit3/Lesson%203.5_Video.html" onclick="markLessonStarted('3', 5)">
+    <rect id="u3-l5" stroke="none" x="3" y="14.250" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Two-Way Frequency Tables')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="14.250" x2="21" y2="14.250" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit3/Lesson%203.6_Video.html" onclick="markLessonStarted('3', 6)">
+    <rect id="u3-l6" stroke="none" x="3" y="10.500" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Relative Frequency')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="10.500" x2="21" y2="10.500" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit3/Lesson%203.7_Video.html" onclick="markLessonStarted('3', 7)">
+    <rect id="u3-l7" stroke="none" x="3" y="6.750" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Association in Categorical Data')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="6.750" x2="21" y2="6.750" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit3/Unit3_Test.html" onclick="markLessonStarted('3', 8)">
+    <rect id="u3-l8" stroke="none" x="3" y="3.000" width="18" height="3.750" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 3 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="3.000" x2="21" y2="3.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+    </g>
+    <text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit 3</text>
+  </svg>
+</div>
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+  <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;">
+    <!-- Box outline -->
+    <rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" />
+    <!-- Fill background -->
+    <rect id="fill-unit-4" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" />
+    <!-- Lesson segments -->
+    <g id="segments-unit-4">
+<a href="Algebra1Lessons/Unit4/Lesson%204.1_Video.html" onclick="markLessonStarted('4', 1)">
+    <rect id="u4-l1" stroke="none" x="3" y="29.667" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Relations & Functions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="29.667" x2="21" y2="29.667" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit4/Lesson%204.2_Video.html" onclick="markLessonStarted('4', 2)">
+    <rect id="u4-l2" stroke="none" x="3" y="26.333" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Function Notation')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="26.333" x2="21" y2="26.333" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit4/Lesson%204.3_Video.html" onclick="markLessonStarted('4', 3)">
+    <rect id="u4-l3" stroke="none" x="3" y="23.000" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Domain & Range')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="23.000" x2="21" y2="23.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit4/Lesson%204.4_Video.html" onclick="markLessonStarted('4', 4)">
+    <rect id="u4-l4" stroke="none" x="3" y="19.667" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Evaluating & Interpreting Functions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="19.667" x2="21" y2="19.667" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit4/Lesson%204.5_Video.html" onclick="markLessonStarted('4', 5)">
+    <rect id="u4-l5" stroke="none" x="3" y="16.333" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Rate of Change & Slope')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="16.333" x2="21" y2="16.333" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit4/Lesson%204.6_Video.html" onclick="markLessonStarted('4', 6)">
+    <rect id="u4-l6" stroke="none" x="3" y="13.000" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Arithmetic Sequences as Functions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="13.000" x2="21" y2="13.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit4/Lesson%204.7_Video.html" onclick="markLessonStarted('4', 7)">
+    <rect id="u4-l7" stroke="none" x="3" y="9.667" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Piecewise & Step Functions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="9.667" x2="21" y2="9.667" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit4/Lesson%204.8_Video.html" onclick="markLessonStarted('4', 8)">
+    <rect id="u4-l8" stroke="none" x="3" y="6.333" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Function Transformations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="6.333" x2="21" y2="6.333" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit4/Unit4_Test.html" onclick="markLessonStarted('4', 9)">
+    <rect id="u4-l9" stroke="none" x="3" y="3.000" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 4 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="3.000" x2="21" y2="3.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+    </g>
+    <text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit 4</text>
+  </svg>
+</div>
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+  <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;">
+    <!-- Box outline -->
+    <rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" />
+    <!-- Fill background -->
+    <rect id="fill-unit-5" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" />
+    <!-- Lesson segments -->
+    <g id="segments-unit-5">
+<a href="Algebra1Lessons/Unit5/Lesson%205.1_Video.html" onclick="markLessonStarted('5', 1)">
+    <rect id="u5-l1" stroke="none" x="3" y="30.273" width="18" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Exponential Growth')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="30.273" x2="21" y2="30.273" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit5/Lesson%205.2_Video.html" onclick="markLessonStarted('5', 2)">
+    <rect id="u5-l2" stroke="none" x="3" y="27.545" width="18" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Exponential Decay')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="27.545" x2="21" y2="27.545" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit5/Lesson%205.3_Video.html" onclick="markLessonStarted('5', 3)">
+    <rect id="u5-l3" stroke="none" x="3" y="24.818" width="18" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Exponential vs. Linear Models')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="24.818" x2="21" y2="24.818" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit5/Lesson%205.4_Video.html" onclick="markLessonStarted('5', 4)">
+    <rect id="u5-l4" stroke="none" x="3" y="22.091" width="18" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Geometric Sequences')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="22.091" x2="21" y2="22.091" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit5/Lesson%205.5_Video.html" onclick="markLessonStarted('5', 5)">
+    <rect id="u5-l5" stroke="none" x="3" y="19.364" width="18" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Compound Interest')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="19.364" x2="21" y2="19.364" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit5/Lesson%205.6_Video.html" onclick="markLessonStarted('5', 6)">
+    <rect id="u5-l6" stroke="none" x="3" y="16.636" width="18" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Exponential Equations from Tables & Graphs')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="16.636" x2="21" y2="16.636" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit5/Lesson%205.7_Video.html" onclick="markLessonStarted('5', 7)">
+    <rect id="u5-l7" stroke="none" x="3" y="13.909" width="18" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Transformations of Exponential Functions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="13.909" x2="21" y2="13.909" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit5/Lesson%205.8_Video.html" onclick="markLessonStarted('5', 8)">
+    <rect id="u5-l8" stroke="none" x="3" y="11.182" width="18" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Solving Exponential Equations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="11.182" x2="21" y2="11.182" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit5/Lesson%205.9_Video.html" onclick="markLessonStarted('5', 9)">
+    <rect id="u5-l9" stroke="none" x="3" y="8.455" width="18" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Interpreting Exponential Models')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="8.455" x2="21" y2="8.455" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit5/Lesson%205.10_Video.html" onclick="markLessonStarted('5', 10)">
+    <rect id="u5-l10" stroke="none" x="3" y="5.727" width="18" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Exponential Regression')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="5.727" x2="21" y2="5.727" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit5/Unit5_Test.html" onclick="markLessonStarted('5', 11)">
+    <rect id="u5-l11" stroke="none" x="3" y="3.000" width="18" height="2.727" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 5 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="3.000" x2="21" y2="3.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+    </g>
+    <text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit 5</text>
+  </svg>
+</div>
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+  <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;">
+    <!-- Box outline -->
+    <rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" />
+    <!-- Fill background -->
+    <rect id="fill-unit-6" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" />
+    <!-- Lesson segments -->
+    <g id="segments-unit-6">
+<a href="Algebra1Lessons/Unit6/Lesson%206.1_Video.html" onclick="markLessonStarted('6', 1)">
+    <rect id="u6-l1" stroke="none" x="3" y="28.714" width="18" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Key Features of Parabolas')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="28.714" x2="21" y2="28.714" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit6/Lesson%206.2_Video.html" onclick="markLessonStarted('6', 2)">
+    <rect id="u6-l2" stroke="none" x="3" y="24.429" width="18" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Graphing in Standard Form')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="24.429" x2="21" y2="24.429" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit6/Lesson%206.3_Video.html" onclick="markLessonStarted('6', 3)">
+    <rect id="u6-l3" stroke="none" x="3" y="20.143" width="18" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Graphing in Vertex Form')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="20.143" x2="21" y2="20.143" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit6/Lesson%206.4_Video.html" onclick="markLessonStarted('6', 4)">
+    <rect id="u6-l4" stroke="none" x="3" y="15.857" width="18" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Transformations of Quadratic Functions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="15.857" x2="21" y2="15.857" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit6/Lesson%206.5_Video.html" onclick="markLessonStarted('6', 5)">
+    <rect id="u6-l5" stroke="none" x="3" y="11.571" width="18" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Comparing Linear, Exponential, & Quadratic Models')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="11.571" x2="21" y2="11.571" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit6/Lesson%206.6_Video.html" onclick="markLessonStarted('6', 6)">
+    <rect id="u6-l6" stroke="none" x="3" y="7.286" width="18" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Quadratic Regression')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="7.286" x2="21" y2="7.286" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit6/Unit6_Test.html" onclick="markLessonStarted('6', 7)">
+    <rect id="u6-l7" stroke="none" x="3" y="3.000" width="18" height="4.286" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 6 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="3.000" x2="21" y2="3.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+    </g>
+    <text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit 6</text>
+  </svg>
+</div>
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+  <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;">
+    <!-- Box outline -->
+    <rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" />
+    <!-- Fill background -->
+    <rect id="fill-unit-7" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" />
+    <!-- Lesson segments -->
+    <g id="segments-unit-7">
+<a href="Algebra1Lessons/Unit7/Lesson%207.1_Video.html" onclick="markLessonStarted('7', 1)">
+    <rect id="u7-l1" stroke="none" x="3" y="29.667" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Solving by Factoring — GCF & Grouping')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="29.667" x2="21" y2="29.667" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit7/Lesson%207.2_Video.html" onclick="markLessonStarted('7', 2)">
+    <rect id="u7-l2" stroke="none" x="3" y="26.333" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Solving by Factoring — Trinomials')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="26.333" x2="21" y2="26.333" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit7/Lesson%207.3_Video.html" onclick="markLessonStarted('7', 3)">
+    <rect id="u7-l3" stroke="none" x="3" y="23.000" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Special Products & Factoring Patterns')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="23.000" x2="21" y2="23.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit7/Lesson%207.4_Video.html" onclick="markLessonStarted('7', 4)">
+    <rect id="u7-l4" stroke="none" x="3" y="19.667" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Completing the Square')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="19.667" x2="21" y2="19.667" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit7/Lesson%207.5_Video.html" onclick="markLessonStarted('7', 5)">
+    <rect id="u7-l5" stroke="none" x="3" y="16.333" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'The Quadratic Formula')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="16.333" x2="21" y2="16.333" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit7/Lesson%207.6_Video.html" onclick="markLessonStarted('7', 6)">
+    <rect id="u7-l6" stroke="none" x="3" y="13.000" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'The Discriminant')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="13.000" x2="21" y2="13.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit7/Lesson%207.7_Video.html" onclick="markLessonStarted('7', 7)">
+    <rect id="u7-l7" stroke="none" x="3" y="9.667" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Systems with Quadratics')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="9.667" x2="21" y2="9.667" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit7/Lesson%207.8_Video.html" onclick="markLessonStarted('7', 8)">
+    <rect id="u7-l8" stroke="none" x="3" y="6.333" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Quadratic Inequalities')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="6.333" x2="21" y2="6.333" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit7/Unit7_Test.html" onclick="markLessonStarted('7', 9)">
+    <rect id="u7-l9" stroke="none" x="3" y="3.000" width="18" height="3.333" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 7 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="3.000" x2="21" y2="3.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+    </g>
+    <text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit 7</text>
+  </svg>
+</div>
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+  <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;">
+    <!-- Box outline -->
+    <rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" />
+    <!-- Fill background -->
+    <rect id="fill-unit-8" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" />
+    <!-- Lesson segments -->
+    <g id="segments-unit-8">
+<a href="Algebra1Lessons/Unit8/Lesson%208.1_Video.html" onclick="markLessonStarted('8', 1)">
+    <rect id="u8-l1" stroke="none" x="3" y="27.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Adding & Subtracting Polynomials')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="27.000" x2="21" y2="27.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit8/Lesson%208.2_Video.html" onclick="markLessonStarted('8', 2)">
+    <rect id="u8-l2" stroke="none" x="3" y="21.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Multiplying Polynomials')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="21.000" x2="21" y2="21.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit8/Lesson%208.3_Video.html" onclick="markLessonStarted('8', 3)">
+    <rect id="u8-l3" stroke="none" x="3" y="15.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Dividing Polynomials')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="15.000" x2="21" y2="15.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit8/Lesson%208.4_Video.html" onclick="markLessonStarted('8', 4)">
+    <rect id="u8-l4" stroke="none" x="3" y="9.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Polynomial Identities')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="9.000" x2="21" y2="9.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit8/Unit8_Test.html" onclick="markLessonStarted('8', 5)">
+    <rect id="u8-l5" stroke="none" x="3" y="3.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 8 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="3.000" x2="21" y2="3.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+    </g>
+    <text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit 8</text>
+  </svg>
+</div>
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+  <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;">
+    <!-- Box outline -->
+    <rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" />
+    <!-- Fill background -->
+    <rect id="fill-unit-9" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" />
+    <!-- Lesson segments -->
+    <g id="segments-unit-9">
+<a href="Algebra1Lessons/Unit9/Lesson%209.1_Video.html" onclick="markLessonStarted('9', 1)">
+    <rect id="u9-l1" stroke="none" x="3" y="27.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Simplifying Rational Expressions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="27.000" x2="21" y2="27.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit9/Lesson%209.2_Video.html" onclick="markLessonStarted('9', 2)">
+    <rect id="u9-l2" stroke="none" x="3" y="21.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Multiplying & Dividing Rational Expressions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="21.000" x2="21" y2="21.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit9/Lesson%209.3_Video.html" onclick="markLessonStarted('9', 3)">
+    <rect id="u9-l3" stroke="none" x="3" y="15.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Adding & Subtracting Rational Expressions')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="15.000" x2="21" y2="15.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit9/Lesson%209.4_Video.html" onclick="markLessonStarted('9', 4)">
+    <rect id="u9-l4" stroke="none" x="3" y="9.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Solving Rational Equations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="9.000" x2="21" y2="9.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit9/Unit9_Test.html" onclick="markLessonStarted('9', 5)">
+    <rect id="u9-l5" stroke="none" x="3" y="3.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 9 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="3.000" x2="21" y2="3.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+    </g>
+    <text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit 9</text>
+  </svg>
+</div>
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+  <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;">
+    <!-- Box outline -->
+    <rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" />
+    <!-- Fill background -->
+    <rect id="fill-unit-10" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" />
+    <!-- Lesson segments -->
+    <g id="segments-unit-10">
+<a href="Algebra1Lessons/Unit10/Lesson%2010.1_Video.html" onclick="markLessonStarted('10', 1)">
+    <rect id="u10-l1" stroke="none" x="3" y="27.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Simplifying Radicals')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="27.000" x2="21" y2="27.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit10/Lesson%2010.2_Video.html" onclick="markLessonStarted('10', 2)">
+    <rect id="u10-l2" stroke="none" x="3" y="21.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Operations with Radicals')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="21.000" x2="21" y2="21.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit10/Lesson%2010.3_Video.html" onclick="markLessonStarted('10', 3)">
+    <rect id="u10-l3" stroke="none" x="3" y="15.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Rational Exponents')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="15.000" x2="21" y2="15.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit10/Lesson%2010.4_Video.html" onclick="markLessonStarted('10', 4)">
+    <rect id="u10-l4" stroke="none" x="3" y="9.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Solving Radical Equations')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="9.000" x2="21" y2="9.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit10/Unit10_Test.html" onclick="markLessonStarted('10', 5)">
+    <rect id="u10-l5" stroke="none" x="3" y="3.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 10 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="3.000" x2="21" y2="3.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+    </g>
+    <text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit 10</text>
+  </svg>
+</div>
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+  <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;">
+    <!-- Box outline -->
+    <rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" />
+    <!-- Fill background -->
+    <rect id="fill-unit-11" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" />
+    <!-- Lesson segments -->
+    <g id="segments-unit-11">
+<a href="Algebra1Lessons/Unit11/Lesson%2011.1_Video.html" onclick="markLessonStarted('11', 1)">
+    <rect id="u11-l1" stroke="none" x="3" y="25.500" width="18" height="7.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Arithmetic & Geometric Sequences Review')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="25.500" x2="21" y2="25.500" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit11/Lesson%2011.2_Video.html" onclick="markLessonStarted('11', 2)">
+    <rect id="u11-l2" stroke="none" x="3" y="18.000" width="18" height="7.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Recursive & Explicit Formulas')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="18.000" x2="21" y2="18.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit11/Lesson%2011.3_Video.html" onclick="markLessonStarted('11', 3)">
+    <rect id="u11-l3" stroke="none" x="3" y="10.500" width="18" height="7.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Introduction to Series')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="10.500" x2="21" y2="10.500" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit11/Unit11_Test.html" onclick="markLessonStarted('11', 4)">
+    <rect id="u11-l4" stroke="none" x="3" y="3.000" width="18" height="7.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 11 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="3.000" x2="21" y2="3.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+    </g>
+    <text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit 11</text>
+  </svg>
+</div>
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;">
+  <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;">
+    <!-- Box outline -->
+    <rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" />
+    <!-- Fill background -->
+    <rect id="fill-unit-12" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" />
+    <!-- Lesson segments -->
+    <g id="segments-unit-12">
+<a href="Algebra1Lessons/Unit12/Lesson%2012.1_Video.html" onclick="markLessonStarted('12', 1)">
+    <rect id="u12-l1" stroke="none" x="3" y="27.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Sample Spaces & Basic Probability')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="27.000" x2="21" y2="27.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit12/Lesson%2012.2_Video.html" onclick="markLessonStarted('12', 2)">
+    <rect id="u12-l2" stroke="none" x="3" y="21.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Independent & Dependent Events')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="21.000" x2="21" y2="21.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit12/Lesson%2012.3_Video.html" onclick="markLessonStarted('12', 3)">
+    <rect id="u12-l3" stroke="none" x="3" y="15.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Conditional Probability')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="15.000" x2="21" y2="15.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit12/Lesson%2012.4_Video.html" onclick="markLessonStarted('12', 4)">
+    <rect id="u12-l4" stroke="none" x="3" y="9.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Probability with Combinatorics')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="9.000" x2="21" y2="9.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+<a href="Algebra1Lessons/Unit12/Unit12_Test.html" onclick="markLessonStarted('12', 5)">
+    <rect id="u12-l5" stroke="none" x="3" y="3.000" width="18" height="6.000" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Unit 12 Test')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>
+</a>
+  <line x1="3" y1="3.000" x2="21" y2="3.000" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />
+    </g>
+    <text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit 12</text>
+  </svg>
+</div>
+
       </div>
+
     </div>
   </main>
 
+    <!-- Lesson Tooltip -->
+    <div id="lesson-tooltip"></div>
+
+    <style>
+      /* Lesson Hover Tooltip */
+      #lesson-tooltip {
+          position: fixed;
+          background: rgba(15, 23, 42, 0.95);
+          backdrop-filter: blur(8px);
+          color: white;
+          padding: 0.75rem 1rem;
+          border-radius: 0.75rem;
+          font-size: 0.95rem;
+          font-weight: 600;
+          pointer-events: none;
+          z-index: 10000;
+          opacity: 0;
+          transition: opacity 0.15s ease;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+          white-space: nowrap;
+      }
+      #lesson-tooltip.visible {
+          opacity: 1;
+      }
+
+      /* Starred Lesson Glow */
+      @keyframes star-pulse {
+        0% { filter: drop-shadow(0 0 1px rgba(255, 215, 0, 0.3)); stroke-opacity: 0.5; }
+        50% { filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.7)); stroke-opacity: 1; }
+        100% { filter: drop-shadow(0 0 1px rgba(255, 215, 0, 0.3)); stroke-opacity: 0.5; }
+      }
+      .starred-lesson-glow {
+        animation: star-pulse 2.5s infinite ease-in-out;
+        stroke: #FFD700;
+        stroke-width: 0.15px;
+      }
+      .starred-lesson-glow:not([fill="#f97316"]):not([fill="#16a34a"]) {
+        fill: #FFD700;
+        fill-opacity: 0.08;
+      }
+
+      /* Segment hover effect */
+      rect[id^="u"] {
+        transform-box: fill-box;
+        transform-origin: center;
+        transition: transform 0.2s ease, filter 0.2s ease;
+      }
+      .segment-hover {
+        transform: scaleX(1.08) scaleY(1.15);
+        filter: drop-shadow(0 0 3px rgba(255,255,255,0.5));
+      }
+
+      /* Star twinkle */
+      @keyframes star-twinkle {
+          0%, 100% { opacity: 0.4; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.3); }
+      }
+      .star-icon {
+          animation: star-twinkle 2s infinite ease-in-out;
+          font-family: inherit;
+          pointer-events: none;
+          transform-box: fill-box;
+          transform-origin: center;
+          fill: #FFD700;
+          font-size: 1.2px;
+      }
+    </style>
+
+    <script>
+      const tooltip = document.getElementById('lesson-tooltip');
+
+      function showLessonPopup(event, text) {
+        if (!text) return;
+        let displayText = text;
+        const target = event.target;
+
+        if (target && target.id && target.id.match(/^u[\w]+-l\d+$/)) {
+            target.classList.add('segment-hover');
+        }
+
+        if (target && target.id) {
+            const match = target.id.match(/^u([0-9a-zA-Z]+)-l(\d+)$/);
+            if (match) {
+                const unit = match[1];
+                const lesson = match[2];
+                displayText = `Lesson ${unit}.${lesson}: ${displayText}`;
+            }
+        }
+
+        // Check for Starred Lessons
+        if (target && target.id) {
+            const starredIds = ['u4-l7', 'u7-l6', 'u7-l8', 'u8-l3', 'u8-l4', 'u9-l2', 'u9-l3', 'u9-l4', 'u10-l3', 'u10-l4', 'u11-l2', 'u11-l3', 'u12-l3', 'u12-l4'];
+            if (starredIds.includes(target.id)) {
+                displayText = displayText + " ⭐";
+            }
+        }
+
+        // Check for Completed or In Progress
+        if (target) {
+            const fill = target.getAttribute('fill');
+            if (fill === '#16a34a' || fill === '#16A34A') {
+                 displayText = "COMPLETED \u2714 " + displayText;
+            } else if (fill === '#f97316' || fill === '#F97316') {
+                 displayText = "IN PROGRESS " + displayText;
+            }
+        }
+
+        tooltip.textContent = displayText;
+        tooltip.classList.add('visible');
+        moveLessonPopup(event);
+      }
+
+      function hideLessonPopup() {
+        tooltip.classList.remove('visible');
+        document.querySelectorAll('.segment-hover').forEach(el => el.classList.remove('segment-hover'));
+      }
+
+      function moveLessonPopup(event) {
+        if (!tooltip.classList.contains('visible')) return;
+        const offset = 15;
+        let x = event.clientX + offset;
+        let y = event.clientY + offset;
+        const rect = tooltip.getBoundingClientRect();
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
+        if (x + rect.width > winW) x = event.clientX - rect.width - offset;
+        if (y + rect.height > winH) y = event.clientY - rect.height - offset;
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      }
+
+      // Progress Tracking
+      function markLessonStarted(unit, lesson) {
+        const key = `alg1_u${unit}_l${lesson}_started`;
+        localStorage.setItem(key, 'true');
+        updateLessonColor(unit, lesson);
+      }
+
+      function updateLessonColor(unit, lesson, color, opacity) {
+        color = color || '#f97316';
+        opacity = opacity || '0.6';
+        const segment = document.getElementById(`u${unit}-l${lesson}`);
+        if (segment) {
+          segment.setAttribute('fill', color);
+          segment.setAttribute('fill-opacity', opacity);
+        }
+      }
+
+      function applyProgressColors() {
+        const progressMap = {};
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!key || !key.startsWith('alg1_u')) continue;
+          const match = key.match(/^alg1_u(.+)_l(\d+)_(started|completed)$/);
+          if (!match) continue;
+          const u = match[1], l = match[2], type = match[3];
+          const mapKey = `${u}_${l}`;
+          if (!progressMap[mapKey]) progressMap[mapKey] = { unit: u, lesson: l };
+          if (localStorage.getItem(key) === 'true') progressMap[mapKey][type] = true;
+        }
+        for (const mapKey in progressMap) {
+          const { unit, lesson, started, completed } = progressMap[mapKey];
+          if (completed) {
+            updateLessonColor(unit, lesson, '#16a34a', '0.7');
+          } else if (started) {
+            updateLessonColor(unit, lesson);
+          }
+        }
+      }
+
+      function clearAllProgress() {
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('alg1_u')) keysToRemove.push(key);
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+        const segs = document.querySelectorAll('rect[id^="u"]');
+        segs.forEach(seg => {
+          seg.setAttribute('fill', 'white');
+          seg.setAttribute('fill-opacity', '0');
+        });
+      }
+
+      // Run on load
+      document.addEventListener('DOMContentLoaded', () => {
+          // Apply Starred Lesson Glow
+          const starredIds = ['u4-l7', 'u7-l6', 'u7-l8', 'u8-l3', 'u8-l4', 'u9-l2', 'u9-l3', 'u9-l4', 'u10-l3', 'u10-l4', 'u11-l2', 'u11-l3', 'u12-l3', 'u12-l4'];
+          starredIds.forEach(id => {
+              const el = document.getElementById(id);
+              if(el) {
+                  el.classList.add('starred-lesson-glow');
+                  let x=0, y=0, w=0, h=0;
+                  try {
+                      if (typeof el.getBBox === 'function') {
+                          const bbox = el.getBBox();
+                          if (bbox.width > 0 && bbox.height > 0) {
+                              x = bbox.x; y = bbox.y; w = bbox.width; h = bbox.height;
+                          }
+                      }
+                  } catch(e) {}
+                  if (w === 0 && (el.tagName === 'rect' || el.tagName === 'RECT')) {
+                      x = parseFloat(el.getAttribute('x'));
+                      y = parseFloat(el.getAttribute('y'));
+                      w = parseFloat(el.getAttribute('width'));
+                      h = parseFloat(el.getAttribute('height'));
+                  }
+                  if (w > 0 && h > 0) {
+                      const svg = el.closest('svg');
+                      if (svg) {
+                          const positions = [
+                              { cx: x + w*0.85, cy: y + h*0.2, delay: '0s' },
+                              { cx: x + w*0.15, cy: y + h*0.8, delay: '1s' }
+                          ];
+                          positions.forEach(pos => {
+                             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                             text.textContent = '✨';
+                             text.setAttribute('x', pos.cx);
+                             text.setAttribute('y', pos.cy);
+                             text.setAttribute('text-anchor', 'middle');
+                             text.setAttribute('dominant-baseline', 'middle');
+                             text.classList.add('star-icon');
+                             text.style.animationDelay = pos.delay;
+                             el.parentNode.appendChild(text);
+                          });
+                      }
+                  }
+              }
+          });
+
+          applyProgressColors();
+      });
+    </script>
 
     <!-- ArisEdu Global Search -->
-
     <script src="scripts/global_translations.js?v=6.0"></script>
     <script src="../search_data.js"></script>
     <script src="../search_logic.js"></script>
+    <script src="scripts/dev_tools.js"></script>
 </body>
 </html>

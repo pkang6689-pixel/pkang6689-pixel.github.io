@@ -369,6 +369,19 @@
     alert('Cleared ' + toRemove.length + ' time entries.');
   }, 'red');
   
+  // --- Homepage-only: Tutorial replay ---
+  if (path.indexOf('index.html') !== -1 || path === '/' || path === '') {
+    addSection('Tutorial');
+    addButton('\uD83C\uDF93 Replay Welcome Tutorial', function() {
+      localStorage.removeItem('arisEdu_tutorialCompleted');
+      if (window.startTutorial) {
+        window.startTutorial();
+      } else {
+        location.reload();
+      }
+    });
+  }
+
   addSection('Debug Stats');
   addButton('\uD83D\uDCCB Show Storage Keys', function () {
       var keys = [];

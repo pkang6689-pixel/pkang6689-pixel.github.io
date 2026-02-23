@@ -978,7 +978,7 @@
 <script>
 (function() {
   // Only show tutorial on first visit
-  if (localStorage.getItem('arisEdu_tutorialCompleted')) return;
+  var isAutoStart = !localStorage.getItem('arisEdu_tutorialCompleted');
 
   const steps = [
     {
@@ -987,6 +987,14 @@
       title: 'Welcome to ArisEdu!',
       body: 'A free platform for learning Math & Science at your own pace. Let us give you a quick tour!',
       btnText: 'Start Tour'
+    },
+    {
+      type: 'highlight',
+      target: '#language-toggle-button',
+      icon: '🌐',
+      title: 'Change Language',
+      body: 'Click the globe icon anytime to switch between English, 中文 (Simplified), and 繁體中文 (Traditional).',
+      position: 'below'
     },
     {
       type: 'highlight',
@@ -1171,11 +1179,20 @@
     }, 400);
   };
 
-  // Start tutorial after a brief delay
-  setTimeout(function() {
+  // Expose a global function so dev tools can re-launch the tutorial
+  window.startTutorial = function() {
+    overlay.style.display = '';
     overlay.classList.add('active');
     showStep(0);
-  }, 600);
+  };
+
+  // Start tutorial after a brief delay (only on first visit)
+  if (isAutoStart) {
+    setTimeout(function() {
+      overlay.classList.add('active');
+      showStep(0);
+    }, 600);
+  }
 })();
 </script>
 </body>
