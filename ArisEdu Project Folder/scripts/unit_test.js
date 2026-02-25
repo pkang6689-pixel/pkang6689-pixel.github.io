@@ -317,6 +317,29 @@
     window.scrollTo(0, 0);
   };
 
+  // ========== 5b. Helper: derive storage key from URL ==========
+  function getUnitTestStorageKey() {
+    var testPath = decodeURIComponent(window.location.pathname);
+    var unitMatch = testPath.match(/Unit(\w+)_Test/);
+    if (!unitMatch) return null;
+    var unitId = unitMatch[1];
+    var coursePrefix, lessonNum;
+    if (testPath.includes('Algebra1Lessons')) { coursePrefix = 'alg1'; lessonNum = 10; }
+    else if (testPath.includes('Algebra2Lessons')) { coursePrefix = 'alg2'; lessonNum = 10; }
+    else if (testPath.includes('GeometryLessons')) { coursePrefix = 'geometry'; lessonNum = 8; }
+    else if (testPath.includes('PhysicsLessons')) {
+      coursePrefix = 'physics';
+      var pMap = {'1':7,'2':7,'3':9,'4':7,'5':7,'6':7,'7':9,'8':7,'9':7,'10':10,'11':7};
+      lessonNum = pMap[unitId];
+    } else if (testPath.includes('ChemistryLessons')) {
+      coursePrefix = 'chem';
+      var cMap = {'1':9,'2':6,'3':9,'4':10,'5A':9,'5B':6,'6':8,'7':9,'8':10,'9':9,'10':11,'11':7,'12':6};
+      lessonNum = cMap[unitId];
+    } else if (testPath.includes('BiologyLessons')) { coursePrefix = 'bio'; lessonNum = 8; }
+    if (coursePrefix && lessonNum) return coursePrefix + '_u' + unitId + '_l' + lessonNum + '_completed';
+    return null;
+  }
+
   // ========== 6. Quiz Completion Tracking ==========
   window.checkQuizCompletion = function () {
     var form = document.getElementById('quiz-form');
@@ -705,9 +728,31 @@
       
       // If no practice view, show quiz directly and start timer
       if (!hasPracticeView) {
-        quizStartTime = Date.now();
-        var quizView = document.getElementById('quiz-content-view');
-        if (quizView) quizView.style.display = 'block';
+        // Check if already completed
+        var storageKey = getUnitTestStorageKey();
+        if (storageKey && localStorage.getItem(storageKey) === 'true') {
+          // Show "Already Completed" screen
+          var quizView = document.getElementById('quiz-content-view');
+          if (quizView) quizView.style.display = 'block';
+          var quizForm = document.getElementById('quiz-form');
+          if (quizForm) quizForm.style.display = 'none';
+          var finishScreen = document.getElementById('quiz-finish-screen');
+          if (finishScreen) {
+            finishScreen.style.display = 'flex';
+            var h2 = finishScreen.querySelector('h2');
+            if (h2) h2.textContent = '\u2705 Already Completed!';
+            var scoreEl = document.getElementById('quiz-final-score');
+            if (scoreEl) scoreEl.parentElement.style.display = 'none';
+            var pctEl = document.getElementById('quiz-final-percent');
+            if (pctEl) pctEl.parentElement.style.display = 'none';
+            var timeEl = document.getElementById('quiz-time-spent');
+            if (timeEl) timeEl.parentElement.style.display = 'none';
+          }
+        } else {
+          quizStartTime = Date.now();
+          var quizView = document.getElementById('quiz-content-view');
+          if (quizView) quizView.style.display = 'block';
+        }
       }
     }
 

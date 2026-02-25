@@ -300,6 +300,34 @@
         modal.appendChild(content);
         document.body.appendChild(modal);
     }
+    // Helper: get practice file URL from current quiz URL
+    function getPracticeFileUrl() {
+        var path = window.location.pathname;
+        if (path.indexOf('_Quiz.html') !== -1) {
+            return path.replace('_Quiz.html', '_Practice.html');
+        }
+        // Legacy space-separated names
+        if (path.indexOf(' Quiz.html') !== -1) {
+            return path.replace(' Quiz.html', ' Practice.html');
+        }
+        return null;
+    }
+
+    // Helper: get localStorage key for current lesson quiz
+    function getLessonQuizStorageKey() {
+        var path = decodeURIComponent(window.location.pathname);
+        var match = path.match(/Lesson\s*(\d+)\.(\d+)/);
+        if (!match) return null;
+        var unit = match[1], lesson = match[2];
+        var prefix = 'chem';
+        if (path.indexOf('Physics') !== -1) prefix = 'physics';
+        else if (path.indexOf('Algebra1') !== -1) prefix = 'alg1';
+        else if (path.indexOf('Algebra2') !== -1) prefix = 'alg2';
+        else if (path.indexOf('Geometry') !== -1) prefix = 'geometry';
+        else if (path.indexOf('Biology') !== -1) prefix = 'bio';
+        return prefix + '_u' + unit + '_l' + lesson + '_completed';
+    }
+
     window.toggleToPractice = function(event) {
         // Find current quiz view
         const quizView = document.getElementById('quiz-content-view');
@@ -312,12 +340,17 @@
             practiceView.style.display = 'block'; 
             window.scrollTo(0,0);
         } else {
-             // Fallback if no embedded practice view, try linking to separate file
-             // Use updated taskbar logic for link resolution
-             const practiceLink = document.querySelector('a[href*="Practice.html"]');
-             if(practiceLink) {
-                 location.href = practiceLink.href;
-             }
+            // Navigate to separate practice file
+            var practiceUrl = getPracticeFileUrl();
+            if (practiceUrl) {
+                window.location.href = practiceUrl;
+            } else {
+                // Fallback: try finding a practice link in the page
+                const practiceLink = document.querySelector('a[href*="Practice.html"]');
+                if(practiceLink) {
+                    location.href = practiceLink.href;
+                }
+            }
         }
     };
 
@@ -583,8 +616,36 @@
 
         // Fix for Quiz pages showing Summary by default
         const path = window.location.pathname;
-        // Check if we are on a Quiz page
-        if (path.endsWith('Quiz.html') || path.indexOf('Quiz.html') !== -1) {
+        // Check if we are on a Quiz page (lesson quiz, not unit test)
+        const isLessonQuiz = (path.endsWith('Quiz.html') || path.indexOf('Quiz.html') !== -1) && path.indexOf('Unit') === -1;
+        if (isLessonQuiz) {
+            // Check if already completed
+            var quizKey = getLessonQuizStorageKey();
+            if (quizKey && localStorage.getItem(quizKey) === 'true') {
+                // Show already completed modal
+                const modal = document.createElement('div');
+                modal.id = 'already-completed-modal';
+                modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.95);backdrop-filter:blur(4px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem;';
+                const box = document.createElement('div');
+                box.style.cssText = 'background:white;border-radius:1.5rem;padding:2.5rem;max-width:420px;width:100%;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);';
+                if (document.body.classList.contains('dark-mode')) { box.style.background = '#1e293b'; box.style.color = '#e2e8f0'; }
+                box.innerHTML = '<h2 style="font-size:2rem;margin-bottom:1rem;">\u2705 Already Completed!</h2><p style="color:#64748b;margin-bottom:2rem;">You\'ve already passed this quiz.</p><div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;"></div>';
+                var btnContainer = box.querySelector('div:last-child');
+                var retakeBtn = document.createElement('button');
+                retakeBtn.textContent = '\u21BB Retake Quiz';
+                retakeBtn.style.cssText = 'padding:0.75rem 1.5rem;background:#3b82f6;color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer;font-size:1rem;';
+                retakeBtn.onclick = function() { modal.remove(); };
+                var practiceBtn = document.createElement('button');
+                practiceBtn.textContent = '\uD83D\uDCDD Go to Practice';
+                practiceBtn.style.cssText = 'padding:0.75rem 1.5rem;background:#10b981;color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer;font-size:1rem;';
+                practiceBtn.onclick = function() { var url = getPracticeFileUrl(); if (url) window.location.href = url; };
+                btnContainer.appendChild(retakeBtn);
+                btnContainer.appendChild(practiceBtn);
+                modal.appendChild(box);
+                document.body.appendChild(modal);
+            }
+        }
+        if (isLessonQuiz) {
             
             // 1. Hide Summary View
             const summaryView = document.getElementById('summary-content-view');

@@ -27,28 +27,7 @@
     body.aurora-mode.dark-mode .settings-container {
       background: linear-gradient(to right, #23243a, #334155, #1A2A6C);
     }
-    .settings-menu {
-      width: 13rem;
-      padding: 0.5rem;
-      background: #ffffff;
-      border-radius: 0.5rem;
-      box-shadow: 0 8px 20px rgba(2,6,23,0.12);
-      color: #0f172a;
-      font-size: 0.95rem;
-      visibility: hidden;
-      opacity: 0;
-      transform: translateY(-6px);
-      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
-      position: absolute;
-      top: 100%;
-      right: 1rem;
-      left: auto;
-      bottom: auto;
-    }
-    body.dark-mode .settings-menu {
-      background: #0f172a;
-      color: #cbd5e1;
-    }
+    /* .settings-menu styles are in main.css (position:fixed, z-index:10000) */
     
     /* Native Select and Input Styles for Preferences */
     .preferences-select,
@@ -978,37 +957,8 @@ document.addEventListener('change', function(e) {
 </script>
 
 <script>
-    // Settings Menu Toggle
+    // Settings menu toggle is handled by taskbar.js — no duplicate handler needed
     document.addEventListener('DOMContentLoaded', () => {
-        const settingsButton = document.getElementById('settings-button');
-        const menu = document.getElementById('settings-menu');
-        if (settingsButton && menu) {
-            settingsButton.addEventListener('click', (e) => {
-                const isHidden = menu.getAttribute('aria-hidden') === 'true';
-                menu.setAttribute('aria-hidden', String(!isHidden));
-                if (isHidden) {
-                    menu.style.visibility = 'visible';
-                    menu.style.opacity = '1';
-                    menu.style.transform = 'translateY(0)';
-                } else {
-                    menu.style.visibility = 'hidden';
-                    menu.style.opacity = '0';
-                    menu.style.transform = 'translateY(-6px)';
-                }
-                e.stopPropagation();
-            });
-
-            // Close when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!menu.contains(e.target) && e.target !== settingsButton) {
-                    menu.setAttribute('aria-hidden', 'true');
-                    menu.style.visibility = 'hidden';
-                    menu.style.opacity = '0';
-                    menu.style.transform = 'translateY(-6px)';
-                }
-            });
-        }
-        
         // Blank Page / View Background Logic
         const viewBgBtn = document.getElementById('view-bg-button');
         const mainContainer = document.querySelector('.preferences-layout');
