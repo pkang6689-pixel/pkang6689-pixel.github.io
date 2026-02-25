@@ -1,3 +1,18 @@
+
+// Inject AI Assistant and Features Scripts
+(function() {
+    [
+        "/ArisEdu Project Folder/scripts/ai_assistant.js",
+        "/ArisEdu Project Folder/scripts/badges.js",
+        "/ArisEdu Project Folder/scripts/ambience_controller.js"
+        // help_section.js removed to prevent 404
+    ].forEach(src => {
+        var script = document.createElement('script');
+        script.src = src;
+        document.head.appendChild(script);
+    });
+})();
+
 // taskbar.js — Shared taskbar injection + logic for all pages
 (function () {
   // Determine page type and back-button behavior from URL
@@ -26,8 +41,14 @@
 
   // --- Chemistry lesson files (underscore suffixes) ---
   if (filename.indexOf('_Practice') !== -1) {
-    backText = '\u2190 Back to Summary';
-    backUrl = filename.replace('_Practice.html', '_Summary.html');
+    if (filename.includes('Test')) {
+         // Special handling for Unit Tests: Back to Course
+         backText = '\u2190 Back to Course';
+         backUrl = courseMap[lessonFolder] || '/ArisEdu Project Folder/Courses.html';
+    } else {
+         backText = '\u2190 Back to Summary';
+         backUrl = filename.replace('_Practice.html', '_Summary.html');
+    }
   } else if (filename.indexOf('_Summary') !== -1) {
     backText = '\u2190 Back to Lesson';
     backUrl = filename.replace('_Summary.html', '_Video.html');
@@ -84,7 +105,9 @@
         '<button class="taskbar-button" id="search-button">\uD83D\uDD0D Search</button>' +
         '<a class="taskbar-button" href="/index.html" id="homepage-button">\uD83C\uDFE0 Homepage</a>' +
         '<a class="taskbar-button" href="/ArisEdu Project Folder/Courses.html" id="course-button">\uD83D\uDCDA Courses</a>' +
-        '<button class="taskbar-button" id="ai-assistant-button">\uD83E\uDD16 AI (WIP)</button>' +
+        '<button class="taskbar-button" id="streak-button" title="Current Login Streak" style="display:none; color: #fbbf24;">🔥 0</button>' +
+        '<button class="taskbar-button" id="ai-assistant-button">\uD83E\uDD16 AI</button>' +
+        '<button class="taskbar-button" id="forums-button" onclick="window.location.href=\'/ArisEdu Project Folder/forums.html\'">\uD83D\uDCAC Forums</button>' +
         '<button class="taskbar-button" id="settings-button">\u2699\uFE0F Settings</button>' +
         '<a class="taskbar-button" href="/ArisEdu Project Folder/arcade.html" id="arcade-button">\uD83D\uDC7E Arcade</a>' +
         '<a class="taskbar-button" href="/ArisEdu Project Folder/LoginSignup.html" id="login-signup-button">\uD83D\uDD10 Login/Signup</a>' +
@@ -92,6 +115,7 @@
         '<div id="language-dropdown" style="display:none;position:fixed;z-index:10000;min-width:160px;background:var(--card-bg,#1e1e2e);border:1px solid var(--border-color,#444);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.35);overflow:hidden;">' +
           '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">English</button>' +
           '<button class="lang-option" data-lang="spanish" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">Español</button>' +
+          '<button class="lang-option" data-lang="hindi" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">हिन्दी</button>' +
           '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">中文</button>' +
           '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
         '</div>' +
@@ -103,10 +127,15 @@
             '<span>Dark Mode</span>' +
           '</label>' +
         '</div>' +
+        // Audio Toggle removed
+
         '<a class="settings-item" href="/ArisEdu Project Folder/Preferences.html">Preferences</a>' +
       '</div>';
     document.body.insertBefore(nav, document.body.firstChild);
   }
+
+  // --- Audio Toggle Handler Removed ---
+
 
   // --- Language Toggle (Globe Icon) with Dropdown ---
   (function() {
@@ -897,6 +926,87 @@
         startTime = Date.now(); // Reset when tab becomes visible again
       }
     });
+  })();
+
+  // --- Login Streak Logic ---
+  (function() {
+      // Use local date string to avoid timezone issues
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const today = `${year}-${month}-${day}`;
+      
+      const lastLogin = localStorage.getItem('arisEdu_last_login');
+      let streak = parseInt(localStorage.getItem('arisEdu_streak') || '0');
+
+      if (lastLogin !== today) {
+          const yesterdayDate = new Date();
+          yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+          const yYear = yesterdayDate.getFullYear();
+          const yMonth = String(yesterdayDate.getMonth() + 1).padStart(2, '0');
+          const yDay = String(yesterdayDate.getDate()).padStart(2, '0');
+          const yesterdayStr = `${yYear}-${yMonth}-${yDay}`;
+
+          if (lastLogin === yesterdayStr) {
+              streak++; // Consecutive day
+          } else {
+              streak = 1; // Streak broken or new user
+          }
+
+          localStorage.setItem('arisEdu_last_login', today);
+          localStorage.setItem('arisEdu_streak', streak);
+
+          // Check streak badges
+          if (window.BadgeSystem) {
+              if (streak >= 3) window.BadgeSystem.award('streak_3');
+              if (streak >= 7) window.BadgeSystem.award('streak_7');
+              if (streak >= 30) window.BadgeSystem.award('streak_30');
+          }
+      }
+
+      // Update Taskbar Button
+      const streakBtn = document.getElementById('streak-button');
+      if (streakBtn) {
+          streakBtn.innerHTML = `🔥 ${streak}`;
+          streakBtn.style.display = 'inline-block';
+          
+          // Enhanced Hover GUI (Tooltip)
+          const tooltip = document.createElement('div');
+          tooltip.id = 'streak-tooltip';
+          tooltip.style.cssText = `
+              position: absolute;
+              top: 100%;
+              left: 50%;
+              transform: translateX(-50%);
+              background: #1e293b;
+              color: white;
+              padding: 0.5rem 1rem;
+              border-radius: 0.5rem;
+              font-size: 0.85rem;
+              width: max-content;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+              z-index: 100;
+              margin-top: 0.5rem;
+              display: none;
+              text-align: center;
+              border: 1px solid #334155;
+          `;
+          tooltip.innerHTML = `
+              <strong>Current Streak</strong><br>
+              ${streak} Day${streak === 1 ? '' : 's'} 🔥<br>
+              <span style="font-size:0.75em; color:#9ca3af;">Come back tomorrow!</span>
+          `;
+          
+          // Only append if not already there (though logic runs once)
+          if (!streakBtn.querySelector('#streak-tooltip')) {
+              streakBtn.style.position = 'relative'; // Ensure button is relative for absolute tooltip
+              streakBtn.appendChild(tooltip);
+              
+              streakBtn.onmouseenter = () => tooltip.style.display = 'block';
+              streakBtn.onmouseleave = () => tooltip.style.display = 'none';
+          }
+      }
   })();
 
   // Load update notifier

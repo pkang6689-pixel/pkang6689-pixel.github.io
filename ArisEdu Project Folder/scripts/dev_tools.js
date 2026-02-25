@@ -73,6 +73,62 @@
     this.textContent = collapsed ? '\u25BC' : '\u25B2';
     this.title = collapsed ? 'Expand' : 'Collapse';
   });
+
+  // Render Body
+  var body = panel.querySelector('#dev-tools-body');
+  
+  // Section: Badges
+  (function() {
+      var title = document.createElement('div');
+      title.className = 'dev-section-title';
+      title.textContent = 'BADGES';
+      body.appendChild(title);
+
+      var select = document.createElement('select');
+      select.style.cssText = 'width:100%; padding:0.3rem; background:#334155; color:white; border:none; border-radius:0.3rem; margin-bottom:0.3rem;';
+      
+      // Get badges from window.BadgeSystem if available, else hardcode list for now
+      var badgeKeys = [
+          'first_visit', 'night_owl', 'early_bird', 'scholar', 
+          'dedicated', 'completionist', 'quiz_master', 
+          'algebra_master', 'physics_pro', 'chemistry_whiz', 'polyglot',
+          'streak_3', 'streak_7', 'streak_30'
+      ];
+      
+      badgeKeys.forEach(function(key) {
+          var opt = document.createElement('option');
+          opt.value = key;
+          opt.textContent = key.replace(/_/g, ' ').toUpperCase();
+          select.appendChild(opt);
+      });
+
+      var btn = document.createElement('button');
+      btn.className = 'dev-btn green';
+      btn.textContent = 'Award Selected Badge';
+      btn.onclick = function() {
+          if (window.BadgeSystem) {
+              window.BadgeSystem.award(select.value);
+              console.log('Awarded:', select.value);
+          } else {
+              alert('BadgeSystem not loaded on this page.');
+          }
+      };
+
+      body.appendChild(select);
+      body.appendChild(btn);
+
+      var resetBtn = document.createElement('button');
+      resetBtn.className = 'dev-btn red';
+      resetBtn.textContent = 'Reset All Badges';
+      resetBtn.style.marginTop = '0.5rem';
+      resetBtn.onclick = function() {
+          localStorage.removeItem('arisEdu_badges');
+          alert('Badges reset.');
+      };
+      body.appendChild(resetBtn);
+  })();
+
+  // Section: Navigation logic (existing tools would go here if any)
   
   // Make draggable
   (function() {

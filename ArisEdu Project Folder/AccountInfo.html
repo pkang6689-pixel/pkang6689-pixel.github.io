@@ -302,7 +302,26 @@
     <h1 class="account-title" data-i18n="Account Information">Account Information</h1>
     
     <div style="display: flex; align-items: flex-start; gap: 2rem; flex-wrap: wrap;">
-      <div class="account-avatar">${initials}</div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+        <div class="account-avatar" id="profile-avatar" style="cursor: pointer; position: relative;">
+            ${user.avatar ? `<img src="${user.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : initials}
+            <div style="position: absolute; bottom: 0; right: 0; background: white; border-radius: 50%; padding: 4px; border: 1px solid #ccc; font-size: 1rem;">✏️</div>
+        </div>
+        <button id="change-avatar-btn" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.9rem;">Change Avatar</button>
+      </div>
+
+      <!-- Avatar Selection Modal -->
+      <div id="avatar-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; padding:2rem; border-radius:1rem; max-width:400px; width:90%;">
+          <h3 style="margin-top:0; color:#333;">Choose Profile Picture</h3>
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin:1rem 0;">
+             ${['👨‍🎓','👩‍🎓','🦸','🧙‍♂️','🚀','🐉','😺','🐶','🦊','🦁','🏀','⚽'].map(emoji => 
+                 `<div class="avatar-option" onclick="selectAvatar('${emoji}')" style="font-size:2rem; cursor:pointer; text-align:center; padding:0.5rem; border-radius:0.5rem; transition:background 0.2s;">${emoji}</div>`
+             ).join('')}
+          </div>
+          <button onclick="document.getElementById('avatar-modal').style.display='none'" style="width:100%; padding:0.8rem; background:#cbd5e1; border:none; border-radius:0.5rem; cursor:pointer;">Cancel</button>
+        </div>
+      </div>
       
       <div style="flex: 1; min-width: 300px;">
         <div class="account-section">
@@ -357,6 +376,13 @@
               <span class="account-field-value"><span id="bio-started">0</span> <span data-i18n="started">started</span> / <span id="bio-completed">0</span> <span data-i18n="completed">completed</span></span>
             </div>
           </div>
+        </div>
+
+        <div class="account-section">
+            <h3 class="account-section-title">Achievements & Badges</h3>
+            <div id="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 1rem; padding: 1rem; background: #f1f5f9; border-radius: 1rem;">
+                <!-- Badges injected here -->
+            </div>
         </div>
 
         <div class="account-section">
@@ -468,6 +494,142 @@
   document.getElementById('bio-started').textContent = courseProgress.bio.started.size;
   document.getElementById('bio-completed').textContent = courseProgress.bio.completed.size;
 
+  // --- Badge Logic ---
+  const badgesGrid = document.getElementById('badges-grid');
+  
+  // Calculate total minutes all time for badge
+  let totalMinutesAllTime = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('arisEdu_time_')) {
+      const minutes = parseInt(localStorage.getItem(key)) || 0;
+      totalMinutesAllTime += minutes;
+    }
+  }
+  window.totalMinutesAllTime = totalMinutesAllTime; // Store globally
+
+  // Get badges awarded via badges.js system
+  const awardedBadges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
+  const streak = parseInt(localStorage.getItem('arisEdu_streak') || '0');
+
+  const allBadges = [
+      // General
+      { id: 'first_visit', icon: '👋', name: 'First Steps', desc: 'Visited your first lesson!', condition: () => awardedBadges.includes('first_visit') },
+      { id: 'scholar', icon: '📚', name: 'Scholar', desc: 'Visited 5 different lessons', condition: () => awardedBadges.includes('scholar') || completedLessons.size >= 5 },
+      { id: 'dedicated', icon: '🤓', name: 'Dedicated', desc: 'Visited 20 pages', condition: () => awardedBadges.includes('dedicated') || completedLessons.size >= 20 },
+      { id: 'completionist', icon: '⌛', name: 'Completionist', desc: 'Spent over an hour studying', condition: () => awardedBadges.includes('completionist') || totalMinutesAllTime >= 60 },
+      
+      // Habits
+      { id: 'night_owl', icon: '🦉', name: 'Night Owl', desc: 'Studying after 10 PM', condition: () => awardedBadges.includes('night_owl') },
+      { id: 'early_bird', icon: '🌅', name: 'Early Bird', desc: 'Studying before 7 AM', condition: () => awardedBadges.includes('early_bird') },
+      
+      // Subjects
+      { id: 'algebra_master', icon: '📐', name: 'Algebra Wizard', desc: 'Mastered Algebra concepts', condition: () => awardedBadges.includes('algebra_master') || courseProgress.alg1.completed.size >= 5 },
+      { id: 'physics_pro', icon: '⚡', name: 'Physics Pro', desc: 'Excelled in Physics', condition: () => awardedBadges.includes('physics_pro') },
+      { id: 'chemistry_whiz', icon: '🧪', name: 'Chem Whiz', desc: 'Ace in Chemistry', condition: () => awardedBadges.includes('chemistry_whiz') },
+      { id: 'quiz_master', icon: '📝', name: 'Quiz Master', desc: 'Completed a quiz', condition: () => awardedBadges.includes('quiz_master') },
+      
+      // Streaks
+      { id: 'streak_3', icon: '🔥', name: 'Streak Starter', desc: 'Visited 3 days in a row', condition: () => streak >= 3 || awardedBadges.includes('streak_3') },
+      { id: 'streak_7', icon: '🚒', name: 'Week Warrior', desc: 'Visited 7 days in a row', condition: () => streak >= 7 || awardedBadges.includes('streak_7') },
+      { id: 'streak_30', icon: '📅', name: 'Month Master', desc: 'Visited 30 days in a row', condition: () => streak >= 30 || awardedBadges.includes('streak_30') }
+  ];
+
+  // Inject Tooltip Styles
+  const tooltipStyle = document.createElement('style');
+  tooltipStyle.textContent = `
+      .badge-item:hover .badge-tooltip {
+          opacity: 1;
+          visibility: visible;
+          transform: translateX(-50%) translateY(-10px);
+      }
+      .badge-tooltip {
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          transform: translateX(-50%) translateY(0);
+          background: #334155;
+          color: white;
+          padding: 0.5rem 0.8rem;
+          border-radius: 0.5rem;
+          font-size: 0.75rem;
+          width: max-content;
+          max-width: 200px;
+          text-align: center;
+          pointer-events: none;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.2s;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          z-index: 10;
+      }
+      .badge-tooltip::after {
+          content: "";
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          margin-left: -5px;
+          border-width: 5px;
+          border-style: solid;
+          border-color: #334155 transparent transparent transparent;
+      }
+  `;
+  document.head.appendChild(tooltipStyle);
+
+  allBadges.forEach(badge => {
+      const earned = badge.condition();
+      const div = document.createElement('div');
+      div.className = 'badge-item';
+      div.style.cssText = `position: relative; display: flex; flex-direction: column; align-items: center; opacity: ${earned ? 1 : 0.4}; filter: grayscale(${earned ? 0 : 1}); transition: all 0.3s; padding: 10px; border-radius: 8px; background: ${earned ? 'white' : 'transparent'}; box-shadow: ${earned ? '0 2px 5px rgba(0,0,0,0.05)' : 'none'}; cursor: help;`;
+      
+      div.innerHTML = `
+        <div style="font-size: 2.5rem; margin-bottom: 0.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">${badge.icon}</div>
+        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-align: center;">${badge.name}</div>
+        <div class="badge-tooltip">
+            <strong style="display:block; margin-bottom:0.2rem; font-size:0.9rem;">${badge.name}</strong>
+            ${badge.desc}<br>
+            <span style="font-weight:bold; color:${earned ? '#4ade80' : '#f87171'}">${earned ? '✓ Earned' : '🔒 Locked'}</span>
+        </div>
+      `;
+      badgesGrid.appendChild(div);
+  });
+  
+  // --- Avatar Logic ---
+  window.selectAvatar = function(emoji) {
+      // Create SVG from emoji for profile pic to look consistent with letter avatars
+      // Or just store the emoji character and render it textually
+      const updatedUser = { ...user, avatar: null, avatarEmoji: emoji };
+      // For simplicity in this demo, let's just save the emoji to render as text
+      // But the UI expects an image src for user.avatar. 
+      // We'll update the display logic to handle emoji
+      
+      user.avatarEmoji = emoji;
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      document.getElementById('profile-avatar').innerHTML = `
+        <div style="width:100%; height:100%; border-radius:50%; background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%); display:flex; align-items:center; justify-content:center; font-size:3rem; color:white;">
+            ${emoji}
+        </div>
+        <div style="position: absolute; bottom: 0; right: 0; background: white; border-radius: 50%; padding: 4px; border: 1px solid #ccc; font-size: 1rem;">✏️</div>
+      `;
+      document.getElementById('avatar-modal').style.display = 'none';
+  };
+  
+  // Bind change avatar button
+  document.getElementById('profile-avatar').addEventListener('click', () => document.getElementById('avatar-modal').style.display = 'flex');
+  document.getElementById('change-avatar-btn').addEventListener('click', () => document.getElementById('avatar-modal').style.display = 'flex');
+
+  // Check if we need to render saved emoji
+  if(user.avatarEmoji) {
+      document.getElementById('profile-avatar').innerHTML = `
+        <div style="width:100%; height:100%; border-radius:50%; background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%); display:flex; align-items:center; justify-content:center; font-size:3rem; color:white;">
+            ${user.avatarEmoji}
+        </div>
+        <div style="position: absolute; bottom: 0; right: 0; background: white; border-radius: 50%; padding: 4px; border: 1px solid #ccc; font-size: 1rem;">✏️</div>
+      `;
+  }
+
+
   // --- Time Spent Feature ---
   function getTimeSpent(period) {
     // Time data is stored as: arisEdu_time_{YYYY-MM-DD} = minutes (number)
@@ -548,5 +710,6 @@
 
 <script src="scripts/global_translations.js?v=7.0"></script>
     <script src="scripts/spanish_translations.js?v=1.0"></script>
+    <script src="scripts/hindi_translations.js?v=1.0"></script>
 </body>
 </html>

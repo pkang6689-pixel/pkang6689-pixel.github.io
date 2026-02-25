@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArisEdu Forums</title>
+  <!-- <script src="/_sdk/element_sdk.js"></script> -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+  <script src="theme_manager.js"></script>
+  <!-- Firebase -->
+  <script type="module">
+     import { db, setDoc, doc, getDoc, auth, collection, addDoc, getDocs, orderBy, query, limit, serverTimestamp } from "./firebase-config.js";
+     window.db = db;
+     window.setDoc = setDoc;
+     window.doc = doc;
+     window.getDoc = getDoc;
+     window.auth = auth;
+     
+     // New exports for forums
+     window.collection = collection;
+     window.addDoc = addDoc;
+     window.getDocs = getDocs;
+     window.orderBy = orderBy;
+     window.query = query;
+     window.limit = limit;
+     window.serverTimestamp = serverTimestamp;
+
+    // Load initial posts
+    loadForumPosts();
+
+    async function loadForumPosts() {
+        const list = document.getElementById('suggestions-list');
+        if (!list) return; // Wait for DOM
+        try {
+            const q = query(collection(db, "forum_posts"), orderBy("createdAt", "desc"), limit(20));
+            const querySnapshot = await getDocs(q);
+            
+            if (querySnapshot.empty) {
+                list.innerHTML = '<p class="text-gray-400">No suggestions yet. Be the first!</p>';
+                return;
+            }
+
+            list.innerHTML = '';
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const date = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleDateString() : 'Just now';
+                
+                // Color mapping
+                const colors = {
+                    feature: 'text-blue-300',
+                    content: 'text-green-300',
+                    bug: 'text-red-300',
+                    other: 'text-gray-300'
+                };
+                const badgeColor = colors[data.category] || 'text-gray-300';
+
+                const item = document.createElement('div');
+                item.className = 'p-4 bg-slate-800/50 rounded-lg border border-slate-700';
+                item.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-2">
+                            <span class="${badgeColor} text-sm font-bold uppercase tracking-wider">${data.category}</span>
+                            <span class="text-xs text-gray-500">• ${data.authorName || 'Anonymous'}</span>
+                        </div>
+                        <span class="text-gray-400 text-xs">${date}</span>
+                    </div>
+                    <p class="text-gray-200 mt-2">${data.message}</p>
+                `;
+                list.appendChild(item);
+            });
+        } catch (e) {
+            console.error("Error loading posts: ", e);
+            list.innerHTML = '<p class="text-red-400">Error loading community ideas. Make sure you are signed in?</p>';
+        }
+    }
+    window.loadForumPosts = loadForumPosts;
+  </script>
+</head>
+<body class="dark-mode h-full">
+<script src="scripts/taskbar.js"></script>
+
+<main class="main-container" style="max-width: 1000px; margin: 0 auto;">
+    <h1 class="page-title" style="font-size: 3rem; margin-bottom: 2rem;">Student Forums</h1>
+    
+    <div class="courses-container" style="height: auto; min-height: 60vh;">
+        <div class="flex flex-col gap-6">
+            <!-- Suggestion Form -->
+            <div class="bg-white/10 p-6 rounded-2xl backdrop-blur-sm">
+                <h2 class="text-2xl font-bold mb-4 text-white">Suggest a Feature</h2>
+                <div id="forum-user-display" class="mb-4 text-blue-300 font-semibold" style="display:none;"></div>
+                <form id="suggestion-form" onsubmit="handleSuggestion(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-200 mb-2">Category</label>
+                        <select id="forum-category" class="w-full p-2 rounded bg-slate-800 text-white border border-slate-600">
+                            <option value="feature">New Feature</option>
+                            <option value="content">Lesson Content</option>
+                            <option value="bug">Bug Report</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-200 mb-2">Your Suggestion</label>
+                        <textarea id="forum-message" rows="4" class="w-full p-3 rounded bg-slate-800 text-white border border-slate-600" placeholder="What should we add next?" required></textarea>
+                    </div>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-lg transition">
+                        Submit Suggestion
+                    </button>
+                    <p id="forum-status" class="mt-2 text-green-400 hidden">Thanks! Your suggestion has been recorded.</p>
+                </form>
+            </div>
+            
+            <!-- Removed Mockup List -->
+            <div id="suggestions-list" class="space-y-4"></div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Forum Logic
+    (function() {
+        const userStr = localStorage.getItem('user');
+        const userDisplay = document.getElementById('forum-user-display');
+        if (userStr && userDisplay) {
+            try {
+                const user = JSON.parse(userStr);
+                const name = user.name || user.email || "Student";
+                userDisplay.textContent = `Posting as: ${name}`;
+                userDisplay.style.display = 'block';
+            } catch(e) {}
+        }
+    })();
+
+    async function handleSuggestion(e) {
+        e.preventDefault();
+        const category = document.getElementById('forum-category').value;
+        const message = document.getElementById('forum-message').value;
+        const status = document.getElementById('forum-status');
+
+        if (window.db && window.addDoc && window.collection) {
+            
+            // Get User Info
+            let authorName = "Anonymous";
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    authorName = user.name || user.email || "Anonymous";
+                } catch(e) {}
+            }
+
+            // Optimistic Update: Show success immediately!
+            status.textContent = "Thank you! Suggestion processing...";
+            status.classList.remove('hidden');
+            status.className = "mt-2 text-green-400";
+            
+            const savedMessage = message; // Copy for use below
+            document.getElementById('forum-message').value = '';
+            
+            // Background save (no await blocking the UI feedback)
+            const suggestionData = {
+                category: category,
+                message: savedMessage,
+                authorName: authorName,
+                createdAt: window.serverTimestamp ? window.serverTimestamp() : new Date()
+            };
+
+            // Manually add to local list immediately for instant feedback
+            const list = document.getElementById('suggestions-list');
+            if (list) {
+                // If it was empty state, clear it
+                if (list.innerHTML.includes('No suggestions yet')) list.innerHTML = '';
+
+                const tempDate = "Just now";
+                const colors = { feature: 'text-blue-300', content: 'text-green-300', bug: 'text-red-300', other: 'text-gray-300' };
+                const badgeColor = colors[category] || 'text-gray-300';
+                
+                const item = document.createElement('div');
+                item.className = 'p-4 bg-slate-800/50 rounded-lg border border-slate-700 animate-pulse transition-all duration-500'; // Pulse to show it's syncing
+                item.id = 'temp-' + Date.now(); // Temporary ID
+                item.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-2">
+                            <span class="${badgeColor} text-sm font-bold uppercase tracking-wider">${category}</span>
+                            <span class="text-xs text-gray-500">• ${authorName}</span>
+                        </div>
+                        <span class="text-gray-400 text-xs">${tempDate}</span>
+                    </div>
+                    <p class="text-gray-200 mt-2">${savedMessage}</p>
+                `;
+                list.insertBefore(item, list.firstChild);
+                
+                // Remove pulse after a few seconds
+                setTimeout(() => item.classList.remove('animate-pulse'), 2000);
+            }
+
+            // Actual Save
+            try {
+                // Ensure data is correct before sending
+                const docRef = await window.addDoc(window.collection(window.db, "forum_posts"), suggestionData);
+                console.log("Suggestion synced to Firebase successfully with ID: ", docRef.id);
+                
+                status.textContent = "Saved successfully!";
+                status.className = "mt-2 text-green-400";
+            } catch (err) {
+                console.error("Firestore Save Error:", err);
+                status.textContent = "Wait... there was an error saving: " + err.message;
+                status.className = "mt-2 text-red-400";
+                // Optionally restore message
+                document.getElementById('forum-message').value = savedMessage;
+            }
+            
+            setTimeout(() => status.classList.add('hidden'), 5000);
+
+        } else {
+             console.log("Firebase not loaded, falling back to local simulation.");
+             const list = document.getElementById('suggestions-list');
+             if(list) list.innerHTML = `<p class="p-4 bg-yellow-500/20 text-yellow-200 rounded">Database Offline: Suggestion logged locally.</p>` + list.innerHTML;
+             
+             status.textContent = "Database offline. Suggestion logged to console.";
+             status.classList.remove('hidden');
+             setTimeout(() => status.classList.add('hidden'), 3000);
+        }
+    }
+</script>
+</body>
+</html>

@@ -157,7 +157,7 @@
                 this.activeNodes.push(noise, filter, gain, lfo, lfoGain);
             };
 
-            switch (theme) {
+            switch (soundProfile) {
                 case 'blue-green': // Aurora
                 case 'aurora':
                     playDrone([110, 164.8, 196, 220], 'sine', 10); // A Major ish pad
@@ -174,6 +174,16 @@
                 case 'autumn':
                     playAtmosphere('brown', 'lowpass', 600, 0.5, 0.5, 300); // Rustling Wind
                     break;
+                case 'rain': // Explicit Rain Mode (reuses Autumn base)
+                     playAtmosphere('brown', 'lowpass', 800, 0.2, 0.8, 400); // Heavy Rain
+                     break;
+                case 'ocean': // Explicit Ocean Mode
+                     playAtmosphere('pink', 'lowpass', 300, 2, 0.15, 200); 
+                     playDrone([146.8], 'sine'); 
+                     break;
+                case 'white-noise': // Explicit White Noise
+                     playAtmosphere('white', 'highpass', 8000, 1, 0.1, 0); 
+                     break;
                 case 'cyber':
                     playDrone([55, 110], 'sawtooth', 5); // Low drone
                     playAtmosphere('white', 'highpass', 8000, 1, 0.1, 0); // Hiss
@@ -185,6 +195,10 @@
                     this.activeNodes[1].disconnect(this.masterGain);
                     filter.connect(this.masterGain);
                     this.activeNodes.push(filter);
+                    break;
+                case 'forest':
+                    playAtmosphere('pink', 'lowpass', 800, 0.5, 0.1, 200); // Wind
+                    playDrone([220, 261.6, 329.6], 'triangle', 5); // Light chord
                     break;
                 case 'lavender':
                     playAtmosphere('white', 'lowpass', 500, 0.2, 0.2, 200); // Gentle breeze
@@ -198,13 +212,20 @@
         },
         
         updateUI() {
+            // Update the Taskbar Button (if exists - deprecated)
             const btn = document.getElementById('audio-toggle-btn');
             if(btn) {
                 btn.textContent = this.enabled ? '🔊 Sound: ON ' : '🔇 Sound: OFF';
                 btn.style.opacity = this.enabled ? '1' : '0.7';
             }
+            
+            // Settings Menu Checkbox removed
+
         }
     };
+
+    // Expose ArisAudio to window for Settings Menu access
+    window.ArisAudio = ArisAudio;
 
     // Helper to clear other backgrounds
     window.clearAllBackgrounds = function(except) {
@@ -998,7 +1019,8 @@
              taskbar.style.removeProperty('background'); 
              taskbar.style.backgroundImage = activeGradient;
              
-             // Audio Button Injection
+             // Audio Button Injection - REMOVED (Moved to Settings Menu)
+             /*
              if (!document.getElementById('audio-toggle-btn')) {
                  const btn = document.createElement('button');
                  btn.id = 'audio-toggle-btn';
@@ -1010,9 +1032,11 @@
                  };
                  // Insert before Settings or Login
                  const settingsBtn = document.getElementById('settings-button');
-                 if(settingsBtn) taskbar.insertBefore(btn, settingsBtn);
+                 if(settingsBtn && settingsBtn.parentNode) settingsBtn.parentNode.insertBefore(btn, settingsBtn);
                  else taskbar.appendChild(btn);
              }
+             */
+
         }
         
         // Update Audio Theme if enabled

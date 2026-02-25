@@ -277,3 +277,150 @@ document.addEventListener('DOMContentLoaded', () => {
         rubricData.replaceWith(wrapper);
     }
 });
+
+    // --- Discussion / Help Section Injection ---
+    (function() {
+        // Wait for DOM
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initHelpSection);
+        } else {
+            // Slight delay to ensure layout is ready
+            setTimeout(initHelpSection, 100);
+        }
+
+        function initHelpSection() {
+            // Target the lesson-layout or main-container
+            const layout = document.querySelector('.lesson-layout') || document.querySelector('.main-container');
+            if (!layout) return;
+            
+            // Check if already injected
+            if (document.getElementById('help-section')) return;
+
+            const helpSection = document.createElement('div');
+            helpSection.id = 'help-section';
+            helpSection.className = 'help-section';
+            
+            // Flex column to append at bottom
+            // If inside lesson-layout (which is flex-row usually or grid), we might need to be outside or handle placement carefully
+            // The user asked for "scroll down to on the bottom of video files"
+            // Appending to main-container is safest fallback if lesson-layout structure varies
+            
+            // Improved Container style
+            helpSection.classList.add('discussion-container');
+            helpSection.style.cssText = `
+                margin-top: 3rem; 
+                margin-bottom: 3rem; 
+                padding: 2rem; 
+                background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%); 
+                border-radius: 1.5rem; 
+                border: 1px solid rgba(255, 255, 255, 0.1); 
+                backdrop-filter: blur(10px);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                width: 100%; 
+                max-width: 1000px; 
+                margin-left: auto; 
+                margin-right: auto;
+                color: white;
+            `;
+            
+            helpSection.innerHTML = `
+                <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:1rem;">
+                    <div style="font-size:2rem;">💬</div>
+                    <div>
+                        <h3 style="font-size: 1.5rem; font-weight: 700; color:white; margin:0;">Discussion & Help</h3>
+                        <p style="margin:0; font-size:0.9rem; color:#94a3b8;">Ask questions or share tips with other students.</p>
+                    </div>
+                </div>
+
+                <div id="comments-list" style="
+                    margin-bottom: 2rem; 
+                    max-height: 500px; 
+                    overflow-y: auto; 
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 1rem;
+                    padding-right: 0.5rem;
+                ">
+                    <!-- Comments go here -->
+                </div>
+                
+                <form id="comment-form" style="display: flex; flex-direction: column; gap: 1rem; background:rgba(255,255,255,0.05); padding:1.5rem; border-radius:1rem;">
+                    <label for="comment-input" style="font-weight:600; color:#e2e8f0;">Post a Question</label>
+                    <textarea id="comment-input" rows="3" placeholder="What part of the lesson is confusing?" style="
+                        width: 100%; 
+                        padding: 1rem; 
+                        border-radius: 0.8rem; 
+                        border: 1px solid #475569; 
+                        background: rgba(30, 41, 59, 0.8); 
+                        font-family: inherit; 
+                        color: #f1f5f9;
+                        resize: vertical;
+                    " required></textarea>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.8rem; color:#64748b;">Visible to everyone</span>
+                        <button type="submit" style="
+                            padding: 0.8rem 2rem; 
+                            background: #3b82f6; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 0.8rem; 
+                            cursor: pointer; 
+                            font-weight: 600; 
+                            transition: background 0.2s;
+                        ">Post</button>
+                    </div>
+                </form>
+            `;
+            
+            // If main-container exists, append there to be at bottom
+            if(document.querySelector('.main-container')) {
+                 document.querySelector('.main-container').appendChild(helpSection);
+            } else {
+                 layout.appendChild(helpSection);
+            }
+
+            // Logic
+            const list = document.getElementById('comments-list');
+            const fileKey = window.location.pathname.split('/').pop().replace('.html', ''); // Unique key per file
+            const storageKey = 'comments_' + fileKey;
+
+            function renderComments() {
+                const comments = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                if (comments.length === 0) {
+                    list.innerHTML = '<p style="color: #94a3b8; font-style: italic;">No questions yet.</p>';
+                    return;
+                }
+                
+                list.innerHTML = comments.map(c => `
+                    <div style="padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center;">
+                            <span style="font-weight: 600; color: #3b82f6;">${c.user}</span>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">${new Date(c.date).toLocaleDateString()}</span>
+                        </div>
+                        <div style="color: inherit; line-height: 1.5;">${c.text}</div>
+                    </div>
+                `).join('');
+                list.scrollTop = list.scrollHeight;
+            }
+
+            document.getElementById('comment-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = document.getElementById('comment-input');
+                const text = input.value;
+                if (!text.trim()) return;
+
+                const userJson = localStorage.getItem('user');
+                let user = 'Guest';
+                if (userJson) { try { user = JSON.parse(userJson).name || 'User'; } catch(e){} }
+                
+                const comments = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                comments.push({ user, text, date: new Date().toISOString() });
+                localStorage.setItem(storageKey, JSON.stringify(comments));
+                
+                input.value = '';
+                renderComments();
+            });
+
+            renderComments();
+        }
+    })();
