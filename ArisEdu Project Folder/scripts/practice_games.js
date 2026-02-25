@@ -1,6 +1,18 @@
 
 // Toggle Practices Panel
 function _t(key, fallback) {
+    var langMode = null;
+    try { langMode = localStorage.getItem('arisEduLanguage'); } catch(e) {}
+    
+    // Default to English if no language preference
+    var isChineseMode = (langMode === 'chinese' || langMode === 'traditional' || langMode === 'zh');
+    
+    if (!isChineseMode) {
+        // English mode: return English (key itself as fallback)
+        return fallback || key;
+    }
+    
+    // Chinese mode: return Chinese translation
     var t = window.arisEduTranslations || window.globalTranslations;
     return (t && t[key]) || fallback || key;
 }
