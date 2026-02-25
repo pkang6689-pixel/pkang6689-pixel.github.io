@@ -5,13 +5,19 @@ function _t(key, fallback) {
     try { langMode = localStorage.getItem('arisEduLanguage'); } catch(e) {}
     
     // Default to English if no language preference
-    var isChineseMode = (langMode === 'chinese' || langMode === 'traditional' || langMode === 'zh');
+    var isEnglish = (!langMode || langMode === 'english');
     
-    if (!isChineseMode) {
+    if (isEnglish) {
         // English mode: return English (key itself as fallback)
         return fallback || key;
     }
     
+    // Spanish mode
+    if (langMode === 'spanish') {
+        var es = window.arisEduSpanishTranslations;
+        return (es && es[key]) || fallback || key;
+    }
+
     // Chinese mode: return Chinese translation
     var t = window.arisEduTranslations || window.globalTranslations;
     return (t && t[key]) || fallback || key;

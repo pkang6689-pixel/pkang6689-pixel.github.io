@@ -5,8 +5,8 @@
     // Sets opacity directly on <html> — guaranteed to exist, no CSS injection needed.
     var _arisLang = null;
     try { _arisLang = localStorage.getItem('arisEduLanguage'); } catch(e) {}
-    // Only hide page if Chinese mode is explicitly set
-    var _needsTranslation = (_arisLang === 'chinese' || _arisLang === 'traditional' || _arisLang === 'zh');
+    // Only hide page if non-English mode is explicitly set
+    var _needsTranslation = (_arisLang === 'chinese' || _arisLang === 'traditional' || _arisLang === 'zh' || _arisLang === 'spanish');
     if (_needsTranslation) {
         document.documentElement.style.opacity = '0';
     }
@@ -31874,5 +31874,114 @@
     "Lesson 6.5: Applications & Mathematical Induction - Summary": "课程 6.5: Applications & Mathematical Induction - 总结",
     "Lesson 6.5: Applications & Mathematical Induction ⭐": "课程 6.5: Applications & Mathematical Induction ⭐",
     "Lesson 7.1: Counting Principles": "课程 7.1: Counting Principles",
-    "Lesson 7.1: Counting Principles - Summary": "课程 7.1: Counting Principles - 总结",
-    "Le
+    "Lesson 7.1: Counting Principles - Summary": "课程 7.1: Counting Principles - 总结"
+    };
+
+    // ── Expose Chinese translations globally ──
+    window.arisEduTranslations = translations;
+    window.globalTranslations = translations;
+
+    // ── Helper: get the active translation dictionary for current language ──
+    function _getTranslationDict() {
+        var lang = null;
+        try { lang = localStorage.getItem('arisEduLanguage'); } catch(e) {}
+        if (lang === 'spanish') {
+            return window.arisEduSpanishTranslations || {};
+        }
+        if (lang === 'chinese' || lang === 'traditional' || lang === 'zh') {
+            return translations;
+        }
+        return null; // English — no translation needed
+    }
+
+    // ── Translate a single key ──
+    window.arisTranslate = function(key) {
+        var dict = _getTranslationDict();
+        if (!dict) return key; // English
+        return dict[key] || key;
+    };
+
+    // ── Apply translations to the entire page ──
+    window.applyTranslations = function() {
+        var lang = null;
+        try { lang = localStorage.getItem('arisEduLanguage'); } catch(e) {}
+        var isEnglish = (!lang || lang === 'english');
+
+        // 1) Translate elements with class "translatable" + data-en attribute
+        var translatables = document.querySelectorAll('.translatable[data-en]');
+        var dict = _getTranslationDict();
+
+        translatables.forEach(function(el) {
+            var enText = el.getAttribute('data-en');
+            if (isEnglish) {
+                el.textContent = enText;
+            } else if (dict && dict[enText]) {
+                el.textContent = dict[enText];
+            }
+        });
+
+        // 2) Translate full text-node content via the dictionary
+        if (!isEnglish && dict) {
+            // Walk all text-heavy elements
+            var candidates = document.querySelectorAll(
+                'h1, h2, h3, h4, h5, h6, p, li, label, button, a, span, th, td, .page-title, .lesson-notes *'
+            );
+            candidates.forEach(function(el) {
+                // Only translate leaf text (no child elements with text)
+                if (el.children && el.children.length > 0) return;
+                var text = el.textContent.trim();
+                if (text && dict[text]) {
+                    el.textContent = dict[text];
+                }
+            });
+
+            // 3) Translate the page <title>
+            var titleText = document.title.trim();
+            if (dict[titleText]) {
+                document.title = dict[titleText];
+            }
+        }
+
+        // 4) Convert to Traditional Chinese if needed
+        if (lang === 'traditional' && window.convertToTraditional) {
+            var allText = document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,label,button,a,span,th,td,.page-title');
+            allText.forEach(function(el) {
+                if (el.children && el.children.length > 0) return;
+                el.textContent = window.convertToTraditional(el.textContent);
+            });
+            if (document.title) {
+                document.title = window.convertToTraditional(document.title);
+            }
+        }
+
+        // Reveal page after translations are applied
+        _revealPage();
+    };
+
+    // ── Auto-apply on DOMContentLoaded ──
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            var lang = null;
+            try { lang = localStorage.getItem('arisEduLanguage'); } catch(e) {}
+            if (lang && lang !== 'english') {
+                // Small delay to let spanish_translations.js load
+                setTimeout(function() { window.applyTranslations(); }, 50);
+            } else {
+                _revealPage();
+            }
+        });
+    } else {
+        // DOM already ready
+        var lang = null;
+        try { lang = localStorage.getItem('arisEduLanguage'); } catch(e) {}
+        if (lang && lang !== 'english') {
+            setTimeout(function() { window.applyTranslations(); }, 50);
+        } else {
+            _revealPage();
+        }
+    }
+
+    // Safety fallback — always reveal after 2 seconds
+    setTimeout(_revealPage, 2000);
+
+})();
