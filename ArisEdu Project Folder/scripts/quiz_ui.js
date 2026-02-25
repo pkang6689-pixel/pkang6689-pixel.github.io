@@ -47,6 +47,26 @@
         });
     };
 
+    // New function to check quiz answer by automatically detecting the correct value
+    window.checkQuiz = function(questionName) {
+        const parent = document.querySelector(`.quiz-question input[name="${questionName}"]`)?.closest('.quiz-question');
+        if (!parent) return;
+        
+        const submitBtn = parent.querySelector('.action-button');
+        const selected = parent.querySelector(`input[name="${questionName}"]:checked`);
+        
+        if (!selected) {
+            alert('Please select an answer first');
+            return;
+        }
+        
+        // Get the value of the selected answer ('correct' or 'wrong')
+        const correctValue = selected.value;
+        
+        // Call the main checkQuizAnswer function with the correct value
+        window.checkQuizAnswer(questionName, correctValue, submitBtn);
+    };
+
     window.checkQuizAnswer = function(name, correct, btn) {
         try {
             const parent = btn.closest('.quiz-question');

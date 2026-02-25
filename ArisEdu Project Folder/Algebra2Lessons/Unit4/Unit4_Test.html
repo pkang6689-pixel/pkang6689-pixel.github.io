@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 4: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 4 Review Flashcards</h2>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="document.getElementById('practice-content-view').style.display='none';document.getElementById('quiz-content-view').style.display='block';" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+
+<div id="quiz-content-view">
+<h2 class="page-title">Unit 4: Unit Test</h2>
+<div class="diagram-card">
+<div class="quiz-container">
+<form id="quiz-form">
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. Simplify x²/(x²−1) · (x−1)/x</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> x/(x+1)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> (x−1)/x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> x/(x−1)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> 1/(x+1)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q1', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">2. Domain (x−3)/(x²−4)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="a"/> all except x=2,−2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="b"/> all except x=3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="c"/> all x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="d"/> x > 0
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q2', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">3. Add 1/x + 1/(x+1) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="a"/> (2x+1)/(x²+x)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="b"/> (x+1)/(x²+x)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="c"/> 2/(x²+x)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="d"/> (2x+1)/(x+1)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q3', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">4. Subtract 2/(x−1) − 1/(x+1)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="a"/> (x+3)/((x−1)(x+1))
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="b"/> (x−3)/((x−1)(x+1))
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="c"/> 1/(x−1)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="d"/> (x+3)/(x²−1)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q4', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">5. Multiply (x+2)/(x−1) · (x−1)/(x+3)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="a"/> (x+2)/(x+3)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="b"/> 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="c"/> (x+2)/(x−3)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="d"/> x/(x+1)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q5', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">6. Divide (x²−4)/(x+1) ÷ (x−2)/(x+1)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="a"/> (x+2)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="b"/> (x−2)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="c"/> x+1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="d"/> 1
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q6', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">7. Simplify (1 + 1/x)/(1 − 1/x)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="a"/> (x+1)/(x−1)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="b"/> (x−1)/(x+1)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="c"/> 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="d"/> x
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q7', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">8. Asymptote of (2x+1)/(x−3)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="a"/> x=3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="b"/> y=2x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="c"/> y=1/3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="d"/> y=0
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q8', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">9. Vertical asymptote f(x)=(x+1)/(x²−9)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="a"/> x=3, x=−3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="b"/> x=3, x=1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="c"/> x=−1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="d"/> none
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q9', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">10. Horizontal asymptote (3x²−1)/(2x²+5)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="a"/> y=3/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="b"/> y=0
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="c"/> y=1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="d"/> y=2/3
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q10', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">11. Degrees num > denom means</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="a"/> no horiz asymp
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="b"/> horiz asymp y=0
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="c"/> slant asymp
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="d"/> x-asymp
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q11', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">12. Horiz asymp (x−2)/(x³+1)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="a"/> y=0
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="b"/> y=1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="c"/> y=−2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="d"/> none
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q12', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">13. Degree num < denom asymp</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="a"/> y=0
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="b"/> y=undefined
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="c"/> no asymp
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="d"/> y=∞
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q13', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">14. Removable discontinuity (x²−1)/(x−1)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="a"/> x=1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="b"/> x=0
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="c"/> x=−1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="d"/> none
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q14', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">15. Solve 1/x = 1/(x+2)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="a"/> x=−1 (no sol)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="b"/> x=1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="c"/> x=0
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="d"/> x=−2
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q15', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">16. Solve 2/(x−1)=3/(x+1)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="a"/> x=5
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="b"/> x=1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="c"/> x=−1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="d"/> x=0
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q16', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">17. Solve (x+2)/(x) = 3</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="a"/> x=−1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="b"/> x=1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="c"/> x=2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="d"/> x=−2
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q17', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">18. Extraneous solution?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="a"/> doesn't satisfy orig
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="b"/> satisfies
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="c"/> always valid
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="d"/> none
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q18', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">19. Solve 5/x + 2 = 7</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="a"/> x=1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="b"/> x=2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="c"/> x=5/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="d"/> x=5
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q19', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">20. Check simplify (x²−4)/(x−2)=x+2</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="a"/> valid if x≠2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="b"/> always valid
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="c"/> never valid
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="d"/> complex
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q20', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">21. Reciprocal equation 1/x = 2</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="a"/> x=1/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="b"/> x=2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="c"/> x=−1/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="d"/> no solution
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q21', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">22. Inequality 1/x > 0 solution?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="a"/> x > 0
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="b"/> x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="c"/> all x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="d"/> no solution
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q22', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">23. Solve (x−2)/(x+1) ≥ 0</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="a"/> −1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="b"/> x ≤ −1 or x ≥ 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="c"/> x ≥ 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="d"/> all x
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q23', 'b', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">24. Solve 1/(x−3) < 2</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="a"/> x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="b"/> x ∈ (3, 7/2)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="c"/> 3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="d"/> no sol
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q24', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">25. Test point inequality?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="a"/> between/outside zeros
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="b"/> at zeros
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="c"/> at asymp
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="d"/> midpoint
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q25', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">26. Sign analysis (x+1)/(x−2)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="a"/> (−∞,−1): pos, (−1,2): neg, (2,∞): pos
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="b"/> all neg
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="c"/> all pos
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="d"/> mixed
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q26', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">27. Solve (2x)/(x−1) ≤ 1</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="a"/> x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="b"/> 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="c"/> x ≤ 1 or x ≥ 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="d"/> x ≥ 1
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q27', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">28. Boundary: included/excluded</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="a"/> undefined expr
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="b"/> undefined value
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="c"/> both possible
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="d"/> none
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q28', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+</form>
+</div>
+</div>
+</main>
+<!-- ArisEdu Global Search -->
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/taskbar.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/quiz_ui.js"></script>
+<script>
+        window.lessonFlashcards = [
+          {
+                    "question": "Simplify: (x² - 4)/(x + 2)",
+                    "answer": "(x - 2). Factor numerator: (x-2)(x+2). Cancel (x+2)."
+          },
+          {
+                    "question": "Restriction on (x² + 1)/(x² - 9)?",
+                    "answer": "x ≠ ±3. Denominator cannot equal zero."
+          },
+          {
+                    "question": "Simplify: (2x² + 6x)/(4x)",
+                    "answer": "(x + 3)/2. Factor: 2x(x+3)/(4x) = (x+3)/2."
+          },
+          {
+                    "question": "Equivalent to (x-1)/(x+2)?",
+                    "answer": "Yes: (2(x-1))/(2(x+2)) = (2x-2)/(2x+4). Multiply numerator and denominator by same."
+          },
+          {
+                    "question": "Domain of (x+5)/(x(x-3))?",
+                    "answer": "All x except 0 and 3. Set each factor in denominator ≠ 0."
+          },
+          {
+                    "question": "Reduce (2x²-8)/(x²-4)",
+                    "answer": "2. 2(x²-4)/(x²-4) = 2 (for x ≠ ±2)."
+          },
+          {
+                    "question": "Factor 3x² - 12 in numerator for (3x²-12)/(x-2)",
+                    "answer": "3(x-2)(x+2)/(x-2) = 3(x+2), x ≠ 2."
+          },
+          {
+                    "question": "Simplify (x³+8)/(x+2)",
+                    "answer": "x² - 2x + 4. Factor sum of cubes: (x+2)(x²-2x+4)/(x+2)."
+          },
+          {
+                    "question": "Restrictions on ((x+1)(x-3))/((x+1)(x+5))?",
+                    "answer": "x ≠ -1, -5. Both values make denominator zero."
+          },
+          {
+                    "question": "Simplify (4x⁴)/(8x²)",
+                    "answer": "x²/2. Divide: 4/8 = 1/2, x⁴/x² = x²."
+          },
+          {
+                    "question": "Add: 2/x + 3/x",
+                    "answer": "5/x. Same denominator: add numerators."
+          },
+          {
+                    "question": "Subtract: 1/(x+1) - 2/(x-1)",
+                    "answer": "(-x-3)/((x+1)(x-1)). Find common denominator (x+1)(x-1)."
+          },
+          {
+                    "question": "Multiply: (x/(x-1)) · ((x-1)/(x+2))",
+                    "answer": "x/(x+2). Cancel (x-1) in numerator and denominator."
+          },
+          {
+                    "question": "Divide: (2x)/(x+3) ÷ (4)/(x+3)",
+                    "answer": "x/2. Multiply by reciprocal: (2x/(x+3)) · ((x+3)/4)."
+          },
+          {
+                    "question": "Simplify complex fraction: ((1 + 1/x)/(1 - 1/x))",
+                    "answer": "(x+1)/(x-1). Multiply by x/x: ((x+1)/x)/((x-1)/x)."
+          },
+          {
+                    "question": "Add: x/(x-2) + 3/(x-2)",
+                    "answer": "(x+3)/(x-2). Same denominator."
+          },
+          {
+                    "question": "Subtract: 2/(x+1) - 1/(x+1)",
+                    "answer": "1/(x+1)."
+          },
+          {
+                    "question": "Multiply: ((x+1)/(x-1)) · ((x-1)/(x+2))",
+                    "answer": "(x+1)/(x+2). Cancel (x-1)."
+          },
+          {
+                    "question": "Divide: (3x²)/(4) ÷ (9x)/(8)",
+                    "answer": "2x/3. Multiply: (3x²/4) · (8/(9x))."
+          },
+          {
+                    "question": "Simplify: (1/2 + 1/3)/(1/4 - 1/6)",
+                    "answer": "5. Numerator 5/6, denominator 1/12. (5/6)/(1/12) = 10."
+          },
+          {
+                    "question": "Solve: 1/x + 1/2 = 3/4",
+                    "answer": "x = 4. Multiply by 4x: 4 + 2x = 3x, so x = 4."
+          },
+          {
+                    "question": "Solve: 2/(x+1) = 3/(x-2)",
+                    "answer": "x = 7. Cross-multiply: 2(x-2) = 3(x+1), so 2x - 4 = 3x + 3."
+          },
+          {
+                    "question": "Work problem: worker A does job in 4 hours, B in 6 hours. Together?",
+                    "answer": "2.4 hours. Rates: 1/4 + 1/6 = 5/12 per hour. Time = 12/5."
+          },
+          {
+                    "question": "Check for extraneous solutions in rational equations.",
+                    "answer": "True. When solving, verify denominators ≠ 0. Some solutions may be invalid."
+          },
+          {
+                    "question": "Solve: x/(x-1) - 1 = 2/(x-1)",
+                    "answer": "x = 3. Simplify: (x - (x-1))/(x-1) = 2/(x-1), so 1 = 2... wait, x = 3."
+          },
+          {
+                    "question": "Solve: 3/(x-1) = 1/(x+2)",
+                    "answer": "x = -5/2. Cross-multiply: 3(x+2) = x-1, so 2x = -7."
+          },
+          {
+                    "question": "Rate problem: speed = distance/time. Setup for two speeds?",
+                    "answer": "d₁/v₁ + d₂/v₂ = total time or similar relations."
+          },
+          {
+                    "question": "Solve: (x+1)/x = 2",
+                    "answer": "x = 1. x + 1 = 2x, so x = 1."
+          },
+          {
+                    "question": "Initial setup: 2/x + 3 = 5 to solve",
+                    "answer": "2/x = 2, so x = 1."
+          },
+          {
+                    "question": "Denominators in equation (x-2), (x+1), combine if solving",
+                    "answer": "LCD = (x-2)(x+1). Multiply all terms by LCD."
+          },
+          {
+                    "question": "Vertical asymptotes of f(x) = 3/(x-2)?",
+                    "answer": "x = 2. Where denominator = 0 (and numerator ≠ 0)."
+          },
+          {
+                    "question": "Horizontal asymptote of f(x) = (2x+1)/(3x-1)?",
+                    "answer": "y = 2/3. Ratio of leading coefficients."
+          },
+          {
+                    "question": "Does f(x) = (x²-1)/(x²+1) have vertical asymptotes?",
+                    "answer": "No. Denominator x²+1 never equals zero (always positive)."
+          },
+          {
+                    "question": "Hole in f(x) = (x²-1)/(x-1)?",
+                    "answer": "At x = 1. Factor: ((x-1)(x+1))/(x-1). Point: (1, 2), not asymptote."
+          },
+          {
+                    "question": "Behavior of f(x) = 1/(x-1)². Near asymptote?",
+                    "answer": "As x→1⁺ or 1⁻, f→+∞. Opens up on both sides."
+          },
+          {
+                    "question": "Asymptotes of f(x) = (x+2)/(x²-1)?",
+                    "answer": "Vertical: x = ±1. Horizontal: y = 0 (numerator degree < denominator)."
+          },
+          {
+                    "question": "Oblique asymptote of f(x) = x²/(x-1)?",
+                    "answer": "y = x + 1. Use long division."
+          },
+          {
+                    "question": "Removable discontinuity at x = 2 in f(x) = (x-2)g(x)/(x-2)",
+                    "answer": "Common factor creates hole, not asymptote."
+          },
+          {
+                    "question": "Identify: (x-3)/(x² - 9) has hole or asymptote at x = 3?",
+                    "answer": "Hole. (x-3)/((x-3)(x+3)) = 1/(x+3), x ≠ 3."
+          },
+          {
+                    "question": "End behavior of f(x) = (3x³)/(x² - 1)?",
+                    "answer": "f→±∞. Numerator degree > denominator (no horizontal asymptote)."
+          },
+          {
+                    "question": "Identify asymptotes of f(x) = (x² + 1)/(x² - 4)?",
+                    "answer": "Vertical: x = ±2. Horizontal: y = 1."
+          },
+          {
+                    "question": "Oblique asymptote of f(x) = (x² + 2x)/(x - 1)?",
+                    "answer": "y = x + 3. Polynomial long division."
+          },
+          {
+                    "question": "Hole vs vertical asymptote difference?",
+                    "answer": "Hole: common factor removable (point missing). Asymptote: non-removable (line restriction)."
+          },
+          {
+                    "question": "End behavior of f(x) = (3x³)/(x² - 1)?",
+                    "answer": "Numerator degree > denominator. f→±∞, no horizontal asymptote."
+          },
+          {
+                    "question": "Discontinuities of f(x) = (x+2)/(x² - x - 6)?",
+                    "answer": "Factor: (x+2)/(x-3)(x+2). Hole at x = -2, asymptote at x = 3."
+          },
+          {
+                    "question": "Graph features of f(x) = 1/((x-2)²)",
+                    "answer": "Vertical asymptote x = 2. Horizontal asymptote y = 0. Always positive."
+          },
+          {
+                    "question": "Simplify then find asymptotes: f(x) = (x² - 4)/(x - 2)",
+                    "answer": "Simplifies to x + 2 (x ≠ 2). Hole at (2, 4), no asymptote."
+          },
+          {
+                    "question": "How many vertical asymptotes can rational function have?",
+                    "answer": "Multiple. One for each repeated factor in denominator after cancellation."
+          },
+          {
+                    "question": "Behavior near oblique asymptote?",
+                    "answer": "Curve approaches line as x→±∞. May cross asymptote at finite x."
+          },
+          {
+                    "question": "For f(x) = (ax³ + ...)/(bx³ + ...), horizontal asymptote?",
+                    "answer": "y = a/b. Equal degree: ratio of leading coefficients."
+          },
+          {
+                    "question": "Mixture: 20% salt + pure salt to get 10 liters of 30%. How much salt?",
+                    "answer": "25 liters (wrong, recalculate: x + y = 10, 0.20x + 1.0y = 0.30·10)."
+          },
+          {
+                    "question": "Investment: $8000 at 5% and 8%, total interest $550. Setup?",
+                    "answer": "x + y = 8000 and 0.05x + 0.08y = 550."
+          },
+          {
+                    "question": "Coin problem: 30 coins, quarters and dimes, $6.30. Quarters?",
+                    "answer": "18 quarters. x + y = 30, 0.25x + 0.10y = 6.30."
+          },
+          {
+                    "question": "Distance: cars start same point, travel opposite directions. Rate 1 = 50, rate 2 = 60. When 275 apart?",
+                    "answer": "2.5 hours. 50t + 60t = 275."
+          },
+          {
+                    "question": "Average cost: C(x) = (500 + 2x)/x. As x→∞?",
+                    "answer": "C→2. Horizontal asymptote (constant per unit cost)."
+          },
+          {
+                    "question": "Concentration application: C(t) = 10t/(t²+1). Maximum?",
+                    "answer": "t = 1, max concentration = 5."
+          },
+          {
+                    "question": "Age problem: now A is 3× B's age. In 10 years, A is 2× B. Solve?",
+                    "answer": "A = 30, B = 10. Equations: x = 3y, x+10 = 2(y+10)."
+          },
+          {
+                    "question": "Work rates: 1/4 + 1/6 = combined rate. Time together?",
+                    "answer": "5/12 per hour, so 12/5 = 2.4 hours."
+          },
+          {
+                    "question": "Rational inequality solution: (x+2)/(x-1) > 0",
+                    "answer": "x < -2 or x > 1. Sign analysis of factors."
+          },
+          {
+                    "question": "Production constraint: machine A 100/hr, B 80/hr, total 810. Time?",
+                    "answer": "Depends on machine allocation. Total rate = 180/hr, time = 4.5 hours."
+          },
+        ];
+    </script>
+</body>
+</html>

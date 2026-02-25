@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 8: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 8 Review Flashcards</h2>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="document.getElementById('practice-content-view').style.display='none';document.getElementById('quiz-content-view').style.display='block';" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+
+<div id="quiz-content-view">
+<h2 class="page-title">Unit 8: Unit Test</h2>
+<div class="diagram-card">
+<div class="quiz-container">
+<form id="quiz-form">
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. Convert 120° to radians</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> 2π/3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> π/3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> 2π/6
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> 3π/2
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q1', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">2. Convert 3π/4 to degrees</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="a"/> 135°
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="b"/> 90°
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="c"/> 180°
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="d"/> 45°
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q2', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">3. Radian unit circle circumference</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="a"/> 2π
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="b"/> π
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="c"/> 2πr
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="d"/> πd
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q3', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">4. Arc length s = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="a"/> r·θ
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="b"/> r+θ
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="c"/> r/θ
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="d"/> θ²r
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q4', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">5. Central angle 2 rad, r=5</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="a"/> s=10
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="b"/> s=2/5
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="c"/> s=7
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="d"/> s=25
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q5', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">6. Reference angle 135°</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="a"/> 45°
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="b"/> 35°
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="c"/> 55°
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="d"/> 90°
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q6', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">7. Coterminal 30° angle</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="a"/> 390°
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="b"/> −330°
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="c"/> both
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="d"/> neither
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q7', 'c', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">8. sin(π/6) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="a"/> 1/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="b"/> √3/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="c"/> √2/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="d"/> 1
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q8', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">9. cos(π/4) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="a"/> √2/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="b"/> 1/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="c"/> √3/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="d"/> 1
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q9', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">10. tan(π/3) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="a"/> √3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="b"/> 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="c"/> √3/3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="d"/> 1/2
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q10', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">11. Pythagorean sin²θ+cos²θ = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="a"/> 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="b"/> 0
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="c"/> 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="d"/> π
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q11', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">12. Unit circle point (π/2)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="a"/> (0,1)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="b"/> (1,0)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="c"/> (−1,0)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="d"/> (1,1)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q12', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">13. Reciprocal sec θ = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="a"/> 1/cos θ
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="b"/> cos θ
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="c"/> sin θ
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="d"/> 1/sin θ
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q13', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">14. SOHCAHTOA: CAH means</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="a"/> cos = adj/hyp
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="b"/> sin = opp/hyp
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="c"/> tan = opp/adj
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="d"/> all equal
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q14', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">15. Graph y = sin x period</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="a"/> 2π
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="b"/> π
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="c"/> 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="d"/> ∞
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q15', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">16. Amplitude |A| of 3sin x</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="a"/> 3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="b"/> 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="c"/> −3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="d"/> 1/3
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q16', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">17. Period of sin(2x)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="a"/> π
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="b"/> 2π
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="c"/> 4π
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="d"/> 1
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q17', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">18. Phase shift y = sin(x−π/4)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="a"/> right π/4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="b"/> left π/4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="c"/> up π/4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="d"/> down π/4
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q18', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">19. Vertical shift +2: y = sin x + 2</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="a"/> up 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="b"/> down 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="c"/> right 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="d"/> left 2
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q19', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">20. y = −sin x reflect</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="a"/> x-axis
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="b"/> y-axis
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="c"/> origin
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="d"/> none
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q20', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">21. Domain sin x</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="a"/> all real
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="b"/> −1 to 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="c"/> [−π,π]
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="d"/> x ≠ 0
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q21', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">22. Verify sin²x + cos²x</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="a"/> = 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="b"/> = 0
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="c"/> = 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="d"/> ≠ const
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q22', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">23. sin 2x = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="a"/> 2sin x cos x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="b"/> 2sin x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="c"/> sin²x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="d"/> sin x/2
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q23', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">24. cos 2x = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="a"/> cos²x − sin²x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="b"/> cos x − sin x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="c"/> 2cos²x − 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="d"/> all true
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q24', 'd', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">25. Double angle tan</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="a"/> 2tan x/(1−tan²x)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="b"/> 2tan x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="c"/> tan²x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="d"/> none
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q25', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">26. Half angle formula</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="a"/> √((1−cos x)/2)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="b"/> sin x/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="c"/> cos x/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="d"/> (1−cos x)/sin x
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q26', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">27. Sum sin(A+B) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="a"/> sin A cos B + cos A sin B
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="b"/> sin A + sin B
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="c"/> sin(A·B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="d"/> none
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q27', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">28. Difference cos(A−B) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="a"/> cos A cos B + sin A sin B
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="b"/> cos A − cos B
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="c"/> cos(A/B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="d"/> none
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q28', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+</form>
+</div>
+</div>
+</main>
+<!-- ArisEdu Global Search -->
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/taskbar.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/quiz_ui.js"></script>
+<script>
+        window.lessonFlashcards = [
+          {
+                    "question": "Convert 45° to radians",
+                    "answer": "π/4. Multiply by π/180."
+          },
+          {
+                    "question": "Convert 3π/2 to degrees",
+                    "answer": "270°. Multiply by 180/π."
+          },
+          {
+                    "question": "Coterminal with 30°?",
+                    "answer": "30° ± 360n. Same terminal side."
+          },
+          {
+                    "question": "Reference angle for 210°?",
+                    "answer": "30°. 210° - 180° = 30°."
+          },
+          {
+                    "question": "Reference angle for 315°?",
+                    "answer": "45°. 360° - 315° = 45°."
+          },
+          {
+                    "question": "π radians = ? degrees",
+                    "answer": "180°."
+          },
+          {
+                    "question": "360° = ? radians",
+                    "answer": "2π."
+          },
+          {
+                    "question": "Standard position angle: measured from?",
+                    "answer": "Positive x-axis, counterclockwise positive."
+          },
+          {
+                    "question": "Quadrant II: angle between?",
+                    "answer": "90° and 180° (or π/2 to π)."
+          },
+          {
+                    "question": "Negative angle: direction?",
+                    "answer": "Clockwise from positive x-axis."
+          },
+          {
+                    "question": "Unit circle point at 90°?",
+                    "answer": "(0, 1). cos(90°)=0, sin(90°)=1."
+          },
+          {
+                    "question": "sin(π/4) = ?",
+                    "answer": "√2/2."
+          },
+          {
+                    "question": "cos(π/3) = ?",
+                    "answer": "1/2."
+          },
+          {
+                    "question": "tan(π) = ?",
+                    "answer": "0. sin(π)/cos(π) = 0/(-1)."
+          },
+          {
+                    "question": "Quadrant II: sin positive, cos?",
+                    "answer": "Negative. In Q2: sin>0, cos<0, tan<0."
+          },
+          {
+                    "question": "sin(π/6) = ?",
+                    "answer": "1/2."
+          },
+          {
+                    "question": "cos(π/4) = ?",
+                    "answer": "√2/2."
+          },
+          {
+                    "question": "tan(π/4) = ?",
+                    "answer": "1."
+          },
+          {
+                    "question": "sec(θ) = ?",
+                    "answer": "1/cos(θ)."
+          },
+          {
+                    "question": "cot(θ) = ?",
+                    "answer": "cos(θ)/sin(θ) = 1/tan(θ)."
+          },
+          {
+                    "question": "Period of sin(x)?",
+                    "answer": "2π."
+          },
+          {
+                    "question": "Amplitude of y = 3sin(x)?",
+                    "answer": "3."
+          },
+          {
+                    "question": "Period of tan(x)?",
+                    "answer": "π."
+          },
+          {
+                    "question": "Shift: f(x) = sin(x - π/2)?",
+                    "answer": "Right π/2. Same as cos(x)."
+          },
+          {
+                    "question": "y = cos(x) + 3 shifted?",
+                    "answer": "Up 3 units."
+          },
+          {
+                    "question": "Vertical stretch y = 2sin(x)?",
+                    "answer": "Amplitude doubles to 2."
+          },
+          {
+                    "question": "Horizontal compression y = sin(2x)?",
+                    "answer": "Period halved to π."
+          },
+          {
+                    "question": "General form y = a·sin(b(x-c)) + d interpret?",
+                    "answer": "a=amplitude, 2π/b=period, c=phase shift, d=vertical shift."
+          },
+          {
+                    "question": "Reflect over x-axis: y = -sin(x)?",
+                    "answer": "Yes. Negative amplitude."
+          },
+          {
+                    "question": "y = sin(x) domain and range?",
+                    "answer": "Domain: all reals. Range: [-1, 1]."
+          },
+          {
+                    "question": "sin²θ + cos²θ = ?",
+                    "answer": "1. Pythagorean identity."
+          },
+          {
+                    "question": "sin(A + B) = ?",
+                    "answer": "sinA cosB + cosA sinB."
+          },
+          {
+                    "question": "cos(2x) = ?",
+                    "answer": "cos²x - sin²x or 2cos²x - 1 or 1 - 2sin²x."
+          },
+          {
+                    "question": "Power reduction: sin²(x) = ?",
+                    "answer": "(1 - cos(2x))/2."
+          },
+          {
+                    "question": "tan(π/4) = ?",
+                    "answer": "1."
+          },
+          {
+                    "question": "1 + tan²θ = ?",
+                    "answer": "sec²θ."
+          },
+          {
+                    "question": "Product-to-sum: sin(A)sin(B) = ?",
+                    "answer": "1/2[cos(A-B) - cos(A+B)]."
+          },
+          {
+                    "question": "Double angle: sin(2x) = ?",
+                    "answer": "2sin(x)cos(x)."
+          },
+          {
+                    "question": "Cofunction: sin(π/2 - x) = ?",
+                    "answer": "cos(x)."
+          },
+          {
+                    "question": "Half-angle: sin²(θ/2) = ?",
+                    "answer": "(1 - cos(θ))/2."
+          },
+          {
+                    "question": "Solve sin(x) = 1/2 on [0, 2π]",
+                    "answer": "x = π/6 or 5π/6."
+          },
+          {
+                    "question": "Solve cos(x) = -√2/2 on [0, 2π]",
+                    "answer": "x = 3π/4 or 5π/4."
+          },
+          {
+                    "question": "Solve tan(x) = 1",
+                    "answer": "x = π/4 + nπ."
+          },
+          {
+                    "question": "sin⁻¹(0.5) = ?",
+                    "answer": "π/6."
+          },
+          {
+                    "question": "cos⁻¹(x) domain?",
+                    "answer": "[-1, 1]."
+          },
+          {
+                    "question": "Range of sin⁻¹(x)?",
+                    "answer": "[-π/2, π/2]."
+          },
+          {
+                    "question": "Range of cos⁻¹(x)?",
+                    "answer": "[0, π]."
+          },
+          {
+                    "question": "tan⁻¹(1) = ?",
+                    "answer": "π/4."
+          },
+          {
+                    "question": "Solve 2sin(x) - 1 = 0 on [0,2π]",
+                    "answer": "x = π/6 or 5π/6."
+          },
+          {
+                    "question": "sin(x) = cos(x) when?",
+                    "answer": "x = π/4 + nπ (general)."
+          },
+          {
+                    "question": "Law of Sines: a/sin(A) = ?",
+                    "answer": "b/sin(B) = c/sin(C)."
+          },
+          {
+                    "question": "Law of Cosines: c² = ?",
+                    "answer": "a² + b² - 2ab cos(C)."
+          },
+          {
+                    "question": "Navigation: bearing 45° from North?",
+                    "answer": "Northeast."
+          },
+          {
+                    "question": "Angle of elevation 30° from 30m distance?",
+                    "answer": "Height = 30·tan(30°) = 10√3 ≈ 17.3m."
+          },
+          {
+                    "question": "Projectile: x(t) = 40cos(60°)t. Speed = 40?",
+                    "answer": "Yes. Initial velocity 40 m/s at 60°."
+          },
+          {
+                    "question": "SAS case use?",
+                    "answer": "Law of Cosines."
+          },
+          {
+                    "question": "ASA case use?",
+                    "answer": "Law of Sines (find third angle first)."
+          },
+          {
+                    "question": "Ambiguous case SSA?",
+                    "answer": "0, 1, or 2 triangles possible."
+          },
+          {
+                    "question": "Area formula: K = ?",
+                    "answer": "½ab sin(C)."
+          },
+          {
+                    "question": "Heron's formula for area?",
+                    "answer": "K = √(s(s-a)(s-b)(s-c)) where s = (a+b+c)/2."
+          },
+        ];
+    </script>
+</body>
+</html>

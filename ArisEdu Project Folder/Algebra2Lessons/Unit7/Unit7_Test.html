@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 7: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 7 Review Flashcards</h2>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="document.getElementById('practice-content-view').style.display='none';document.getElementById('quiz-content-view').style.display='block';" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+
+<div id="quiz-content-view">
+<h2 class="page-title">Unit 7: Unit Test</h2>
+<div class="diagram-card">
+<div class="quiz-container">
+<form id="quiz-form">
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. Roll die, P(even) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> 1/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> 1/3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> 2/3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> 1/6
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q1', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">2. Cards 52, P(red) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="a"/> 1/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="b"/> 1/4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="c"/> 1/13
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="d"/> 1/26
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q2', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">3. Complement P(not A) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="a"/> 1 − P(A)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="b"/> P(A)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="c"/> 1/P(A)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="d"/> −P(A)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q3', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">4. Independent events P(both) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="a"/> P(A)·P(B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="b"/> P(A)+P(B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="c"/> P(A∪B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="d"/> P(A|B)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q4', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">5. Mutually exclusive P(A or B) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="a"/> P(A)+P(B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="b"/> P(A)·P(B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="c"/> 1−P(A)+P(B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="d"/> P(A)+P(B)−P(A∩B)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q5', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">6. Sample space die</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="a"/> 1,2,3,4,5,6
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="b"/> 0,1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="c"/> any
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="d"/> 1 to ∞
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q6', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">7. P(impossible event) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="a"/> 0
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="b"/> 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="c"/> 0.5
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="d"/> undefined
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q7', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">8. P(A and B) independent = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="a"/> P(A)·P(B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="b"/> P(A)+P(B)−P(A∩B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="c"/> P(A|B)·P(B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="d"/> 1−P(A)·P(B)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q8', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">9. Conditional P(A|B) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="a"/> P(A∩B)/P(B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="b"/> P(A)·P(B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="c"/> P(A)+P(B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="d"/> P(B|A)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q9', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">10. Deck: P(2nd ace|1st ace)?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="a"/> 3/51
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="b"/> 4/52
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="c"/> 4/51
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="d"/> 3/52
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q10', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">11. Dependent sample w/o replace</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="a"/> probability changes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="b"/> stays same
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="c"/> → 0
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="d"/> → 1
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q11', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">12. Tree diagram use</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="a"/> conditional prob
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="b"/> all types
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="c"/> independent
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="d"/> none
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q12', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">13. Bayes theorem setup</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="a"/> P(A|B)=P(B|A)·P(A)/P(B)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="b"/> P(A)=P(B|A)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="c"/> direct only
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="d"/> impossible
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q13', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">14. Medical test 95% accurate:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="a"/> might be false pos
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="b"/> always accurate
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="c"/> impossible
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="d"/> no calc
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q14', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">15. n! read as</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="a"/> n factorial
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="b"/> n value
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="c"/> n combinations
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="d"/> n factorial inverse
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q15', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">16. 5! = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="a"/> 120
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="b"/> 25
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="c"/> 15
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="d"/> 10
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q16', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">17. Permutations nPr = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="a"/> n!/(n−r)!
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="b"/> n!/r!
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="c"/> n!/(r!·(n−r)!)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="d"/> n·r
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q17', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">18. Combinations nCr = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="a"/> n!/[r!(n−r)!]
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="b"/> n!/(n−r)!
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="c"/> n!/r!
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="d"/> n+r!
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q18', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">19. Choose 3 from 5</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="a"/> 10
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="b"/> 20
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="c"/> 60
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="d"/> 15
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q19', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">20. Arrangements 5 people in line</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="a"/> 120
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="b"/> 25
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="c"/> 5
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="d"/> 10
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q20', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">21. Order matters?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="a"/> permutation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="b"/> combination
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="c"/> both
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="d"/> neither
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q21', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">22. Binomial P(X=k) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="a"/> C(n,k)p^k(1−p)^(n−k)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="b"/> n·p
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="c"/> C(n,k)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="d"/> p^k
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q22', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">23. n=5, p=0.5, P(X=2)?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="a"/> C(5,2)(0.5)⁵
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="b"/> 0.5²
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="c"/> 5·0.2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="d"/> 0.1
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q23', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">24. Binomial mean μ = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="a"/> n·p
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="b"/> n·p·(1−p)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="c"/> √(n·p)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="d"/> p
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q24', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">25. Binomial variance σ² = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="a"/> n·p·(1−p)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="b"/> n·p
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="c"/> (1−p)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="d"/> p²
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q25', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">26. Standard dev σ = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="a"/> √(n·p·(1−p))
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="b"/> n·p
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="c"/> n·p·(1−p)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="d"/> p(1−p)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q26', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">27. Binomial requirement:</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="a"/> fixed n, p
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="b"/> any dist
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="c"/> order matters
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="d"/> dependent
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q27', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">28. Success/failure independent?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="a"/> yes important
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="b"/> no
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="c"/> depends
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="d"/> undefined
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q28', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+</form>
+</div>
+</div>
+</main>
+<!-- ArisEdu Global Search -->
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/taskbar.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/quiz_ui.js"></script>
+<script>
+        window.lessonFlashcards = [
+          {
+                    "question": "P(rolling odd on die)?",
+                    "answer": "1/2. Outcomes {1,3,5}, total 6."
+          },
+          {
+                    "question": "P(not rolling 6)?",
+                    "answer": "5/6. Complement: 1 - P(6)."
+          },
+          {
+                    "question": "Independent events: P(A and B)?",
+                    "answer": "P(A)·P(B). Events don't affect each other."
+          },
+          {
+                    "question": "P(heads twice in 2 flips)?",
+                    "answer": "1/4. P(H)·P(H) = 1/2 · 1/2."
+          },
+          {
+                    "question": "Mutually exclusive: P(A or B)?",
+                    "answer": "P(A) + P(B). Events can't happen together."
+          },
+          {
+                    "question": "P(at least one head in 2 flips)?",
+                    "answer": "3/4. Complement of no heads: 1 - 1/4."
+          },
+          {
+                    "question": "Sample space for coin flip?",
+                    "answer": "{H, T}. All possible outcomes."
+          },
+          {
+                    "question": "Theoretical vs experimental probability difference?",
+                    "answer": "Theoretical: math calculation. Experimental: based on data."
+          },
+          {
+                    "question": "Conditional probability P(A|B)?",
+                    "answer": "P(A∩B)/P(B). Probability of A given B occurred."
+          },
+          {
+                    "question": "P(rolling 2, 3, or 6 on die)?",
+                    "answer": "1/2. Three outcomes out of 6."
+          },
+          {
+                    "question": "FCP: 3 shirts, 4 pants, 2 shoes. Outfits?",
+                    "answer": "24. Multiply: 3 · 4 · 2."
+          },
+          {
+                    "question": "P(5,3) = ?",
+                    "answer": "60. 5!/(5-3)! = 120/2."
+          },
+          {
+                    "question": "Arrange 5 books on shelf?",
+                    "answer": "5! = 120."
+          },
+          {
+                    "question": "Passwords: 3 letters + 2 digits?",
+                    "answer": "26³·10² = 1,757,600."
+          },
+          {
+                    "question": "Arrangements of BOOK?",
+                    "answer": "4!/2! = 12. Two O's identical."
+          },
+          {
+                    "question": "P(n,r) formula?",
+                    "answer": "n!/(n-r)!. Permutation."
+          },
+          {
+                    "question": "When order matters: permutation or combination?",
+                    "answer": "Permutation."
+          },
+          {
+                    "question": "Ways arrange n distinct objects?",
+                    "answer": "n! ways."
+          },
+          {
+                    "question": "License plate: 3 letters, 3 digits?",
+                    "answer": "26³·10³ = 17,576,000."
+          },
+          {
+                    "question": "Circular arrangement of 5 people?",
+                    "answer": "(5-1)! = 4! = 24."
+          },
+          {
+                    "question": "C(5,2) = ?",
+                    "answer": "10. 5!/(2!3!)."
+          },
+          {
+                    "question": "Choose 3 from 10 people?",
+                    "answer": "C(10,3) = 120."
+          },
+          {
+                    "question": "C(n,r) vs P(n,r)?",
+                    "answer": "Combination: order doesn't matter. Permutation: order matters. P ≥ C."
+          },
+          {
+                    "question": "Lottery: choose 6 from 49?",
+                    "answer": "C(49,6) = 10,068,347."
+          },
+          {
+                    "question": "Pascal's triangle row 5?",
+                    "answer": "1, 5, 10, 10, 5, 1. Entries are C(5,k)."
+          },
+          {
+                    "question": "C(n,r) formula?",
+                    "answer": "n!/(r!(n-r)!)."
+          },
+          {
+                    "question": "C(n,0) = ?",
+                    "answer": "1. Only one way to choose nothing."
+          },
+          {
+                    "question": "C(n,n) = ?",
+                    "answer": "1. Only one way to choose everything."
+          },
+          {
+                    "question": "Committee of 4 from 12?",
+                    "answer": "C(12,4) = 495."
+          },
+          {
+                    "question": "Symmetry: C(n,r) = C(n,n-r)?",
+                    "answer": "True. Choosing r same as not choosing n-r."
+          },
+          {
+                    "question": "Roll two dice: P(sum = 7)?",
+                    "answer": "1/6. 6 ways of 36."
+          },
+          {
+                    "question": "Binomial: n=3, p=0.5. P(X=2)?",
+                    "answer": "3/8. C(3,2)·0.5²·0.5."
+          },
+          {
+                    "question": "Binomial mean, variance: n=10, p=0.4?",
+                    "answer": "μ=4. σ²=2.4."
+          },
+          {
+                    "question": "68-95-99.7 rule?",
+                    "answer": "68% within 1σ, 95% within 2σ, 99.7% within 3σ."
+          },
+          {
+                    "question": "Z-score formula?",
+                    "answer": "Z = (X - μ)/σ."
+          },
+          {
+                    "question": "Binomial probability formula?",
+                    "answer": "P(X=k) = C(n,k)p^k(1-p)^(n-k)."
+          },
+          {
+                    "question": "Normal distribution symmetric about?",
+                    "answer": "Mean μ. Bell curve centered at μ."
+          },
+          {
+                    "question": "P(Z < 0) for standard normal?",
+                    "answer": "0.5. Half the distribution below mean."
+          },
+          {
+                    "question": "Poisson distribution: rare events, fixed interval?",
+                    "answer": "Yes. λ parameter defines rate."
+          },
+          {
+                    "question": "Standard normal mean and standard deviation?",
+                    "answer": "μ = 0, σ = 1."
+          },
+          {
+                    "question": "Mean of 5, 8, 12, 15?",
+                    "answer": "10. Sum 40, divide by 4."
+          },
+          {
+                    "question": "Median of 3, 7, 9, 12, 15?",
+                    "answer": "9. Middle value."
+          },
+          {
+                    "question": "Range and IQR of 2, 4, 6, 8, 10?",
+                    "answer": "Range = 8. Q1=4, Q3=8, IQR=4."
+          },
+          {
+                    "question": "Standard deviation formula?",
+                    "answer": "σ = √(Σ(x-μ)²/n)."
+          },
+          {
+                    "question": "Outlier bounds: 1.5·IQR?",
+                    "answer": "Low: Q1-1.5·IQR. High: Q3+1.5·IQR."
+          },
+          {
+                    "question": "Variance definition?",
+                    "answer": "Squared standard deviation, σ²."
+          },
+          {
+                    "question": "Quartiles divide data into?",
+                    "answer": "Four equal groups."
+          },
+          {
+                    "question": "Mode definition?",
+                    "answer": "Most frequent value."
+          },
+          {
+                    "question": "Skewed left or right: long tail?",
+                    "answer": "Tail direction indicates skew."
+          },
+          {
+                    "question": "CV (coefficient of variation)?",
+                    "answer": "σ/μ. Relative standard deviation."
+          },
+          {
+                    "question": "Linear regression y = a + bx. Slope b?",
+                    "answer": "b = r(sᵧ/sₓ). r = correlation, s = std dev."
+          },
+          {
+                    "question": "Correlation r = ±1 means?",
+                    "answer": "r=1: perfect positive. r=-1: perfect negative."
+          },
+          {
+                    "question": "R² represents?",
+                    "answer": "Proportion of variance explained (0 to 1)."
+          },
+          {
+                    "question": "Residual = ?",
+                    "answer": "Actual - Predicted."
+          },
+          {
+                    "question": "Good model has?",
+                    "answer": "High R², small residuals, random residuals, normal distribution."
+          },
+          {
+                    "question": "Least squares regression minimizes?",
+                    "answer": "Sum of squared residuals."
+          },
+          {
+                    "question": "Slope standard error SE(b)?",
+                    "answer": "Measures slope variability in sampling."
+          },
+          {
+                    "question": "Prediction interval vs confidence interval?",
+                    "answer": "Prediction: for new individual point. Confidence: for mean."
+          },
+          {
+                    "question": "Outliers affect regression how?",
+                    "answer": "Greatly. High leverage points distort slope/intercept."
+          },
+          {
+                    "question": "Multicollinearity in multiple regression?",
+                    "answer": "Predictors highly correlated. Inflates SE(b)."
+          },
+          {
+                    "question": "Regression line passes through?",
+                    "answer": "(x̄, ȳ). Mean point always on line."
+          },
+          {
+                    "question": "Causation vs correlation?",
+                    "answer": "Correlation: related. Causation: one causes other."
+          },
+          {
+                    "question": "Confidence interval for slope?",
+                    "answer": "slope ± t*·SE(slope)."
+          },
+          {
+                    "question": "Test H₀: slope = 0 uses?",
+                    "answer": "t-statistic = slope/SE(slope)."
+          },
+          {
+                    "question": "Model assumptions?",
+                    "answer": "Linearity, independence, normality of residuals, constant variance, no outliers."
+          },
+          {
+                    "question": "Extrapolation danger?",
+                    "answer": "Predicting beyond data range unreliable."
+          },
+          {
+                    "question": "ANOVA F-test regression?",
+                    "answer": "Tests if overall model significant."
+          },
+          {
+                    "question": "Cook's distance?",
+                    "answer": "Measures influence of each observation."
+          },
+          {
+                    "question": "p-value < 0.05 interpretation?",
+                    "answer": "Statistically significant at 5% level."
+          },
+          {
+                    "question": "Regression equation example?",
+                    "answer": "y = 2.3x - 1.5 means: increase x by 1 → y increases by 2.3."
+          },
+        ];
+    </script>
+</body>
+</html>

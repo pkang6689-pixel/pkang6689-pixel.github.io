@@ -354,6 +354,18 @@
           </div>
           <div class="course-breakdown">
             <div class="account-field">
+              <span class="account-field-label" data-i18n="📐 Algebra 1">📐 Algebra 1</span>
+              <span class="account-field-value"><span id="alg1-started">0</span> <span data-i18n="started">started</span> / <span id="alg1-completed">0</span> <span data-i18n="completed">completed</span></span>
+            </div>
+            <div class="account-field">
+              <span class="account-field-label" data-i18n="📐 Algebra 2">📐 Algebra 2</span>
+              <span class="account-field-value"><span id="alg2-started">0</span> <span data-i18n="started">started</span> / <span id="alg2-completed">0</span> <span data-i18n="completed">completed</span></span>
+            </div>
+            <div class="account-field">
+              <span class="account-field-label" data-i18n="△ Geometry">△ Geometry</span>
+              <span class="account-field-value"><span id="geometry-started">0</span> <span data-i18n="started">started</span> / <span id="geometry-completed">0</span> <span data-i18n="completed">completed</span></span>
+            </div>
+            <div class="account-field">
               <span class="account-field-label" data-i18n="⚡ Physics">⚡ Physics</span>
               <span class="account-field-value"><span id="physics-started">0</span> <span data-i18n="started">started</span> / <span id="physics-completed">0</span> <span data-i18n="completed">completed</span></span>
             </div>
@@ -400,6 +412,9 @@
   
   // Per-course tracking
   const courseProgress = {
+    alg1: { started: new Set(), completed: new Set() },
+    alg2: { started: new Set(), completed: new Set() },
+    geometry: { started: new Set(), completed: new Set() },
     physics: { started: new Set(), completed: new Set() },
     chem: { started: new Set(), completed: new Set() },
     bio: { started: new Set(), completed: new Set() }
@@ -409,9 +424,9 @@
     const key = localStorage.key(i);
     if (!key) continue;
     
-    // Match patterns like physics_u1_l2_started, chem_u3_l4_completed, bio_u1_l1_started
-    const startedMatch = key.match(/^(physics|phys|chem|bio)_u(\d+)_l(\d+)_started$/);
-    const completedMatch = key.match(/^(physics|phys|chem|bio)_u(\d+)_l(\d+)_completed$/);
+    // Match patterns like physics_u1_l2_started, chem_u3_l4_completed, bio_u1_l1_started, alg1_u1_l1_started, alg2_u1_l1_started, geometry_u1_l1_started
+    const startedMatch = key.match(/^(physics|phys|chem|bio|alg1|alg2|geometry)_u(\d+)_l(\d+)_started$/);
+    const completedMatch = key.match(/^(physics|phys|chem|bio|alg1|alg2|geometry)_u(\d+)_l(\d+)_completed$/);
     
     if (startedMatch && localStorage.getItem(key) === 'true') {
       const subject = startedMatch[1] === 'phys' ? 'physics' : startedMatch[1];
@@ -425,6 +440,12 @@
         courseProgress.chem.started.add(lessonKey);
       } else if (subject === 'bio') {
         courseProgress.bio.started.add(lessonKey);
+      } else if (subject === 'alg1') {
+        courseProgress.alg1.started.add(lessonKey);
+      } else if (subject === 'alg2') {
+        courseProgress.alg2.started.add(lessonKey);
+      } else if (subject === 'geometry') {
+        courseProgress.geometry.started.add(lessonKey);
       }
     }
     
@@ -440,6 +461,12 @@
         courseProgress.chem.completed.add(lessonKey);
       } else if (subject === 'bio') {
         courseProgress.bio.completed.add(lessonKey);
+      } else if (subject === 'alg1') {
+        courseProgress.alg1.completed.add(lessonKey);
+      } else if (subject === 'alg2') {
+        courseProgress.alg2.completed.add(lessonKey);
+      } else if (subject === 'geometry') {
+        courseProgress.geometry.completed.add(lessonKey);
       }
     }
   }
@@ -449,6 +476,12 @@
   document.getElementById('lessons-completed').textContent = completedLessons.size;
   
   // Update per-course counts
+  document.getElementById('alg1-started').textContent = courseProgress.alg1.started.size;
+  document.getElementById('alg1-completed').textContent = courseProgress.alg1.completed.size;
+  document.getElementById('alg2-started').textContent = courseProgress.alg2.started.size;
+  document.getElementById('alg2-completed').textContent = courseProgress.alg2.completed.size;
+  document.getElementById('geometry-started').textContent = courseProgress.geometry.started.size;
+  document.getElementById('geometry-completed').textContent = courseProgress.geometry.completed.size;
   document.getElementById('physics-started').textContent = courseProgress.physics.started.size;
   document.getElementById('physics-completed').textContent = courseProgress.physics.completed.size;
   document.getElementById('chem-started').textContent = courseProgress.chem.started.size;

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 6: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 6 Review Flashcards</h2>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="document.getElementById('practice-content-view').style.display='none';document.getElementById('quiz-content-view').style.display='block';" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+
+<div id="quiz-content-view">
+<h2 class="page-title">Unit 6: Unit Test</h2>
+<div class="diagram-card">
+<div class="quiz-container">
+<form id="quiz-form">
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. Find 5th term: 2, 5, 8, 11, ...</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> 14
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> 17
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> 16
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> 15
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q1', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">2. Common difference of −3, −1, 1, 3</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="a"/> 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="b"/> −2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="c"/> 4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="d"/> 1
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q2', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">3. General term aₙ if a₁=3, d=4</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="a"/> aₙ=4n−1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="b"/> aₙ=3n+4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="c"/> aₙ=4n+3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="d"/> aₙ=3n−4
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q3', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">4. Arithmetic a₁=1, a₅=13. Find d</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="a"/> d=3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="b"/> d=2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="c"/> d=4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="d"/> d=5
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q4', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">5. Find a₁₀ if a₁=5, d=−2</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="a"/> −15
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="b"/> −13
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="c"/> −5
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="d"/> 25
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q5', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">6. 20th term if pattern '+5': first 3</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="a"/> 95
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="b"/> 100
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="c"/> 105
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="d"/> 110
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q6', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">7. Sequence with pattern?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="a"/> arithmetic
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="b"/> constant
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="c"/> quadratic
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="d"/> all linear
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q7', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">8. Sum of 1+2+3+...+10</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="a"/> 55
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="b"/> 50
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="c"/> 45
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="d"/> 60
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q8', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">9. Arithmetic sum formula</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="a"/> S = n(a₁+aₙ)/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="b"/> S = n·a₁·d
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="c"/> S = n·aₙ
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="d"/> S = a₁/(1−r)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q9', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">10. Sum first 12 terms if a₁=3, d=2</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="a"/> 168
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="b"/> 180
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="c"/> 192
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="d"/> 204
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q10', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">11. Sum 2+4+6+...+20 terms?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="a"/> 110
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="b"/> 100
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="c"/> 120
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="d"/> 140
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q11', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">12. Arithmetic series 5+10+15+...+100</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="a"/> 1050
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="b"/> 1100
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="c"/> 1150
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="d"/> 1200
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q12', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">13. Find n if sum = 210, a₁=3, d=3</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="a"/> n=12
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="b"/> n=10
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="c"/> n=14
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="d"/> n=15
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q13', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">14. Common diff 2, terms 15, sum?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="a"/> S = 15a₁+210
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="b"/> S = 15a₁+14d
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="c"/> S = nS/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="d"/> varies
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q14', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">15. Geometric: 1, 2, 4, 8. Ratio r = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="a"/> 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="b"/> 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="c"/> 4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="d"/> 1/2
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q15', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">16. 5th term r=3, a₁=2</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="a"/> 162
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="b"/> 81
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="c"/> 243
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="d"/> 486
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q16', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">17. General term aₙ = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="a"/> a₁·r^(n−1)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="b"/> a₁·r^n
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="c"/> a₁+d(n−1)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="d"/> a₁/(1−r)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q17', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">18. Geometric a₁=1, a₃=4. Find r</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="a"/> ±2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="b"/> 4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="c"/> 3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="d"/> 1/2
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q18', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">19. Sum ∞ geom |r| < 1: S = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="a"/> a₁/(1−r)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="b"/> a₁·r
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="c"/> a₁/(1+r)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="d"/> ∞
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q19', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">20. Converges if</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="a"/> |r|
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="b"/> |r| > 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="c"/> r = 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="d"/> always
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q20', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">21. Sum 0.5 + 0.25 + 0.125 + ...?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="a"/> 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="b"/> 0.75
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="c"/> 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="d"/> ∞
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q21', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">22. ∑(i=1 to 5) i² = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="a"/> 55
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="b"/> 35
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="c"/> 25
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="d"/> 15
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q22', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">23. Sigma ∑ notation means</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="a"/> summation
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="b"/> product
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="c"/> sequence
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="d"/> difference
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q23', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">24. ∑(i=1 to n) i = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="a"/> n(n+1)/2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="b"/> n!
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="c"/> 2n
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="d"/> n²
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q24', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">25. Express 1+4+9+16 as sum</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="a"/> ∑i² from 1 to 4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="b"/> ∑i from 1 to 4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="c"/> ∑2i
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="d"/> ∑(i+1)²
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q25', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">26. ∑(k=1 to 20) k³ = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="a"/> 44100
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="b"/> 41000
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="c"/> 42000
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="d"/> 45000
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q26', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">27. Index variable in ∑ is</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="a"/> dummy variable
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="b"/> fixed
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="c"/> constant
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="d"/> limit
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q27', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">28. Summation upper index</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="a"/> inclusive
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="b"/> exclusive
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="c"/> depends
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="d"/> none
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q28', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+</form>
+</div>
+</div>
+</main>
+<!-- ArisEdu Global Search -->
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/taskbar.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/quiz_ui.js"></script>
+<script>
+        window.lessonFlashcards = [
+          {
+                    "question": "Arithmetic sequence 3, 7, 11, ... Find a₁₀",
+                    "answer": "39. d = 4. a₁₀ = 3 + 9(4) = 39."
+          },
+          {
+                    "question": "Common difference of -2, -5, -8, ...?",
+                    "answer": "d = -3. Subtract consecutive terms."
+          },
+          {
+                    "question": "Sum of first 20 terms: 5 + 10 + 15 + ...?",
+                    "answer": "1050. S₂₀ = 20/2 · (5 + 100) = 1050."
+          },
+          {
+                    "question": "Find a₅ if a₁ = 2 and d = 3",
+                    "answer": "14. a₅ = 2 + 4(3) = 14."
+          },
+          {
+                    "question": "Insert two arithmetic means between 2 and 11",
+                    "answer": "5, 8. Sequence: 2, 5, 8, 11 with d = 3."
+          },
+          {
+                    "question": "Formula for nth term: aₙ = ?",
+                    "answer": "aₙ = a₁ + (n-1)d. General arithmetic sequence formula."
+          },
+          {
+                    "question": "Sum formula: Sₙ = ?",
+                    "answer": "Sₙ = n/2(a₁ + aₙ) or Sₙ = n/2(2a₁ + (n-1)d)."
+          },
+          {
+                    "question": "Find d if a₁ = 5, a₅ = 13",
+                    "answer": "d = 2. 13 = 5 + 4d."
+          },
+          {
+                    "question": "Arithmetic or geometric? 2, 4, 6, 8, ...",
+                    "answer": "Arithmetic with d = 2."
+          },
+          {
+                    "question": "Sum of 1 + 2 + 3 + ... + 100?",
+                    "answer": "5050. Using formula: 100/2 · 101."
+          },
+          {
+                    "question": "Geometric sequence 2, 6, 18, ... Find r and a₅",
+                    "answer": "r = 3. a₅ = 2·3⁴ = 162."
+          },
+          {
+                    "question": "Which is geometric? a) 5, 10, 15... b) 2, 6, 18... c) 1, 4, 9...",
+                    "answer": "b) 2, 6, 18 with r = 3. Constant ratio."
+          },
+          {
+                    "question": "Sum of geometric: 1 + 2 + 4 + ... + 512?",
+                    "answer": "1023. a₁ = 1, r = 2, n = 10. S₁₀ = (2¹⁰-1)/(2-1)."
+          },
+          {
+                    "question": "Bouncing ball drops 10m, bounces 70% each time. Total height?",
+                    "answer": "≈ 33.3m. Sum of infinite series with r = 0.7."
+          },
+          {
+                    "question": "Find r if a₁ = 3, a₆ = 96",
+                    "answer": "r = 2. 96 = 3·r⁵."
+          },
+          {
+                    "question": "Formula for nth term: aₙ = ?",
+                    "answer": "aₙ = a₁ · r^(n-1)."
+          },
+          {
+                    "question": "Sum formula: Sₙ = ?",
+                    "answer": "Sₙ = a₁(r^n - 1)/(r - 1) if r ≠ 1."
+          },
+          {
+                    "question": "Solve 3·(1/2)^(n-1) = 3/32",
+                    "answer": "n = 6. (1/2)^(n-1) = 1/32 = (1/2)⁵."
+          },
+          {
+                    "question": "Growth factor 1.05 means what percentage increase?",
+                    "answer": "5% growth per period."
+          },
+          {
+                    "question": "Geometric or arithmetic? 5, 10, 20, 40, ...",
+                    "answer": "Geometric with r = 2."
+          },
+          {
+                    "question": "Sigma notation Σᵢ₌₁⁵ (2i) = ?",
+                    "answer": "30. Sum: 2+4+6+8+10 = 30."
+          },
+          {
+                    "question": "What is Σᵢ₌₁ⁿ i?",
+                    "answer": "n(n+1)/2. Sum of first n positive integers."
+          },
+          {
+                    "question": "Σᵢ₌₁ⁿ i² = ?",
+                    "answer": "n(n+1)(2n+1)/6."
+          },
+          {
+                    "question": "Telescoping: Σᵢ₌₁ⁿ (1/i - 1/(i+1))?",
+                    "answer": "1 - 1/(n+1). Most terms cancel."
+          },
+          {
+                    "question": "Evaluate Σᵢ₌₁³ (i² + 2i)",
+                    "answer": "26. (1+2) + (4+4) + (9+6) = 3 + 8 + 15."
+          },
+          {
+                    "question": "Notation Σᵢ₌₀ⁿ means?",
+                    "answer": "Sum from i = 0 to i = n. Start at 0, end at n."
+          },
+          {
+                    "question": "Write without sigma: Σᵢ₌₁⁴ i",
+                    "answer": "1 + 2 + 3 + 4."
+          },
+          {
+                    "question": "Σₖ₌₁ⁿ c (where c is constant)?",
+                    "answer": "cn. Sum of n identical terms."
+          },
+          {
+                    "question": "Linearity: Σ(aᵢ + bᵢ) = ?",
+                    "answer": "Σaᵢ + Σbᵢ. Sum distributes over addition."
+          },
+          {
+                    "question": "Σᵢ₌₁⁵ (3i + 1)?",
+                    "answer": "45. 3(1+2+3+4+5) + 5 = 45 + 5 = 50... check: 4+7+10+13+16."
+          },
+          {
+                    "question": "Sum of infinite series: 1 + 1/3 + 1/9 + ...",
+                    "answer": "3/2. a = 1, r = 1/3. S = 1/(1-1/3)."
+          },
+          {
+                    "question": "Does 1 + 1 + 1 + ... converge?",
+                    "answer": "No. r = 1, diverges. Constant series."
+          },
+          {
+                    "question": "Express 0.333... as fraction",
+                    "answer": "1/3. Geometric series: (3/10)/(1-1/10)."
+          },
+          {
+                    "question": "Convergence condition: |r| < 1",
+                    "answer": "True. Geometric series Σ aᵣⁿ converges iff |r| < 1."
+          },
+          {
+                    "question": "0.777... as fraction?",
+                    "answer": "7/9. Series: (7/10)/(1-1/10)."
+          },
+          {
+                    "question": "Sum diverges if?",
+                    "answer": "|r| ≥ 1. Series doesn't converge to finite value."
+          },
+          {
+                    "question": "Formula: S = a/(1-r) applies when?",
+                    "answer": "When |r| < 1 and sequence is geometric."
+          },
+          {
+                    "question": "0.̄9̄ (repeating 9s) = ?",
+                    "answer": "1. Limit: (9/10)/(1-1/10) = 1."
+          },
+          {
+                    "question": "Sum of 5 + 1 + 1/5 + 1/25 + ...",
+                    "answer": "25/4. a = 5, r = 1/5. S = 5/(1-1/5)."
+          },
+          {
+                    "question": "Repeating decimal 0.2̄3̄ as fraction?",
+                    "answer": "23/99. Repeating from start: (23/100)/(1-1/100)."
+          },
+          {
+                    "question": "Mathematical induction: prove n! > 2ⁿ for n ≥ 5",
+                    "answer": "Base: 5! = 120 > 32. Step: if k!>2^k, then (k+1)! > 2^(k+1)."
+          },
+          {
+                    "question": "Induction steps?",
+                    "answer": "1) Base case (n=1). 2) Inductive step: assume true for k, prove k+1."
+          },
+          {
+                    "question": "Prove Σᵢ₌₁ⁿ (2i-1) = n²",
+                    "answer": "Base: 1 = 1². Step: if k², then k² + 2(k+1)-1 = (k+1)²."
+          },
+          {
+                    "question": "Annuity future value?",
+                    "answer": "FV = PMT·((1+r)ⁿ - 1)/r. Regular deposits earning interest."
+          },
+          {
+                    "question": "Annuity present value?",
+                    "answer": "PV = PMT·(1 - (1+r)^(-n))/r. Lump sum for sequence."
+          },
+          {
+                    "question": "Simple vs compound interest?",
+                    "answer": "Simple: I = Prt once. Compound: A = P(1+r/n)^(nt) repeated."
+          },
+          {
+                    "question": "Loan amortization: equal payments over time?",
+                    "answer": "Uses PV annuity formula. Payment = PV·r/[1-(1+r)^(-n)]."
+          },
+          {
+                    "question": "Sinking fund: future amount goal, regular deposits?",
+                    "answer": "Uses FV annuity formula backward."
+          },
+          {
+                    "question": "Prove: 1 + r + r² + ... + r^(n-1) = (r^n - 1)/(r - 1)?",
+                    "answer": "Geometric series sum formula."
+          },
+          {
+                    "question": "Investment doubling formula: t = ln(2)/r?",
+                    "answer": "True for continuous A = Pe^(rt). t = ln(2)/r years."
+          },
+        ];
+    </script>
+</body>
+</html>

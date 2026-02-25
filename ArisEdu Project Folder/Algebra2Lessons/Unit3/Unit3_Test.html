@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 3: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 3 Review Flashcards</h2>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="document.getElementById('practice-content-view').style.display='none';document.getElementById('quiz-content-view').style.display='block';" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+
+<div id="quiz-content-view">
+<h2 class="page-title">Unit 3: Unit Test</h2>
+<div class="diagram-card">
+<div class="quiz-container">
+<form id="quiz-form">
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">1. (3x²+2x−5)+(x²−3x+7) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="a"/> 4x²−x+2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="b"/> 4x²+5x−12
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="c"/> 2x²−x−2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q1" style="margin-right:0.5rem;" type="radio" value="d"/> 4x²−x−2
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q1', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">2. (2x³−x)−(x³+2x−1) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="a"/> x³−3x+1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="b"/> x³−x−1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="c"/> 3x³−3x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q2" style="margin-right:0.5rem;" type="radio" value="d"/> x³−3x
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q2', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">3. (x+3)(x−2) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="a"/> x²+x−6
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="b"/> x²−6
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="c"/> x²+5x−6
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q3" style="margin-right:0.5rem;" type="radio" value="d"/> x²−x+6
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q3', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">4. (2x+1)² = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="a"/> 4x²+4x+1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="b"/> 4x²+1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="c"/> 4x²+2x+1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q4" style="margin-right:0.5rem;" type="radio" value="d"/> 4x²−4x+1
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q4', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">5. (x²+2x+1)(x−1) = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="a"/> x³+x²−1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="b"/> x³−1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="c"/> x³+x−1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q5" style="margin-right:0.5rem;" type="radio" value="d"/> x³+2x²+x
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q5', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">6. Degree of (x²−1)(x³+x)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="a"/> degree 5
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="b"/> degree 3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="c"/> degree 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q6" style="margin-right:0.5rem;" type="radio" value="d"/> degree 6
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q6', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">7. Leading coeff of 5x⁴−3x²+2</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="a"/> 5
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="b"/> −3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="c"/> 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q7" style="margin-right:0.5rem;" type="radio" value="d"/> 1
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q7', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">8. Factor x² + 5x + 6</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="a"/> (x+2)(x+3)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="b"/> (x+1)(x+6)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="c"/> (x+2)(x+2)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q8" style="margin-right:0.5rem;" type="radio" value="d"/> (x+3)²
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q8', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">9. Factor 2x² − 11x + 5</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="a"/> (2x−1)(x−5)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="b"/> (2x−5)(x−1)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="c"/> (2x+1)(x+5)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q9" style="margin-right:0.5rem;" type="radio" value="d"/> (x−1)(x−5)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q9', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">10. Difference x² − 16</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="a"/> (x−4)(x+4)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="b"/> (x−4)²
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="c"/> (x+4)²
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q10" style="margin-right:0.5rem;" type="radio" value="d"/> prime
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q10', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">11. GCF of 12x³ + 18x²</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="a"/> 6x²
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="b"/> 6x
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="c"/> 2x²
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q11" style="margin-right:0.5rem;" type="radio" value="d"/> 3x
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q11', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">12. Factor by grouping xy+xz+wy+wz</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="a"/> (y+z)(x+w)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="b"/> (x+w)(y+z)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="c"/> (x+y)(z+w)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q12" style="margin-right:0.5rem;" type="radio" value="d"/> prime
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q12', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">13. Difference cubes x³ − 27</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="a"/> (x−3)(x²+3x+9)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="b"/> (x−3)³
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="c"/> (x−3)(x²−3x+9)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q13" style="margin-right:0.5rem;" type="radio" value="d"/> prime
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q13', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">14. Perfect square x² + 8x + 16</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="a"/> (x+4)²
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="b"/> (x+8)²
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="c"/> (x+2)²
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q14" style="margin-right:0.5rem;" type="radio" value="d"/> (x+16)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q14', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">15. Divide x³−6x²+11x−6 by x−1</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="a"/> x²−5x+6
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="b"/> x²−6x+11
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="c"/> x²−7x+4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q15" style="margin-right:0.5rem;" type="radio" value="d"/> x²+5x−6
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q15', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">16. Remainder (2x³+3x−5)÷(x−2)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="a"/> 9
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="b"/> 8
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="c"/> 11
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q16" style="margin-right:0.5rem;" type="radio" value="d"/> −3
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q16', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">17. (x−3) factor of x³−4x²+x+6?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="a"/> yes
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="b"/> no
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="c"/> maybe
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q17" style="margin-right:0.5rem;" type="radio" value="d"/> undefined
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q17', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">18. Quotient x⁴−16÷(x−2)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="a"/> x³+2x²+4x+8
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="b"/> x³−2x²+4x−8
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="c"/> x³+4x+8
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q18" style="margin-right:0.5rem;" type="radio" value="d"/> x³−4x
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q18', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">19. f(x)=(x−2)q(x)+r, then r = ?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="a"/> f(2)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="b"/> f(−2)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="c"/> q(2)
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q19" style="margin-right:0.5rem;" type="radio" value="d"/> q(−2)
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q19', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">20. Synthetic div divisor (x−5)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="a"/> use 5
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="b"/> use −5
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="c"/> use 1/5
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q20" style="margin-right:0.5rem;" type="radio" value="d"/> use 5x
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q20', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">21. Remainder 3x³−5x+2 by x+1</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="a"/> 4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="b"/> 0
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="c"/> −6
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q21" style="margin-right:0.5rem;" type="radio" value="d"/> 2
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q21', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">22. Zeros of (x−1)(x+2)²(x−3)</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="a"/> 1, −2(m2), 3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="b"/> 1, 2, 3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="c"/> −1, −2, −3
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q22" style="margin-right:0.5rem;" type="radio" value="d"/> 0, 1, 2
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q22', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">23. End behavior −2x⁴+5x²</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="a"/> both →−∞
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="b"/> both →+∞
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="c"/> mixed
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q23" style="margin-right:0.5rem;" type="radio" value="d"/> undefined
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q23', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">24. Even multiplicity zero</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="a"/> touches
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="b"/> crosses
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="c"/> undefined
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q24" style="margin-right:0.5rem;" type="radio" value="d"/> skips
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q24', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">25. Odd multiplicity zero</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="a"/> crosses
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="b"/> touches
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="c"/> undefined
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q25" style="margin-right:0.5rem;" type="radio" value="d"/> skips
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q25', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">26. Zeros of x³−2x²−8x</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="a"/> 0, 4, −2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="b"/> 0, 2, 4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="c"/> 1, 2, −4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q26" style="margin-right:0.5rem;" type="radio" value="d"/> −1, 2, 3
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q26', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">27. Sketch (x+1)²(x−2): mult?</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="a"/> −1: mult 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="b"/> −1: mult 1
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="c"/> 2: mult 2
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q27" style="margin-right:0.5rem;" type="radio" value="d"/> both 1
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q27', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+<div class="quiz-question" data-attempts="2" style="margin-bottom: 2rem;">
+<div class="attempts-indicator">Attempts left: 2</div>
+<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">28. Degree 5 polynomial zeros</p>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="a"/> 1, 3, or 5
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="b"/> exactly 5
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="c"/> 2 or 4
+</label>
+<label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
+<input name="q28" style="margin-right:0.5rem;" type="radio" value="d"/> 1 or 2
+</label>
+<button class="side-button" onclick="checkQuizAnswer('q28', 'a', this)" style="margin-top:0.5rem; font-size:1rem; padding:0.5rem 1rem; min-width:auto;" type="button">Check Answer</button>
+</div>
+</form>
+</div>
+</div>
+</main>
+<!-- ArisEdu Global Search -->
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/taskbar.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/quiz_ui.js"></script>
+<script>
+        window.lessonFlashcards = [
+          {
+                    "question": "Add (3x² + 2x - 5) + (x² - 3x + 7)",
+                    "answer": "4x² - x + 2. Combine like terms."
+          },
+          {
+                    "question": "Subtract (2x³ - x) - (x³ + 2x - 1)",
+                    "answer": "x³ - 3x + 1. Distribute negative, combine like terms."
+          },
+          {
+                    "question": "Multiply (x + 3)(x - 2)",
+                    "answer": "x² + x - 6. FOIL: x² - 2x + 3x - 6."
+          },
+          {
+                    "question": "Expand (2x + 1)²",
+                    "answer": "4x² + 4x + 1. (a+b)² = a² + 2ab + b²."
+          },
+          {
+                    "question": "Multiply (x² + 2x + 1)(x - 1)",
+                    "answer": "x³ + x² - 1. Use distributive property."
+          },
+          {
+                    "question": "Divide 6x³ + 9x² by 3x",
+                    "answer": "2x² + 3x. Divide each term."
+          },
+          {
+                    "question": "Degree of (x² - 1)(x³ + x)",
+                    "answer": "Degree 5. Degrees add: 2 + 3 = 5."
+          },
+          {
+                    "question": "Leading coefficient of 5x⁴ - 3x² + 2",
+                    "answer": "5. Coefficient of highest degree term."
+          },
+          {
+                    "question": "Subtract 2x² from 5x²",
+                    "answer": "3x². Same variable, same power."
+          },
+          {
+                    "question": "Simplify (3x²y)(2xy²)",
+                    "answer": "6x³y³. Multiply coefficients and variables (add powers)."
+          },
+          {
+                    "question": "Factor x² + 5x + 6",
+                    "answer": "(x + 2)(x + 3). Two numbers: 2, 3 sum to 5, product 6."
+          },
+          {
+                    "question": "Factor 2x² - 11x + 5",
+                    "answer": "(2x - 1)(x - 5). AC method: a·c = 10, pair 1·10."
+          },
+          {
+                    "question": "Factor x² - 16",
+                    "answer": "(x - 4)(x + 4). Difference of squares: a² - b² = (a-b)(a+b)."
+          },
+          {
+                    "question": "GCF of 12x³ + 18x²",
+                    "answer": "6x². Largest common factor."
+          },
+          {
+                    "question": "Factor 3x² + 12",
+                    "answer": "3(x² + 4). Cannot factor further (sum of squares)."
+          },
+          {
+                    "question": "Factor by grouping: xy + xz + wy + wz",
+                    "answer": "(y + z)(x + w). Group: x(y+z) + w(y+z)."
+          },
+          {
+                    "question": "Factor x³ - 27",
+                    "answer": "(x - 3)(x² + 3x + 9). Difference of cubes: a³ - b³ = (a-b)(a²+ab+b²)."
+          },
+          {
+                    "question": "Perfect square trinomial x² + 8x + 16",
+                    "answer": "(x + 4)². Form (a+b)² = a² + 2ab + b²."
+          },
+          {
+                    "question": "Factor 5x² - 20",
+                    "answer": "5(x² - 4) = 5(x-2)(x+2)."
+          },
+          {
+                    "question": "Factor x⁴ - 1",
+                    "answer": "(x² - 1)(x² + 1) = (x-1)(x+1)(x²+1). Difference of squares twice."
+          },
+          {
+                    "question": "Divide x³ - 6x² + 11x - 6 by x - 1",
+                    "answer": "x² - 5x + 6. Quotient: use long or synthetic division."
+          },
+          {
+                    "question": "Synthetic division: (2x³ + 3x - 5) ÷ (x - 2)",
+                    "answer": "Quotient 2x² + 4x + 11, remainder 17."
+          },
+          {
+                    "question": "Use remainder theorem: f(x) = x³ - 2x + 5, remainder when divided by (x + 1)?",
+                    "answer": "f(-1) = -1 + 2 + 5 = 6. Remainder is 6."
+          },
+          {
+                    "question": "Divide x⁴ - 16 by x - 2",
+                    "answer": "Quotient x³ + 2x² + 4x + 8, remainder 0 (exact division)."
+          },
+          {
+                    "question": "Is (x - 3) a factor of x³ - 4x² + x + 6?",
+                    "answer": "Test: f(3) = 27 - 36 + 3 + 6 = 0. Yes, it's a factor."
+          },
+          {
+                    "question": "Quotient when x⁴ + 2x³ - x² - 4x is divided by x + 2?",
+                    "answer": "x³ - x + 2. Use synthetic division or factor x(x³+2x²-x-4)."
+          },
+          {
+                    "question": "Remainder of (3x³ - 5x + 2) ÷ (x + 1)?",
+                    "answer": "f(-1) = -3 + 5 + 2 = 4. Remainder is 4."
+          },
+          {
+                    "question": "Setup for synthetic division: divisor (x - 5)",
+                    "answer": "Use 5 in synthetic division. For (x - c), use c in box."
+          },
+          {
+                    "question": "If f(x) = (x - 2)q(x) + r, what is r?",
+                    "answer": "r = f(2). Remainder when f(x) divided by (x - 2)."
+          },
+          {
+                    "question": "Write P(x) = (x-1)Q(x) + 5 where Q(x) is quotient",
+                    "answer": "Form shows P(x) divided by (x-1) has quotient Q(x) and remainder 5."
+          },
+          {
+                    "question": "Find zeros of f(x) = (x - 1)(x + 2)²(x - 3)",
+                    "answer": "x = 1, -2 (multiplicity 2), 3. Factors give zeros."
+          },
+          {
+                    "question": "End behavior of f(x) = -2x⁴ + 5x²",
+                    "answer": "As x→∞, f→-∞; as x→-∞, f→-∞. Even degree, negative leading coeff."
+          },
+          {
+                    "question": "Multiplicity 3 zero at x = 2 means what?",
+                    "answer": "Graph crosses at x=2 with inflection point. Odd multiplicity = crosses."
+          },
+          {
+                    "question": "Find all zeros: f(x) = x³ - 2x² - 8x",
+                    "answer": "x = 0, 4, -2. Factor: x(x² - 2x - 8) = x(x-4)(x+2)."
+          },
+          {
+                    "question": "Even multiplicity zero behavior",
+                    "answer": "Graph touches but doesn't cross x-axis (bounce). Local extremum."
+          },
+          {
+                    "question": "Sketch f(x) = (x + 1)²(x - 2). Zeros, multiplicities, end behavior?",
+                    "answer": "Zeros: -1 (mult. 2, touches), 2 (mult. 1, crosses). Opens up (positive leading coeff, degree 3)."
+          },
+          {
+                    "question": "Number of real zeros: degree 5 polynomial",
+                    "answer": "Can have 1, 3, or 5 real zeros. Complex zeros come in pairs."
+          },
+          {
+                    "question": "Local maximum/minimum occur at zeros of what?",
+                    "answer": "Zeros of derivative f'(x). Critical points."
+          },
+          {
+                    "question": "If zero has multiplicity 4, touching or crossing?",
+                    "answer": "Touching (even multiplicity). Local extremum, doesn't cross."
+          },
+          {
+                    "question": "Write polynomial: zeros at -3, 0, 2; passes (1, 4)",
+                    "answer": "f(x) = a(x+3)x(x-2). Find a: f(1) = a(4)(1)(-1) = -4a = 4, so a = -1."
+          },
+          {
+                    "question": "Remainder theorem: f(x) = 2x³ + 5x - 3, remainder when divided by (x - 2)?",
+                    "answer": "f(2) = 16 + 10 - 3 = 23. Remainder is 23."
+          },
+          {
+                    "question": "Use factor theorem: Is (x + 1) a factor of x³ + 2x² + x?",
+                    "answer": "f(-1) = -1 + 2 - 1 = 0. Yes, (x+1) is a factor."
+          },
+          {
+                    "question": "Verify (x - 3) divides x⁴ - 3x³ - 4x + 12",
+                    "answer": "f(3) = 81 - 81 - 12 + 12 = 0. Yes, divisible."
+          },
+          {
+                    "question": "If f(3) = 0, what factor appears in f(x)?",
+                    "answer": "(x - 3) is a factor of f(x)."
+          },
+          {
+                    "question": "Divide to find quotient when (x - 2) divides 2x⁴ + x³ - 7x + 2",
+                    "answer": "Use synthetic division with 2. Quotient: 2x³ + 5x² + 10x + 13, remainder 28."
+          },
+          {
+                    "question": "Express f(x) = (x - 2)(x + 1) + 5 as division statement",
+                    "answer": "f(x) divided by (x-2)(x+1) gives quotient 1, remainder 5 + terms."
+          },
+          {
+                    "question": "Remainder when 3x⁵ - 2x² + 7 divided by x + 2?",
+                    "answer": "f(-2) = -96 - 8 + 7 = -97. Remainder is -97."
+          },
+          {
+                    "question": "Factor theorem consequence: if f(a) = 0, then?",
+                    "answer": "(x - a) is a factor AND (x - a) divides f(x) evenly."
+          },
+          {
+                    "question": "What does remainder 0 indicate in division?",
+                    "answer": "Divisor is a factor. Polynomial divides evenly (no remainder)."
+          },
+          {
+                    "question": "Determine p such that (x - 2) divides x³ + px² - 4x - 8",
+                    "answer": "f(2) = 8 + 4p - 8 - 8 = 4p - 8 = 0, so p = 2."
+          },
+          {
+                    "question": "Add (3 + 2i) + (1 - 5i)",
+                    "answer": "4 - 3i. Add real and imaginary parts separately."
+          },
+          {
+                    "question": "Multiply (2 + i)(3 - i)",
+                    "answer": "7 + i. FOIL: 6 - 2i + 3i - i² = 6 + i + 1."
+          },
+          {
+                    "question": "Find conjugate of 4 - 7i",
+                    "answer": "4 + 7i. Change sign of imaginary part."
+          },
+          {
+                    "question": "Divide (5 + 2i)/(1 - i)",
+                    "answer": "(7 + 7i)/2 = 3.5 + 3.5i. Multiply by conjugate: (5+2i)(1+i)/((1-i)(1+i))."
+          },
+          {
+                    "question": "Find |3 + 4i| (magnitude)",
+                    "answer": "5. √(9 + 16) = √25 = 5."
+          },
+          {
+                    "question": "Simplify i⁴",
+                    "answer": "1. i² = -1, so i⁴ = (i²)² = 1."
+          },
+          {
+                    "question": "Solve x² + 4 = 0",
+                    "answer": "x = ±2i. x² = -4, x = ±√(-4) = ±2i."
+          },
+          {
+                    "question": "Write in a + bi form: (1 + i)/(1 - i)",
+                    "answer": "i. Multiply by conjugate: (1+i)²/(1-(-1)) = 2i/2 = i."
+          },
+          {
+                    "question": "If z = 2 - 3i, find z·z̄ (z times conjugate)",
+                    "answer": "13. (2-3i)(2+3i) = 4 + 9 = 13."
+          },
+          {
+                    "question": "Quadratic x² - 2x + 5 = 0 has complex roots?",
+                    "answer": "Yes: x = (2 ± √(4-20))/2 = (2 ± 4i)/2 = 1 ± 2i."
+          },
+          {
+                    "question": "Rational Root Theorem: possible rational roots of 2x³ - 3x + 1?",
+                    "answer": "±1, ±1/2. Factors of constant 1: ±1. Factors of leading 2: ±1, ±2."
+          },
+          {
+                    "question": "Test x = 1/2 in 2x³ + x² - 5x + 2",
+                    "answer": "f(1/2) = 1/4 + 1/4 - 5/2 + 2 = 0. Yes, x = 1/2 is a root."
+          },
+          {
+                    "question": "Descartes' Rule of Signs: x³ - 2x² + x - 1, positive roots?",
+                    "answer": "3 or 1 positive roots. Three sign changes: +x³ to -2x² to +x to -1."
+          },
+          {
+                    "question": "Number of possible negative roots using Descartes' Rule: f(-x)?",
+                    "answer": "Count sign changes in f(-x). (-x)³ - 2(-x)² + (-x) - 1 = -x³ - 2x² - x - 1: 0 sign changes = 0 negative roots."
+          },
+          {
+                    "question": "Test p/q = -3/2 in 2x³ + 5x² - 9x - 18",
+                    "answer": "f(-3/2) = -27/4 + 45/4 + 27/2 - 18 = ... (calculate)."
+          },
+          {
+                    "question": "If x³ - 5x² + 8x - 4 has factor (x - 1), other factors?",
+                    "answer": "(x - 1)² (x - 4). (x-1) has multiplicity 2."
+          },
+          {
+                    "question": "Bounds for real roots: if f(1) > 0 and f(2) < 0",
+                    "answer": "Root between 1 and 2 (Intermediate Value Theorem)."
+          },
+          {
+                    "question": "Upper/lower bounds test: Is x = 2 an upper bound for zeros of x³ - 3x + 1?",
+                    "answer": "Synthetic division: check if all signs positive (upper). 2: 1, 2, 1, 3. All ≥ 0, so upper bound."
+          },
+          {
+                    "question": "Total roots (real and complex) of degree 4 polynomial",
+                    "answer": "Exactly 4 roots (counting multiplicity). Fundamental Theorem of Algebra."
+          },
+          {
+                    "question": "If 2 + i is a root of polynomial with real coefficients, other root?",
+                    "answer": "2 - i. Complex roots come in conjugate pairs for real polynomials."
+          },
+        ];
+    </script>
+</body>
+</html>

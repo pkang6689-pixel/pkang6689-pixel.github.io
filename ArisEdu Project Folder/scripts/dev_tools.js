@@ -248,6 +248,34 @@
         }
         location.reload();
       }, 'green');
+  } else if (path.indexOf('algebra1.html') !== -1 || path.indexOf('Algebra1Lessons') !== -1) {
+      contextKeyPrefix = 'alg1_u';
+
+      addButton('\u2714 Finish All Algebra 1', function() {
+        if(!confirm('Complete ALL Algebra 1 lessons?')) return;
+        var allLessons = { '1': 8, '2': 10, '3': 6, '4': 9, '5': 13, '6': 16, '7': 11, '8': 10, '9': 12, '10': 11, '11': 8, '12': 5 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('alg1_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('alg1_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        location.reload();
+      }, 'green');
+  } else if (path.indexOf('algebra2.html') !== -1 || path.indexOf('Algebra2Lessons') !== -1) {
+      contextKeyPrefix = 'alg2_u';
+
+      addButton('\u2714 Finish All Algebra 2', function() {
+        if(!confirm('Complete ALL Algebra 2 lessons?')) return;
+        var allLessons = { '1': 10, '2': 8, '3': 8, '4': 7, '5': 8, '6': 6, '7': 8, '8': 7, '9': 5 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('alg2_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('alg2_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        location.reload();
+      }, 'green');
   }
 
   // Common Clear
@@ -387,7 +415,7 @@
       var keys = [];
       for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i);
-        if (k && (k.startsWith('chem_u') || k.startsWith('physics_u') || k.startsWith('bio_u') || k.startsWith('geometry_u'))) keys.push(k + ' = ' + localStorage.getItem(k));
+        if (k && (k.startsWith('alg1_u') || k.startsWith('alg2_u') || k.startsWith('chem_u') || k.startsWith('physics_u') || k.startsWith('bio_u') || k.startsWith('geometry_u'))) keys.push(k + ' = ' + localStorage.getItem(k));
       }
       keys.sort();
       alert('Progress Keys (' + keys.length + '):\n\n' + (keys.length ? keys.slice(0,50).join('\n') + (keys.length > 50 ? '\n...and more' : '') : '(none)'));
