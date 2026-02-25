@@ -175,8 +175,9 @@
         }
         window.usedFlashcardIndices.push(qIdx);
         currentQuestion = window.lessonFlashcards[qIdx];
+        var _tr = window.arisTranslate || function(t){return t;};
         var questionText = document.getElementById('climb-question-text');
-        if (questionText) questionText.innerText = currentQuestion.question;
+        if (questionText) questionText.innerText = _tr(currentQuestion.question);
 
         var options = [currentQuestion.answer];
         var uniqueOptions = {};
@@ -203,7 +204,7 @@
             options.forEach(function(opt) {
                 var btn = document.createElement('button');
                 btn.className = 'climb-option-btn';
-                btn.innerText = opt;
+                btn.innerText = _tr(opt);
                 btn.onclick = function() { handleClimbAnswer(opt); };
                 optionsContainer.appendChild(btn);
             });

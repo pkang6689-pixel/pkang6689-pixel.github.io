@@ -226,7 +226,8 @@ window.exitClimbGame = function() {
     window.usedFlashcardIndices.push(qIdx);
         currentQuestion = window.lessonFlashcards[qIdx];
         
-        document.getElementById('climb-question-text').innerText = currentQuestion.question;
+        var _tr = window.arisTranslate || function(t){return t;};
+        document.getElementById('climb-question-text').innerText = _tr(currentQuestion.question);
         
         // Generate Distractors
         const options = [currentQuestion.answer];
@@ -261,7 +262,7 @@ window.exitClimbGame = function() {
         options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'climb-option-btn';
-            btn.innerText = opt;
+            btn.innerText = _tr(opt);
             btn.onclick = () => handleClimbAnswer(opt);
             optionsContainer.appendChild(btn);
         });
@@ -383,8 +384,8 @@ window.exitClimbGame = function() {
         const data = window.lessonFlashcards || [];
         let gameItems = [];
         data.forEach((item, index) => {
-            gameItems.push({ id: index, text: item.question, type: 'term' });
-            gameItems.push({ id: index, text: item.answer, type: 'def' });
+            gameItems.push({ id: index, text: _tr(item.question), type: 'term' });
+            gameItems.push({ id: index, text: _tr(item.answer), type: 'def' });
         });
 
         gameItems.sort(() => Math.random() - 0.5).forEach(item => {
@@ -419,16 +420,8 @@ window.exitClimbGame = function() {
         let isMatch = false;
         
         if (c1.dataset.type !== c2.dataset.type) {
-            const termCard = c1.dataset.type === 'term' ? c1 : c2;
-            const defCard = c1.dataset.type === 'def' ? c1 : c2;
-            // Lookup expected answer for the term
-            const flashcards = window.lessonFlashcards || [];
-            const cardData = flashcards[termCard.dataset.id];
-            if(cardData) {
-                const expected = cardData.answer;
-                const actual = defCard.innerText; 
-                isMatch = expected.trim() === actual.trim();
-            }
+            // Compare by card id — both cards must reference the same flashcard index
+            isMatch = c1.dataset.id === c2.dataset.id;
         }
 
         if (isMatch) {

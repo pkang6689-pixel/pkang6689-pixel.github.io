@@ -1,16 +1,18 @@
 /* Global Translations for ArisEdu */
 (function() {
     // ── Prevent flash of English content when Chinese mode is active ──
-    // This runs immediately (before DOM is built) since the script is in <head>.
+    // Runs immediately in <head>, before <body> exists.
+    // Sets opacity directly on <html> — guaranteed to exist, no CSS injection needed.
     var _arisLang = null;
     try { _arisLang = localStorage.getItem('arisEduLanguage'); } catch(e) {}
     var _needsTranslation = (_arisLang === 'chinese' || _arisLang === 'traditional' || _arisLang === 'zh' || !_arisLang || _arisLang === null);
-    var _hideStyle = null;
     if (_needsTranslation) {
-        _hideStyle = document.createElement('style');
-        _hideStyle.id = 'aris-fouc-guard';
-        _hideStyle.textContent = 'body { opacity: 0 !important; } body.aris-translated { opacity: 1 !important; transition: opacity 0.08s ease-in; }';
-        (document.head || document.documentElement).appendChild(_hideStyle);
+        document.documentElement.style.opacity = '0';
+    }
+
+    // Reveal helper — call after translations are applied, or as a safety fallback
+    function _revealPage() {
+        document.documentElement.style.opacity = '';
     }
 
     const translations = {
@@ -28646,6 +28648,24 @@
     // Expose translations to window for access from other scripts
     window.arisEduTranslations = translations;
     window.globalTranslations = translations;
+
+    // Public translation lookup — other scripts can call window.arisTranslate(text)
+    // Returns translated text if Chinese mode is active; otherwise returns the original.
+    window.arisTranslate = function(text) {
+        if (!text) return text;
+        var lang = localStorage.getItem('arisEduLanguage');
+        if (lang !== 'chinese' && lang !== 'traditional' && lang !== 'zh' && lang !== null && lang !== undefined) {
+            return text; // English mode — no translation
+        }
+        var t = translations[text];
+        if (!t) {
+            // Try with collapsed whitespace
+            var normalized = text.replace(/\s+/g, ' ').trim();
+            t = translations[normalized];
+        }
+        if (!t) return text;
+        return (lang === 'traditional') ? convertToTraditional(t) : t;
+    };
     
     // Auto-enable Chinese translations if no preference set
     if (!localStorage.getItem("arisEduLanguage")) {
@@ -28665,22 +28685,17 @@
                 if (document.body) {
                     translateNode(document.body);
                     console.log("Translations applied to page");
-                    // Reveal the page now that translations are applied
-                    document.body.classList.add('aris-translated');
+                    _revealPage();
                 } else {
                     console.log("WARNING: document.body not ready");
                 }
             } else {
                 console.log("Language is not Chinese:", lang);
-                // English mode — reveal immediately (remove FOUC guard if it exists)
-                if (document.body) document.body.classList.add('aris-translated');
-                var guard = document.getElementById('aris-fouc-guard');
-                if (guard) guard.remove();
+                _revealPage();
             }
         } catch (e) {
             console.error("Error in applyTranslations:", e);
-            // On error, still reveal the page
-            if (document.body) document.body.classList.add('aris-translated');
+            _revealPage();
         }
     };
     
@@ -28692,6 +28707,18 @@
         console.log("[ArisEdu] initTranslations completed.");
     }
     
+    // ── Handle View Transitions (cross-document navigation) ──
+    // pagereveal fires just before the first render opportunity on the new page,
+    // so translating here prevents the view-transition snapshot from capturing English.
+    if (typeof document.addEventListener === 'function') {
+        document.addEventListener('pagereveal', function() {
+            console.log('[ArisEdu] pagereveal — applying translations before first render');
+            if (document.body) {
+                window.applyTranslations();
+            }
+        }, { once: true });
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
             console.log("[ArisEdu] DOMContentLoaded event fired");
@@ -28707,15 +28734,11 @@
     setTimeout(initTranslations, 300);
     setTimeout(initTranslations, 800);
 
-    // Safety fallback: always reveal the page after 2s, even if translations failed
+    // Safety fallback: always reveal the page after 1.5s, even if translations failed
     setTimeout(function() {
-        if (document.body && !document.body.classList.contains('aris-translated')) {
-            console.warn('[ArisEdu] Safety fallback: revealing page after 2s');
-            document.body.classList.add('aris-translated');
-        }
-        var guard = document.getElementById('aris-fouc-guard');
-        if (guard) guard.remove();
-    }, 2000);
+        console.warn('[ArisEdu] Safety fallback: revealing page');
+        _revealPage();
+    }, 1500);
     
     // Watch for dynamic content and re-apply translations
     try {

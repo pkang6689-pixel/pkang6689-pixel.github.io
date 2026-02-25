@@ -4,6 +4,7 @@ function _t(key, fallback) {
     var t = window.arisEduTranslations || window.globalTranslations;
     return (t && t[key]) || fallback || key;
 }
+var _tr = function(t) { return (window.arisTranslate ? window.arisTranslate(t) : t); };
 window.togglePracticesPanel = function(button) {
     if (!button) return;
     const menu = button.closest('.Practices-menu') || button.closest('.side-buttons'); 
@@ -266,7 +267,8 @@ window.initFlashcards = function() {
     function updateFlashcard() {
         showingAnswer = false;
         const idx = flashcardOrder[currentFlashcard];
-        const text = flashcards[idx].question;
+        const rawText = flashcards[idx].question;
+        const text = (typeof window.arisTranslate === 'function') ? window.arisTranslate(rawText) : rawText;
         flashcardContent.textContent = text;
         autoAdjustFontSize(text);
         trackViewed();
@@ -296,12 +298,14 @@ window.initFlashcards = function() {
         setTimeout(() => {
             const idx = flashcardOrder[currentFlashcard];
             if (!showingAnswer) {
-                flashcardContent.textContent = flashcards[idx].answer;
-                autoAdjustFontSize(flashcards[idx].answer);
+                const answerText = (typeof window.arisTranslate === 'function') ? window.arisTranslate(flashcards[idx].answer) : flashcards[idx].answer;
+                flashcardContent.textContent = answerText;
+                autoAdjustFontSize(answerText);
                 showingAnswer = true;
             } else {
-                flashcardContent.textContent = flashcards[idx].question;
-                autoAdjustFontSize(flashcards[idx].question);
+                const questionText = (typeof window.arisTranslate === 'function') ? window.arisTranslate(flashcards[idx].question) : flashcards[idx].question;
+                flashcardContent.textContent = questionText;
+                autoAdjustFontSize(questionText);
                 showingAnswer = false;
             }
             flashcardDiv.style.transition = "none";
@@ -641,7 +645,7 @@ window.exitClimbGame = function() {
         window.usedFlashcardIndices.push(qIdx);
         currentQuestion = window.lessonFlashcards[qIdx];
         
-        document.getElementById('climb-question-text').innerText = currentQuestion.question;
+        document.getElementById('climb-question-text').innerText = _tr(currentQuestion.question);
         
         const options = [currentQuestion.answer];
         const uniqueOptions = new Set([currentQuestion.answer]);
@@ -671,7 +675,7 @@ window.exitClimbGame = function() {
         options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'climb-option-btn';
-            btn.innerText = opt;
+            btn.innerText = _tr(opt);
             btn.onclick = () => handleClimbAnswer(opt);
             optionsContainer.appendChild(btn);
         });
@@ -809,8 +813,8 @@ window.exitClimbGame = function() {
 
         let gameItems = [];
         indices.forEach(idx => {
-            gameItems.push({ id: idx, text: data[idx].question, type: 'term' });
-            gameItems.push({ id: idx, text: data[idx].answer, type: 'def' });
+            gameItems.push({ id: idx, text: _tr(data[idx].question), type: 'term' });
+            gameItems.push({ id: idx, text: _tr(data[idx].answer), type: 'def' });
         });
 
         gameItems.sort(() => Math.random() - 0.5).forEach(item => {
@@ -845,16 +849,8 @@ window.exitClimbGame = function() {
         let isMatch = false;
         
         if (c1.dataset.type !== c2.dataset.type) {
-            const termCard = c1.dataset.type === 'term' ? c1 : c2;
-            const defCard = c1.dataset.type === 'def' ? c1 : c2;
-            
-            const flashcards = window.lessonFlashcards || [];
-            const cardData = flashcards[termCard.dataset.id];
-            if(cardData) {
-                const expected = cardData.answer;
-                const actual = defCard.innerText; 
-                isMatch = expected.trim() === actual.trim();
-            }
+            // Compare by card id — both cards must reference the same flashcard index
+            isMatch = c1.dataset.id === c2.dataset.id;
         }
 
         if (isMatch) {
