@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 4: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 4 Review Flashcards</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../bio.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Biology</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit4_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+    window.lessonFlashcards = [
+        { question: "What is population dynamics?", answer: "A key topic in biology covering important concepts related to population dynamics" },
+        { question: "Why is population dynamics important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in population dynamics?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does population dynamics relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of population dynamics?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of population dynamics in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is population dynamics studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does population dynamics have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for population dynamics?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about population dynamics?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is human population growth and demographics?", answer: "A key topic in biology covering important concepts related to human population growth and demographics" },
+        { question: "Why is human population growth and demographics important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in human population growth and demographics?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does human population growth and demographics relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of human population growth and demographics?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of human population growth and demographics in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is human population growth and demographics studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does human population growth and demographics have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for human population growth and demographics?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about human population growth and demographics?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is carrying capacity and limiting factors?", answer: "A key topic in biology covering important concepts related to carrying capacity and limiting factors" },
+        { question: "Why is carrying capacity and limiting factors important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in carrying capacity and limiting factors?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does carrying capacity and limiting factors relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of carrying capacity and limiting factors?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of carrying capacity and limiting factors in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is carrying capacity and limiting factors studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does carrying capacity and limiting factors have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for carrying capacity and limiting factors?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about carrying capacity and limiting factors?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is population regulation?", answer: "A key topic in biology covering important concepts related to population regulation" },
+        { question: "Why is population regulation important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in population regulation?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does population regulation relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of population regulation?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of population regulation in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is population regulation studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does population regulation have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for population regulation?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about population regulation?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is conservation and sustainable development?", answer: "A key topic in biology covering important concepts related to conservation and sustainable development" },
+        { question: "Why is conservation and sustainable development important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in conservation and sustainable development?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does conservation and sustainable development relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of conservation and sustainable development?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of conservation and sustainable development in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is conservation and sustainable development studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does conservation and sustainable development have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for conservation and sustainable development?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about conservation and sustainable development?", answer: "Key concepts, processes, and their significance" }
+    ];
+</script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

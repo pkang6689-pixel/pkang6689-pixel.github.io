@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 6: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 6 Review Flashcards</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../algebra1.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Algebra 1</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit6_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+    window.lessonFlashcards = [
+                { question: "What is the standard form of a quadratic?", answer: "y = ax² + bx + c" },
+                { question: "What is the graph of a quadratic function called?", answer: "A parabola" },
+                { question: "When does a parabola open upward?", answer: "When a > 0" },
+                { question: "When does a parabola open downward?", answer: "When a < 0" },
+                { question: "What is the vertex?", answer: "The highest or lowest point of the parabola" },
+                { question: "What is the axis of symmetry?", answer: "x = −b/(2a) — the vertical line through the vertex" },
+                { question: "What is the y-intercept?", answer: "The value c (the point where x = 0)" },
+                { question: "What are the x-intercepts (zeros/roots)?", answer: "The points where y = 0 — the parabola crosses the x-axis" },
+                { question: "If a > 0, the vertex is:", answer: "A minimum point" },
+                { question: "If a < 0, the vertex is:", answer: "A maximum point" },
+                { question: "What is the first step to graph y = ax² + bx + c?", answer: "Find the axis of symmetry: x = −b/(2a)" },
+                { question: "How do you find the vertex?", answer: "Substitute the axis of symmetry into the equation to find the y-coordinate" },
+                { question: "What is the y-intercept of y = ax² + bx + c?", answer: "The point (0, c)" },
+                { question: "How do you use symmetry to find more points?", answer: "Each point has a mirror image on the other side of the axis of symmetry" },
+                { question: "What does |a| affect?", answer: "The width of the parabola — larger |a| = narrower, smaller |a| = wider" },
+                { question: "For y = x² − 4x + 3, axis of symmetry is:", answer: "x = −(−4)/(2·1) = 2" },
+                { question: "For y = x² − 4x + 3, vertex is:", answer: "(2, −1) since f(2) = 4 − 8 + 3 = −1" },
+                { question: "What is the mirror point of (0, c)?", answer: "The point on the other side of the axis of symmetry with the same y-value" },
+                { question: "How many points should you plot to graph a parabola?", answer: "At least 5 — the vertex, y-intercept, its mirror, and two more symmetric points" },
+                { question: "What does c represent in y = ax² + bx + c?", answer: "The y-intercept (the point where the parabola crosses the y-axis)" },
+                { question: "What is vertex form?", answer: "y = a(x − h)² + k, where (h, k) is the vertex" },
+                { question: "In y = 2(x − 3)² + 5, what is the vertex?", answer: "(3, 5)" },
+                { question: "In y = −(x + 1)² − 4, what is the vertex?", answer: "(−1, −4)" },
+                { question: "What is the axis of symmetry in vertex form?", answer: "x = h" },
+                { question: "How do you convert standard to vertex form?", answer: "Complete the square" },
+                { question: "What does 'a' determine in vertex form?", answer: "Direction (up if a > 0, down if a < 0) and width of the parabola" },
+                { question: "What does 'k' represent?", answer: "The vertical shift (y-coordinate of the vertex)" },
+                { question: "What does 'h' represent?", answer: "The horizontal shift (x-coordinate of the vertex)" },
+                { question: "How do you complete the square?", answer: "Take half of b, square it, add and subtract it inside the expression" },
+                { question: "Convert y = x² − 6x + 11 to vertex form.", answer: "y = (x − 3)² + 2 — vertex at (3, 2)" },
+                { question: "y = (x − 4)² shifts y = x² how?", answer: "Right 4 units" },
+                { question: "y = x² + 6 shifts y = x² how?", answer: "Up 6 units" },
+                { question: "y = −x² does what to y = x²?", answer: "Reflects over the x-axis" },
+                { question: "y = 3x² compared to y = x² is:", answer: "Narrower (vertical stretch by factor 3)" },
+                { question: "y = 0.25x² compared to y = x² is:", answer: "Wider (vertical compression by factor ¼)" },
+                { question: "y = −2(x + 1)² − 3 has vertex:", answer: "(−1, −3)" },
+                { question: "How does 'a' affect the parabola?", answer: "Width and direction: |a| > 1 = narrow, 0 < |a| < 1 = wide, a < 0 = opens down" },
+                { question: "Combining transformations: y = −(x − 2)² + 5 is:", answer: "Reflect over x-axis, shift right 2, shift up 5 — vertex at (2, 5)" },
+                { question: "y = (x + 3)² shifts y = x² how?", answer: "Left 3 units" },
+                { question: "What is the parent function of all quadratics?", answer: "y = x²" },
+                { question: "What indicates a linear model?", answer: "Constant first differences (constant rate of change)" },
+                { question: "What indicates a quadratic model?", answer: "Constant second differences" },
+                { question: "What indicates an exponential model?", answer: "Constant ratio between consecutive y-values" },
+                { question: "What type of graph is a straight line?", answer: "Linear" },
+                { question: "What type of graph is a parabola?", answer: "Quadratic" },
+                { question: "What type of graph approaches an asymptote?", answer: "Exponential" },
+                { question: "Which model eventually grows the fastest?", answer: "Exponential" },
+                { question: "For data (0,2), (1,5), (2,8), (3,11), the model is:", answer: "Linear (constant difference of 3)" },
+                { question: "For data (0,1), (1,3), (2,9), (3,27), the model is:", answer: "Exponential (common ratio = 3)" },
+                { question: "Second differences of 2, 2, 2 indicate:", answer: "A quadratic model" },
+                { question: "What is quadratic regression?", answer: "Finding the best-fit equation y = ax² + bx + c for parabolic data" },
+                { question: "When do you use quadratic regression?", answer: "When the scatter plot shows a parabolic (curved) pattern" },
+                { question: "What does r² close to 1 mean?", answer: "The model fits the data well" },
+                { question: "How is quadratic regression performed?", answer: "Using a graphing calculator or software (QuadReg)" },
+                { question: "What suggests using a quadratic model?", answer: "Roughly constant second differences or a U-shaped scatter plot" },
+                { question: "What does 'a' determine in the regression?", answer: "Direction and width of the parabola" },
+                { question: "What is the difference between linear and quadratic regression?", answer: "Linear fits a line; quadratic fits a parabola" },
+                { question: "If a scatter plot looks like a U-shape, use:", answer: "Quadratic regression" },
+                { question: "What is the vertex of a regression parabola?", answer: "The maximum or minimum point — found using x = −b/(2a)" },
+                { question: "Quadratic regression is performed using which calculator function?", answer: "QuadReg (on TI calculators) or similar in other software" }
+    
+    
+    ];
+</script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

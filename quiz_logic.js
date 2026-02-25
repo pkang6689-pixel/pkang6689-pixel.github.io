@@ -59,14 +59,14 @@ window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
         // Correct Answer
         parent.dataset.status = 'correct';
         if (attemptsInfo) {
-            attemptsInfo.textContent = _t("Correct!");
+            attemptsInfo.textContent = _t("Correct!", "Correct!");
             attemptsInfo.style.color = "#10b981"; // Green
         }
         
         // Disable interactions
         inputs.forEach(i => i.disabled = true);
         buttonElement.disabled = true;
-        buttonElement.textContent = _t("Correct");
+        buttonElement.textContent = _t("Correct", "Correct");
         buttonElement.style.background = "#10b981";
         buttonElement.style.color = "white";
         buttonElement.style.border = "none";

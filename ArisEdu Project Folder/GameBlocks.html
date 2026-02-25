@@ -6,8 +6,9 @@
     <title>Block Puzzle - Logic Challenge</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
     <style>
-        body { font-family: 'Orbitron', monospace; }
+        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
         .grid-cell { transition: background-color 0.2s; }
         .block-shape { 
             touch-action: none; 
@@ -18,20 +19,29 @@
             -ms-user-select: none;
         }
         .block-shape * {
-            pointer-events: none; /* Let clicks pass to container */
+            pointer-events: none;
         }
         .filled { animation: neonPulse 1.5s infinite alternate; }
         @keyframes neonPulse {
             from { box-shadow: 0 0 5px currentColor; }
             to { box-shadow: 0 0 15px currentColor; }
         }
+        .fs-btn { position: absolute; bottom: 0.75rem; right: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
+        .fs-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+        .pause-btn { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
+        .pause-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+        :fullscreen { background: #111827; }
+        :fullscreen body { padding-top: 0 !important; }
     </style>
+    <script src="theme_manager.js"></script>
 </head>
 <body class="dark-mode bg-gray-900 min-h-screen text-white flex flex-col items-center justify-center p-4 overflow-hidden">
 <script src="scripts/taskbar.js"></script>
 
     <!-- Game UI -->
-    <div class="relative w-full max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+    <div id="game-wrapper" class="relative w-full max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+        <button class="fs-btn" onclick="toggleFS()" title="Fullscreen"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
+        <button class="pause-btn" onclick="togglePause()" title="Pause"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
         <!-- Header -->
         <div class="flex justify-between items-end mb-6">
             <div>
@@ -63,35 +73,81 @@
                 TRY AGAIN
             </button>
         </div>
+
+        <!-- Pause Overlay -->
+        <div id="pause-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-30 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-4xl text-white font-bold mb-4">PAUSED</h2>
+            <p class="text-gray-400 mb-8 font-sans">Game is paused</p>
+            <button onclick="togglePause()" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                RESUME
+            </button>
+        </div>
     </div>
 
     <script>
+        function toggleFS() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    const el = document.getElementById('game-wrapper');
+                    const r = el.getBoundingClientRect();
+                    const s = Math.min(window.innerWidth / r.width, window.innerHeight / r.height) * 0.88;
+                    el.style.transform = `scale(${s})`;
+                    el.style.transformOrigin = 'center center';
+                }).catch(()=>{});
+            } else { document.exitFullscreen(); }
+        }
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) { const el = document.getElementById('game-wrapper'); el.style.transform = ''; }
+        });
+
+        let gamePaused = false;
+        function togglePause() {
+            gamePaused = !gamePaused;
+            document.getElementById('pause-screen').classList.toggle('hidden', !gamePaused);
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { togglePause(); e.preventDefault(); }
+        });
+
         const BOARD_SIZE = 8;
         let grid = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
         let score = 0;
         const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
         
-        // Define varied block shapes
         const SHAPES = [
-            [[1]], // Dot
-            [[1, 1]], // 2-Line
-            [[1, 1, 1]], // 3-Line
-            [[1, 1, 1, 1]], // 4-Line
-            [[1, 1], [1, 1]], // Square
-            [[1, 0], [1, 1]], // L-shape small
-            [[1, 1, 1], [0, 1, 0]], // T-shape
-            [[1, 1, 0], [0, 1, 1]], // Z-shape
+            [[1]],
+            [[1, 1]],
+            [[1, 1, 1]],
+            [[1, 1, 1, 1]],
+            [[1],[1]],
+            [[1],[1],[1]],
+            [[1],[1],[1],[1]],
+            [[1, 1], [1, 1]],
+            [[1, 0], [1, 1]],
+            [[0, 1], [1, 1]],
+            [[1, 1, 1], [0, 1, 0]],
+            [[1, 1, 0], [0, 1, 1]],
+            [[0, 1, 1], [1, 1, 0]],
+            [[1, 1, 1], [1, 0, 0]],
+            [[1, 1, 1], [0, 0, 1]],
         ];
 
         const boardEl = document.getElementById('board');
         const handEl = document.getElementById('hand');
         const scoreEl = document.getElementById('score');
 
-        // Init Board
+        // ---- Hand piece data store ----
+        let handPieces = []; // [{el, shape, color}, ...]
+
+        // ---- Drag state ----
+        let dragging = null;  // {el, shape, color, ghost, offsetX, offsetY, originRect}
+        let ghostCells = [];  // cells currently highlighted as preview
+
+        // ---- Board helpers ----
         function initBoard() {
             boardEl.innerHTML = '';
-            for(let y=0; y<BOARD_SIZE; y++) {
-                for(let x=0; x<BOARD_SIZE; x++) {
+            for (let y = 0; y < BOARD_SIZE; y++) {
+                for (let x = 0; x < BOARD_SIZE; x++) {
                     const cell = document.createElement('div');
                     cell.className = 'w-full h-full bg-gray-800 rounded-sm';
                     cell.dataset.x = x;
@@ -101,9 +157,21 @@
             }
         }
 
+        function getCell(x, y) {
+            return boardEl.children[y * BOARD_SIZE + x];
+        }
+
+        function getBoardCellSize() {
+            const rect = boardEl.getBoundingClientRect();
+            // board has padding 8px (p-2) and gap 4px (gap-1)
+            return (rect.width - 16) / BOARD_SIZE; // approximate cell size including gap
+        }
+
+        // ---- Spawning ----
         function spawnBlocks() {
             handEl.innerHTML = '';
-            for(let i=0; i<3; i++) {
+            handPieces = [];
+            for (let i = 0; i < 3; i++) {
                 const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
                 const color = colors[Math.floor(Math.random() * colors.length)];
                 createDraggableBlock(shape, color);
@@ -113,107 +181,191 @@
         function createDraggableBlock(shapeMatrix, color) {
             const container = document.createElement('div');
             container.className = 'block-shape relative';
-            // Disable all drag behaviors explicitly
-            container.draggable = false;
-            container.ondragstart = (e) => { e.preventDefault(); return false; };
-            container.style.userSelect = 'none';
-            container.style.webkitUserSelect = 'none';
-            // Render preview
-            const size = 15; // smaller preview pixels
+            container.style.touchAction = 'none';
+
+            const size = 15;
             const w = shapeMatrix[0].length * size;
             const h = shapeMatrix.length * size;
-            
+
             container.style.width = `${w}px`;
             container.style.height = `${h}px`;
-            
-            // Draw visually
+
             shapeMatrix.forEach((row, r) => {
                 row.forEach((active, c) => {
-                    if(active) {
+                    if (active) {
                         const block = document.createElement('div');
-                        block.style.position = 'absolute';
-                        block.style.left = `${c * size}px`;
-                        block.style.top = `${r * size}px`;
-                        block.style.width = `${size-1}px`;
-                        block.style.height = `${size-1}px`;
-                        block.style.backgroundColor = color;
-                        block.style.borderRadius = '2px';
+                        block.style.cssText = `position:absolute;left:${c*size}px;top:${r*size}px;width:${size-1}px;height:${size-1}px;background:${color};border-radius:2px;pointer-events:none;`;
                         container.appendChild(block);
                     }
                 });
             });
 
-            // Drag Logic Removed to prevent "snapping" issues outside grid.
-            // Using Touch/Click interface only.
-            
-            container.onclick = (e) => selectBlock(container, shapeMatrix, color);
-            
+            const piece = { el: container, shape: shapeMatrix, color };
+            handPieces.push(piece);
+
+            // ---- Pointer-based drag ----
+            container.addEventListener('pointerdown', (e) => {
+                if (gamePaused) return;
+                e.preventDefault();
+                startDrag(piece, e);
+            });
+
             handEl.appendChild(container);
         }
 
-        let selectedBlock = null;
+        // ---- Drag implementation (pointer events) ----
+        function startDrag(piece, e) {
+            const el = piece.el;
+            const rect = el.getBoundingClientRect();
 
-        function selectBlock(el, shape, color) {
-            if (activeSelection) {
-                activeSelection.el.style.opacity = '1';
-                activeSelection.el.style.transform = 'scale(1)';
-            }
-            activeSelection = { el, shape, color };
-            el.style.opacity = '0.7';
-            el.style.transform = 'scale(0.95)';
-            // Removed white border as requested
+            // Create a floating ghost copy
+            const ghost = el.cloneNode(true);
+            ghost.style.position = 'fixed';
+            ghost.style.pointerEvents = 'none';
+            ghost.style.zIndex = '1000';
+            ghost.style.opacity = '0.85';
+            ghost.style.transform = 'scale(1.15)';
+            ghost.style.transition = 'none';
+            document.body.appendChild(ghost);
+
+            const offsetX = e.clientX - rect.left;
+            const offsetY = e.clientY - rect.top;
+
+            ghost.style.left = (e.clientX - offsetX) + 'px';
+            ghost.style.top = (e.clientY - offsetY) + 'px';
+
+            // Dim original
+            el.style.opacity = '0.3';
+
+            dragging = { ...piece, ghost, offsetX, offsetY, originRect: rect };
+
+            el.setPointerCapture(e.pointerId);
         }
 
-        let activeSelection = null; // { el, shape, color }
+        function onPointerMove(e) {
+            if (!dragging) return;
+            e.preventDefault();
 
-        // Board Interaction
-        boardEl.addEventListener('click', (e) => {
-            if(!activeSelection) return;
-            // find cell
-            const cell = e.target.closest('div[data-x]');
-            if(cell) {
+            const { ghost, offsetX, offsetY } = dragging;
+            ghost.style.left = (e.clientX - offsetX) + 'px';
+            ghost.style.top = (e.clientY - offsetY) + 'px';
+
+            // Board preview
+            updateGhostPreview(e.clientX, e.clientY);
+        }
+
+        function onPointerUp(e) {
+            if (!dragging) return;
+            e.preventDefault();
+
+            const { shape, color, ghost, el } = dragging;
+            const cell = getBoardCell(e.clientX, e.clientY);
+            let placed = false;
+
+            if (cell) {
                 const x = parseInt(cell.dataset.x);
                 const y = parseInt(cell.dataset.y);
-                tryPlaceBlock(x, y);
-            }
-        });
-
-        // Hover effect for placement preview? Maybe too complex for single file without extensive CSS.
-
-        function tryPlaceBlock(x, y) {
-            const { shape, color } = activeSelection;
-            if (canPlace(shape, x, y)) {
-                place(shape, x, y, color);
-                activeSelection.el.remove();
-                activeSelection = null;
-                checkLines();
-                
-                if (handEl.children.length === 0) {
-                    spawnBlocks();
+                // Offset: place so the top-left of shape aligns with hovered cell
+                if (canPlace(shape, x, y)) {
+                    place(shape, x, y, color);
+                    placed = true;
+                    // Remove piece from hand
+                    el.remove();
+                    handPieces = handPieces.filter(p => p.el !== el);
+                    checkLines();
+                    if (handPieces.length === 0) spawnBlocks();
+                    checkGameOver();
                 }
-                
-                checkGameOver();
-            } else {
-                // Invalid move animation?
-                boardEl.classList.add('animate-pulse');
-                setTimeout(() => boardEl.classList.remove('animate-pulse'), 200);
+            }
+
+            // Cleanup
+            ghost.remove();
+            clearGhostPreview();
+            if (!placed) {
+                el.style.opacity = '1';
+            }
+            dragging = null;
+        }
+
+        // Attach global listeners
+        document.addEventListener('pointermove', onPointerMove, { passive: false });
+        document.addEventListener('pointerup', onPointerUp, { passive: false });
+        document.addEventListener('pointercancel', onPointerUp, { passive: false });
+
+        // ---- Board cell from screen coords ----
+        function getBoardCell(cx, cy) {
+            const rect = boardEl.getBoundingClientRect();
+            const pad = 8; // p-2 = 8px
+            const innerX = cx - rect.left - pad;
+            const innerY = cy - rect.top - pad;
+            const cellW = (rect.width - pad * 2) / BOARD_SIZE;
+            const cellH = (rect.height - pad * 2) / BOARD_SIZE;
+            const gx = Math.floor(innerX / cellW);
+            const gy = Math.floor(innerY / cellH);
+            if (gx < 0 || gx >= BOARD_SIZE || gy < 0 || gy >= BOARD_SIZE) return null;
+            return getCell(gx, gy);
+        }
+
+        // ---- Ghost preview on board ----
+        function updateGhostPreview(cx, cy) {
+            clearGhostPreview();
+            if (!dragging) return;
+
+            const rect = boardEl.getBoundingClientRect();
+            const pad = 8;
+            const cellW = (rect.width - pad * 2) / BOARD_SIZE;
+            const cellH = (rect.height - pad * 2) / BOARD_SIZE;
+            const innerX = cx - rect.left - pad;
+            const innerY = cy - rect.top - pad;
+            const gx = Math.floor(innerX / cellW);
+            const gy = Math.floor(innerY / cellH);
+
+            if (gx < 0 || gx >= BOARD_SIZE || gy < 0 || gy >= BOARD_SIZE) return;
+
+            const { shape, color } = dragging;
+            const valid = canPlace(shape, gx, gy);
+
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (!shape[r][c]) continue;
+                    const bx = gx + c, by = gy + r;
+                    if (bx < 0 || bx >= BOARD_SIZE || by < 0 || by >= BOARD_SIZE) continue;
+                    const cell = getCell(bx, by);
+                    cell.dataset.prevBg = cell.style.backgroundColor || '';
+                    cell.dataset.prevShadow = cell.style.boxShadow || '';
+                    if (valid) {
+                        cell.style.backgroundColor = color;
+                        cell.style.opacity = '0.45';
+                        cell.style.boxShadow = `0 0 8px ${color}`;
+                    } else {
+                        cell.style.backgroundColor = '#ef4444';
+                        cell.style.opacity = '0.3';
+                        cell.style.boxShadow = '0 0 8px #ef4444';
+                    }
+                    ghostCells.push(cell);
+                }
             }
         }
 
+        function clearGhostPreview() {
+            ghostCells.forEach(cell => {
+                cell.style.backgroundColor = cell.dataset.prevBg || '';
+                cell.style.boxShadow = cell.dataset.prevShadow || '';
+                cell.style.opacity = '1';
+                delete cell.dataset.prevBg;
+                delete cell.dataset.prevShadow;
+            });
+            ghostCells = [];
+        }
+
+        // ---- Placement logic ----
         function canPlace(shape, x, y) {
-            for (let r=0; r<shape.length; r++) {
-                for (let c=0; c<shape[0].length; c++) {
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
                     if (shape[r][c]) {
-                        const boardX = x + c;
-                        const boardY = y + r;
-                        // Strict bounds check preventing placement outside box
-                        if (boardX < 0 || boardX >= BOARD_SIZE || boardY < 0 || boardY >= BOARD_SIZE) {
-                            return false;
-                        }
-                        // Check collision
-                        if (grid[boardY][boardX] !== 0) {
-                            return false;
-                        }
+                        const bx = x + c, by = y + r;
+                        if (bx < 0 || bx >= BOARD_SIZE || by < 0 || by >= BOARD_SIZE) return false;
+                        if (grid[by][bx] !== 0) return false;
                     }
                 }
             }
@@ -221,13 +373,14 @@
         }
 
         function place(shape, x, y, color) {
-            for (let r=0; r<shape.length; r++) {
-                for (let c=0; c<shape[0].length; c++) {
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
                     if (shape[r][c]) {
-                        grid[y+r][x+c] = 1;
-                        const cell = getCell(x+c, y+r);
+                        grid[y + r][x + c] = 1;
+                        const cell = getCell(x + c, y + r);
                         cell.style.backgroundColor = color;
                         cell.style.boxShadow = `0 0 10px ${color}`;
+                        cell.style.opacity = '1';
                     }
                 }
             }
@@ -235,27 +388,16 @@
             scoreEl.innerText = score;
         }
 
-        function getCell(x, y) {
-            return boardEl.children[y * BOARD_SIZE + x];
-        }
-
+        // ---- Line clearing ----
         function checkLines() {
             let linesCleared = 0;
-            // Rows
-            for(let y=0; y<BOARD_SIZE; y++) {
-                if(grid[y].every(v => v === 1)) {
-                    clearRow(y);
-                    linesCleared++;
-                }
+            for (let y = 0; y < BOARD_SIZE; y++) {
+                if (grid[y].every(v => v === 1)) { clearRow(y); linesCleared++; }
             }
-            // Cols
-            for(let x=0; x<BOARD_SIZE; x++) {
-                if(grid.every(row => row[x] === 1)) {
-                    clearCol(x);
-                    linesCleared++;
-                }
+            for (let x = 0; x < BOARD_SIZE; x++) {
+                if (grid.every(row => row[x] === 1)) { clearCol(x); linesCleared++; }
             }
-            if(linesCleared > 0) {
+            if (linesCleared > 0) {
                 score += linesCleared * 100;
                 scoreEl.innerText = score;
             }
@@ -263,16 +405,11 @@
 
         function clearRow(y) {
             grid[y].fill(0);
-            for(let x=0; x<BOARD_SIZE; x++) {
-                resetCell(x, y);
-            }
+            for (let x = 0; x < BOARD_SIZE; x++) resetCell(x, y);
         }
 
         function clearCol(x) {
-            for(let y=0; y<BOARD_SIZE; y++) {
-                grid[y][x] = 0;
-                resetCell(x, y);
-            }
+            for (let y = 0; y < BOARD_SIZE; y++) { grid[y][x] = 0; resetCell(x, y); }
         }
 
         function resetCell(x, y) {
@@ -280,27 +417,22 @@
             cell.style.backgroundColor = '';
             cell.style.boxShadow = '';
             cell.className = 'w-full h-full bg-gray-800 rounded-sm transition-all duration-500 transform scale-0';
-            setTimeout(() => {
-                cell.className = 'w-full h-full bg-gray-800 rounded-sm';
-            }, 500);
+            setTimeout(() => { cell.className = 'w-full h-full bg-gray-800 rounded-sm'; }, 500);
         }
 
+        // ---- Game over detection ----
         function checkGameOver() {
-            // Brute force check if any piece in hand can fit anywhere
-            // Simplified: If hand is full but no moves... 
-            // Actually, we must check every remaining piece against every position.
-            const pieces = Array.from(handEl.children);
-            if (pieces.length === 0) return; // shouldn't happen right after spawn
-
-            // If we just spawned, we assume at least one fits? Not necessarily. 
-            // We need a robust check.
-            
-            // Re-construct shapes from the listeners is hard. 
-            // Let's attach data to the DOM elements more explicitly or store in global state "currentHand"
-            // For this quick implementation, we'll trust the player loses when they give up or can't see a move.
-            // (Implementing full solver check is complex for this snippet).
-            // We'll show Game Over button manually? No, let's just clear board if clicks 5 times on empty?
-            // Okay, let's add a "Give Up" / "Reset" button always visible.
+            if (handPieces.length === 0) return;
+            for (const piece of handPieces) {
+                for (let y = 0; y < BOARD_SIZE; y++) {
+                    for (let x = 0; x < BOARD_SIZE; x++) {
+                        if (canPlace(piece.shape, x, y)) return; // at least one move exists
+                    }
+                }
+            }
+            // No valid moves
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('game-over').classList.remove('hidden');
         }
 
         function resetGame() {

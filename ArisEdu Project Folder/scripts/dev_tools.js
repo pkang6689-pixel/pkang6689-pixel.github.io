@@ -128,6 +128,16 @@
       body.appendChild(btn);
   }
   
+  // --- Update Log ---
+  addSection('Updates');
+  addButton('📋 View Latest Update', function() {
+      if (typeof window.showArisEduUpdate === 'function') {
+          window.showArisEduUpdate();
+      } else {
+          alert('Update notifier not loaded yet.');
+      }
+  });
+  
   // --- Language Switcher (synced with Preferences.html) ---
   addSection('Language Shortcut');
   var langs = [
@@ -305,7 +315,12 @@
   if (quizMatch) {
     var qUnit = quizMatch[1];
     var qLesson = quizMatch[2];
-    var prefix = (path.indexOf('Physics') !== -1) ? 'physics_u' : 'chem_u';
+    var prefix = 'chem_u';
+    if (path.indexOf('Physics') !== -1) prefix = 'physics_u';
+    else if (path.indexOf('Algebra1') !== -1) prefix = 'alg1_u';
+    else if (path.indexOf('Algebra2') !== -1) prefix = 'alg2_u';
+    else if (path.indexOf('Geometry') !== -1) prefix = 'geometry_u';
+    else if (path.indexOf('Biology') !== -1) prefix = 'bio_u';
 
     addSection('Quiz Actions');
     addButton('\u2714 Auto-Pass Quiz', function () {
@@ -329,19 +344,94 @@
   if (testMatch) {
     addSection('Unit Test Actions');
     var tUnit = testMatch[1];
-    var prefix = (path.indexOf('Physics') !== -1) ? 'physics_u' : 'chem_u'; // Physics unit tests?
+    var prefix = 'chem_u';
+    if (path.indexOf('Physics') !== -1) prefix = 'physics_u';
+    else if (path.indexOf('Algebra1') !== -1) prefix = 'alg1_u';
+    else if (path.indexOf('Algebra2') !== -1) prefix = 'alg2_u';
+    else if (path.indexOf('Geometry') !== -1) prefix = 'geometry_u';
+    else if (path.indexOf('Biology') !== -1) prefix = 'bio_u';
     
     addButton('\u2714 Pass Unit Test', function () {
+        // First, switch to quiz view if not already visible
+        var practiceView = document.getElementById('practice-content-view');
+        var quizView = document.getElementById('quiz-content-view');
+        if (practiceView) practiceView.style.display = 'none';
+        if (quizView) quizView.style.display = 'block';
+        if (window.showQuiz) window.showQuiz();
+        
         var form = document.getElementById('quiz-form');
         if (form) {
-          form.querySelectorAll('.quiz-question').forEach(function (q) {
-            var correctInput = q.querySelector('input[value="correct"]');
-            if (correctInput) {
-              correctInput.checked = true;
-              var submitBtn = q.querySelector('button') || q.querySelector('.action-button');
-              if (submitBtn && !submitBtn.disabled) submitBtn.click();
+          var questions = Array.from(form.querySelectorAll('.quiz-question'));
+          var questionIndex = 0;
+          
+          function clickNextButton() {
+            if (questionIndex < questions.length) {
+              var q = questions[questionIndex];
+              // Find "Check Answer" button by looking at onclick attribute text
+              var checkBtn = null;
+              var buttons = q.querySelectorAll('button');
+              for (var i = 0; i < buttons.length; i++) {
+                var b = buttons[i];
+                // Check onclick attribute directly (works for inline onclick="...")
+                var onclickAttr = b.getAttribute('onclick') || '';
+                if (onclickAttr.indexOf('checkQuizAnswer') !== -1) {
+                  checkBtn = b;
+                  break;
+                }
+                // Fallback: check onclick property  
+                if (b.onclick && b.onclick.toString().indexOf('checkQuizAnswer') !== -1) {
+                  checkBtn = b;
+                  break;
+                }
+              }
+              
+              if (checkBtn && !checkBtn.disabled) {
+                // Extract question name and correct answer from onclick attribute
+                var onclickStr = checkBtn.getAttribute('onclick') || '';
+                if (!onclickStr && checkBtn.onclick) {
+                  onclickStr = checkBtn.onclick.toString();
+                }
+                var match = onclickStr.match(/checkQuizAnswer\(\s*'([^']*)'\s*,\s*'([^']*)'/);
+                if (match) {
+                  var questionName = match[1];
+                  var correctAnswer = match[2];
+                  var correctInput = q.querySelector('input[name="' + questionName + '"][value="' + correctAnswer + '"]');
+                  if (correctInput) {
+                    correctInput.checked = true;
+                    // Call checkQuizAnswer directly via the global function
+                    if (window.checkQuizAnswer) {
+                      window.checkQuizAnswer(questionName, correctAnswer, checkBtn);
+                    }
+                    // Ensure dataset.status is set 
+                    q.dataset.status = 'correct';
+                    // Ensure button is disabled
+                    checkBtn.disabled = true;
+                  }
+                }
+              }
+              
+              questionIndex++;
+              setTimeout(clickNextButton, 100);
+            } else {
+              // All buttons clicked — trigger completion
+              setTimeout(function() {
+                // Ensure all questions marked correct and buttons disabled
+                questions.forEach(function(q) {
+                  q.dataset.status = 'correct';
+                  var btns = q.querySelectorAll('button');
+                  for (var i = 0; i < btns.length; i++) {
+                    btns[i].disabled = true;
+                  }
+                });
+                
+                if (window.checkQuizCompletion) {
+                  window.checkQuizCompletion();
+                }
+              }, 300);
             }
-          });
+          }
+          
+          clickNextButton();
         }
     }, 'green');
   }

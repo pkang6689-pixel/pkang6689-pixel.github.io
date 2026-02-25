@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 2: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="/quiz_logic.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }
+    
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 2 Practice</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../physics.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Physics</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit2_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+window.lessonFlashcards = [
+    { question: "What is the difference between distance and displacement?", answer: "Distance is total path length (scalar); displacement is straight-line start-to-finish with direction (vector)" },
+    { question: "What is speed?", answer: "Rate of change of distance (scalar)" },
+    { question: "What is velocity?", answer: "Rate of change of displacement (vector)" },
+    { question: "How is average speed calculated?", answer: "Total distance / total time" },
+    { question: "How is average velocity calculated?", answer: "Displacement / time" },
+    { question: "What is instantaneous velocity?", answer: "Velocity at a specific instant (limit of Δx/Δt as Δt → 0)" },
+    { question: "Can average speed equal zero?", answer: "Only if no distance was traveled at all" },
+    { question: "Can average velocity equal zero?", answer: "Yes — if the object returns to its starting position" },
+    { question: "On a position-time graph, what does the slope represent?", answer: "Velocity" },
+    { question: "Is it possible for speed to be constant while velocity changes?", answer: "Yes — for example, circular motion at constant speed has changing direction" },
+    { question: "What is acceleration?", answer: "The rate of change of velocity with respect to time" },
+    { question: "What is the formula for acceleration?", answer: "a = Δv / Δt = (v_f − v_i) / t" },
+    { question: "What is the SI unit of acceleration?", answer: "m/s² (meters per second squared)" },
+    { question: "Is acceleration a scalar or a vector?", answer: "Vector" },
+    { question: "What does positive acceleration mean?", answer: "Velocity is increasing in the positive direction" },
+    { question: "What does negative acceleration mean?", answer: "Velocity is decreasing (or increasing in the negative direction)" },
+    { question: "Can an object have zero velocity but nonzero acceleration?", answer: "Yes — like a ball at the very top of its trajectory" },
+    { question: "What does the slope of a velocity-time graph represent?", answer: "Acceleration" },
+    { question: "What does the area under a velocity-time graph represent?", answer: "Displacement" },
+    { question: "What type of line does constant acceleration produce on a v-t graph?", answer: "A straight line" },
+    { question: "On a position-time graph, what does a horizontal line mean?", answer: "The object is at rest" },
+    { question: "On a position-time graph, what does a straight diagonal line mean?", answer: "Constant velocity" },
+    { question: "On a position-time graph, what does a curve mean?", answer: "Changing velocity (acceleration)" },
+    { question: "On a v-t graph, what does the slope represent?", answer: "Acceleration" },
+    { question: "On a v-t graph, what does the area under the curve represent?", answer: "Displacement" },
+    { question: "On a v-t graph, what does a horizontal line mean?", answer: "Constant velocity (zero acceleration)" },
+    { question: "On an a-t graph, what does the area under the curve represent?", answer: "Change in velocity (Δv)" },
+    { question: "How do you go from an x-t graph to a v-t graph?", answer: "Take the slope (differentiate)" },
+    { question: "How do you go from a v-t graph to an x-t graph?", answer: "Take the area (integrate)" },
+    { question: "What shape does constant acceleration produce on a position-time graph?", answer: "A parabola" },
+    { question: "What are the SUVAT variables?", answer: "s (displacement), u (initial velocity), v (final velocity), a (acceleration), t (time)" },
+    { question: "State the equation: v = ?", answer: "v = u + at" },
+    { question: "State the equation: s = ut + ?", answer: "s = ut + ½at²" },
+    { question: "State the equation: v² = ?", answer: "v² = u² + 2as" },
+    { question: "State the equation: s = ½(u + v) × ?", answer: "s = ½(u + v)t" },
+    { question: "When do the kinematic equations apply?", answer: "Only when acceleration is constant" },
+    { question: "How many knowns do you need to solve a kinematic problem?", answer: "Three out of the five SUVAT variables" },
+    { question: "What is the acceleration due to gravity (g)?", answer: "9.8 m/s² (downward)" },
+    { question: "A car starts from rest. What is u?", answer: "u = 0 m/s" },
+    { question: "An object comes to a stop. What is v?", answer: "v = 0 m/s" },
+    { question: "What is free fall?", answer: "Motion under gravity alone with no air resistance" },
+    { question: "Do heavier objects fall faster in free fall?", answer: "No — all objects accelerate at g ≈ 9.8 m/s² in free fall" },
+    { question: "What are the two components of projectile motion?", answer: "Horizontal (constant velocity) and vertical (free fall)" },
+    { question: "What is the horizontal acceleration in projectile motion?", answer: "Zero (constant horizontal velocity)" },
+    { question: "What shape does a projectile's path trace?", answer: "A parabola" },
+    { question: "At what launch angle is the range of a projectile maximized?", answer: "45°" },
+    { question: "What is the formula for maximum height of a projectile?", answer: "H = (v₀ sin θ)² / (2g)" },
+    { question: "What is the formula for time of flight?", answer: "T = 2v₀ sin θ / g" },
+    { question: "At the top of a projectile's path, what is the vertical velocity?", answer: "Zero" },
+    { question: "What is the formula for range?", answer: "R = (v₀² sin 2θ) / g" },
+    { question: "What is a reference frame?", answer: "A coordinate system used to measure position and motion" },
+    { question: "What is an inertial frame?", answer: "A non-accelerating frame where Newton's laws apply directly" },
+    { question: "What is a non-inertial frame?", answer: "An accelerating frame where fictitious forces appear" },
+    { question: "How do you find the velocity of A relative to B?", answer: "v_AB = v_A − v_B" },
+    { question: "Two cars at 60 and 40 km/h same direction: what is their relative velocity?", answer: "20 km/h" },
+    { question: "Two cars at 60 and 40 km/h toward each other: what is their relative velocity?", answer: "100 km/h" },
+    { question: "In a river crossing, how is the boat's ground velocity found?", answer: "Vector sum of boat's velocity relative to water and water's velocity relative to ground" },
+    { question: "What is the Galilean velocity addition formula?", answer: "v_AG = v_AB + v_BG (velocity of A in ground frame = velocity of A relative to B + velocity of B relative to ground)" },
+    { question: "When does Galilean relativity break down?", answer: "At speeds close to the speed of light" },
+    { question: "Why does rain appear to fall at an angle when you run?", answer: "Your motion changes the rain's velocity relative to you" }
+];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/dev_tools.js"></script>
+<script src="../../scripts/blocks_puzzle.js"></script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

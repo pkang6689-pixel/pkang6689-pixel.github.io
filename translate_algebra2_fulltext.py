@@ -1,0 +1,392 @@
+#!/usr/bin/env python3
+"""
+Comprehensive translation of all 299 missing Algebra 2 strings to Chinese.
+Covers: 232 Summary paragraphs, 63 Quiz titles, 4 Video labels
+"""
+import json
+import re
+
+# Load missing strings
+with open('algebra2_all_fulltext_missing.json') as f:
+    missing_data = json.load(f)
+
+# Comprehensive translation dictionary
+translations = {
+    # ===== SUMMARY PARAGRAPHS (232 strings) =====
+    # These are the full paragraph translations that will fix partial translation issues
+    
+    # Unit 1 - Linear Equations & Systems
+    "Functions are relations that assign exactly one output to each input. A function f(x) can be evaluated by substituting a value for x and simplifying.": "函数是为每个输入分配一个输出的关系。函数 f(x) 可以通过将 x 值代入并化简来求值。",
+    "Function Notation: f(x) represents the output of function f when the input is x. This replaces the older y = notation and makes it clear which variable is the input.": "函数记号：f(x) 表示当输入为 x 时函数 f 的输出。这取代了旧的 y = 记号，使输入变量更清楚。",
+    "Domain and Range: The domain is the set of all possible input values, while the range is the set of all possible output values. Restrictions occur when denominators are zero or when values are under even-root radicals.": "定义域和值域：定义域是所有可能输入值的集合，值域是所有可能输出值的集合。当分母为零或值在偶次根号下时会有限制。",
+    "Quadratic Functions: Functions of the form f(x) = ax² + bx + c where a ≠ 0. The graph is a parabola (U-shaped curve). The coefficient a determines the direction: a > 0 opens upward, a < 0 opens downward.": "二次函数：形式为 f(x) = ax² + bx + c 的函数，其中 a ≠ 0。图像是抛物线（U 形曲线）。系数 a 决定方向：a > 0 向上开口，a < 0 向下开口。",
+    
+    "Solving Linear Equations: Isolate the variable using inverse operations. Always perform the same operation on both sides to maintain equality. Check solutions by substituting back into the original equation.": "解线性方程：使用逆运算隔离变量。始终在两边执行相同的运算以保持等式。通过代回原方程来检查解。",
+    "Graphing on Number Line: Mark the boundary point. Shade left of the point if x < or x ≤, right if x > or x ≥. Use open circle for strict inequalities, closed for ≤/≥.": "在数轴上作图：标记边界点。如果 x < 或 x ≤ 则在该点左侧着色，如果 x > 或 x ≥ 则在右侧着色。严格不等号用空心圆，≤/≥ 用实心圆。",
+    "Set Up Word Problems: Identify the unknowns and assign variables. Translate each sentence into an equation. For mixture, distance, and investment problems, organize information in a table.": "设置字应用题：识别未知数并分配变量。将每个句子翻译成方程。对于混合、距离和投资问题，将信息组织在表格中。",
+    "Slope-Intercept Form: y = mx + b, where m is the slope and b is the y-intercept. Slope represents the rate of change: m = (y₂ - y₁)/(x₂ - x₁).": "斜截式：y = mx + b，其中 m 是斜率，b 是 y 截距。斜率代表变化率：m = (y₂ - y₁)/(x₂ - x₁)。",
+    "Point-Slope Form: y - y₁ = m(x - x₁) is useful when you know a point on the line and the slope. This form can be rearranged to slope-intercept form.": "点斜式：y - y₁ = m(x - x₁) 在知道直线上的一点和斜率时有用。此形式可重新排列为斜截式。",
+    
+    "The Substitution Method: Solve one equation for a variable, then substitute that expression into the other equation. This reduces the system to one equation with one variable.": "代入法：用一个变量求解一个方程，然后将该表达式代入另一个方程。这将系统简化为一个方程一个变量。",
+    "When to Use Substitution: This method works best when one variable has a coefficient of 1 or -1, making it easy to isolate. If all coefficients are complex, elimination might be easier.": "何时使用代入法：当一个变量的系数为 1 或 -1 时效果最好，易于隔离。如果所有系数都很复杂，消元法可能更容易。",
+    "Step-by-Step Process: (1) Solve one equation for one variable (choose the easiest). (2) Substitute the expression into the other equation. (3) Solve the resulting one-variable equation. (4) Back-substitute to find the other variable.": "分步过程：(1) 用一个变量求解一个方程（选择最简单的）。(2) 将表达式代入另一个方程。(3) 解得到的单变量方程。(4) 反向代入找到另一个变量。",
+    
+    "The Elimination Method: Multiply one or both equations by constants so that one variable has opposite coefficients. Add the equations to eliminate that variable, leaving one equation with one unknown.": "消元法：将一个或两个方程乘以常数，使一个变量的系数相反。相加方程以消除该变量，留下一个单未知数的方程。",
+    "Making Coefficients Opposite: If the same variable has coefficients like 2 and 3, multiply the first equation by 3 and the second by -2 to create coefficients 6 and -6. When added, they cancel.": "使系数相反：如果同一变量的系数如 2 和 3，将第一个方程乘以 3，第二个乘以 -2 以创建系数 6 和 -6。相加时它们相消。",
+    "Advantages: Elimination is more efficient when coefficients are large or when substitution creates messy fractions. It avoids the need to isolate variables first.": "优点：当系数很大或代入会产生复杂分数时，消元法更有效。它避免了首先隔离变量的需要。",
+    "Step-by-Step Process: (1) Multiply equation(s) to make coefficients opposites. (2) Add the equations. (3) Solve for the remaining variable. (4) Substitute back to find the other variable.": "分步过程：(1) 乘以方程(s)使系数相反。(2) 相加方程。(3) 解剩余的变量。(4) 反向代入找到另一个变量。",
+    
+    "Types of Systems: Consistent and independent: exactly one solution. Consistent and dependent: infinitely many solutions. Inconsistent: no solution.": "系统类型：相容且独立：恰好一个解。相容且相关：无穷多个解。不相容：无解。",
+    "Checking Solutions: Substitute the x and y values into both original equations. The solution is correct if both equations are satisfied.": "检查解：将 x 和 y 值代入两个原始方程。如果两个方程都满足，解是正确的。",
+    "Graphical Solutions: Graph each line and find intersection point(s). One intersection = unique solution. Parallel lines = no solution. Same line = infinitely many solutions.": "图形解：绘制每条直线并找到交点。一个交点 = 唯一解。平行线 = 无解。同一条直线 = 无穷多个解。",
+    "Algebraic Techniques: Factor: sin x cos x - sin x = 0 → sin x (cos x - 1) = 0. Quadratic formula: 2 sin² x - sin x - 1 = 0 using substitution u = sin x. Use identities to simplify before solving.": "代数技巧：因式分解：sin x cos x - sin x = 0 → sin x (cos x - 1) = 0。二次公式：2 sin² x - sin x - 1 = 0 使用代换 u = sin x。在求解前使用恒等式化简。",
+    
+    "Three-Variable Systems: Extend elimination and substitution methods to three equations with three unknowns. Use matrix notation or repeated elimination to solve systematically.": "三变量系统：将消元和代入方법扩展到三个方程三个未知数。使用矩阵记号或重复消元系统地求解。",
+    "Systems with Parameters: Solve systems where coefficients may contain variables or parameters. Determine when solutions exist and predict how parameters affect the solution.": "带参数的系统：解系统方程，其中系数可能包含变量或参数。确定何时存在解并预测参数如何影响解。",
+    "Linear Inequalities: Similar to equations, but with <, >, ≤, or ≥. When multiplying or dividing by a negative, flip the inequality sign. Solution is a ray (half-line), shown with open circle for </> or closed for ≤/≥.": "线性不等式：类似方程，但带有 <、>、≤ 或 ≥。乘以或除以负数时，翻转不等号。解是射线（半直线），</> 用空心圆表示，≤/≥ 用实心圆表示。",
+    
+    "Systems of Inequalities: Graph both inequalities on the same coordinate plane. The solution region is where both conditions overlap (shaded regions intersect). This creates a bounded or unbounded region.": "不等式系统：在同一坐标平面上绘制两个不等式。解区域是两个条件重叠的地方（着色区域相交）。这创建一个有界或无界的区域。",
+    "Interpreting Solutions: Pick a test point in the shaded region to verify it satisfies both inequalities. The entire shaded region represents the solution set.": "解释解：在着色区域中选择一个测试点来验证它满足两个不等式。整个着色区域代表解集。",
+    "The Elimination Method: Multiply one or both equations by constants so that one variable has opposite coefficients. Add the equations to eliminate that variable, leaving one equation with one unknown.": "消元法：将一个或两个方程乘以常数，使一个变量的系数相反。相加方程以消除该变量，留下一个单未知数的方程。",
+    "Linear Programming: A method to find the maximum or minimum value of an objective function subject to linear constraints. Used in business for optimization problems.": "线性规划：在线性约束下找到目标函数最大值或最小值的方法。用于业务优化问题。",
+    
+    "Components: Objective function: what we're maximizing/minimizing (P = ax + by). Constraints: limitations on variables (system of inequalities). Feasible region: all points satisfying all constraints.": "组件：目标函数：我们要最大化/最小化的（P = ax + by）。约束：变量的限制（不等式系统）。可行区域：满足所有约束的所有点。",
+    "Solving Steps: (1) Write objective function. (2) Write constraints as inequalities. (3) Graph feasible region. (4) Find corner points. (5) Evaluate objective function at each corner. (6) Identify the maximum/minimum.": "求解步骤：(1) 写目标函数。(2) 将约束写成不等式。(3) 绘制可行区域。(4) 找到角点。(5) 在每个角点处计算目标函数。(6) 识别最大值/最小值。",
+    "The Fundamental Theorem: The maximum or minimum occurs at a corner point (vertex) of the feasible region. Find all vertices and test each in the objective function.": "基本定理：最大值或最小值出现在可行区域的角点（顶点）处。找到所有顶点并在目标函数中测试每个。",
+    
+    # Unit 2 - Quadratic Functions
+    "Vertex and Axis of Symmetry: The vertex is the turning point. The axis of symmetry is the vertical line x = -b/(2a) passing through the vertex. The parabola is symmetric about this line.": "顶点和对称轴：顶点是转折点。对称轴是通过顶点的垂直线 x = -b/(2a)。抛物线关于这条线对称。",
+    "Finding the Vertex: Use x = -b/(2a) to find the x-coordinate of the vertex. Substitute into f(x) to find the y-coordinate. Vertex (h,k) is the extreme point of the parabola.": "查找顶点：使用 x = -b/(2a) 找到顶点的 x 坐标。代入 f(x) 找到 y 坐标。顶点 (h,k) 是抛物线的极值点。",
+    "Key Features: Vertex: minimum (a>0) or maximum (a<0). Axis of symmetry: divides parabola in half. y-intercept: at (0,c). x-intercepts: where parabola crosses x-axis (roots).": "关键特征：顶点：最小值 (a>0) 或最大值 (a<0)。对称轴：将抛物线分成两半。y 截距：在 (0,c)。x 截距：抛物线与 x 轴相交的地方（根）。",
+    "Finding Key Points: y-intercept by setting x=0. x-intercepts (zeros) by factoring or using the quadratic formula. Axis of symmetry is x = h. Use symmetry to find additional points on the parabola.": "查找关键点：通过设置 x=0 找到 y 截距。通过因式分解或使用二次公式找到 x 截距（零）。对称轴是 x = h。使用对称找到抛物线上的其他点。",
+    
+    "Vertical Shifts: f(x) + k shifts the parabola k units up (k>0) or down (k<0). Vertex moves from (h,k₁) to (h,k₁+k). The shape doesn't change, only the position.": "垂直平移：f(x) + k 将抛物线向上（k>0）或向下（k<0）移动 k 个单位。顶点从 (h,k₁) 移到 (h,k₁+k)。形状不变，只改变位置。",
+    "Horizontal Shifts: f(x-h) shifts the parabola h units right (h>0) or left (h<0). Vertex moves from (h₁,k) to (h₁+h,k). The axis of symmetry shifts accordingly.": "水平平移：f(x-h) 将抛物线向右（h>0）或向左（h<0）移动 h 个单位。顶点从 (h₁,k) 移到 (h₁+h,k)。对称轴相应移动。",
+    "Vertical Stretches and Compressions: a·f(x) multiplies the y-values by a. If |a|>1, the parabola stretches (gets narrower). If 0<|a|<1, it compresses (gets wider). If a<0, the parabola flips.": "垂直伸展和压缩：a·f(x) 将 y 值乘以 a。如果 |a|>1，抛物线伸展（变窄）。如果 0<|a|<1，它压缩（变宽）。如果 a<0，抛物线翻转。",
+    "Combining Transformations: y = a(x-h)² + k applies all transformations. The order matters: horizontal/vertical shifts, then stretches/compressions. Reading transformations from vertex form is straightforward.": "组合变换：y = a(x-h)² + k 应用所有变换。顺序很重要：水平/垂直平移，然后伸展/压缩。从顶点形式读取变换很直接。",
+    
+    "What is Completing the Square? A technique to rewrite ax² + bx + c as a perfect square trinomial plus a constant. This converts to vertex form y = a(x-h)² + k.": "什么是配方？一种将 ax² + bx + c 改写为完全平方三项式加常数的技巧。这转换为顶点形式 y = a(x-h)² + k。",
+    "Step-by-Step Process: (1) Factor out a from ax² + bx. (2) Take half of b: (b/2). (3) Square it: (b/2)². (4) Add and subtract inside the parentheses. (5) Factor the perfect square and simplify.": "分步过程：(1) 从 ax² + bx 分解出 a。(2) 取 b 的一半：(b/2)。(3) 平方：(b/2)²。(4) 在括号内加减。(5) 分解完全平方并化简。",
+    "Perfect Square Trinomials: (x + p)² = x² + 2px + p². The constant term is the square of half the coefficient of x. To complete: take b/2, square it, then add and subtract.": "完全平方三项式：(x + p)² = x² + 2px + p²。常数项是 x 系数一半的平方。完成：取 b/2，平方，然后加减。",
+    
+    "The Quadratic Formula: x = [-b ± √(b²-4ac)] / (2a). This solves any quadratic equation ax² + bx + c = 0 directly without factoring or completing the square.": "二次公式：x = [-b ± √(b²-4ac)] / (2a)。这无需因式分解或配方直接求解任何二次方程 ax² + bx + c = 0。",
+    "Using the Formula: Substitute a, b, c correctly (watch signs!). Simplify the discriminant first. The ± symbol means we find two values. Always check if the radicand is negative.": "使用公式：正确代入 a、b、c（注意符号！）。先化简判别式。± 符号表示我们找到两个值。始终检查根号前的数是否为负。",
+    "Discriminant and Number of Solutions: The discriminant Δ = b² - 4ac determines the number of real solutions. If Δ > 0, two distinct real solutions. If Δ = 0, one repeated solution. If Δ < 0, no real solutions (complex solutions exist).": "判别式和解数：判别式 Δ = b² - 4ac 确定实数解数。如果 Δ > 0，两个不同的实数解。如果 Δ = 0，一个重根。如果 Δ < 0，无实数解（存在复数解）。",
+    "Interpreting Results: Discriminant tells us about roots without solving. Helps predict the graph: two x-intercepts, one x-intercept, or no x-intercepts.": "解释结果：判别式告诉我们关于根的信息而无需求解。帮助预测图形：两个 x 截距、一个 x 截距或没有 x 截距。",
+    
+    "Solving Quadratic Inequalities: Inequalities like ax² + bx + c > 0. First solve the corresponding equation ax² + bx + c = 0 to find boundary points. These boundary points divide the number line into intervals.": "解二次不等式：形如 ax² + bx + c > 0 的不等式。首先解对应的方程 ax² + bx + c = 0 找到边界点。这些边界点将数轴分成区间。",
+    "Test Point Method: Mark the roots on a number line. Test one x-value in each interval in the original inequality. If true, the entire interval is part of the solution. If false, the interval is excluded.": "测试点法：在数轴上标记根。在原不等式中测试每个区间中的一个 x 值。如果为真，整个区间是解的一部分。如果为假，则排除该区间。",
+    "Understanding the Sign: Between roots, the parabola is either entirely above or below the x-axis. Outside the roots, it's on the opposite side. The sign doesn't change within an interval.": "理解符号：在根之间，抛物线要么完全在 x 轴上方，要么在下方。在根外，它在相反的一侧。符号在区间内不变。",
+    
+    "Applications: Perimeter problems that lead to area quadratics. Garden fence problems: find dimensions that maximize area with fixed perimeter. Area = length × width, then substitute using the constraint.": "应用：导致面积二次函数的周长问题。花园围栏问题：找到在固定周长下最大化面积的尺寸。面积 = 长 × 宽，然后使用约束代入。",
+    "Optimization: Perimeter problems that lead to area quadratics. Garden fence problems: find dimensions that maximize area with fixed perimeter. Area = length × width, then substitute using the constraint.": "优化：导致面积二次函数的周长问题。花园围栏问题：找到在固定周长下最大化面积的尺寸。面积 = 长 × 宽，然后使用约束代入。",
+    "Setting Up Real-World Models: Identify the variable (usually time or quantity). Write the quadratic equation based on given information. Use the vertex to find maximum/minimum, or solve equations for specific outcomes.": "设置实际模型：识别变量（通常是时间或数量）。根据给定信息写入二次方程。使用顶点找到最大值/最小值，或求解特定结果的方程。",
+    "Projectile Motion: Height h(t) = -16t² + v₀t + h₀, where v₀ is initial velocity and h₀ is initial height. The maximum height occurs at the vertex. Set h(t) = 0 to find when the object hits the ground.": "抛体运动：高度 h(t) = -16t² + v₀t + h₀，其中 v₀ 是初速度，h₀ 是初始高度。最大高度出现在顶点。设 h(t) = 0 找到物体何时着地。",
+    "Profit and Revenue: Profit P(x) = Revenue - Cost = R(x) - C(x). Often quadratic. Find maximum profit at the vertex. Break-even points are where P(x) = 0 (setting revenue equal to cost).": "利润和收入：利润 P(x) = 收入 - 成本 = R(x) - C(x)。通常是二次的。在顶点处找到最大利润。收支平衡点是 P(x) = 0（设收入等于成本）。",
+    
+    "Sketching the Parabola: Plot the vertex and axis of symmetry first. Plot the y-intercept and its symmetric point. Find and plot x-intercepts if they exist. Use the shape (determined by a) to sketch a smooth U or inverted-U curve.": "草图抛物线：首先绘制顶点和对称轴。绘制 y 截距及其对称点。查找并绘制 x 截距（如果存在）。使用形状（由 a 决定）草绘平滑的 U 或倒 U 曲线。",
+    "Standard and Vertex Forms: Standard form: f(x) = ax² + bx + c. Vertex form: f(x) = a(x-h)² + k, where (h,k) is the vertex. Vertex form makes the parabola's features immediately visible.": "标准和顶点形式：标准形式：f(x) = ax² + bx + c。顶点形式：f(x) = a(x-h)² + k，其中 (h,k) 是顶点。顶点形式使抛物线的特征立即可见。",
+    
+    # Unit 3 - Polynomials
+    "Polynomial Definition: A sum of terms with non-negative integer exponents. Degree is the highest exponent. Leading coefficient is the coefficient of the highest-degree term. Standard form arranges terms from highest to lowest degree.": "多项式定义：非负整数幂的项的和。度是最高幂。首项系数是最高次项的系数。标准形式从最高次到最低次排列项。",
+    "Adding Polynomials: Combine like terms (same variable and exponent). Arrange terms in descending order. Group coefficients of each power separately.": "多项式加法：合并相似项（相同变量和幂）。按降序排列项。分别分组每个幂的系数。",
+    "Subtracting Polynomials: Distribute the negative sign to all terms of the polynomial being subtracted, then combine like terms. Be careful with signs!": "多项式减法：将负号分配给被减多项式的所有项，然后合并相似项。小心符号！",
+    "Multiplying Polynomials: Use FOIL for binomials or the distributive property for general cases. FOIL: First, Outer, Inner, Last. For longer polynomials, multiply each term in the first by every term in the second.": "多项式乘法：对二项式使用 FOIL 或一般情况下的分配律。FOIL：首项、外项、内项、末项。对于更长的多项式，将第一个中的每项乘以第二个中的每项。",
+    
+    "Greatest Common Factor (GCF): Always check for a common factor in all terms first. Factor out the GCF; this is factoring by grouping applied to all terms.": "最大公因数 (GCF)：始终首先检查所有项中的公因数。分解 GCF；这是应用于所有项的分组因式分解。",
+    "Difference of Squares: a² - b² = (a+b)(a-b). Recognizable as two perfect squares with a minus sign between them. Can apply multiple times for higher powers.": "平方差：a² - b² = (a+b)(a-b)。可识别为两个完全平方数之间的减号。可以多次应用于更高次幂。",
+    "Perfect Square Trinomials: (x + p)² = x² + 2px + p². The constant term is the square of half the coefficient of x. To complete: take b/2, square it, then add and subtract.": "完全平方三项式：(x + p)² = x² + 2px + p²。常数项是 x 系数一半的平方。完成：取 b/2，平方，然后加减。",
+    "Factoring Trinomials: For ax² + bx + c, find two numbers that multiply to ac and add to b. Use these to split the middle term, then factor by grouping. Alternatively, use the AC method.": "三项式因式分解：对于 ax² + bx + c，找到乘积为 ac、和为 b 的两个数。使用这些来分割中间项，然后通过分组因式分解。或者，使用 AC 方法。",
+    "Special Patterns: Perfect square trinomials: a² + 2ab + b² = (a+b)². Sum/difference of cubes: a³ + b³ = (a+b)(a²-ab+b²). Factoring by grouping for four-term polynomials.": "特殊模式：完全平方三项式：a² + 2ab + b² = (a+b)²。立方和/差：a³ + b³ = (a+b)(a²-ab+b²)。四项多项式的分组因式分解。",
+    
+    "What is Synthetic Division? A faster method for dividing polynomials by linear factors of the form (x - c). More efficient than long division when the divisor is linear. Reduces calculation and is less error-prone.": "什么是综合除法？对线性因二项式 (x - c) 进行多项式除法的更快方法。当除数是线性时比长除法更有效。减少计算并减少出错。",
+    "Setting Up Synthetic Division: Write coefficients of the dividend in descending order; include 0 for missing terms. The constant c (from x - c) goes as the divisor on the left. Use a special box/table format.": "设置综合除法：按降序写出被除数的系数；包括缺失项的 0。常数 c（来自 x - c）作为左侧除数。使用特殊的框/表格形式。",
+    "The Process: Bring down the first coefficient. Multiply by c, add to the next coefficient. Repeat until all coefficients are processed. The last number is the remainder; other numbers are quotient coefficients.": "过程：带下第一个系数。乘以 c，加到下一个系数。重复直到处理所有系数。最后一个数是余数；其他数是商系数。",
+    "Reading the Result: Quotient has degree one less than the dividend. If remainder is 0, (x-c) is a factor. If remainder is non-zero, R(x) = R and result is Q(x) + R/(x-c).": "读取结果：商的次数比被除数少一。如果余数是 0，(x-c) 是因数。如果余数非零，R(x) = R，结果是 Q(x) + R/(x-c)。",
+    
+    "The Remainder Theorem: When polynomial p(x) is divided by (x-c), the remainder equals p(c). This allows quick evaluation: instead of substituting into a complex polynomial, perform synthetic division and read the remainder.": "余数定理：当多项式 p(x) 除以 (x-c) 时，余数等于 p(c)。这允许快速评估：而不是代入复杂多项式，执行综合除法并读取余数。",
+    "The Factor Theorem: (x-c) is a factor of p(x) if and only if p(c) = 0. This connects zeros and factors. To test if (x-c) is a factor, check if p(c) = 0 using synthetic division (if remainder is 0, it's a factor).": "因数定理：(x-c) 是 p(x) 的因数当且仅当 p(c) = 0。这连接零和因数。要测试 (x-c) 是否是因数，使用综合除法检查 p(c) = 0（如果余数是 0，它是因数）。",
+    "Understanding Applications: These theorems avoid long division. Instead of dividing p(x) by (x-c), calculate p(c) directly. If p(c) = 0, we know (x-c) divides evenly.": "理解应用：这些定理避免长除法。而不是用 (x-c) 除以 p(x)，直接计算 p(c)。如果 p(c) = 0，我们知道 (x-c) 整除。",
+    
+    "Zeros and Factors: If r is a zero of p(x), then (x-r) is a factor. Zeros are x-intercepts of the graph. By the Fundamental Theorem of Algebra, a polynomial of degree n has n zeros (counting multiplicity).": "零和因数：如果 r 是 p(x) 的零点，则 (x-r) 是因数。零点是图的 x 截距。根据代数基本定理，n 次多项式有 n 个零点（计重数）。",
+    "Multiplicity: If (x-c) appears k times in the factorization, c has multiplicity k. At an intercept with odd multiplicity, the graph crosses the x-axis. With even multiplicity, it touches but doesn't cross.": "重数：如果 (x-c) 在因式分解中出现 k 次，c 的重数为 k。对于奇数重数的截点，图穿过 x 轴。偶数重数时，它接触但不穿过。",
+    "Finding Zeros: Combined with the Rational Root Theorem, these help identify possible zeros quickly. Test candidates using synthetic division (factor theorem). List factors and corresponding zeros systematically.": "查找零点：与有理零定理结合，这些帮助快速识别可能的零点。使用综合除法测试候选项（因数定理）。系统地列出因数和对应的零点。",
+    "Rational Root Theorem: For polynomial p(x) with integer coefficients, any rational root p/q (in lowest terms) has p dividing the constant term and q dividing the leading coefficient. This narrows possible rational zeros significantly.": "有理零定理：对于具有整数系数的多项式 p(x)，任何有理根 p/q（最简项）有 p 整除常数项，q 整除首项系数。这大大缩小了可能的有理零点。",
+    
+    "Using the Theorem: List all factors of the constant term and leading coefficient. Form possible rational roots. Test each using synthetic division (or p(c) = 0). This is efficient for polynomials degree 3 and higher.": "使用定理：列出常数项和首项系数的所有因数。形成可能的有理根。使用综合除法测试每个（或 p(c) = 0）。这对于 3 次及更高次多项式是有效的。",
+    "Descartes' Rule of Signs: Count sign changes in p(x) to estimate positive roots. Count sign changes in p(-x) to estimate negative roots. Number of real roots of each type is at most this count and differs by an even number.": "笛卡尔符号规则：计算 p(x) 中的符号变化来估计正根。计算 p(-x) 中的符号变化来估计负根。每种类型的实根数最多为此计数，并相差偶数。",
+    
+    "End Behavior: Determined by the degree and leading coefficient. For very large/small x, the polynomial behaves like its leading term ax^n. Odd degree with positive a: goes from bottom-left to top-right. Negative a: top-left to bottom-right.": "端点行为：由次数和首项系数决定。对于非常大/小的 x，多项式表现得像其首项 ax^n。奇数次正 a：从左下到右上。负 a：左上到右下。",
+    "Sketching Polynomials: Find zeros and their multiplicities. Determine end behavior. Plot a few additional points. Connect smoothly, respecting behavior at zeros.": "草图多项式：查找零点及其重数。确定端点行为。绘制一些其他点。平滑连接，尊重零点处的行为。",
+    
+    "Complex Numbers: Form a + bi where a and b are real and i² = -1. Real part is a, imaginary part is b. Complex numbers extend our number system to allow nth roots of any polynomial.": "复数：形式为 a + bi，其中 a 和 b 是实数，i² = -1。实部是 a，虚部是 b。复数扩展我们的数字系统以允许任何多项式的 n 次根。",
+    "Arithmetic with Complex Numbers: Add/subtract real parts and imaginary parts separately. Multiply using FOIL, remembering i² = -1. Divide by multiplying by the conjugate of the denominator.": "复数算术：分别加减实部和虚部。使用 FOIL 乘法，记住 i² = -1。通过乘以分母的共轭来除。",
+    "Complex Conjugates: For a + bi, the conjugate is a - bi. When a polynomial with real coefficients has a complex zero, its conjugate is also a zero. Complex zeros come in conjugate pairs.": "复共轭数：对于 a + bi，共轭是 a - bi。当具有实系数的多项式有复零点时，其共轭也是零点。复零点成对共轭出现。",
+    
+    # Continue with other units and strings...
+    # Unit 4 - Rational Functions
+    "Rational Expressions: Fractions with polynomials in numerator and denominator. Form P(x)/Q(x) where Q(x) ≠ 0. Domain excludes values making the denominator zero (restrictions).": "有理表达式：分子分母为多项式的分数。形式 P(x)/Q(x)，其中 Q(x) ≠ 0。定义域排除使分母为零的值（限制）。",
+    "Finding Restrictions: Set denominator equal to zero: Q(x) = 0. Solve for x. These x-values are excluded from the domain. Write in domain restriction notation.": "查找限制：将分母设为零：Q(x) = 0。解出 x。这些 x 值从定义域中排除。用定义域限制记号写入。",
+    "Simplifying Rational Expressions: Factor numerator and denominator completely. Cancel common factors. Be careful: you can only cancel factors, not terms. The cancelled term represents the restriction on the domain.": "化简有理表达式：完全因式分解分子和分母。取消公因数。小心：您只能取消因数，不能取消项。取消的项代表定义域上的限制。",
+    "Equivalent Expressions: P(x)/Q(x) and [P(x) × R(x)]/[Q(x) × R(x)] are equivalent rational expressions (same domain restrictions). Use this to find common denominators or create equivalent forms.": "等价表达式：P(x)/Q(x) 和 [P(x) × R(x)]/[Q(x) × R(x)] 是等价的有理表达式（相同的定义域限制）。使用这个来找到公分母或创建等价形式。",
+    
+    "Multiplying: Factor all numerators and denominators. Cancel common factors. Multiply remaining numerators and denominators. Result is automatically simplified. Watch for restrictions from cancelled factors.": "乘法：分解所有分子和分母。取消公因数。乘以剩余的分子和分母。结果自动化简。注意取消因数的限制。",
+    "Dividing: Multiply by the reciprocal: (P/Q) ÷ (R/S) = (P/Q) × (S/R). Simplify as with multiplication. Important: the reciprocal's denominator is S, which must be non-zero.": "除法：乘以倒数：(P/Q) ÷ (R/S) = (P/Q) × (S/R)。如同乘法一样化简。重要：倒数的分母是 S，必须非零。",
+    "Adding and Subtracting: Find a common denominator (usually the LCD). Rewrite each fraction. Add/subtract numerators; denominator stays the same. Simplify the result. Include domain restrictions from both original expressions.": "加法和减法：找到公分母（通常是最小公倍数）。重写每个分数。加减分子；分母保持不变。化简结果。包括来自两个原始表达式的定义域限制。",
+    "Complex Fractions: Fractions with fractions in numerator/denominator. Simplify by finding LCM of all denominators and multiplying numerator and denominator by it. Or treat numerator and denominator separately, simplify, then divide.": "复杂分数：分子/分母中有分数的分数。通过找到所有分母的最小公倍数并将分子和分母乘以它来化简。或者分别处理分子和分母，化简，然后除。",
+    
+    "Solving Rational Equations: Equations with rational expressions. Find the LCD of all denominators. Multiply every term by the LCD to clear denominators. Solve the resulting polynomial equation. Always check solutions in the original equation.": "解有理方程：包含有理表达式的方程。找到所有分母的最小公倍数。将每一项乘以最小公倍数以清除分母。解得到的多项式方程。始终检查原始方程中的解。",
+    "Extraneous Solutions: When clearing denominators, we might introduce solutions that make the original denominator zero. These are extraneous. Always verify: substitute back and check if any denominator becomes zero.": "无关解：清除分母时，我们可能引入使原始分母为零的解。这些是无关的。始终验证：代回并检查任何分母是否变为零。",
+    "Holes in the Graph: If numerator and denominator share a factor (x-c), both have a zero at c. This cancels to a hole (removable discontinuity), not an asymptote. Find the y-coordinate by evaluating the simplified function at x = c.": "图中的洞：如果分子和分母共享因数 (x-c)，两者在 c 处都有零点。这取消为洞（可移除的不连续），不是渐近线。通过在 x = c 处计算化简函数来找到 y 坐标。",
+    
+    "Vertical Asymptotes: Occur at x-values where denominator is zero (and not cancelled by numerator). These are \"forbidden\" x-values. Graph approaches these lines but never touches them. Plot as dashed vertical lines.": "垂直渐近线：出现在分母为零的 x 值处（且不被分子取消）。这些是\"禁止\"的 x 值。图接近这些线但从不接触它们。绘制为虚竖线。",
+    "Horizontal Asymptotes: Determine by comparing degrees of numerator and denominator. If degree of numerator < degree of denominator: y = 0. If equal: y = ratio of leading coefficients. If numerator degree > denominator degree: no horizontal asymptote.": "水平渐近线：通过比较分子和分母的次数来确定。如果分子次数 < 分母次数：y = 0。如果相等：y = 首项系数比。如果分子次数 > 分母次数：没有水平渐近线。",
+    "Oblique Asymptotes: For n(x)/d(x) where deg(n) = deg(d) + 1, divide to get quotient q(x) + remainder. The asymptote is y = q(x). As x → ±∞, the function approaches this line.": "斜渐近线：对于 n(x)/d(x)，其中 deg(n) = deg(d) + 1，相除得到商 q(x) + 余数。渐近线是 y = q(x)。当 x → ±∞ 时，函数接近这条线。",
+    "Types of Asymptotes: Vertical: where denominator = 0. Horizontal: determined by degree comparison. Oblique (slant): when numerator degree = denominator degree + 1. Find by polynomial long division.": "渐近线类型：垂直：分母 = 0 的地方。水平：由次数比较确定。斜线（倾斜）：分子次数 = 分母次数 + 1 时。通过多项式长除法找到。",
+    
+    "Analyzing Behavior: Near vertical asymptote, function approaches +∞ or -∞ depending on sign of denominator from left/right. Test points on either side to determine which direction.": "分析行为：靠近垂直渐近线，函数接近 +∞ 或 -∞，取决于分母从左/右的符号。测试两侧的点以确定方向。",
+    "Sketching the Graph: Find vertical asymptotes and holes. Find horizontal asymptotes. Find x-intercepts and y-intercept. Plot several test points. Sketch smoothly, respecting asymptotes and approaching them asymptotically.": "草图图形：找到垂直渐近线和洞。找到水平渐近线。找到 x 截距和 y 截距。绘制几个测试点。平滑草图，尊重渐近线并渐近地接近它们。",
+    "Types of Discontinuities: Removable: hole from cancelled factors. Non-removable/infinite: vertical asymptote. Jump: piecewise functions with different limits from left and right.": "不连续类型：可移除：取消因数产生的洞。不可移除/无穷：垂直渐近线。跳跃：分段函数从左从右有不同的极限。",
+    
+    "Average Cost: If fixed cost is F and variable cost per unit is v, total cost C(n) = F + vn for n units. Average cost A(n) = C(n)/n = (F + vn)/n. This is a rational function with a horizontal asymptote at y = v.": "平均成本：如果固定成本是 F，每单位可变成本是 v，总成本 C(n) = F + vn 对于 n 个单位。平均成本 A(n) = C(n)/n = (F + vn)/n。这是一个水平渐近线为 y = v 的有理函数。",
+    "Productivity and Diminishing Returns: Models like P(x) = kx/(1 + ax) where productivity increases then levels off. The horizontal asymptote k/a represents maximum productivity as x → ∞.": "生产力和递减边际收益：形如 P(x) = kx/(1 + ax) 的模型，其中生产力增加然后趋于平缓。水平渐近线 k/a 代表当 x → ∞ 时的最大生产力。",
+    "Work and Rate Problems: If one person completes a job in a hours and another in b hours, together they complete it in 1/(1/a + 1/b) hours. These lead to rational equations.": "工作和速率问题：如果一个人在 a 小时内完成工作，另一个在 b 小时内，他们一起完成在 1/(1/a + 1/b) 小时。这导致有理方程。",
+    "Concentration and Mixture: If x grams of substance are diluted in y milliliters of liquid, concentration = x/y g/mL. Adding more liquid increases denominator, decreasing concentration. These become rational function models.": "浓度和混合：如果 x 克物质溶解在 y 毫升液体中，浓度 = x/y g/mL。加入更多液体会增加分母，降低浓度。这些成为有理函数模型。",
+    
+    # Unit 5 - Exponential & Logarithmic
+    "Exponential Functions: Form f(x) = ab^x where a ≠ 0, b > 0, b ≠ 1. Base b determines growth (b > 1) or decay (0 < b < 1). The graph is always positive and approaches 0 as x → -∞ (for growth).": "指数函数：形式 f(x) = ab^x，其中 a ≠ 0、b > 0、b ≠ 1。底数 b 决定增长（b > 1）或衰减（0 < b < 1）。图始终为正，当 x → -∞ 时接近 0（对于增长）。",
+    "Exponential Growth: When b > 1, f(x) = ab^x grows exponentially. The larger b, the faster the growth. Doubling time or tripling time describes how long for the function to double or triple in value.": "指数增长：当 b > 1 时，f(x) = ab^x 指数增长。b 越大，增长越快。倍增时间或三倍增时间描述函数值加倍或三倍所需的时间。",
+    "Exponential Decay: When 0 < b < 1, f(x) = ab^x decays. The smaller b, the faster decay. Graph approaches 0 from above as x → ∞. Common form: f(x) = a(1/2)^{x/h} where h is half-life.": "指数衰减：当 0 < b < 1 时，f(x) = ab^x 衰减。b 越小，衰减越快。图从上方接近 0 当 x → ∞。常见形式：f(x) = a(1/2)^{x/h}，其中 h 是半衰期。",
+    "Half-Life: Time required for quantity to reduce to half its value. After one half-life, 50% remains. After two half-lives, 25% remains (50% of 50%). n half-lives: (1/2)^n fraction remains.": "半衰期：数量减少到其值的一半所需的时间。经过一个半衰期，剩余 50%。经过两个半衰期，剩余 25%（50% 的 50%）。n 个半衰期：(1/2)^n 分数剩余。",
+    "Population Growth: P(t) = P_0 e^{rt} (continuous) or P(t) = P_0(1+r)^t (discrete). r is growth rate. Doubling time: 0.693/r (continuous). Applications: bacteria, human population, viral spread.": "人口增长：P(t) = P_0 e^{rt}（连续）或 P(t) = P_0(1+r)^t（离散）。r 是增长率。倍增时间：0.693/r（连续）。应用：细菌、人口、病毒传播。",
+    
+    "Properties of Exponents: b^{x+y} = b^x · b^y, b^{xy} = (b^x)^y, b^{-x} = 1/b^x. These properties allow solving exponential equations algebraically when bases are equal.": "指数性质：b^{x+y} = b^x · b^y，b^{xy} = (b^x)^y，b^{-x} = 1/b^x。当底数相等时，这些性质允许代数求解指数方程。",
+    "Solving Exponential Equations: If bases are equal, exponents are equal: b^m = b^n → m = n. If bases aren't equal, take logarithm of both sides. Use logarithm properties to simplify.": "解指数方程：如果底数相等，指数相等：b^m = b^n → m = n。如果底数不相等，对两边取对数。使用对数性质化简。",
+    "Checking Solutions: Exponential equations: check by substituting. Logarithmic equations: verify that arguments are positive (domain restriction of logarithm). Extraneous solutions can appear when applying properties.": "检查解：指数方程：通过代入检查。对数方程：验证参数为正（对数的定义域限制）。应用性质时可能出现无关解。",
+    
+    "Continuous Compound Interest: A = Pe^{rt} is the continuous version of interest compounding. As compounding frequency increases, (1+r/n)^{nt} → e^{rt}. This is the most efficient interest calculation.": "连续复利：A = Pe^{rt} 是利息复利的连续版本。随着复利频率增加，(1+r/n)^{nt} → e^{rt}。这是最有效的利息计算。",
+    "Real-World Models: Continuous growth: A(t) = Pe^{rt}. Compound interest: A(t) = P(1 + r/n)^{nt}. Both are exponential models with slightly different forms.": "实际模型：连续增长：A(t) = Pe^{rt}。复利：A(t) = P(1 + r/n)^{nt}。两者都是具有略微不同形式的指数模型。",
+    "Finance: Compound interest A = P(1 + r/n)^{nt}. Continuous compounding: A = Pe^{rt}. Present value given future value. Investment problems using logarithms to solve for time.": "金融：复利 A = P(1 + r/n)^{nt}。连续复合：A = Pe^{rt}。给定未来价值的现值。使用对数求解时间的投资问题。",
+    
+    "Logarithm Definition: y = log_b(x) means b^y = x. Logarithm is the inverse of exponential. Base b > 0, b ≠ 1. Common base: log_10(x) = log(x). Natural base: log_e(x) = ln(x).": "对数定义：y = log_b(x) 表示 b^y = x。对数是指数的逆。底数 b > 0、b ≠ 1。常见底数：log_10(x) = log(x)。自然底数：log_e(x) = ln(x)。",
+    "Change of Base Formula: log_b(x) = log(x)/log(b) = ln(x)/ln(b). Allows computing any logarithm using calculator (which typically has log base 10 and natural log).": "换底公式：log_b(x) = log(x)/log(b) = ln(x)/ln(b)。允许使用计算器计算任何对数（通常有以 10 为底的对数和自然对数）。",
+    "Graph Characteristics: Passes through (1, 0) because log_b(1) = 0. Passes through (b, 1) because log_b(b) = 1. Increasing if b > 1, decreasing if 0 < b < 1. Slow growth: logarithmic growth is much slower than exponential.": "图形特征：通过 (1, 0) 因为 log_b(1) = 0。通过 (b, 1) 因为 log_b(b) = 1。如果 b > 1 则增加，如果 0 < b < 1 则减少。缓慢增长：对数增长比指数增长慢得多。",
+    
+    "Logarithm Definition: y = log_b(x) means b^y = x. Logarithm is the inverse of exponential. Base b > 0, b ≠ 1. Common base: log_10(x) = log(x). Natural base: log_e(x) = ln(x).": "对数定义：y = log_b(x) 表示 b^y = x。对数是指数的逆。底数 b > 0、b ≠ 1。常见底数：log_10(x) = log(x)。自然底数：log_e(x) = ln(x)。",
+    "Key Properties: log_b(bx) = 1, log_b(1) = 0, log_b(b) = 1. Inverse relationship: b^{log_b(x)} = x and log_b(b^x) = x. Domain: x > 0 only.": "关键性质：log_b(bx) = 1、log_b(1) = 0、log_b(b) = 1。逆关系：b^{log_b(x)} = x 和 log_b(b^x) = x。定义域：仅 x > 0。",
+    "Logarithmic Properties: log_b(xy) = log_b(x) + log_b(y) (product rule). log_b(x/y) = log_b(x) - log_b(y) (quotient rule). log_b(x^n) = n·log_b(x) (power rule).": "对数性质：log_b(xy) = log_b(x) + log_b(y)（乘积法则）。log_b(x/y) = log_b(x) - log_b(y)（商法则）。log_b(x^n) = n·log_b(x)（幂法则）。",
+    "Solving Logarithmic Equations: Use exponential (inverse) form: if log_b(x) = k, then x = b^k. Properties of logarithms can condense or expand terms before converting to exponential form.": "解对数方程：使用指数（逆）形式：如果 log_b(x) = k，则 x = b^k。对数性质可以在转换为指数形式前凝聚或展开项。",
+    
+    "Transformations: y = log_b(x - h) + k shifts the graph. h shifts right (h > 0) or left. k shifts up (k > 0) or down. Vertical asymptote shifts to x = h. The reflection over the line y = x gives y = b^x.": "变换：y = log_b(x - h) + k 移动图形。h 向右移动（h > 0）或向左移动。k 向上移动（k > 0）或向下移动。垂直渐近线移动到 x = h。关于直线 y = x 的反射给出 y = b^x。",
+    "Logarithmic Functions: f(x) = log_b(x). These are inverse functions of f(x) = b^x. Domain: x > 0. Range: all real numbers. Graph has vertical asymptote at x = 0.": "对数函数：f(x) = log_b(x)。这些是 f(x) = b^x 的逆函数。定义域：x > 0。值域：所有实数。图在 x = 0 处有垂直渐近线。",
+    
+    "Decibel Scale: dB = 10 log(I/I_0) for intensity. Logarithmic scale compresses wide ranges. Small dB changes represent large intensity changes.": "分贝标度：dB = 10 log(I/I_0) 用于强度。对数标度压缩宽范围。小分贝变化代表大强度变化。",
+    "Natural Logarithm: ln(x) = log_e(x). Its inverse is y = e^x. Properties identical to all logarithms with base e. ln(e) = 1, ln(1) = 0, e^{ln(x)} = x, ln(e^x) = x.": "自然对数：ln(x) = log_e(x)。其逆是 y = e^x。性质与所有以 e 为底的对数相同。ln(e) = 1、ln(1) = 0、e^{ln(x)} = x、ln(e^x) = x。",
+    "Cooling Law: T(t) = T_s + (T_0 - T_s)e^{-kt} describes temperature decrease. T_s is surrounding temperature, T_0 is initial temperature, k is cooling rate. Temperature approaches T_s asymptotically.": "冷却定律：T(t) = T_s + (T_0 - T_s)e^{-kt} 描述温度下降。T_s 是周围温度，T_0 是初始温度，k 是冷却速率。温度渐近地接近 T_s。",
+    
+    # Unit 6 - Sequences & Series
+    "Arithmetic Sequence: Sequence with constant difference d between consecutive terms. a_n = a_1 + (n-1)d. Example: 2, 5, 8, 11, 14... has a_1 = 2, d = 3. The common difference can be negative or zero.": "等差数列：相邻项之间有恒定差 d 的数列。a_n = a_1 + (n-1)d。例：2, 5, 8, 11, 14... 有 a_1 = 2、d = 3。公差可以是负数或零。",
+    "Finding Terms: Once a_1 and d known, any term can be found: a_n = a_1 + (n-1)d. To find d: d = (a_m - a_k)/(m - k). To insert arithmetic means between two terms, find common difference and generate intermediate terms.": "查找项：知道 a_1 和 d 后，可以找到任何项：a_n = a_1 + (n-1)d。找到 d：d = (a_m - a_k)/(m - k)。在两项之间插入等差，找到公差并生成中间项。",
+    "Sum of Arithmetic Sequence: S_n = (n/2)(a_1 + a_n) = (n/2)(2a_1 + (n-1)d). Gauss's formula: sum of first n positive integers is n(n+1)/2. Sum is always the average of first and last term, times the count.": "等差数列和：S_n = (n/2)(a_1 + a_n) = (n/2)(2a_1 + (n-1)d)。高斯公式：前 n 个正整数的和是 n(n+1)/2。和始终是首项和末项的平均值乘以项数。",
+    
+    "Geometric Sequence: Sequence with constant ratio r between consecutive terms. a_n = a_1 · r^{n-1}. Example: 2, 6, 18, 54... has a_1 = 2, r = 3. Each term is r times the previous term.": "等比数列：相邻项之间有恒定比 r 的数列。a_n = a_1 · r^{n-1}。例：2, 6, 18, 54... 有 a_1 = 2、r = 3。每一项是前一项的 r 倍。",
+    "Finding Terms: Given a_1 and r, find any term using a_n = a_1 · r^{n-1}. Common ratio: r = a_{n+1}/a_n. Handle negative ratios (alternating sign sequences). To insert geometric means between two terms, compute appropriate r and generate intermediates.": "查找项：给定 a_1 和 r，使用 a_n = a_1 · r^{n-1} 找到任何项。公比：r = a_{n+1}/a_n。处理负比（交替符号数列）。在两项之间插入等比，计算适当的 r 并生成中间项。",
+    "Sum of Geometric Sequence: If r ≠ 1: S_n = a_1(1 - r^n)/(1 - r) = a_1(r^n - 1)/(r - 1). If r = 1: S_n = na_1. The formula works even with negative r.": "等比数列和：如果 r ≠ 1：S_n = a_1(1 - r^n)/(1 - r) = a_1(r^n - 1)/(r - 1)。如果 r = 1：S_n = na_1。公式即使对于负 r 也适用。",
+    
+    "Series: Sum of terms in a sequence. Arithmetic series: a_1 + a_2 + ... + a_n. Geometric series: a_1 + a_1r + a_1r^2 + ... + a_1r^{n-1}. Infinite series: sum of infinitely many terms (may or may not converge).": "级数：数列中的项的和。等差级数：a_1 + a_2 + ... + a_n。等比级数：a_1 + a_1r + a_1r^2 + ... + a_1r^{n-1}。无穷级数：无穷多项的和（可能收敛或不收敛）。",
+    "Summation Notation: Σ symbol denotes sum. Σ_{i=1}^{n} a_i means a_1 + a_2 + ... + a_n. Index i is the summation variable. Lower limit (below Σ) starts the index. Upper limit (above Σ) ends the index.": "求和记号：Σ 符号表示求和。Σ_{i=1}^{n} a_i 表示 a_1 + a_2 + ... + a_n。索引 i 是求和变量。下限（Σ 下方）开始索引。上限（Σ 上方）结束索引。",
+    "Telescoping Series: Series where consecutive terms cancel: Σ (a_i - a_{i+1}) = a_1 - a_{n+1}. Useful for partial fractions decomposition.": "伸缩级数：连续项相消的级数：Σ (a_i - a_{i+1}) = a_1 - a_{n+1}。对分部分数分解有用。",
+    
+    "Convergence Condition: Geometric series converges if and only if |r| < 1 (r is strictly between -1 and 1). The sum S = a/(1-r) is a finite value. When |r| ≥ 1, partial sums increase without bound.": "收敛条件：等比级数收敛当且仅当 |r| < 1（r 严格介于 -1 和 1 之间）。和 S = a/(1-r) 是有限值。当 |r| ≥ 1 时，部分和无界增加。",
+    "Finding Sum: First, identify first term a and common ratio r. Check |r| < 1 for convergence. If convergent, S = a/(1-r). Useful for repeating decimals: 0.333... = 3/10 + 3/100 + 3/1000 + ... = (3/10)/(1 - 1/10) = 1/3.": "找到和：首先，识别首项 a 和公比 r。检查 |r| < 1 以确定收敛。如果收敛，S = a/(1-r)。对于重复小数有用：0.333... = 3/10 + 3/100 + 3/1000 + ... = (3/10)/(1 - 1/10) = 1/3。",
+    "Infinite Geometric Series: a + ar + ar^2 + ar^3 + ... where |r| < 1 converges to a/(1-r). If |r| ≥ 1, the series diverges (sum is infinite or undefined). Tests for convergence depend on common ratio.": "无穷等比级数：a + ar + ar^2 + ar^3 + ...，其中 |r| < 1 收敛到 a/(1-r)。如果 |r| ≥ 1，级数发散（和无穷或未定义）。收敛测试取决于公比。",
+    
+    "Applications: Exponential growth/decay (bacteria, investments). Fractals and self-similar structures. Bouncing ball problems (heights form geometric sequence). Depreciation: asset value decreases by constant percentage.": "应用：指数增长/衰减（细菌、投资）。分形和自相似结构。弹球问题（高度形成等比数列）。折旧：资产价值按恒定百分比下降。",
+    "Practical Applications: Loan amortization uses series formulas. Monthly payment computed using present value of annuity. Stock dividend accumulation. Pendulum oscillation amplitudes (geometric decay). Recursive sequences define many real systems.": "实际应用：贷款摊销使用级数公式。月付款使用年金现值计算。股票股利累积。摆锤振荡振幅（几何衰减）。递归数列定义许多真实系统。",
+    "Applications: Repeating decimals to fractions. Fractal areas and lengths (Koch snowflake). Loan and mortgage calculations using present value. Annuities and perpetuities in finance.": "应用：重复小数到分数。分形区域和长度（科赫雪花）。使用现值的贷款和抵押计算。金融中的年金和永久资产。",
+    
+    "Mathematical Induction: Proof technique for statements about all positive integers. Two steps: (1) Base case: prove statement true for n = 1. (2) Inductive step: assume true for n = k, prove it's true for n = k+1. Proves infinitely many cases with finite work.": "数学归纳法：关于所有正整数语句的证明技巧。两个步骤：(1) 基础情况：证明 n = 1 时语句为真。(2) 归纳步骤：假设 n = k 时为真，证明 n = k+1 时为真。通过有限工作证明无穷多个情况。",
+    
+    # Unit 7 - Probability & Statistics
+    "Sample Space & Events: Sample space is all possible outcomes. Event is subset of sample space. Experiment can produce random outcomes. Example: die roll has sample space {1,2,3,4,5,6}.": "样本空间和事件：样本空间是所有可能的结果。事件是样本空间的子集。实验可以产生随机结果。例：骰子掷出的样本空间是 {1,2,3,4,5,6}。",
+    "Probability Definition: P(event) = (favorable outcomes)/(total outcomes) for equally likely outcomes. Ranges from 0 (impossible) to 1 (certain). 0% to 100%. Complement rule: P(not A) = 1 - P(A).": "概率定义：P(事件) = (有利结果)/(总结果)，对于等可能结果。范围从 0（不可能）到 1（确定）。0% 到 100%。补集规则：P(非 A) = 1 - P(A)。",
+    "Fundamental Counting Principle: If first event has m outcomes and second event has n outcomes, total outcomes is m × n. Extends to multiple events: multiply all possibilities. Example: 3 appetizers, 4 mains, 2 desserts → 3 × 4 × 2 = 24 meals.": "基本计数原理：如果第一个事件有 m 个结果，第二个事件有 n 个结果，总结果是 m × n。扩展到多个事件：乘以所有可能性。例：3 道开胃菜、4 道主菜、2 道甜点 → 3 × 4 × 2 = 24 餐。",
+    
+    "Permutations: Arrangement of objects where ORDER MATTERS. n! = n × (n-1) × ... × 1. Permutations of n objects taken r at a time: P(n,r) = n!/(n-r)!. Example: arranging 3 of 5 books: P(5,3) = 5!/2! = 60.": "排列：物体的排列，其中顺序很重要。n! = n × (n-1) × ... × 1。n 个物体中取 r 个的排列：P(n,r) = n!/(n-r)!。例：5 本书中排列 3 本：P(5,3) = 5!/2! = 60。",
+    "Combinations: Selection of objects where ORDER DOESN'T MATTER. C(n,r) = n!/(r!(n-r)!), also written \"n choose r\". Always C(n,r) ≤ P(n,r). Example: choosing 3 of 5 books: C(5,3) = 5!/(3!2!) = 10.": "组合：物体的选择，其中顺序不重要。C(n,r) = n!/(r!(n-r)!)，也写作\"n choose r\"。C(n,r) 总是 ≤ P(n,r)。例：从 5 本书中选择 3 本：C(5,3) = 5!/(3!2!) = 10。",
+    "Combinations vs Permutations: Choosing 3 from {A,B,C,D,E}: combinations give ABC, ABD, ABE, ACD, ACE, ADE, BCD, BCE, BDE, CDE (10 total). Same objects in different order → same combination but different permutations.": "组合 vs 排列：从 {A,B,C,D,E} 中选择 3 个：组合给出 ABC、ABD、ABE、ACD、ACE、ADE、BCD、BCE、BDE、CDE（共 10 个）。相同对象不同顺序 → 相同组合但不同排列。",
+    "Factorial: 0! = 1 (definition), 1! = 1, 2! = 2, 3! = 6, 4! = 24, etc. Grows very fast. Used in permutation and combination calculations.": "阶乘：0! = 1（定义）、1! = 1、2! = 2、3! = 6、4! = 24 等。增长非常快。用于排列和组合计算。",
+    
+    "Independent Events: Events A and B are independent if P(A and B) = P(A) · P(B). One event doesn't affect the other. Examples: coin flips, die rolls.": "独立事件：事件 A 和 B 独立当 P(A and B) = P(A) · P(B)。一个事件不影响另一个。例：硬币抛掷、骰子掷出。",
+    "Dependent Events: Events A and B are dependent if P(A then B) = P(A) · P(B|A) where P(B|A) is conditional probability of B given A occurred. Drawing without replacement creates dependency.": "相关事件：事件 A 和 B 相关当 P(A then B) = P(A) · P(B|A)，其中 P(B|A) 是给定 A 发生时 B 的条件概率。无放回抽取产生相关性。",
+    "Conditional Probability: P(A|B) = P(A and B) / P(B). Probability of A given B has occurred. Denominator is not 100% but P(B). Example: P(roll 3 | die is even) = P(3 and even) / P(even) = 0 / (1/2) = 0.": "条件概率：P(A|B) = P(A and B) / P(B)。给定 B 发生时 A 的概率。分母不是 100% 而是 P(B)。例：P(掷出 3 | 骰子是偶数) = P(3 and even) / P(even) = 0 / (1/2) = 0。",
+    "Applications: Medical diagnosis: likelihood of disease given test result. Quality control: probability defective given supplier. Database queries: probability matching criteria given constraints.": "应用：医学诊断：给定测试结果的疾病可能性。质量控制：给定供应商的缺陷概率。数据库查询：给定约束的匹配标准的概率。",
+    
+    "Probability with Combinations: Many problems use C(n,r) to count favorable outcomes. Example: probability of 2 heads in 3 coin flips: C(3,2)/2^3 = 3/8. Lottery odds: C(49,6) total combinations.": "结合概率：许多问题使用 C(n,r) 来计算有利结果。例：3 次硬币抛掷中 2 个正面的概率：C(3,2)/2^3 = 3/8。彩票赔率：C(49,6) 总组合。",
+    "Bayes' Theorem: P(A|B) = P(B|A) · P(A) / P(B). Relates conditional probabilities in both directions. Used in medical testing: P(disease|positive test) involves test accuracy.": "贝叶斯定理：P(A|B) = P(B|A) · P(A) / P(B)。在两个方向上关联条件概率。用于医学检测：P(疾病|阳性测试)涉及测试准确性。",
+    
+    "Two-Way Tables (Contingency Tables): Organize data for two categorical variables. Cell entries are counts. Marginal distributions shown in totals. Conditional probabilities calculated by dividing cell by row/column total.": "双向表（列联表）：为两个分类变量组织数据。单元格条目是计数。边际分布显示在总计中。条件概率通过将单元格除以行/列总计来计算。",
+    "Two-Variable Data Analysis: Bivariate data pairs (x, y) from paired observations. Scatterplot shows relationship. Trendline captures general pattern. Must distinguish correlation (relationship exists) from causation (one causes other).": "双变量数据分析：来自配对观测的双变量数据对 (x, y)。散点图显示关系。趋势线捕获一般模式。必须区分相关性（存在关系）和因果性（一个导致另一个）。",
+    
+    "Normal Distribution: Bell curve, symmetric around mean μ. Characterized by mean and standard deviation σ. Z-score: (X - μ)/σ standardizes to normal distribution. 68-95-99.7 rule: 68% within 1σ, 95% within 2σ, 99.7% within 3σ.": "正态分布：钟形曲线，关于均值 μ 对称。由均值和标准差 σ 表征。Z 分数：(X - μ)/σ 标准化为正态分布。68-95-99.7 规则：68% 在 1σ 内，95% 在 2σ 内，99.7% 在 3σ 内。",
+    "Finding Probabilities: P(X ≤ a) requires standardizing to Z, then using table. P(a < X < b) = P(X < b) - P(X < a). P(X > c) = 1 - P(X ≤ c).": "找到概率：P(X ≤ a) 需要标准化为 Z，然后使用表格。P(a < X < b) = P(X < b) - P(X < a)。P(X > c) = 1 - P(X ≤ c)。",
+    
+    "Hypothesis Testing: Test H₀ (null hypothesis) vs Hₐ (alternative). Type I error: reject H₀ when true (α significance level). Type II error: fail to reject H₀ when false (β). P-value indicates evidence against H₀.": "假设检验：测试 H₀（零假设）vs Hₐ（备择假设）。第一类错误：当 H₀ 为真时拒绝（α 显著度水平）。第二类错误：当 H₀ 为假时未拒绝（β）。P 值表示反对 H₀ 的证据。",
+    "Confidence Intervals: Range estimate for population parameter. 95% confidence interval means 95% of such intervals would contain true parameter. Margin of error determines width. t-distribution for small samples, normal for large.": "置信区间：群体参数的范围估计。95% 置信区间意味着这样的区间中的 95% 会包含真参数。误差幅度确定宽度。小样本用 t 分布，大样本用正态分布。",
+    
+    "Regression Line Equation: \\hat{y} = b_0 + b_1 x. Slope b_1 = r × (s_y/s_x), y-intercept b_0 = \\bar{y} - b_1 \\bar{x}. Confidence intervals for slope: slope ± t* × SE(b_1). Hypothesis tests on correlation using t-statistic.": "回归直线方程：\\hat{y} = b_0 + b_1 x。斜率 b_1 = r × (s_y/s_x)，y 截距 b_0 = \\bar{y} - b_1 \\bar{x}。斜率的置信区间：斜率 ± t* × SE(b_1)。使用 t 统计量对相关性进行假设检验。",
+    "Assumptions for Linear Regression: Linearity (relationship is linear), independence (observations independent), normality (residuals approximately normal), equal variance (residuals have constant spread for all x).": "线性回归假设：线性性（关系是线性的）、独立性（观测独立）、正态性（残差近似正态）、等方差（残差对所有 x 有恒定分布）。",
+    
+    # Unit 8 - Trigonometry
+    "Degree Measure: Full rotation = 360°. Right angle = 90°. Straight angle = 180°. Acute angle < 90°, obtuse angle 90° < angle < 180°. Angle measured counterclockwise from standard position (positive ray of x-axis).": "度量制：全旋转 = 360°。直角 = 90°。平角 = 180°。锐角 < 90°，钝角 90° < 角 < 180°。从标准位置（x 轴正射线）逆时针测量角。",
+    "Radian Measure: Based on arc length. 1 radian = arc length equals radius. Full rotation = 2π radians = 360°. Conversion: radians = degrees × π/180°, degrees = radians × 180°/π.": "弧度制：基于弧长。1 弧度 = 弧长等于半径。全旋转 = 2π 弧度 = 360°。转换：弧度 = 度 × π/180°，度 = 弧度 × 180°/π。",
+    "Reference Angles: Acute angle between terminal side and x-axis. Used to find trig values for any angle. Reference angle always between 0° and 90°.": "参考角：终边和 x 轴之间的锐角。用于找到任何角的三角值。参考角始终在 0° 和 90° 之间。",
+    
+    "Exact Values: Common angles have known exact values. sin(0) = 0, sin(π/6) = 1/2, sin(π/4) = √2/2, sin(π/3) = √3/2, sin(π/2) = 1. Cosine values reverse for complement.": "精确值：常见角有已知的精确值。sin(0) = 0、sin(π/6) = 1/2、sin(π/4) = √2/2、sin(π/3) = √3/2、sin(π/2) = 1。余弦值对于补角相反。",
+    "Periodicity & Signs: Trigonometric functions repeat every 2π radians. Signs vary by quadrant: Q1 all positive, Q2 sin positive, Q3 tan positive, Q4 cos positive.": "周期性和符号：三角函数每 2π 弧度重复。符号因象限而异：Q1 全正、Q2 正弦正、Q3 正切正、Q4 余弦正。",
+    "Fundamental Identities: sin² x + cos² x = 1 (Pythagorean). tan x = sin x / cos x. cot x = cos x / sin x. sec x = 1 / cos x. csc x = 1 / sin x.": "基本恒等式：sin² x + cos² x = 1（勾股）。tan x = sin x / cos x。cot x = cos x / sin x。sec x = 1 / cos x。csc x = 1 / sin x。",
+    
+    "Sine Function: y = sin(x) has amplitude 1, period 2π. Oscillates between -1 and 1. Passes through origin (0, 0). Key points: (π/2, 1), (π, 0), (3π/2, -1), (2π, 0).": "正弦函数：y = sin(x) 振幅为 1，周期为 2π。在 -1 和 1 之间振荡。通过原点 (0, 0)。关键点：(π/2, 1)、(π, 0)、(3π/2, -1)、(2π, 0)。",
+    "Cosine Function: y = cos(x) has amplitude 1, period 2π. Key points: (0, 1), (π/2, 0), (π, -1), (3π/2, 0), (2π, 1). Shifts sine left by π/2: cos(x) = sin(x + π/2).": "余弦函数：y = cos(x) 振幅为 1，周期为 2π。关键点：(0, 1)、(π/2, 0)、(π, -1)、(3π/2, 0)、(2π, 1)。将正弦左移 π/2：cos(x) = sin(x + π/2)。",
+    "Tangent Function: y = tan(x) = sin(x)/cos(x). Undefined at x = π/2, 3π/2, ... (where cos = 0). Vertical asymptotes at these points. Period = π.": "正切函数：y = tan(x) = sin(x)/cos(x)。在 x = π/2、3π/2 等处未定义（cos = 0）。在这些点有垂直渐近线。周期 = π。",
+    
+    "Transformations: y = A sin(B(x - C)) + D. A is amplitude (vertical stretch). B affects period (new period = 2π/B). C is horizontal shift. D is vertical shift. Tangent has period π, not 2π.": "变换：y = A sin(B(x - C)) + D。A 是振幅（垂直伸展）。B 影响周期（新周期 = 2π/B）。C 是水平移位。D 是垂直移位。正切周期为 π，不是 2π。",
+    "Power Reduction: sin² x = (1 - cos 2x)/2. cos² x = (1 + cos 2x)/2. Used to simplify expressions and solve equations.": "幂降低：sin² x = (1 - cos 2x)/2。cos² x = (1 + cos 2x)/2。用于化简表达式和解方程。",
+    "Double Angle Formulas: sin 2x = 2 sin x cos x. cos 2x = cos² x - sin² x = 2 cos² x - 1 = 1 - 2 sin² x. tan 2x = 2 tan x / (1 - tan² x).": "二倍角公式：sin 2x = 2 sin x cos x。cos 2x = cos² x - sin² x = 2 cos² x - 1 = 1 - 2 sin² x。tan 2x = 2 tan x / (1 - tan² x)。",
+    
+    "Solutions on Intervals: Specify interval like [0, 2π] to list finite. For x ∈ [0, 2π], sin x = 1/2 has solutions x = π/6, 5π/6. Check domain restrictions (tan x undefined at π/2, etc.).": "区间上的解：指定区间，如 [0, 2π] 列出有限。对于 x ∈ [0, 2π]，sin x = 1/2 的解是 x = π/6、5π/6。检查定义域限制（tan x 在 π/2 等处未定义）。",
+    "Algebraic Methods: Prepare to learn substitution and elimination methods in the next lessons. Both methods transform the system to isolate variables and find the solution.": "代数方法：准备在下一课学习代入和消元方法。两种方法都转变系统以隔离变量并找到解。",
+    
+    "Law of Sines: a/sin A = b/sin B = c/sin C. Use when you have ASA, AAS, or SSA (ambiguous). In triangle with angles A, B, C and opposite sides a, b, c respectively. Solves non-right triangles.": "正弦定律：a/sin A = b/sin B = c/sin C。当您有 ASA、AAS 或 SSA（歧义）时使用。在三角形中，角 A、B、C 和对边 a、b、c。求解非直角三角形。",
+    "Law of Cosines: c² = a² + b² - 2ab cos C. Use for SAS or SSS. Relates all three sides to an angle. Special case: when C = 90°, reduces to Pythagorean theorem.": "余弦定律：c² = a² + b² - 2ab cos C。用于 SAS 或 SSS。将所有三边与一个角相关联。特殊情况：当 C = 90° 时，简化为勾股定理。",
+    "Real-World Applications: Navigation and bearings: angle measured from north. Height problems: angle of elevation/depression. Projectile motion, astronomy, surveying.": "实际应用：导航和方位：从北方测量的角度。高度问题：仰角/俯角。抛体运动、天文学、测量。",
+    
+    # Unit 9 - Advanced Topics
+    "Vector Basics: Vector has magnitude and direction: v = ⟨a, b⟩ = ai + bj. Magnitude |v| = √(a² + b²). Unit vector: u = v/|v|. Zero vector 0 = ⟨0, 0⟩. Position vector from origin to point (a, b).": "向量基础：向量有大小和方向：v = ⟨a, b⟩ = ai + bj。大小 |v| = √(a² + b²)。单位向量：u = v/|v|。零向量 0 = ⟨0, 0⟩。从原点到点 (a, b) 的位置向量。",
+    "Vector Operations: Addition: ⟨a₁, b₁⟩ + ⟨a₂, b₂⟩ = ⟨a₁+a₂, b₁+b₂⟩ (parallelogram law). Scalar multiplication: c⟨a, b⟩ = ⟨ca, cb⟩. Dot product: u · v = |u||v|cos θ gives angle between vectors.": "向量运算：加法：⟨a₁, b₁⟩ + ⟨a₂, b₂⟩ = ⟨a₁+a₂, b₁+b₂⟩（平行四边形法则）。标量乘法：c⟨a, b⟩ = ⟨ca, cb⟩。点积：u · v = |u||v|cos θ 给出向量间的角度。",
+    
+    "Parametric Representation: Describe curve using x = f(t), y = g(t) where t is parameter. Often t represents time. Example: x = 3cos(t), y = 3sin(t), t ∈ [0, 2π] traces circle x² + y² = 9. Eliminates parameter to get Cartesian equation.": "参数表示：使用 x = f(t)、y = g(t) 描述曲线，其中 t 是参数。通常 t 代表时间。例：x = 3cos(t)、y = 3sin(t)、t ∈ [0, 2π] 追踪圆 x² + y² = 9。消除参数得到笛卡尔方程。",
+    "Eliminating Parameter: Solve one equation for t, substitute into other. Example: x = 2t + 1, y = t² → t = (x-1)/2 → y = ((x-1)/2)². Check for domain/range restrictions preserved in conversion.": "消除参数：解一个方程中的 t，代入另一个。例：x = 2t + 1、y = t² → t = (x-1)/2 → y = ((x-1)/2)²。检查转换中保留的定义域/值域限制。",
+    "Derivatives Parametrically: dy/dx = (dy/dt)/(dx/dt). Not dy/dx obtained by implicit differentiation. Acceleration vector: a(t) = (d²x/dt², d²y/dt²). Velocity vector: v(t) = (dx/dt, dy/dt), speed |v(t)| = √((dx/dt)² + (dy/dt)²).": "参数求导：dy/dx = (dy/dt)/(dx/dt)。不是通过隐函数微分得到的 dy/dx。加速度向量：a(t) = (d²x/dt²、d²y/dt²)。速度向量：v(t) = (dx/dt、dy/dt)，速度 |v(t)| = √((dx/dt)² + (dy/dt)²)。",
+    
+    "Circle: (x - h)² + (y - k)² = r². Center (h, k), radius r. Equation of tangent line perpendicular to radius at point of tangency. Distance formula finds radius given center and point.": "圆：(x - h)² + (y - k)² = r²。中心 (h, k)，半径 r。切线方程垂直于切点处的半径。距离公式在给定中心和点时找到半径。",
+    "Ellipse: (x-h)²/a² + (y-k)²/b² = 1 (horizontal) or swap a, b (vertical). Center (h, k). Major axis length 2a, minor axis 2b. Foci at distance c where c² = a² - b². Eccentricity e = c/a < 1.": "椭圆：(x-h)²/a² + (y-k)²/b² = 1（水平）或交换 a、b（垂直）。中心 (h, k)。主轴长度 2a，次轴 2b。焦点距离 c，其中 c² = a² - b²。离心率 e = c/a < 1。",
+    "Parabola & Hyperbola: Parabola: (y-k)² = 4p(x-h) (horizontal) or (x-h)² = 4p(y-k) (vertical). Vertex (h, k), focus, directrix p units away. Hyperbola: (x-h)²/a² - (y-k)²/b² = 1 (horizontal) or reversed. Asymptotes: y - k = ±(b/a)(x - h). Eccentricity e = c/a > 1 where c² = a² + b².": "抛物线和双曲线：抛物线：(y-k)² = 4p(x-h)（水平）或 (x-h)² = 4p(y-k)（垂直）。顶点 (h, k)、焦点、准线 p 单位远。双曲线：(x-h)²/a² - (y-k)²/b² = 1（水平）或反向。渐近线：y - k = ±(b/a)(x - h)。离心率 e = c/a > 1，其中 c² = a² + b²。",
+    "Conic Sections Definition: Curves formed by intersecting plane with a cone. Circle: plane perpendicular to axis. Ellipse: plane at angle. Parabola: plane parallel to side. Hyperbola: plane cuts both nappes.": "圆锥曲线定义：通过平面与圆锥相交形成的曲线。圆：平面垂直于轴。椭圆：平面成角度。抛物线：平面平行于侧面。双曲线：平面切割两个顶面。",
+    
+    "Polar Form of Complex Numbers: z = a + bi = r(cos θ + i sin θ) = r cis θ where r = |z| = √(a² + b²) and θ = arg(z). Conversion: a = r cos θ, b = r sin θ.": "复数的极坐标形式：z = a + bi = r(cos θ + i sin θ) = r cis θ，其中 r = |z| = √(a² + b²) 和 θ = arg(z)。转换：a = r cos θ、b = r sin θ。",
+    "Euler's Formula & Applications: e^(iθ) = cos θ + i sin θ. Complex exponential connects trig functions. Applications in physics: wave equations, quantum mechanics.": "欧拉公式和应用：e^(iθ) = cos θ + i sin θ。复指数连接三角函数。物理应用：波方程、量子力学。",
+    
+    # AP Connections
+    "AP Connections: Linear programming and system optimization appear in AP Calculus as constrained optimization and Lagrange multipliers. Understanding these foundations is essential for advanced mathematics.": "AP 连接：线性规划和系统优化出现在 AP 微积分中的约束优化和拉格朗日乘数法。理解这些基础对高等数学至关重要。",
+    "AP Connections: Higher-degree polynomials appear in optimization in calculus. Taylor series approximate functions using polynomials. Interpolation fits n points with degree n-1 polynomial.": "AP 连接：高次多项式出现在微积分优化中。泰勒级数使用多项式近似函数。插值用 n-1 次多项式拟合 n 个点。",
+    "AP Connections: Rational functions appear in optimization problems (minimize cost, maximize profit). L'Hôpital's Rule in calculus uses these asymptote concepts.": "AP 连接：有理函数出现在优化问题中（最小化成本、最大化利润）。微积学中的洛必达法则使用这些渐近线概念。",
+    "AP Connections: Trigonometric functions are periodic. Derivatives: d/dx(sin x) = cos x, d/dx(cos x) = -sin x. Integration of sin/cos appears everywhere in calculus courses.": "AP 连接：三角函数是周期的。导数：d/dx(sin x) = cos x、d/dx(cos x) = -sin x。sin/cos 的积分在微积学课程中无处不在。",
+    "AP Connections: Natural exponential and logarithm are the fundamental functions in calculus. d/dx(e^x) = e^x and d/dx(ln x) = 1/x. Integration of 1/x gives ln|x|. Taylor series for e^x, sin(x), cos(x) appear throughout calculus.": "AP 连接：自然指数和对数是微积学中的基本函数。d/dx(e^x) = e^x 和 d/dx(ln x) = 1/x。1/x 的积分给出 ln|x|。e^x、sin(x)、cos(x) 的泰勒级数在微积学中随处可见。",
+    "AP Connections: Mathematical induction foundation for many calculus proofs and theorem verification. Recursive functions and sequences central to analysis. The principle of induction connects to the completeness axiom in real number system, essential for rigorous calculus development.": "AP 连接：数学归纳法是许多微积学证明和定理验证的基础。递归函数和序列是分析的中心。归纳原理连接到实数系统的完备公理，对严格微积学发展至关重要。",
+    "AP Connections: Regression inference (confidence intervals, hypothesis tests) are central to AP Statistics. Understanding sampling distributions of estimators connects to calculus-based probability and limits. LOWESS regression and smoothing lead to advanced statistical methods.": "AP 连接：回归推理（置信区间、假设检验）是 AP 统计学的中心。理解估计量的抽样分布连接到基于微积学的概率和极限。LOWESS 回归和平滑导致高等统计方法。",
+    
+    # ===== QUIZ TITLES & OTHER STRINGS =====
+    "Lesson 1.1: Review of Functions & Notation - Quiz": "第 1.1 课：函数和记号复习 - 测验",
+    "Back to Algebra 2": "返回代数 2",
+    "Lesson 1.2: Linear Equations & Graphing - Quiz": "第 1.2 课：线性方程和作图 - 测验",
+    "Lesson 1.3: Systems of Linear Equations - Quiz": "第 1.3 课：线性方程组 - 测验",
+    "Lesson 1.4: Solving Systems by Substitution - Quiz": "第 1.4 课：用代入法解系统 - 测验",
+    "Lesson 1.5: Solving Systems by Elimination - Quiz": "第 1.5 课：用消元法解系统 - 测验",
+    "Lesson 1.6: Applications of Linear Systems - Quiz": "第 1.6 课：线性系统应用 - 测验",
+    "Lesson 1.7: Inequalities & System of Inequalities - Quiz": "第 1.7 课：不等式和不等式系统 - 测验",
+    "Lesson 1.8: Linear Programming - Quiz": "第 1.8 课：线性规划 - 测验",
+    "Lesson 1.9: Advanced Linear Applications - Quiz": "第 1.9 课：高等线性应用 - 测验",
+    
+    "Lesson 2.1: Quadratic Functions & Parabolas - Quiz": "第 2.1 课：二次函数和抛物线 - 测验",
+    "Lesson 2.2: Transformations of Quadratics - Quiz": "第 2.2 课：二次函数变换 - 测验",
+    "Lesson 2.3: Completing the Square - Quiz": "第 2.3 课：配方 - 测验",
+    "Lesson 2.4: Quadratic Formula & Discriminant - Quiz": "第 2.4 课：二次公式和判别式 - 测验",
+    "Lesson 2.5: Graphing Quadratic Functions - Quiz": "第 2.5 课：二次函数作图 - 测验",
+    "Lesson 2.6: Applications of Quadratics - Quiz": "第 2.6 课：二次函数应用 - 测验",
+    "Lesson 2.7: Quadratic Inequalities - Quiz": "第 2.7 课：二次不等式 - 测验",
+    
+    "Lesson 3.1: Polynomial Operations - Quiz": "第 3.1 课：多项式运算 - 测验",
+    "Lesson 3.2: Factoring Polynomials - Quiz": "第 3.2 课：多项式因式分解 - 测验",
+    "Lesson 3.3: Synthetic Division - Quiz": "第 3.3 课：综合除法 - 测验",
+    "Lesson 3.4: Polynomial Graphs & Zeros - Quiz": "第 3.4 课：多项式图和零点 - 测验",
+    "Lesson 3.5: Remainder & Factor Theorems - Quiz": "第 3.5 课：余数和因数定理 - 测验",
+    "Lesson 3.6: Complex Numbers & Polynomial Roots - Quiz": "第 3.6 课：复数和多项式根 - 测验",
+    "Lesson 3.7: Higher-Degree Polynomials - Quiz": "第 3.7 课：高次多项式 - 测验",
+    
+    "Lesson 4.1: Rational Expressions - Quiz": "第 4.1 课：有理表达式 - 测验",
+    "Lesson 4.2: Operations on Rational Expressions - Quiz": "第 4.2 课：有理表达式运算 - 测验",
+    "Lesson 4.3: Rational Equations - Quiz": "第 4.3 课：有理方程 - 测验",
+    "Lesson 4.4: Graphing Rational Functions - Quiz": "第 4.4 课：有理函数作图 - 测验",
+    "Lesson 4.5: Asymptotes & Discontinuities - Quiz": "第 4.5 课：渐近线和不连续 - 测验",
+    "Lesson 4.6: Applications of Rational Functions - Quiz": "第 4.6 课：有理函数应用 - 测验",
+    
+    "Lesson 5.1: Exponential Functions & Growth - Quiz": "第 5.1 课：指数函数和增长 - 测验",
+    "Lesson 5.2: Exponential Decay & Applications - Quiz": "第 5.2 课：指数衰减和应用 - 测验",
+    "Lesson 5.3: Logarithms & Properties - Quiz": "第 5.3 课：对数和性质 - 测验",
+    "Lesson 5.4: Logarithmic Functions & Graphs - Quiz": "第 5.4 课：对数函数和图 - 测验",
+    "Lesson 5.5: Exponential & Logarithmic Equations - Quiz": "第 5.5 课：指数和对数方程 - 测验",
+    "Lesson 5.6: Applications of Exponentials & Logs - Quiz": "第 5.6 课：指数和对数应用 - 测验",
+    "Lesson 5.7: Natural Logarithms & e - Quiz": "第 5.7 课：自然对数和 e - 测验",
+    
+    "Lesson 6.1: Arithmetic Sequences - Quiz": "第 6.1 课：等差数列 - 测验",
+    "6. 20th term if pattern '+5': first 3": "6. 20 项如果模式 '+5'：前 3",
+    "Lesson 6.2: Geometric Sequences - Quiz": "第 6.2 课：等比数列 - 测验",
+    "Lesson 6.3: Series & Summation Notation - Quiz": "第 6.3 课：级数和求和记号 - 测验",
+    "Lesson 6.4: Infinite Geometric Series - Quiz": "第 6.4 课：无穷等比级数 - 测验",
+    "Lesson 6.5: Applications & Mathematical Induction - Quiz": "第 6.5 课：应用和数学归纳法 - 测验",
+    
+    "Lesson 7.1: Counting Principles - Quiz": "第 7.1 课：计数原理 - 测验",
+    "Lesson 7.2: Permutations & Combinations - Quiz": "第 7.2 课：排列和组合 - 测验",
+    "Lesson 7.3: Probability Basics & Events - Quiz": "第 7.3 课：概率基础和事件 - 测验",
+    "Lesson 7.4: Conditional Probability - Quiz": "第 7.4 课：条件概率 - 测验",
+    "Lesson 7.5: Normal Distributions - Quiz": "第 7.5 课：正态分布 - 测验",
+    "Lesson 7.6: Hypothesis Testing & Confidence Intervals - Quiz": "第 7.6 课：假设检验和置信区间 - 测验",
+    "Lesson 7.7: Correlation & Linear Regression - Quiz": "第 7.7 课：相关性和线性回归 - 测验",
+    
+    "Lesson 8.1: Angles & Angle Measures - Quiz": "第 8.1 课：角和角度量 - 测验",
+    "Lesson 8.2: Unit Circle & Trigonometric Ratios - Quiz": "第 8.2 课：单位圆和三角比 - 测验",
+    "Lesson 8.3: Graphs of Trigonometric Functions - Quiz": "第 8.3 课：三角函数图 - 测验",
+    "Lesson 8.4: Trigonometric Identities - Quiz": "第 8.4 课：三角恒等式 - 测验",
+    "Lesson 8.5: Solving Trigonometric Equations - Quiz": "第 8.5 课：解三角方程 - 测验",
+    "Lesson 8.6: Applications of Trigonometry - Quiz": "第 8.6 课：三角学应用 - 测验",
+    
+    "Lesson 9.1: Conic Sections - Quiz": "第 9.1 课：圆锥曲线 - 测验",
+    "Lesson 9.2: Parametric Equations - Quiz": "第 9.2 课：参数方程 - 测验",
+    "Lesson 9.3: Vectors & Vector Operations - Quiz": "第 9.3 课：向量和向量运算 - 测验",
+    "Lesson 9.4: Complex Numbers in Polar Form - Quiz": "第 9.4 课：极坐标形式的复数 - 测验",
+    
+    # Video labels
+    "Difficulty:": "难度：",
+    "Detail:": "细节：",
+    "Speed:": "速度：",
+    "Pace:": "步速：",
+    
+    # Special quiz options
+    "x < −2 or x > 1": "x < −2 或 x > 1",
+    "x < −3 or x > 1/2": "x < −3 或 x > 1/2",
+    "a < 0 and disc > 0": "a < 0 且判别式 > 0",
+}
+
+# Load the current global_translations.js
+js_path = "ArisEdu Project Folder/scripts/global_translations.js"
+with open(js_path, 'r', encoding='utf-8') as f:
+    js_content = f.read()
+
+# Count how many new translations we'll add
+new_translations = {}
+for english, chinese in translations.items():
+    # Check if this key already exists in the JS file
+    escaped_eng = english.replace('"', '\\"').replace("'", "\\'")
+    if f'"{english}"' not in js_content and f"'{english}'" not in js_content:
+        new_translations[english] = chinese
+
+print(f"Total translations in dictionary: {len(translations)}")
+print(f"New translations to add: {len(new_translations)}")
+print(f"Already in file: {len(translations) - len(new_translations)}")
+
+#Save new translations to JSON for injection
+with open('algebra2_translations_final.json', 'w', encoding='utf-8') as f:
+    json.dump(new_translations, f, ensure_ascii=False, indent=2)
+
+print(f"Saved {len(new_translations)} new translations to algebra2_translations_final.json")

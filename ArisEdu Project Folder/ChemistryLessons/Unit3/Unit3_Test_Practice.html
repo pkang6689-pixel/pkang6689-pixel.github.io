@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 3: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="/quiz_logic.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }
+    
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 3 Practice</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../chem.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Chemistry</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit3_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+window.lessonFlashcards = [
+    { question: "What is a proton?", answer: "A positively charged particle in the nucleus" },
+    { question: "What is a neutron?", answer: "A neutral particle in the nucleus" },
+    { question: "What is an electron?", answer: "A negatively charged particle orbiting the nucleus" },
+    { question: "What does the atomic number represent?", answer: "The number of protons in an atom" },
+    { question: "What is the mass number?", answer: "The total number of protons plus neutrons" },
+    { question: "Where are protons and neutrons located?", answer: "In the nucleus" },
+    { question: "Where are electrons located?", answer: "In energy levels (electron cloud) around the nucleus" },
+    { question: "In a neutral atom, what equals the number of protons?", answer: "The number of electrons" },
+    { question: "Which particle has the smallest mass?", answer: "Electron" },
+    { question: "How do you find the number of neutrons?", answer: "Mass number minus atomic number" },
+    { question: "What is the nucleus?", answer: "The dense central core containing protons and neutrons" },
+    { question: "What is the electron cloud?", answer: "The region around the nucleus where electrons are likely found" },
+    { question: "What are energy levels?", answer: "Regions around the nucleus where electrons orbit" },
+    { question: "What holds the nucleus together?", answer: "The strong nuclear force" },
+    { question: "What is an atom?", answer: "The smallest unit of an element retaining its chemical properties" },
+    { question: "What is the atomic radius?", answer: "The distance from the nucleus to the outer electron cloud" },
+    { question: "Most of an atom is made of what?", answer: "Empty space (electron cloud region)" },
+    { question: "How many electrons can the first energy level hold?", answer: "2" },
+    { question: "How many electrons can the second energy level hold?", answer: "8" },
+    { question: "What determines the size of an atom?", answer: "The number of energy levels (electron shells)" },
+    { question: "What is the quantum mechanical model?", answer: "The modern atomic model treating electrons as waves with probability regions" },
+    { question: "What is an orbital?", answer: "A region where there is high probability of finding an electron" },
+    { question: "What shape is an s orbital?", answer: "Spherical" },
+    { question: "What shape is a p orbital?", answer: "Dumbbell" },
+    { question: "How many electrons can one orbital hold?", answer: "2" },
+    { question: "How many p orbitals are in a sublevel?", answer: "3 (holding 6 electrons total)" },
+    { question: "What is the Heisenberg Uncertainty Principle?", answer: "Cannot know both exact position and momentum of an electron simultaneously" },
+    { question: "Starting at which energy level do p orbitals appear?", answer: "2nd energy level" },
+    { question: "Starting at which energy level do d orbitals appear?", answer: "3rd energy level" },
+    { question: "How many d orbitals are in a sublevel?", answer: "5 (holding 10 electrons total)" },
+    { question: "What is the electromagnetic spectrum?", answer: "The full range of EM radiation from radio waves to gamma rays" },
+    { question: "What is wavelength?", answer: "The distance between two consecutive wave peaks" },
+    { question: "What is frequency?", answer: "The number of wave cycles per second (Hz)" },
+    { question: "What is the speed of light equation?", answer: "c = λ × ν (3.0 × 10⁸ m/s)" },
+    { question: "How are wavelength and frequency related?", answer: "Inversely — as one increases, the other decreases" },
+    { question: "What is a photon?", answer: "A particle of electromagnetic radiation" },
+    { question: "What is an atomic emission spectrum?", answer: "The unique pattern of light frequencies emitted by an element" },
+    { question: "What happens when an electron drops to a lower energy level?", answer: "It emits a photon of light" },
+    { question: "Which has more energy: radio waves or gamma rays?", answer: "Gamma rays" },
+    { question: "What is Planck's equation for photon energy?", answer: "E = hν (energy = Planck's constant × frequency)" },
+    { question: "What is radioactivity?", answer: "Spontaneous emission of radiation from an unstable nucleus" },
+    { question: "What determines nuclear stability?", answer: "The neutron-to-proton ratio" },
+    { question: "What is the band of stability?", answer: "The zone where stable nuclei exist on a neutrons vs. protons graph" },
+    { question: "What is alpha decay?", answer: "Emission of a helium-4 nucleus (2 protons, 2 neutrons)" },
+    { question: "What is beta decay?", answer: "A neutron converts to a proton, emitting an electron" },
+    { question: "What is gamma radiation?", answer: "High-energy EM radiation from the nucleus with no mass change" },
+    { question: "How does alpha decay change atomic number?", answer: "Decreases by 2" },
+    { question: "How does beta decay change atomic number?", answer: "Increases by 1" },
+    { question: "Which type of radiation is most penetrating?", answer: "Gamma radiation" },
+    { question: "Which type of radiation is least penetrating?", answer: "Alpha particles (stopped by paper)" },
+    { question: "What is an isotope?", answer: "Atoms of the same element with different numbers of neutrons" },
+    { question: "What is a radioisotope?", answer: "An unstable isotope that undergoes radioactive decay" },
+    { question: "What do isotopes of the same element share?", answer: "The same number of protons (atomic number)" },
+    { question: "How do isotopes differ?", answer: "They have different numbers of neutrons" },
+    { question: "What is atomic mass?", answer: "The weighted average mass of all naturally occurring isotopes" },
+    { question: "What is Carbon-14?", answer: "An isotope of carbon with 6 protons and 8 neutrons" },
+    { question: "What is percent abundance?", answer: "The percentage of each isotope found in nature" },
+    { question: "How do you calculate atomic mass?", answer: "Sum of (mass × percent abundance) for each isotope" },
+    { question: "Do isotopes have the same chemical properties?", answer: "Yes, because they have the same electrons" },
+    { question: "What is mass number?", answer: "Total protons + neutrons in an isotope" },
+    { question: "What is element synthesis?", answer: "Creating new elements by bombarding nuclei with particles" },
+    { question: "What is a particle accelerator?", answer: "A machine that speeds up charged particles for nuclear collisions" },
+    { question: "What are transuranium elements?", answer: "Elements with atomic numbers greater than 92" },
+    { question: "Are transuranium elements natural or synthetic?", answer: "Synthetic (made in labs)" },
+    { question: "What is nuclear fusion?", answer: "Combining two lighter nuclei to form a heavier one" },
+    { question: "What is the heaviest known element?", answer: "Oganesson (element 118)" },
+    { question: "Why are super-heavy elements unstable?", answer: "Too many protons create strong repulsive forces" },
+    { question: "Where does element synthesis occur in nature?", answer: "In stars through nuclear fusion" },
+    { question: "Who discovered the first transuranium element?", answer: "Glenn Seaborg and team" },
+    { question: "What element has atomic number 93?", answer: "Neptunium" },
+    { question: "Who first proposed the idea of the atom?", answer: "Democritus" },
+    { question: "What did Dalton say about atoms of the same element?", answer: "They are identical in mass and properties" },
+    { question: "What did Thomson discover?", answer: "The electron" },
+    { question: "What was Thomson's model called?", answer: "The plum pudding model" },
+    { question: "What did Rutherford's gold foil experiment prove?", answer: "Atoms have a small, dense, positive nucleus" },
+    { question: "What did Bohr propose?", answer: "Electrons orbit in fixed energy levels" },
+    { question: "What is the modern atomic model called?", answer: "The quantum mechanical model" },
+    { question: "In the modern model, where are electrons found?", answer: "In probability clouds called orbitals" },
+    { question: "What is most of the atom made of?", answer: "Empty space" },
+    { question: "What experiment led to the discovery of the nucleus?", answer: "The gold foil experiment" }
+];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/dev_tools.js"></script>
+<script src="../../scripts/blocks_puzzle.js"></script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

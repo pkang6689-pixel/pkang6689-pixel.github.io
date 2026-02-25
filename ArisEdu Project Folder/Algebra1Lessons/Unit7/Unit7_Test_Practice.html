@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 7: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 7 Review Flashcards</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../algebra1.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Algebra 1</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit7_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+    window.lessonFlashcards = [
+                { question: "What is the GCF?", answer: "Greatest Common Factor — the largest factor shared by all terms" },
+                { question: "What is the first step in factoring?", answer: "Always look for a GCF first" },
+                { question: "What is the Zero Product Property?", answer: "If AB = 0, then A = 0 or B = 0" },
+                { question: "Factor: 6x² + 9x", answer: "3x(2x + 3)" },
+                { question: "Solve: x(x − 5) = 0", answer: "x = 0 or x = 5" },
+                { question: "Factor by grouping: split into pairs, factor each, then factor the common binomial.", answer: "Used when there are four terms" },
+                { question: "Solve: 3x² − 12x = 0", answer: "3x(x − 4) = 0 → x = 0 or x = 4" },
+                { question: "The GCF of 12x³ and 8x² is:", answer: "4x²" },
+                { question: "Factor: 4x² − 8x", answer: "4x(x − 2)" },
+                { question: "What property lets you set each factor equal to zero?", answer: "The Zero Product Property (if AB = 0, then A = 0 or B = 0)" },
+                { question: "How do you factor x² + bx + c?", answer: "Find two numbers that multiply to c and add to b" },
+                { question: "Factor: x² + 5x + 6", answer: "(x + 2)(x + 3) because 2×3 = 6 and 2+3 = 5" },
+                { question: "Factor: x² − 5x + 6", answer: "(x − 2)(x − 3)" },
+                { question: "What is the AC method?", answer: "For ax² + bx + c: find two numbers that multiply to ac and add to b, then factor by grouping" },
+                { question: "Factor: x² − 9", answer: "(x + 3)(x − 3) — difference of squares" },
+                { question: "Solve: x² + x − 12 = 0", answer: "(x + 4)(x − 3) = 0 → x = −4 or x = 3" },
+                { question: "Solve: x² − 16 = 0", answer: "(x + 4)(x − 4) = 0 → x = 4 or x = −4" },
+                { question: "Factor: x² − x − 20", answer: "(x − 5)(x + 4)" },
+                { question: "Factor: x² + 7x + 10", answer: "(x + 2)(x + 5) because 2 × 5 = 10 and 2 + 5 = 7" },
+                { question: "Solve: x² − 4x − 12 = 0", answer: "(x − 6)(x + 2) = 0 → x = 6 or x = −2" },
+                { question: "What is the difference of squares pattern?", answer: "a² − b² = (a + b)(a − b)" },
+                { question: "What is a perfect square trinomial?", answer: "a² + 2ab + b² = (a + b)² or a² − 2ab + b² = (a − b)²" },
+                { question: "Factor: x² − 25", answer: "(x + 5)(x − 5)" },
+                { question: "Factor: x² + 10x + 25", answer: "(x + 5)²" },
+                { question: "Factor: 4x² − 9", answer: "(2x + 3)(2x − 3)" },
+                { question: "Is x² + 4 factorable over the reals?", answer: "No — sum of squares doesn't factor over the reals" },
+                { question: "Factor: 9x² − 12x + 4", answer: "(3x − 2)²" },
+                { question: "What are sum/difference of cubes?", answer: "a³ + b³ = (a+b)(a²−ab+b²) and a³ − b³ = (a−b)(a²+ab+b²)" },
+                { question: "Expand: (a + b)(a − b)", answer: "a² − b²" },
+                { question: "Factor: 16x² − 1", answer: "(4x + 1)(4x − 1)" },
+                { question: "What does completing the square do?", answer: "Rewrites ax² + bx + c in vertex form a(x − h)² + k" },
+                { question: "To complete the square for x² + bx, you add:", answer: "(b/2)²" },
+                { question: "Complete the square: x² + 6x + ___ = (x + 3)²", answer: "Add 9" },
+                { question: "Steps for completing the square:", answer: "Move c, take (b/2)², add to both sides, factor, solve" },
+                { question: "Solve: x² + 4x = 5", answer: "x² + 4x + 4 = 9 → (x+2)² = 9 → x = 1 or x = −5" },
+                { question: "If a ≠ 1, what do you do first?", answer: "Divide the entire equation by a" },
+                { question: "Completing the square converts to what form?", answer: "Vertex form: a(x − h)² + k" },
+                { question: "Half of b in x² + 10x is:", answer: "5 (and you add 5² = 25)" },
+                { question: "Complete the square: x² − 8x + ___", answer: "Add 16 → (x − 4)²" },
+                { question: "Solve by completing the square: x² − 6x = 7", answer: "x² − 6x + 9 = 16 → (x − 3)² = 16 → x = 7 or x = −1" },
+                { question: "What is the quadratic formula?", answer: "x = (−b ± √(b² − 4ac)) / (2a)" },
+                { question: "When does the quadratic formula work?", answer: "Always — it solves any quadratic equation ax² + bx + c = 0" },
+                { question: "What does ± mean in the formula?", answer: "There are potentially two solutions (one with + and one with −)" },
+                { question: "For x² + 5x + 6 = 0, identify a, b, c.", answer: "a = 1, b = 5, c = 6" },
+                { question: "Solve: x² − 3x + 2 = 0", answer: "x = (3 ± √(9−8))/2 = (3 ± 1)/2 → x = 2 or x = 1" },
+                { question: "Solve: x² + 2x − 15 = 0", answer: "x = (−2 ± √(4+60))/2 = (−2 ± 8)/2 → x = 3 or x = −5" },
+                { question: "Why is the quadratic formula always reliable?", answer: "It works even when factoring is difficult or impossible" },
+                { question: "Before using the formula, arrange the equation in:", answer: "Standard form: ax² + bx + c = 0" },
+                { question: "What is the discriminant in the quadratic formula?", answer: "b² − 4ac — the expression under the square root" },
+                { question: "If the discriminant is negative, the equation has:", answer: "No real solutions (two complex solutions)" },
+                { question: "What is the discriminant?", answer: "D = b² − 4ac — the expression under the square root in the quadratic formula" },
+                { question: "If D > 0:", answer: "Two distinct real solutions" },
+                { question: "If D = 0:", answer: "One repeated real solution (double root)" },
+                { question: "If D < 0:", answer: "No real solutions (two complex solutions)" },
+                { question: "Find the discriminant of x² + 6x + 9 = 0.", answer: "D = 36 − 36 = 0 → one repeated solution" },
+                { question: "Find the discriminant of x² + 2x + 5 = 0.", answer: "D = 4 − 20 = −16 → no real solutions" },
+                { question: "How many times does the parabola cross the x-axis if D > 0?", answer: "Twice" },
+                { question: "How many times does the parabola cross the x-axis if D = 0?", answer: "Once (it touches the x-axis)" },
+                { question: "If D = 25, how many real solutions?", answer: "Two (since 25 > 0)" },
+                { question: "Find the discriminant of 2x² − 4x + 2 = 0.", answer: "D = 16 − 16 = 0 → one repeated solution" },
+                { question: "A linear-quadratic system can have how many solutions?", answer: "0, 1, or 2 solutions" },
+                { question: "How do you solve a linear-quadratic system?", answer: "Substitution: set the linear equation equal to the quadratic and solve" },
+                { question: "What are solutions graphically?", answer: "The intersection points of the line and parabola" },
+                { question: "If a line is tangent to a parabola:", answer: "The system has exactly 1 solution" },
+                { question: "If a line doesn't intersect a parabola:", answer: "The system has no solution" },
+                { question: "Solve: y = x², y = x + 2", answer: "x² = x + 2 → x² − x − 2 = 0 → (x−2)(x+1) = 0 → x = 2 or x = −1" },
+                { question: "Solve: y = x² − 1, y = 3", answer: "x² − 1 = 3 → x² = 4 → x = ±2" },
+                { question: "A system of two quadratics can have:", answer: "0, 1, or 2 solutions" },
+                { question: "Can a quadratic-quadratic system have more than 2 solutions?", answer: "No — two parabolas can intersect at most twice" },
+                { question: "Solve: y = x² + 1, y = 2x + 1", answer: "x² + 1 = 2x + 1 → x² − 2x = 0 → x(x − 2) = 0 → x = 0 or x = 2" },
+                { question: "What is a quadratic inequality?", answer: "An inequality with a quadratic expression: ax² + bx + c > 0 (or <, ≤, ≥)" },
+                { question: "What are the steps to solve?", answer: "Solve the related equation = 0, find boundary points, test intervals, write solution" },
+                { question: "Solve: x² − 4 > 0", answer: "x < −2 or x > 2 (values outside the roots)" },
+                { question: "Solve: x² − 9 ≤ 0", answer: "−3 ≤ x ≤ 3 (values between the roots, inclusive)" },
+                { question: "What is the first step in solving x² − 5x + 6 < 0?", answer: "Solve x² − 5x + 6 = 0 to find boundary points" },
+                { question: "Open circle on a boundary means:", answer: "The value is NOT included (< or >)" },
+                { question: "x² + 1 > 0 has what solution?", answer: "All real numbers (x² + 1 is always positive)" },
+                { question: "How do you test intervals?", answer: "Pick a test point in each interval and check if the inequality is true" },
+                { question: "Solve: x² − 1 ≥ 0", answer: "x ≤ −1 or x ≥ 1" },
+                { question: "Graph of x² − 4 < 0 on a number line:", answer: "Open circles at −2 and 2, shade between them" }
+    
+    
+    ];
+</script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

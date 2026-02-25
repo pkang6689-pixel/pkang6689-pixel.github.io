@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 4: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="/quiz_logic.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }
+    
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 4 Practice</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../physics.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Physics</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit4_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+window.lessonFlashcards = [
+    { question: "What is the formula for work?", answer: "W = Fd cos θ" },
+    { question: "What is the SI unit of work?", answer: "Joule (J) = N·m" },
+    { question: "When is work positive?", answer: "When force and displacement are in the same direction" },
+    { question: "When is work negative?", answer: "When force and displacement are in opposite directions" },
+    { question: "When is work zero?", answer: "When force is perpendicular to displacement (θ = 90°)" },
+    { question: "Does gravity do work when you carry a box horizontally?", answer: "No — gravity is perpendicular to the horizontal displacement" },
+    { question: "What does positive work do to an object?", answer: "Adds energy to it (speeds it up)" },
+    { question: "What does negative work do to an object?", answer: "Removes energy from it (slows it down)" },
+    { question: "How does work transfer energy?", answer: "Work is the mechanism for transferring energy between objects or systems" },
+    { question: "If you push a box 5 m with 20 N of force in the same direction, how much work is done?", answer: "100 J" },
+    { question: "What is the formula for kinetic energy?", answer: "KE = ½mv²" },
+    { question: "If speed doubles, what happens to kinetic energy?", answer: "It quadruples (KE ∝ v²)" },
+    { question: "What is gravitational potential energy near Earth's surface?", answer: "PE = mgh" },
+    { question: "What is elastic potential energy?", answer: "PE = ½kx² (energy stored in a spring)" },
+    { question: "Can kinetic energy be negative?", answer: "No — it is always positive or zero" },
+    { question: "What is mechanical energy?", answer: "Total of kinetic and potential energy: KE + PE" },
+    { question: "What does a reference point determine for potential energy?", answer: "Where PE = 0; only changes in PE are physically meaningful" },
+    { question: "As a ball falls, PE converts to what?", answer: "Kinetic energy (KE)" },
+    { question: "As a ball rises, KE converts to what?", answer: "Potential energy (PE)" },
+    { question: "What is the KE of a 2 kg object moving at 3 m/s?", answer: "9 J (½ × 2 × 3² = 9)" },
+    { question: "State the law of conservation of energy.", answer: "Energy cannot be created or destroyed — only transformed or transferred" },
+    { question: "When is mechanical energy conserved?", answer: "When only conservative forces (gravity, springs) act" },
+    { question: "Write the conservation of mechanical energy equation.", answer: "KE₁ + PE₁ = KE₂ + PE₂" },
+    { question: "What happens to mechanical energy when friction is present?", answer: "Some is converted to thermal energy" },
+    { question: "At the highest point of a pendulum, which energy is maximum?", answer: "Potential energy" },
+    { question: "At the lowest point of a pendulum, which energy is maximum?", answer: "Kinetic energy" },
+    { question: "On a roller coaster, where is speed greatest?", answer: "At the lowest point (maximum KE, minimum PE)" },
+    { question: "What is the modified energy equation with friction?", answer: "KE₁ + PE₁ = KE₂ + PE₂ + W_friction" },
+    { question: "Is total energy (all forms) always conserved?", answer: "Yes — in any isolated system" },
+    { question: "Name three forms of energy.", answer: "Kinetic, potential, thermal (also: chemical, nuclear, radiant, etc.)" },
+    { question: "What is power?", answer: "The rate of doing work or transferring energy: P = W/t" },
+    { question: "What is the SI unit of power?", answer: "Watt (W) = J/s" },
+    { question: "What is an alternative formula for power?", answer: "P = Fv (force × velocity)" },
+    { question: "What is efficiency?", answer: "η = (useful energy output / total energy input) × 100%" },
+    { question: "Can efficiency exceed 100%?", answer: "No — some energy is always lost (friction, heat, etc.)" },
+    { question: "What does a 60 W light bulb convert per second?", answer: "60 J of electrical energy every second" },
+    { question: "A car engine is 25% efficient. What happens to the other 75%?", answer: "Lost as heat" },
+    { question: "How much power is needed to lift 100 N by 2 m in 4 s?", answer: "50 W (W = 200 J, P = 200/4)" },
+    { question: "What is 1 horsepower approximately equal to?", answer: "About 746 W" },
+    { question: "LED bulbs are about how efficient compared to incandescent?", answer: "~90% efficient vs ~10% for incandescent" },
+    { question: "State the work-energy theorem.", answer: "The net work done on an object equals its change in kinetic energy: W_net = ΔKE" },
+    { question: "Write the work-energy theorem formula.", answer: "W_net = ½mv² − ½mu²" },
+    { question: "If net work is positive, what happens to speed?", answer: "The object speeds up (KE increases)" },
+    { question: "If net work is negative, what happens to speed?", answer: "The object slows down (KE decreases)" },
+    { question: "If net work is zero, what happens to speed?", answer: "Speed stays the same" },
+    { question: "How does the work-energy theorem relate to Newton's Second Law?", answer: "It's derived from F = ma combined with v² = u² + 2as" },
+    { question: "How do you find braking distance using the theorem?", answer: "Set friction work = −ΔKE: μmgd = ½mv² → d = v²/(2μg)" },
+    { question: "For a variable force, what gives the net work?", answer: "The area under the F-x (force vs. displacement) graph" },
+    { question: "A 10 N net force moves an object 5 m. Change in KE?", answer: "50 J" },
+    { question: "If KE changes from 20 J to 80 J, what net work was done?", answer: "60 J" },
+    { question: "What is a conservative force?", answer: "A force where the work done is independent of the path — depends only on start and end positions" },
+    { question: "Give three examples of conservative forces.", answer: "Gravity, elastic spring force, electrostatic force" },
+    { question: "What is a non-conservative force?", answer: "A force where the work done depends on the path taken" },
+    { question: "Give two examples of non-conservative forces.", answer: "Friction and air resistance" },
+    { question: "What is the work done by a conservative force in a closed loop?", answer: "Zero" },
+    { question: "Which type of force is associated with potential energy?", answer: "Conservative forces" },
+    { question: "Does friction do positive or negative work?", answer: "Always negative (opposes motion)" },
+    { question: "Write the general energy equation with non-conservative forces.", answer: "ΔKE + ΔPE = W_non-conservative" },
+    { question: "What does friction convert mechanical energy into?", answer: "Thermal energy (heat)" },
+    { question: "If only conservative forces act, what is ΔKE + ΔPE equal to?", answer: "Zero (mechanical energy is conserved)" }
+];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/dev_tools.js"></script>
+<script src="../../scripts/blocks_puzzle.js"></script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

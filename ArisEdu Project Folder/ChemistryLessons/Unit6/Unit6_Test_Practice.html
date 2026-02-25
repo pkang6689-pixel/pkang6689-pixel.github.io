@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 6: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="/quiz_logic.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }
+    
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 6 Practice</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../chem.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Chemistry</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit6_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+window.lessonFlashcards = [
+    { question: "What is a synthesis reaction?", answer: "Two or more reactants combine to form one product (A + B → AB)" },
+    { question: "What is a decomposition reaction?", answer: "One compound breaks into simpler substances (AB → A + B)" },
+    { question: "What is a single replacement reaction?", answer: "One element replaces another in a compound (A + BC → AC + B)" },
+    { question: "What is a double replacement reaction?", answer: "Two compounds swap ions (AB + CD → AD + CB)" },
+    { question: "What is a combustion reaction?", answer: "A substance reacts with oxygen, releasing heat and light" },
+    { question: "What is a precipitate?", answer: "An insoluble solid formed during a reaction" },
+    { question: "What type of reaction is 2H₂ + O₂ → 2H₂O?", answer: "Synthesis (combination)" },
+    { question: "What type of reaction is 2H₂O → 2H₂ + O₂?", answer: "Decomposition" },
+    { question: "What type of reaction is Zn + CuSO₄ → ZnSO₄ + Cu?", answer: "Single replacement" },
+    { question: "What type of reaction is NaCl + AgNO₃ → AgCl + NaNO₃?", answer: "Double replacement" },
+    { question: "What is combustion?", answer: "A rapid reaction with oxygen producing heat and light" },
+    { question: "What is complete combustion?", answer: "Burning with plenty of O₂, producing CO₂ and H₂O" },
+    { question: "What is incomplete combustion?", answer: "Burning with limited O₂, producing CO or soot" },
+    { question: "What is a hydrocarbon?", answer: "A compound containing only carbon and hydrogen" },
+    { question: "What are the products of complete combustion?", answer: "Carbon dioxide and water" },
+    { question: "What dangerous gas forms in incomplete combustion?", answer: "Carbon monoxide (CO)" },
+    { question: "Write the word equation for combustion of methane.", answer: "Methane + Oxygen → Carbon Dioxide + Water" },
+    { question: "Why is incomplete combustion dangerous?", answer: "It produces toxic carbon monoxide gas" },
+    { question: "What is needed for combustion to occur?", answer: "Fuel, oxygen, and an ignition source (fire triangle)" },
+    { question: "Is combustion exothermic or endothermic?", answer: "Exothermic (releases energy)" },
+    { question: "What is oxidation?", answer: "Loss of electrons" },
+    { question: "What is reduction?", answer: "Gain of electrons" },
+    { question: "What is a redox reaction?", answer: "A reaction where oxidation and reduction occur simultaneously" },
+    { question: "What mnemonic helps remember redox?", answer: "OIL RIG — Oxidation Is Loss, Reduction Is Gain" },
+    { question: "What is an oxidizing agent?", answer: "The substance that gets reduced (gains electrons)" },
+    { question: "What is a reducing agent?", answer: "The substance that gets oxidized (loses electrons)" },
+    { question: "In rusting, is iron oxidized or reduced?", answer: "Oxidized (iron loses electrons)" },
+    { question: "Can oxidation occur without reduction?", answer: "No, they always occur together" },
+    { question: "What happens to oxidation number during oxidation?", answer: "It increases" },
+    { question: "What happens to oxidation number during reduction?", answer: "It decreases" },
+    { question: "What is activation energy?", answer: "The minimum energy required to start a chemical reaction" },
+    { question: "What is an energy diagram?", answer: "A graph showing energy changes during a reaction" },
+    { question: "What is the activated complex?", answer: "The unstable transition state at the peak of the energy barrier" },
+    { question: "What does a catalyst do?", answer: "Lowers activation energy without being consumed" },
+    { question: "In an exothermic reaction, do products have more or less energy than reactants?", answer: "Less energy" },
+    { question: "In an endothermic reaction, do products have more or less energy than reactants?", answer: "More energy" },
+    { question: "Do all reactions need activation energy?", answer: "Yes, even exothermic reactions need a small push" },
+    { question: "What is the difference in energy between reactants and products called?", answer: "Enthalpy change (ΔH)" },
+    { question: "Does a catalyst change the overall energy released?", answer: "No, it only changes the path (lower Ea)" },
+    { question: "What provides activation energy for a match striking?", answer: "Friction (heat)" },
+    { question: "Why must chemical equations be balanced?", answer: "Law of Conservation of Mass — atoms can't be created or destroyed" },
+    { question: "What is a coefficient?", answer: "A number in front of a formula that balances atoms" },
+    { question: "Can you change subscripts to balance an equation?", answer: "No, never change subscripts" },
+    { question: "What are the diatomic elements?", answer: "H₂, N₂, O₂, F₂, Cl₂, Br₂, I₂ (HONClBrIF)" },
+    { question: "Balance: H₂ + O₂ → H₂O", answer: "2H₂ + O₂ → 2H₂O" },
+    { question: "What is a balanced equation?", answer: "Equal numbers of each atom type on both sides" },
+    { question: "What are the steps to balance an equation?", answer: "Write equation, count atoms, add coefficients, verify" },
+    { question: "Balance: N₂ + H₂ → NH₃", answer: "N₂ + 3H₂ → 2NH₃" },
+    { question: "What is a skeleton equation?", answer: "An unbalanced equation showing reactants and products" },
+    { question: "What does → mean in a chemical equation?", answer: "Yields (produces)" },
+    { question: "What is reaction rate?", answer: "The speed at which reactants become products" },
+    { question: "What is collision theory?", answer: "Particles must collide with enough energy and proper orientation to react" },
+    { question: "How does temperature affect reaction rate?", answer: "Higher temperature → faster rate" },
+    { question: "How does concentration affect reaction rate?", answer: "Higher concentration → faster rate" },
+    { question: "How does surface area affect reaction rate?", answer: "Greater surface area → faster rate" },
+    { question: "What is a catalyst?", answer: "A substance that speeds up a reaction without being consumed" },
+    { question: "What is an inhibitor?", answer: "A substance that slows down a reaction" },
+    { question: "Why does crushing a solid speed up a reaction?", answer: "It increases surface area for more collisions" },
+    { question: "What is activation energy?", answer: "The minimum energy needed for a successful collision" },
+    { question: "What is an enzyme?", answer: "A biological catalyst" },
+    { question: "What is chemical equilibrium?", answer: "When forward and reverse reaction rates are equal" },
+    { question: "What is a reversible reaction?", answer: "A reaction that can go in both directions (⇌)" },
+    { question: "What is Le Chatelier's Principle?", answer: "A system at equilibrium shifts to relieve applied stress" },
+    { question: "What happens if you add more reactant?", answer: "Equilibrium shifts toward products" },
+    { question: "What happens if you remove product?", answer: "Equilibrium shifts toward products (to make more)" },
+    { question: "How does increasing temperature affect an exothermic reaction at equilibrium?", answer: "Shifts toward reactants" },
+    { question: "How does increasing pressure affect equilibrium?", answer: "Shifts toward the side with fewer gas moles" },
+    { question: "Does a catalyst affect equilibrium position?", answer: "No, it only speeds up reaching equilibrium" },
+    { question: "At equilibrium, do reactions stop?", answer: "No, both forward and reverse reactions continue at equal rates" },
+    { question: "What symbol represents a reversible reaction?", answer: "⇌ (double arrow)" }
+];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/dev_tools.js"></script>
+<script src="../../scripts/blocks_puzzle.js"></script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

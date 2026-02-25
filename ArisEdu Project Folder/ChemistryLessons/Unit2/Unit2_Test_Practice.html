@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 2: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="/quiz_logic.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }
+    
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 2 Practice</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../chem.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Chemistry</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit2_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+window.lessonFlashcards = [
+    { question: "What is scientific notation?", answer: "A way to express numbers as a × 10ⁿ where 1 ≤ a < 10" },
+    { question: "What is the coefficient in scientific notation?", answer: "The number in front (must be between 1 and 10)" },
+    { question: "What does a positive exponent mean?", answer: "The number is large; decimal moves right" },
+    { question: "What does a negative exponent mean?", answer: "The number is small; decimal moves left" },
+    { question: "Write 5,600 in scientific notation.", answer: "5.6 × 10³" },
+    { question: "Write 0.0042 in scientific notation.", answer: "4.2 × 10⁻³" },
+    { question: "What is 2.0 × 10⁴ in standard form?", answer: "20,000" },
+    { question: "What is 7.1 × 10⁻² in standard form?", answer: "0.071" },
+    { question: "How do you multiply numbers in scientific notation?", answer: "Multiply coefficients, add exponents" },
+    { question: "How do you divide numbers in scientific notation?", answer: "Divide coefficients, subtract exponents" },
+    { question: "What are significant figures?", answer: "Digits known with certainty plus one estimated digit" },
+    { question: "Are non-zero digits always significant?", answer: "Yes" },
+    { question: "Are captive zeros significant?", answer: "Yes (zeros between non-zero digits)" },
+    { question: "Are leading zeros significant?", answer: "No" },
+    { question: "When are trailing zeros significant?", answer: "Only when there is a decimal point" },
+    { question: "How many sig figs in 0.0032?", answer: "2" },
+    { question: "How many sig figs in 100.0?", answer: "4" },
+    { question: "How many sig figs in 4500?", answer: "2 (no decimal point)" },
+    { question: "What are exact numbers?", answer: "Numbers from counting or definitions with unlimited sig figs" },
+    { question: "How many sig figs in 1.020?", answer: "4" },
+    { question: "What is accuracy?", answer: "How close a measurement is to the true value" },
+    { question: "What is precision?", answer: "How close repeated measurements are to each other" },
+    { question: "Can measurements be precise but not accurate?", answer: "Yes" },
+    { question: "What does percent error measure?", answer: "Accuracy of a measurement" },
+    { question: "What is the percent error formula?", answer: "|experimental − accepted| / accepted × 100%" },
+    { question: "What causes low accuracy but high precision?", answer: "Systematic error (e.g., miscalibrated instrument)" },
+    { question: "What causes low precision?", answer: "Random errors in measurement" },
+    { question: "If the accepted value is 10 and you measure 9.5, what is percent error?", answer: "5%" },
+    { question: "What is a systematic error?", answer: "A consistent error that shifts all measurements in one direction" },
+    { question: "What is a random error?", answer: "Unpredictable fluctuations in measurements" },
+    { question: "What is the metric system?", answer: "A decimal-based measurement system used in science" },
+    { question: "What is the base unit for length?", answer: "Meter (m)" },
+    { question: "What is the base unit for mass?", answer: "Gram (g)" },
+    { question: "What is the base unit for volume?", answer: "Liter (L)" },
+    { question: "What does the prefix kilo- mean?", answer: "1000 times the base unit" },
+    { question: "What does the prefix centi- mean?", answer: "1/100 of the base unit" },
+    { question: "What does the prefix milli- mean?", answer: "1/1000 of the base unit" },
+    { question: "How many millimeters in 1 meter?", answer: "1000" },
+    { question: "How many milligrams in 1 gram?", answer: "1000" },
+    { question: "What does the prefix micro- mean?", answer: "One millionth (10⁻⁶) of the base unit" },
+    { question: "What is dimensional analysis?", answer: "A method of converting units using conversion factors" },
+    { question: "What is a conversion factor?", answer: "A ratio equal to 1 that relates two units" },
+    { question: "How many meters in 1 kilometer?", answer: "1000 meters" },
+    { question: "How many grams in 1 kilogram?", answer: "1000 grams" },
+    { question: "Convert 2500 mL to liters.", answer: "2.5 L" },
+    { question: "Convert 3.5 kg to grams.", answer: "3500 g" },
+    { question: "What happens when the same unit appears in numerator and denominator?", answer: "It cancels out" },
+    { question: "Convert 450 cm to meters.", answer: "4.5 m" },
+    { question: "What should you always check at the end of a conversion?", answer: "That the final answer has the correct units" },
+    { question: "Convert 0.25 L to mL.", answer: "250 mL" }
+];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/dev_tools.js"></script>
+<script src="../../scripts/blocks_puzzle.js"></script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

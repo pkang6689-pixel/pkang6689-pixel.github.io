@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 9: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="/quiz_logic.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }
+    
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 9 Practice</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../physics.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Physics</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit9_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+window.lessonFlashcards = [
+    { question: "State the law of reflection.", answer: "Angle of incidence = angle of reflection" },
+    { question: "What is specular reflection?", answer: "Reflection from a smooth surface producing a clear image" },
+    { question: "What is diffuse reflection?", answer: "Reflection from a rough surface scattering light in many directions" },
+    { question: "State Snell's Law.", answer: "n₁ sin θ₁ = n₂ sin θ₂" },
+    { question: "What is the refractive index?", answer: "n = c/v (speed of light in vacuum / speed in medium)" },
+    { question: "When light enters a denser medium, does it bend toward or away from the normal?", answer: "Toward the normal" },
+    { question: "When light enters a less dense medium, does it bend toward or away?", answer: "Away from the normal" },
+    { question: "Does frequency change during refraction?", answer: "No — wavelength changes, but frequency stays the same" },
+    { question: "Why does refraction occur?", answer: "Because light changes speed when entering a different medium" },
+    { question: "Angles are measured from the surface or from the normal?", answer: "From the normal" },
+    { question: "What type of image does a concave mirror form for an object beyond the focal point?", answer: "Real and inverted" },
+    { question: "What type of image does a convex mirror always form?", answer: "Virtual, upright, and diminished" },
+    { question: "State the mirror/lens equation.", answer: "1/f = 1/d_o + 1/d_i" },
+    { question: "What is the magnification formula?", answer: "m = −d_i/d_o = h_i/h_o" },
+    { question: "A convex (converging) lens has what kind of focal length?", answer: "Positive" },
+    { question: "A concave (diverging) lens has what kind of focal length?", answer: "Negative" },
+    { question: "If |m| > 1, the image is what?", answer: "Enlarged" },
+    { question: "If m is negative, the image is what?", answer: "Inverted" },
+    { question: "A concave mirror can form both real and virtual images — true or false?", answer: "True (virtual when object is inside the focal point)" },
+    { question: "A diverging lens always forms what type of image?", answer: "Virtual, upright, diminished" },
+    { question: "What is total internal reflection (TIR)?", answer: "All light is reflected back when it hits a boundary at an angle greater than the critical angle" },
+    { question: "When does TIR occur?", answer: "When light travels from a denser to a less dense medium at an angle > critical angle" },
+    { question: "What is the formula for the critical angle?", answer: "sin θ_c = n₂/n₁ (where n₁ > n₂)" },
+    { question: "What is the critical angle for glass to air (approximately)?", answer: "About 42°" },
+    { question: "How do optical fibers use TIR?", answer: "Light bounces along the fiber by total internal reflection" },
+    { question: "Why do diamonds sparkle?", answer: "Very low critical angle (~24°) causes maximum internal reflection" },
+    { question: "At exactly the critical angle, what happens to the refracted ray?", answer: "It travels along the boundary (θ₂ = 90°)" },
+    { question: "Can TIR occur going from air to glass?", answer: "No — it only occurs going from denser to less dense medium" },
+    { question: "What use does TIR have in binoculars?", answer: "Prisms use TIR to reflect light instead of mirrors" },
+    { question: "Name a medical application of optical fibers.", answer: "Endoscopes" },
+    { question: "What type of lens does the human eye use?", answer: "A converging lens" },
+    { question: "What is the near point of a normal eye?", answer: "About 25 cm" },
+    { question: "What type of lens corrects myopia (nearsightedness)?", answer: "Diverging (concave) lens" },
+    { question: "What type of lens corrects hyperopia (farsightedness)?", answer: "Converging (convex) lens" },
+    { question: "What is the angular magnification of a magnifying glass?", answer: "Approximately 25 cm / f" },
+    { question: "How many converging lenses does a compound microscope use?", answer: "Two (objective and eyepiece)" },
+    { question: "What is the total magnification of a microscope?", answer: "M_objective × M_eyepiece" },
+    { question: "In a telescope, which lens has the larger focal length?", answer: "The objective lens" },
+    { question: "What is the angular magnification of a telescope?", answer: "f_objective / f_eyepiece" },
+    { question: "Where does the eye focus incoming light?", answer: "On the retina" },
+    { question: "What is diffraction?", answer: "The bending and spreading of waves around obstacles or through openings" },
+    { question: "When is diffraction most significant?", answer: "When the opening is comparable in size to the wavelength" },
+    { question: "State the condition for bright fringes in Young's double-slit experiment.", answer: "d sin θ = nλ (n = 0, 1, 2, ...)" },
+    { question: "State the condition for dark fringes.", answer: "d sin θ = (n + ½)λ" },
+    { question: "What is the formula for fringe spacing?", answer: "Δy = λL/d" },
+    { question: "What is a diffraction grating?", answer: "A device with many parallel slits producing very sharp bright maxima" },
+    { question: "What is a spectrometer used for?", answer: "Separating light into its component wavelengths" },
+    { question: "In single-slit diffraction, which maximum is brightest?", answer: "The central maximum" },
+    { question: "What must the two light sources be for interference to occur?", answer: "Coherent (same frequency and constant phase difference)" },
+    { question: "What pattern does a double slit produce?", answer: "Alternating bright and dark fringes (interference pattern)" },
+    { question: "What is polarization?", answer: "Restricting the oscillation of a transverse wave to a single plane" },
+    { question: "Can longitudinal waves be polarized?", answer: "No — only transverse waves can be polarized" },
+    { question: "What does polarization prove about light?", answer: "That light is a transverse wave" },
+    { question: "What is Malus's Law?", answer: "I = I₀ cos² θ" },
+    { question: "At θ = 0° (parallel polarizers), what fraction of light passes?", answer: "100%" },
+    { question: "At θ = 90° (crossed polarizers), what fraction passes?", answer: "0% (complete blocking)" },
+    { question: "What is Brewster's angle?", answer: "The angle of incidence at which reflected light is fully polarized" },
+    { question: "How do polarizing sunglasses work?", answer: "They block horizontally polarized light (glare) while allowing vertically polarized light" },
+    { question: "Is scattered blue sky light polarized?", answer: "Yes — partially polarized" },
+    { question: "Name three methods of polarization.", answer: "Polarizing filters, reflection, and scattering" }
+];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/dev_tools.js"></script>
+<script src="../../scripts/blocks_puzzle.js"></script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

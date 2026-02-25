@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 8: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="/quiz_logic.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }
+    
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 8 Practice</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../physics.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Physics</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit8_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+window.lessonFlashcards = [
+    { question: "What type of wave is sound?", answer: "A longitudinal mechanical wave" },
+    { question: "Can sound travel through a vacuum?", answer: "No — it requires a medium" },
+    { question: "What are the high-pressure regions in a sound wave called?", answer: "Compressions" },
+    { question: "What are the low-pressure regions called?", answer: "Rarefactions" },
+    { question: "What produces sound?", answer: "Vibrating objects (vocal cords, speakers, tuning forks)" },
+    { question: "What is the human hearing range?", answer: "Approximately 20 Hz to 20,000 Hz" },
+    { question: "What is infrasound?", answer: "Sound below 20 Hz" },
+    { question: "What is ultrasound?", answer: "Sound above 20,000 Hz" },
+    { question: "Can sound be reflected?", answer: "Yes — this is how echoes work" },
+    { question: "Can sound be diffracted?", answer: "Yes — sound bends around obstacles and openings" },
+    { question: "What is the speed of sound in air at 20°C?", answer: "Approximately 343 m/s" },
+    { question: "How does the speed of sound in water compare to air?", answer: "Much faster — about 1,500 m/s" },
+    { question: "In which state of matter is sound fastest?", answer: "Solids (e.g., ~5,000 m/s in steel)" },
+    { question: "How does temperature affect the speed of sound?", answer: "Speed increases with temperature" },
+    { question: "Give the approximate formula for speed of sound vs. temperature.", answer: "v ≈ 331 + 0.6T (T in °C)" },
+    { question: "When sound enters a denser medium, what changes?", answer: "Speed and wavelength change, but frequency stays the same" },
+    { question: "Does frequency change when sound enters a different medium?", answer: "No — frequency remains the same" },
+    { question: "If frequency doubles and speed is constant, what happens to wavelength?", answer: "It halves (v = fλ)" },
+    { question: "Does humidity affect the speed of sound?", answer: "Yes — moist air carries sound slightly faster" },
+    { question: "Why is sound faster in solids than gases?", answer: "Solids are denser and stiffer, allowing faster energy transfer" },
+    { question: "What is sound intensity?", answer: "Power per unit area: I = P/A" },
+    { question: "What is the SI unit of intensity?", answer: "W/m²" },
+    { question: "How does intensity vary with distance from a point source?", answer: "Inverse-square law: I ∝ 1/r²" },
+    { question: "What is the threshold of hearing?", answer: "~10⁻¹² W/m²" },
+    { question: "What is the formula for sound level in decibels?", answer: "β = 10 log₁₀(I/I₀)" },
+    { question: "An increase of 10 dB means intensity increases by what factor?", answer: "10 times" },
+    { question: "An increase of 3 dB means intensity approximately doubles — true or false?", answer: "True" },
+    { question: "What is the approximate decibel level of normal conversation?", answer: "About 60 dB" },
+    { question: "What is the difference between intensity and loudness?", answer: "Intensity is objective (physical); loudness is subjective (perception)" },
+    { question: "At what dB level can prolonged exposure cause hearing damage?", answer: "About 85 dB" },
+    { question: "What determines pitch?", answer: "Frequency — higher frequency = higher pitch" },
+    { question: "What frequency is middle C?", answer: "About 262 Hz" },
+    { question: "What frequency is A4 (concert A)?", answer: "440 Hz" },
+    { question: "What is an octave?", answer: "A doubling of frequency" },
+    { question: "A4 is 440 Hz. What is A5?", answer: "880 Hz (one octave higher)" },
+    { question: "What is timbre?", answer: "The tone quality that distinguishes different instruments playing the same note" },
+    { question: "What determines timbre?", answer: "The mix of harmonics (overtones) in the sound" },
+    { question: "What is a pure tone?", answer: "A single frequency (sine wave)" },
+    { question: "What does the fundamental frequency determine?", answer: "The perceived pitch" },
+    { question: "How does the ear perceive frequency?", answer: "Logarithmically — equal ratios sound like equal intervals" },
+    { question: "In an open tube, what are at both ends?", answer: "Antinodes" },
+    { question: "In a closed tube, what is at the closed end?", answer: "A node" },
+    { question: "What harmonics does an open tube support?", answer: "All harmonics (n = 1, 2, 3, ...)" },
+    { question: "What harmonics does a closed tube support?", answer: "Only odd harmonics (n = 1, 3, 5, ...)" },
+    { question: "Formula for resonant frequencies of an open tube?", answer: "f_n = nv/(2L)" },
+    { question: "Formula for resonant frequencies of a closed tube?", answer: "f_n = nv/(4L) where n = 1, 3, 5, ..." },
+    { question: "What is the fundamental wavelength for an open tube?", answer: "λ₁ = 2L" },
+    { question: "What is the fundamental wavelength for a closed tube?", answer: "λ₁ = 4L" },
+    { question: "Is a flute an open or closed tube?", answer: "Open" },
+    { question: "Is a clarinet effectively open or closed?", answer: "Effectively closed" },
+    { question: "What are beats?", answer: "Periodic variations in loudness when two waves of slightly different frequencies interfere" },
+    { question: "What is beat frequency?", answer: "f_beat = |f₁ − f₂|" },
+    { question: "How are beats used in tuning instruments?", answer: "Beats disappear when frequencies match" },
+    { question: "What is the 1st harmonic?", answer: "The fundamental frequency" },
+    { question: "What is the 2nd harmonic also called?", answer: "The 1st overtone" },
+    { question: "What is the 3rd harmonic also called?", answer: "The 2nd overtone" },
+    { question: "Strings and open tubes produce what harmonics?", answer: "All harmonics" },
+    { question: "Closed tubes produce what harmonics?", answer: "Only odd harmonics" },
+    { question: "What gives each instrument its unique sound?", answer: "The mix of harmonics (timbre)" },
+    { question: "If two tuning forks have frequencies 440 Hz and 444 Hz, what is the beat frequency?", answer: "4 Hz" }
+];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/dev_tools.js"></script>
+<script src="../../scripts/blocks_puzzle.js"></script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 3: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 3 Review Flashcards</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../bio.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Biology</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit3_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+    window.lessonFlashcards = [
+        { question: "What is community ecology?", answer: "A key topic in biology covering important concepts related to community ecology" },
+        { question: "Why is community ecology important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in community ecology?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does community ecology relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of community ecology?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of community ecology in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is community ecology studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does community ecology have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for community ecology?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about community ecology?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is terrestrial biomes?", answer: "A key topic in biology covering important concepts related to terrestrial biomes" },
+        { question: "Why is terrestrial biomes important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in terrestrial biomes?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does terrestrial biomes relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of terrestrial biomes?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of terrestrial biomes in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is terrestrial biomes studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does terrestrial biomes have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for terrestrial biomes?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about terrestrial biomes?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is aquatic ecosystems?", answer: "A key topic in biology covering important concepts related to aquatic ecosystems" },
+        { question: "Why is aquatic ecosystems important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in aquatic ecosystems?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does aquatic ecosystems relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of aquatic ecosystems?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of aquatic ecosystems in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is aquatic ecosystems studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does aquatic ecosystems have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for aquatic ecosystems?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about aquatic ecosystems?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is climate change and ecosystem shifts?", answer: "A key topic in biology covering important concepts related to climate change and ecosystem shifts" },
+        { question: "Why is climate change and ecosystem shifts important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in climate change and ecosystem shifts?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does climate change and ecosystem shifts relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of climate change and ecosystem shifts?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of climate change and ecosystem shifts in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is climate change and ecosystem shifts studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does climate change and ecosystem shifts have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for climate change and ecosystem shifts?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about climate change and ecosystem shifts?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is symbiosis and species interactions?", answer: "A key topic in biology covering important concepts related to symbiosis and species interactions" },
+        { question: "Why is symbiosis and species interactions important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in symbiosis and species interactions?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does symbiosis and species interactions relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of symbiosis and species interactions?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of symbiosis and species interactions in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is symbiosis and species interactions studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does symbiosis and species interactions have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for symbiosis and species interactions?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about symbiosis and species interactions?", answer: "Key concepts, processes, and their significance" }
+    ];
+</script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

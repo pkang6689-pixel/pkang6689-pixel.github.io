@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 2: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 2 Review Flashcards</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../bio.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Biology</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit2_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+    window.lessonFlashcards = [
+        { question: "What is predation?", answer: "When one organism kills and eats another" },
+        { question: "What is symbiosis?", answer: "A close, long-term relationship between two different species" },
+        { question: "What is mutualism?", answer: "A symbiotic relationship where both species benefit" },
+        { question: "What is commensalism?", answer: "A relationship where one species benefits and the other is unaffected" },
+        { question: "What is parasitism?", answer: "A relationship where one species benefits while harming the other" },
+        { question: "Give an example of mutualism.", answer: "Bees pollinating flowers while getting nectar" },
+        { question: "Give an example of parasitism.", answer: "Ticks feeding on dogs, tapeworms in intestines" },
+        { question: "What is competition?", answer: "When organisms compete for the same limited resources" },
+        { question: "What is a predator?", answer: "An organism that hunts and kills other organisms for food" },
+        { question: "What is prey?", answer: "An organism that is hunted and eaten by a predator" },
+        { question: "What are producers?", answer: "Organisms that make their own food through photosynthesis" },
+        { question: "What are consumers?", answer: "Organisms that obtain energy by eating other organisms" },
+        { question: "What do decomposers do?", answer: "Break down dead organisms and recycle nutrients" },
+        { question: "What is the 10% rule?", answer: "Only about 10% of energy transfers to the next trophic level" },
+        { question: "What is an autotroph?", answer: "An organism that produces its own food" },
+        { question: "Where does most energy in an ecosystem go?", answer: "Lost as heat through metabolism" },
+        { question: "What is a heterotroph?", answer: "An organism that must eat other organisms for energy" },
+        { question: "Why are there few top predators?", answer: "Because only 10% of energy passes to each level" },
+        { question: "What is the ultimate source of energy?", answer: "The sun" },
+        { question: "What is a trophic level?", answer: "A feeding level in an ecosystem" },
+        { question: "What is a biogeochemical cycle?", answer: "The recycling of matter through living and non-living parts of an ecosystem" },
+        { question: "Name the four main biogeochemical cycles.", answer: "Water, carbon, nitrogen, and phosphorus cycles" },
+        { question: "What is nitrogen fixation?", answer: "The conversion of atmospheric nitrogen into usable forms by bacteria" },
+        { question: "How is carbon released into the atmosphere?", answer: "Through respiration, decomposition, and combustion" },
+        { question: "Unlike energy, matter is:", answer: "Recycled through ecosystems" },
+        { question: "What are the steps of the water cycle?", answer: "Evaporation, condensation, precipitation, collection" },
+        { question: "What is unique about the phosphorus cycle?", answer: "It does not have an atmospheric component" },
+        { question: "What organisms perform nitrogen fixation?", answer: "Certain bacteria" },
+        { question: "How do plants get carbon?", answer: "Through photosynthesis, taking in CO2" },
+        { question: "What is decomposition\\'s role in cycles?", answer: "It releases nutrients back into the environment" },
+        { question: "What is ecological succession?", answer: "The gradual change in species composition of a community over time" },
+        { question: "What is primary succession?", answer: "Succession that occurs in lifeless areas with no soil" },
+        { question: "What is secondary succession?", answer: "Succession that occurs after a disturbance when soil remains" },
+        { question: "What are pioneer species?", answer: "The first organisms to colonize an area during succession" },
+        { question: "What is a climax community?", answer: "A stable, mature ecological community" },
+        { question: "Give an example of where primary succession occurs.", answer: "Bare rock or hardened lava" },
+        { question: "Give an example of where secondary succession occurs.", answer: "After a forest fire or abandoned farmland" },
+        { question: "What organisms are pioneer species?", answer: "Lichens and mosses" },
+        { question: "Why is secondary succession faster?", answer: "Because soil and seeds are already present" },
+        { question: "What comes after pioneer species?", answer: "Grasses, shrubs, then trees" },
+        { question: "What is a habitat?", answer: "The physical place where an organism lives" },
+        { question: "What is a niche?", answer: "An organism\\'s role in its ecosystem, including all its interactions" },
+        { question: "What is the competitive exclusion principle?", answer: "Two species cannot occupy the exact same niche indefinitely" },
+        { question: "What\\'s the difference between habitat and niche?", answer: "Habitat is where an organism lives; niche is what it does" },
+        { question: "Name two components of a niche.", answer: "What it eats, when it\\'s active, how it interacts with others" },
+        { question: "What happens when niches overlap too much?", answer: "One species will outcompete the other" },
+        { question: "What is a fundamental niche?", answer: "The full range of conditions an organism could potentially use" },
+        { question: "What is a realized niche?", answer: "The actual conditions an organism uses due to competition" },
+        { question: "Why can\\'t two species share the same niche?", answer: "Competition would eliminate one of them" },
+        { question: "What is resource partitioning?", answer: "Species dividing resources to reduce competition" },
+        { question: "What is a food chain?", answer: "A single pathway showing how energy flows from one organism to another" },
+        { question: "What is a food web?", answer: "Interconnected food chains in an ecosystem" },
+        { question: "What is a trophic level?", answer: "A feeding level in a food chain or web" },
+        { question: "What is a primary consumer?", answer: "An organism that eats producers (herbivore)" },
+        { question: "What is a secondary consumer?", answer: "An organism that eats primary consumers (carnivore)" },
+        { question: "What is a tertiary consumer?", answer: "A top predator that eats secondary consumers" },
+        { question: "What are herbivores?", answer: "Animals that eat only plants" },
+        { question: "What are carnivores?", answer: "Animals that eat only other animals" },
+        { question: "What are omnivores?", answer: "Animals that eat both plants and animals" },
+        { question: "Which trophic level has the most energy?", answer: "Producers (level 1)" },
+        { question: "What is habitat destruction?", answer: "The elimination of natural habitats through human activities" },
+        { question: "What is an invasive species?", answer: "A non-native species that causes harm when introduced to a new ecosystem" },
+        { question: "What is overexploitation?", answer: "Harvesting a resource faster than it can naturally replenish" },
+        { question: "Name three types of pollution.", answer: "Air pollution, water pollution, soil pollution" },
+        { question: "What are sustainable practices?", answer: "Activities that meet current needs without compromising future generations" },
+        { question: "What is deforestation?", answer: "The clearing of forests for human use" },
+        { question: "What is urbanization?", answer: "The growth of cities and conversion of natural areas to urban use" },
+        { question: "How do invasive species harm ecosystems?", answer: "They outcompete native species for resources" },
+        { question: "What is conservation?", answer: "The protection and preservation of natural resources" },
+        { question: "What is renewable energy?", answer: "Energy from sources that are naturally replenished, like solar and wind" }
+    ];
+</script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

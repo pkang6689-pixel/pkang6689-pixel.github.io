@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 6: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 6 Review Flashcards</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../algebra2.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Algebra 2</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit6_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+        window.lessonFlashcards = [
+          {
+                    "question": "Arithmetic sequence 3, 7, 11, ... Find a₁₀",
+                    "answer": "39. d = 4. a₁₀ = 3 + 9(4) = 39."
+          },
+          {
+                    "question": "Common difference of -2, -5, -8, ...?",
+                    "answer": "d = -3. Subtract consecutive terms."
+          },
+          {
+                    "question": "Sum of first 20 terms: 5 + 10 + 15 + ...?",
+                    "answer": "1050. S₂₀ = 20/2 · (5 + 100) = 1050."
+          },
+          {
+                    "question": "Find a₅ if a₁ = 2 and d = 3",
+                    "answer": "14. a₅ = 2 + 4(3) = 14."
+          },
+          {
+                    "question": "Insert two arithmetic means between 2 and 11",
+                    "answer": "5, 8. Sequence: 2, 5, 8, 11 with d = 3."
+          },
+          {
+                    "question": "Formula for nth term: aₙ = ?",
+                    "answer": "aₙ = a₁ + (n-1)d. General arithmetic sequence formula."
+          },
+          {
+                    "question": "Sum formula: Sₙ = ?",
+                    "answer": "Sₙ = n/2(a₁ + aₙ) or Sₙ = n/2(2a₁ + (n-1)d)."
+          },
+          {
+                    "question": "Find d if a₁ = 5, a₅ = 13",
+                    "answer": "d = 2. 13 = 5 + 4d."
+          },
+          {
+                    "question": "Arithmetic or geometric? 2, 4, 6, 8, ...",
+                    "answer": "Arithmetic with d = 2."
+          },
+          {
+                    "question": "Sum of 1 + 2 + 3 + ... + 100?",
+                    "answer": "5050. Using formula: 100/2 · 101."
+          },
+          {
+                    "question": "Geometric sequence 2, 6, 18, ... Find r and a₅",
+                    "answer": "r = 3. a₅ = 2·3⁴ = 162."
+          },
+          {
+                    "question": "Which is geometric? a) 5, 10, 15... b) 2, 6, 18... c) 1, 4, 9...",
+                    "answer": "b) 2, 6, 18 with r = 3. Constant ratio."
+          },
+          {
+                    "question": "Sum of geometric: 1 + 2 + 4 + ... + 512?",
+                    "answer": "1023. a₁ = 1, r = 2, n = 10. S₁₀ = (2¹⁰-1)/(2-1)."
+          },
+          {
+                    "question": "Bouncing ball drops 10m, bounces 70% each time. Total height?",
+                    "answer": "≈ 33.3m. Sum of infinite series with r = 0.7."
+          },
+          {
+                    "question": "Find r if a₁ = 3, a₆ = 96",
+                    "answer": "r = 2. 96 = 3·r⁵."
+          },
+          {
+                    "question": "Formula for nth term: aₙ = ?",
+                    "answer": "aₙ = a₁ · r^(n-1)."
+          },
+          {
+                    "question": "Sum formula: Sₙ = ?",
+                    "answer": "Sₙ = a₁(r^n - 1)/(r - 1) if r ≠ 1."
+          },
+          {
+                    "question": "Solve 3·(1/2)^(n-1) = 3/32",
+                    "answer": "n = 6. (1/2)^(n-1) = 1/32 = (1/2)⁵."
+          },
+          {
+                    "question": "Growth factor 1.05 means what percentage increase?",
+                    "answer": "5% growth per period."
+          },
+          {
+                    "question": "Geometric or arithmetic? 5, 10, 20, 40, ...",
+                    "answer": "Geometric with r = 2."
+          },
+          {
+                    "question": "Sigma notation Σᵢ₌₁⁵ (2i) = ?",
+                    "answer": "30. Sum: 2+4+6+8+10 = 30."
+          },
+          {
+                    "question": "What is Σᵢ₌₁ⁿ i?",
+                    "answer": "n(n+1)/2. Sum of first n positive integers."
+          },
+          {
+                    "question": "Σᵢ₌₁ⁿ i² = ?",
+                    "answer": "n(n+1)(2n+1)/6."
+          },
+          {
+                    "question": "Telescoping: Σᵢ₌₁ⁿ (1/i - 1/(i+1))?",
+                    "answer": "1 - 1/(n+1). Most terms cancel."
+          },
+          {
+                    "question": "Evaluate Σᵢ₌₁³ (i² + 2i)",
+                    "answer": "26. (1+2) + (4+4) + (9+6) = 3 + 8 + 15."
+          },
+          {
+                    "question": "Notation Σᵢ₌₀ⁿ means?",
+                    "answer": "Sum from i = 0 to i = n. Start at 0, end at n."
+          },
+          {
+                    "question": "Write without sigma: Σᵢ₌₁⁴ i",
+                    "answer": "1 + 2 + 3 + 4."
+          },
+          {
+                    "question": "Σₖ₌₁ⁿ c (where c is constant)?",
+                    "answer": "cn. Sum of n identical terms."
+          },
+          {
+                    "question": "Linearity: Σ(aᵢ + bᵢ) = ?",
+                    "answer": "Σaᵢ + Σbᵢ. Sum distributes over addition."
+          },
+          {
+                    "question": "Σᵢ₌₁⁵ (3i + 1)?",
+                    "answer": "45. 3(1+2+3+4+5) + 5 = 45 + 5 = 50... check: 4+7+10+13+16."
+          },
+          {
+                    "question": "Sum of infinite series: 1 + 1/3 + 1/9 + ...",
+                    "answer": "3/2. a = 1, r = 1/3. S = 1/(1-1/3)."
+          },
+          {
+                    "question": "Does 1 + 1 + 1 + ... converge?",
+                    "answer": "No. r = 1, diverges. Constant series."
+          },
+          {
+                    "question": "Express 0.333... as fraction",
+                    "answer": "1/3. Geometric series: (3/10)/(1-1/10)."
+          },
+          {
+                    "question": "Convergence condition: |r| < 1",
+                    "answer": "True. Geometric series Σ aᵣⁿ converges iff |r| < 1."
+          },
+          {
+                    "question": "0.777... as fraction?",
+                    "answer": "7/9. Series: (7/10)/(1-1/10)."
+          },
+          {
+                    "question": "Sum diverges if?",
+                    "answer": "|r| ≥ 1. Series doesn't converge to finite value."
+          },
+          {
+                    "question": "Formula: S = a/(1-r) applies when?",
+                    "answer": "When |r| < 1 and sequence is geometric."
+          },
+          {
+                    "question": "0.̄9̄ (repeating 9s) = ?",
+                    "answer": "1. Limit: (9/10)/(1-1/10) = 1."
+          },
+          {
+                    "question": "Sum of 5 + 1 + 1/5 + 1/25 + ...",
+                    "answer": "25/4. a = 5, r = 1/5. S = 5/(1-1/5)."
+          },
+          {
+                    "question": "Repeating decimal 0.2̄3̄ as fraction?",
+                    "answer": "23/99. Repeating from start: (23/100)/(1-1/100)."
+          },
+          {
+                    "question": "Mathematical induction: prove n! > 2ⁿ for n ≥ 5",
+                    "answer": "Base: 5! = 120 > 32. Step: if k!>2^k, then (k+1)! > 2^(k+1)."
+          },
+          {
+                    "question": "Induction steps?",
+                    "answer": "1) Base case (n=1). 2) Inductive step: assume true for k, prove k+1."
+          },
+          {
+                    "question": "Prove Σᵢ₌₁ⁿ (2i-1) = n²",
+                    "answer": "Base: 1 = 1². Step: if k², then k² + 2(k+1)-1 = (k+1)²."
+          },
+          {
+                    "question": "Annuity future value?",
+                    "answer": "FV = PMT·((1+r)ⁿ - 1)/r. Regular deposits earning interest."
+          },
+          {
+                    "question": "Annuity present value?",
+                    "answer": "PV = PMT·(1 - (1+r)^(-n))/r. Lump sum for sequence."
+          },
+          {
+                    "question": "Simple vs compound interest?",
+                    "answer": "Simple: I = Prt once. Compound: A = P(1+r/n)^(nt) repeated."
+          },
+          {
+                    "question": "Loan amortization: equal payments over time?",
+                    "answer": "Uses PV annuity formula. Payment = PV·r/[1-(1+r)^(-n)]."
+          },
+          {
+                    "question": "Sinking fund: future amount goal, regular deposits?",
+                    "answer": "Uses FV annuity formula backward."
+          },
+          {
+                    "question": "Prove: 1 + r + r² + ... + r^(n-1) = (r^n - 1)/(r - 1)?",
+                    "answer": "Geometric series sum formula."
+          },
+          {
+                    "question": "Investment doubling formula: t = ln(2)/r?",
+                    "answer": "True for continuous A = Pe^(rt). t = ln(2)/r years."
+          },
+        ];
+    </script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 5: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="/quiz_logic.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }
+    
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 5 Practice</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../physics.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Physics</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit5_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+window.lessonFlashcards = [
+    { question: "What is linear momentum?", answer: "The product of mass and velocity: p = mv" },
+    { question: "What is the SI unit of momentum?", answer: "kg·m/s" },
+    { question: "Is momentum a scalar or vector?", answer: "Vector — same direction as velocity" },
+    { question: "State Newton's Second Law in terms of momentum.", answer: "F = dp/dt (force equals rate of change of momentum)" },
+    { question: "When is total momentum conserved?", answer: "In an isolated system with no net external force" },
+    { question: "A 2 kg object moving at 5 m/s has what momentum?", answer: "10 kg·m/s" },
+    { question: "Can two objects with different masses have the same momentum?", answer: "Yes — if the lighter one is faster" },
+    { question: "If mass is constant, F = dp/dt reduces to what?", answer: "F = ma" },
+    { question: "In an explosion from rest, what is the total momentum after?", answer: "Zero (same as before)" },
+    { question: "What direction does momentum point?", answer: "Same direction as the velocity" },
+    { question: "What is impulse?", answer: "The product of force and time: J = FΔt" },
+    { question: "What is the SI unit of impulse?", answer: "N·s (same as kg·m/s)" },
+    { question: "State the impulse-momentum theorem.", answer: "FΔt = Δp (impulse equals change in momentum)" },
+    { question: "How do car airbags reduce injury?", answer: "They extend the collision time, reducing the average force on the passenger" },
+    { question: "Why do you bend your knees when landing a jump?", answer: "It increases the stopping time, reducing the force on your body" },
+    { question: "For a variable force, how do you find impulse?", answer: "Area under the F-t graph" },
+    { question: "A large force for a short time has the same impulse as what?", answer: "A small force for a long time" },
+    { question: "What is the role of crumple zones in cars?", answer: "Deform slowly to increase Δt and reduce force" },
+    { question: "If impulse on an object is 20 N·s, what is the change in momentum?", answer: "20 kg·m/s" },
+    { question: "Can impulse be negative?", answer: "Yes — if the force is in the negative direction" },
+    { question: "State the law of conservation of momentum.", answer: "In an isolated system, total momentum before = total momentum after any interaction" },
+    { question: "Write the conservation of momentum equation for two objects.", answer: "m₁u₁ + m₂u₂ = m₁v₁ + m₂v₂" },
+    { question: "Does conservation of momentum apply to explosions?", answer: "Yes — total momentum remains zero if it started at zero" },
+    { question: "In a gun recoil, what can be said about bullet and gun momenta?", answer: "They are equal in magnitude and opposite in direction" },
+    { question: "Is momentum conserved in all types of collisions?", answer: "Yes" },
+    { question: "Is kinetic energy conserved in all collisions?", answer: "No — only in elastic collisions" },
+    { question: "Does conservation apply separately to x and y components?", answer: "Yes — conserve each direction independently" },
+    { question: "What condition must hold for momentum conservation?", answer: "No net external force on the system" },
+    { question: "Can external forces like gravity break momentum conservation?", answer: "Yes, but during short collisions their effect is often negligible" },
+    { question: "A 5 kg object at 4 m/s collides with a 5 kg object at rest and they stick. What is the final velocity?", answer: "2 m/s" },
+    { question: "What is an elastic collision?", answer: "A collision where both momentum and kinetic energy are conserved" },
+    { question: "What is an inelastic collision?", answer: "A collision where momentum is conserved but kinetic energy is NOT" },
+    { question: "What is a perfectly inelastic collision?", answer: "Objects stick together after colliding — maximum KE is lost" },
+    { question: "Give an example of an approximately elastic collision.", answer: "Billiard ball collisions or atomic collisions" },
+    { question: "In a perfectly inelastic collision, what is the final velocity formula?", answer: "v_f = (m₁u₁ + m₂u₂) / (m₁ + m₂)" },
+    { question: "Which type of collision loses the most kinetic energy?", answer: "Perfectly inelastic" },
+    { question: "Where does the lost KE go in inelastic collisions?", answer: "Converted to heat, sound, or deformation" },
+    { question: "Are most real-world collisions elastic or inelastic?", answer: "Inelastic" },
+    { question: "In an elastic head-on collision of equal masses, what happens?", answer: "The objects exchange velocities" },
+    { question: "What is conserved in ALL types of collisions?", answer: "Momentum" },
+    { question: "What is the center of mass?", answer: "The average position of all mass in a system, weighted by mass" },
+    { question: "Formula for center of mass of two particles?", answer: "x_cm = (m₁x₁ + m₂x₂) / (m₁ + m₂)" },
+    { question: "Where is the center of mass of a uniform symmetric object?", answer: "At its geometric center" },
+    { question: "How does the center of mass move if no external forces act?", answer: "At constant velocity (or stays at rest)" },
+    { question: "State Newton's second law for the center of mass.", answer: "F_ext = Ma_cm" },
+    { question: "After an explosion, what happens to the center of mass?", answer: "It continues on the same path as before the explosion" },
+    { question: "How does a high jumper clear a bar using COM?", answer: "They arch their back so their COM passes under the bar while their body goes over it" },
+    { question: "Can the center of mass be outside the physical object?", answer: "Yes — like the center of a ring or a bent rod" },
+    { question: "What is M in F_ext = Ma_cm?", answer: "The total mass of the system" },
+    { question: "If two equal masses are 10 m apart, where is the COM?", answer: "5 m from each (the midpoint)" },
+    { question: "How do rockets propel themselves?", answer: "By expelling exhaust gases at high velocity — conservation of momentum" },
+    { question: "Do rockets need air to push against?", answer: "No — they work in the vacuum of space" },
+    { question: "State the Tsiolkovsky rocket equation.", answer: "Δv = v_e · ln(m₀/m_f)" },
+    { question: "What is v_e in the rocket equation?", answer: "Exhaust velocity" },
+    { question: "What is the formula for thrust?", answer: "Thrust = v_e × (dm/dt)" },
+    { question: "For liftoff, thrust must exceed what?", answer: "The rocket's weight (mg)" },
+    { question: "What is staging in rocketry?", answer: "Discarding empty fuel tanks to reduce mass and improve efficiency" },
+    { question: "Which gives more Δv: higher exhaust velocity or larger mass ratio?", answer: "Both contribute — Δv depends on both v_e and ln(m₀/m_f)" },
+    { question: "Which law of Newton explains rocket propulsion?", answer: "Newton's Third Law — exhaust is pushed back, rocket is pushed forward" },
+    { question: "Why is the mass ratio m₀/m_f important?", answer: "A larger ratio means more fuel relative to payload, giving greater Δv" }
+];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/dev_tools.js"></script>
+<script src="../../scripts/blocks_puzzle.js"></script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

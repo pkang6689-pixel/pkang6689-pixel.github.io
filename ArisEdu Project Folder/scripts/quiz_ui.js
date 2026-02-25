@@ -272,6 +272,27 @@
             window.toggleToPractice();
         };
 
+        const retakeBtn = document.createElement('button');
+        retakeBtn.textContent = '↻ Retake Quiz';
+        retakeBtn.style.cssText = `
+            padding: 0.75rem 1.5rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        `;
+        retakeBtn.onmouseover = () => retakeBtn.style.background = '#2563eb';
+        retakeBtn.onmouseout = () => retakeBtn.style.background = '#3b82f6';
+        retakeBtn.onclick = () => {
+            modal.remove();
+            location.reload();
+        };
+
+        buttonContainer.appendChild(retakeBtn);
         buttonContainer.appendChild(closeBtn);
         buttonContainer.appendChild(continueBtn);
         content.appendChild(buttonContainer);
@@ -341,6 +362,9 @@
         window.checkQuizAnswer(questionName, correctValue, submitBtn);
     };
 
+    // Only define checkQuizAnswer if quiz_logic.js hasn't already defined it
+    // quiz_logic.js handles unit tests (value="a","b","c","d"), quiz_ui.js handles lesson quizzes (value="correct","wrong")
+    if (!window.checkQuizAnswer) {
     window.checkQuizAnswer = function(name, correct, btn) {
         try {
             const parent = btn.closest('.quiz-question');
@@ -368,7 +392,7 @@
             }
             
             if (!selected) {
-                feedback.textContent = _t("Please select an answer first.");
+                feedback.textContent = _t("Please select an answer first.", "Please select an answer first.");
                 feedback.style.color = "#ea580c";
                 feedback.style.background = "#fff7ed";
                 return;
@@ -411,7 +435,7 @@
                 
                 attempts--;
                 parent.dataset.attempts = attempts;
-                attemptsElem.textContent = _t("Attempts left:") + " " + attempts;
+                attemptsElem.textContent = _t("Attempts left:", "Attempts left:") + " " + attempts;
                 attemptsElem.style.display = 'block';
 
                 if (attempts <= 0) {
@@ -434,7 +458,7 @@
                          tryAgainBtn.style.animation = 'pulse 1.5s infinite';
                      }
                 } else {
-                     feedback.textContent = _t("Incorrect. Try again!");
+                     feedback.textContent = _t("Incorrect. Try again!", "Incorrect. Try again!");
                      feedback.style.color = "#dc2626";
                      feedback.style.background = "#fee2e2";
                 }
@@ -443,6 +467,7 @@
             console.error("Quiz Error:", e);
         }
     };
+    } // end if (!window.checkQuizAnswer)
 
     // Check if every question on the quiz has been answered correctly
     function checkQuizCompletion() {
@@ -487,6 +512,12 @@
 
         // Show detailed completion screen
         showQuizCompletionScreen();
+    }
+    
+    // Expose checkQuizCompletion to window ONLY if it hasn't been defined by unit_test.js
+    // This prevents overriding the unit test version on unit test pages
+    if (!window.checkQuizCompletion) {
+        window.checkQuizCompletion = checkQuizCompletion;
     }
 
     // Navigation / UI Helpers

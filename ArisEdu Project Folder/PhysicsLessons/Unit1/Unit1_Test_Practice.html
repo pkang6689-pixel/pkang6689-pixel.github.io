@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 1: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="/quiz_logic.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }
+    
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 1 Practice</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../physics.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Physics</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit1_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+window.lessonFlashcards = [
+    { question: "What is a physical quantity?", answer: "Any property that can be measured and expressed with a number and a unit" },
+    { question: "What are the two parts of every measurement?", answer: "A numerical value and a unit" },
+    { question: "How many SI base quantities are there?", answer: "Seven" },
+    { question: "What is a derived quantity?", answer: "A quantity formed by combining base quantities (e.g., speed = distance / time)" },
+    { question: "What is the SI base unit for mass?", answer: "Kilogram (kg)" },
+    { question: "What is the SI base unit for time?", answer: "Second (s)" },
+    { question: "What is the SI base unit for length?", answer: "Meter (m)" },
+    { question: "Why do we need units in physics?", answer: "To make measurements meaningful and comparable" },
+    { question: "Give an example of a derived unit.", answer: "Newton (N) = kg·m/s²" },
+    { question: "What happens if you add values with different units?", answer: "The result is meaningless — you must convert to consistent units first" },
+    { question: "What does SI stand for?", answer: "Système International d'Unités (International System of Units)" },
+    { question: "What does the prefix 'kilo' mean?", answer: "10³ (one thousand)" },
+    { question: "What does the prefix 'milli' mean?", answer: "10⁻³ (one thousandth)" },
+    { question: "What does the prefix 'micro' mean?", answer: "10⁻⁶ (one millionth)" },
+    { question: "What does the prefix 'mega' mean?", answer: "10⁶ (one million)" },
+    { question: "What does the prefix 'nano' mean?", answer: "10⁻⁹ (one billionth)" },
+    { question: "Convert 5.2 km to meters.", answer: "5200 m" },
+    { question: "Convert 350 mg to grams.", answer: "0.35 g" },
+    { question: "What does the prefix 'giga' mean?", answer: "10⁹ (one billion)" },
+    { question: "What does the prefix 'centi' mean?", answer: "10⁻² (one hundredth)" },
+    { question: "What is a scalar quantity?", answer: "A quantity that has only magnitude (size)" },
+    { question: "What is a vector quantity?", answer: "A quantity that has both magnitude and direction" },
+    { question: "Give three examples of scalar quantities.", answer: "Mass, temperature, speed" },
+    { question: "Give three examples of vector quantities.", answer: "Displacement, velocity, force" },
+    { question: "Is distance a scalar or vector?", answer: "Scalar" },
+    { question: "Is displacement a scalar or vector?", answer: "Vector" },
+    { question: "Is speed a scalar or vector?", answer: "Scalar" },
+    { question: "Is velocity a scalar or vector?", answer: "Vector" },
+    { question: "How are vectors added?", answer: "Using vector addition (tip-to-tail or component method), not simple arithmetic" },
+    { question: "Can the magnitude of the resultant of two vectors be less than either?", answer: "Yes, when the vectors partially cancel each other" },
+    { question: "What is accuracy?", answer: "How close a measurement is to the true (accepted) value" },
+    { question: "What is precision?", answer: "How close repeated measurements are to each other" },
+    { question: "How many significant figures does 0.0045 have?", answer: "Two (the 4 and the 5)" },
+    { question: "How many significant figures does 2.50 have?", answer: "Three" },
+    { question: "What is the rule for sig figs in multiplication?", answer: "The result has the same number of sig figs as the factor with the fewest" },
+    { question: "What is the rule for sig figs in addition?", answer: "The result is rounded to the decimal place of the least precise input" },
+    { question: "Can a measurement be precise but not accurate?", answer: "Yes — it consistently gives the same wrong value" },
+    { question: "Are leading zeros significant?", answer: "No" },
+    { question: "Are trailing zeros after a decimal significant?", answer: "Yes" },
+    { question: "How many significant figures does 1002 have?", answer: "Four" },
+    { question: "What is dimensional analysis?", answer: "A technique using dimensions (units) to check equations, convert units, and derive relationships" },
+    { question: "What are the three fundamental dimensions?", answer: "[M] (mass), [L] (length), [T] (time)" },
+    { question: "What must be true for a physics equation to be valid?", answer: "Both sides must have the same dimensions" },
+    { question: "What are the dimensions of force?", answer: "[M][L][T]⁻²" },
+    { question: "What are the dimensions of velocity?", answer: "[L][T]⁻¹" },
+    { question: "What are the dimensions of energy?", answer: "[M][L]²[T]⁻²" },
+    { question: "Can dimensional analysis determine dimensionless constants?", answer: "No (e.g., it can't find the 2π in pendulum formula)" },
+    { question: "Convert 60 mph to m/s (approximately).", answer: "About 26.8 m/s" },
+    { question: "What are the dimensions of acceleration?", answer: "[L][T]⁻²" },
+    { question: "What is a conversion factor?", answer: "A fraction equal to 1 used to convert between units (e.g., 1000 m / 1 km)" },
+    { question: "What is a systematic error?", answer: "A consistent, repeatable error that shifts all measurements in the same direction" },
+    { question: "What is a random error?", answer: "Unpredictable fluctuations causing measurements to scatter around the true value" },
+    { question: "Systematic errors affect which: accuracy or precision?", answer: "Accuracy" },
+    { question: "Random errors affect which: accuracy or precision?", answer: "Precision" },
+    { question: "What is absolute uncertainty?", answer: "The ± range of a measurement (e.g., 5.0 ± 0.1 cm)" },
+    { question: "How do you calculate percentage uncertainty?", answer: "(Absolute uncertainty / measured value) × 100%" },
+    { question: "How do uncertainties combine in addition?", answer: "Add the absolute uncertainties" },
+    { question: "How do uncertainties combine in multiplication?", answer: "Add the percentage uncertainties" },
+    { question: "If x has 2% uncertainty, what is the uncertainty in x³?", answer: "6% (multiply percentage uncertainty by the power)" },
+    { question: "How can systematic errors be reduced?", answer: "Better calibration, improved technique, or using different equipment" }
+];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/dev_tools.js"></script>
+<script src="../../scripts/blocks_puzzle.js"></script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

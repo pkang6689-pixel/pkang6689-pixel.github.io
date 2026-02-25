@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 2: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 2 Review Flashcards</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../algebra1.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Algebra 1</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit2_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+    window.lessonFlashcards = [
+                { question: "What is a one-step equation?", answer: "An equation solved with a single inverse operation" },
+                { question: "What are inverse operations?", answer: "Operations that undo each other: addition↔subtraction, multiplication↔division" },
+                { question: "How do you solve x + 5 = 12?", answer: "Subtract 5 from both sides: x = 7" },
+                { question: "How do you solve 3x = 18?", answer: "Divide both sides by 3: x = 6" },
+                { question: "What is a two-step equation?", answer: "An equation requiring two inverse operations to solve" },
+                { question: "What is the order of steps for a two-step equation?", answer: "Undo addition/subtraction first, then undo multiplication/division" },
+                { question: "Solve: 2x + 3 = 11", answer: "2x = 8, then x = 4" },
+                { question: "Why should you check your solution?", answer: "To verify it satisfies the original equation" },
+                { question: "Solve: x/4 − 1 = 5", answer: "x/4 = 6, then x = 24" },
+                { question: "Solve: −3x = 21", answer: "x = −7" },
+                { question: "What is the distributive property?", answer: "a(b + c) = ab + ac" },
+                { question: "What are like terms?", answer: "Terms with the same variable raised to the same power" },
+                { question: "What are the steps for multi-step equations?", answer: "Distribute, combine like terms, move variable terms to one side, solve" },
+                { question: "Solve: 3(x + 2) − 4 = 11", answer: "3x + 6 − 4 = 11 → 3x + 2 = 11 → 3x = 9 → x = 3" },
+                { question: "Simplify: 5x + 3 − 2x", answer: "3x + 3" },
+                { question: "Distribute: 4(2x − 1)", answer: "8x − 4" },
+                { question: "Solve: 2(x − 3) + 4x = 18", answer: "2x − 6 + 4x = 18 → 6x = 24 → x = 4" },
+                { question: "What does combining like terms mean?", answer: "Adding or subtracting terms with the same variable and exponent" },
+                { question: "What does 'isolate the variable' mean?", answer: "Get the variable alone on one side of the equation" },
+                { question: "Solve: 5(x − 1) + 3 = 23", answer: "5x − 5 + 3 = 23 → 5x − 2 = 23 → 5x = 25 → x = 5" },
+                { question: "How do you solve equations with variables on both sides?", answer: "Move all variable terms to one side and constants to the other" },
+                { question: "What is a contradiction?", answer: "An equation that simplifies to a false statement (e.g., 0 = 5) — no solution" },
+                { question: "What is an identity?", answer: "An equation true for all values of the variable (e.g., 0 = 0) — infinitely many solutions" },
+                { question: "Solve: 4x + 2 = 2x + 10", answer: "2x = 8 → x = 4" },
+                { question: "Solve: 3x − 7 = 3x + 5", answer: "−7 = 5 — no solution (contradiction)" },
+                { question: "Solve: 2(x + 1) = 2x + 2", answer: "2x + 2 = 2x + 2 → 0 = 0 — infinitely many solutions" },
+                { question: "If you get 0 = 0(x), the equation has how many solutions?", answer: "Infinitely many solutions (identity)" },
+                { question: "If you get a false statement like 5 = 0, the equation has?", answer: "No solution (contradiction)" },
+                { question: "Solve: 5x − 3 = 2x + 9", answer: "3x = 12 → x = 4" },
+                { question: "When should you check your solution?", answer: "Always — especially when the equation may be a contradiction or identity" },
+                { question: "What is a literal equation?", answer: "An equation with two or more variables, solved for one variable in terms of the others" },
+                { question: "Solve d = rt for r", answer: "r = d/t" },
+                { question: "Solve A = ½bh for h", answer: "h = 2A/b" },
+                { question: "Solve P = 2l + 2w for w", answer: "w = (P − 2l)/2" },
+                { question: "Solve y = mx + b for x", answer: "x = (y − b)/m" },
+                { question: "Solve F = 9C/5 + 32 for C", answer: "C = 5(F − 32)/9" },
+                { question: "How do you treat other variables when solving a literal equation?", answer: "Treat them as constants and use inverse operations" },
+                { question: "Where are literal equations commonly used?", answer: "In science formulas and geometry (converting between forms)" },
+                { question: "Solve C = 2πr for r", answer: "r = C/(2π)" },
+                { question: "Why are literal equations useful?", answer: "They let you rearrange formulas to solve for any variable you need" },
+                { question: "What symbols are used for inequalities?", answer: "< (less than), > (greater than), ≤ (less than or equal), ≥ (greater than or equal)" },
+                { question: "When do you flip the inequality sign?", answer: "When multiplying or dividing both sides by a negative number" },
+                { question: "How do you graph x < 5?", answer: "Open circle at 5, shade to the left" },
+                { question: "How do you graph x ≥ 3?", answer: "Closed circle at 3, shade to the right" },
+                { question: "Solve: −2x > 6", answer: "x < −3 (flip the sign when dividing by −2)" },
+                { question: "What does an open circle mean on a number line?", answer: "The value is NOT included (< or >)" },
+                { question: "What does a closed circle mean on a number line?", answer: "The value IS included (≤ or ≥)" },
+                { question: "Solve: 2x − 1 ≥ 9", answer: "2x ≥ 10 → x ≥ 5" },
+                { question: "Solve: x/4 < 3", answer: "x < 12" },
+                { question: "Solve: −5x ≤ 15", answer: "x ≥ −3 (flip the sign)" },
+                { question: "What is a compound inequality?", answer: "Two inequalities combined with AND or OR" },
+                { question: "What does AND mean in a compound inequality?", answer: "Both conditions must be true — the solution is the intersection (overlap)" },
+                { question: "What does OR mean in a compound inequality?", answer: "At least one condition must be true — the solution is the union" },
+                { question: "Write −2 < x < 5 as a compound inequality.", answer: "x > −2 AND x < 5" },
+                { question: "Solve: −3 < x + 1 < 7", answer: "−4 < x < 6" },
+                { question: "Graph an AND inequality.", answer: "Shade the overlap region between two conditions" },
+                { question: "Graph an OR inequality.", answer: "Shade both rays (union of the two conditions)" },
+                { question: "Can a compound AND inequality have no solution?", answer: "Yes — for example, x > 5 AND x < 2 has no solution" },
+                { question: "Solve: 1 ≤ 2x − 3 ≤ 7", answer: "4 ≤ 2x ≤ 10 → 2 ≤ x ≤ 5" },
+                { question: "What does the solution of an AND compound inequality look like on a number line?", answer: "A segment between two values" },
+                { question: "What is the absolute value of a number?", answer: "Its distance from zero on a number line (always ≥ 0)" },
+                { question: "How do you solve |x| = a (a ≥ 0)?", answer: "Set up two equations: x = a or x = −a" },
+                { question: "How do you solve |x| < a?", answer: "Write −a < x < a (AND compound inequality)" },
+                { question: "How do you solve |x| > a?", answer: "Write x < −a or x > a (OR compound inequality)" },
+                { question: "Solve: |x − 3| = 5", answer: "x − 3 = 5 or x − 3 = −5 → x = 8 or x = −2" },
+                { question: "Does |x| = −3 have a solution?", answer: "No — absolute value cannot be negative" },
+                { question: "|x| < 4 describes what?", answer: "All values between −4 and 4: −4 < x < 4" },
+                { question: "|x| > 6 describes what?", answer: "All values less than −6 or greater than 6" },
+                { question: "What is |−9|?", answer: "9" },
+                { question: "|0| = ?", answer: "0" },
+                { question: "What is a system of equations?", answer: "Two or more equations with the same variables" },
+                { question: "What is the substitution method?", answer: "Solve one equation for a variable, substitute into the other, and solve" },
+                { question: "What is the elimination method?", answer: "Add or subtract equations to eliminate a variable" },
+                { question: "What does one solution mean graphically?", answer: "The two lines intersect at exactly one point" },
+                { question: "What does no solution mean graphically?", answer: "The two lines are parallel (never intersect)" },
+                { question: "What does infinitely many solutions mean graphically?", answer: "The two lines are the same line (coincide)" },
+                { question: "Solve: y = 2x, x + y = 9", answer: "x + 2x = 9 → 3x = 9 → x = 3, y = 6" },
+                { question: "When is elimination most efficient?", answer: "When coefficients of one variable are the same or opposites" },
+                { question: "When is substitution most efficient?", answer: "When one equation is already solved for a variable" },
+                { question: "What might you need to do before elimination?", answer: "Multiply one or both equations so a variable's coefficients match or are opposites" },
+                { question: "What is a system of inequalities?", answer: "Two or more inequalities graphed on the same coordinate plane" },
+                { question: "Where is the solution to a system of inequalities?", answer: "The region where the shaded areas of all inequalities overlap" },
+                { question: "When do you use a dashed line?", answer: "For strict inequalities (< or >) — points on the line are NOT included" },
+                { question: "When do you use a solid line?", answer: "For ≤ or ≥ — points on the line ARE included" },
+                { question: "How do you determine which side to shade?", answer: "Test a point (usually the origin) — shade the side that satisfies the inequality" },
+                { question: "Can a system of inequalities have no solution?", answer: "Yes — if the shaded regions do not overlap" },
+                { question: "To graph y > 2x + 1, draw:", answer: "A dashed line for y = 2x + 1, then shade above" },
+                { question: "Can a system of inequalities have infinitely many solutions?", answer: "Yes — the solution is typically a region containing infinitely many points" },
+                { question: "How do you shade a system of inequalities?", answer: "Graph each inequality, shade the appropriate side, and identify the overlapping region" },
+                { question: "What does the boundary line represent?", answer: "The equation y = mx + b; solid if ≤ or ≥, dashed if < or >" }
+    
+    
+    ];
+</script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

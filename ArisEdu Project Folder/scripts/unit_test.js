@@ -3,6 +3,18 @@
 
 (function () {
   function _t(key, fallback) {
+    var langMode = null;
+    try { langMode = localStorage.getItem('arisEduLanguage'); } catch(e) {}
+    
+    // Default to English if no language preference
+    var isChineseMode = (langMode === 'chinese' || langMode === 'traditional' || langMode === 'zh');
+    
+    if (!isChineseMode) {
+        // English mode: return English (key itself as fallback)
+        return fallback || key;
+    }
+    
+    // Chinese mode: return Chinese translation
     var t = window.arisEduTranslations || window.globalTranslations;
     return (t && t[key]) || fallback || key;
   }
@@ -161,7 +173,7 @@
             <div class="Practices-panel-item"><a href="#blockpuzzle">Block Puzzle</a></div>
           </div>
         </div>
-        <button class="side-button" onclick="showQuiz()" style="text-align:center;text-decoration:none;display:block;">Take the test</button>
+        <button class="side-button" id="take-test-btn" style="text-align:center;text-decoration:none;display:block;">Take the test</button>
       </div>
     `;
   }
@@ -177,25 +189,40 @@
     const quizForm = document.getElementById('quiz-form');
     if (!quizForm) return;
 
-    // Detect physics vs chemistry from URL
-    var isPhysics = window.location.pathname.toLowerCase().includes('physicslessons');
-    var backUrl = isPhysics ? '../../physics.html' : '../../chem.html';
-    var backLabel = isPhysics ? 'Back to Physics' : 'Back to Chemistry';
+    // Detect course from URL for 'Back to Course' button
+    var coursePath = decodeURIComponent(window.location.pathname).toLowerCase();
+    var courseMap = {
+      'algebra1lessons': { url: '../../algebra1.html', label: 'Back to Algebra 1' },
+      'algebra2lessons': { url: '../../algebra2.html', label: 'Back to Algebra 2' },
+      'geometrylessons': { url: '../../geometry.html', label: 'Back to Geometry' },
+      'physicslessons':  { url: '../../physics.html',  label: 'Back to Physics' },
+      'chemistrylessons': { url: '../../chem.html',    label: 'Back to Chemistry' },
+      'biologylessons':  { url: '../../bio.html',      label: 'Back to Biology' }
+    };
+    var backUrl = '../../Courses.html';
+    var backLabel = 'Back to Course';
+    Object.keys(courseMap).forEach(function(key) {
+      if (coursePath.includes(key)) {
+        backUrl = courseMap[key].url;
+        backLabel = courseMap[key].label;
+      }
+    });
 
     // Insert after quiz-form
     const finishHTML = `
       <div id="quiz-results" style="margin-top:2rem;font-weight:bold;display:none;padding:1rem;border-radius:0.5rem;"></div>
       <div id="quiz-finish-screen" style="display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;border-radius:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.1);margin-top:2rem;">
-        <h2 style="font-size:2rem;font-weight:700;margin-bottom:1rem;">Quiz Completed!</h2>
-        <div style="font-size:1.25rem;margin-bottom:0.5rem;">Score: <span id="quiz-final-score">0/5</span></div>
-        <div style="font-size:1.25rem;margin-bottom:0.5rem;">Percentage: <span id="quiz-final-percent">0%</span></div>
-        <div style="font-size:1.25rem;margin-bottom:1.5rem;">Time Spent: <span id="quiz-time-spent">00:00</span></div>
-        <button class="side-button" onclick="location.reload()" style="margin-bottom:1rem;">Retake Quiz</button>
-        <button class="side-button" onclick="window.location.href='${backUrl}'">${backLabel}</button>
-      </div>
-      <div style="display:flex;justify-content:flex-end;margin-top:2rem;margin-bottom:2rem;">
-        <button class="side-button" onclick="showPractice()" style="margin-right:1rem;">Back to Practice</button>
-        <button class="side-button" onclick="window.location.href='${backUrl}'">${backLabel}</button>
+        <h2 style="font-size:2rem;font-weight:700;margin-bottom:1.5rem;">🎉 Quiz Completed!</h2>
+        <div style="font-size:1.25rem;margin-bottom:0.75rem;">Score: <span id="quiz-final-score" style="font-weight:700;">0/5</span></div>
+        <div style="font-size:1.25rem;margin-bottom:0.75rem;">Percentage: <span id="quiz-final-percent" style="font-weight:700;">0%</span></div>
+        <div style="font-size:1.25rem;margin-bottom:2rem;">Time Spent: <span id="quiz-time-spent" style="font-weight:700;">00:00</span></div>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;width:100%;">
+          <button class="side-button" onclick="location.reload()" style="flex:1;min-width:150px;">Retake Quiz</button>
+          <button class="side-button" onclick="window.location.href='${backUrl}'" style="flex:1;min-width:150px;">${backLabel}</button>
+        </div>
+        <div style="margin-top:1.5rem;width:100%;">
+          <button class="side-button" onclick="navigateBackToPractice()" style="width:100%;margin-bottom:0.5rem;">Back to Practice</button>
+        </div>
       </div>
     `;
 
@@ -212,6 +239,10 @@
         background: #f8fafc;
         color: #0f172a;
         transition: background-color 0.3s, color 0.3s;
+        width: 100%;
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem !important;
       }
       #quiz-finish-screen h2 { color: #0f172a; }
       #quiz-finish-screen div { color: #334155; }
@@ -246,6 +277,20 @@
     if (typeof window.initFlashcards === 'function') window.initFlashcards();
   };
 
+  // ========== 4b. Navigate back to practice (works on test-only pages) ==========
+  window.navigateBackToPractice = function () {
+    var practiceView = document.getElementById('practice-content-view');
+    if (practiceView) {
+      // Combined page — just show practice view
+      showPractice();
+    } else {
+      // Test-only page — navigate to _Test_Practice.html
+      var currentUrl = window.location.href;
+      var practiceUrl = currentUrl.replace('_Test.html', '_Test_Practice.html');
+      window.location.href = practiceUrl;
+    }
+  };
+
   // ========== 5. Show Quiz / Show Practice ==========
   var quizStartTime = 0;
 
@@ -265,8 +310,10 @@
   };
 
   window.showPractice = function () {
-    document.getElementById('quiz-content-view').style.display = 'none';
-    document.getElementById('practice-content-view').style.display = 'block';
+    var quizView = document.getElementById('quiz-content-view');
+    var practiceView = document.getElementById('practice-content-view');
+    if (quizView) quizView.style.display = 'none';
+    if (practiceView) practiceView.style.display = 'block';
     window.scrollTo(0, 0);
   };
 
@@ -297,22 +344,31 @@
       if (correctCount === totalQuestions) {
         var testPath = decodeURIComponent(window.location.pathname);
         var unitMatch = testPath.match(/Unit(\w+)_Test/);
-        var isPhysicsPath = testPath.toLowerCase().includes('physicslessons');
+        
         if (unitMatch) {
           var unitId = unitMatch[1];
           var lessonNum;
-          if (isPhysicsPath) {
-            // Physics: unit → test lesson number on physics.html course map
+          var coursePrefix;
+          
+          // Detect course from path
+          if (testPath.includes('Algebra1Lessons')) {
+            coursePrefix = 'alg1';
+            lessonNum = 10; // Unit tests are lesson 10
+          } else if (testPath.includes('Algebra2Lessons')) {
+            coursePrefix = 'alg2';
+            lessonNum = 10; // Unit tests are lesson 10
+          } else if (testPath.includes('GeometryLessons')) {
+            coursePrefix = 'geometry';
+            lessonNum = 8; // Unit tests are lesson 8 in geometry
+          } else if (testPath.includes('PhysicsLessons')) {
+            coursePrefix = 'physics';
             var physicsTestLessonMap = {
               '1': 7, '2': 7, '3': 9, '4': 7, '5': 7, '6': 7,
               '7': 9, '8': 7, '9': 7, '10': 10, '11': 7
             };
             lessonNum = physicsTestLessonMap[unitId];
-            if (lessonNum) {
-              localStorage.setItem('phys_u' + unitId + '_l' + lessonNum + '_completed', 'true');
-            }
-          } else {
-            // Chemistry: original map
+          } else if (testPath.includes('ChemistryLessons')) {
+            coursePrefix = 'chem';
             var chemTestLessonMap = {
               '1': 9, '2': 6, '3': 9, '4': 10,
               '5A': 9, '5B': 6,
@@ -320,9 +376,13 @@
               '10': 11, '11': 7, '12': 6
             };
             lessonNum = chemTestLessonMap[unitId];
-            if (lessonNum) {
-              localStorage.setItem('chem_u' + unitId + '_l' + lessonNum + '_completed', 'true');
-            }
+          } else if (testPath.includes('BiologyLessons')) {
+            coursePrefix = 'bio';
+            lessonNum = 8; // Assuming same as geometry
+          }
+          
+          if (coursePrefix && lessonNum) {
+            localStorage.setItem(coursePrefix + '_u' + unitId + '_l' + lessonNum + '_completed', 'true');
           }
         }
       }
@@ -622,10 +682,49 @@
 
   // ========== 8. Init on DOMContentLoaded ==========
   document.addEventListener('DOMContentLoaded', function () {
-    injectPracticeGamesHTML();
-    injectQuizFinishStyles();
-    injectQuizFinishScreen();
-    showPractice();
+    var hasPracticeView = !!document.getElementById('practice-content-view');
+    var hasQuizView = !!document.getElementById('quiz-content-view');
+    
+    if (hasPracticeView && hasQuizView) {
+      // Combined page — inject games HTML and show practice
+      injectPracticeGamesHTML();
+      showPractice();
+    } else if (hasPracticeView && !hasQuizView) {
+      // Practice-only page (_Test_Practice.html) — already has flashcard HTML
+      // Do NOT call injectPracticeGamesHTML() as it would destroy existing content
+      // Just reset flashcards init flag so they can be initialized with the existing DOM
+      window.flashcardsInitialized = false;
+      if (typeof window.initFlashcards === 'function') window.initFlashcards();
+      showPractice();
+    }
+    
+    if (hasQuizView) {
+      // Test page or combined page — inject finish screen
+      injectQuizFinishStyles();
+      injectQuizFinishScreen();
+      
+      // If no practice view, show quiz directly and start timer
+      if (!hasPracticeView) {
+        quizStartTime = Date.now();
+        var quizView = document.getElementById('quiz-content-view');
+        if (quizView) quizView.style.display = 'block';
+      }
+    }
+
+    // "Take the test" button — navigate to _Test.html on practice-only pages, or switch view
+    var takeTestBtn = document.getElementById('take-test-btn');
+    if (takeTestBtn) {
+      takeTestBtn.addEventListener('click', function () {
+        if (hasQuizView) {
+          // Combined page — switch to quiz view
+          window.showQuiz();
+        } else {
+          // Practice-only page — navigate to test file
+          var currentUrl = window.location.href;
+          window.location.href = currentUrl.replace('_Test_Practice.html', '_Test.html');
+        }
+      });
+    }
 
     // Attach listeners to practice menu items
     document.querySelectorAll('a[href="#climb"]').forEach(function (el) {

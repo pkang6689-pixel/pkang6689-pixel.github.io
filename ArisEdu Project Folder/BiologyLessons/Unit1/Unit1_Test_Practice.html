@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 1: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 1 Review Flashcards</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../bio.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Biology</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit1_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+    window.lessonFlashcards = [
+        { question: "What is biology?", answer: "The scientific study of life and living organisms" },
+        { question: "What does \\'bios\\' mean in Greek?", answer: "Life" },
+        { question: "What does \\'logos\\' mean in Greek?", answer: "Study or knowledge" },
+        { question: "Name three reasons to study biology.", answer: "Understanding health/disease, developing medicines, addressing environmental challenges" },
+        { question: "What sciences does modern biology integrate?", answer: "Chemistry, physics, and mathematics" },
+        { question: "What is the scope of biology?", answer: "From microscopic bacteria to massive ecosystems" },
+        { question: "How does biology help with disease?", answer: "By understanding causes, prevention, and treatment of illnesses" },
+        { question: "How does biology impact agriculture?", answer: "By improving crop yields, disease resistance, and food production" },
+        { question: "What makes something \\'living\\'?", answer: "It exhibits characteristics of life like metabolism, growth, and reproduction" },
+        { question: "Why is biology considered an interdisciplinary science?", answer: "It combines principles from chemistry, physics, and math to study life" },
+        { question: "What is the scientific method?", answer: "A systematic approach to investigating phenomena through observation, hypothesis, experimentation, and conclusion" },
+        { question: "What is a hypothesis?", answer: "A testable explanation for observations" },
+        { question: "What is a control group?", answer: "A group in an experiment that is not exposed to the variable being tested" },
+        { question: "What does \\'reproducible\\' mean in science?", answer: "Other scientists can repeat the experiment and get the same results" },
+        { question: "What is a variable in an experiment?", answer: "A factor that can be changed or controlled" },
+        { question: "What is the independent variable?", answer: "The variable that the scientist changes or manipulates" },
+        { question: "What is the dependent variable?", answer: "The variable that is measured in response to changes" },
+        { question: "What is data in science?", answer: "Information collected during an experiment" },
+        { question: "Why do scientists use controls?", answer: "To have a baseline for comparing experimental results" },
+        { question: "What makes an experiment valid?", answer: "Proper controls, single variable changes, and reproducibility" },
+        { question: "What does \\'empirical\\' mean?", answer: "Based on observation and experimentation" },
+        { question: "What is a scientific theory?", answer: "A well-tested explanation supported by extensive evidence" },
+        { question: "What is a scientific law?", answer: "A description of a natural phenomenon that always occurs" },
+        { question: "Why is science considered \\'tentative\\'?", answer: "Because conclusions can change with new evidence" },
+        { question: "What does \\'objective\\' mean in science?", answer: "Minimizing personal bias in observations and conclusions" },
+        { question: "Give an example of a scientific theory.", answer: "Cell theory, theory of evolution, germ theory" },
+        { question: "Give an example of a scientific law.", answer: "Law of gravity, laws of thermodynamics" },
+        { question: "What does \\'testable\\' mean?", answer: "Claims can be verified or proven false through experimentation" },
+        { question: "How is a theory different from a guess?", answer: "A theory is supported by extensive evidence and testing" },
+        { question: "Why must science be evidence-based?", answer: "To ensure conclusions are based on facts, not opinions" },
+        { question: "What is homeostasis?", answer: "Maintaining stable internal conditions" },
+        { question: "What is metabolism?", answer: "Chemical reactions to obtain and use energy" },
+        { question: "What is the basic unit of life?", answer: "The cell" },
+        { question: "What does \\'response to stimuli\\' mean?", answer: "Reacting to changes in the environment" },
+        { question: "What is adaptation?", answer: "Evolving over generations to better survive in an environment" },
+        { question: "Name the 7 characteristics of life.", answer: "Organization, metabolism, homeostasis, growth, reproduction, response, adaptation" },
+        { question: "What is reproduction?", answer: "The process of producing offspring" },
+        { question: "What is growth in living things?", answer: "An increase in size and/or number of cells" },
+        { question: "Why is organization important for life?", answer: "Cells provide structure and carry out life functions" },
+        { question: "How do organisms maintain homeostasis?", answer: "Through internal regulation of temperature, pH, water, etc." },
+        { question: "What is a population?", answer: "All members of one species living in the same area" },
+        { question: "What is a community?", answer: "All populations of different species living in the same area" },
+        { question: "What is an ecosystem?", answer: "A community plus its physical environment" },
+        { question: "What is the biosphere?", answer: "All ecosystems on Earth; the global sum of all life" },
+        { question: "What is the correct order from smallest to largest?", answer: "Cell → Tissue → Organ → Organ System → Organism" },
+        { question: "What is an organelle?", answer: "A specialized structure within a cell that performs a specific function" },
+        { question: "What is a tissue?", answer: "A group of similar cells working together" },
+        { question: "What is an organ?", answer: "A structure made of different tissues working together" },
+        { question: "What is an organ system?", answer: "Multiple organs working together for a common function" },
+        { question: "What is the smallest level of life?", answer: "Atom, then molecule" },
+        { question: "What is zoology?", answer: "The study of animals" },
+        { question: "What is botany?", answer: "The study of plants" },
+        { question: "What is microbiology?", answer: "The study of microorganisms" },
+        { question: "What is genetics?", answer: "The study of heredity and genes" },
+        { question: "What is ecology?", answer: "The study of organisms and their environments" },
+        { question: "What is the difference between anatomy and physiology?", answer: "Anatomy studies structure; physiology studies function" },
+        { question: "What is biochemistry?", answer: "The study of chemical processes in living things" },
+        { question: "What is cell biology?", answer: "The study of cell structure and function" },
+        { question: "What is marine biology?", answer: "The study of ocean organisms and ecosystems" },
+        { question: "What is immunology?", answer: "The study of the immune system" },
+        { question: "Name three healthcare careers related to biology.", answer: "Doctor, nurse, pharmacist" },
+        { question: "What does a wildlife biologist do?", answer: "Studies animals in their natural habitats and works on conservation" },
+        { question: "What is biotechnology?", answer: "The use of living systems to develop products and technologies" },
+        { question: "What degree is typically needed for biology careers?", answer: "At least a bachelor\\'s degree" },
+        { question: "What does a forensic scientist do?", answer: "Applies biological knowledge to solve crimes" },
+        { question: "What does an ecologist study?", answer: "The relationships between organisms and their environment" },
+        { question: "What is a genetic engineer?", answer: "A scientist who modifies genes to create desired traits" },
+        { question: "What does a pharmacist do?", answer: "Prepares and dispenses medications" },
+        { question: "What does an agronomist do?", answer: "Studies crops and soil to improve food production" },
+        { question: "What advanced degree helps biology careers?", answer: "Master\\'s or doctoral degree" }
+    ];
+</script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

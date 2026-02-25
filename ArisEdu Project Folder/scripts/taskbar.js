@@ -86,9 +86,10 @@
         '<a class="taskbar-button" href="/ArisEdu Project Folder/Courses.html" id="course-button">\uD83D\uDCDA Courses</a>' +
         '<button class="taskbar-button" id="ai-assistant-button">\uD83E\uDD16 AI (WIP)</button>' +
         '<button class="taskbar-button" id="settings-button">\u2699\uFE0F Settings</button>' +
+        '<a class="taskbar-button" href="/ArisEdu Project Folder/arcade.html" id="arcade-button">\uD83D\uDC7E Arcade</a>' +
         '<a class="taskbar-button" href="/ArisEdu Project Folder/LoginSignup.html" id="login-signup-button">\uD83D\uDD10 Login/Signup</a>' +
         '<button id="language-toggle-button" title="Switch Language" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:2000;background:none;border:none;color:rgba(255,255,255,0.85);cursor:pointer;padding:0.3rem 0.5rem;display:inline-flex;align-items:center;"><svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg></button>' +
-        '<div id="language-dropdown" style="display:none;position:absolute;right:0;top:100%;z-index:2001;min-width:160px;background:var(--card-bg,#1e1e2e);border:1px solid var(--border-color,#444);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.35);overflow:hidden;">' +
+        '<div id="language-dropdown" style="display:none;position:fixed;z-index:10000;min-width:160px;background:var(--card-bg,#1e1e2e);border:1px solid var(--border-color,#444);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.35);overflow:hidden;">' +
           '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">English</button>' +
           '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">中文</button>' +
           '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
@@ -127,7 +128,13 @@
       e.stopPropagation();
       var open = dropdown.style.display !== 'none';
       dropdown.style.display = open ? 'none' : 'block';
-      if (!open) updateHighlight();
+      if (!open) {
+        var rect = langBtn.getBoundingClientRect();
+        dropdown.style.top = rect.bottom + 4 + 'px';
+        dropdown.style.left = '';
+        dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+        updateHighlight();
+      }
     });
 
     // Hover effect on options
@@ -647,16 +654,32 @@
   // --- Settings toggle ---
   var settingsBtn = document.getElementById('settings-button');
   if (settingsBtn) {
-    settingsBtn.addEventListener('click', function () {
+    settingsBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
       var menu = document.getElementById('settings-menu');
       if (!menu) return;
       var isHidden = menu.getAttribute('aria-hidden') === 'true';
       menu.setAttribute('aria-hidden', String(!isHidden));
       if (isHidden) {
+        var rect = settingsBtn.getBoundingClientRect();
+        menu.style.top = rect.bottom + 4 + 'px';
+        menu.style.left = rect.left + 'px';
         menu.style.visibility = 'visible';
         menu.style.opacity = '1';
         menu.style.transform = 'translateY(0)';
       } else {
+        menu.style.visibility = 'hidden';
+        menu.style.opacity = '0';
+        menu.style.transform = 'translateY(-6px)';
+      }
+    });
+
+    // Close settings menu when clicking outside
+    document.addEventListener('click', function (e) {
+      var menu = document.getElementById('settings-menu');
+      if (!menu) return;
+      if (!menu.contains(e.target) && e.target !== settingsBtn) {
+        menu.setAttribute('aria-hidden', 'true');
         menu.style.visibility = 'hidden';
         menu.style.opacity = '0';
         menu.style.transform = 'translateY(-6px)';
@@ -687,22 +710,20 @@
     });
   }
 
-  // --- Settings menu alignment ---
+  // --- Settings menu: move to body so it's not clipped by taskbar overflow ---
   (function () {
-    var sBtn = document.getElementById('settings-button');
     var sMenu = document.getElementById('settings-menu');
-    if (!sBtn || !sMenu) return;
-    var wrapper = document.createElement('span');
-    wrapper.style.position = 'relative';
-    wrapper.style.display = 'inline-flex';
-    sBtn.parentElement.insertBefore(wrapper, sBtn);
-    wrapper.appendChild(sBtn);
-    wrapper.appendChild(sMenu);
-    sMenu.style.position = 'absolute';
-    sMenu.style.top = '100%';
-    sMenu.style.left = '0';
-    sMenu.style.right = 'auto';
-    sMenu.style.marginTop = '0.35rem';
+    if (sMenu && sMenu.parentElement) {
+      document.body.appendChild(sMenu);
+    }
+  })();
+
+  // --- Language dropdown: move to body so it's not clipped by taskbar overflow ---
+  (function () {
+    var langDrop = document.getElementById('language-dropdown');
+    if (langDrop && langDrop.parentElement) {
+      document.body.appendChild(langDrop);
+    }
   })();
 
   // --- Login / Signup account display ---
@@ -726,12 +747,8 @@
     menu.className = 'account-menu';
     menu.setAttribute('role', 'menu');
     menu.setAttribute('aria-hidden', 'true');
-    menu.style.position = 'absolute';
-    menu.style.top = '100%';
-    menu.style.left = '0';
-    menu.style.right = 'auto';
+    menu.style.position = 'fixed';
     menu.style.minWidth = '160px';
-    menu.style.marginTop = '0.35rem';
     menu.style.background = isDarkMode ? '#0f172a' : 'white';
     menu.style.border = isDarkMode ? '1px solid #1f2937' : '1px solid #e2e8f0';
     menu.style.borderRadius = '0.5rem';
@@ -740,7 +757,7 @@
       : '0 10px 20px rgba(2, 6, 23, 0.15)';
     menu.style.padding = '0.4rem';
     menu.style.display = 'none';
-    menu.style.zIndex = '2000';
+    menu.style.zIndex = '10000';
 
     var logoutButton = document.createElement('button');
     logoutButton.type = 'button';
@@ -803,15 +820,8 @@
     menu.appendChild(accountInfoLink);
     menu.appendChild(logoutButton);
 
-    var parent = loginButton.parentElement;
-    if (parent) {
-      var wrapper = document.createElement('span');
-      wrapper.style.position = 'relative';
-      wrapper.style.display = 'inline-flex';
-      parent.insertBefore(wrapper, loginButton);
-      wrapper.appendChild(loginButton);
-      wrapper.appendChild(menu);
-    }
+    // Append to body so it's not clipped by taskbar overflow
+    document.body.appendChild(menu);
 
     function closeMenu() {
       menu.style.display = 'none';
@@ -821,10 +831,14 @@
 
     function toggleMenu(event) {
       event.preventDefault();
+      event.stopPropagation();
       var isOpen = menu.style.display === 'block';
       if (isOpen) {
         closeMenu();
       } else {
+        var rect = loginButton.getBoundingClientRect();
+        menu.style.top = rect.bottom + 4 + 'px';
+        menu.style.left = rect.left + 'px';
         menu.style.display = 'block';
         menu.setAttribute('aria-hidden', 'false');
         loginButton.setAttribute('aria-expanded', 'true');
@@ -881,4 +895,9 @@
       }
     });
   })();
+
+  // Load update notifier
+  var updateScript = document.createElement('script');
+  updateScript.src = '/ArisEdu Project Folder/scripts/update_notifier.js';
+  document.head.appendChild(updateScript);
 })();

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 1: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="/quiz_logic.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }
+    
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 1 Practice</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../chem.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Chemistry</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit1_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+window.lessonFlashcards = [
+    { question: "Which state of matter has a definite shape and volume?", answer: "Solid" },
+    { question: "Which state of matter has a definite volume but takes the shape of its container?", answer: "Liquid" },
+    { question: "Which state of matter has no definite shape or volume?", answer: "Gas" },
+    { question: "In which state do particles vibrate in fixed positions?", answer: "Solid" },
+    { question: "In which state do particles move freely at high speeds?", answer: "Gas" },
+    { question: "In which state do particles slide past one another?", answer: "Liquid" },
+    { question: "What happens to the shape of a liquid when poured into a new container?", answer: "It takes the shape of the container" },
+    { question: "Do gases have a definite volume?", answer: "No, they expand to fill the container" },
+    { question: "Which state of matter is the most compressible?", answer: "Gas" },
+    { question: "Which state has the strongest attraction between particles?", answer: "Solid" },
+    { question: "What is the change from Solid to Liquid called?", answer: "Melting" },
+    { question: "What is the change from Liquid to Solid called?", answer: "Freezing" },
+    { question: "What is the change from Liquid to Gas called?", answer: "Vaporization" },
+    { question: "What is the change from Gas to Liquid called?", answer: "Condensation" },
+    { question: "What is the change from Solid directly to Gas called?", answer: "Sublimation" },
+    { question: "What is the change from Gas directly to Solid called?", answer: "Deposition" },
+    { question: "Is energy absorbed or released during melting?", answer: "Absorbed" },
+    { question: "Is energy absorbed or released during freezing?", answer: "Released" },
+    { question: "What happens to particle motion as a substance melts?", answer: "Increases" },
+    { question: "Does temperature change during a phase change?", answer: "No, it remains constant" },
+    { question: "What is an intensive property?", answer: "A property that does NOT depend on the amount of matter" },
+    { question: "What is an extensive property?", answer: "A property that DOES depend on the amount of matter" },
+    { question: "Is density intensive or extensive?", answer: "Intensive" },
+    { question: "Is mass intensive or extensive?", answer: "Extensive" },
+    { question: "Is boiling point intensive or extensive?", answer: "Intensive" },
+    { question: "Is volume intensive or extensive?", answer: "Extensive" },
+    { question: "Give an example of an intensive property.", answer: "Density, color, or boiling point" },
+    { question: "Give an example of an extensive property.", answer: "Mass, volume, or length" },
+    { question: "Does color change with sample size?", answer: "No, color is an intensive property" },
+    { question: "Does length change with sample size?", answer: "Yes, length is an extensive property" },
+    { question: "What is the formula for density?", answer: "Density = Mass / Volume" },
+    { question: "What happens to density if mass increases (volume constant)?", answer: "Increases" },
+    { question: "What happens to density if volume increases (mass constant)?", answer: "Decreases" },
+    { question: "Standard unit for mass?", answer: "Kg or g" },
+    { question: "Standard unit for volume (liquid)?", answer: "mL or L" },
+    { question: "How to find volume of irregular solid?", answer: "Water displacement" },
+    { question: "Is density physical or chemical property?", answer: "Physical" },
+    { question: "Which is denser: Oil or Water?", answer: "Water" },
+    { question: "Objects less dense than fluid will...", answer: "Float" },
+    { question: "1 mL is equal to...", answer: "1 cm^3" },
+    { question: "What is a mixture?", answer: "A combination of two or more substances not chemically bonded" },
+    { question: "What is a homogeneous mixture?", answer: "A mixture with uniform composition throughout (a solution)" },
+    { question: "What is a heterogeneous mixture?", answer: "A mixture with non-uniform composition; parts can be distinguished" },
+    { question: "Give an example of a homogeneous mixture.", answer: "Saltwater" },
+    { question: "Give an example of a heterogeneous mixture.", answer: "Trail mix or salad" },
+    { question: "What is a solution?", answer: "A homogeneous mixture with solute evenly distributed in solvent" },
+    { question: "What is a colloid?", answer: "A mixture with tiny dispersed particles that do not settle" },
+    { question: "What is a suspension?", answer: "A mixture with large particles that settle out over time" },
+    { question: "Is milk a colloid or a solution?", answer: "A colloid" },
+    { question: "Can the parts of a homogeneous mixture be seen with the naked eye?", answer: "No" },
+    { question: "What is a physical property?", answer: "A characteristic observed without changing the substance's identity" },
+    { question: "What is a chemical property?", answer: "A characteristic describing a substance's ability to form new substances" },
+    { question: "Is color a physical or chemical property?", answer: "Physical property" },
+    { question: "Is flammability a physical or chemical property?", answer: "Chemical property" },
+    { question: "Is density a physical or chemical property?", answer: "Physical property" },
+    { question: "Is reactivity a physical or chemical property?", answer: "Chemical property" },
+    { question: "Give two examples of physical properties.", answer: "Color and melting point" },
+    { question: "Give two examples of chemical properties.", answer: "Flammability and reactivity" },
+    { question: "What is malleability?", answer: "The ability to be hammered into thin sheets" },
+    { question: "What is conductivity?", answer: "The ability to conduct heat or electricity" },
+    { question: "What is a physical change?", answer: "A change in form or appearance, not in composition" },
+    { question: "What is a chemical change?", answer: "A change that produces new substances with new properties" },
+    { question: "Is melting ice a physical or chemical change?", answer: "Physical change" },
+    { question: "Is burning wood a physical or chemical change?", answer: "Chemical change" },
+    { question: "Name three signs of a chemical change.", answer: "Color change, gas production, temperature change" },
+    { question: "Is dissolving sugar a physical or chemical change?", answer: "Physical change" },
+    { question: "Is rusting iron a physical or chemical change?", answer: "Chemical change" },
+    { question: "Can physical changes usually be reversed?", answer: "Yes" },
+    { question: "Can chemical changes usually be reversed?", answer: "No, most are irreversible" },
+    { question: "What law states matter cannot be created or destroyed?", answer: "Law of Conservation of Mass" },
+    { question: "What is energy?", answer: "The ability to do work or cause change" },
+    { question: "What is kinetic energy?", answer: "The energy of motion" },
+    { question: "What is potential energy?", answer: "Stored energy based on position or composition" },
+    { question: "What is thermal energy?", answer: "The total kinetic energy of all particles in a substance" },
+    { question: "What is an endothermic process?", answer: "A process that absorbs energy from the surroundings" },
+    { question: "What is an exothermic process?", answer: "A process that releases energy to the surroundings" },
+    { question: "Does an endothermic process feel warm or cold?", answer: "Cold (it absorbs heat from surroundings)" },
+    { question: "Does an exothermic process feel warm or cold?", answer: "Warm (it releases heat to surroundings)" },
+    { question: "What is the Law of Conservation of Energy?", answer: "Energy cannot be created or destroyed, only transformed" },
+    { question: "Does temperature increase as particle motion increases?", answer: "Yes" }
+];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/dev_tools.js"></script>
+<script src="../../scripts/blocks_puzzle.js"></script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

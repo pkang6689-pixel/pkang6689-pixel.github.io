@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 5: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 5 Review Flashcards</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../bio.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Biology</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit5_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+    window.lessonFlashcards = [
+        { question: "What is biodiversity?", answer: "A key topic in biology covering important concepts related to biodiversity" },
+        { question: "Why is biodiversity important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in biodiversity?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does biodiversity relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of biodiversity?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of biodiversity in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is biodiversity studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does biodiversity have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for biodiversity?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about biodiversity?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is threats to biodiversity?", answer: "A key topic in biology covering important concepts related to threats to biodiversity" },
+        { question: "Why is threats to biodiversity important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in threats to biodiversity?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does threats to biodiversity relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of threats to biodiversity?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of threats to biodiversity in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is threats to biodiversity studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does threats to biodiversity have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for threats to biodiversity?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about threats to biodiversity?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is conserving biodiversity?", answer: "A key topic in biology covering important concepts related to conserving biodiversity" },
+        { question: "Why is conserving biodiversity important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in conserving biodiversity?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does conserving biodiversity relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of conserving biodiversity?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of conserving biodiversity in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is conserving biodiversity studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does conserving biodiversity have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for conserving biodiversity?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about conserving biodiversity?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is endangered species and conservation strategies?", answer: "A key topic in biology covering important concepts related to endangered species and conservation strategies" },
+        { question: "Why is endangered species and conservation strategies important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in endangered species and conservation strategies?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does endangered species and conservation strategies relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of endangered species and conservation strategies?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of endangered species and conservation strategies in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is endangered species and conservation strategies studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does endangered species and conservation strategies have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for endangered species and conservation strategies?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about endangered species and conservation strategies?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is global conservation efforts?", answer: "A key topic in biology covering important concepts related to global conservation efforts" },
+        { question: "Why is global conservation efforts important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in global conservation efforts?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does global conservation efforts relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of global conservation efforts?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of global conservation efforts in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is global conservation efforts studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does global conservation efforts have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for global conservation efforts?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about global conservation efforts?", answer: "Key concepts, processes, and their significance" }
+    ];
+</script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>

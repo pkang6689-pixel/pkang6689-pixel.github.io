@@ -16,41 +16,12 @@
 <body class="dark-mode h-full">
 <script src="../../scripts/taskbar.js"></script>
 <main class="main-container">
-<div id="practice-content-view">
-<h2 class="page-title">Unit 4 Review Flashcards</h2>
-<div class="diagram-card">
-<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
-<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
-<span id="flashcard-content" style="width:100%;display:block;"></span>
-</div>
-<div style="display:flex;gap:1rem;">
-<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
-<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
-</svg>
-</button>
-<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
-<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
-</svg>
-</button>
-<button id="shuffle-flashcard" title="Shuffle flashcards">
-<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-</svg>
-Shuffle
-</button>
-<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
-</div>
-</div>
-<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
-<button class="side-button" onclick="document.getElementById('practice-content-view').style.display='none';document.getElementById('quiz-content-view').style.display='block';" style="text-align:center;">Start Unit Test</button>
-</div>
-</div>
-</div>
-
 <div id="quiz-content-view">
 <h2 class="page-title">Unit 4: Functions - Unit Test</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='Unit4_Test_Practice.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">← Back to Practice</button>
+  <button class="side-button" onclick="window.location.href='../../algebra1.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Algebra 1</button>
+</div>
 <div class="diagram-card">
 <div class="quiz-container">
 <form id="quiz-form">
@@ -382,6 +353,7 @@ Shuffle
 </div>
 </div>
 </div>
+
 </main>
 <script src="../../scripts/unit_test.js"></script>
 <script src="/quiz_logic.js"></script>
@@ -391,92 +363,7 @@ Shuffle
 <script src="../../../search_logic.js"></script>
 <script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
 
-<script>
-    window.lessonFlashcards = [
-                { question: "What is a relation?", answer: "Any set of ordered pairs (x, y)" },
-                { question: "What is the domain?", answer: "The set of all input values (x-values)" },
-                { question: "What is the range?", answer: "The set of all output values (y-values)" },
-                { question: "What is a function?", answer: "A relation where each input has exactly one output" },
-                { question: "What is the vertical line test?", answer: "If any vertical line crosses a graph more than once, it is NOT a function" },
-                { question: "Is {(1,2), (3,4), (1,5)} a function?", answer: "No — x = 1 maps to two different outputs" },
-                { question: "Is a circle a function?", answer: "No — it fails the vertical line test" },
-                { question: "Name four ways to represent a function.", answer: "Table, graph, equation, or mapping diagram" },
-                { question: "What is a mapping diagram?", answer: "A diagram showing arrows from inputs (domain) to outputs (range)" },
-                { question: "Can a function have the same output for different inputs?", answer: "Yes — e.g., f(x) = x² gives f(2) = f(−2) = 4" },
-                { question: "What does f(x) mean?", answer: "f of x — the output of function f for input x" },
-                { question: "If f(x) = 2x + 1, what is f(4)?", answer: "2(4) + 1 = 9" },
-                { question: "What does f(0) represent?", answer: "The output when x = 0 (usually the y-intercept)" },
-                { question: "If g(x) = x² + 1, find g(3).", answer: "3² + 1 = 10" },
-                { question: "Can different letters name different functions?", answer: "Yes — f(x), g(x), h(x), etc." },
-                { question: "What is a constant function?", answer: "A function like f(x) = 5 where the output never changes" },
-                { question: "If f(x) = x/2 + 3, find f(10).", answer: "10/2 + 3 = 8" },
-                { question: "If h(x) = −x + 4, find h(−2).", answer: "−(−2) + 4 = 6" },
-                { question: "What does f(x) = 0 represent graphically?", answer: "The x-intercepts (zeros) of the function" },
-                { question: "What is the domain of f(x) = x + 1?", answer: "All real numbers" },
-                { question: "Why can't x = 3 be in the domain of f(x) = 1/(x−3)?", answer: "It would make the denominator zero (division by zero)" },
-                { question: "What is the domain of f(x) = √x?", answer: "x ≥ 0 (cannot take square root of a negative)" },
-                { question: "What is interval notation?", answer: "A way to write sets: (a,b) excludes endpoints, [a,b] includes them" },
-                { question: "What does (2, 5] mean?", answer: "2 < x ≤ 5" },
-                { question: "What is [−3, ∞)?", answer: "x ≥ −3" },
-                { question: "What is the range of f(x) = x²?", answer: "y ≥ 0 (outputs are always non-negative)" },
-                { question: "What restricts the domain of a function?", answer: "Division by zero and square roots of negatives (in real numbers)" },
-                { question: "What is set-builder notation?", answer: "{x | condition} — e.g., {x | x > 0}" },
-                { question: "What is the domain of f(x) = 1/(x−2)?", answer: "All real numbers except x = 2" },
-                { question: "Write (−∞, 5) ∪ (5, ∞) in set-builder notation.", answer: "{x | x ≠ 5}" },
-                { question: "How do you evaluate f(3)?", answer: "Substitute x = 3 into the function and simplify" },
-                { question: "If C(t) = 50t + 200, what does C(3) = 350 mean?", answer: "At 3 hours, the cost is $350" },
-                { question: "What does f(0) usually represent in context?", answer: "The initial or starting value" },
-                { question: "If g(x) = x² − 4, find g(−3).", answer: "(−3)² − 4 = 9 − 4 = 5" },
-                { question: "Interpreting f(5) = 20 means:", answer: "When the input is 5, the output is 20" },
-                { question: "If h(t) = −16t² + 100, find h(2).", answer: "−16(4) + 100 = −64 + 100 = 36" },
-                { question: "What does interpreting in context mean?", answer: "Explaining what the numbers represent in the real-world scenario" },
-                { question: "If P(x) = 3x − 10, find P(0).", answer: "3(0) − 10 = −10" },
-                { question: "If f(x) = 3x + 2, what is f(a + 1)?", answer: "3(a + 1) + 2 = 3a + 5" },
-                { question: "Interpreting f(10) = 50 in a cost function means:", answer: "When 10 items are produced, the cost is $50" },
-                { question: "What is rate of change?", answer: "How one quantity changes relative to another" },
-                { question: "What is the slope formula?", answer: "m = (y₂ − y₁) / (x₂ − x₁)" },
-                { question: "What does a positive slope mean?", answer: "The line rises from left to right" },
-                { question: "What does a negative slope mean?", answer: "The line falls from left to right" },
-                { question: "What is the slope of a horizontal line?", answer: "Zero" },
-                { question: "What is the slope of a vertical line?", answer: "Undefined" },
-                { question: "Find the slope between (1, 3) and (4, 9).", answer: "(9 − 3)/(4 − 1) = 6/3 = 2" },
-                { question: "In context, what does slope represent?", answer: "The rate at which the dependent variable changes per unit of the independent variable" },
-                { question: "Find the slope between (−2, 5) and (3, 5).", answer: "(5 − 5)/(3 − (−2)) = 0/5 = 0" },
-                { question: "Steeper lines have a _____ slope.", answer: "Larger absolute value" },
-                { question: "What is an arithmetic sequence?", answer: "A sequence with a constant difference between consecutive terms" },
-                { question: "What is the common difference?", answer: "The constant value added to get from one term to the next" },
-                { question: "What is the explicit formula for an arithmetic sequence?", answer: "a(n) = a(1) + (n − 1)d" },
-                { question: "Find the common difference of 5, 8, 11, 14.", answer: "d = 3" },
-                { question: "Find the 10th term of 2, 5, 8, 11, ...", answer: "a(10) = 2 + (10−1)(3) = 2 + 27 = 29" },
-                { question: "Why is an arithmetic sequence a linear function?", answer: "Because the rate of change (d) is constant" },
-                { question: "Is 2, 4, 8, 16 arithmetic?", answer: "No — it has a common ratio (geometric), not a common difference" },
-                { question: "If a(1) = 7 and d = −2, write the formula.", answer: "a(n) = 7 + (n − 1)(−2) = −2n + 9" },
-                { question: "What is a₁ in an arithmetic sequence?", answer: "The first term of the sequence" },
-                { question: "Find the common difference: 12, 9, 6, 3, ...", answer: "d = −3" },
-                { question: "What is a piecewise function?", answer: "A function defined by different rules for different parts of its domain" },
-                { question: "What is a step function?", answer: "A piecewise function where each piece is a constant (horizontal segment)" },
-                { question: "What is the greatest integer function ⌊x⌋?", answer: "The largest integer less than or equal to x" },
-                { question: "What is ⌊3.7⌋?", answer: "3" },
-                { question: "What is ⌊−2.3⌋?", answer: "−3" },
-                { question: "What do open/closed circles mean at boundaries?", answer: "Open = not included, Closed = included" },
-                { question: "Give a real-world example of a step function.", answer: "Postage rates, tax brackets, parking rates by the hour" },
-                { question: "Can a piecewise function be discontinuous?", answer: "Yes — there can be jumps at the boundary points" },
-                { question: "Evaluate the piecewise function f(x) = {2x if x < 0, x + 1 if x ≥ 0} at x = 3", answer: "f(3) = 3 + 1 = 4" },
-                { question: "What is a common real-world piecewise function?", answer: "Cell phone plans with different rates for different usage levels" },
-                { question: "What does f(x) + k do?", answer: "Shifts the graph UP k units" },
-                { question: "What does f(x) − k do?", answer: "Shifts the graph DOWN k units" },
-                { question: "What does f(x − h) do?", answer: "Shifts the graph RIGHT h units" },
-                { question: "What does f(x + h) do?", answer: "Shifts the graph LEFT h units" },
-                { question: "What does a·f(x) do when |a| > 1?", answer: "Vertical stretch (makes the graph narrower)" },
-                { question: "What does a·f(x) do when 0 < |a| < 1?", answer: "Vertical compression (makes the graph wider)" },
-                { question: "What does −f(x) do?", answer: "Reflects the graph over the x-axis" },
-                { question: "What does f(−x) do?", answer: "Reflects the graph over the y-axis" },
-                { question: "f(x − 2) + 3 does what?", answer: "Shifts right 2 and up 3" },
-                { question: "−2f(x) does what?", answer: "Reflects over the x-axis and vertically stretches by factor of 2" }
-    
-    
-    ];
-</script>
-<script src="../../scripts/practice_games.js"></script>
-<script src="../../scripts/block_puzzle.js"></script>
-</body></html>
+
+
+</body>
+</html>

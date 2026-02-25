@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 6: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title">Unit 6 Review Flashcards</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../bio.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Biology</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit6_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+    window.lessonFlashcards = [
+        { question: "What is matter and atomic structure?", answer: "A key topic in biology covering important concepts related to matter and atomic structure" },
+        { question: "Why is matter and atomic structure important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in matter and atomic structure?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does matter and atomic structure relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of matter and atomic structure?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of matter and atomic structure in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is matter and atomic structure studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does matter and atomic structure have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for matter and atomic structure?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about matter and atomic structure?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is chemical reactions and enzymes?", answer: "A key topic in biology covering important concepts related to chemical reactions and enzymes" },
+        { question: "Why is chemical reactions and enzymes important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in chemical reactions and enzymes?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does chemical reactions and enzymes relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of chemical reactions and enzymes?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of chemical reactions and enzymes in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is chemical reactions and enzymes studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does chemical reactions and enzymes have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for chemical reactions and enzymes?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about chemical reactions and enzymes?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is water and its solutions?", answer: "A key topic in biology covering important concepts related to water and its solutions" },
+        { question: "Why is water and its solutions important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in water and its solutions?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does water and its solutions relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of water and its solutions?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of water and its solutions in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is water and its solutions studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does water and its solutions have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for water and its solutions?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about water and its solutions?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is the building blocks of life?", answer: "A key topic in biology covering important concepts related to the building blocks of life" },
+        { question: "Why is the building blocks of life important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in the building blocks of life?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does the building blocks of life relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of the building blocks of life?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of the building blocks of life in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is the building blocks of life studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does the building blocks of life have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for the building blocks of life?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about the building blocks of life?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is dna and rna?", answer: "A key topic in biology covering important concepts related to dna and rna" },
+        { question: "Why is dna and rna important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in dna and rna?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does dna and rna relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of dna and rna?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of dna and rna in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is dna and rna studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does dna and rna have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for dna and rna?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about dna and rna?", answer: "Key concepts, processes, and their significance" },
+        { question: "What is biochemistry in everyday life?", answer: "A key topic in biology covering important concepts related to biochemistry in everyday life" },
+        { question: "Why is biochemistry in everyday life important in biology?", answer: "It helps us understand how living systems work and interact" },
+        { question: "What are the main concepts in biochemistry in everyday life?", answer: "Key principles and terms essential to understanding this topic" },
+        { question: "How does biochemistry in everyday life relate to other biology topics?", answer: "It connects to various aspects of cellular function and organism behavior" },
+        { question: "What discoveries led to our understanding of biochemistry in everyday life?", answer: "Scientific research and experimentation over many years" },
+        { question: "What are examples of biochemistry in everyday life in nature?", answer: "Observable phenomena and processes in living organisms" },
+        { question: "How is biochemistry in everyday life studied by scientists?", answer: "Through observation, experimentation, and analysis" },
+        { question: "What applications does biochemistry in everyday life have?", answer: "Medical research, environmental science, and biotechnology" },
+        { question: "What vocabulary is important for biochemistry in everyday life?", answer: "Technical terms and definitions specific to this topic" },
+        { question: "What should you remember about biochemistry in everyday life?", answer: "Key concepts, processes, and their significance" }
+    ];
+</script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/block_puzzle.js"></script>
+<script src="../../../search_data.js"></script>
+<script src="../../../search_logic.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>
