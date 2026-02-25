@@ -505,7 +505,7 @@ window.exitClimbGame = function() {
         if (!isGameRunning && !isPaused) return;
         isPaused = !isPaused;
         const btn = document.getElementById('climb-pause-btn');
-        if (btn) btn.innerText = isPaused ? _t("Resume", "继续") : _t("Pause", "暂停");
+        if (btn) btn.innerText = isPaused ? _t("Resume", "Resume") : _t("Pause", "Pause");
         
         const pauseScreen = document.getElementById('climb-paused-screen');
         if(pauseScreen) pauseScreen.style.display = isPaused ? 'flex' : 'none';
@@ -525,7 +525,7 @@ window.exitClimbGame = function() {
         if(pauseScreen) pauseScreen.style.display = 'none';
         
         const pBtn = document.getElementById('climb-pause-btn');
-        if(pBtn) pBtn.innerText = _t("Pause", "暂停");
+        if(pBtn) pBtn.innerText = _t("Pause", "Pause");
         
         const interaction = document.getElementById('climb-interaction');
         if (interaction) interaction.style.opacity = "1";
@@ -534,7 +534,7 @@ window.exitClimbGame = function() {
     window.startClimbGame = function() {
         isPaused = false;
         const pBtn = document.getElementById('climb-pause-btn');
-        if(pBtn) pBtn.innerText = _t("Pause", "暂停");
+        if(pBtn) pBtn.innerText = _t("Pause", "Pause");
         const interaction = document.getElementById('climb-interaction');
         if (interaction) interaction.style.opacity = "1";
 
@@ -593,7 +593,7 @@ window.exitClimbGame = function() {
     }
     
     function updateDisplay() {
-        document.getElementById('climb-score').innerText = _t("Score:", "分数:") + " " + climbScore;
+        document.getElementById('climb-score').innerText = _t("Score:", "Score:") + " " + climbScore;
         
         updatePlayerPos();
         updateFuelDisplay();

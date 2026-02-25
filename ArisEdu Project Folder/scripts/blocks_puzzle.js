@@ -78,7 +78,7 @@ window.exitClimbGame = function() {
         if (!isGameRunning && !isPaused) return;
         isPaused = !isPaused;
         const btn = document.getElementById('climb-pause-btn');
-        if (btn) btn.innerText = isPaused ? _t("Resume", "继续") : _t("Pause", "暂停");
+        if (btn) btn.innerText = isPaused ? _t("Resume", "Resume") : _t("Pause", "Pause");
         
         const pauseScreen = document.getElementById('climb-paused-screen');
         if(pauseScreen) pauseScreen.style.display = isPaused ? 'flex' : 'none';
@@ -171,7 +171,7 @@ window.exitClimbGame = function() {
     }
     
     function updateDisplay() {
-        document.getElementById('climb-score').innerText = _t("Score:", "分数:") + " " + climbScore;
+        document.getElementById('climb-score').innerText = _t("Score:", "Score:") + " " + climbScore;
         
         updatePlayerPos();
         updateFuelDisplay();
@@ -344,11 +344,11 @@ window.exitClimbGame = function() {
             title.innerText = _t("🏆 New High Score! 🏆");
             title.style.color = "#f59e0b";
         } else {
-            title.innerText = _t("Game Over", "游戏结束");
+            title.innerText = _t("Game Over", "Game Over");
             title.style.color = "#1e293b";
         }
         
-        msg.innerHTML = _t("Score:", "分数:") + " " + climbScore + '<br><span style="font-size:0.9em; color:#64748b">' + _t("Best:", "最高：") + " " + highScore + '</span>';
+        msg.innerHTML = _t("Score:", "Score:") + " " + climbScore + '<br><span style="font-size:0.9em; color:#64748b">' + _t("Best:", "Best:") + " " + highScore + '</span>';
     }
 })();
 </script>

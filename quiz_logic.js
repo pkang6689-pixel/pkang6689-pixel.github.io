@@ -72,13 +72,13 @@ window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
         
         if (attempts > 0) {
             if (attemptsInfo) {
-                attemptsInfo.textContent = _t("Incorrect.", "不正确。") + " " + attempts + " " + _t("attempts left.", "次尝试剩余。");
+                attemptsInfo.textContent = _t("Incorrect.", "Incorrect.") + " " + attempts + " " + _t("attempts left.", "attempts left.");
                 attemptsInfo.style.color = "#f59e0b"; // Orange/Yellow
             }
         } else {
             // No attempts left
             if (attemptsInfo) {
-                attemptsInfo.textContent = _t("Incorrect. The correct answer was", "不正确。正确答案是") + " " + correctValue.toUpperCase() + ".";
+                attemptsInfo.textContent = _t("Incorrect. The correct answer was", "Incorrect. The correct answer was") + " " + correctValue.toUpperCase() + ".";
                 attemptsInfo.style.color = "#ef4444"; // Red
             }
             parent.dataset.status = 'incorrect';
@@ -86,7 +86,7 @@ window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
             // Disable interactions
             inputs.forEach(i => i.disabled = true);
             buttonElement.disabled = true;
-            buttonElement.textContent = _t("Incorrect", "不正确");
+            buttonElement.textContent = _t("Incorrect", "Incorrect");
             buttonElement.style.background = "#ef4444";
             buttonElement.style.color = "white";
             buttonElement.style.border = "none";
