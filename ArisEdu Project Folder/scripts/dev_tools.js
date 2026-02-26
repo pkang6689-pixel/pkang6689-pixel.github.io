@@ -77,17 +77,51 @@
   // Render Body
   var body = panel.querySelector('#dev-tools-body');
   
-  // Section: Badges
+  // ─── Create Archived Buttons Dropdown ───
+  var archivedDropdownBtn = document.createElement('button');
+  archivedDropdownBtn.className = 'dev-btn';
+  archivedDropdownBtn.textContent = '➕ Archived Buttons';
+  archivedDropdownBtn.style.marginBottom = '0.5rem';
+  archivedDropdownBtn.style.width = '100%';
+  body.appendChild(archivedDropdownBtn);
+  
+  // Container for archived sections (hidden by default)
+  var archivedContainer = document.createElement('div');
+  archivedContainer.id = 'archived-buttons-container';
+  archivedContainer.style.cssText = 'display:none; border-top:1px solid #475569; padding-top:0.5rem; margin-bottom:0.5rem;';
+  body.appendChild(archivedContainer);
+  
+  // Toggle archived container visibility
+  archivedDropdownBtn.onclick = function() {
+    var isVisible = archivedContainer.style.display !== 'none';
+    archivedContainer.style.display = isVisible ? 'none' : 'block';
+    archivedDropdownBtn.textContent = isVisible ? '➕ Archived Buttons' : '➖ Archived Buttons';
+  };
+  
+  // ─── Define helper function to add items to archived container ───
+  function addArchivedSection(title) {
+      var div = document.createElement('div');
+      div.className = 'dev-section-title';
+      div.textContent = title;
+      div.style.marginTop = '0.5rem';
+      archivedContainer.appendChild(div);
+  }
+  
+  function addArchivedButton(text, action, cls) {
+      var btn = document.createElement('button');
+      btn.className = 'dev-btn' + (cls ? ' ' + cls : '');
+      btn.textContent = text;
+      btn.addEventListener('click', action);
+      archivedContainer.appendChild(btn);
+  }
+  
+  // Section: Badges (moved to archived)
   (function() {
-      var title = document.createElement('div');
-      title.className = 'dev-section-title';
-      title.textContent = 'BADGES';
-      body.appendChild(title);
+      addArchivedSection('BADGES');
 
       var select = document.createElement('select');
       select.style.cssText = 'width:100%; padding:0.3rem; background:#334155; color:white; border:none; border-radius:0.3rem; margin-bottom:0.3rem;';
       
-      // Get badges from window.BadgeSystem if available, else hardcode list for now
       var badgeKeys = [
           'first_visit', 'night_owl', 'early_bird', 'scholar', 
           'dedicated', 'completionist', 'quiz_master', 
@@ -114,9 +148,6 @@
           }
       };
 
-      body.appendChild(select);
-      body.appendChild(btn);
-
       var resetBtn = document.createElement('button');
       resetBtn.className = 'dev-btn red';
       resetBtn.textContent = 'Reset All Badges';
@@ -126,16 +157,12 @@
           alert('Badges reset.');
       };
       
-      body.appendChild(select);
-      body.appendChild(btn);
-      body.appendChild(resetBtn);
+      archivedContainer.appendChild(select);
+      archivedContainer.appendChild(btn);
+      archivedContainer.appendChild(resetBtn);
 
-      // Section: Role Switching
-      var roleTitle = document.createElement('div');
-      roleTitle.className = 'dev-section-title';
-      roleTitle.textContent = 'ROLE SWITCHER';
-      roleTitle.style.marginTop = '1rem';
-      body.appendChild(roleTitle);
+      // Section: Role Switching (moved to archived)
+      addArchivedSection('ROLE SWITCHER');
 
       var teacherBtn = document.createElement('button');
       teacherBtn.className = 'dev-btn';
@@ -144,7 +171,6 @@
           try {
               let user = JSON.parse(localStorage.getItem('user') || '{}');
               user.role = 'teacher';
-              // Add dummy class info if missing
               if(!user.classInfo) {
                   user.classInfo = { name: "AP Physics 1", code: "PHYS-AP-001" };
               }
@@ -161,7 +187,6 @@
           try {
               let user = JSON.parse(localStorage.getItem('user') || '{}');
               user.role = 'student';
-              // Ensure student has a class for demo purposes
               if(!user.classInfo) {
                   user.classInfo = { name: "AP Physics 1" };
               }
@@ -171,8 +196,8 @@
           } catch(e) { console.error(e); }
       };
 
-      body.appendChild(teacherBtn);
-      body.appendChild(studentBtn);
+      archivedContainer.appendChild(teacherBtn);
+      archivedContainer.appendChild(studentBtn);
 
   })();
 
@@ -232,9 +257,9 @@
       body.appendChild(btn);
   }
   
-  // --- Update Log ---
-  addSection('Updates');
-  addButton('📋 View Latest Update', function() {
+  // --- Update Log (moved to archived) ---
+  addArchivedSection('Updates');
+  addArchivedButton('📋 View Latest Update', function() {
       if (typeof window.showArisEduUpdate === 'function') {
           window.showArisEduUpdate();
       } else {
@@ -242,8 +267,8 @@
       }
   });
   
-  // --- Language Switcher (synced with Preferences.html) ---
-  addSection('Language Shortcut');
+  // --- Language Switcher (moved to archived) ---
+  addArchivedSection('Language Shortcut');
   var langs = [
       { code: 'english', label: 'English' },
       { code: 'chinese', label: '中文' },
@@ -258,29 +283,24 @@
   
   langs.forEach(function(l) {
       var btn = document.createElement('button');
+      btn.className = 'dev-btn';
       btn.textContent = l.label;
-      btn.style.background = '#475569';
-      btn.style.border = 'none';
-      btn.style.color = '#fff';
-      btn.style.borderRadius = '0.25rem';
-      btn.style.cursor = 'pointer';
-      btn.style.fontSize = '0.75rem';
-      btn.style.padding = '0.3rem';
       
-      // Highlight current
-      var current = localStorage.getItem('arisEduLanguage') || 'english';
-      if(current === l.code) {
+      // Check if this is the current language
+      var currentLang = localStorage.getItem('selectedLanguage') || 'english';
+      if (l.code === currentLang) {
           btn.style.background = '#3b82f6';
-          btn.style.fontWeight = 'bold';
       }
       
       btn.onclick = function() {
-          localStorage.setItem('arisEduLanguage', l.code);
+          localStorage.setItem('selectedLanguage', l.code);
           location.reload();
       };
+      
       langContainer.appendChild(btn);
   });
-  body.appendChild(langContainer);
+  
+  archivedContainer.appendChild(langContainer);
   
   // --- Progress Controls ---
   addSection('Progress Controls');
@@ -537,11 +557,10 @@
           
           clickNextButton();
         }
-    }, 'green');
   }
 
-  // --- Misc ---
-  addSection('Time Tracking');
+  // --- Misc: Time Tracking (moved to archived) ---
+  addArchivedSection('Time Tracking');
   
   function addTimeMinutes(minutes) {
     var today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -578,9 +597,9 @@
     btn.onclick = function() { addTimeMinutes(t.minutes); };
     timeContainer.appendChild(btn);
   });
-  body.appendChild(timeContainer);
+  archivedContainer.appendChild(timeContainer);
   
-  addButton('\u274C Clear Time Data', function() {
+  addArchivedButton('\u274C Clear Time Data', function() {
     if(!confirm('Clear all time tracking data?')) return;
     var toRemove = [];
     for(var i=0; i<localStorage.length; i++) {

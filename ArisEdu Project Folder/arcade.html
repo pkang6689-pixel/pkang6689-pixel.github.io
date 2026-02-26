@@ -326,13 +326,13 @@
 
       // Game Costs (Example Economy)
       const gameCosts = {
-          'match': 0, // Free
-          'snake': 0, // Free
-          'platformer': 50,
+          'match': 100, 
+          'snake': 100, 
+          'platformer': 100,
           'spaceship': 100,
-          'tetris': 200,
-          'blocks': 300,
-          'pacman': 400
+          'tetris': 100,
+          'blocks': 100,
+          'pacman': 100,
       };
 
       // Ensure all game cards have identifiable classes if not present
@@ -341,7 +341,7 @@
 
       // User Data
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const unlocked = user.unlockedGames || ['match', 'snake']; 
+      const unlocked = user.unlockedGames || []; 
       const currentPoints = user.points || 0; 
 
       // Apply Locks
@@ -452,6 +452,11 @@
               };
               
               card.appendChild(overlay);
+          } else {
+              // Game is unlocked - add click handler to set access flag
+              card.onclick = (e) => {
+                  sessionStorage.setItem('validGameAccess', 'true');
+              };
           }
       });
 
