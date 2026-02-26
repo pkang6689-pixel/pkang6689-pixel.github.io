@@ -321,6 +321,27 @@
             margin-top: 0.5rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+        .unlock-timer {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            font-family: monospace;
+            z-index: 5;
+        }
+        .unlock-timer.warning {
+            background: rgba(239, 68, 68, 0.95);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
       `;
       document.head.appendChild(style);
 
@@ -341,10 +362,23 @@
 
       // User Data
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const unlocked = user.unlockedGames || []; 
-      const currentPoints = user.points || 0; 
+      const unlockedGames = user.unlockedGames || {}; // Now an object: { gameId: expirationTime, ... }
+      const currentPoints = user.points || 0;
+      const UNLOCK_DURATION = 100; // seconds
+      const EXTEND_COST = 50; // tokens to extend
+      const EXTEND_DURATION = 50; // seconds to add
+      
+      // Check unlock expiration and clean up
+      const now = Math.floor(Date.now() / 1000);
+      Object.keys(unlockedGames).forEach(gameId => {
+          if (unlockedGames[gameId] < now) {
+              delete unlockedGames[gameId];
+          }
+      });
+      user.unlockedGames = unlockedGames;
+      localStorage.setItem('user', JSON.stringify(user)); 
 
-      // Apply Locks
+      // Apply Locks and Timers
       document.querySelectorAll('.game-card').forEach(card => {
           // Identify game from href or class
           let gameId = '';
@@ -357,9 +391,13 @@
           else if(card.href.includes('Pacman')) gameId = 'pacman';
 
           // Default cost if not listed (e.g. new games)
-          if(gameId && !(gameId in gameCosts)) gameCosts[gameId] = 500; 
+          if(gameId && !(gameId in gameCosts)) gameCosts[gameId] = 500;
 
-          if(gameId && gameCosts[gameId] > 0 && !unlocked.includes(gameId)) {
+          const isUnlocked = gameId in unlockedGames;
+          const now = Math.floor(Date.now() / 1000);
+          const timeRemaining = isUnlocked ? Math.max(0, unlockedGames[gameId] - now) : 0;
+          
+          if(gameId && gameCosts[gameId] > 0 && !isUnlocked) {
               // Lock it
               card.classList.add('locked');
               
@@ -387,8 +425,13 @@
                   modalContent.innerHTML = `
                       <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:1rem;color:#1e293b;">Unlock ${gameId.charAt(0).toUpperCase() + gameId.slice(1)}?</h2>
                       <div style="font-size:3rem;margin-bottom:1rem;">${canAfford ? '🔓' : '🔒'}</div>
+                      <p style="margin-bottom:0.5rem;color:#64748b;">
+                        <strong style="color:#f59e0b;">${gameCosts[gameId]} Tokens</strong>
+                      </p>
+                      <p style="margin-bottom:1.5rem;color:#94a3b8;font-size:0.9rem;">
+                        ⏱️ Access for ${UNLOCK_DURATION} seconds
+                      </p>
                       <p style="margin-bottom:1.5rem;color:#64748b;">
-                        Cost: <strong style="color:#f59e0b;">${gameCosts[gameId]} Tokens</strong><br>
                         You have: <strong>${currentPoints} Tokens</strong>
                       </p>
                       <div style="display:flex;gap:1rem;justify-content:center;">
@@ -418,19 +461,20 @@
                   if(confirmBtn) {
                       confirmBtn.onclick = async () => {
                           confirmBtn.textContent = "Unlocking...";
-                          // Deduct and Unlock
+                          // Deduct and Unlock with expiration time
+                          const expirationTime = Math.floor(Date.now() / 1000) + UNLOCK_DURATION;
                           user.points = currentPoints - gameCosts[gameId];
-                          user.unlockedGames = [...unlocked, gameId];
+                          user.unlockedGames = user.unlockedGames || {};
+                          user.unlockedGames[gameId] = expirationTime;
                           localStorage.setItem('user', JSON.stringify(user));
                           
                           // Sync Firebase
                           try {
-                              const { auth, db, doc, updateDoc, arrayUnion, increment } = await import('./firebase-config.js');
+                              const { auth, db, doc, updateDoc, increment } = await import('./firebase-config.js');
                               if(auth.currentUser) {
                                   const userRef = doc(db, "users", auth.currentUser.uid);
                                   await updateDoc(userRef, {
-                                      points: increment(-gameCosts[gameId]),
-                                      unlockedGames: arrayUnion(gameId)
+                                      points: increment(-gameCosts[gameId])
                                   });
                               }
                           } catch(e) { console.warn("Offline unlock"); }
@@ -442,21 +486,49 @@
                           
                           // Success Toast
                           const toast = document.createElement('div');
-                          toast.textContent = "Game Unlocked!";
+                          toast.textContent = `Game Unlocked for ${UNLOCK_DURATION}s!`;
                           toast.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:0.75rem 1.5rem;border-radius:2rem;box-shadow:0 10px 15px rgba(0,0,0,0.1);z-index:9999;font-weight:600;";
                           document.body.appendChild(toast);
                           setTimeout(() => toast.remove(), 2500);
-                          setTimeout(() => location.reload(), 1000); // Reload to ensure state consistency
+                          setTimeout(() => location.reload(), 1000);
                       };
                   }
               };
               
               card.appendChild(overlay);
-          } else {
-              // Game is unlocked - add click handler to set access flag
+          } else if(isUnlocked && timeRemaining > 0) {
+              // Game is unlocked - show timer and add click handler
+              const timer = document.createElement('div');
+              timer.className = 'unlock-timer' + (timeRemaining <= 20 ? ' warning' : '');
+              timer.textContent = timeRemaining + 's';
+              timer.style.pointerEvents = 'none';
+              card.appendChild(timer);
+              
+              // Update timer every second
+              const timerInterval = setInterval(() => {
+                  const now = Math.floor(Date.now() / 1000);
+                  const remaining = Math.max(0, unlockedGames[gameId] - now);
+                  timer.textContent = remaining + 's';
+                  timer.className = 'unlock-timer' + (remaining <= 20 ? ' warning' : '');
+                  
+                  if(remaining <= 0) {
+                      clearInterval(timerInterval);
+                      location.reload();
+                  }
+              }, 1000);
+              
               card.onclick = (e) => {
                   sessionStorage.setItem('validGameAccess', 'true');
+                  sessionStorage.setItem('gameUnlockExpire', unlockedGames[gameId]);
               };
+          } else {
+              // Unlock expired or no access - re-lock if needed
+              if(isUnlocked && timeRemaining <= 0) {
+                  delete unlockedGames[gameId];
+                  user.unlockedGames = unlockedGames;
+                  localStorage.setItem('user', JSON.stringify(user));
+                  location.reload();
+              }
           }
       });
 

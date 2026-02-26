@@ -5,12 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Block Puzzle - Logic Challenge</title>
     <script>
-        // Protect game from direct access
-        if (sessionStorage.getItem('validGameAccess') !== 'true') {
-            alert('You must access this game from the Arcade page.');
-            window.location.href = 'arcade.html';
-        }
-        sessionStorage.removeItem('validGameAccess'); // Clear flag after use
+        // Unlock expiration and access check
+        (function() {
+            const EXTEND_COST = 50;
+            const EXTEND_DURATION = 50;
+            
+            if (sessionStorage.getItem('validGameAccess') !== 'true') {
+                alert('You must access this game from the Arcade page.');
+                window.location.href = 'arcade.html';
+                return;
+            }
+            
+            const expireTime = parseInt(sessionStorage.getItem('gameUnlockExpire')) || 0;
+            const now = Math.floor(Date.now() / 1000);
+            
+            if (expireTime <= 0 || expireTime < now) {
+                showExpiredPopup();
+                return;
+            }
+            
+            sessionStorage.removeItem('validGameAccess');
+            
+            // Set up timer to check expiration while playing
+            let timeoutId = setTimeout(checkExpiration, (expireTime - now) * 1000);
+            
+            function checkExpiration() {
+                const now = Math.floor(Date.now() / 1000);
+                if (now >= expireTime) {
+                    showExpiredPopup();
+                }
+            }
+            
+            function showExpiredPopup() {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const canExtend = (user.points || 0) >= EXTEND_COST;
+                
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;';
+                
+                const modal = document.createElement('div');
+                modal.style.cssText = 'background:white;border-radius:1rem;padding:2rem;max-width:400px;text-align:center;box-shadow:0 20px 25px rgba(0,0,0,0.3);';
+                
+                modal.innerHTML = `
+                    <div style="font-size:3rem;margin-bottom:1rem;">⏱️</div>
+                    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:1rem;color:#1e293b;">Session Expired!</h2>
+                    <p style="margin-bottom:1.5rem;color:#64748b;">Your access time has run out.</p>
+                    <div style="display:flex;gap:1rem;justify-content:center;">
+                        <button id="back-to-arcade" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:1px solid #cbd5e1;background:white;color:#64748b;cursor:pointer;font-weight:600;">Back to Arcade</button>
+                        ${canExtend ? 
+                            `<button id="extend-session" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#f59e0b;color:#000;cursor:pointer;font-weight:600;">Extend +${EXTEND_DURATION}s (${EXTEND_COST}💎)</button>` :
+                            `<button disabled style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#e2e8f0;color:#94a3b8;cursor:not-allowed;font-weight:600;">Need ${EXTEND_COST} Tokens</button>`
+                        }
+                    </div>
+                `;
+                
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+                
+                modal.querySelector('#back-to-arcade').onclick = () => {
+                    window.location.href = 'arcade.html';
+                };
+                
+                if (canExtend) {
+                    modal.querySelector('#extend-session').onclick = () => {
+                        user.points = (user.points || 0) - EXTEND_COST;
+                        localStorage.setItem('user', JSON.stringify(user));
+                        const newExpire = Math.floor(Date.now() / 1000) + EXTEND_DURATION;
+                        sessionStorage.setItem('gameUnlockExpire', newExpire);
+                        overlay.remove();
+                        timeoutId = setTimeout(checkExpiration, EXTEND_DURATION * 1000);
+                    };
+                }
+            }
+        })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
