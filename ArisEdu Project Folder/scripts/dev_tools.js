@@ -302,6 +302,40 @@
   
   archivedContainer.appendChild(langContainer);
   
+  // --- Arcade Tokens ---
+  addSection('Arcade Tokens');
+  
+  var tokenContainer = document.createElement('div');
+  tokenContainer.style.display = 'grid';
+  tokenContainer.style.gridTemplateColumns = '1fr 1fr';
+  tokenContainer.style.gap = '0.5rem';
+  tokenContainer.style.marginTop = '0.4rem';
+  
+  var tokenAmounts = [
+    { label: '+100', amount: 100 },
+    { label: '+500', amount: 500 },
+    { label: '+1000', amount: 1000 },
+    { label: '+5000', amount: 5000 }
+  ];
+  
+  tokenAmounts.forEach(function(t) {
+    var btn = document.createElement('button');
+    btn.className = 'dev-btn';
+    btn.textContent = t.label + ' 💎';
+    btn.style.background = '#f59e0b';
+    btn.style.fontSize = '0.85rem';
+    btn.onclick = function() {
+      try {
+        var user = JSON.parse(localStorage.getItem('user') || '{}');
+        user.points = (user.points || 0) + t.amount;
+        localStorage.setItem('user', JSON.stringify(user));
+        alert('Added ' + t.amount + ' tokens!\nTotal: ' + user.points + ' tokens');
+      } catch(e) { alert('Error adding tokens'); }
+    };
+    tokenContainer.appendChild(btn);
+  });
+  body.appendChild(tokenContainer);
+  
   // --- Progress Controls ---
   addSection('Progress Controls');
   
