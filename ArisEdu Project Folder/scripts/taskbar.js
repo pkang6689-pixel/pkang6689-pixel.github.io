@@ -259,13 +259,13 @@
 
             // Tools
             '<div class="taskbar-category" title="Tools">' +
-                '<button class="taskbar-button" id="search-button"'+getDisp('search')+'>\uD83D\uDD0D</button>' +
+                '<button class="taskbar-button" id="search-button"'+getDisp('search')+'>\uD83D\uDD0D Search</button>' +
                 '<button class="taskbar-button" id="ai-assistant-button"'+getDisp('ai')+'>\uD83E\uDD16 AI</button>' +
             '</div>' +
             
             // Account & Settings
             '<div class="taskbar-category" title="Account & Settings">' +
-                '<button class="taskbar-button" id="settings-button">\u2699\uFE0F</button>' +
+                '<button class="taskbar-button" id="settings-button">\u2699\uFE0F Settings</button>' +
                 '<a class="taskbar-button" href="/ArisEdu Project Folder/LoginSignup.html" id="login-signup-button"'+getDisp('login')+'>\uD83D\uDD10 Login</a>' +
                 '<button class="taskbar-button" id="streak-button" title="Current Login Streak" style="display:none; color: #fbbf24;">🔥 0</button>' +
             '</div>' +
@@ -334,6 +334,79 @@
     document.body.insertBefore(nav, document.body.firstChild);
   }
 
+  // --- Translate Taskbar Buttons ---
+  (function() {
+    function translateTaskbarButtons() {
+      var lang = null;
+      try { lang = localStorage.getItem('arisEduLanguage'); } catch(e) {}
+      
+      if (!lang || lang === 'english') return; // No translation needed for English
+      
+      // Get translation dictionary based on language
+      var dict = {};
+      if (window.globalTranslations && (lang === 'chinese' || lang === 'traditional')) {
+        dict = window.globalTranslations;
+      } else if (window.spanishTranslations && lang === 'spanish') {
+        dict = window.spanishTranslations;
+      } else if (window.hindiTranslations && lang === 'hindi') {
+        dict = window.hindiTranslations;
+      }
+      
+      if (!dict || Object.keys(dict).length === 0) {
+        setTimeout(translateTaskbarButtons, 100); // Retry if translations not loaded
+        return;
+      }
+      
+      // Translation mapping
+      var buttonTranslations = {
+        'Home': dict['Home'],
+        'Homepage': dict['Home'],
+        'Dashboard': dict['Dashboard'],
+        'Courses': dict['Courses'],
+        'Arcade': dict['Arcade'],
+        'Forums': dict['Forums'],
+        'Search': dict['Search'],
+        'AI': dict['AI'],
+        'Settings': dict['Settings'],
+        'Login': dict['Login'],
+        'Login/Signup': dict['Login'],
+        'Dark Mode': dict['Dark Mode'],
+        'Preferences': dict['Preferences'],
+        'Help': dict['Help']
+      };
+      
+      // Translate taskbar buttons
+      var buttons = document.querySelectorAll('.taskbar-button, .settings-item');
+      buttons.forEach(function(btn) {
+        var fullText = btn.textContent || btn.innerText || '';
+        
+        // Try each English text to find and replace it
+        for (var enText in buttonTranslations) {
+          if (buttonTranslations[enText] && fullText.indexOf(enText) !== -1) {
+            // Replace the English text with the translated version
+            var newText = fullText.replace(enText, buttonTranslations[enText]);
+            btn.textContent = newText;
+            break;
+          }
+        }
+      });
+    }
+    
+    // Translate when page loads (with delay to ensure all translations loaded)
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(translateTaskbarButtons, 300);
+      });
+    } else {
+      setTimeout(translateTaskbarButtons, 300);
+    }
+    
+    // Also translate when language changes
+    window.addEventListener('languageChanged', function() {
+      setTimeout(translateTaskbarButtons, 100);
+    });
+  })();
+
   // --- Audio Toggle Handler Removed ---
 
 
@@ -390,6 +463,8 @@
       } else if (window.applyTranslations) {
         window.applyTranslations();
         updateHighlight();
+        // Dispatch custom event for taskbar translation
+        window.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: lang } }));
       } else {
         location.reload();
       }

@@ -45,6 +45,20 @@
     "COMPLETED": "已完成",
     "IN PROGRESS": "进行中",
     
+    // --- Taskbar Navigation Buttons ---
+    "Home": "主页",
+    "Dashboard": "仪表板",
+    "Courses": "课程",
+    "Arcade": "游戏厅",
+    "Forums": "论坛",
+    "Search": "搜索",
+    "AI": "AI",
+    "Settings": "设置",
+    "Login": "登录",
+    "Dark Mode": "深色模式",
+    "Preferences": "偏好设置",
+    "Help": "帮助",
+    
     // --- Badges (DevTools & Dashboard) ---
     "BADGES": "徽章",
     "FIRST VISIT": "初次访问",
