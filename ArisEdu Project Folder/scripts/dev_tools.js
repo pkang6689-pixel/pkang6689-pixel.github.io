@@ -557,6 +557,7 @@
           
           clickNextButton();
         }
+    }, 'green');
   }
 
   // --- Misc: Time Tracking (moved to archived) ---
