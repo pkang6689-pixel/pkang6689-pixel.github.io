@@ -538,6 +538,15 @@ const settingsOptions = {
     <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">Account Settings</h2>
     <form id="account-form">
       <div style="margin-bottom: 1.5rem;">
+        <label style="font-size: 1.1rem;">Role:
+            <select id="accountRole" class="preferences-select">
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+            </select>
+        </label>
+        <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">Select your role to access specific features.</p>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
         <label style="font-size: 1.1rem;">Email:
           <input type="email" id="accountEmail" class="preferences-input" placeholder="user@example.com" />
         </label>
@@ -572,11 +581,32 @@ const settingsOptions = {
           <span id="passwordMsg" style="margin-left: 0.75rem; font-size: 0.9rem;"></span>
         </div>
       </div>
+      
+      <!-- Danger Zone -->
+      <hr style="border:0; border-top:1px solid rgba(255,0,0,0.2); margin: 2rem 0;">
+      <h3 style="color:#ef4444; font-weight:700; margin-bottom:1rem;">Danger Zone</h3>
+      <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+          <button type="button" id="resetSettingsBtn" style="padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; color: #475569;">
+             ↺ Reset Settings
+          </button>
+          <button type="button" id="resetStreakBtn" style="padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+             🔥 Reset Streak
+          </button>
+      </div>
     </form>
   `,
   account_zh: `
     <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">账户设置</h2>
     <form id="account-form">
+      <div style="margin-bottom: 1.5rem;">
+        <label style="font-size: 1.1rem;">角色:
+            <select id="accountRole" class="preferences-select">
+                <option value="student">学生</option>
+                <option value="teacher">教师</option>
+            </select>
+        </label>
+        <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">选择您的角色以访问特定功能。</p>
+      </div>
       <div style="margin-bottom: 1.5rem;">
         <label style="font-size: 1.1rem;">邮箱:
           <input type="email" id="accountEmail" class="preferences-input" placeholder="user@example.com" />
@@ -704,6 +734,15 @@ const settingsOptions = {
     <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">Configuración de cuenta</h2>
     <form id="account-form">
       <div style="margin-bottom: 1.5rem;">
+        <label style="font-size: 1.1rem;">Rol:
+            <select id="accountRole" class="preferences-select">
+                <option value="student">Estudiante</option>
+                <option value="teacher">Maestro</option>
+            </select>
+        </label>
+        <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">Seleccione su rol para acceder a características específicas.</p>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
         <label style="font-size: 1.1rem;">Correo electrónico:
           <input type="email" id="accountEmail" class="preferences-input" placeholder="usuario@ejemplo.com" />
         </label>
@@ -744,6 +783,14 @@ const settingsOptions = {
     <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">Taskbar Settings</h2>
     <form id="taskbar-form">
       <div style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+          <div style="margin-bottom: 0.5rem;">
+            <label style="font-size: 1.05rem;">Button Size:</label>
+            <select id="taskbarSizeSelect" class="preferences-select">
+                <option value="small">Small</option>
+                <option value="medium" selected>Medium</option>
+                <option value="large">Large</option>
+            </select>
+          </div>
           <p style="margin-bottom: 0.5rem; font-size: 1.05rem; opacity: 0.8;">Select which buttons to show on your taskbar:</p>
           <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="search" checked> <span>Search</span></label>
           <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="homepage" checked> <span>Homepage</span></label>
@@ -814,6 +861,42 @@ function renderSettings(category) {
   document.getElementById('settings-panel').innerHTML = settingsOptions[key] || '';
   // Add form logic for each category
   if (category === 'taskbar') {
+      // 1. Taskbar Size Logic
+      const sizeSelect = document.getElementById('taskbarSizeSelect');
+      if (sizeSelect) {
+          sizeSelect.value = localStorage.getItem('arisEduTaskbarSize') || 'medium';
+          sizeSelect.addEventListener('change', () => {
+              const val = sizeSelect.value;
+              localStorage.setItem('arisEduTaskbarSize', val);
+              
+              // Apply immediately to CSS variables
+              let paddingY = '0.5rem';
+              let paddingX = '1rem';
+              let fontSize = '0.875rem';
+              let gap = '1rem';
+
+              if(val === 'small') {
+                  paddingY = '0.25rem';
+                  paddingX = '0.75rem';
+                  fontSize = '0.75rem';
+                  gap = '0.5rem';
+              } else if(val === 'large') {
+                  paddingY = '0.75rem';
+                  paddingX = '1.5rem';
+                  fontSize = '1.1rem';
+                  gap = '1.5rem';
+              }
+              
+              document.documentElement.style.setProperty('--taskbar-padding-y', paddingY);
+              document.documentElement.style.setProperty('--taskbar-padding-x', paddingX);
+              document.documentElement.style.setProperty('--taskbar-font-size', fontSize);
+              document.documentElement.style.setProperty('--taskbar-gap', gap);
+          });
+          // Also trigger once to set initial state if not default
+          sizeSelect.dispatchEvent(new Event('change'));
+      }
+
+      // 2. Button Visibility Logic
       const inputs = document.querySelectorAll('#taskbar-form input[type="checkbox"]');
       const settings = JSON.parse(localStorage.getItem('arisEduTaskbarSettings') || '{}');
       
@@ -1007,6 +1090,7 @@ function renderSettings(category) {
 
   }
   if (category === 'account') {
+    const accountRole = document.getElementById('accountRole');
     const accountEmail = document.getElementById('accountEmail');
     const accountPassword = document.getElementById('accountPassword');
     const showPasswordToggle = document.getElementById('showPasswordToggle');
@@ -1014,18 +1098,61 @@ function renderSettings(category) {
     // Load available email and password (prioritize preference, fallback to login user)
     let savedEmail = localStorage.getItem('arisEduAccountEmail');
     let savedPassword = localStorage.getItem('arisEduAccountPassword');
+    let savedRole = 'student'; // Default
 
-    if (!savedEmail || !savedPassword) {
-         try {
-             const userJson = localStorage.getItem('user');
-             if (userJson) {
-                 const u = JSON.parse(userJson);
-                 if (!savedEmail && u.email) savedEmail = u.email;
-                 if (!savedPassword && u.password) savedPassword = u.password;
-             }
-         } catch(e){}
+    /* --- ROLE MANAGEMENT --- */
+    try {
+        const userJson = localStorage.getItem('user');
+        if (userJson) {
+            const u = JSON.parse(userJson);
+            if (!savedEmail && u.email) savedEmail = u.email;
+            if (!savedPassword && u.password) savedPassword = u.password;
+            if (u.role) savedRole = u.role;
+        }
+    } catch(e){}
+
+    if (accountRole) {
+        accountRole.value = savedRole;
+        accountRole.addEventListener('change', async function() {
+            const newRole = this.value;
+            const toast = document.createElement('div');
+            toast.textContent = `Saving role...`;
+            toast.style.cssText = "position:fixed;bottom:20px;right:20px;padding:10px 20px;background:#3b82f6;color:white;border-radius:8px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);";
+            document.body.appendChild(toast);
+
+            try {
+                // 1. Update LocalStorage
+                let u = JSON.parse(localStorage.getItem('user') || '{}');
+                u.role = newRole;
+                localStorage.setItem('user', JSON.stringify(u));
+                console.log("Local role updated to:", newRole);
+
+                // 2. Dynamic Import Firebase to update Firestore
+                const { auth, db, doc, updateDoc } = await import('./firebase-config.js');
+
+                // Wait for auth to be ready if needed, or check currentUser
+                if (auth.currentUser) {
+                    const userRef = doc(db, "users", auth.currentUser.uid);
+                    await updateDoc(userRef, { role: newRole });
+                    console.log("Firestore role updated to:", newRole);
+                    toast.textContent = "Role Saved to Profile!";
+                    toast.style.background = "#10b981";
+                } else {
+                    toast.textContent = "Saved Locally (Not Logged In)";
+                    toast.style.background = "#f59e0b";
+                }
+
+            } catch(e) {
+                console.error("Error updating role:", e);
+                // Fallback: If import fails (e.g. offline with no cache), we already updated local storage
+                toast.textContent = "Saved Locally (Offline Mode)";
+                toast.style.background = "#f59e0b";
+            }
+            
+            setTimeout(() => toast.remove(), 2500);
+        });
     }
-    
+
     if (accountEmail) accountEmail.value = savedEmail || '';
     if (accountPassword) accountPassword.value = savedPassword || '';
     
@@ -1053,6 +1180,56 @@ function renderSettings(category) {
         changePasswordSection.style.display = isVisible ? 'none' : 'block';
       });
     }
+
+    // --- DANGER ZONE LOGIC ---
+    const resetSettingsBtn = document.getElementById('resetSettingsBtn');
+    if (resetSettingsBtn) {
+        resetSettingsBtn.addEventListener('click', () => {
+            if(confirm("Are you sure? This will reset your theme, language, and display preferences locally. It does not delete your account.")) {
+                const keys = ['arisEduColorTheme', 'arisEduLanguage', 'arisEduDarkMode', 'arisEduTaskbarSettings', 'arisEduTaskbarSize', 'arisEduBackgroundTheme'];
+                keys.forEach(k => localStorage.removeItem(k));
+                alert("Settings reset. Reloading...");
+                location.reload();
+            }
+        });
+    }
+    const resetStreakBtn = document.getElementById('resetStreakBtn');
+    if (resetStreakBtn) {
+        resetStreakBtn.addEventListener('click', async () => {
+            if(confirm("Reset your streak count to 0? This cannot be undone.")) {
+                // Local
+                try {
+                     const user = JSON.parse(localStorage.getItem('user') || '{}');
+                     user.streakCount = 0;
+                     // Reset lastLoginDate to null to ensure next login counts afresh if desired, 
+                     // or keep it to show 0 streak today. Just setting count is enough.
+                     localStorage.setItem('user', JSON.stringify(user));
+                     
+                     // Attempt to clear from userData in dashboard too if present
+                     // But this is Preferences page.
+                     
+                     // Basic Toast
+                     const toast = document.createElement('div');
+                     toast.textContent = "Streak Reset!";
+                     toast.style.cssText = "position:fixed;bottom:20px;right:20px;padding:10px 20px;background:#ef4444;color:white;border-radius:8px;z-index:9999;";
+                     document.body.appendChild(toast);
+                     setTimeout(() => toast.remove(), 2000);
+
+                     // Firestore
+                     const { auth, db, doc, updateDoc } = await import('./firebase-config.js');
+                     if(auth.currentUser) {
+                         await updateDoc(doc(db, "users", auth.currentUser.uid), { streakCount: 0 });
+                     } else {
+                         console.warn("Not logged in, streak reset locally only.");
+                     }
+                } catch(e) {
+                     console.error(e);
+                     alert("Error resetting streak: " + e.message);
+                }
+            }
+        });
+    }
+
     const savePasswordBtn = document.getElementById('savePasswordBtn');
     if (savePasswordBtn) {
       savePasswordBtn.addEventListener('click', function() {

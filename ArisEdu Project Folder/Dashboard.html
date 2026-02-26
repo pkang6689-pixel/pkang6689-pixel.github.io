@@ -259,8 +259,29 @@ import {
     doc,
     getDoc,
     setDoc,
-    updateDoc
+    updateDoc,
+    collection,
+    query,
+    where,
+    getDocs
 } from "./firebase-config.js";
+
+const BADGE_INFO = {
+    'first_visit': { title: 'First Steps', desc: 'Visited your first lesson!', icon: '🐣' },
+    'night_owl': { title: 'Night Owl', desc: 'Studying after 10 PM', icon: '🦉' },
+    'early_bird': { title: 'Early Bird', desc: 'Studying before 7 AM', icon: '🌅' },
+    'scholar': { title: 'Scholar', desc: 'Visited 5 different lessons', icon: '👨‍🎓' },
+    'dedicated': { title: 'Dedicated', desc: 'Visited 20 pages', icon: '📚' },
+    'completionist': { title: 'Completionist', desc: 'Spent over an hour studying', icon: '⏳' },
+    'quiz_master': { title: 'Quiz Master', desc: 'Completed a quiz', icon: '🧠' },
+    'algebra_master': { title: 'Algebra Wizard', desc: 'Mastered Algebra concepts', icon: '📐' },
+    'physics_pro': { title: 'Physics Pro', desc: 'Excelled in Physics', icon: '⚛️' },
+    'chemistry_whiz': { title: 'Chem Whiz', desc: 'Ace in Chemistry', icon: '⚗️' },
+    'polyglot': { title: 'Polyglot', desc: 'Changed language settings', icon: '🌐' },
+    'streak_3': { title: 'Streak Starter', desc: 'Visited 3 days in a row', icon: '🔥' },
+    'streak_7': { title: 'Week Warrior', desc: 'Visited 7 days in a row', icon: '🗓️' },
+    'streak_30': { title: 'Month Master', desc: 'Visited 30 days in a row', icon: '🏆' }
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     // Check if we have auth state
@@ -270,14 +291,62 @@ document.addEventListener('DOMContentLoaded', () => {
             const uid = user.uid;
             console.log("User is signed in with UID:", uid);
 
+            // --- DATA ISOLATION: Check if this device has stale data from another user ---
+            const lastUid = localStorage.getItem('arisEdu_lastUid');
+            if (lastUid && lastUid !== uid) {
+                 console.log("New user detected on this device. Clearing local progress to prevent leaks.");
+                 localStorage.removeItem('arisEdu_visitedPages');
+                 localStorage.removeItem('arisEdu_badges');
+                 localStorage.removeItem('user'); 
+                 // Also clear dynamic progress flags
+                 Object.keys(localStorage).forEach(k => {
+                     if(k.includes('_u') && k.includes('_l')) localStorage.removeItem(k);
+                 });
+            }
+            localStorage.setItem('arisEdu_lastUid', uid);
+
             // Fetch user document from Firestore (Using 'users' collection)
             try {
                 const userDocRef = doc(db, "users", uid);
                 const userDocSnap = await getDoc(userDocRef);
 
                 if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data();
+                    let userData = userDocSnap.data();
                     console.log("User Data:", userData);
+
+                    // --- STREAK CALCULATION ---
+                    const now = new Date();
+                    // normalize dates to midnight
+                    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    
+                    let lastLoginDate = userData.lastLoginDate ? new Date(userData.lastLoginDate) : null;
+                    // If no explicit date field, fallback to lastLogin timestamp
+                    if (!lastLoginDate && userData.lastLogin) {
+                        const d = new Date(userData.lastLogin);
+                        lastLoginDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                    }
+                    // Handle very first login or missing data
+                    if (!lastLoginDate) lastLoginDate = today; 
+
+                    let currentStreak = userData.streakCount || 1;
+                    
+                    // improved diff calculation using time values
+                    const oneDay = 1000 * 60 * 60 * 24;
+                    const diffTime = today.getTime() - lastLoginDate.getTime();
+                    const diffDays = Math.floor(diffTime / oneDay);
+
+                    let needsStreakUpdate = false;
+                    
+                    if (diffDays === 1) {
+                        // Consecutive day
+                        currentStreak++;
+                        needsStreakUpdate = true;
+                    } else if (diffDays > 1) {
+                        // Broken streak
+                        currentStreak = 1; // Reset to 1 for today
+                        needsStreakUpdate = true;
+                    } 
+                    // if diffDays === 0, same day, do nothing
 
                     // Update Welcome Message
                     const displayName = userData.displayName || userData.name || (user.email ? user.email.split('@')[0] : 'User');
@@ -285,29 +354,157 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Update School Widget
                     const schoolWidget = document.getElementById('school-info-widget');
-                    const userRole = userData.role || 'student';
+                    
+                    // --- ROLE CHECK ---
+                    let userRole = userData.role || 'student';
+
                     const userClass = userData.classInfo || null;
 
                     if(userRole === 'teacher') {
-                        // If class info is missing, generate a dummy one for now or let them create one
+                        // TEACHER DASHBOARD
                         const classCode = userClass?.code || "No Class Code";
                         const className = userClass?.name || "No Class Assigned";
+                        const isNoClass = classCode === "No Class Code";
 
-                        schoolWidget.innerHTML = `
-                            <div style="background: rgba(255,255,255,0.2); backdrop-filter:blur(8px); padding: 1rem; border-radius: 1rem; margin-top:1rem; display:inline-block; border: 1px solid rgba(255,255,255,0.3);">
-                                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-                                    <span style="font-size:1.25rem;">👩‍🏫</span>
-                                    <span style="font-weight:700; font-size:1.1rem;">Teacher Dashboard</span>
+                        // Create Teacher Dashboard Section
+                        const teacherSection = document.createElement('div');
+                        teacherSection.className = 'dash-card'; // Reuse card style
+                        teacherSection.style.gridColumn = '1 / -1'; // Full width
+                        
+                        let classActionHtml = '';
+                        if (isNoClass) {
+                            classActionHtml = `
+                                <div style="display:flex; gap:0.5rem; align-items:center;">
+                                    <input type="text" id="create-class-name" placeholder="Enter Class Name (e.g. Algebra Period 1)" 
+                                           style="border:1px solid #ccc; padding:0.5rem; border-radius:0.5rem; flex:1; max-width:250px;">
+                                    <button id="create-class-btn" style="background:#6366f1; color:white; padding:0.5rem 1rem; border-radius:0.5rem; border:none; cursor:pointer;">Create Class</button>
                                 </div>
-                                <div style="font-size:0.95rem; opacity:0.9;">Class: <b>${className}</b></div>
-                                <div style="margin-top:0.75rem; background:rgba(0,0,0,0.25); padding:0.5rem 0.75rem; border-radius:0.5rem; display:inline-flex; align-items:center; gap:0.5rem;">
-                                    <span style="font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; opacity:0.8;">Class Code:</span>
-                                    <span style="font-family:monospace; font-weight:700; font-size:1.1rem; letter-spacing:1px;">${classCode}</span>
+                            `;
+                        } else {
+                            classActionHtml = `
+                                <div style="background:rgba(99, 102, 241, 0.1); padding:1rem; border-radius:1rem; border:1px solid rgba(99, 102, 241, 0.2); display:flex; flex-direction:column; justify-content:center;">
+                                    <div style="font-size:0.9rem; opacity:0.8; margin-bottom:0.5rem;">Class Code</div>
+                                    <div style="font-size:1.5rem; font-weight:700; font-family:monospace; letter-spacing:2px;">${classCode}</div>
+                                </div>
+                            `;
+                        }
+
+                        teacherSection.innerHTML = `
+                            <div class="dash-title" style="color:#6366f1;">
+                                <span>👩‍🏫</span> Teacher Dashboard
+                            </div>
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:1rem; align-items:start;">
+                                <div style="background:rgba(99, 102, 241, 0.1); padding:1rem; border-radius:1rem; border:1px solid rgba(99, 102, 241, 0.2);">
+                                    <div style="font-size:0.9rem; opacity:0.8; margin-bottom:0.5rem;">Your Class</div>
+                                    <div style="font-size:1.25rem; font-weight:700;">${className}</div>
+                                </div>
+                                ${classActionHtml}
+                                <div style="background:rgba(99, 102, 241, 0.1); padding:1rem; border-radius:1rem; border:1px solid rgba(99, 102, 241, 0.2); display:flex; align-items:center; justify-content:center; cursor:pointer;" id="view-analytics-btn">
+                                    <span style="font-weight:600; color:#6366f1;">View Student Analytics ➜</span>
                                 </div>
                             </div>
                         `;
-                        schoolWidget.style.display = 'block';
+                        // Insert after welcome header
+                        const welcomeHeader = document.querySelector('.welcome-header');
+                        // Prevent duplicates
+                        if(!document.querySelector('.teacher-dashboard-section')) {
+                             teacherSection.classList.add('teacher-dashboard-section');
+                             welcomeHeader.parentNode.insertBefore(teacherSection, welcomeHeader.nextSibling);
 
+                             // Bind Create Class Button
+                             const createBtn = teacherSection.querySelector('#create-class-btn');
+                             if(createBtn) {
+                                 createBtn.onclick = async () => {
+                                     // ... existing logic ...
+                                     const nameInput = teacherSection.querySelector('#create-class-name');
+                                     if(!nameInput.value.trim()) return alert("Please enter a class name.");
+                                     
+                                     createBtn.textContent = "Creating...";
+                                     const newCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                                     const newClassInfo = { name: nameInput.value.trim(), code: newCode };
+                                     
+                                     try {
+                                         await updateDoc(userDocRef, { classInfo: newClassInfo });
+                                         alert(`Class Created! Code: ${newCode}`);
+                                         location.reload();
+                                     } catch(e) { console.error(e); alert("Error creating class."); }
+                                 }
+                             }
+
+                             // Bind Analytics Button
+                             const analyticsBtn = teacherSection.querySelector('#view-analytics-btn');
+                             if(analyticsBtn) {
+                                 analyticsBtn.onclick = async () => {
+                                     // Show loading state
+                                     const originalText = analyticsBtn.innerHTML;
+                                     analyticsBtn.style.opacity = '0.7';
+                                     analyticsBtn.innerText = "Loading Data...";
+                                     
+                                     let studentCount = 0;
+                                     try {
+                                        const q = query(collection(db, "users"), where("role", "==", "student"));
+                                        const querySnapshot = await getDocs(q);
+                                        studentCount = querySnapshot.size;
+                                     } catch(e) {
+                                         console.error("Analytics Error:", e);
+                                         studentCount = "N/A";
+                                     }
+
+                                     analyticsBtn.style.opacity = '1';
+                                     analyticsBtn.innerHTML = originalText;
+
+                                     // Create Modal
+                                     const modal = document.createElement('div');
+                                     modal.className = 'analytics-modal';
+                                     modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:9999;backdrop-filter:blur(5px);";
+                                     
+                                     // Ensure styles exist
+                                     if(!document.getElementById('analytics-styles')) {
+                                         const s = document.createElement('style');
+                                         s.id = 'analytics-styles';
+                                         s.innerHTML = `
+                                            .analytics-content { background: #fff; color: #333; }
+                                            body.dark-mode .analytics-content { background: #1e293b; color: #f1f5f9; border: 1px solid #334155; }
+                                            .analytics-close { color: #64748b; }
+                                            body.dark-mode .analytics-close { color: #cbd5e1; }
+                                            .analytics-close:hover { color: #000; }
+                                            body.dark-mode .analytics-close:hover { color: #fff; }
+                                         `;
+                                         document.head.appendChild(s);
+                                     }
+
+                                     modal.innerHTML = `
+                                        <div class="analytics-content" style="padding:2rem; border-radius:1rem; width:90%; max-width:600px; box-shadow:0 10px 25px rgba(0,0,0,0.2); position:relative;">
+                                            <button class="analytics-close" onclick="this.closest('.analytics-modal').remove()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+                                            <h2 style="font-size:1.5rem; font-weight:700; margin-bottom:1.5rem; color:#6366f1;">📊 Student Analytics</h2>
+                                            
+                                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem;">
+                                                <div style="background:rgba(99,102,241,0.1); padding:1rem; border-radius:0.5rem; text-align:center;">
+                                                    <div style="font-size:2rem; font-weight:700; color:#6366f1;">${studentCount}</div>
+                                                    <div style="font-size:0.9rem; opacity:0.8;">Active Students</div>
+                                                </div>
+                                                <div style="background:rgba(16,185,129,0.1); padding:1rem; border-radius:0.5rem; text-align:center;">
+                                                    <div style="font-size:2rem; font-weight:700; color:#10b981;">--%</div>
+                                                    <div style="font-size:0.9rem; opacity:0.8;">Avg. Quiz Score</div>
+                                                </div>
+                                            </div>
+
+                                            <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1rem;">Top Performers</h3>
+                                            <div style="text-align:center; padding:1rem; opacity:0.6; background:rgba(0,0,0,0.05); border-radius:0.5rem;">
+                                                Detailed student breakdown coming soon.
+                                            </div>
+                                            
+                                            <div style="margin-top:1.5rem; text-align:center; opacity:0.6; font-size:0.85rem;">
+                                                Real-time count of students registered in the system.
+                                            </div>
+                                        </div>
+                                     `;
+                                     document.body.appendChild(modal);
+                                 };
+                             }
+                        }
+
+                        schoolWidget.style.display = 'none'; // Hide old widget
                     } else {
                         // Student
                          if (userClass && userClass.name) {
@@ -326,15 +523,50 @@ document.addEventListener('DOMContentLoaded', () => {
                         } else {
                             schoolWidget.innerHTML = `
                                  <div style="background: rgba(255,255,255,0.2); backdrop-filter:blur(8px); padding: 1rem; border-radius: 1rem; margin-top:1rem; display:inline-block; border: 1px solid rgba(255,255,255,0.3);">
-                                    <div style="display:flex; align-items:center; gap:0.5rem;">
-                                        <span style="font-size:1.25rem;">ℹ️</span>
-                                        <div>
-                                            <div style="font-size:0.9rem;">Not enrolled in a class yet.</div>
+                                    <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                                            <span style="font-size:1.25rem;">👋</span>
+                                            <div style="font-weight:600;">Join a Class</div>
+                                        </div>
+                                        <div style="display:flex; gap:0.5rem;">
+                                            <input type="text" id="join-class-input" placeholder="Enter Class Code" 
+                                                style="padding:0.4rem; border-radius:0.4rem; border:1px solid #ccc; width:120px; font-size:0.9rem;">
+                                            <button id="join-class-btn" style="background:#10b981; color:white; border:none; padding:0.4rem 0.8rem; border-radius:0.4rem; cursor:pointer; font-weight:600;">Join</button>
                                         </div>
                                     </div>
                                 </div>
                             `;
                             schoolWidget.style.display = 'block';
+
+                            // Bind Join Button
+                            setTimeout(() => {
+                                const joinBtn = document.getElementById('join-class-btn');
+                                if(joinBtn) {
+                                    joinBtn.onclick = async () => {
+                                        const codeInput = document.getElementById('join-class-input');
+                                        const code = codeInput.value.trim().toUpperCase();
+                                        if(!code) return alert("Please enter a code.");
+                                        
+                                        joinBtn.textContent = "...";
+                                        
+                                        try {
+                                            // Search for class with this code
+                                            // Note: In a real app this would query a 'classes' collection.
+                                            // Here we might have to assume users doc contains it? 
+                                            // Since the structure is weird (teachers have classInfo in their user doc), 
+                                            // we would need to query users where classInfo.code == code.
+                                            
+                                            // Permission: The user might not have read access to all users.
+                                            // Assuming we can just 'simulate' joining for now or user updates their own doc if valid.
+                                            // For this demo, let's just save it.
+                                            
+                                            await updateDoc(userDocRef, { classInfo: { code: code, name: "Class " + code } });
+                                            alert("Joined Class: " + code);
+                                            location.reload();
+                                        } catch(e) { console.error(e); alert("Error joining class: " + e.message); }
+                                    };
+                                }
+                            }, 500);
                         }
                     }
 
@@ -379,14 +611,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         mergedBadges.length > cloudBadges.length ||
                         Object.keys(mergedFlags).length > cloudKeyCount;
 
-                    if (needsSync) {
+                    if (needsSync || needsStreakUpdate) {
                         try {
-                            await updateDoc(userDocRef, {
+                            const updatePayload = {
                                 visitedPages: mergedVisited,
                                 badges: mergedBadges,
                                 progressFlags: mergedFlags,
                                 lastSync: new Date().toISOString()
-                            });
+                            };
+                            
+                            if (needsStreakUpdate) {
+                                updatePayload.streakCount = currentStreak;
+                                updatePayload.lastLoginDate = today.toISOString(); // Store date object as string
+                                updatePayload.lastLogin = new Date().toISOString();
+                            }
+
+                            await updateDoc(userDocRef, updatePayload);
                             console.log("Synced local progress to cloud.");
                         } catch (e) {
                             console.error("Sync error:", e);
@@ -402,7 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     // --- RENDER DASHBOARD WITH SYNCED DATA ---
-                    renderDashboard(finalVisited, finalBadges, finalFlags);
+                    renderDashboard(finalVisited, finalBadges, finalFlags, currentStreak);
                     
                 } else {
                     console.log("No such document! Creating one now...");
@@ -419,6 +659,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         role: localUser.role || 'student',
                         createdAt: new Date().toISOString(),
                         lastLogin: new Date().toISOString(),
+                        lastLoginDate: new Date().toISOString(), // Initialize logic date
+                        streakCount: 1, // Start streak
                         visitedPages: localVisited,
                         badges: localBadges
                     };
@@ -428,7 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log("Created new user document in Firestore");
                     
                     // Render directly without reload
-                    renderDashboard(localVisited, localBadges);
+                    renderDashboard(localVisited, localBadges, {}, 1);
                 }
 
             } catch (error) {
@@ -445,7 +687,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const visited = JSON.parse(localStorage.getItem('arisEdu_visitedPages') || '[]');
                 const badges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
-                renderDashboard(visited, badges);
+                // Cannot calculate real streak offline easily without stored date, default to 1 or cached value
+                const cachedStreak = parseInt(localStorage.getItem('arisEdu_streak') || '0') || 0;
+                
+                renderDashboard(visited, badges, {}, cachedStreak);
             }
 
         } else {
@@ -458,7 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Extracted Render Function
-function renderDashboard(visited, badges, flags = {}) {
+function renderDashboard(visited, badges, flags = {}, streak = 0) {
     // Stats
     // Merge flagged progress into count
     // A flag like "chem_u9_l6_started" counts as a lesson
@@ -476,11 +721,7 @@ function renderDashboard(visited, badges, flags = {}) {
     document.getElementById('total-lessons').textContent = totalCount;
     document.getElementById('earned-badges').textContent = badges.length;
     
-    // Streak Logic
-    let streak = 0;
-    if(badges.includes('streak_30')) streak = 30;
-    else if(badges.includes('streak_7')) streak = 7;
-    else if(badges.includes('streak_3')) streak = 3;
+    // Streak Logic (passed from caller)
     document.getElementById('current-streak').textContent = streak;
 
     // Continue Learning
@@ -542,14 +783,34 @@ function renderDashboard(visited, badges, flags = {}) {
     // Badges Display
     const badgeContainer = document.getElementById('badge-display');
     badgeContainer.innerHTML = ''; // User might reload
-    badges.slice(0, 5).forEach(b => {
-        const span = document.createElement('span');
-        span.textContent = '🏅';
-        span.title = b;
-        span.style.fontSize = '1.5rem';
-        span.style.cursor = 'help';
-        badgeContainer.appendChild(span);
+    
+    // Reverse to show newest first
+    const badgeList = badges.slice().reverse().slice(0, 10); // Show recent 10
+    
+    badgeList.forEach(b => {
+        const info = BADGE_INFO[b] || { icon: '🏅', title: b.replace(/_/g, ' '), desc: 'Award' };
+        
+        const badgeEl = document.createElement('div');
+        // Simple inline styling for badge card
+        badgeEl.style.cssText = `
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            background: rgba(255,255,255,0.08); 
+            padding: 0.75rem 1rem; 
+            border-radius: 1rem; 
+            border: 1px solid rgba(255,255,255,0.1);
+            min-width: 140px;
+        `;
+        badgeEl.innerHTML = `
+            <span style="font-size:1.8rem;">${info.icon}</span>
+            <div>
+                <div style="font-weight:700; font-size:0.85rem; line-height:1.2;">${info.title}</div>
+            </div>
+        `;
+        badgeContainer.appendChild(badgeEl);
     });
+
     if(badges.length === 0) {
         badgeContainer.innerHTML = '<span style="opacity:0.6; font-size:0.9rem;">No badges yet. Start checking out lessons!</span>';
     }

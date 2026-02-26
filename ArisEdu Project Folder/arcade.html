@@ -278,11 +278,183 @@
   </main>
   <script>
     (function() {
+      // 1. Theme Logic
       const theme = localStorage.getItem('arisEduColorTheme') || 'blue-green';
       const taskbar = document.querySelector('.taskbar');
       if (taskbar && theme === 'sunset') {
         taskbar.style.background = 'linear-gradient(to right, #FF7E5F, #00C9A7, #1A2A6C)';
       }
+
+      // 2. Arcade Locking Mechanism
+      // CSS Injection for Locked State
+      const style = document.createElement('style');
+      style.textContent = `
+        .game-card { position: relative; }
+        .game-card.locked {
+            filter: grayscale(0.9) contrast(0.8);
+            pointer-events: none; /* Disable link navigation */
+        }
+        .lock-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1.25rem;
+            z-index: 10;
+            pointer-events: auto; /* Catch clicks */
+            cursor: pointer;
+            backdrop-filter: blur(2px);
+            transition: background 0.2s;
+        }
+        .lock-overlay:hover {
+            background: rgba(15, 23, 42, 0.7);
+        }
+        .lock-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .lock-text { color: white; font-weight: 700; font-family: 'Poppins', sans-serif; }
+        .lock-price { 
+            background: #f59e0b; color: #000; 
+            padding: 0.25rem 0.75rem; border-radius: 1rem; 
+            font-size: 0.9rem; font-weight: 700; 
+            margin-top: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+      `;
+      document.head.appendChild(style);
+
+      // Game Costs (Example Economy)
+      const gameCosts = {
+          'match': 0, // Free
+          'snake': 0, // Free
+          'platformer': 50,
+          'spaceship': 100,
+          'tetris': 200,
+          'blocks': 300,
+          'pacman': 400
+      };
+
+      // Ensure all game cards have identifiable classes if not present
+      // Current classes: game-card match, game-card snake, etc.
+      // Need to handle generic ones just in case.
+
+      // User Data
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const unlocked = user.unlockedGames || ['match', 'snake']; 
+      const currentPoints = user.points || 0; 
+
+      // Apply Locks
+      document.querySelectorAll('.game-card').forEach(card => {
+          // Identify game from href or class
+          let gameId = '';
+          if(card.classList.contains('match')) gameId = 'match';
+          else if(card.classList.contains('snake')) gameId = 'snake';
+          else if(card.classList.contains('platformer') || card.href.includes('Platformer')) gameId = 'platformer';
+          else if(card.classList.contains('spaceship') || card.href.includes('Spaceship')) gameId = 'spaceship';
+          else if(card.classList.contains('tetris') || card.href.includes('Tetris')) gameId = 'tetris';
+          else if(card.classList.contains('blocks') || card.href.includes('Blocks')) gameId = 'blocks';
+          else if(card.href.includes('Pacman')) gameId = 'pacman';
+
+          // Default cost if not listed (e.g. new games)
+          if(gameId && !(gameId in gameCosts)) gameCosts[gameId] = 500; 
+
+          if(gameId && gameCosts[gameId] > 0 && !unlocked.includes(gameId)) {
+              // Lock it
+              card.classList.add('locked');
+              
+              const overlay = document.createElement('div');
+              overlay.className = 'lock-overlay';
+              overlay.innerHTML = `
+                  <div class="lock-icon">🔒</div>
+                  <div class="lock-text">LOCKED</div>
+                  <div class="lock-price">${gameCosts[gameId]} Pts</div>
+              `;
+              
+              overlay.onclick = (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  // Custom Modal Logic
+                  const modalOverlay = document.createElement('div');
+                  modalOverlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:9999;display:flex;justify-content:center;align-items:center;";
+                  
+                  const modalContent = document.createElement('div');
+                  modalContent.style.cssText = "background:white;padding:2rem;border-radius:1rem;width:90%;max-width:400px;text-align:center;box-shadow:0 10px 25px rgba(0,0,0,0.3);animation:popIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);";
+                  
+                  const canAfford = currentPoints >= gameCosts[gameId];
+                  
+                  modalContent.innerHTML = `
+                      <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:1rem;color:#1e293b;">Unlock ${gameId.charAt(0).toUpperCase() + gameId.slice(1)}?</h2>
+                      <div style="font-size:3rem;margin-bottom:1rem;">${canAfford ? '🔓' : '🔒'}</div>
+                      <p style="margin-bottom:1.5rem;color:#64748b;">
+                        Cost: <strong style="color:#f59e0b;">${gameCosts[gameId]} Pts</strong><br>
+                        You have: <strong>${currentPoints} Pts</strong>
+                      </p>
+                      <div style="display:flex;gap:1rem;justify-content:center;">
+                          <button id="cancel-unlock" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:1px solid #cbd5e1;background:white;color:#64748b;cursor:pointer;font-weight:600;">Cancel</button>
+                          ${canAfford ? 
+                            `<button id="confirm-unlock" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#10b981;color:white;cursor:pointer;font-weight:600;box-shadow:0 4px 6px rgba(16,185,129,0.2);">Unlock Now</button>` : 
+                            `<button disabled style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#e2e8f0;color:#94a3b8;cursor:not-allowed;font-weight:600;">Need More Points</button>`
+                          }
+                      </div>
+                  `;
+                  
+                  modalOverlay.appendChild(modalContent);
+                  document.body.appendChild(modalOverlay);
+                  
+                  // Animation keyframes if not exists
+                  if(!document.getElementById('popInAnim')) {
+                      const s = document.createElement('style');
+                      s.id = 'popInAnim';
+                      s.innerHTML = `@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }`;
+                      document.head.appendChild(s);
+                  }
+
+                  // Event Listeners
+                  modalContent.querySelector('#cancel-unlock').onclick = () => modalOverlay.remove();
+                  
+                  const confirmBtn = modalContent.querySelector('#confirm-unlock');
+                  if(confirmBtn) {
+                      confirmBtn.onclick = async () => {
+                          confirmBtn.textContent = "Unlocking...";
+                          // Deduct and Unlock
+                          user.points = currentPoints - gameCosts[gameId];
+                          user.unlockedGames = [...unlocked, gameId];
+                          localStorage.setItem('user', JSON.stringify(user));
+                          
+                          // Sync Firebase
+                          try {
+                              const { auth, db, doc, updateDoc, arrayUnion, increment } = await import('./firebase-config.js');
+                              if(auth.currentUser) {
+                                  const userRef = doc(db, "users", auth.currentUser.uid);
+                                  await updateDoc(userRef, {
+                                      points: increment(-gameCosts[gameId]),
+                                      unlockedGames: arrayUnion(gameId)
+                                  });
+                              }
+                          } catch(e) { console.warn("Offline unlock"); }
+
+                          // Visual Update
+                          card.classList.remove('locked');
+                          overlay.remove();
+                          modalOverlay.remove();
+                          
+                          // Success Toast
+                          const toast = document.createElement('div');
+                          toast.textContent = "Game Unlocked!";
+                          toast.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:0.75rem 1.5rem;border-radius:2rem;box-shadow:0 10px 15px rgba(0,0,0,0.1);z-index:9999;font-weight:600;";
+                          document.body.appendChild(toast);
+                          setTimeout(() => toast.remove(), 2500);
+                          setTimeout(() => location.reload(), 1000); // Reload to ensure state consistency
+                      };
+                  }
+              };
+              
+              card.appendChild(overlay);
+          }
+      });
+
     })();
   </script>
  </body>

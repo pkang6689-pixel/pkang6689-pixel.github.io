@@ -957,6 +957,26 @@
     };
 
     window.applyArisTheme = function() {
+        // --- Apply Taskbar Size ---
+        const taskbarSize = localStorage.getItem('arisEduTaskbarSize') || 'medium';
+        const root = document.documentElement;
+        if(taskbarSize === 'small') {
+            root.style.setProperty('--taskbar-padding-y', '0.25rem');
+            root.style.setProperty('--taskbar-padding-x', '0.75rem');
+            root.style.setProperty('--taskbar-font-size', '0.75rem');
+            root.style.setProperty('--taskbar-gap', '0.5rem');
+        } else if(taskbarSize === 'large') {
+            root.style.setProperty('--taskbar-padding-y', '0.75rem');
+            root.style.setProperty('--taskbar-padding-x', '1.5rem');
+            root.style.setProperty('--taskbar-font-size', '1.1rem');
+            root.style.setProperty('--taskbar-gap', '1.5rem');
+        } else {
+            root.style.removeProperty('--taskbar-padding-y');
+            root.style.removeProperty('--taskbar-padding-x');
+            root.style.removeProperty('--taskbar-font-size');
+            root.style.removeProperty('--taskbar-gap');
+        }
+
         const storedDarkMode = localStorage.getItem('arisEduDarkMode');
         const darkMode = storedDarkMode === null ? true : storedDarkMode === 'true';
         const colorTheme = localStorage.getItem('arisEduColorTheme') || 'blue-green';

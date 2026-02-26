@@ -1,20 +1,125 @@
 
 // Inject AI Assistant and Features Scripts
 (function() {
+    // Detect base path for GitHub Pages vs Local File
+    // If we are in /ArisEdu Project Folder/, scripts are in ./scripts/
+    // If we are in root, scripts are in ./ArisEdu Project Folder/scripts/
+    
+    // Safe Script Path Calculation
+    function getScriptPath(filename) {
+        // Handle local file system paths vs server paths
+        const isFileProtocol = window.location.protocol === 'file:';
+        
+        // Base absolute path for server/github pages
+        const serverPath = "/ArisEdu Project Folder/scripts/" + filename;
+        
+        if (!isFileProtocol) return serverPath;
+
+        // LOCAL FILE SYSTEM LOGIC
+        // Check if we are inside "ArisEdu Project Folder"
+        const path = decodeURIComponent(window.location.pathname);
+        if (path.includes('ArisEdu Project Folder')) {
+             // Split by the folder name to determine depth
+             const parts = path.split('ArisEdu Project Folder');
+             // The second part is inevitably the path AFTER the project folder
+             // e.g., "/Dashboard.html" or "/Algebra1Lessons/Unit1/Lesson1.html"
+             
+             if (parts.length > 1) {
+                 const relativePath = parts[1];
+                 // Count how many directory levels deep we are
+                 // /Dashboard.html -> 1 slash -> 0 folders deep -> scripts/
+                 // /Algebra1Lessons/Unit1/Lesson1.html -> 3 slashes -> 2 folders deep -> ../../scripts/
+                 
+                 // Remove leading slash if present
+                 const cleanPath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
+                 const segments = cleanPath.split('/').length - 1; // -1 because filename doesn't count as folder
+                 
+                 let rel = "scripts/";
+                 for(let i=0; i<segments; i++) rel = "../" + rel;
+                 return rel + filename;
+             }
+        }
+        
+        // Fallback: Assume we are in root and scripts are in subdir
+        return "ArisEdu Project Folder/scripts/" + filename;
+    }
+
     [
-        "/ArisEdu Project Folder/scripts/ai_assistant.js",
-        "/ArisEdu Project Folder/scripts/badges.js",
-        "/ArisEdu Project Folder/scripts/ambience_controller.js"
-        // help_section.js removed to prevent 404
-    ].forEach(src => {
-        var script = document.createElement('script');
-        script.src = src;
-        document.head.appendChild(script);
+        "ai_assistant.js",
+        "badges.js",
+        "ambience_controller.js",
+        "layout_adjuster.js",
+        "update_notifier.js"
+    ].forEach(name => {
+        // Check if script already exists to prevent duplicates
+        // Note: querySelector logic is imperfect for relative paths, check src content
+        const targetSrc = getScriptPath(name);
+        
+        // Check if any script ends with this filename
+        const exists = Array.from(document.scripts).some(s => s.src.includes(name));
+        
+        if(!exists) {
+            var script = document.createElement('script');
+            script.src = targetSrc;
+            document.head.appendChild(script);
+        }
     });
 })();
 
 // taskbar.js — Shared taskbar injection + logic for all pages
 (function () {
+    // --- Inject vital styles for taskbar components (e.g. settings menu) ---
+    if(!document.getElementById('aris-taskbar-styles')) {
+        const style = document.createElement('style');
+        style.id = 'aris-taskbar-styles';
+        style.innerHTML = `
+            .settings-menu {
+                position: fixed;
+                z-index: 10005; /* Higher than modal */
+                background-color: #ffffff;
+                color: #0f172a;
+                padding: 0.5rem;
+                border-radius: 0.75rem;
+                box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+                min-width: 220px;
+                visibility: hidden;
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+                transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+                border: 1px solid #e2e8f0;
+                top: 60px; /* Fallback */
+            }
+            body.dark-mode .settings-menu {
+                background-color: #1e293b; 
+                color: #f1f5f9;
+                border-color: #334155;
+                box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5), 0 8px 10px -6px rgba(0,0,0,0.5);
+            }
+            .settings-item {
+                padding: 0.75rem 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                color: inherit;
+                text-decoration: none;
+                cursor: pointer;
+                border-radius: 0.5rem;
+                transition: background 0.2s, color 0.2s;
+                font-weight: 500;
+                font-size: 0.95rem;
+            }
+            .settings-item:hover {
+                background-color: #f1f5f9;
+                color: #3b82f6;
+            }
+            body.dark-mode .settings-item:hover {
+                background-color: rgba(255,255,255,0.08);
+                color: #3b82f6;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
   // Determine page type and back-button behavior from URL
   var path = decodeURIComponent(window.location.pathname);
   var filename = path.split('/').pop();
@@ -142,7 +247,7 @@
             '<div class="taskbar-category" title="Misc">' +
                 '<a class="taskbar-button" href="/ArisEdu Project Folder/arcade.html" id="arcade-button"'+getDisp('arcade')+'>\uD83D\uDC7E Arcade</a>' +
                 '<button class="taskbar-button" id="forums-button" onclick="window.location.href=\'/ArisEdu Project Folder/forums.html\'"'+getDisp('forums')+'>\uD83D\uDCAC Forums</button>' +
-                '<button class="taskbar-button" onclick="if(window.showArisEduUpdate) window.showArisEduUpdate()" title="View Update Log">🔔 Updates</button>' +
+                '<button class="taskbar-button" onclick="if(window.showArisEduUpdate) window.showArisEduUpdate()" title="View Update Log">🔔</button>' +
             '</div>' +
 
             // Tools
@@ -190,6 +295,7 @@
         '<a class="taskbar-button" href="/ArisEdu Project Folder/Dashboard.html" id="dashboard-button"'+getDisp('dashboard')+'>\uD83D\uDCCA Dashboard</a>' +
         '<a class="taskbar-button" href="/ArisEdu Project Folder/Courses.html" id="course-button"'+getDisp('courses')+'>\uD83D\uDCDA Courses</a>' +
         '<button class="taskbar-button" id="streak-button" title="Current Login Streak" style="display:none; color: #fbbf24;">🔥 0</button>' +
+        '<button class="taskbar-button" onclick="if(window.showArisEduUpdate) window.showArisEduUpdate()" title="View Update Log">🔔</button>' +
         '<button class="taskbar-button" id="ai-assistant-button"'+getDisp('ai')+'>\uD83E\uDD16 AI</button>' +
         '<button class="taskbar-button" id="forums-button" onclick="window.location.href=\'/ArisEdu Project Folder/forums.html\'"'+getDisp('forums')+'>\uD83D\uDCAC Forums</button>' +
         '<button class="taskbar-button" id="settings-button">\u2699\uFE0F Settings</button>' +
@@ -1094,8 +1200,5 @@
       }
   })();
 
-  // Load update notifier
-  var updateScript = document.createElement('script');
-  updateScript.src = '/ArisEdu Project Folder/scripts/update_notifier.js';
-  document.head.appendChild(updateScript);
+  // End taskbar.js main IIFE
 })();
