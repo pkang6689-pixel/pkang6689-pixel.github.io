@@ -362,7 +362,19 @@
 
       // User Data
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const unlockedGames = user.unlockedGames || {}; // Now an object: { gameId: expirationTime, ... }
+      
+      // Ensure unlockedGames is an object (convert from array if needed for backwards compatibility)
+      let unlockedGames = user.unlockedGames || {};
+      if (Array.isArray(unlockedGames)) {
+          // Convert old array format to new object format
+          const oldUnlocked = unlockedGames;
+          unlockedGames = {};
+          // Store as objects with a long expiration time for old unlocks (treat as permanent during this session)
+          oldUnlocked.forEach(gameId => {
+              unlockedGames[gameId] = Math.floor(Date.now() / 1000) + 86400; // 24 hours
+          });
+      }
+      
       const currentPoints = user.points || 0;
       const UNLOCK_DURATION = 100; // seconds
       const EXTEND_COST = 50; // tokens to extend
@@ -518,8 +530,11 @@
               }, 1000);
               
               card.onclick = (e) => {
+                  e.preventDefault();
                   sessionStorage.setItem('validGameAccess', 'true');
-                  sessionStorage.setItem('gameUnlockExpire', unlockedGames[gameId]);
+                  sessionStorage.setItem('gameUnlockExpire', unlockedGames[gameId].toString());
+                  // Navigate to the game
+                  window.location.href = card.href;
               };
           } else {
               // Unlock expired or no access - re-lock if needed
