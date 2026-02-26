@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - ArisEdu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <script src="theme_manager.js?v=2.1"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      transition: background 0.3s;
+      font-family: 'Poppins', sans-serif;
+    }
+    body.dark-mode {
+      background: #0f172a;
+    }
+
+    .dashboard-layout {
+      width: 90vw;
+      max-width: 1200px;
+      margin: 100px auto 40px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+    @media (max-width: 900px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Cards */
+    .dash-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    body.dark-mode .dash-card {
+      background: rgba(30, 41, 59, 0.95);
+      color: #e2e8f0;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .dash-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .dash-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #334155;
+    }
+    body.dark-mode .dash-title {
+        color: #e2e8f0;
+    }
+
+    /* Welcome Header */
+    .welcome-header {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+      color: white;
+      border-radius: 1.5rem;
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .welcome-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .welcome-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    /* Course List */
+    .course-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: rgba(0,0,0,0.03);
+        border-radius: 1rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+    body.dark-mode .course-item {
+        background: rgba(255,255,255,0.05);
+    }
+    .course-item:hover {
+        background: rgba(0,0,0,0.06);
+    }
+    body.dark-mode .course-item:hover {
+        background: rgba(255,255,255,0.1);
+    }
+
+    .course-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+
+    .course-info {
+        flex: 1;
+    }
+    .course-name {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+    .course-progress-bg {
+        width: 100%;
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 99px;
+        overflow: hidden;
+    }
+    body.dark-mode .course-progress-bg {
+        background: #475569;
+    }
+    .course-progress-fill {
+        height: 100%;
+        background: #10b981;
+        border-radius: 99px;
+    }
+
+    /* Continue Learning */
+    .continue-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: white;
+        color: #6366f1;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        margin-top: 1.5rem;
+        text-decoration: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    .continue-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    .stat-box {
+        background: rgba(0,0,0,0.03);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    body.dark-mode .stat-box {
+        background: rgba(255,255,255,0.05);
+    }
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #3b82f6;
+    }
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.7;
+    }
+
+  </style>
+</head>
+<body class="dark-mode">
+
+    <!-- Taskbar will be injected here -->
+
+    <div class="dashboard-layout">
+        <div class="welcome-header">
+            <h1 id="welcome-msg">Welcome back!</h1>
+            <p>You're making great progress. Ready to continue learning?</p>
+            <a href="#" id="continue-learning-btn" class="continue-btn" style="display:none;">
+                <span>▶ Resume Lesson</span>
+            </a>
+            
+            <div id="school-info-widget" style="margin-top: 1rem; display:none;">
+                 <!-- Injected -->
+            </div>
+        </div>
+
+        <div class="dash-card">
+            <div class="dash-title">
+                <span>📚</span> My Courses
+            </div>
+            <div id="course-list">
+                <!-- Injected via JS -->
+                <p style="opacity:0.6; text-align:center;">Loading courses...</p>
+            </div>
+        </div>
+
+        <div class="dash-card">
+             <div class="dash-title">
+                <span>🔥</span> Your Stats
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="total-lessons">0</div>
+                    <div class="stat-label">Lessons Completed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="current-streak">0</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="earned-badges">0</div>
+                    <div class="stat-label">Badges Earned</div>
+                </div>
+                 <div class="stat-box">
+                    <div class="stat-value" id="quiz-avg">--%</div>
+                    <div class="stat-label">Quiz Average</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 2rem;">
+                 <div class="dash-title">
+                    <span>🏆</span> Recent Badges
+                </div>
+                <div id="badge-display" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <!-- Badges -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="scripts/taskbar.js"></script>
+<script type="module">
+import { 
+    auth, 
+    db, 
+    onAuthStateChanged,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc
+} from "./firebase-config.js";
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if we have auth state
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // User is signed in.
+            const uid = user.uid;
+            console.log("User is signed in with UID:", uid);
+
+            // Fetch user document from Firestore (Using 'users' collection)
+            try {
+                const userDocRef = doc(db, "users", uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    console.log("User Data:", userData);
+
+                    // Update Welcome Message
+                    const displayName = userData.displayName || userData.name || (user.email ? user.email.split('@')[0] : 'User');
+                    document.getElementById('welcome-msg').textContent = `Welcome back, ${displayName}!`;
+
+                    // Update School Widget
+                    const schoolWidget = document.getElementById('school-info-widget');
+                    const userRole = userData.role || 'student';
+                    const userClass = userData.classInfo || null;
+
+                    if(userRole === 'teacher') {
+                        // If class info is missing, generate a dummy one for now or let them create one
+                        const classCode = userClass?.code || "No Class Code";
+                        const className = userClass?.name || "No Class Assigned";
+
+                        schoolWidget.innerHTML = `
+                            <div style="background: rgba(255,255,255,0.2); backdrop-filter:blur(8px); padding: 1rem; border-radius: 1rem; margin-top:1rem; display:inline-block; border: 1px solid rgba(255,255,255,0.3);">
+                                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+                                    <span style="font-size:1.25rem;">👩‍🏫</span>
+                                    <span style="font-weight:700; font-size:1.1rem;">Teacher Dashboard</span>
+                                </div>
+                                <div style="font-size:0.95rem; opacity:0.9;">Class: <b>${className}</b></div>
+                                <div style="margin-top:0.75rem; background:rgba(0,0,0,0.25); padding:0.5rem 0.75rem; border-radius:0.5rem; display:inline-flex; align-items:center; gap:0.5rem;">
+                                    <span style="font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; opacity:0.8;">Class Code:</span>
+                                    <span style="font-family:monospace; font-weight:700; font-size:1.1rem; letter-spacing:1px;">${classCode}</span>
+                                </div>
+                            </div>
+                        `;
+                        schoolWidget.style.display = 'block';
+
+                    } else {
+                        // Student
+                         if (userClass && userClass.name) {
+                            schoolWidget.innerHTML = `
+                                 <div style="background: rgba(255,255,255,0.2); backdrop-filter:blur(8px); padding: 1rem; border-radius: 1rem; margin-top:1rem; display:inline-block; border: 1px solid rgba(255,255,255,0.3);">
+                                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                                        <span style="font-size:1.25rem;">🎓</span>
+                                        <div>
+                                            <div style="font-size:0.85rem; opacity:0.9;">Enrolled Class</div>
+                                            <div style="font-weight:700;">${userClass.name}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            schoolWidget.style.display = 'block';
+                        } else {
+                            schoolWidget.innerHTML = `
+                                 <div style="background: rgba(255,255,255,0.2); backdrop-filter:blur(8px); padding: 1rem; border-radius: 1rem; margin-top:1rem; display:inline-block; border: 1px solid rgba(255,255,255,0.3);">
+                                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                                        <span style="font-size:1.25rem;">ℹ️</span>
+                                        <div>
+                                            <div style="font-size:0.9rem;">Not enrolled in a class yet.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            schoolWidget.style.display = 'block';
+                        }
+                    }
+
+                    // --- SYNC ENGINE: LocalStorage <-> Firestore ---
+                    // We merge local progress with cloud progress to ensure nothing is lost.
+                    
+                    // 1. Get Local Data
+                    const localVisited = JSON.parse(localStorage.getItem('arisEdu_visitedPages') || '[]');
+                    const localBadges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
+
+                    // 2. Get Cloud Data
+                    const cloudVisited = userData.visitedPages || [];
+                    const cloudBadges = userData.badges || [];
+                    const cloudProgressFlags = userData.progressFlags || {};
+
+                    // 1b. Harvest legacy/scattered flags from localStorage (Real-time catch)
+                    const localProgressFlags = {};
+                    Object.keys(localStorage).forEach(key => {
+                        if(key.includes('_u') && key.includes('_l')) {
+                            localProgressFlags[key] = localStorage.getItem(key);
+                        }
+                    });
+
+                    // 3. Merge (Union of unique items)
+                    const mergedVisited = [...new Set([...localVisited, ...cloudVisited])];
+                    const mergedBadges = [...new Set([...localBadges, ...cloudBadges])];
+                    // Merge flags: cloud wins if conflict, but local fills gaps
+                    const mergedFlags = { ...localProgressFlags, ...cloudProgressFlags };
+
+                    // 4. Update UI variables
+                    let finalVisited = mergedVisited;
+                    let finalBadges = mergedBadges;
+                    let finalFlags = mergedFlags;
+
+                    // 5. Push updates if needed (Sync)
+                    // Check if local has new flags not in cloud
+                    const localKeyCount = Object.keys(localProgressFlags).length;
+                    const cloudKeyCount = Object.keys(cloudProgressFlags).length;
+                    
+                    const needsSync = 
+                        mergedVisited.length > cloudVisited.length || 
+                        mergedBadges.length > cloudBadges.length ||
+                        Object.keys(mergedFlags).length > cloudKeyCount;
+
+                    if (needsSync) {
+                        try {
+                            await updateDoc(userDocRef, {
+                                visitedPages: mergedVisited,
+                                badges: mergedBadges,
+                                progressFlags: mergedFlags,
+                                lastSync: new Date().toISOString()
+                            });
+                            console.log("Synced local progress to cloud.");
+                        } catch (e) {
+                            console.error("Sync error:", e);
+                        }
+                    }
+                    
+                    // 6. Update LocalStorage (to keep other pages in sync with cloud data)
+                    if (mergedVisited.length > localVisited.length) {
+                        localStorage.setItem('arisEdu_visitedPages', JSON.stringify(mergedVisited));
+                    }
+                    if (mergedBadges.length > localBadges.length) {
+                        localStorage.setItem('arisEdu_badges', JSON.stringify(mergedBadges));
+                    }
+
+                    // --- RENDER DASHBOARD WITH SYNCED DATA ---
+                    renderDashboard(finalVisited, finalBadges, finalFlags);
+                    
+                } else {
+                    console.log("No such document! Creating one now...");
+                    
+                    // Grab local data to hydrate the new document
+                    const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+                    const localVisited = JSON.parse(localStorage.getItem('arisEdu_visitedPages') || '[]');
+                    const localBadges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
+                    
+                    const newUserData = {
+                        uid: uid,
+                        email: user.email,
+                        displayName: localUser.name || user.displayName || user.email.split('@')[0],
+                        role: localUser.role || 'student',
+                        createdAt: new Date().toISOString(),
+                        lastLogin: new Date().toISOString(),
+                        visitedPages: localVisited,
+                        badges: localBadges
+                    };
+
+                    // Save to Firestore
+                    await setDoc(userDocRef, newUserData);
+                    console.log("Created new user document in Firestore");
+                    
+                    // Render directly without reload
+                    renderDashboard(localVisited, localBadges);
+                }
+
+            } catch (error) {
+                console.error("Error getting document:", error);
+                
+                // Fallback to LocalStorage if Firestore fails
+                const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+                const displayName = localUser.name || localUser.displayName || (user.email ? user.email.split('@')[0] : 'User');
+                document.getElementById('welcome-msg').textContent = `Welcome back, ${displayName}!`;
+
+                // ... (Existing offline widget logic) ...
+                const schoolWidget = document.getElementById('school-info-widget');
+                // Reuse existing display logic or just hide it if complex
+                
+                const visited = JSON.parse(localStorage.getItem('arisEdu_visitedPages') || '[]');
+                const badges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
+                renderDashboard(visited, badges);
+            }
+
+        } else {
+            // User is signed out
+            console.log("User is signed out");
+            document.getElementById('welcome-msg').textContent = "Welcome! Please log in.";
+            document.getElementById('school-info-widget').style.display = 'none';
+        }
+    });
+});
+
+// Extracted Render Function
+function renderDashboard(visited, badges, flags = {}) {
+    // Stats
+    // Merge flagged progress into count
+    // A flag like "chem_u9_l6_started" counts as a lesson
+    const flaggedCount = Object.keys(flags).length;
+    
+    // We want unique count. This is tricky because "visited" has URLs and "flags" has keys.
+    // Let's just sum them but be aware of possible overlap. 
+    // Actually, "visited" tracks page loads, "flags" tracks quiz completion/start.
+    // Let's treat them as distinct for now or just display the larger number for "Lessons Completed" estimate.
+    
+    // A simple heuristic:
+    const visitedCount = visited.filter(u => u.includes('Lesson') || u.includes('Success')).length;
+    const totalCount = Math.max(visitedCount, flaggedCount);
+    
+    document.getElementById('total-lessons').textContent = totalCount;
+    document.getElementById('earned-badges').textContent = badges.length;
+    
+    // Streak Logic
+    let streak = 0;
+    if(badges.includes('streak_30')) streak = 30;
+    else if(badges.includes('streak_7')) streak = 7;
+    else if(badges.includes('streak_3')) streak = 3;
+    document.getElementById('current-streak').textContent = streak;
+
+    // Continue Learning
+    if(visited.length > 0) {
+        const lastPage = visited.slice().reverse().find(p => !p.includes('Dashboard') && !p.includes('index') && !p.includes('Login'));
+        
+        if (lastPage) {
+            const btn = document.getElementById('continue-learning-btn');
+            btn.href = lastPage;
+            let name = lastPage.split('/').pop().replace('.html','').replace(/_/g, ' ');
+            btn.innerHTML = `<span>▶ Resume ${name}</span>`;
+            btn.style.display = 'inline-flex';
+        }
+    }
+
+    // Courses List
+    const courses = [
+        { id: 'algebra1', name: 'Algebra 1', prefix: 'alg1', icon: '📐', path: 'algebra1.html' },
+        { id: 'algebra2', name: 'Algebra 2', prefix: 'alg2', icon: '📈', path: 'algebra2.html' },
+        { id: 'geometry', name: 'Geometry', prefix: 'geo', icon: '🛑', path: 'geometry.html' },
+        { id: 'bio', name: 'Biology', prefix: 'bio', icon: '🧬', path: 'bio.html' },
+        { id: 'chem', name: 'Chemistry', prefix: 'chem', icon: '⚗️', path: 'chem.html' },
+        { id: 'physics', name: 'Physics', prefix: 'phys', icon: '⚛️', path: 'physics.html' }
+    ];
+
+    const courseList = document.getElementById('course-list');
+    courseList.innerHTML = '';
+
+    courses.forEach(c => {
+        // 1. Count from visited URLs
+        let count = visited.filter(url => url.toLowerCase().includes(c.id)).length;
+        
+        // 2. Count from Flags (e.g. 'chem_u*_l*')
+        const flagCount = Object.keys(flags).filter(k => k.toLowerCase().startsWith(c.prefix || 'xxx')).length;
+        
+        // Take the max to be safe
+        count = Math.max(count, flagCount);
+
+        // Cap at 100% just for visual (assuming ~20 lessons per course)
+        const percent = Math.min(100, Math.round((count / 20) * 100));
+
+        const item = document.createElement('a');
+        item.href = `/ArisEdu Project Folder/${c.path}`;
+        item.className = 'course-item';
+        item.innerHTML = `
+            <div class="course-icon">${c.icon}</div>
+            <div class="course-info">
+                <span class="course-name">${c.name}</span>
+                <div class="course-progress-bg">
+                    <div class="course-progress-fill" style="width: ${percent}%"></div>
+                </div>
+                <div style="font-size:0.75rem; opacity:0.7; margin-top:4px;">${percent}% Complete</div>
+            </div>
+            <div style="opacity:0.5;">➜</div>
+        `;
+        courseList.appendChild(item);
+    });
+
+    // Badges Display
+    const badgeContainer = document.getElementById('badge-display');
+    badgeContainer.innerHTML = ''; // User might reload
+    badges.slice(0, 5).forEach(b => {
+        const span = document.createElement('span');
+        span.textContent = '🏅';
+        span.title = b;
+        span.style.fontSize = '1.5rem';
+        span.style.cursor = 'help';
+        badgeContainer.appendChild(span);
+    });
+    if(badges.length === 0) {
+        badgeContainer.innerHTML = '<span style="opacity:0.6; font-size:0.9rem;">No badges yet. Start checking out lessons!</span>';
+    }
+
+    // --- DEBUG / MIGRATION TOOL (Temporary) ---
+    const existingFixBtn = document.getElementById('fix-progress-btn');
+    if(!existingFixBtn) {
+        const fixBtn = document.createElement('button');
+        fixBtn.id = 'fix-progress-btn';
+        fixBtn.innerText = "🔄 Sync/Fix Progress";
+        fixBtn.style.position = "fixed";
+        fixBtn.style.bottom = "20px";
+        fixBtn.style.right = "20px";
+        fixBtn.style.background = "#3b82f6";
+        fixBtn.style.color = "white";
+        fixBtn.style.padding = "10px 15px";
+        fixBtn.style.borderRadius = "8px";
+        fixBtn.style.border = "none";
+        fixBtn.style.cursor = "pointer";
+        fixBtn.style.boxShadow = "0 4px 6px rgba(0,0,0,0.2)";
+        fixBtn.style.zIndex = "9999";
+        
+        fixBtn.onclick = async () => {
+            fixBtn.innerText = "Syncing...";
+            
+            // 1. Force gather all possible history from localStorage
+            const allKeys = Object.keys(localStorage);
+            console.log("Found LocalStorage Keys:", allKeys); // Debugging
+            
+            const localFlags = {};
+            allKeys.forEach(key => {
+                // Broaden the search to catch any variation
+                if(key.includes('_u') && key.includes('_l')) {
+                    localFlags[key] = localStorage.getItem(key);
+                }
+            });
+            console.log("Harvested Flags:", localFlags); // Debugging
+
+            let recoveredPages = [...visited];
+
+            // 3. Force update Firestore with current LocalStorage state
+            try {
+                const user = auth.currentUser;
+                if(user) {
+                    await updateDoc(doc(db, "users", user.uid), {
+                        visitedPages: recoveredPages,
+                        badges: badges,
+                        progressFlags: localFlags, // Save the flags explicitly
+                        forceSyncTimestamp: new Date().toISOString()
+                    });
+                    
+                    // Force render with new flags immediately to verify UI
+                    renderDashboard(recoveredPages, badges, localFlags);
+                    
+                    alert(`Sync Complete! Found ${Object.keys(localFlags).length} legacy progress items.`);
+                    fixBtn.innerText = "Done!";
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    alert("You must be logged in to sync.");
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Sync failed: " + e.message);
+            }
+        };
+        document.body.appendChild(fixBtn);
+    }
+}
+// End of Render Function
+</script>
+</body>
+</html>

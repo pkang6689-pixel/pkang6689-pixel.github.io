@@ -266,6 +266,7 @@
     <div id="sidebar-categories" class="sidebar-categories">
       <button class="settings-category" data-category="appearance">Appearance</button>
       <button class="settings-category" data-category="account">Account</button>
+      <button class="settings-category" data-category="taskbar">Taskbar</button>
     </div>
   </aside>
   <section id="settings-panel" class="preferences-panel">
@@ -288,11 +289,13 @@ const sidebarLabels = {
     loginSignup: '🔐 Login/Signup',
     preferences: 'Preferences',
     darkMode: 'Dark Mode',
+    taskbar: 'Taskbar',
   },
   spanish: {
     settings: 'Configuración',
     appearance: 'Apariencia',
     account: 'Cuenta',
+    taskbar: 'Barra de tareas',
     search: '🔍 Buscar',
     homepage: '🏠 Inicio',
     courses: '📚 Cursos',
@@ -301,11 +304,13 @@ const sidebarLabels = {
     loginSignup: '🔐 Iniciar sesión / Registrarse',
     preferences: 'Preferencias',
     darkMode: 'Modo oscuro',
+    taskbar: 'Barra de tareas',
   },
   chinese: {
     settings: '设置',
     appearance: '外观',
     account: '账户',
+    taskbar: '任务栏',
     search: '🔍 搜索',
     homepage: '🏠 首页',
     courses: '📚 课程',
@@ -326,9 +331,10 @@ function updateSidebarLanguage() {
 
   safeText(el('aside h2'), labels.settings);
   const buttons = document.querySelectorAll('.settings-category');
-  if (buttons.length >= 2) {
+  if (buttons.length >= 3) {
     buttons[0].textContent = labels.appearance;
     buttons[1].textContent = labels.account;
+    buttons[2].textContent = labels.taskbar;
   }
   safeText(byId('search-button'), labels.search);
   safeText(byId('homepage-button'), labels.homepage);
@@ -734,6 +740,63 @@ const settingsOptions = {
       </div>
     </form>
   `,
+  taskbar_en: `
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">Taskbar Settings</h2>
+    <form id="taskbar-form">
+      <div style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+          <p style="margin-bottom: 0.5rem; font-size: 1.05rem; opacity: 0.8;">Select which buttons to show on your taskbar:</p>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="search" checked> <span>Search</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="homepage" checked> <span>Homepage</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="dashboard" checked> <span>Dashboard</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="courses" checked> <span>Courses</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="ai" checked> <span>AI Assistant</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="forums" checked> <span>Forums</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="arcade" checked> <span>Arcade</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="login" checked> <span>Login/Signup</span></label>
+          <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; margin: 0.5rem 0;">
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="categorized" id="categorizedTaskbarToggle"> <span>Categorized Taskbar</span></label>
+      </div>
+      <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem; font-style: italic;">* Changes apply immediately</p>
+    </form>
+  `,
+  taskbar_es: `
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">Configuración de la barra de tareas</h2>
+    <form id="taskbar-form">
+      <div style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+          <p style="margin-bottom: 0.5rem; font-size: 1.05rem; opacity: 0.8;">Seleccione qué botones mostrar en su barra de tareas:</p>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="search" checked> <span>Buscar</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="homepage" checked> <span>Inicio</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="dashboard" checked> <span>Panel de control</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="courses" checked> <span>Cursos</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="ai" checked> <span>Asistente de IA</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="forums" checked> <span>Foros</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="arcade" checked> <span>Arcade</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="login" checked> <span>Login/Registro</span></label>
+          <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; margin: 0.5rem 0;">
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="categorized" id="categorizedTaskbarToggle"> <span>Barra de tareas categorizada</span></label>
+      </div>
+      <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem; font-style: italic;">* Los cambios se aplican inmediatamente</p>
+    </form>
+  `,
+  taskbar_zh: `
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">任务栏设置</h2>
+    <form id="taskbar-form">
+      <div style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+          <p style="margin-bottom: 0.5rem; font-size: 1.05rem; opacity: 0.8;">选择在任务栏上显示哪些按钮:</p>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="search" checked> <span>搜索</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="homepage" checked> <span>首页</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="dashboard" checked> <span>仪表板</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="courses" checked> <span>课程</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="ai" checked> <span>AI 助手</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="forums" checked> <span>论坛</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="arcade" checked> <span>游乐场</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="login" checked> <span>登录/注册</span></label>
+          <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; margin: 0.5rem 0;">
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-key="categorized" id="categorizedTaskbarToggle"> <span>分类任务栏</span></label>
+      </div>
+      <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem; font-style: italic;">* 更改立即生效</p>
+    </form>
+  `,
 
 };
 
@@ -747,8 +810,51 @@ function renderSettings(category) {
   let key = category;
   if (category === 'appearance') key = (lang === 'chinese' || lang === 'traditional') ? 'appearance_zh' : (lang === 'spanish') ? 'appearance_es' : 'appearance_en';
   if (category === 'account') key = (lang === 'chinese' || lang === 'traditional') ? 'account_zh' : (lang === 'spanish') ? 'account_es' : 'account_en';
+  if (category === 'taskbar') key = (lang === 'chinese' || lang === 'traditional') ? 'taskbar_zh' : (lang === 'spanish') ? 'taskbar_es' : 'taskbar_en';
   document.getElementById('settings-panel').innerHTML = settingsOptions[key] || '';
   // Add form logic for each category
+  if (category === 'taskbar') {
+      const inputs = document.querySelectorAll('#taskbar-form input[type="checkbox"]');
+      const settings = JSON.parse(localStorage.getItem('arisEduTaskbarSettings') || '{}');
+      
+      inputs.forEach(input => {
+          const k = input.getAttribute('data-key');
+          
+          if(k === 'categorized') {
+              // Default to true (checked) if not explicitly false
+              input.checked = (settings[k] !== false);
+          } else {
+              // Default to true (checked) for others as well
+              input.checked = (settings[k] !== false);
+          }
+          
+          input.addEventListener('change', () => {
+             settings[k] = input.checked;
+             localStorage.setItem('arisEduTaskbarSettings', JSON.stringify(settings));
+             
+             if(k === 'categorized') {
+                 // Reload to apply structural changes
+                 location.reload(); 
+                 return;
+             }
+             
+             // Live update
+             const ids = {
+                 search: 'search-button',
+                 homepage: 'homepage-button',
+                 dashboard: 'dashboard-button',
+                 courses: 'course-button',
+                 ai: 'ai-assistant-button',
+                 forums: 'forums-button',
+                 arcade: 'arcade-button',
+                 login: 'login-signup-button'
+             };
+             const el = document.getElementById(ids[k]);
+             if(el) el.style.display = input.checked ? '' : 'none';
+          });
+      });
+  }
+
   if (category === 'appearance') {
     const darkModeToggle = document.getElementById('darkModeToggle');
     const languageSelect = document.getElementById('languageSelect');

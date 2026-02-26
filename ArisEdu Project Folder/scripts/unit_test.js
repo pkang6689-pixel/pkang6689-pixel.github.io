@@ -376,13 +376,26 @@
           // Detect course from path
           if (testPath.includes('Algebra1Lessons')) {
             coursePrefix = 'alg1';
-            lessonNum = 10; // Unit tests are lesson 10
+            var alg1TestLessonMap = {
+              '1': 8, '2': 10, '3': 8, '4': 9, '5': 11, '6': 7,
+              '7': 9, '8': 5, '9': 5, '10': 5, '11': 4, '12': 5
+            };
+            lessonNum = alg1TestLessonMap[unitId] || 10; 
           } else if (testPath.includes('Algebra2Lessons')) {
             coursePrefix = 'alg2';
-            lessonNum = 10; // Unit tests are lesson 10
+             var alg2TestLessonMap = {
+              '1': 10, '2': 8, '3': 8, '4': 7, '5': 8,
+              '6': 6, '7': 8, '8': 7, '9': 5
+            };
+            lessonNum = alg2TestLessonMap[unitId] || 10;
           } else if (testPath.includes('GeometryLessons')) {
             coursePrefix = 'geometry';
-            lessonNum = 8; // Unit tests are lesson 8 in geometry
+            var geomTestLessonMap = {
+              '1': 8, '2': 10, '3': 8, '4': 9, '5': 7,
+              '6': 8, '7': 9, '8': 9, '9': 8, '10': 10,
+              '11': 7, '12': 10, '13': 8
+            };
+            lessonNum = geomTestLessonMap[unitId] || 8;
           } else if (testPath.includes('PhysicsLessons')) {
             coursePrefix = 'physics';
             var physicsTestLessonMap = {

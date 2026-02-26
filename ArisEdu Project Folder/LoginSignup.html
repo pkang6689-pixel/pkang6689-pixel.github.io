@@ -263,6 +263,15 @@
       font-size: 0.95rem;
     }
 
+    /* Student/Teacher radio text dark mode */
+    .signup-role-label span {
+      color: #1e293b;
+      font-weight: 600;
+    }
+    body.dark-mode .signup-role-label span {
+      color: #f1f5f9;
+    }
+
     body.dark-mode .form-label {
       color: #f1f5f9;
     }
@@ -739,6 +748,25 @@
           </div>
 
           <div class="form-group">
+            <label class="form-label">I am a:</label>
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+              <label class="signup-role-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="signup-role" value="student" checked>
+                <span>Student</span>
+              </label>
+              <label class="signup-role-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="signup-role" value="teacher">
+                <span>Teacher</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" id="class-code-group">
+            <label class="form-label" for="signup-class-code">Class Code (Optional)</label>
+            <input class="form-input" type="text" id="signup-class-code" placeholder="Enter class code provided by teacher">
+          </div>
+
+          <div class="form-group">
             <label style="display: flex; align-items: center; gap: 0.5rem; color: #64748b; cursor: pointer;">
               <input type="checkbox" required />
               <span style="font-size: 0.9rem;">I agree to the Terms of Service</span>
@@ -1048,6 +1076,34 @@
       }
     });
 
+    // Toggle role-specific fields
+    const signupRoleRadios = document.getElementsByName('signup-role');
+    const classCodeGroup = document.getElementById('class-code-group');
+    const classCodeInput = document.getElementById('signup-class-code');
+
+    function toggleRoleInputs() {
+      let selectedRole = 'student';
+      for (const radio of signupRoleRadios) {
+        if (radio.checked) {
+          selectedRole = radio.value;
+          break;
+        }
+      }
+
+      if (selectedRole === 'teacher') {
+        classCodeGroup.style.display = 'none';
+        classCodeInput.value = ''; 
+      } else {
+        classCodeGroup.style.display = 'block';
+      }
+    }
+
+    signupRoleRadios.forEach(radio => {
+        radio.addEventListener('change', toggleRoleInputs);
+    });
+    // Init state
+    toggleRoleInputs();
+
     // Form Submission - Signup
     signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1056,6 +1112,16 @@
       const email = document.getElementById('signup-email').value;
       const password = document.getElementById('signup-password').value;
       const confirm = document.getElementById('signup-confirm').value;
+      const classCode = document.getElementById('signup-class-code').value;
+
+      // Get selected role
+      let role = 'student';
+      for (const radio of signupRoleRadios) {
+        if (radio.checked) {
+          role = radio.value;
+          break;
+        }
+      }
 
       const nameInput = document.getElementById('signup-name');
       const emailInput = document.getElementById('signup-email');
@@ -1126,30 +1192,55 @@
               displayName: name.trim()
           });
 
-          // 3. Save User Data to Database
-          await setDoc(doc(db, "users", user.uid), {
+          // Prepare user data
+          const userData = {
             uid: user.uid,
             name: name.trim(),
             email: email.trim(),
             createdAt: new Date().toISOString(),
-            role: "student" // Default role
-          });
+            role: role
+          };
 
-          showFormMessage('signup-form', 'Account created! Logging you in...', 'success');
+          // 3. Handle Role Specifics
+          if (role === 'teacher') {
+             // Generate a unique class code (simple alphanumeric)
+             const generatedClassCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+             userData.myClassCode = generatedClassCode;
+             userData.createdClasses = []; // Array to store class IDs if expanding later
+          } else {
+             // Student
+             if (classCode && classCode.trim()) {
+               userData.joinedClassCode = classCode.trim().toUpperCase();
+             }
+          }
+
+          // 4. Save User Data to Database
+          await setDoc(doc(db, "users", user.uid), userData);
+
+          let successMsg = 'Account created! Logging you in...';
+          if (role === 'teacher') {
+             successMsg = `Teacher account created! Your Class Code: ${userData.myClassCode}`;
+          }
+
+          showFormMessage('signup-form', successMsg, 'success');
           
           // Save session to localStorage
-          // NOTE: Saving password to localStorage is not secure in production.
           const storedUser = { 
               name: name.trim(), 
               email: email.trim(),
-              password: password // Save password for Preferences display
+              password: password, // Save password for Preferences display
+              role: role,
+              myClassCode: userData.myClassCode || null,
+              joinedClassCode: userData.joinedClassCode || null
           };
           localStorage.setItem('user', JSON.stringify(storedUser));
           showAccountView(storedUser);
 
+          // Delay slightly longer if teacher so they can read the code maybe?
+          // Or just standard delay. They can see code in profile/dashboard later.
           setTimeout(() => {
             window.location.href="../index.html";
-          }, 1200);
+          }, 2000);
 
       } catch (error) {
           console.error("Signup Error:", error);

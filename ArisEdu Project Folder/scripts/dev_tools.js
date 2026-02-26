@@ -125,7 +125,55 @@
           localStorage.removeItem('arisEdu_badges');
           alert('Badges reset.');
       };
+      
+      body.appendChild(select);
+      body.appendChild(btn);
       body.appendChild(resetBtn);
+
+      // Section: Role Switching
+      var roleTitle = document.createElement('div');
+      roleTitle.className = 'dev-section-title';
+      roleTitle.textContent = 'ROLE SWITCHER';
+      roleTitle.style.marginTop = '1rem';
+      body.appendChild(roleTitle);
+
+      var teacherBtn = document.createElement('button');
+      teacherBtn.className = 'dev-btn';
+      teacherBtn.textContent = 'Set Role: Teacher';
+      teacherBtn.onclick = function() {
+          try {
+              let user = JSON.parse(localStorage.getItem('user') || '{}');
+              user.role = 'teacher';
+              // Add dummy class info if missing
+              if(!user.classInfo) {
+                  user.classInfo = { name: "AP Physics 1", code: "PHYS-AP-001" };
+              }
+              localStorage.setItem('user', JSON.stringify(user));
+              alert('Role set to Teacher. Reloading...');
+              location.reload();
+          } catch(e) { console.error(e); }
+      };
+
+      var studentBtn = document.createElement('button');
+      studentBtn.className = 'dev-btn';
+      studentBtn.textContent = 'Set Role: Student';
+      studentBtn.onclick = function() {
+          try {
+              let user = JSON.parse(localStorage.getItem('user') || '{}');
+              user.role = 'student';
+              // Ensure student has a class for demo purposes
+              if(!user.classInfo) {
+                  user.classInfo = { name: "AP Physics 1" };
+              }
+              localStorage.setItem('user', JSON.stringify(user));
+              alert('Role set to Student. Reloading...');
+              location.reload();
+          } catch(e) { console.error(e); }
+      };
+
+      body.appendChild(teacherBtn);
+      body.appendChild(studentBtn);
+
   })();
 
   // Section: Navigation logic (existing tools would go here if any)

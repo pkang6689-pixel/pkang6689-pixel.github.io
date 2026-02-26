@@ -36,7 +36,7 @@ body {
       align-items: center;
       gap: 1rem;
       padding: 0.5rem 1rem;
-      max-width: 1200px;
+      max-width: 95%; /* Increased from 1200px to allow more space */
       width: 100%;
       flex-wrap: wrap;
     }
@@ -1472,10 +1472,395 @@ body {
   .taskbar-container {
     gap: 0.5rem;
     padding: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .taskbar-button {
     padding: 0.4rem 0.8rem;
     font-size: 0.75rem;
   }
+  
+  .courses-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .logo-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .company-title {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    text-align: center;
+    word-wrap: break-word;
+    margin-bottom: 1rem;
+  }
+
+  .content-wrapper {
+    padding: 0 1rem;
+  }
+  
+  /* Flashcard responsiveness */
+  .flashcard-box[style*="min-width"] {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 90vw !important;
+    padding: 1.5rem !important;
+    min-height: 200px !important;
+  }
+  
+  /* Flashcard game container */
+  .flashcard-game {
+    width: 100% !important;
+    padding: 0 1rem !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  
+  /* Flashcard Content Text */
+  #flashcard-content {
+    font-size: 1rem !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+  
+  /* Button container below flashcard */
+  .flashcard-game > div:not(.flashcard-box) {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    width: 100% !important;
+  }
+  
+  /* Buttons themselves */
+  .flashcard-game button {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  /* Ensure diagram card doesn't overflow */
+  .diagram-card {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
 }
+
+
+/* Fix for subject pages with complex inline grid styles */
+@media (max-width: 1024px) {
+   div[style*="grid-template-columns: repeat(4, 1fr)"],
+   div[style*="grid-template-columns:repeat(4, 1fr)"],
+   div[style*="grid-template-columns: repeat(3, 1fr)"],
+   div[style*="grid-template-columns:repeat(3, 1fr)"],
+   div[style*="grid-template-columns: repeat(4,1fr)"],
+   div[style*="grid-template-columns: repeat(3,1fr)"] {
+      grid-template-columns: repeat(2, 1fr) !important;
+      grid-template-rows: auto !important;
+      height: auto !important;
+      position: relative !important;
+      inset: auto !important;
+      transform: none !important;
+      padding-bottom: 2rem !important;
+      margin-top: 2rem !important;
+   }
+   
+   .courses-container[style*="min-height"] {
+      min-height: auto !important;
+      height: auto !important;
+   }
+}
+
+@media (max-width: 640px) {
+   div[style*="grid-template-columns: repeat(4, 1fr)"],
+   div[style*="grid-template-columns:repeat(4, 1fr)"],
+   div[style*="grid-template-columns: repeat(3, 1fr)"],
+   div[style*="grid-template-columns:repeat(3, 1fr)"],
+   div[style*="grid-template-columns: repeat(4,1fr)"],
+   div[style*="grid-template-columns: repeat(3,1fr)"] {
+      grid-template-columns: 1fr !important;
+   }
+}
+
+/* Mobile Optimization for Lesson Pages */
+@media (max-width: 1024px) {
+  /* Use grid to force centering if flex fails for some reason */
+  .courses-container:has(.lesson-layout) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .lesson-layout {
+    display: contents !important;
+  }
+  
+  .video-stack {
+    order: 1 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    margin-bottom: 2rem !important;
+  }
+  
+  /* Rubric Box - Forced Width and Margin Reset */
+  .rubric-box {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+  }
+  
+  /* Buttons container - Forced Width and Margin Reset */
+  .side-buttons {
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    margin: 1rem 0 !important;
+    float: none !important;
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+  }
+  
+  /* Individual Buttons */
+  .side-button, .view-other-videos {
+    flex: 1 1 40% !important; /* Allow buttons to sit side-by-side */
+    margin-bottom: 0 !important;
+    text-align: center !important;
+    min-width: 140px !important;
+    padding: 0.75rem 0.5rem !important; /* Slightly smaller padding */
+    font-size: 0.9rem !important; /* Slightly smaller font */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: normal !important; /* Allow multiline text if needed */
+  }
+
+  /* Un-rotate rubric and make responsive */
+  .rubric-card {
+    grid-row: 2 !important;
+    width: 100% !important;
+    max-width: 100% !important; /* Let parent constrain width */
+    margin: 0 !important;
+    transform: none !important;
+  }
+  
+  .rubric-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1px !important;
+    background-color: rgba(15, 23, 42, 0.1) !important;
+    border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  }
+  
+  .rubric-item {
+    padding: 1rem !important;
+    min-height: 80px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    background-color: white !important; /* Override specific colors if needed, but keeping original bg colors is usually better. If original colors are used, we might need transparency or just rely on Gap */
+  }
+  
+  /* Restore original background colors via nth-child being more specific if lost, 
+     but since we are only changing layout, the original background colors on .rubric-item:nth-child should still apply 
+     unless overridden by !important above. Let's fix the background. */
+  .rubric-item:nth-child(1) { background: #90EE90 !important; }
+  .rubric-item:nth-child(2) { background: #FFD700 !important; }
+  .rubric-item:nth-child(3) { background: #7FFF00 !important; }
+  .rubric-item:nth-child(4) { background: #00FFFF !important; }
+
+  .rubric-text {
+    transform: none !important; /* Text explicitly not rotated */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    white-space: normal !important;
+  }
+
+  /* Rubric Header Container (New approach to align title and icon) */
+  .rubric-box {
+    position: relative !important;
+    padding-top: 3rem !important; /* Make space for header */
+  }
+
+  .rubric-hover-dot {
+    margin: 0 !important;
+  }
+  
+  /* Target the Page Title text within rubric box */
+  .rubric-box > .page-title {
+    position: absolute !important;
+    top: 0 !important;
+    left: 50% !important; /* Start from center */
+    transform: translateX(-50%) !important; /* Move back by half width (centered) */
+    width: 90% !important; /* Match card width */
+    max-width: 400px !important;
+    text-align: left !important; /* Align text to left of this container */
+    font-size: 1.5rem !important;
+    margin: 0 !important;
+    padding-bottom: 0.5rem !important;
+  }
+  
+  /* Target the Info Icon Wrapper */
+  .rubric-hover-wrap {
+    position: absolute !important;
+    top: 0.4rem !important; /* Align vertically with title text */
+    left: 50% !important;
+    /* 
+       We need to push it right relative to the left-aligned title text.
+       Container is centered 90% wide. Text starts at left edge of that container.
+       "Rubric" text is roughly 4-5rem wide.
+       So we transform from center - 45% (left edge) + 6rem (text width).
+    */
+    transform: translateX(calc(-50% - 4.5rem + 15px)) !important; /* Adjust until it sits next to Rubric */
+    /* Wait, simpler calculation:
+       Left edge of card is at (100% - 90%)/2 = 5%.
+       Title is at 5%.
+       We want icon at 5% + TitleWidth.
+    */
+    margin: 0 !important;
+    width: auto !important;
+    display: block !important;
+    z-index: 10 !important;
+    /* Reset previous transforms */
+    right: auto !important;
+  }
+  
+  /* Fix layout specific calculation because previous logic was messy */
+  .rubric-box {
+      position: relative !important;
+      padding-top: 3rem !important; /* Space for title header */
+      display: block !important; /* Allow absolute positioning inside to work relative to this block */
+      width: 100% !important;
+      max-width: 100% !important;
+  }
+  
+  /* Re-center the card itself */
+  .rubric-card {
+    margin: 0 auto 2rem auto !important;
+  }
+
+  /* Since calculating strict pixel widths in CSS calc() is flaky without fixed container size,
+     let's try a different approach: Flex header for title and icon.
+     But HTML structure is [Icon] [Title] [Card].
+     We can position Icon absolute relative to Title if Title was relative, but they are siblings.
+     
+     HTML:
+     .rubric-hover-wrap (Icon)
+     h2.page-title (Rubric)
+     .rubric-card
+  */
+  
+  /* Let's use Grid on the container to place them! */
+  .rubric-box {
+    display: grid !important;
+    /* Rows: Header (Title+Icon), Card */
+    grid-template-areas: 
+      "title icon"
+      "card card" !important;
+    grid-template-columns: max-content max-content !important; /* Shrink to fit content */
+    align-content: start !important;
+    justify-content: start !important; /* Align content to the left of the box */
+    align-items: center !important;
+    column-gap: 0.5rem !important; /* Space between Title and Icon */
+    row-gap: 0.5rem !important;
+    padding-top: 0 !important;
+    width: 90% !important; 
+    max-width: 400px !important;
+    margin: 0 auto 1.5rem auto !important;
+  }
+  
+  /* The Title */
+  .rubric-box > .page-title {
+    grid-area: title !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+    text-align: left !important;
+    margin: 0 !important;
+    display: block !important;
+    padding: 0 !important;
+  }
+
+  /* The Icon Wrapper */
+  .rubric-hover-wrap {
+    grid-area: icon !important;
+    position: relative !important; /* Relative for panel positioning */
+    justify-self: start !important; 
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    z-index: 50 !important; /* Ensure on top */
+  }
+  
+  .rubric-hover-panel {
+     position: absolute !important;
+     top: 100% !important;
+     left: 0 !important; /* Align left edge with icon or shift slightly? */
+     transform: none !important;
+     margin-top: 0.5rem !important;
+     width: 16rem !important;
+     max-width: 60vw !important; /* Ensure it fits on screen better */
+     z-index: 100 !important;
+     display: none !important;
+  }
+
+  .rubric-hover-wrap:hover .rubric-hover-panel {
+     display: block !important; /* ensure visibility */
+  }
+
+  /* Reset Videos Panel for Mobile */
+  .videos-panel {
+    width: 100% !important;
+    min-height: auto !important;
+    position: static !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 1rem 0 !important;
+    display: none; 
+  }
+
+  .videos-panel.is-open {
+    display: block !important;
+    animation: none !important;
+  }
+
+  .videos-panel-item {
+    background: rgba(15, 23, 42, 0.5) !important;
+    margin-bottom: 0.5rem !important;
+    padding: 0.5rem !important;
+    border-radius: 0.5rem !important;
+  }
+}
+
+

@@ -29,7 +29,7 @@
     // State
     let currentSound = localStorage.getItem('arisAmbienceTrack') || 'rain';
     let currentVolume = parseFloat(localStorage.getItem('arisAmbienceVolume') || '0.3');
-    let isPlaying = false;
+    let isPlaying = localStorage.getItem('arisAmbiencePlaying') === 'true';
     let audio = new Audio();
     audio.crossOrigin = "anonymous";
     audio.loop = true;
@@ -154,6 +154,7 @@
             audio.pause();
             btn.style.opacity = '0.7';
             isPlaying = false;
+            localStorage.setItem('arisAmbiencePlaying', 'false');
         } else {
             // Ensure audio src is loaded
             if(!audio.src || audio.src === '') loadSound(currentSound);
@@ -163,8 +164,11 @@
                 playPromise.then(() => {
                     btn.style.opacity = '1';
                     isPlaying = true;
+                    localStorage.setItem('arisAmbiencePlaying', 'true');
                 }).catch(error => {
                     console.error("Ambience: Play failed", error);
+                    isPlaying = false;
+                    localStorage.setItem('arisAmbiencePlaying', 'false');
                 });
             }
         }
@@ -175,9 +179,17 @@
         const wasPlaying = isPlaying;
         loadSound(key);
         if (wasPlaying) {
-             audio.play().catch(e => console.error(e));
+             const p = audio.play();
+             if (p !== undefined) {
+                 p.catch(e => {
+                     console.error(e);
+                     // If switching track fails to play (rare), update state?
+                     // Probably fine to leave as is, since user initiated action.
+                 });
+             }
              isPlaying = true;
              btn.style.opacity = '1';
+             // No change to localStorage needed as it remains playing
         }
     };
 
@@ -193,6 +205,23 @@
     
     // Initial Load
     loadSound(currentSound);
+
+    if (isPlaying) {
+        const p = audio.play();
+        if (p !== undefined) {
+            p.then(() => {
+                btn.style.opacity = '1';
+            }).catch(e => {
+                // Autoplay policy might block this
+                console.log("Autoplay prevented:", e);
+                isPlaying = false;
+                localStorage.setItem('arisAmbiencePlaying', 'false');
+                btn.style.opacity = '0.7';
+            });
+        }
+    } else {
+        btn.style.opacity = '0.7';
+    }
     
     // Ensure body exists before appending
     if(document.body) {

@@ -92,25 +92,109 @@
 
   // Only inject HTML if it doesn't already exist
   if (!document.querySelector('nav.taskbar')) {
+    var tbSettings = {};
+    try { tbSettings = JSON.parse(localStorage.getItem('arisEduTaskbarSettings') || '{}'); } catch(e){}
+    var getDisp = function(k) { return (tbSettings[k] === false) ? ' style="display:none"' : ''; };
+
     var backBtnHtml = showBack
       ? '<button class="taskbar-button" id="back-button">' + backText + '</button>'
       : '';
     var nav = document.createElement('nav');
     nav.className = 'taskbar';
+    
+    // Categorized Taskbar Logic
+    if(tbSettings['categorized'] !== false) {
+        var style = document.createElement('style');
+        style.innerHTML = `
+            .taskbar-category {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0 0.5rem;
+                position: relative;
+            }
+            .taskbar-category:not(:last-child)::after {
+                content: '';
+                position: absolute;
+                right: 0;
+                top: 20%;
+                height: 60%;
+                width: 1px;
+                background: rgba(255,255,255,0.3);
+            }
+        `;
+        document.head.appendChild(style);
+
+        nav.innerHTML = 
+        '<div class="taskbar-container">' +
+            // Dev Tools
+            '<button id="dev-icon-toggle" style="position:absolute; left:0; top:0; z-index:2000; background:none; border:none; color:rgba(255,255,255,0.3); font-size:1.2rem; cursor:pointer; padding:0.5rem;" title="Dev Tools">🛠️</button>' +
+            
+            // Navigation
+            '<div class="taskbar-category" title="Navigation">' +
+                backBtnHtml +
+                '<a class="taskbar-button" href="/index.html" id="homepage-button"'+getDisp('homepage')+'>\uD83C\uDFE0 Home</a>' +
+                '<a class="taskbar-button" href="/ArisEdu Project Folder/Dashboard.html" id="dashboard-button"'+getDisp('dashboard')+'>\uD83D\uDCCA Dashboard</a>' +
+                '<a class="taskbar-button" href="/ArisEdu Project Folder/Courses.html" id="course-button"'+getDisp('courses')+'>\uD83D\uDCDA Courses</a>' +
+            '</div>' +
+
+            // Misc
+            '<div class="taskbar-category" title="Misc">' +
+                '<a class="taskbar-button" href="/ArisEdu Project Folder/arcade.html" id="arcade-button"'+getDisp('arcade')+'>\uD83D\uDC7E Arcade</a>' +
+                '<button class="taskbar-button" id="forums-button" onclick="window.location.href=\'/ArisEdu Project Folder/forums.html\'"'+getDisp('forums')+'>\uD83D\uDCAC Forums</button>' +
+                '<button class="taskbar-button" onclick="if(window.showArisEduUpdate) window.showArisEduUpdate()" title="View Update Log">🔔 Updates</button>' +
+            '</div>' +
+
+            // Tools
+            '<div class="taskbar-category" title="Tools">' +
+                '<button class="taskbar-button" id="search-button"'+getDisp('search')+'>\uD83D\uDD0D</button>' +
+                '<button class="taskbar-button" id="ai-assistant-button"'+getDisp('ai')+'>\uD83E\uDD16 AI</button>' +
+            '</div>' +
+            
+            // Account & Settings
+            '<div class="taskbar-category" title="Account & Settings">' +
+                '<button class="taskbar-button" id="settings-button">\u2699\uFE0F</button>' +
+                '<a class="taskbar-button" href="/ArisEdu Project Folder/LoginSignup.html" id="login-signup-button"'+getDisp('login')+'>\uD83D\uDD10 Login</a>' +
+                '<button class="taskbar-button" id="streak-button" title="Current Login Streak" style="display:none; color: #fbbf24;">🔥 0</button>' +
+            '</div>' +
+
+            // Language Toggle
+            '<button id="language-toggle-button" title="Switch Language" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:2000;background:none;border:none;color:rgba(255,255,255,0.85);cursor:pointer;padding:0.3rem 0.5rem;display:inline-flex;align-items:center;"><svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg></button>' +
+            '<div id="language-dropdown" style="display:none;position:fixed;z-index:10000;min-width:160px;background:var(--card-bg,#1e1e2e);border:1px solid var(--border-color,#444);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.35);overflow:hidden;">' +
+              '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">English</button>' +
+              '<button class="lang-option" data-lang="spanish" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">Español</button>' +
+              '<button class="lang-option" data-lang="hindi" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">हिन्दी</button>' +
+              '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">中文</button>' +
+              '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
+            '</div>' +
+        '</div>' +
+        '<div aria-hidden="true" class="settings-menu" id="settings-menu">' +
+            '<div class="settings-item">' +
+            '<label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">' +
+                '<input checked id="dark-mode-checkbox" type="checkbox"/>' +
+                '<span>Dark Mode</span>' +
+            '</label>' +
+            '</div>' +
+            '<a class="settings-item" href="/ArisEdu Project Folder/Preferences.html">Preferences</a>' +
+        '</div>';
+    } else {
+    
+    // Standard Layout
     nav.innerHTML =
       '<div class="taskbar-container">' +
         // Dev Tools Button (Left aligned, absolute)
         '<button id="dev-icon-toggle" style="position:absolute; left:0; top:0; z-index:2000; background:none; border:none; color:rgba(255,255,255,0.3); font-size:1.2rem; cursor:pointer; padding:0.5rem;" title="Dev Tools">🛠️</button>' +
         backBtnHtml +
-        '<button class="taskbar-button" id="search-button">\uD83D\uDD0D Search</button>' +
-        '<a class="taskbar-button" href="/index.html" id="homepage-button">\uD83C\uDFE0 Homepage</a>' +
-        '<a class="taskbar-button" href="/ArisEdu Project Folder/Courses.html" id="course-button">\uD83D\uDCDA Courses</a>' +
+        '<button class="taskbar-button" id="search-button"'+getDisp('search')+'>\uD83D\uDD0D Search</button>' +
+        '<a class="taskbar-button" href="/index.html" id="homepage-button"'+getDisp('homepage')+'>\uD83C\uDFE0 Homepage</a>' +
+        '<a class="taskbar-button" href="/ArisEdu Project Folder/Dashboard.html" id="dashboard-button"'+getDisp('dashboard')+'>\uD83D\uDCCA Dashboard</a>' +
+        '<a class="taskbar-button" href="/ArisEdu Project Folder/Courses.html" id="course-button"'+getDisp('courses')+'>\uD83D\uDCDA Courses</a>' +
         '<button class="taskbar-button" id="streak-button" title="Current Login Streak" style="display:none; color: #fbbf24;">🔥 0</button>' +
-        '<button class="taskbar-button" id="ai-assistant-button">\uD83E\uDD16 AI</button>' +
-        '<button class="taskbar-button" id="forums-button" onclick="window.location.href=\'/ArisEdu Project Folder/forums.html\'">\uD83D\uDCAC Forums</button>' +
+        '<button class="taskbar-button" id="ai-assistant-button"'+getDisp('ai')+'>\uD83E\uDD16 AI</button>' +
+        '<button class="taskbar-button" id="forums-button" onclick="window.location.href=\'/ArisEdu Project Folder/forums.html\'"'+getDisp('forums')+'>\uD83D\uDCAC Forums</button>' +
         '<button class="taskbar-button" id="settings-button">\u2699\uFE0F Settings</button>' +
-        '<a class="taskbar-button" href="/ArisEdu Project Folder/arcade.html" id="arcade-button">\uD83D\uDC7E Arcade</a>' +
-        '<a class="taskbar-button" href="/ArisEdu Project Folder/LoginSignup.html" id="login-signup-button">\uD83D\uDD10 Login/Signup</a>' +
+        '<a class="taskbar-button" href="/ArisEdu Project Folder/arcade.html" id="arcade-button"'+getDisp('arcade')+'>\uD83D\uDC7E Arcade</a>' +
+        '<a class="taskbar-button" href="/ArisEdu Project Folder/LoginSignup.html" id="login-signup-button"'+getDisp('login')+'>\uD83D\uDD10 Login/Signup</a>' +
         '<button id="language-toggle-button" title="Switch Language" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:2000;background:none;border:none;color:rgba(255,255,255,0.85);cursor:pointer;padding:0.3rem 0.5rem;display:inline-flex;align-items:center;"><svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg></button>' +
         '<div id="language-dropdown" style="display:none;position:fixed;z-index:10000;min-width:160px;background:var(--card-bg,#1e1e2e);border:1px solid var(--border-color,#444);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.35);overflow:hidden;">' +
           '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">English</button>' +
@@ -127,10 +211,11 @@
             '<span>Dark Mode</span>' +
           '</label>' +
         '</div>' +
-        // Audio Toggle removed
+        // Audio Toggle Removed
 
         '<a class="settings-item" href="/ArisEdu Project Folder/Preferences.html">Preferences</a>' +
       '</div>';
+    }
     document.body.insertBefore(nav, document.body.firstChild);
   }
 
