@@ -266,13 +266,39 @@
         let displayText = title;
         const target = event.target;
         
+        // Translate title if in Chinese/Spanish/Hindi mode
+        const lang = localStorage.getItem("arisEduLanguage");
+        const isChinese = (lang === "chinese" || lang === "traditional");
+        const t = window.arisEduTranslations;
+
+        if (isChinese && t) {
+            if (t[displayText]) {
+                displayText = t[displayText];
+            }
+            if (lang === "traditional" && window.convertToTraditional) {
+                displayText = window.convertToTraditional(displayText);
+            }
+        }
+        
         // Check for Completed or In Progress
         if (target) {
           const fill = target.getAttribute('fill');
           if (fill === '#16a34a' || fill === '#16A34A') {
-            displayText = "COMPLETED \u2714 " + displayText;
+            if (isChinese && t) {
+                let status = t["COMPLETED"] || "已完成";
+                if (lang === "traditional" && window.convertToTraditional) status = window.convertToTraditional(status);
+                displayText = status + " \u2714 " + displayText;
+            } else {
+                displayText = "COMPLETED \u2714 " + displayText;
+            }
           } else if (fill === '#f97316' || fill === '#F97316') {
-            displayText = "IN PROGRESS " + displayText;
+            if (isChinese && t) {
+                let status = t["IN PROGRESS"] || "进行中";
+                if (lang === "traditional" && window.convertToTraditional) status = window.convertToTraditional(status);
+                displayText = status + " " + displayText;
+            } else {
+                displayText = "IN PROGRESS " + displayText;
+            }
           }
         }
         

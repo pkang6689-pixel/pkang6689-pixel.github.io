@@ -69,6 +69,11 @@ window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
             attemptsInfo.style.color = "#10b981"; // Green
         }
         
+        // Award Quiz Master Badge
+        if (window.BadgeSystem) {
+            window.BadgeSystem.award('quiz_master');
+        }
+
         // Disable interactions
         inputs.forEach(i => i.disabled = true);
         buttonElement.disabled = true;

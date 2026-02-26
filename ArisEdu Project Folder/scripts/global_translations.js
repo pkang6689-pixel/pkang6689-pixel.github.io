@@ -16,7 +16,92 @@
         document.documentElement.style.opacity = '';
     }
 
+    // Safety fallback: Ensure page becomes visible even if script crashes later
+    setTimeout(_revealPage, 1500);
+
     const translations = {
+    // --- AI & Search Strings ---
+    "Google Gemini API Key": "Google Gemini API 密钥",
+    "To use the AI assistant, you need a free API key from Google.": "要使用 AI 助手，您需要来自 Google 的免费 API 密钥。",
+    "Get a key here": "在此处获取密钥",
+    "Save API Key": "保存 API 密钥",
+    "Initialize AI Tutor": "初始化 AI 导师",
+    "This runs entirely in your browser. No API key required.": "这完全在您的浏览器中运行。不需要 API 密钥。",
+    "Initializing...": "正在初始化...",
+    "Start AI Engine": "启动 AI 引擎",
+    "Hello! I'm running locally on your device. I'm ready to help you learn!": "你好！我在您的设备上本地运行。我已准备好帮助您学习！",
+    "Type to start searching...": "输入以开始搜索...",
+    "Enter API Key": "输入 API 密钥",
+    "Type your question...": "输入您的问题...",
+    "Ask a question...": "提出问题...",
+    "Search lessons, units, games...": "搜索课程、单元、游戏...",
+    "Type at least 2 characters...": "输入至少 2 个字符...",
+    "No results found.": "未找到结果。",
+    "Search index not loaded.": "搜索索引未加载。",
+    "ArisEdu Search": "ArisEdu 搜索",
+    
+    // --- Course Page Hover Tooltips ---
+    "Lesson": "第",
+    "COMPLETED": "已完成",
+    "IN PROGRESS": "进行中",
+    
+    // --- Badges (DevTools & Dashboard) ---
+    "BADGES": "徽章",
+    "FIRST VISIT": "初次访问",
+    "NIGHT OWL": "夜猫子",
+    "EARLY BIRD": "早起的鸟儿",
+    "SCHOLAR": "学者",
+    "DEDICATED": "专注",
+    "COMPLETIONIST": "完美主义者",
+    "QUIZ MASTER": "测验大师",
+    "ALGEBRA MASTER": "代数大师",
+    "PHYSICS PRO": "物理专家",
+    "CHEMISTRY WHIZ": "化学高手",
+    "POLYGLOT": "语言通",
+    "STREAK 3": "3日连胜",
+    "STREAK 7": "7日连胜",
+    "STREAK 30": "30日连胜",
+    
+    // --- Badges (Titles) ---
+    "First Steps": "初次起步",
+    "Algebra Wizard": "代数奇才",
+    "Chem Whiz": "化学高手",
+    "Physics Pro": "物理专家",
+    "Streak Starter": "连胜开启",
+    "Week Warrior": "周战士",
+    "Month Master": "月度大师",
+    
+    "High School Algebra 1": "高中代数 1",
+    "High School Algebra 2": "高中代数 2",
+    "High School Geometry": "高中几何",
+    "High School Physics": "高中物理",
+    "High School Chemistry": "高中化学",
+    "High School Biology": "高中生物",
+    "Heavy Rain": "大雨",
+    "Forest Day": "森林日",
+    "Coffee Shop": "咖啡店",
+    "Ocean Waves": "海浪",
+    "Videos": "视频",
+    "Review": "复习",
+    "Coming Soon": "即将推出",
+    "Learn": "学习",
+    "Practice": "练习",
+    "Quiz": "测验",
+    "🔄 Switch Account": "🔄 切换帐户",
+    "Student": "学生",
+    "Teacher": "老师",
+    "Day": "天",
+    "Days": "天",
+    "Current Streak": "当前连续天数",
+    "Come back tomorrow!": "明天再来！",
+    "Help": "帮助",
+    "English": "英语",
+    "Change Avatar": "更改头像",
+    "Choose Profile Picture": "选择个人资料图片",
+    "Cancel": "取消",
+    "Switch Account": "切换帐户",
+    "Add Another Account": "添加另一个帐户",
+    "Role": "角色",
     "Key Concepts: Points, Lines, and Planes": "关键概念：点、线和平面",
     "A Point is the most basic building block of geometry. It represents a location in space with no size, no width, no length, and no depth. Points are named with capital letters.": "点是几何的最基本构建块。它代表空间中的一个位置，没有大小、宽度、长度或深度。点用大写字母命名。",
     "A Point is the most basic building block of geometry. It represents a location in space with no size, no width, no length, and no depth. Points are named with capital letters (e.g., Point A).": "点是几何的最基本构建块。它代表空间中的一个位置，没有大小、宽度、长度或深度。点用大写字母命名（例如，点A）。",
@@ -31874,7 +31959,547 @@
     "Lesson 6.5: Applications & Mathematical Induction - Summary": "课程 6.5: Applications & Mathematical Induction - 总结",
     "Lesson 6.5: Applications & Mathematical Induction ⭐": "课程 6.5: Applications & Mathematical Induction ⭐",
     "Lesson 7.1: Counting Principles": "课程 7.1: Counting Principles",
-    "Lesson 7.1: Counting Principles - Summary": "课程 7.1: Counting Principles - 总结"
+    "Lesson 7.1: Counting Principles - Summary": "课程 7.1: Counting Principles - 总结",
+    "$1,000 invested at 5% compounded annually for 3 years yields:": "1,000 美元按年利率 5% 复利投资 3 年产生：",
+    "$1000 at 5% compounded annually for 2 years equals:": "1000 美元按年利率 5% 复利计算 2 年等于：",
+    "(1+2) + (4+4) + (9+6) = 3 + 8 + 15.": "(1+2) + (4+4) + (9+6) = 3 + 8 + 15.",
+    "(2-3i)(2+3i) = 4 + 9 = 13.": "(2-3i)(2+3i) = 4 + 9 = 13.",
+    "(2x² − 3x − 5) ÷ (x − 3) gives remainder:": "(2x² − 3x − 5) ÷ (x − 3) 的余数为：",
+    "(a + b)² expanded is:": "(a + b)² 展开为：",
+    "(f ∘ g)(2) = f(g(2)) = f(3) = 9.": "(f ∘ g)(2) = f(g(2)) = f(3) = 9。",
+    "(x+1)/(x−1) × (x−1)/(x+2) simplifies to:": "(x+1)/(x−1) × (x−1)/(x+2) 化简为：",
+    "0.5·f(x) is a:": "0.5·f(x) 是一个：",
+    "2(1) + 3(4).": "2(1) + 3(4).",
+    "2(x²-4)/(x²-4) = 2 (for x ≠ ±2).": "2(x²-4)/(x²-4) = 2 (for x ≠ ±2).",
+    "2f(x) compared to f(x) is:": "2f(x) 与 f(x) 相比是：",
+    "2f(x) is a:": "2f(x) 是一个：",
+    "3(1+2+3+4+5) + 5 = 45 + 5 = 50... check: 4+7+10+13+16.": "3(1+2+3+4+5) + 5 = 45 + 5 = 50... check: 4+7+10+13+16.",
+    "4^(4/2) = 4² = 16... wait 4^2 = 16, not 4.": "4^(4/2) = 4² = 16... wait 4^2 = 16, not 4.",
+    "5!/(2!3!).": "5!/(2!3!).",
+    "5!/(5-3)! = 120/2.": "5!/(5-3)! = 120/2.",
+    "A = P(1 + r/n)^(nt) with P=500, r=0.06, n=12, t=1 gives approximately:": "A = P(1 + r/n)^(nt)，其中 P=500，r=0.06，n=12，t=1，大约等于：",
+    "A bacteria population doubles every hour. Starting with 100, after 5 hours:": "细菌种群每小时翻倍。从 100 开始，5 小时后：",
+    "A bag has 3 red and 5 blue marbles. Two are drawn WITHOUT replacement. The events are:": "袋中有 3 个红球和 5 个蓝球。不放回抽取两个。事件是：",
+    "A bell-shaped curve represents a:": "钟形曲线代表：",
+    "A box plot displays:": "箱线图显示的是：",
+    "A car worth $20,000 depreciates 15% per year. After 3 years it's worth:": "一辆价值 20,000 美元的车每年折旧 15%。3 年后价值：",
+    "A card is drawn from a standard deck. P(heart) = ?": "从标准扑克牌中抽一张。P(红心) = ？",
+    "A circle graphed on a coordinate plane is:": "在坐标平面上绘制的圆是：",
+    "A closed circle on a number line represents:": "数轴上的实心圆表示：",
+    "A compound inequality using 'AND' represents:": "使用“且”的复合不等式表示：",
+    "A conditional relative frequency is calculated by dividing a cell by:": "条件相对频率通过将单元格除以以下内容来计算：",
+    "A constant multiplicative change indicates:": "恒定的乘法变化表示：",
+    "A constant rate of change indicates:": "恒定的变化率表示：",
+    "A constant ratio between consecutive y-values indicates:": "连续 y 值之间的恒定比率表示：",
+    "A dashed boundary line means:": "虚线边界线表示：",
+    "A data set has Q1 = 10 and Q3 = 30. What is the IQR?": "数据集 Q1 = 10 且 Q3 = 30，四分位距是多少？",
+    "A data set has a small standard deviation. This means:": "数据集的标准差较小。这意味着：",
+    "A data set has values {3, 7, 7, 10, 15}. What is the mean?": "数据集 {3, 7, 7, 10, 15} 的均值是多少？",
+    "A data set has values {5, 5, 8, 10, 12}. What is the mode?": "数据集 {5, 5, 8, 10, 12} 的众数是多少？",
+    "A decay rate of 20% means the decay factor is:": "衰减率 20% 意味着衰减因子为：",
+    "A distribution with a long tail to the right is:": "长尾偏右的分布是：",
+    "A dot plot is most useful when you want to:": "点图最有用的场景是当你想要：",
+    "A factor of 1.12 means a growth rate of:": "因子 1.12 意味着增长率为：",
+    "A function is a relation where:": "函数是一种关系，其中：",
+    "A gap in a distribution indicates:": "分布中的空隙表示：",
+    "A geometric sequence with |r| > 1:": "公比 |r| > 1 的等比数列：",
+    "A good linear model produces a residual plot with:": "好的线性模型产生的残差图具有：",
+    "A larger |a| makes the parabola:": "较大的 |a| 使抛物线：",
+    "A line of best fit:": "最佳拟合线：",
+    "A line tangent to a parabola gives a system with:": "与抛物线相切的直线给出的方程组有：",
+    "A literal equation is an equation with:": "字面方程是含有以下内容的方程：",
+    "A lurking variable is:": "潜在变量是：",
+    "A mosaic plot can be used to visualize:": "马赛克图可以用来可视化：",
+    "A negative discriminant means the parabola:": "负判别式意味着抛物线：",
+    "A parabola opens downward when:": "抛物线开口向下当：",
+    "A parabola opens upward when:": "抛物线开口向上当：",
+    "A piecewise function can be:": "分段函数可以是：",
+    "A piecewise function:": "分段函数：",
+    "A polynomial identity is true for:": "多项式恒等式对以下成立：",
+    "A polynomial with three terms is called a:": "有三项的多项式称为：",
+    "A population of 500 grows at 6% per year. The growth factor is:": "500 的人口以每年 6% 增长，增长因子为：",
+    "A positive residual means:": "正残差意味着：",
+    "A radical is in simplest form when:": "根式最简形式是当：",
+    "A rational expression is undefined when:": "有理式在以下情况下无定义：",
+    "A recursive formula for 2, 5, 8, 11, ... is:": "2, 5, 8, 11, ... 的递推公式为：",
+    "A relative frequency is expressed as a:": "相对频率表示为：",
+    "A residual is calculated as:": "残差的计算方式为：",
+    "A residual plot shows a clear U-shaped pattern. This suggests:": "残差图显示明显的 U 形模式。这说明：",
+    "A residual plot with residuals randomly scattered around 0 means:": "残差随机分布在 0 附近的残差图意味着：",
+    "A sample space contains:": "样本空间包含：",
+    "A scatter plot shows points going from lower-left to upper-right. This indicates:": "散点图中的点从左下方到右上方。这表示：",
+    "A scatter plot shows:": "散点图显示：",
+    "A scatter plot with points scattered randomly and no pattern shows:": "点随机分散且无模式的散点图显示：",
+    "A series is:": "级数是：",
+    "A small standard deviation indicates:": "较小的标准差表示：",
+    "A solid boundary line means:": "实线边界线表示：",
+    "A system of two parallel lines has:": "两条平行线的方程组有：",
+    "A two-way table organizes data for:": "双向表用于组织以下数据：",
+    "A two-way table with 2 rows and 3 columns has how many joint frequency cells?": "有 2 行 3 列的双向表有多少个联合频率单元格？",
+    "After 3 years at 10% growth, $100 becomes:": "以 10% 增长率增长 3 年后，100 美元变为：",
+    "After adding rational expressions, you should:": "加完有理式后，你应该：",
+    "After distributing 3(2x + 4), you get:": "展开 3(2x + 4) 后得到：",
+    "After isolating a square root, the next step is:": "隔离平方根后，下一步是：",
+    "After solving a rational equation, you should:": "解完有理方程后，你应该：",
+    "After writing an equation, you should:": "写完方程后，你应该：",
+    "All relative frequencies in a complete table sum to:": "完整表中所有相对频率之和为：",
+    "An arithmetic sequence is a type of:": "等差数列是一种：",
+    "An arithmetic series with a₁ = 2, aₙ = 20, n = 10 has sum:": "等差级数 a₁ = 2，aₙ = 20，n = 10 的和为：",
+    "An equation that is true for all values of x is called:": "对 x 的所有值都成立的方程称为：",
+    "An explicit formula finds:": "通项公式求的是：",
+    "An extraneous solution is one that:": "增根是指：\",    \"TBD\": \"待定",
+    "An extraneous solution is:": "增根是：",
+    "An observational study can show:": "观察研究可以表明：",
+    "An open circle on a number line means:": "数轴上的空心圆表示：",
+    "An outlier is a data value that:": "异常值是指：",
+    "Any base to power 0 equals 1.": "Any base to power 0 等于 1.",
+    "As x → ∞ in an exponential decay function:": "在指数衰减函数中当 x → ∞ 时：",
+    "Association does NOT imply:": "关联并不意味着：",
+    "Association in categorical data is checked by comparing:": "分类数据中的关联通过比较以下内容来检查：",
+    "At a boundary of a piecewise function, a closed circle means:": "在分段函数的边界处，实心圆表示：",
+    "Before multiplying rational expressions, you should:": "有理式相乘前，你应该：",
+    "Before solving √(2x − 1) = 3, the first step is:": "解 √(2x − 1) = 3 前的第一步是：",
+    "Causation means:": "因果关系是指：",
+    "Choose a model that has the same probabilities as the real situation.": "选择一个与实际情况概率相同的模型。",
+    "Coefficient of highest degree term.": "Coefficient of highest degree term.",
+    "Collect and analyze the results.": "收集并分析结果。",
+    "Combinations are used when:": "组合用于：",
+    "Completing the square converts to:": "配方法转换为：",
+    "Composing function with its inverse returns original input.": "函数与其反函数的复合返回原始输入。",
+    "Compound interest grows faster than simple interest because:": "复利增长比单利快，因为：",
+    "Conditional relative frequency allows you to:": "条件相对频率允许你：",
+    "Conditional relative frequency is found by dividing a cell count by:": "条件相对频率通过将单元格计数除以以下内容来求得：",
+    "Constant first differences indicate:": "恒定的一阶差分表示：",
+    "Constant second differences indicate:": "恒定的二阶差分表示：",
+    "Constant second differences suggest using:": "恒定的二阶差分建议使用：",
+    "Continuous compounding uses the formula:": "连续复利使用的公式为：",
+    "Correlation implies:": "相关性意味着：",
+    "Correlation means:": "相关性是指：",
+    "Data with constant second differences suggests a ___ model.": "具有恒定二阶差分的数据建议使用 ___ 模型。",
+    "Define the problem and what outcome you want to estimate.": "定义问题和你想要估计的结果。",
+    "Describing data 'in context' means:": "“在上下文中”描述数据意味着：",
+    "Does √x = −4 have a solution?": "√x = −4 有解吗？",
+    "Draw conclusions about the real situation.": "对实际情况得出结论。",
+    "Drawing cards without replacement makes events:": "不放回抽牌使事件：",
+    "Exponential and log are inverses.": "Exponential and log are inverses.",
+    "Exponential decay requires the base b to be:": "指数衰减要求底数 b 为：",
+    "Exponential growth is characterized by:": "指数增长的特征是：",
+    "Exponential growth requires the base b to be:": "指数增长要求底数 b 为：",
+    "Exponential regression finds the best-fit equation in the form:": "指数回归找到的最佳拟合方程形式为：",
+    "Exponential regression is appropriate when data:": "当数据满足以下条件时，适合使用指数回归：",
+    "Exponential regression is typically performed using:": "指数回归通常使用以下工具进行：",
+    "Extraneous solutions occur because:": "增根的出现是因为：",
+    "Extrapolation is:": "外推法是：",
+    "FOIL stands for:": "FOIL 代表：",
+    "Factor completely: 3x² − 12x": "完全分解：3x² − 12x",
+    "Factor: 4x² − 8x + 4": "分解因式：4x² − 8x + 4",
+    "Factor: 5x² + 10x": "分解因式：5x² + 10x",
+    "Factor: x² − 10x + 25": "分解因式：x² − 10x + 25",
+    "Find d if a(1) = 4 and a(10) = 31:": "如果 a(1) = 4 且 a(10) = 31，求 d：",
+    "Find the 10th term of the arithmetic sequence 4, 7, 10, 13, ...": "求等差数列 4, 7, 10, 13, ... 的第 10 项。",
+    "Find the 12th term of 3, 7, 11, 15, ...": "求 3, 7, 11, 15, ... 的第 12 项。",
+    "Find the 5th term of the geometric sequence 4, 8, 16, 32, ...": "求等比数列 4, 8, 16, 32, ... 的第 5 项。",
+    "Find the discriminant of x² + 2x + 5 = 0:": "求 x² + 2x + 5 = 0 的判别式：",
+    "Find the discriminant of x² + 6x + 9 = 0:": "求 x² + 6x + 9 = 0 的判别式：",
+    "Find the median of {3, 7, 9, 12, 15}.": "求 {3, 7, 9, 12, 15} 的中位数。",
+    "Find the sum of the first 4 terms of 3, 6, 12, 24.": "求 3, 6, 12, 24 前 4 项的和。",
+    "Find the sum of the first 5 terms of 2, 4, 6, 8, 10.": "求 2, 4, 6, 8, 10 前 5 项的和。",
+    "First differences: 2, 4, 6, 8. Second differences: 2, 2, 2. The model is:": "一阶差分：2, 4, 6, 8。二阶差分：2, 2, 2。模型为：",
+    "For 2x² − 4x − 6 = 0, a = ?": "对于 2x² − 4x − 6 = 0，a = ？",
+    "For a skewed distribution, which measures should you report?": "对于偏态分布，应报告哪些度量？",
+    "For an infinite geometric series to converge, we need:": "要使无穷等比级数收敛，我们需要：",
+    "For any base, log to its own base = 1.": "For any base, log to its own base = 1.",
+    "For data (0, 4), (1, 12), (2, 36), the equation is:": "对于数据 (0, 4), (1, 12), (2, 36)，方程为：",
+    "For data (0,1), (1,4), (2,16), (3,64), the model is:": "对于数据 (0,1), (1,4), (2,16), (3,64)，模型为：",
+    "For data: (0,1), (1,3), (2,9), (3,27), the best model is:": "对于数据 (0,1), (1,3), (2,9), (3,27)，最佳模型为：",
+    "For data: (0,2), (1,5), (2,8), (3,11), the best model is:": "对于数据 (0,2), (1,5), (2,8), (3,11)，最佳模型为：",
+    "For dependent events, you need:": "对于非独立事件，你需要：",
+    "For symmetric data, the best summary statistics are:": "对于对称数据，最好的汇总统计量是：",
+    "For the data set {2, 5, 8, 11, 14}, what is the median?": "数据集 {2, 5, 8, 11, 14} 的中位数是多少？",
+    "For the data {1, 2, 2, 3, 3, 3, 4, 4, 5}, the mode is:": "对于数据 {1, 2, 2, 3, 3, 3, 4, 4, 5}，众数为：",
+    "For x² + 5x + 6 = 0, identify a, b, c:": "对于 x² + 5x + 6 = 0，确定 a、b、c：",
+    "For x² < 16:": "对于 x² < 16：",
+    "For y = 2x² + 8x + 3, the axis of symmetry is:": "对于 y = 2x² + 8x + 3，对称轴为：",
+    "Graphically, the solutions are:": "从图形上看，解是：",
+    "Ice cream sales and drowning rates are positively correlated. This is because:": "冰淇淋销量和溺水率呈正相关。这是因为：",
+    "Ice cream sales and drowning rates both increase in summer. This is an example of:": "冰淇淋销量和溺水率在夏天都增加。这是以下的一个例子：",
+    "If 30 out of 100 students prefer math, the relative frequency is:": "如果 100 名学生中有 30 人偏好数学，相对频率为：",
+    "If 8 runners race, how many ways can gold, silver, bronze be awarded?": "8 名跑步者比赛，金银铜牌有多少种颁发方式？",
+    "If P(A) = 0.5 and P(B) = 0.3, and they are independent, P(A and B) = ?": "如果 P(A) = 0.5 且 P(B) = 0.3，它们独立，P(A 且 B) = ？",
+    "If P(rain) = 0.3, then P(no rain) = ?": "如果 P(下雨) = 0.3，那么 P(不下雨) = ？",
+    "If P(x) ÷ (x − 2) has remainder 0, then:": "如果 P(x) ÷ (x − 2) 的余数为 0，则：",
+    "If Q1 = 10, Q3 = 30, any value above ___ is an outlier.": "如果 Q1 = 10、Q3 = 30，任何高于 ___ 的值都是异常值。",
+    "If Q1 = 12 and Q3 = 28, what is the IQR?": "如果 Q1 = 12 且 Q3 = 28，四分位距是多少？",
+    "If a 'solution' gives 0 in a denominator:": "如果一个“解”使分母为 0：",
+    "If a < 0, the parabola has:": "如果 a < 0，抛物线有：",
+    "If a > 0 in a quadratic, the vertex is:": "如果二次方程中 a > 0，顶点为：",
+    "If a car depreciates at 15% per year, the decay factor is:": "如果一辆车每年折旧 15%，衰减因子为：",
+    "If a cell has frequency 15 and the grand total is 60, the joint relative frequency is:": "如果单元格频率为 15，总计为 60，联合相对频率为：",
+    "If a line does not intersect a parabola:": "如果直线不与抛物线相交：",
+    "If a line is tangent to a parabola, the system has:": "如果直线与抛物线相切，方程组有：",
+    "If a residual plot shows a U-shape, this suggests:": "如果残差图显示 U 形，这说明：",
+    "If a scatter plot looks like a U-shape, the best model is:": "如果散点图呈 U 形，最佳模型是：",
+    "If a two-way table has 3 rows and 4 columns, how many joint frequency cells are there?": "如果双向表有 3 行 4 列，有多少个联合频率单元格？",
+    "If a ≠ 1, the first step is:": "如果 a ≠ 1，第一步是：",
+    "If a(1) = 10 and r = −2, then a(3) = ?": "如果 a(1) = 10 且 r = −2，那么 a(3) = ？",
+    "If a(1) = 7 and d = −2, what is a(5)?": "如果 a(1) = 7 且 d = −2，a(5) 是多少？",
+    "If conditional relative frequencies are approximately equal across groups:": "如果各组的条件相对频率大致相等：",
+    "If events are independent, P(A and B and C) = ?": "如果事件独立，P(A 且 B 且 C) = ？",
+    "If f(0) = 7, then 7 is the:": "如果 f(0) = 7，那么 7 是：",
+    "If f(x) = 3x − 2, find f(5).": "如果 f(x) = 3x − 2，求 f(5)。",
+    "If f(x) = 4x − 7, find f(3).": "如果 f(x) = 4x − 7，求 f(3)。",
+    "If h(t) = −16t² + 100 models height, h(2) = ?": "如果 h(t) = −16t² + 100 模拟高度，h(2) = ？",
+    "If points trend upward from left to right, the correlation is:": "如果点从左到右向上趋势，相关性为：",
+    "If r = 0.5, the geometric sequence:": "如果 r = 0.5，等比数列：",
+    "If regression gives y = 12(1.5)ˣ with r² = 0.98:": "如果回归给出 y = 12(1.5)ˣ 且 r² = 0.98：",
+    "If r² = 0.97 for an exponential regression, the model:": "如果指数回归的 r² = 0.97，该模型：",
+    "If simplifying gives 0 = 0, the equation has:": "如果化简得到 0 = 0，方程有：",
+    "If the axis of symmetry is x = 3 and one point is (1, 5), its mirror point is:": "如果对称轴为 x = 3 且一个点为 (1, 5)，其对称点为：",
+    "If the data set {1, 3, 5, 7, x} has a mean of 5, what is x?": "如果数据集 {1, 3, 5, 7, x} 的均值为 5，x 是多少？",
+    "If the discriminant is negative:": "如果判别式为负：",
+    "If the discriminant is positive:": "如果判别式为正：",
+    "If the discriminant is zero:": "如果判别式为零：",
+    "If the distribution of 'pass/fail' is the same for males and females:": "如果男性和女性的“通过/未通过”分布相同：",
+    "If the growth rate is 5%, the growth factor is:": "如果增长率为 5%，增长因子为：",
+    "If the mean is greater than the median, the distribution is likely:": "如果均值大于中位数，分布可能是：",
+    "If the observed value is 10 and the predicted value is 12, the residual is:": "如果观测值为 10，预测值为 12，则残差为：",
+    "If the observed value is 12 and the predicted value is 15, the residual is:": "如果观测值为 12，预测值为 15，则残差为：",
+    "If the slope is −3, the line:": "如果斜率为 −3，直线：",
+    "If the slope of a best-fit line is −0.5, this means:": "如果最佳拟合线的斜率为 −0.5，这意味着：",
+    "If the test point satisfies the inequality, you shade:": "如果测试点满足不等式，你着色：",
+    "If the y-intercept is 100 and the ratio is 0.5:": "如果 y 轴截距为 100，比率为 0.5：",
+    "If two equations represent the same line, the system has:": "如果两个方程表示同一条线，方程组有：",
+    "If x = 0 gives y = 5 and x = 1 gives y = 15, the equation is:": "如果 x = 0 时 y = 5，x = 1 时 y = 15，方程为：",
+    "If x = 0 → y = 8 and x = 2 → y = 32, then b = ?": "如果 x = 0 → y = 8 且 x = 2 → y = 32，那么 b = ？",
+    "If y = 2ˣ is vertically stretched by 4:": "如果 y = 2ˣ 竖直拉伸 4 倍：",
+    "If y = 3(x − 1)² + 2, the parabola opens:": "如果 y = 3(x − 1)² + 2，抛物线开口：",
+    "If you have 3 shirts and 4 pants, total outfits = ?": "如果你有 3 件衬衫和 4 条裤子，总搭配数 = ？",
+    "If you remove a high outlier from a data set, the mean will:": "如果从数据集中移除一个高异常值，均值将：",
+    "In A = P(1 + r/n)^(nt), what does n represent?": "在 A = P(1 + r/n)^(nt) 中，n 代表什么？",
+    "In a box plot, the whiskers represent:": "在箱线图中，须代表：",
+    "In a left-skewed distribution:": "在左偏分布中：",
+    "In a real-world context, slope represents:": "在实际情境中，斜率代表：",
+    "In a skewed-right distribution, which relationship is true?": "在右偏分布中，哪种关系成立？",
+    "In a step function, each piece is:": "在阶跃函数中，每段是：",
+    "In a symmetric distribution, the mean and median are:": "在对称分布中，均值和中位数是：",
+    "In a two-way frequency table, the grand total is:": "在双向频率表中，总计是：",
+    "In a two-way table with 3 rows and 4 columns, how many joint frequency cells are there?": "在有 3 行 4 列的双向表中，有多少个联合频率单元格？",
+    "In a two-way table, P(Male|Passed) is found by:": "在双向表中，P(男|通过) 通过以下方式求得：",
+    "In a two-way table, the grand total is:": "在双向表中，总计是：",
+    "In a two-way table, the marginal frequency for a row is found by:": "在双向表中，行的边际频率通过以下方式求得：",
+    "In context, f(0) often represents:": "在实际情境中，f(0) 通常代表：",
+    "In context, y = 2000(1.03)ᵗ could mean:": "在实际情境中，y = 2000(1.03)ᵗ 可以表示：",
+    "In elimination, you might need to _____ an equation first.": "在消元法中，你可能需要先 _____ 一个方程。",
+    "In f(x) = 3 · 2ˣ, the growth factor is:": "在 f(x) = 3 · 2ˣ 中，增长因子为：",
+    "In f(x) = 5, what type of function is this?": "在 f(x) = 5 中，这是什么类型的函数？",
+    "In polynomial long division, the first step is:": "多项式长除法的第一步是：",
+    "In radioactive decay with half-life, the base b is:": "在半衰期放射性衰减中，底数 b 为：",
+    "In substitution, the first step is:": "代入法中，第一步是：",
+    "In the AC method for 2x² + 7x + 3, ac = ?": "在 2x² + 7x + 3 的 AC 法中，ac = ？",
+    "In y = 2(x − 3)² + 5, the vertex is:": "在 y = 2(x − 3)² + 5 中，顶点为：",
+    "In y = 2ˣ + 3, the horizontal asymptote is:": "在 y = 2ˣ + 3 中，水平渐近线为：",
+    "In y = a · bˣ, 'a' represents:": "在 y = a · bˣ 中，'a' 代表：",
+    "In y = x² − 4x + 3, the axis of symmetry is:": "在 y = x² − 4x + 3 中，对称轴为：",
+    "In y = −(x + 1)² − 4, the vertex is:": "在 y = −(x + 1)² − 4 中，顶点为：",
+    "In y = −x² + 6x − 5, the parabola opens:": "在 y = −x² + 6x − 5 中，抛物线开口：",
+    "In ŷ = mx + b, the slope m represents:": "在 ŷ = mx + b 中，斜率 m 代表：",
+    "Income data in a country is typically:": "一个国家的收入数据通常是：",
+    "Interpolation is:": "内插法是：",
+    "Interval notation (2, 5] means:": "区间记号 (2, 5] 表示：",
+    "Joint frequencies can be used to calculate:": "联合频率可以用于计算：",
+    "Joint frequencies in a two-way table are:": "双向表中的联合频率是：",
+    "Joint frequencies represent:": "联合频率代表：",
+    "Joint relative frequency is calculated as:": "联合相对频率的计算方式为：",
+    "Law of Ellipses": "椭圆定律",
+    "Law of Equal Areas": "等面积定律",
+    "Law of Periods (Harmonic Law)": "周期定律（谐和定律）",
+    "Like terms must have:": "同类项必须具有：",
+    "Limit: (9/10)/(1-1/10) = 1.": "极限: (9/10)/(1-1/10) = 1.",
+    "Marginal frequencies are:": "边际频率是：",
+    "Marginal relative frequency uses:": "边际相对频率使用：",
+    "Means 3⁴ = 81. Logarithm is exponent.": "Means 3⁴ = 81. Logarithm is exponent.",
+    "Middle value.": "Middle value.",
+    "Monthly compounding (n=12) produces ___ interest than quarterly (n=4):": "月复利 (n=12) 比季度复利 (n=4) 产生 ___ 利息：",
+    "Multiply: 3 · 4 · 2.": "Multiply: 3 · 4 · 2.",
+    "Natural log of e equals 1.": "e的自然对数 等于 1.",
+    "Negative correlation means:": "负相关意味着：",
+    "No apparent pattern in a scatter plot indicates:": "散点图中无明显模式表示：",
+    "Numerator 5/6, denominator 1/12. (5/6)/(1/12) = 10.": "Numerator 5/6, 分母 1/12. (5/6)/(1/12) = 10.",
+    "Only one way to choose everything.": "只有一种方式 to 选择 一切.",
+    "Only one way to choose nothing.": "只有一种方式 to 选择 无物.",
+    "Outliers on a box plot are values beyond:": "箱线图中异常值是超出以下范围的值：",
+    "P(A or B) for mutually exclusive events = ?": "互斥事件的 P(A 或 B) = ？",
+    "P(A|B) differs from P(B|A) because:": "P(A|B) 与 P(B|A) 不同，因为：",
+    "P(B|A) reads as:": "P(B|A) 读作：",
+    "P(rolling a 3 on a standard die) = ?": "掷标准骰子得到 3 的概率 = ？",
+    "Parallel lines in a system mean:": "方程组中的平行线意味着：",
+    "Pascal's Triangle is used for:": "帕斯卡三角形用于：",
+    "Permutations are used when:": "排列用于：",
+    "Probability must be between:": "概率必须在以下范围之间：",
+    "Pythagorean identity.": "勾股恒等式.",
+    "Quadratic regression is done using:": "二次回归使用以下方式完成：",
+    "Quadratic regression produces an equation in the form:": "二次回归产生的方程形式为：",
+    "Relative frequency is calculated as:": "相对频率的计算方式为：",
+    "Removing an outlier from a data set will typically:": "从数据集中移除异常值通常会：",
+    "Residuals sum to approximately:": "残差之和大约为：",
+    "Run many trials of the simulation.": "运行多次模拟试验。",
+    "S(10) for the arithmetic series 1 + 2 + 3 + ... + 10 = ?": "等差级数 1 + 2 + 3 + ... + 10 的 S(10) = ？",
+    "Sample space for flipping 3 coins has ___ outcomes.": "抛 3 枚硬币的样本空间有 ___ 个结果。",
+    "Set x=0: f(0) = 0 - 0 + 8 = 8. Point: (0,8).": "Set x=0: f(0) = 0 - 0 + 8 = 8. Point: (0,8).",
+    "Set y = 0: 0 = 2x - 6, so x = 3. Point: (3, 0).": "Set y = 0: 0 = 2x - 6, 所以 x = 3. Point: (3, 0).",
+    "Simple interest is calculated as:": "单利的计算公式为：",
+    "Simple interest uses the formula:": "单利使用的公式为：",
+    "Simplify: (x² − 4)/(x + 2)": "化简：(x² − 4)/(x + 2)",
+    "Simplify: 5x + 3 − 2x + 7": "化简：5x + 3 − 2x + 7",
+    "Simplify: x^(1/3) · x^(2/3)": "化简：x^(1/3) · x^(2/3)",
+    "Simplify: √(48)": "化简：√(48)",
+    "Since 4² = 16.": "Since 4² = 16.",
+    "Slope is calculated as:": "斜率的计算方式为：",
+    "Slow growth: logarithmic growth is much slower than exponential.": "Slow 增长: logarithmic 增长 is much slower than exponential.",
+    "Solve by completing the square: x² + 4x = 5": "用配方法解方程：x² + 4x = 5",
+    "Solve by elimination: x + y = 10, x − y = 4": "用消元法解方程组：x + y = 10，x − y = 4",
+    "Solve by substitution: y = 2x, x + y = 9": "用代入法解方程组：y = 2x，x + y = 9",
+    "Solve for C: F = 9C/5 + 32": "解出 C：F = 9C/5 + 32",
+    "Solve for b: P = 2a + 2b": "解出 b：P = 2a + 2b",
+    "Solve the system by elimination: 2x + y = 10, 2x − y = 6": "用消元法解方程组：2x + y = 10，2x − y = 6",
+    "Solve using quadratic formula: x² − 3x + 2 = 0": "用求根公式解方程：x² − 3x + 2 = 0",
+    "Solve: 2(x + 3) = 14": "解方程：2(x + 3) = 14",
+    "Solve: 2x + 1 > 5 AND 3x < 18": "解不等式：2x + 1 > 5 且 3x < 18",
+    "Solve: 2x + 7 = 15": "解方程：2x + 7 = 15",
+    "Solve: 2x + y = 7, x = 3": "解方程组：2x + y = 7，x = 3",
+    "Solve: 2x − 5 = 9": "解方程：2x − 5 = 9",
+    "Solve: 2ˣ = 16": "解方程：2ˣ = 16",
+    "Solve: 3x + 4 = 19": "解方程：3x + 4 = 19",
+    "Solve: 3x + 7 − x = 15": "解方程：3x + 7 − x = 15",
+    "Solve: 4x = 28": "解方程：4x = 28",
+    "Solve: 5/(x+1) + 1/(x+1) = 3": "解方程：5/(x+1) + 1/(x+1) = 3",
+    "Solve: 5x + 3 = 2x + 15": "解方程：5x + 3 = 2x + 15",
+    "Solve: 5x + 3 − 2x = 18": "解方程：5x + 3 − 2x = 18",
+    "Solve: 6x + 1 = 4x + 9": "解方程：6x + 1 = 4x + 9",
+    "Solve: 6x − 4 + 2x = 20": "解方程：6x − 4 + 2x = 20",
+    "Solve: 7x − 2 = 4x + 10": "解方程：7x − 2 = 4x + 10",
+    "Solve: x + 7 = 15": "解方程：x + 7 = 15",
+    "Solve: x < 2 or x > 8": "解不等式：x < 2 或 x > 8",
+    "Solve: x − 9 = −3": "解方程：x − 9 = −3",
+    "Solve: x/3 = 6": "解方程：x/3 = 6",
+    "Solve: x² − 2x − 8 = 0 by completing the square": "用配方法解方程：x² − 2x − 8 = 0",
+    "Solve: x² − 9 = 0": "解方程：x² − 9 = 0",
+    "Solve: x² − x − 6 > 0": "解不等式：x² − x − 6 > 0",
+    "Solve: |x| < 4": "解不等式：|x| < 4",
+    "Solve: |x| < 5": "解不等式：|x| < 5",
+    "Solve: |x| = 7": "解方程：|x| = 7",
+    "Solve: |x| > 6": "解不等式：|x| > 6",
+    "Solve: −2(x − 5) = 16": "解方程：−2(x − 5) = 16",
+    "Solve: −3x > 12": "解不等式：−3x > 12",
+    "Solve: −3x ≤ 12": "解不等式：−3x ≤ 12",
+    "Solve: ∘x = −2": "解方程：∘x = −2",
+    "Standard form arranges a polynomial by:": "标准式将多项式按以下方式排列：",
+    "Standard form means arranging terms in:": "标准式意味着将各项按以下排列：",
+    "Sum 40, divide by 4.": "Sum 40, divide by 4.",
+    "Sum of the first 10 terms of 1, 2, 3, …, 10:": "1, 2, 3, …, 10 前 10 项的和：",
+    "Sum: 2+4+6+8+10 = 30.": "Sum: 2+4+6+8+10 = 30.",
+    "Synthetic division can be used when dividing by:": "综合除法可以在被除以以下时使用：",
+    "Systems of inequalities can have:": "不等式组可以有：",
+    "S₂₀ = 20/2 · (5 + 100) = 1050.": "S₂₀ = 20/2 · (5 + 100) = 1050.",
+    "The 'a' in the quadratic regression equation determines:": "二次回归方程中的 'a' 决定了：",
+    "The 'a' value in y = a(x−h)²+k affects:": "y = a(x−h)²+k 中的 'a' 值影响：",
+    "The 'box' in a box plot represents:": "箱线图中的“箱子”代表：",
+    "The 'k' in vertex form represents:": "顶点式中的 'k' 代表：",
+    "The 7th term of geometric sequence a₁ = 3, r = 2 is:": "等比数列 a₁ = 3, r = 2 的第 7 项为：",
+    "The IQR is calculated as:": "四分位距的计算方式为：",
+    "The LCD of 1/(x−1) and 1/(x+1) is:": "1/(x−1) 和 1/(x+1) 的最小公分母为：",
+    "The LCD of 1/3 and 1/4 is:": "1/3 和 1/4 的最小公分母为：",
+    "The Remainder Theorem states:": "余数定理表明：",
+    "The Zero Product Property states:": "零积性质表明：",
+    "The absolute value of −9 is:": "−9 的绝对值是：",
+    "The advantage of an explicit formula is:": "通项公式的优点是：",
+    "The axis of symmetry in y = (x − 7)² + 2 is:": "y = (x − 7)² + 2 中的对称轴为：",
+    "The axis of symmetry is given by:": "对称轴的公式为：",
+    "The axis of symmetry of y = −2(x + 1)² + 4 is:": "y = −2(x + 1)² + 4 的对称轴为：",
+    "The common difference describes:": "公差描述的是：",
+    "The common difference in 5, 8, 11, 14 is:": "5, 8, 11, 14 的公差为：",
+    "The common ratio is found by:": "公比的求法为：",
+    "The common ratio of 2, 6, 18, 54 is:": "2, 6, 18, 54 的公比为：",
+    "The common ratio of 4, 12, 36, 108 is:": "4, 12, 36, 108 的公比为：",
+    "The degree of 4x⁵ − 2x³ + x is:": "4x⁵ − 2x³ + x 的次数为：",
+    "The difference of squares pattern is:": "平方差公式为：",
+    "The discriminant is:": "判别式是：",
+    "The discriminant of 2x² + 3x + 5 = 0 is:": "2x² + 3x + 5 = 0 的判别式为：",
+    "The domain of a relation is:": "关系的定义域是：",
+    "The domain of f(x) = 1/(x−3) excludes:": "f(x) = 1/(x−3) 的定义域排除：",
+    "The domain of f(x) = √x is:": "f(x) = √x 的定义域为：",
+    "The equation ŷ = 2x + 3 predicts that when x = 5:": "方程 ŷ = 2x + 3 预测当 x = 5 时：",
+    "The excluded value for 5/(x − 7) is:": "5/(x − 7) 的排除值为：",
+    "The excluded values for (x+1)/((x−2)(x+3)) are:": "(x+1)/((x−2)(x+3)) 的排除值为：",
+    "The explicit formula for a geometric sequence is:": "等比数列的通项公式为：",
+    "The explicit formula for an arithmetic sequence is:": "等差数列的通项公式为：",
+    "The first step in graphing standard form is:": "画标准式图形的第一步是：",
+    "The first step in solving a rational equation is:": "解有理方程的第一步是：",
+    "The first step in solving x² − 5x + 6 < 0 is:": "解 x² − 5x + 6 < 0 的第一步是：",
+    "The five-number summary consists of:": "五数概括包括：",
+    "The formula for an arithmetic series sum is:": "等差级数求和公式为：",
+    "The geometric series sum formula requires:": "等比级数求和公式要求：",
+    "The grand total equals:": "总计等于：",
+    "The graph of an 'AND' inequality shows:": "“且”不等式的图形显示：",
+    "The graph of y = (1/2)ˣ is the same as:": "y = (1/2)ˣ 的图形与以下相同：",
+    "The graph of y = (x + 3)² is y = x² shifted:": "y = (x + 3)² 的图形是 y = x² 的移动：",
+    "The graph of −f(x) is f(x) reflected over the:": "−f(x) 的图形是 f(x) 关于以下轴的反射：",
+    "The graph y = 0.5x² compared to y = x² is:": "y = 0.5x² 与 y = x² 相比的图形是：",
+    "The greatest integer function ⌊3.7⌋ equals:": "最大整数函数 ⌊3.7⌋ 等于：",
+    "The horizontal asymptote of y = 5(0.5)ˣ is:": "y = 5(0.5)ˣ 的水平渐近线为：",
+    "The initial value 'a' in y = a · bˣ is found at:": "y = a · bˣ 中的初始值 'a' 在以下位置找到：",
+    "The initial value in y = 250(1.1)ˣ is:": "y = 250(1.1)ˣ 中的初始值为：",
+    "The key strategy for same-base problems is:": "同底数问题的关键策略是：",
+    "The leading coefficient of 7x³ − 2x⁵ + x is:": "7x³ − 2x⁵ + x 的首项系数为：",
+    "The line of best fit has equation ŷ = 2x + 5. Predict y when x = 10.": "最佳拟合线方程为 ŷ = 2x + 5。预测 x = 10 时的 y。",
+    "The marginal frequency for a row is found by:": "行的边际频率通过以下方式求得：",
+    "The quadratic formula is:": "求根公式为：",
+    "The quadratic formula works when:": "求根公式适用于：",
+    "The range describes:": "极差描述的是：",
+    "The range of a relation is:": "关系的值域是：",
+    "The range of f(x) = x² is:": "f(x) = x² 的值域是：",
+    "The range of {4, 8, 15, 16, 23, 42} is:": "{4, 8, 15, 16, 23, 42} 的极差为：",
+    "The range of {−3, 0, 5, 12} is:": "{−3, 0, 5, 12} 的极差是：",
+    "The recursive formula for 5, 10, 20, 40, … is:": "5, 10, 20, 40, … 的递推公式为：",
+    "The recursive formula for a geometric sequence is:": "等比数列的递推公式为：",
+    "The sample space for flipping a coin is:": "抛硬币的样本空间为：",
+    "The sequence 2, 6, 18, 54 has:": "数列 2, 6, 18, 54 具有：",
+    "The sequence 3, 7, 11, 15 has:": "数列 3, 7, 11, 15 具有：",
+    "The slope of a horizontal line is:": "水平线的斜率为：",
+    "The solution to a system of inequalities is:": "不等式组的解是：",
+    "The solution to x² + 1 > 0 is:": "x² + 1 > 0 的解为：",
+    "The standard deviation is _____ to outliers.": "标准差对异常值 _____。",
+    "The sum of infinite geometric series 8 + 4 + 2 + 1 + … is:": "无穷等比级数 8 + 4 + 2 + 1 + … 的和为：",
+    "The totals in the margins of a two-way table are called:": "双向表边际中的合计被称为：",
+    "The union of two sets corresponds to:": "两个集合的并集对应于：",
+    "The value 'a' in the regression model represents:": "回归模型中的 'a' 代表：",
+    "The vertex of a parabola is:": "抛物线的顶点是：",
+    "The vertex of y = x² − 4x + 3 is:": "y = x² − 4x + 3 的顶点为：",
+    "The whiskers of a box plot extend to:": "箱线图的须延伸到：",
+    "The y-intercept b represents:": "y 轴截距 b 代表：",
+    "The y-intercept of a line of best fit represents:": "最佳拟合线的 y 轴截距代表：",
+    "The y-intercept of y = 3x² − 5x + 7 is:": "y = 3x² − 5x + 7 的 y 轴截距为：",
+    "The y-intercept of y = a(x − h)² + k occurs when:": "y = a(x − h)² + k 的 y 轴截距出现在：",
+    "The y-intercept of y = x² − 4x + 3 is:": "y = x² − 4x + 3 的 y 轴截距为：",
+    "The zeros of a quadratic function are:": "二次函数的零点是：",
+    "The ± in the formula means:": "公式中的 ± 意味着：",
+    "To compare two exponential models, compare their:": "比较两个指数模型时，比较它们的：",
+    "To complete the square for x² + 8x, add:": "对 x² + 8x 配方需加上：",
+    "To convert from standard form to vertex form:": "将标准式转换为顶点式：",
+    "To convert y = x² − 6x + 11 to vertex form:": "将 y = x² − 6x + 11 转换为顶点式：",
+    "To distinguish linear from exponential in a table:": "在表格中区分线性和指数：",
+    "To divide rational expressions:": "有理式相除：",
+    "To establish causation from an observed association, you need:": "要从观察到的关联建立因果关系，你需要：",
+    "To establish causation, you typically need:": "要建立因果关系，你通常需要：",
+    "To graph y > 2x + 1, you draw:": "画 y > 2x + 1 的图时，你画：",
+    "To simplify a rational expression:": "化简有理式：",
+    "To solve y = x² and y = 2x + 3:": "解 y = x² 和 y = 2x + 3：",
+    "Two categorical variables are associated if:": "两个分类变量有关联如果：",
+    "Two coins are flipped. The events are:": "抛两枚硬币。事件是：",
+    "Two-way frequency tables are used for:": "双向频率表用于：",
+    "Use the identity to compute 99²:": "用恒等式计算 99²：",
+    "Using a line of best fit to predict beyond the data range is called:": "用最佳拟合线预测数据范围以外的值称为：",
+    "Using formula: 100/2 · 101.": "Using formula: 100/2 · 101.",
+    "Using the 1.5 × IQR rule, a value is an outlier if it is:": "使用 1.5 × IQR 规则，如果一个值是异常值，它应：",
+    "Using the 1.5×IQR rule with Q1 = 10 and Q3 = 30, any value above ___ is an outlier.": "使用 1.5×IQR 规则，Q1 = 10 且 Q3 = 30 时，任何高于 ___ 的值都是异常值。",
+    "Using the Remainder Theorem, if P(x) divided by (x − 3) gives remainder 0, then:": "根据余数定理，如果 P(x) 除以 (x − 3) 的余数为 0，则：",
+    "Variance is related to standard deviation by:": "方差与标准差的关系是：",
+    "Vertex form is:": "顶点式为：",
+    "What are the coefficients used in synthetic division of x³ − 2x + 4?": "x³ − 2x + 4 的综合除法中使用的系数是什么？",
+    "What are the excluded values of 5/(x² − 9)?": "5/(x² − 9) 的排除值是什么？",
+    "What are unusual features to look for?": "需要寻找的异常特征是什么？",
+    "What does a dot plot show?": "点图显示什么？",
+    "What is the GCF of 6x³ and 9x²?": "6x³ 和 9x² 的最大公因式是什么？",
+    "What is the domain of f(x) = 1/(x − 5)?": "f(x) = 1/(x − 5) 的定义域是什么？",
+    "What is the first step in solving 4(2x − 1) = 20?": "解方程 4(2x − 1) = 20 的第一步是什么？",
+    "What is the first step in solving 5x − 2 = 13?": "解方程 5x − 2 = 13 的第一步是什么？",
+    "What is the mean of the data set {2, 4, 6, 8, 10}?": "数据集 {2, 4, 6, 8, 10} 的均值是多少？",
+    "What is the mean of {10, 20, 30}?": "{10, 20, 30} 的均值是多少？",
+    "What is the range of {2, 5, 8, 11, 20}?": "{2, 5, 8, 11, 20} 的极差是多少？",
+    "What is the solution to 4x + 1 = 4x − 3?": "4x + 1 = 4x − 3 的解是什么？",
+    "What is the solution to the system: y = 2x + 1 and y = −x + 7?": "方程组 y = 2x + 1 和 y = −x + 7 的解是什么？",
+    "What should you be cautious about when using regression?": "使用回归时应注意什么？",
+    "What type of data does a two-way table display?": "双向表显示什么类型的数据？",
+    "When describing a distribution, you should mention:": "描述分布时，你应该提到：",
+    "When dividing, the excluded values come from:": "除法中，排除值来自：",
+    "When graphing x < 5, use:": "画 x < 5 的图时，使用：",
+    "When graphing y ≤ 3x − 1, you use:": "画 y ≤ 3x − 1 的图时，你使用：",
+    "When outliers are present, you should report:": "存在异常值时，你应该报告：",
+    "When subtracting fractions:": "减法分数时：",
+    "Which cannot be cancelled?": "以下哪个不能约分？",
+    "Which compound inequality has no solution?": "哪个复合不等式无解？",
+    "Which compounding frequency yields the most interest?": "哪种复利频率产生最多利息？",
+    "Which describes a step function?": "以下哪个描述了阶跃函数？",
+    "Which display shows the five-number summary?": "哪种图表显示五数概括？",
+    "Which distribution shape has all values occurring with roughly equal frequency?": "哪种分布形状中所有值出现的频率大致相等？",
+    "Which eventually grows faster?": "哪个最终增长更快？",
+    "Which function represents exponential growth?": "哪个函数代表指数增长？",
+    "Which graph is used to display bivariate numerical data?": "哪种图用于显示双变量数值数据？",
+    "Which grows faster for large x?": "对于大 x，哪个增长更快？",
+    "Which grows fastest for large x: y = 5x, y = x², or y = 2ˣ?": "对于大 x，哪个增长最快：y = 5x、y = x² 还是 y = 2ˣ？",
+    "Which indicates exponential data in a table?": "表中哪种特征表示指数数据？",
+    "Which is NOT a typical shape of a distribution?": "以下哪个不是分布的典型形状？",
+    "Which is a real-world example of a step function?": "以下哪个是阶跃函数的实际例子？",
+    "Which is an explicit formula for 5, 8, 11, 14, ...?": "5, 8, 11, 14, ... 的通项公式是哪个？",
+    "Which measure of center is MOST affected by an extreme outlier?": "哪种集中趋势度量最容易受极端异常值影响？",
+    "Which method finds the line that minimizes squared distances?": "哪种方法找到使距离平方和最小的线？",
+    "Which method is best if one equation is already y = 3x + 2?": "如果一个方程已经是 y = 3x + 2，哪种方法最好？",
+    "Which model has a graph that is a parabola?": "哪种模型的图形是抛物线？",
+    "Which pair of statistics should you report for skewed data?": "对于偏态数据，你应报告哪对统计量？",
+    "Which plot is best for seeing individual values?": "哪种图最适合查看单个值？",
+    "Which point is commonly tested to determine shading?": "通常测试哪个点来确定着色区域？",
+    "Which relation is NOT a function?": "哪个关系不是函数？",
+    "Which represents exponential decay?": "以下哪个代表指数衰减？",
+    "Which represents exponential growth?": "以下哪个代表指数增长？",
+    "Which requires knowing the previous term?": "哪个需要知道前一项？",
+    "Which sequence is arithmetic?": "哪个数列是等差数列？",
+    "Which sequence is geometric?": "哪个数列是等比数列？",
+    "Which solution should be rejected: √x = −3?": "应该拒绝哪个解：√x = −3？",
+    "Which statement about residuals is true?": "关于残差的哪个说法是正确的？",
+    "Which statistic is most affected by an outlier?": "哪种统计量最容易受异常值影响？",
+    "Which study design can establish causation?": "哪种研究设计可以建立因果关系？",
+    "Which test determines if a graph is a function?": "哪种检验可以确定一个图是否是函数？",
+    "Which value is NOT in the domain of f(x) = 5/(x+1)?": "以下哪个值不在 f(x) = 5/(x+1) 的定义域内？",
+    "Which would BEST establish causation?": "以下哪个最能建立因果关系？",
+    "Why must you check solutions to radical equations?": "为什么必须检验根式方程的解？",
+    "With replacement means:": "有放回意味着：",
+    "Write a recursive formula for 4, 12, 36, 108, ...": "写出 4, 12, 36, 108, ... 的递推公式。",
+    "Write the recursive formula for 10, 7, 4, 1, ...": "写出 10, 7, 4, 1, ... 的递推公式。",
+    "You can only add radicals if:": "只有在以下情况下才能相加根号：",
+    "[−3, ∞) in interval notation means:": "区间记号 [−3, ∞) 表示：",
+    "a₁ = 1, r = 2, n = 10. S₁₀ = (2¹⁰-1)/(2-1).": "a₁ = 1, r = 2, n = 10. S₁₀ = (2¹⁰-1)/(2-1).",
+    "a₅ = 2 + 4(3) = 14.": "a₅ = 2 + 4(3) = 14.",
+    "b² - 4ac = 9 - 4(2)(-5) = 9 + 40 = 49.": "b² - 4ac = 9 - 4(2)(-5) = 9 + 40 = 49.",
+    "d = 4. a₁₀ = 3 + 9(4) = 39.": "d = 4. a₁₀ = 3 + 9(4) = 39.",
+    "f(0) represents:": "f(0) 代表：",
+    "f(x + 4) shifts the graph:": "f(x + 4) 使图形：",
+    "f(x − 2) shifts the graph:": "f(x − 2) 使图形：",
+    "f(x) + 3 shifts the graph:": "f(x) + 3 使图形：",
+    "f(x) notation is read as:": "f(x) 记号读作：",
+    "f(x) − 4 shifts the graph:": "f(x) − 4 使图形：",
+    "f(−x) represents a reflection over:": "f(−x) 代表关于哪个轴的反射：",
+    "i² = -1, so i⁴ = (i²)² = 1.": "i² = -1, 所以 i⁴ = (i²)² = 1.",
+    "r² = 0.95 for a quadratic model means:": "二次模型的 r² = 0.95 表示：",
+    "r² close to 1 indicates:": "r² 接近 1 表示：",
+    "sin(π)/cos(π) = 0/(-1).": "sin(π)/cos(π) = 0/(-1).",
+    "x^(1/2) is the same as:": "x^(1/2) 等同于：",
+    "x^(2/3) means:": "x^(2/3) 的意思是：",
+    "y = (x − 5)² shifts y = x²:": "y = (x − 5)² 将 y = x²：",
+    "y = 100 + 5x is:": "y = 100 + 5x 是：",
+    "y = 2^(x+1) shifts y = 2ˣ:": "y = 2^(x+1) 将 y = 2ˣ：",
+    "y = 2^(x−4) is y = 2ˣ shifted:": "y = 2^(x−4) 是 y = 2ˣ 的移动：",
+    "y = 5 · 2ˣ − 1 has asymptote:": "y = 5 · 2ˣ − 1 的渐近线为：",
+    "y = x² + 3 shifts the parent function:": "y = x² + 3 将母函数移动：",
+    "y = −(x + 2)² − 1 has vertex:": "y = −(x + 2)² − 1 的顶点为：",
+    "y = −x² is y = x² reflected over:": "y = −x² 是 y = x² 关于以下轴的反射：",
+    "|x − 2| = 0 means:": "|x − 2| = 0 意味着：",
+    "|x| = −3 has:": "|x| = −3 有：",
+    "Σ notation represents:": "Σ 记号代表：",
+    "Σ(i=1 to 4) of 2i = 2+4+6+8 = ?": "Σ(i=1 到 4) 的 2i = 2+4+6+8 = ？",
+    "−f(x) represents a reflection over:": "−f(x) 代表关于哪个轴的反射：",
+    "√(9 + 16) = √25 = 5.": "√(9 + 16) = √25 = 5.",
+    "√(sin²t + cos²t) = 1.": "√(sin²t + cos²t) = 1.",
+    "⌊−2.3⌋ equals:": "⌊−2.3⌋ 等于：",
     };
 
     // ── Expose Chinese translations globally ──
@@ -31923,18 +32548,113 @@
             }
         });
 
-        // 2) Translate full text-node content via the dictionary
+        // 2) Translate full text-node content via the dictionary (Recursive)
         if (!isEnglish && dict) {
-            // Walk all text-heavy elements
-            var candidates = document.querySelectorAll(
-                'h1, h2, h3, h4, h5, h6, p, li, label, button, a, span, th, td, .page-title, .lesson-notes *'
-            );
-            candidates.forEach(function(el) {
-                // Only translate leaf text (no child elements with text)
-                if (el.children && el.children.length > 0) return;
-                var text = el.textContent.trim();
-                if (text && dict[text]) {
-                    el.textContent = dict[text];
+            // Helper to walk text nodes
+            function walk(node) {
+                if (node.nodeType === 3) { // Text node
+                     var text = node.nodeValue.trim();
+                     if (text) {
+                         if (dict[text]) {
+                             node.nodeValue = node.nodeValue.replace(text, dict[text]);
+                         } else {
+                             // Try matching "1. Question text" pattern
+                             var match = text.match(/^(\d+\.)\s+(.+)$/);
+                             if (match) {
+                                 var prefix = match[1];
+                                 var coreText = match[2];
+                                 if (dict[coreText]) {
+                                     node.nodeValue = node.nodeValue.replace(text, prefix + " " + dict[coreText]);
+                                 }
+                             }
+                         }
+                     }
+                } else if (node.nodeType === 1) { // Element
+                     // Skip scripts, styles, etc.
+                     if (['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'CODE', 'PRE'].indexOf(node.tagName) !== -1) return;
+                     // Skip if already translated (optional, though hard to track without flags)
+                     
+                     // Helper for mixed content: iterate childNodes
+                     var children = node.childNodes;
+                     for (var i = 0; i < children.length; i++) {
+                         walk(children[i]);
+                     }
+                }
+            }
+
+            // Target main content areas to avoid translating hidden scripts/metadata
+            var roots = document.querySelectorAll('body'); 
+            roots.forEach(function(root) {
+                 walk(root);
+            });
+            
+            // Also handle specific attributes like placeholder, title, alt
+            var titled = document.querySelectorAll('[title], [placeholder], [alt]');
+            titled.forEach(function(el) {
+                ['title', 'placeholder', 'alt'].forEach(function(attr) {
+                    var val = el.getAttribute(attr);
+                    if (val && dict[val.trim()]) {
+                        el.setAttribute(attr, dict[val.trim()]);
+                    }
+                });
+            });
+
+            // Also handle [data-i18n] specifically (common in new pages)
+            var i18nEls = document.querySelectorAll('[data-i18n]');
+            i18nEls.forEach(function(el) {
+                var key = el.getAttribute('data-i18n');
+                if (!key) return;
+
+                if (dict[key]) {
+                    el.textContent = dict[key];
+                } else if (key.startsWith("Lesson ")) {
+                    // Dynamic Lesson Title Translation Strategy
+                    try {
+                        var parts = key.match(/^Lesson\s+(\d+\.\d+)(.*)/);
+                        if (parts) {
+                            var num = parts[1];
+                            var rest = parts[2]; 
+                            
+                            // 1. Extract known suffixes
+                            var suffix = "";
+                            if (rest.includes("Practice") || rest.includes("- Practice")) {
+                                suffix = " - 练习";
+                                rest = rest.replace(/\s*-?\s*Practice/g, "");
+                            } else if (rest.includes("Quiz") || rest.includes("- Quiz")) {
+                                suffix = " - 测验";
+                                rest = rest.replace(/\s*-?\s*Quiz/g, "");
+                            } else if (rest.includes("Summary") || rest.includes("- Summary")) {
+                                suffix = " - 总结";
+                                rest = rest.replace(/\s*-?\s*Summary/g, "");
+                            }
+
+                            // 2. Clean title part
+                            var titlePart = rest.replace(/^:\s*/, "").trim();
+
+                            // 3. Try translating the core title
+                            var translatedTitle = dict[titlePart] || titlePart;
+                            
+                            // 4. Construct final string: "第 1.1 课：States of Matter - 练习"
+                            var finalStr = "第 " + num + " 课";
+                            if (translatedTitle) {
+                                finalStr += "：" + translatedTitle;
+                            }
+                            finalStr += suffix;
+                            
+                            el.textContent = finalStr;
+                        }
+                    } catch(e) { 
+                        // console.error("Dynamic lesson parsing error", e); 
+                    }
+                }
+            });
+
+            // Handle [placeholder] attributes with data-i18n
+            var i18nAttrs = document.querySelectorAll('[data-i18n-ph]');
+            i18nAttrs.forEach(function(el) {
+                var key = el.getAttribute('data-i18n-ph');
+                if (key && dict[key]) {
+                    el.setAttribute('placeholder', dict[key]);
                 }
             });
 
@@ -31947,11 +32667,13 @@
 
         // 4) Convert to Traditional Chinese if needed
         if (lang === 'traditional' && window.convertToTraditional) {
-            var allText = document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,label,button,a,span,th,td,.page-title');
-            allText.forEach(function(el) {
-                if (el.children && el.children.length > 0) return;
-                el.textContent = window.convertToTraditional(el.textContent);
-            });
+            // Simplified to Traditional conversion
+            // This assumes content is already in Simplified (from step 2)
+            var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+            var node;
+            while(node = walker.nextNode()) {
+                node.nodeValue = window.convertToTraditional(node.nodeValue);
+            }
             if (document.title) {
                 document.title = window.convertToTraditional(document.title);
             }
@@ -31961,20 +32683,40 @@
         _revealPage();
     };
 
-    // ── Auto-apply on DOMContentLoaded ──
+    // ── Debug Data Provider ──
+    window.getTranslationDebugData = function() {
+        var lang = localStorage.getItem('arisEduLanguage') || 'english';
+        var dict = _getTranslationDict();
+        var isChinese = (lang === 'chinese' || lang === 'traditional' || lang === 'zh');
+        
+        var totalKeys = dict ? Object.keys(dict).length : 0;
+        var translatableCount = document.querySelectorAll('.translatable').length;
+        var dataEnCount = document.querySelectorAll('[data-en]').length;
+        
+        return {
+            lang: lang,
+            isChinese: isChinese,
+            totalKeys: totalKeys,
+            translatableCount: translatableCount,
+            dataEnCount: dataEnCount,
+            matchableNodes: 0,
+            matchedNodes: 0,
+            unmatchedNodes: 0,
+            unmatchedSamples: []
+        };
+    };
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
             var lang = null;
             try { lang = localStorage.getItem('arisEduLanguage'); } catch(e) {}
             if (lang && lang !== 'english') {
-                // Small delay to let spanish_translations.js load
                 setTimeout(function() { window.applyTranslations(); }, 50);
             } else {
                 _revealPage();
             }
         });
     } else {
-        // DOM already ready
         var lang = null;
         try { lang = localStorage.getItem('arisEduLanguage'); } catch(e) {}
         if (lang && lang !== 'english') {
@@ -31984,7 +32726,6 @@
         }
     }
 
-    // Safety fallback — always reveal after 2 seconds
     setTimeout(_revealPage, 2000);
 
 })();

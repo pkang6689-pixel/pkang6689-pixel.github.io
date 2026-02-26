@@ -130,6 +130,7 @@
         const opt = document.createElement('option');
         opt.value = key;
         opt.textContent = sounds[key].name;
+        opt.setAttribute('data-i18n', sounds[key].name);
         if(key === currentSound) opt.selected = true;
         select.appendChild(opt);
     });

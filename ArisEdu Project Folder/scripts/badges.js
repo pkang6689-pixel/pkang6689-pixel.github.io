@@ -21,15 +21,19 @@
         },
         
         award: function(id) {
-            const userBadges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
-            if (userBadges.includes(id)) return; // Already owed
+            try {
+                const userBadges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
+                if (userBadges.includes(id)) return; // Already awarded
 
-            // Add to storage
-            userBadges.push(id);
-            localStorage.setItem('arisEdu_badges', JSON.stringify(userBadges));
+                // Add to storage
+                userBadges.push(id);
+                localStorage.setItem('arisEdu_badges', JSON.stringify(userBadges));
 
-            // Show Popup
-            this.showPopup(this.badges[id]);
+                // Show Popup
+                this.showPopup(this.badges[id]);
+            } catch(e) {
+                console.error("Error awarding badge:", e);
+            }
         },
 
         showPopup: function(badge) {
@@ -80,7 +84,15 @@
             // Play Sound
             const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3'); // Success sound
             audio.volume = 0.5;
-            audio.play().catch(e => console.log('Audio autoplay blocked', e));
+            audio.play().catch(e => {}); // Ignore autoplay errors
+        },
+
+        checkAll: function() {
+            this.checkTimeBased();
+            this.checkVisits();
+            this.checkTimeSpent();
+            this.checkSubjectMastery(); // Handles alg, phys, chem
+            this.checkStreaks(); 
         },
 
         checkTimeBased: function() {
@@ -92,19 +104,66 @@
         checkVisits: function() {
             // Track unique pages visited
             let visits = JSON.parse(localStorage.getItem('arisEdu_visits') || '[]');
-            visits.push(window.location.pathname);
-            visits = [...new Set(visits)];
-            localStorage.setItem('arisEdu_visits', JSON.stringify(visits));
+            
+            // Add current page if not already present
+            if (!visits.includes(window.location.pathname)) {
+                visits.push(window.location.pathname);
+                localStorage.setItem('arisEdu_visits', JSON.stringify(visits));
+            }
 
             if (visits.length >= 1) this.award('first_visit');
             if (visits.length >= 5) this.award('scholar');
+            if (visits.length >= 20) this.award('dedicated');
+        },
+
+        checkTimeSpent: function() {
+            let totalMinutes = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('arisEdu_time_')) {
+                    const minutes = parseInt(localStorage.getItem(key)) || 0;
+                    totalMinutes += minutes;
+                }
+            }
+            if (totalMinutes >= 60) this.award('completionist');
+        },
+
+        checkSubjectMastery: function() {
+            const counts = { alg1: 0, alg2: 0, physics: 0, chem: 0, bio: 0 };
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (!key) continue;
+                // pattern: {subject}_u{unit}_l{lesson}_completed = 'true'
+                const match = key.match(/^(alg1|alg2|physics|phys|chem|bio)_u\d+_l\d+_completed$/);
+                if (match && localStorage.getItem(key) === 'true') {
+                    let subj = match[1];
+                    if (subj === 'phys') subj = 'physics';
+                    if (counts[subj] !== undefined) counts[subj]++;
+                }
+            }
+
+            if (counts.alg1 >= 5 || counts.alg2 >= 5) this.award('algebra_master');
+            if (counts.physics >= 3) this.award('physics_pro'); // Lower threshold for physics
+            if (counts.chem >= 3) this.award('chemistry_whiz');
+        },
+
+        checkStreaks: function() {
+            const streak = parseInt(localStorage.getItem('arisEdu_streak') || '0');
+            if (streak >= 3) this.award('streak_3');
+            if (streak >= 7) this.award('streak_7');
+            if (streak >= 30) this.award('streak_30');
         }
     };
 
-    // Auto-check on load
+    // Auto-check on load (checks everything!)
     window.addEventListener('load', () => {
-        window.BadgeSystem.checkTimeBased();
-        window.BadgeSystem.checkVisits();
+        // Delay slightly to ensure page load performance and other scripts ready
+        setTimeout(() => {
+            if (window.BadgeSystem) {
+                window.BadgeSystem.checkAll();
+            }
+        }, 1000);
     });
 
 })();

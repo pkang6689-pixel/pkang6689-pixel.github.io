@@ -306,9 +306,23 @@
 <script>
 (function() {
   const layout = document.getElementById('account-layout');
-  const storedUser = localStorage.getItem('user');
+  const storedUserRaw = localStorage.getItem('user');
   
-  if (!storedUser) {
+  // Auto-populate known_users if missing but user is logged in
+  if (storedUserRaw) {
+      try {
+          const currentUser = JSON.parse(storedUserRaw);
+          let known = JSON.parse(localStorage.getItem('known_users') || '[]');
+          if (!known.some(u => u.email === currentUser.email)) {
+              known.push(currentUser);
+              localStorage.setItem('known_users', JSON.stringify(known));
+          }
+      } catch (e) {
+          console.error("Error updating known_users on load", e);
+      }
+  }
+
+  if (!storedUserRaw) {
     // No user logged in
     layout.innerHTML = `
       <div class="no-account-message">
@@ -322,7 +336,7 @@
 
   let user;
   try {
-    user = JSON.parse(storedUser);
+    user = JSON.parse(storedUserRaw);
   } catch (e) {
     layout.innerHTML = `
       <div class="no-account-message">
@@ -355,19 +369,33 @@
             ${user.avatar ? `<img src="${user.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : initials}
             <div style="position: absolute; bottom: 0; right: 0; background: white; border-radius: 50%; padding: 4px; border: 1px solid #ccc; font-size: 1rem;">✏️</div>
         </div>
-        <button id="change-avatar-btn" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.9rem;">Change Avatar</button>
+        <button id="change-avatar-btn" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.9rem;" data-i18n="Change Avatar">Change Avatar</button>
       </div>
 
       <!-- Avatar Selection Modal -->
       <div id="avatar-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
         <div style="background:white; padding:2rem; border-radius:1rem; max-width:400px; width:90%;">
-          <h3 style="margin-top:0; color:#333;">Choose Profile Picture</h3>
+          <h3 style="margin-top:0; color:#333;" data-i18n="Choose Profile Picture">Choose Profile Picture</h3>
           <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin:1rem 0;">
              ${['👨‍🎓','👩‍🎓','🦸','🧙‍♂️','🚀','🐉','😺','🐶','🦊','🦁','🏀','⚽'].map(emoji => 
                  `<div class="avatar-option" onclick="selectAvatar('${emoji}')" style="font-size:2rem; cursor:pointer; text-align:center; padding:0.5rem; border-radius:0.5rem; transition:background 0.2s;">${emoji}</div>`
              ).join('')}
           </div>
-          <button onclick="document.getElementById('avatar-modal').style.display='none'" style="width:100%; padding:0.8rem; background:#cbd5e1; border:none; border-radius:0.5rem; cursor:pointer;">Cancel</button>
+          <button onclick="document.getElementById('avatar-modal').style.display='none'" style="width:100%; padding:0.8rem; background:#cbd5e1; border:none; border-radius:0.5rem; cursor:pointer;" data-i18n="Cancel">Cancel</button>
+        </div>
+      </div>
+      
+      <!-- Switch Account Modal -->
+      <div id="switch-account-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; padding:2rem; border-radius:1rem; max-width:400px; width:90%; position:relative;">
+          <button onclick="document.getElementById('switch-account-modal').style.display='none'" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+          <h3 style="margin-top:0; color:#333; margin-bottom:1.5rem;" data-i18n="Switch Account">Switch Account</h3>
+          <div id="known-users-list" style="display:flex; flex-direction:column; gap:0.75rem; max-height:300px; overflow-y:auto; margin-bottom:1.5rem;">
+            <!-- Users injected here -->
+          </div>
+          <div style="border-top:1px solid #e2e8f0; padding-top:1rem;">
+             <button id="add-account-btn" style="width:100%; padding:0.8rem; background:linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%); color:white; border:none; border-radius:0.5rem; cursor:pointer; font-weight:600;" data-i18n="Add Another Account">Add Another Account</button>
+          </div>
         </div>
       </div>
       
@@ -376,7 +404,7 @@
           <h3 class="account-section-title" data-i18n="Profile Details">Profile Details</h3>
           <div class="account-field">
             <span class="account-field-label" data-i18n="Role">Role</span>
-            <span class="account-field-value">${role}</span>
+            <span class="account-field-value" data-i18n="${role}">${role}</span>
           </div>
           ${classInfoFormatted}
           <div class="account-field">
@@ -453,6 +481,9 @@
         <div class="account-actions">
           <button class="account-btn account-btn-secondary" onclick="window.location.href='Preferences.html'" data-i18n="⚙️ Preferences">
             ⚙️ Preferences
+          </button>
+          <button class="account-btn account-btn-secondary" id="switch-account-btn" data-i18n="🔄 Switch Account">
+            🔄 Switch Account
           </button>
           <button class="account-btn account-btn-danger" id="logout-btn" data-i18n="🚪 Log Out">
             🚪 Log Out
@@ -562,8 +593,29 @@
   window.totalMinutesAllTime = totalMinutesAllTime; // Store globally
 
   // Get badges awarded via badges.js system
+  // Re-read from storage to get latest updates if badges.js ran
   const awardedBadges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
   const streak = parseInt(localStorage.getItem('arisEdu_streak') || '0');
+
+  // Listen for storage changes in other tabs/windows or from async scripts
+  window.addEventListener('storage', (e) => {
+      if (e.key === 'arisEdu_badges') {
+          // Reload page to show new badges? Or simpler: just reload location
+          location.reload();
+      }
+  });
+
+  // Re-check logic on load (in case BadgeSystem loads late)
+  setTimeout(() => {
+      if (window.BadgeSystem && typeof window.BadgeSystem.checkAll === 'function') {
+          window.BadgeSystem.checkAll();
+          // If changes detected, reload to show them
+          const currentBadges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
+          if (currentBadges.length > awardedBadges.length) {
+              location.reload();
+          }
+      }
+  }, 1500);
 
   const allBadges = [
       // General
@@ -758,6 +810,77 @@
     localStorage.removeItem('user');
     window.location.href = 'LoginSignup.html';
   });
+
+  // Switch Account button handler
+  const switchBtn = document.getElementById('switch-account-btn');
+  const switchModal = document.getElementById('switch-account-modal');
+  const knownUsersList = document.getElementById('known-users-list');
+  const addAccountBtn = document.getElementById('add-account-btn');
+  
+  if (addAccountBtn) {
+      addAccountBtn.addEventListener('click', function() {
+          localStorage.removeItem('user');
+          window.location.href = 'LoginSignup.html';
+      });
+  }
+
+  if (switchBtn) {
+    switchBtn.addEventListener('click', function() {
+      const knownUsers = JSON.parse(localStorage.getItem('known_users') || '[]');
+      const currentUserEmail = user ? user.email : ''; // 'user' is from outer scope closure
+      
+      // Filter out current user to avoid switching to self
+      const otherUsers = knownUsers.filter(u => u.email !== currentUserEmail);
+      
+      if (otherUsers.length === 0) {
+        // No other accounts known, just go to login page to sign in to a new one
+        localStorage.removeItem('user');
+        window.location.href = 'LoginSignup.html';
+        return;
+      }
+      
+      // Populate list
+      if (switchModal && knownUsersList) {
+          knownUsersList.innerHTML = '';
+          otherUsers.forEach(u => {
+              const uName = u.name || u.email;
+              const uRole = u.role ? (u.role.charAt(0).toUpperCase() + u.role.slice(1)) : 'Student';
+              const uAvatar = u.avatarEmoji || uName.charAt(0).toUpperCase();
+
+              const item = document.createElement('div');
+              item.style.cssText = 'display:flex; align-items:center; gap:1rem; padding:0.8rem; background:#f8fafc; border-radius:0.5rem; cursor:pointer; transition:background 0.2s; border:1px solid #e2e8f0;';
+              item.innerHTML = `
+                <div style="width:40px; height:40px; border-radius:50%; background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:bold; color:#64748b;">
+                    ${uAvatar}
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; color:#334155;">${uName}</div>
+                    <div style="font-size:0.8rem; color:#94a3b8;"><span data-i18n="${uRole}">${uRole}</span> • ${u.email}</div>
+                </div>
+                <div style="font-size:1.2rem; color:#cbd5e1;">➔</div>
+              `;
+              
+              item.onmouseover = () => item.style.background = '#f1f5f9';
+              item.onmouseout = () => item.style.background = '#f8fafc';
+              
+              item.onclick = () => {
+                  // Switch to this user
+                  localStorage.setItem('user', JSON.stringify(u));
+                  // Reload page to reflect new user
+                  window.location.reload();
+              };
+              
+              knownUsersList.appendChild(item);
+          });
+          
+          switchModal.style.display = 'flex';
+      } else {
+        // Fallback
+        localStorage.removeItem('user');
+        window.location.href = 'LoginSignup.html';
+      }
+    });
+  }
 })();
 </script>
 

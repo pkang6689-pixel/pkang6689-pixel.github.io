@@ -1,6 +1,13 @@
 
 // Inject AI Assistant and Features Scripts
 (function() {
+    // Translation Helper
+    function _t(key) {
+        if (window.arisTranslate) return window.arisTranslate(key);
+        if (window.globalTranslations && window.globalTranslations[key]) return window.globalTranslations[key];
+        return key;
+    }
+
     // Detect base path for GitHub Pages vs Local File
     // If we are in /ArisEdu Project Folder/, scripts are in ./scripts/
     // If we are in root, scripts are in ./ArisEdu Project Folder/scripts/
@@ -280,7 +287,8 @@
                 '<span>Dark Mode</span>' +
             '</label>' +
             '</div>' +
-            '<a class="settings-item" href="/ArisEdu Project Folder/Preferences.html">Preferences</a>' +
+            '<a class="settings-item" href="/ArisEdu Project Folder/Preferences.html" data-i18n="Preferences">Preferences</a>' +
+            '<a class="settings-item" href="/ArisEdu Project Folder/FAQ.html" data-i18n="Help">Help</a>' +
         '</div>';
     } else {
     
@@ -303,7 +311,7 @@
         '<a class="taskbar-button" href="/ArisEdu Project Folder/LoginSignup.html" id="login-signup-button"'+getDisp('login')+'>\uD83D\uDD10 Login/Signup</a>' +
         '<button id="language-toggle-button" title="Switch Language" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:2000;background:none;border:none;color:rgba(255,255,255,0.85);cursor:pointer;padding:0.3rem 0.5rem;display:inline-flex;align-items:center;"><svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg></button>' +
         '<div id="language-dropdown" style="display:none;position:fixed;z-index:10000;min-width:160px;background:var(--card-bg,#1e1e2e);border:1px solid var(--border-color,#444);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.35);overflow:hidden;">' +
-          '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">English</button>' +
+          '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;" data-i18n="English">English</button>' +
           '<button class="lang-option" data-lang="spanish" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">Español</button>' +
           '<button class="lang-option" data-lang="hindi" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">हिन्दी</button>' +
           '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">中文</button>' +
@@ -320,6 +328,7 @@
         // Audio Toggle Removed
 
         '<a class="settings-item" href="/ArisEdu Project Folder/Preferences.html">Preferences</a>' +
+        '<a class="settings-item" href="/ArisEdu Project Folder/FAQ.html">Help</a>' +
       '</div>';
     }
     document.body.insertBefore(nav, document.body.firstChild);
@@ -534,10 +543,10 @@
         
         const keyInputVal = apiKey || '';
         settingsPanel.innerHTML = `
-            <h3 style="margin: 0; border-bottom: 1px solid var(--border-color, #ccc); padding-bottom: 10px;">Settings</h3>
+            <h3 style="margin: 0; border-bottom: 1px solid var(--border-color, #ccc); padding-bottom: 10px;" data-i18n="Settings">Settings</h3>
             <div>
-                <label style="display:block; margin-bottom:5px; font-weight: bold; font-size:0.9em;">Google Gemini API Key</label>
-                <input type="password" id="ai-api-key-input" placeholder="Enter API Key" style="
+                <label style="display:block; margin-bottom:5px; font-weight: bold; font-size:0.9em;" data-i18n="Google Gemini API Key">Google Gemini API Key</label>
+                <input type="password" id="ai-api-key-input" placeholder="${_t('Enter API Key')}" data-i18n-ph="Enter API Key" style="
                     width: 100%;
                     padding: 10px;
                     border: 1px solid var(--border-color, #ccc);
@@ -548,12 +557,12 @@
                 " value="${keyInputVal}">
             </div>
             <div style="font-size: 0.85em; color: var(--text-muted, #666); line-height: 1.4;">
-                To use the AI assistant, you need a free API key from Google. 
+                <span data-i18n="To use the AI assistant, you need a free API key from Google.">${_t('To use the AI assistant, you need a free API key from Google.')}</span>
                 <br><br>
-                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--primary-color, #4a90e2); text-decoration: underline;">Get a key here</a>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--primary-color, #4a90e2); text-decoration: underline;" data-i18n="Get a key here">${_t('Get a key here')}</a>
             </div>
             <div style="margin-top: auto; display: flex; gap: 10px;">
-                <button id="ai-save-key-btn" style="
+                <button id="ai-save-key-btn" data-i18n="Save API Key" style="
                     flex: 1;
                     padding: 10px;
                     background: var(--primary-color, #4a90e2);
@@ -562,7 +571,7 @@
                     border-radius: 6px;
                     cursor: pointer;
                     font-weight: bold;
-                ">Save API Key</button>
+                ">${_t('Save API Key')}</button>
             </div>
         `;
         bodyWrapper.appendChild(settingsPanel);
@@ -604,7 +613,8 @@
         
         inputField = document.createElement('input');
         inputField.type = 'text';
-        inputField.placeholder = 'Type your question...';
+        inputField.placeholder = _t('Type your question...');
+        inputField.setAttribute('data-i18n-ph', 'Type your question...');
         inputField.style.cssText = `
             flex: 1;
             padding: 10px 15px;
@@ -1184,9 +1194,9 @@
               border: 1px solid #334155;
           `;
           tooltip.innerHTML = `
-              <strong>Current Streak</strong><br>
-              ${streak} Day${streak === 1 ? '' : 's'} 🔥<br>
-              <span style="font-size:0.75em; color:#9ca3af;">Come back tomorrow!</span>
+              <strong data-i18n="Current Streak">Current Streak</strong><br>
+              ${streak} <span data-i18n="Day${streak === 1 ? '' : 's'}">Day${streak === 1 ? '' : 's'}</span> 🔥<br>
+              <span style="font-size:0.75em; color:#9ca3af;" data-i18n="Come back tomorrow!">Come back tomorrow!</span>
           `;
           
           // Only append if not already there (though logic runs once)

@@ -68,16 +68,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 <!-- Header -->
                 <div style="padding:1rem; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; gap:0.5rem;">
                     <span style="font-size:1.5rem;">🔍</span>
-                    <input type="text" id="aris-search-input" placeholder="Search lessons, units, games..." style="flex:1; padding:0.75rem; font-size:1.1rem; border:2px solid #e2e8f0; border-radius:0.5rem; outline:none; transition:border 0.2s;">
+                    <input type="text" id="aris-search-input" placeholder="${_t('Search lessons, units, games...')}" style="flex:1; padding:0.75rem; font-size:1.1rem; border:2px solid #e2e8f0; border-radius:0.5rem; outline:none; transition:border 0.2s;">
                     <button id="aris-search-close" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
                 </div>
                 <!-- Results -->
                 <div id="aris-search-results" style="padding:0; overflow-y:auto; flex:1;">
-                    <div style="padding:2rem; text-align:center; color:#94a3b8;">Type to start searching...</div>
+                    <div style="padding:2rem; text-align:center; color:#94a3b8;">${_t('Type to start searching...')}</div>
                 </div>
                 <!-- Footer -->
                 <div id="aris-search-footer" style="padding:0.75rem; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.8rem; color:#64748b; text-align:right;">
-                    ArisEdu Search
+                    ${_t('ArisEdu Search')}
                 </div>
             </div>
         </div>
@@ -93,6 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementById('aris-search-close');
 
     // 5. Functions
+    function _t(key) {
+        if (window.arisTranslate) return window.arisTranslate(key);
+        if (window.globalTranslations && window.globalTranslations[key]) return window.globalTranslations[key];
+        return key;
+    }
+
     function openSearch() {
         modal.style.display = 'flex';
         input.value = '';
@@ -106,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function performSearch(query) {
         if (!query || query.length < 2) {
-            resultsContainer.innerHTML = '<div style="padding:2rem; text-align:center; color:#94a3b8;">Type at least 2 characters...</div>';
+            resultsContainer.innerHTML = `<div style="padding:2rem; text-align:center; color:#94a3b8;">${_t('Type at least 2 characters...')}</div>`;
             return;
         }
         
@@ -114,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Ensure index exists
         if (typeof ARIS_EDU_SEARCH_INDEX === 'undefined') {
-            resultsContainer.innerHTML = '<div style="padding:1rem; color:#ef4444;">Search index not loaded.</div>';
+            resultsContainer.innerHTML = `<div style="padding:1rem; color:#ef4444;">${_t('Search index not loaded.')}</div>`;
             return;
         }
 
@@ -129,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderResults(items) {
         if (items.length === 0 && input.value.length >= 2) {
-            resultsContainer.innerHTML = '<div style="padding:2rem; text-align:center; color:#94a3b8;">No results found.</div>';
+            resultsContainer.innerHTML = `<div style="padding:2rem; text-align:center; color:#94a3b8;">${_t('No results found.')}</div>`;
             return;
         } else if (items.length === 0) {
             return; // Already handled empty state

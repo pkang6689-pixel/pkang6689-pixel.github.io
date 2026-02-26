@@ -1,4 +1,10 @@
 (async function() {
+    function _t(key) {
+        if (window.arisTranslate) return window.arisTranslate(key);
+        if (window.globalTranslations && window.globalTranslations[key]) return window.globalTranslations[key];
+        return key;
+    }
+
     // --- AI Assistant Logic (WebLLM - In-Browser AI) ---
     const SYSTEM_PROMPT = `
     You are an AI tutor for ArisEdu. Your goal is to guide students through their lessons using the Socratic method.
@@ -26,25 +32,25 @@
         <!-- Model Loading Screen -->
         <div id="ai-loading-screen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; text-align:center; height:100%; gap:1rem; background:#f8fafc;">
             <div style="font-size:3rem;">🧠</div>
-            <h3 style="margin:0; color:#334155;">Initialize AI Tutor</h3>
-            <p style="font-size:0.9rem; color:#64748b;">This runs entirely in your browser. No API key required.<br>First load may take a minute (~2GB download).</p>
+            <h3 style="margin:0; color:#334155;">${_t('Initialize AI Tutor')}</h3>
+            <p style="font-size:0.9rem; color:#64748b;">${_t('This runs entirely in your browser. No API key required.')}<br>First load may take a minute (~2GB download).</p>
             <div id="ai-progress-container" style="width:100%; display:none;">
                 <div style="width:100%; background:#e2e8f0; border-radius:1rem; height:8px; overflow:hidden;">
                     <div id="ai-progress-bar" style="width:0%; height:100%; background:#3b82f6; transition:width 0.2s;"></div>
                 </div>
-                <p id="ai-progress-text" style="font-size:0.8rem; color:#64748b; margin-top:0.5rem;">Initializing...</p>
+                <p id="ai-progress-text" style="font-size:0.8rem; color:#64748b; margin-top:0.5rem;">${_t('Initializing...')}...</p>
             </div>
-            <button id="ai-start-engine" style="background:#3b82f6; color:white; padding:0.8rem 1.5rem; border-radius:0.5rem; border:none; font-weight:600; cursor:pointer; box-shadow:0 2px 4px rgba(59,130,246,0.3);">Start AI Engine</button>
+            <button id="ai-start-engine" style="background:#3b82f6; color:white; padding:0.8rem 1.5rem; border-radius:0.5rem; border:none; font-weight:600; cursor:pointer; box-shadow:0 2px 4px rgba(59,130,246,0.3);">${_t('Start AI Engine')}</button>
         </div>
 
         <div id="ai-chat-interface" style="display:none; flex: 1; flex-direction: column; height: 100%;">
             <div id="ai-messages" style="flex: 1; padding: 1rem; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 0.8rem;">
                 <div class="ai-message" style="background: #e2e8f0; color: #334155; padding: 0.8rem; border-radius: 0.8rem 0.8rem 0.8rem 0; align-self: flex-start; max-width: 85%;">
-                    Hello! I'm running locally on your device. I'm ready to help you learn!
+                    ${_t("Hello! I'm running locally on your device. I'm ready to help you learn!")}
                 </div>
             </div>
             <div style="padding: 1rem; border-top: 1px solid #e2e8f0; background: white; display: flex; gap: 0.5rem;">
-                <input type="text" id="ai-input" placeholder="Ask a question..." style="flex: 1; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; outline: none;">
+                <input type="text" id="ai-input" placeholder="${_t('Ask a question...')}" style="flex: 1; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; outline: none;">
                 <button id="ai-send" style="background: #3b82f6; color: white; border: none; padding: 0.6rem 1rem; border-radius: 0.5rem; cursor: pointer;">➤</button>
             </div>
         </div>
