@@ -957,9 +957,24 @@
     };
 
     window.applyArisTheme = function() {
+        // --- Apply Global CSS Variables for Light/Dark mode ---
+        const root = document.documentElement;
+        const storedDarkModeEarly = localStorage.getItem('arisEduDarkMode');
+        const isDarkEarly = storedDarkModeEarly === null ? true : storedDarkModeEarly === 'true';
+        if (isDarkEarly) {
+            root.style.setProperty('--card-bg', '#1e293b');
+            root.style.setProperty('--text-color', '#e2e8f0');
+            root.style.setProperty('--border-color', '#334155');
+            root.style.setProperty('--text-muted', '#94a3b8');
+        } else {
+            root.style.setProperty('--card-bg', '#ffffff');
+            root.style.setProperty('--text-color', '#0f172a');
+            root.style.setProperty('--border-color', '#e2e8f0');
+            root.style.setProperty('--text-muted', '#64748b');
+        }
+
         // --- Apply Taskbar Size ---
         const taskbarSize = localStorage.getItem('arisEduTaskbarSize') || 'medium';
-        const root = document.documentElement;
         if(taskbarSize === 'small') {
             root.style.setProperty('--taskbar-padding-y', '0.25rem');
             root.style.setProperty('--taskbar-padding-x', '0.75rem');

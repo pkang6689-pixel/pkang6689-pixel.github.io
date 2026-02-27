@@ -6,6 +6,11 @@
   <title>ArisEdu Forums</title>
   <!-- <script src="/_sdk/element_sdk.js"></script> -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: ['class', '.dark-mode']
+    }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
   <script src="theme_manager.js"></script>
@@ -59,7 +64,7 @@
             const querySnapshot = await getDocs(q);
             
             if (querySnapshot.empty) {
-                list.innerHTML = '<p class="text-gray-400">No suggestions yet. Be the first!</p>';
+                list.innerHTML = '<p class="text-slate-500 dark:text-gray-400">No suggestions yet. Be the first!</p>';
                 return;
             }
 
@@ -77,25 +82,28 @@
                 }
 
                 // Color mapping
+                const isDark = document.body.classList.contains('dark-mode');
                 const colors = {
-                    feature: 'text-blue-300',
-                    content: 'text-green-300',
-                    bug: 'text-red-300',
-                    other: 'text-gray-300'
+                    feature: isDark ? 'text-blue-300' : 'text-blue-700',
+                    content: isDark ? 'text-green-300' : 'text-green-700',
+                    bug: isDark ? 'text-red-300' : 'text-red-700',
+                    other: isDark ? 'text-gray-300' : 'text-gray-600'
                 };
-                const badgeColor = colors[data.category] || 'text-gray-300';
+                const badgeColor = colors[data.category] || (isDark ? 'text-gray-300' : 'text-gray-600');
                 
                 // Create badge background for better visibility
                 const bgColors = {
-                     feature: 'bg-blue-900/50 border-blue-700',
-                     content: 'bg-green-900/50 border-green-700',
-                     bug: 'bg-red-900/50 border-red-700',
-                     other: 'bg-gray-700/50 border-gray-600'
+                     feature: isDark ? 'bg-blue-900/50 border-blue-700' : 'bg-blue-100 border-blue-300',
+                     content: isDark ? 'bg-green-900/50 border-green-700' : 'bg-green-100 border-green-300',
+                     bug: isDark ? 'bg-red-900/50 border-red-700' : 'bg-red-100 border-red-300',
+                     other: isDark ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-100 border-gray-300'
                 };
-                const badgeStyle = bgColors[data.category] || 'bg-gray-700/50 border-gray-600';
+                const badgeStyle = bgColors[data.category] || (isDark ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-100 border-gray-300');
 
                 const item = document.createElement('div');
-                item.className = 'p-6 bg-slate-800/80 rounded-xl border border-slate-700 shadow-lg mb-4 hover:border-slate-500 transition-colors relative';
+                item.className = isDark 
+                    ? 'p-6 bg-slate-800/80 rounded-xl border border-slate-700 shadow-lg mb-4 hover:border-slate-500 transition-colors relative'
+                    : 'p-6 bg-white rounded-xl border border-slate-200 shadow-md mb-4 hover:border-slate-400 transition-colors relative';
                 
                 // Safe Author Name
                 const author = data.authorName || 'Anonymous';
@@ -126,11 +134,11 @@
                     <div class="flex justify-between items-start mb-3 pr-8">
                         <div class="flex items-center gap-3">
                             <span class="${badgeColor} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider border ${badgeStyle}">${data.category}</span>
-                            <span class="text-sm text-gray-400 font-medium">${author}</span>
+                            <span class="text-sm ${isDark ? 'text-gray-400' : 'text-slate-500'} font-medium">${author}</span>
                         </div>
-                        <span class="text-slate-500 text-xs">${date}</span>
+                        <span class="${isDark ? 'text-slate-500' : 'text-slate-400'} text-xs">${date}</span>
                     </div>
-                    <p class="text-gray-100 text-lg leading-relaxed">${data.message}</p>
+                    <p class="${isDark ? 'text-gray-100' : 'text-slate-800'} text-lg leading-relaxed">${data.message}</p>
                 `;
                 list.appendChild(item);
             });
@@ -174,13 +182,13 @@
     <div class="courses-container" style="height: auto; min-height: 60vh;">
         <div class="flex flex-col gap-6">
             <!-- Suggestion Form -->
-            <div class="bg-white/10 p-6 rounded-2xl backdrop-blur-sm">
-                <h2 class="text-2xl font-bold mb-4 text-white">Suggest a Feature</h2>
-                <div id="forum-user-display" class="mb-4 text-blue-300 font-semibold" style="display:none;"></div>
+            <div class="bg-slate-100 dark:bg-white/10 p-6 rounded-2xl backdrop-blur-sm border border-slate-200 dark:border-transparent">
+                <h2 class="text-2xl font-bold mb-4 text-slate-800 dark:text-white">Suggest a Feature</h2>
+                <div id="forum-user-display" class="mb-4 text-blue-600 dark:text-blue-300 font-semibold" style="display:none;"></div>
                 <form id="suggestion-form" onsubmit="handleSuggestion(event)">
                     <div class="mb-4">
-                        <label class="block text-gray-200 mb-2">Category</label>
-                        <select id="forum-category" class="w-full p-2 rounded bg-slate-800 text-white border border-slate-600">
+                        <label class="block text-slate-700 dark:text-gray-200 mb-2">Category</label>
+                        <select id="forum-category" class="w-full p-2 rounded bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-600">
                             <option value="feature">New Feature</option>
                             <option value="content">Lesson Content</option>
                             <option value="bug">Bug Report</option>
@@ -188,13 +196,13 @@
                         </select>
                     </div>
                     <div class="mb-4">
-                        <label class="block text-gray-200 mb-2">Your Suggestion</label>
-                        <textarea id="forum-message" rows="4" class="w-full p-3 rounded bg-slate-800 text-white border border-slate-600" placeholder="What should we add next?" required></textarea>
+                        <label class="block text-slate-700 dark:text-gray-200 mb-2">Your Suggestion</label>
+                        <textarea id="forum-message" rows="4" class="w-full p-3 rounded bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-600" placeholder="What should we add next?" required></textarea>
                     </div>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-lg transition">
                         Submit Suggestion
                     </button>
-                    <p id="forum-status" class="mt-2 text-green-400 hidden">Thanks! Your suggestion has been recorded.</p>
+                    <p id="forum-status" class="mt-2 text-green-500 dark:text-green-400 hidden">Thanks! Your suggestion has been recorded.</p>
                 </form>
             </div>
             

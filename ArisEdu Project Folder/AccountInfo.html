@@ -374,22 +374,22 @@
 
       <!-- Avatar Selection Modal -->
       <div id="avatar-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
-        <div style="background:white; padding:2rem; border-radius:1rem; max-width:400px; width:90%;">
-          <h3 style="margin-top:0; color:#333;" data-i18n="Choose Profile Picture">Choose Profile Picture</h3>
+        <div style="background:var(--card-bg, #ffffff); padding:2rem; border-radius:1rem; max-width:400px; width:90%; border:1px solid var(--border-color, #e2e8f0);">
+          <h3 style="margin-top:0; color:var(--text-color, #333);" data-i18n="Choose Profile Picture">Choose Profile Picture</h3>
           <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin:1rem 0;">
              ${['👨‍🎓','👩‍🎓','🦸','🧙‍♂️','🚀','🐉','😺','🐶','🦊','🦁','🏀','⚽'].map(emoji => 
                  `<div class="avatar-option" onclick="selectAvatar('${emoji}')" style="font-size:2rem; cursor:pointer; text-align:center; padding:0.5rem; border-radius:0.5rem; transition:background 0.2s;">${emoji}</div>`
              ).join('')}
           </div>
-          <button onclick="document.getElementById('avatar-modal').style.display='none'" style="width:100%; padding:0.8rem; background:#cbd5e1; border:none; border-radius:0.5rem; cursor:pointer;" data-i18n="Cancel">Cancel</button>
+          <button onclick="document.getElementById('avatar-modal').style.display='none'" style="width:100%; padding:0.8rem; background:var(--border-color, #cbd5e1); color:var(--text-color, #333); border:none; border-radius:0.5rem; cursor:pointer;" data-i18n="Cancel">Cancel</button>
         </div>
       </div>
       
       <!-- Switch Account Modal -->
       <div id="switch-account-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
-        <div style="background:white; padding:2rem; border-radius:1rem; max-width:400px; width:90%; position:relative;">
-          <button onclick="document.getElementById('switch-account-modal').style.display='none'" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
-          <h3 style="margin-top:0; color:#333; margin-bottom:1.5rem;" data-i18n="Switch Account">Switch Account</h3>
+        <div style="background:var(--card-bg, #ffffff); padding:2rem; border-radius:1rem; max-width:400px; width:90%; position:relative; border:1px solid var(--border-color, #e2e8f0);">
+          <button onclick="document.getElementById('switch-account-modal').style.display='none'" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-color, #333);">&times;</button>
+          <h3 style="margin-top:0; color:var(--text-color, #333); margin-bottom:1.5rem;" data-i18n="Switch Account">Switch Account</h3>
           <div id="known-users-list" style="display:flex; flex-direction:column; gap:0.75rem; max-height:300px; overflow-y:auto; margin-bottom:1.5rem;">
             <!-- Users injected here -->
           </div>
@@ -461,7 +461,7 @@
 
         <div class="account-section">
             <h3 class="account-section-title">Achievements & Badges</h3>
-            <div id="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 1rem; padding: 1rem; background: #f1f5f9; border-radius: 1rem;">
+            <div id="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 1rem; padding: 1rem; background: var(--card-bg, #f1f5f9); border: 1px solid var(--border-color, #e2e8f0); border-radius: 1rem;">
                 <!-- Badges injected here -->
             </div>
         </div>
@@ -683,13 +683,17 @@
 
   allBadges.forEach(badge => {
       const earned = badge.condition();
+      const isDark = document.body.classList.contains('dark-mode');
       const div = document.createElement('div');
       div.className = 'badge-item';
-      div.style.cssText = `position: relative; display: flex; flex-direction: column; align-items: center; opacity: ${earned ? 1 : 0.4}; filter: grayscale(${earned ? 0 : 1}); transition: all 0.3s; padding: 10px; border-radius: 8px; background: ${earned ? 'white' : 'transparent'}; box-shadow: ${earned ? '0 2px 5px rgba(0,0,0,0.05)' : 'none'}; cursor: help;`;
+      const earnedBg = isDark ? '#1e293b' : 'white';
+      const earnedShadow = isDark ? '0 2px 5px rgba(0,0,0,0.2)' : '0 2px 5px rgba(0,0,0,0.05)';
+      div.style.cssText = `position: relative; display: flex; flex-direction: column; align-items: center; opacity: ${earned ? 1 : 0.4}; filter: grayscale(${earned ? 0 : 1}); transition: all 0.3s; padding: 10px; border-radius: 8px; background: ${earned ? earnedBg : 'transparent'}; box-shadow: ${earned ? earnedShadow : 'none'}; cursor: help;`;
       
+      const labelColor = isDark ? '#94a3b8' : '#64748b';
       div.innerHTML = `
         <div style="font-size: 2.5rem; margin-bottom: 0.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">${badge.icon}</div>
-        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-align: center;">${badge.name}</div>
+        <div style="font-size: 0.75rem; color: ${labelColor}; font-weight: 600; text-align: center;">${badge.name}</div>
         <div class="badge-tooltip">
             <strong style="display:block; margin-bottom:0.2rem; font-size:0.9rem;">${badge.name}</strong>
             ${badge.desc}<br>
@@ -847,21 +851,22 @@
               const uRole = u.role ? (u.role.charAt(0).toUpperCase() + u.role.slice(1)) : 'Student';
               const uAvatar = u.avatarEmoji || uName.charAt(0).toUpperCase();
 
+              const isDarkSw = document.body.classList.contains('dark-mode');
               const item = document.createElement('div');
-              item.style.cssText = 'display:flex; align-items:center; gap:1rem; padding:0.8rem; background:#f8fafc; border-radius:0.5rem; cursor:pointer; transition:background 0.2s; border:1px solid #e2e8f0;';
+              item.style.cssText = `display:flex; align-items:center; gap:1rem; padding:0.8rem; background:${isDarkSw ? '#1e293b' : '#f8fafc'}; border-radius:0.5rem; cursor:pointer; transition:background 0.2s; border:1px solid ${isDarkSw ? '#334155' : '#e2e8f0'};`;
               item.innerHTML = `
-                <div style="width:40px; height:40px; border-radius:50%; background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:bold; color:#64748b;">
+                <div style="width:40px; height:40px; border-radius:50%; background:${isDarkSw ? '#334155' : '#e2e8f0'}; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:bold; color:${isDarkSw ? '#94a3b8' : '#64748b'};">
                     ${uAvatar}
                 </div>
                 <div style="flex:1;">
-                    <div style="font-weight:600; color:#334155;">${uName}</div>
+                    <div style="font-weight:600; color:${isDarkSw ? '#e2e8f0' : '#334155'};">${uName}</div>
                     <div style="font-size:0.8rem; color:#94a3b8;"><span data-i18n="${uRole}">${uRole}</span> • ${u.email}</div>
                 </div>
-                <div style="font-size:1.2rem; color:#cbd5e1;">➔</div>
+                <div style="font-size:1.2rem; color:${isDarkSw ? '#475569' : '#cbd5e1'};">➔</div>
               `;
               
-              item.onmouseover = () => item.style.background = '#f1f5f9';
-              item.onmouseout = () => item.style.background = '#f8fafc';
+              item.onmouseover = () => item.style.background = isDarkSw ? '#334155' : '#f1f5f9';
+              item.onmouseout = () => item.style.background = isDarkSw ? '#1e293b' : '#f8fafc';
               
               item.onclick = () => {
                   // Switch to this user

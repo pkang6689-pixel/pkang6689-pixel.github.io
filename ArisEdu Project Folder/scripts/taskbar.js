@@ -272,13 +272,13 @@
 
             // Language Toggle
             '<button id="language-toggle-button" title="Switch Language" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:2000;background:none;border:none;color:rgba(255,255,255,0.85);cursor:pointer;padding:0.3rem 0.5rem;display:inline-flex;align-items:center;"><svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg></button>' +
-            '<div id="language-dropdown" style="display:none;position:fixed;z-index:10000;min-width:160px;background:var(--card-bg,#1e1e2e);border:1px solid var(--border-color,#444);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.35);overflow:hidden;">' +
-              '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">English</button>' +
-              '<button class="lang-option" data-lang="spanish" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">Español</button>' +
-              '<button class="lang-option" data-lang="hindi" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">हिन्दी</button>' +
-              '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">中文</button>' +
-              '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
-              '<div style="border-top:1px solid var(--border-color,#444);padding:0.5rem 1rem;font-size:0.8rem;color:var(--text-muted,#a0a0a0);text-align:center;background:rgba(0,0,0,0.2);">💡 Reload to apply</div>' +
+            '<div id="language-dropdown" style="display:none;position:fixed;z-index:10000;min-width:160px;background:var(--card-bg,#ffffff);border:1px solid var(--border-color,#e2e8f0);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.15);overflow:hidden;">' +
+              '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">English</button>' +
+              '<button class="lang-option" data-lang="spanish" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">Español</button>' +
+              '<button class="lang-option" data-lang="hindi" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">हिन्दी</button>' +
+              '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">中文</button>' +
+              '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
+              '<div style="border-top:1px solid var(--border-color,#e2e8f0);padding:0.5rem 1rem;font-size:0.8rem;color:var(--text-muted,#64748b);text-align:center;">💡 Reload to apply</div>' +
             '</div>' +
         '</div>' +
         '<div aria-hidden="true" class="settings-menu" id="settings-menu">' +
@@ -311,13 +311,13 @@
         '<a class="taskbar-button" href="/ArisEdu Project Folder/arcade.html" id="arcade-button"'+getDisp('arcade')+'>\uD83D\uDC7E Arcade</a>' +
         '<a class="taskbar-button" href="/ArisEdu Project Folder/Login.html" id="login-signup-button"'+getDisp('login')+'>\uD83D\uDD10 Login/Signup</a>' +
         '<button id="language-toggle-button" title="Switch Language" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:2000;background:none;border:none;color:rgba(255,255,255,0.85);cursor:pointer;padding:0.3rem 0.5rem;display:inline-flex;align-items:center;"><svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg></button>' +
-        '<div id="language-dropdown" style="display:none;position:fixed;z-index:10000;min-width:160px;background:var(--card-bg,#1e1e2e);border:1px solid var(--border-color,#444);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.35);overflow:hidden;">' +
-          '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;" data-i18n="English">English</button>' +
-          '<button class="lang-option" data-lang="spanish" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">Español</button>' +
-          '<button class="lang-option" data-lang="hindi" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">हिन्दी</button>' +
-          '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">中文</button>' +
-          '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
-          '<div style="border-top:1px solid var(--border-color,#444);padding:0.5rem 1rem;font-size:0.8rem;color:var(--text-muted,#a0a0a0);text-align:center;background:rgba(0,0,0,0.2);">💡 Reload to apply</div>' +
+        '<div id="language-dropdown" style="display:none;position:fixed;z-index:10000;min-width:160px;background:var(--card-bg,#ffffff);border:1px solid var(--border-color,#e2e8f0);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.15);overflow:hidden;">' +
+          '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;" data-i18n="English">English</button>' +
+          '<button class="lang-option" data-lang="spanish" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">Español</button>' +
+          '<button class="lang-option" data-lang="hindi" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">हिन्दी</button>' +
+          '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">中文</button>' +
+          '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
+          '<div style="border-top:1px solid var(--border-color,#e2e8f0);padding:0.5rem 1rem;font-size:0.8rem;color:var(--text-muted,#64748b);text-align:center;">💡 Reload to apply</div>' +
         '</div>' +
       '</div>' +
       '<div aria-hidden="true" class="settings-menu" id="settings-menu">' +
@@ -506,7 +506,6 @@
     // State
     let apiKey = localStorage.getItem(STORAGE_KEY_API_KEY) || '';
     let chatHistory = []; // format: { role: 'user'|'model', parts: [{ text: '...' }] }
-    let isSettingsOpen = false;
     let isLoading = false;
     let isOpen = false;
 
@@ -515,7 +514,6 @@
     let chatContainer = null;
     let inputField = null;
     let sendButton = null;
-    let settingsPanel = null;
     let msgList = null;
 
     function init() {
@@ -584,7 +582,6 @@
         header.innerHTML = `
             <span style="font-size: 1.1em;">AI</span>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <button id="ai-settings-btn" style="background:none; border:none; color:white; cursor:pointer; font-size: 1.2em;" title="Settings">⚙️</button>
                 <button id="ai-close-btn" style="background:none; border:none; color:white; cursor:pointer; font-size: 1.2em;" title="Close">✕</button>
             </div>
         `;
@@ -600,58 +597,7 @@
             overflow: hidden;
         `;
 
-        // Settings Panel
-        settingsPanel = document.createElement('div');
-        settingsPanel.id = 'ai-settings-panel';
-        settingsPanel.style.cssText = `
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--card-bg, #ffffff);
-            padding: 20px;
-            box-sizing: border-box;
-            display: none;
-            flex-direction: column;
-            gap: 15px;
-            z-index: 10;
-        `;
-        
-        const keyInputVal = apiKey || '';
-        settingsPanel.innerHTML = `
-            <h3 style="margin: 0; border-bottom: 1px solid var(--border-color, #ccc); padding-bottom: 10px;" data-i18n="Settings">Settings</h3>
-            <div>
-                <label style="display:block; margin-bottom:5px; font-weight: bold; font-size:0.9em;" data-i18n="Google Gemini API Key">Google Gemini API Key</label>
-                <input type="password" id="ai-api-key-input" placeholder="Enter API Key" data-i18n-ph="Enter API Key" style="
-                    width: 100%;
-                    padding: 10px;
-                    border: 1px solid var(--border-color, #ccc);
-                    border-radius: 6px;
-                    background: var(--input-bg, #fff);
-                    color: var(--text-color, #000);
-                    box-sizing: border-box;
-                " value="${keyInputVal}">
-            </div>
-            <div style="font-size: 0.85em; color: var(--text-muted, #666); line-height: 1.4;">
-                <span data-i18n="To use the AI assistant, you need a free API key from Google.">To use the AI assistant, you need a free API key from Google.</span>
-                <br><br>
-                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--primary-color, #4a90e2); text-decoration: underline;" data-i18n="Get a key here">Get a key here</a>
-            </div>
-            <div style="margin-top: auto; display: flex; gap: 10px;">
-                <button id="ai-save-key-btn" data-i18n="Save API Key" style="
-                    flex: 1;
-                    padding: 10px;
-                    background: var(--primary-color, #4a90e2);
-                    color: white;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-weight: bold;
-                ">Save API Key</button>
-            </div>
-        `;
-        bodyWrapper.appendChild(settingsPanel);
+
 
         // Chat Interface
         chatContainer = document.createElement('div');
@@ -738,32 +684,6 @@
 
     function setupListeners() {
         document.getElementById('ai-close-btn').onclick = toggleAssistant;
-        
-        document.getElementById('ai-settings-btn').onclick = () => {
-            isSettingsOpen = !isSettingsOpen;
-            settingsPanel.style.display = isSettingsOpen ? 'flex' : 'none';
-        };
-
-        document.getElementById('ai-save-key-btn').onclick = () => {
-            const keyInput = document.getElementById('ai-api-key-input');
-            const newKey = keyInput.value.trim();
-            if (newKey) {
-                apiKey = newKey;
-                localStorage.setItem(STORAGE_KEY_API_KEY, apiKey);
-                isSettingsOpen = false;
-                settingsPanel.style.display = 'none';
-                
-                // Provide feedback
-                if (chatHistory.length === 0) {
-                   msgList.innerHTML = ''; // Clear initial warning
-                   appendMessage('model', 'API Key saved! I\'m ready to help.');
-                } else {
-                   appendMessage('system', 'API Key updated successfully.');
-                }
-            } else {
-                alert('Please enter a valid API key.');
-            }
-        };
     }
 
     function toggleAssistant() {
@@ -774,10 +694,7 @@
         if (container) {
              container.style.display = isOpen ? 'flex' : 'none';
              if (isOpen) {
-                 if (!apiKey) {
-                     isSettingsOpen = true;
-                     settingsPanel.style.display = 'flex';
-                 } else if (msgList.children.length === 0) {
+                 if (msgList && msgList.children.length === 0) {
                      appendMessage('model', 'Hello! I am your study assistant. How can I help you today?');
                  }
                  if (inputField) inputField.focus();
@@ -852,11 +769,7 @@
 
     async function sendMessage() {
         if (!apiKey) {
-            isSettingsOpen = true;
-            settingsPanel.style.display = 'flex';
-            if (document.getElementById('ai-api-key-input')) {
-                document.getElementById('ai-api-key-input').focus();
-            }
+            appendMessage('system', 'No API key found. Please set your Gemini API key in localStorage (key: arisEdu_gemini_api_key).');
             return;
         }
 
@@ -930,9 +843,7 @@
             
             let errorMsg = 'Error connecting to AI. Please try again.';
             if (error.message.includes('API key') || error.message.includes('403') || error.message.includes('400')) {
-                errorMsg = 'Invalid API Key or Bad Request. Please check your settings.';
-                isSettingsOpen = true;
-                settingsPanel.style.display = 'flex';
+                errorMsg = 'Invalid API Key or Bad Request. Please check your API key.';
             }
             appendMessage('system', errorMsg);
         } finally {
@@ -1059,15 +970,34 @@
     menu.setAttribute('aria-hidden', 'true');
     menu.style.position = 'fixed';
     menu.style.minWidth = '160px';
-    menu.style.background = isDarkMode ? '#0f172a' : 'white';
-    menu.style.border = isDarkMode ? '1px solid #1f2937' : '1px solid #e2e8f0';
     menu.style.borderRadius = '0.5rem';
-    menu.style.boxShadow = isDarkMode
-      ? '0 12px 24px rgba(2, 6, 23, 0.6)'
-      : '0 10px 20px rgba(2, 6, 23, 0.15)';
     menu.style.padding = '0.4rem';
     menu.style.display = 'none';
     menu.style.zIndex = '10000';
+
+    // Theme-aware styling function for account menu
+    function updateAccountMenuTheme() {
+      var dark = document.body.classList.contains('dark-mode');
+      menu.style.background = dark ? '#0f172a' : 'white';
+      menu.style.border = dark ? '1px solid #1f2937' : '1px solid #e2e8f0';
+      menu.style.boxShadow = dark
+        ? '0 12px 24px rgba(2, 6, 23, 0.6)'
+        : '0 10px 20px rgba(2, 6, 23, 0.15)';
+      // Update child items
+      var items = menu.querySelectorAll('[role="menuitem"]');
+      items.forEach(function(item) {
+        item.style.color = dark ? '#e2e8f0' : '#0f172a';
+      });
+    }
+    updateAccountMenuTheme();
+
+    // Listen for dark mode changes
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(m) {
+        if (m.attributeName === 'class') updateAccountMenuTheme();
+      });
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
     var logoutButton = document.createElement('button');
     logoutButton.type = 'button';
@@ -1084,7 +1014,8 @@
     logoutButton.style.color = isDarkMode ? '#e2e8f0' : '#0f172a';
 
     logoutButton.addEventListener('mouseenter', function () {
-      logoutButton.style.background = isDarkMode
+      var dark = document.body.classList.contains('dark-mode');
+      logoutButton.style.background = dark
         ? 'rgba(148, 163, 184, 0.2)'
         : 'rgba(15, 23, 42, 0.08)';
     });
@@ -1119,7 +1050,8 @@
     accountInfoLink.style.boxSizing = 'border-box';
 
     accountInfoLink.addEventListener('mouseenter', function () {
-      accountInfoLink.style.background = isDarkMode
+      var dark = document.body.classList.contains('dark-mode');
+      accountInfoLink.style.background = dark
         ? 'rgba(148, 163, 184, 0.2)'
         : 'rgba(15, 23, 42, 0.08)';
     });
@@ -1252,23 +1184,24 @@
           // Enhanced Hover GUI (Tooltip)
           const tooltip = document.createElement('div');
           tooltip.id = 'streak-tooltip';
+          const isDarkTooltip = document.body.classList.contains('dark-mode');
           tooltip.style.cssText = `
               position: absolute;
               top: 100%;
               left: 50%;
               transform: translateX(-50%);
-              background: #1e293b;
-              color: white;
+              background: ${isDarkTooltip ? '#1e293b' : '#ffffff'};
+              color: ${isDarkTooltip ? 'white' : '#0f172a'};
               padding: 0.5rem 1rem;
               border-radius: 0.5rem;
               font-size: 0.85rem;
               width: max-content;
-              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+              box-shadow: ${isDarkTooltip ? '0 4px 6px -1px rgba(0, 0, 0, 0.5)' : '0 4px 12px rgba(0, 0, 0, 0.15)'};
               z-index: 100;
               margin-top: 0.5rem;
               display: none;
               text-align: center;
-              border: 1px solid #334155;
+              border: 1px solid ${isDarkTooltip ? '#334155' : '#e2e8f0'};
           `;
           tooltip.innerHTML = `
               <strong data-i18n="Current Streak">Current Streak</strong><br>

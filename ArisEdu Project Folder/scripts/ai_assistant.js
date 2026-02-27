@@ -20,7 +20,7 @@
     
     const AI_Markup = `
     <div id="ai-chat-overlay" style="display: none; position: fixed; bottom: 80px; right: 20px; width: 380px; height: 550px; background: white; border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 9999; flex-direction: column; overflow: hidden; font-family: 'Poppins', sans-serif;">
-        <div style="background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%); padding: 1rem; color: white; display: flex; justify-content: space-between; align-items: center;">
+        <div id="ai-drag-handle" style="background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%); padding: 1rem; color: white; display: flex; justify-content: space-between; align-items: center; cursor: grab; user-select: none;">
             <div style="font-weight: bold; display: flex; align-items: center; gap: 0.5rem;">
                 <span>🤖</span> Aris AI Tutor (Local)
             </div>
@@ -108,7 +108,70 @@
             document.getElementById('ai-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') handleUserMessage();
             });
+
+            // Make the popup draggable via the header bar
+            initDrag();
         }
+    }
+
+    function initDrag() {
+        const overlay = document.getElementById('ai-chat-overlay');
+        const handle = document.getElementById('ai-drag-handle');
+        let isDragging = false, offsetX = 0, offsetY = 0;
+
+        handle.addEventListener('mousedown', (e) => {
+            if (e.target.closest('button')) return; // don't drag when clicking buttons
+            isDragging = true;
+            const rect = overlay.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+            handle.style.cursor = 'grabbing';
+            e.preventDefault();
+        });
+
+        handle.addEventListener('touchstart', (e) => {
+            if (e.target.closest('button')) return;
+            isDragging = true;
+            const rect = overlay.getBoundingClientRect();
+            const touch = e.touches[0];
+            offsetX = touch.clientX - rect.left;
+            offsetY = touch.clientY - rect.top;
+        }, { passive: true });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            moveOverlay(e.clientX, e.clientY);
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            moveOverlay(touch.clientX, touch.clientY);
+        }, { passive: true });
+
+        function moveOverlay(cx, cy) {
+            let newLeft = cx - offsetX;
+            let newTop = cy - offsetY;
+            // Clamp inside viewport
+            const maxLeft = window.innerWidth - overlay.offsetWidth;
+            const maxTop = window.innerHeight - overlay.offsetHeight;
+            newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+            newTop = Math.max(0, Math.min(newTop, maxTop));
+            // Switch from bottom/right positioning to top/left
+            overlay.style.bottom = 'auto';
+            overlay.style.right = 'auto';
+            overlay.style.left = newLeft + 'px';
+            overlay.style.top = newTop + 'px';
+        }
+
+        function stopDrag() {
+            if (isDragging) {
+                isDragging = false;
+                handle.style.cursor = 'grab';
+            }
+        }
+        document.addEventListener('mouseup', stopDrag);
+        document.addEventListener('touchend', stopDrag);
     }
 
     function toggleAI() {
