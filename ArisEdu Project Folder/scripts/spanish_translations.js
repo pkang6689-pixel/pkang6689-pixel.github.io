@@ -3,6 +3,14 @@
     'use strict';
 
     const spanishTranslations = {
+    "Days": "Días",
+    "Current Streak": "Racha Actual",
+    "Come back tomorrow!": "¡Vuelve mañana!",
+    "English": "Inglés",
+    "Heavy Rain": "Lluvia Fuerte",
+    "Forest Day": "Día en el Bosque",
+    "Coffee Shop": "Café",
+    "Ocean Waves": "Olas oceánicas",
     " (e.g., hydrochloric acid).": "(por ejemplo, ácido clorhídrico).",
     " Example: H₂SO₃ (sulfite → sulfurous acid).": "Ejemplo: H₂SO₃ (sulfito → ácido sulfuroso).",
     " Example: H₂SO₄ (sulfate → sulfuric acid).": "Ejemplo: H₂SO₄ (sulfato → ácido sulfúrico).",
@@ -30181,8 +30189,22 @@
     "❌ AAA — NOT valid (proves similarity only)": "❌ AAA — NO válido (solo demuestra similitud)",
     "❌ SSA — NOT valid": "❌ SSA — NO válido",
     "⟨3/5, 4/5⟩.": "⟨3/5, 4/5⟩.",
-    "🏆 Leaderboard": "🏆 Tabla de clasificación"
-
+    "🏆 Leaderboard": "🏆 Tabla de clasificación",
+    
+    // --- Arcade Games (Spanish) ---
+    "👾 Arcade": "👾 Galería de juegos",
+    "SNAKE": "Serpiente",
+    "Eat apples, grow longer, don't hit yourself!": "¡Come manzanas, crece, no te golpees a ti mismo!",
+    "PAC-MAN": "Pac-Man",
+    "Chomp pellets, dodge ghosts, clear the maze!": "¡Come bolitas, esquiva fantasmas, despeja el laberinto!",
+    "PLATFORMER": "Plataformas",
+    "Jump, run, and reach the flag!": "¡Salta, corre y llega a la bandera!",
+    "SPACE SHOOTER": "Disparo espacial",
+    "Blast enemies, dodge asteroids, survive waves!": "¡Dispara enemigos, esquiva asteroides, sobrevive las olas!",
+    "TETRIS": "Tetris",
+    "Stack blocks, clear lines, beat your high score!": "¡Apila bloques, despeja líneas, rompe tu récord!",
+    "BLOCK PUZZLE": "Rompecabezas de bloques",
+    "Drag & drop shapes, clear rows and columns!": "¡Arrastra formas, despeja filas y columnas!"
     };
 
     // Export to global scope

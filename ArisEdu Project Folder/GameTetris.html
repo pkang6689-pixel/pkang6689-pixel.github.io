@@ -6,9 +6,18 @@
     <title>Tetris - Arcade</title>
     <script>
         // Unlock expiration and access check
+        let timerIntervalId;
+        let gameUnlockExpire = 0;
+        let timeoutId;
+        
         (function() {
             const EXTEND_COST = 50;
             const EXTEND_DURATION = 50;
+            const EXTEND_OPTIONS = [
+                { cost: EXTEND_COST, duration: EXTEND_DURATION },
+                { cost: 100, duration: 100 },
+                { cost: 200, duration: 200 }
+            ];
             
             if (sessionStorage.getItem('validGameAccess') !== 'true') {
                 alert('You must access this game from the Arcade page.');
@@ -18,27 +27,53 @@
             
             const expireTime = parseInt(sessionStorage.getItem('gameUnlockExpire')) || 0;
             const now = Math.floor(Date.now() / 1000);
-            
-            if (expireTime <= 0 || expireTime < now) {
-                showExpiredPopup();
-                return;
-            }
-            
-            sessionStorage.removeItem('validGameAccess');
-            
-            // Set up timer to check expiration while playing
-            let timeoutId = setTimeout(checkExpiration, (expireTime - now) * 1000);
-            
+
             function checkExpiration() {
                 const now = Math.floor(Date.now() / 1000);
-                if (now >= expireTime) {
+                if (now >= gameUnlockExpire) {
                     showExpiredPopup();
                 }
             }
+
+            function getUser() {
+                return JSON.parse(localStorage.getItem('user') || '{}');
+            }
+
+            function canAfford(cost) {
+                const user = getUser();
+                return (user.points || 0) >= cost;
+            }
+
+            function extendSession(cost, duration) {
+                const user = getUser();
+                if ((user.points || 0) < cost) {
+                    return false;
+                }
+
+                user.points = (user.points || 0) - cost;
+                localStorage.setItem('user', JSON.stringify(user));
+
+                const base = Math.max(gameUnlockExpire || expireTime, Math.floor(Date.now() / 1000));
+                gameUnlockExpire = base + duration;
+                sessionStorage.setItem('gameUnlockExpire', gameUnlockExpire);
+
+                if (timeoutId) clearTimeout(timeoutId);
+                if (timerIntervalId) clearInterval(timerIntervalId);
+
+                if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                    window.initializeTimer();
+                } else {
+                    document.addEventListener('DOMContentLoaded', window.initializeTimer, { once: true });
+                }
+
+                const now = Math.floor(Date.now() / 1000);
+                timeoutId = setTimeout(checkExpiration, Math.max(0, gameUnlockExpire - now) * 1000);
+                return true;
+            }
             
             function showExpiredPopup() {
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                const canExtend = (user.points || 0) >= EXTEND_COST;
+                clearInterval(timerIntervalId);
+                const canExtend = canAfford(EXTEND_COST);
                 
                 const overlay = document.createElement('div');
                 overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;';
@@ -68,37 +103,146 @@
                 
                 if (canExtend) {
                     modal.querySelector('#extend-session').onclick = () => {
-                        user.points = (user.points || 0) - EXTEND_COST;
-                        localStorage.setItem('user', JSON.stringify(user));
-                        const newExpire = Math.floor(Date.now() / 1000) + EXTEND_DURATION;
-                        sessionStorage.setItem('gameUnlockExpire', newExpire);
-                        overlay.remove();
-                        timeoutId = setTimeout(checkExpiration, EXTEND_DURATION * 1000);
+                        if (extendSession(EXTEND_COST, EXTEND_DURATION)) {
+                            overlay.remove();
+                        }
                     };
                 }
             }
+            
+            if (expireTime <= 0 || expireTime < now) {
+                showExpiredPopup();
+                return;
+            }
+            
+            sessionStorage.removeItem('validGameAccess');
+            gameUnlockExpire = expireTime;
+            
+            window.initializeTimer = function() {
+                const sidebar = document.getElementById('game-sidebar');
+                if (!sidebar) return;
+                
+                let timerDisplay = document.getElementById('game-session-timer');
+                if (!timerDisplay) {
+                    timerDisplay = document.createElement('div');
+                    timerDisplay.id = 'game-session-timer';
+                    sidebar.appendChild(timerDisplay);
+                }
+
+                // Create token-based extend buttons under the timer (once)
+                let controls = document.getElementById('game-session-controls');
+                if (!controls) {
+                    controls = document.createElement('div');
+                    controls.id = 'game-session-controls';
+                    controls.style.cssText = 'margin-top:0.75rem;display:flex;flex-direction:column;gap:0.5rem;width:100%;';
+
+                    EXTEND_OPTIONS.forEach(opt => {
+                        const btn = document.createElement('button');
+                        btn.textContent = `+${opt.duration}s (${opt.cost}💎)`;
+                        btn.style.cssText = 'width:100%;padding:0.5rem 0.75rem;border-radius:0.5rem;border:none;background:#2563eb;color:white;font-weight:600;font-size:0.9rem;cursor:pointer;';
+                        btn.onclick = () => {
+                            if (!extendSession(opt.cost, opt.duration)) {
+                                alert('Not enough tokens to add time.');
+                            }
+                        };
+                        controls.appendChild(btn);
+                    });
+
+                    sidebar.appendChild(controls);
+                }
+
+                function updateTimerDisplay() {
+                    const now = Math.floor(Date.now() / 1000);
+                    const remaining = Math.max(0, gameUnlockExpire - now);
+                    timerDisplay.textContent = remaining + 's';
+                    timerDisplay.className = remaining <= 20 ? 'warning' : '';
+                    
+                    if (remaining <= 0) {
+                        clearInterval(timerIntervalId);
+                        showExpiredPopup();
+                    }
+                }
+                
+                if (timerIntervalId) clearInterval(timerIntervalId);
+                updateTimerDisplay();
+                timerIntervalId = setInterval(updateTimerDisplay, 1000);
+            };
+            
+            // Initialize timer after DOM loads
+            document.addEventListener('DOMContentLoaded', window.initializeTimer);
+            
+            // Set up timeout for expiration
+            timeoutId = setTimeout(checkExpiration, (expireTime - now) * 1000);
         })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
     <style>
+        #game-sidebar {
+            position: fixed;
+            top: 80px;
+            right: 32px;
+            background: rgba(55, 65, 81, 0.98);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 400px;
+            min-height: 800px;
+            margin-right: 15rem;
+            border: 2px solid rgba(107, 114, 128, 0.9);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+            z-index: 1000;
+        }
+        #game-session-timer {
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 2rem;
+            font-family: monospace;
+            width: 100%;
+            text-align: center;
+            margin-top: 0.5rem;
+            letter-spacing: 2px;
+        }
+        #game-session-timer.warning {
+            background: rgba(239, 68, 68, 0.95);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
         body { font-family: 'Orbitron', monospace; padding-top: 50px; }
         canvas { border-radius: 0.5rem; }
-        .fs-btn { position: absolute; bottom: 0.75rem; right: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
-        .fs-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+        #game-wrapper {
+            margin-left:150px;
+            width: min(720px, calc(100vw - 360px));
+            max-width: 100%;
+        }
         .pause-btn { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
         .pause-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
         :fullscreen { background: #111827; }
-        :fullscreen body { padding-top: 0 !important; }
+        
     </style>
     <script src="theme_manager.js"></script>
 </head>
-<body class="dark-mode bg-gray-900 min-h-screen text-white flex flex-col items-center justify-center p-4 overflow-hidden">
+<body class="dark-mode bg-gray-900 min-h-screen text-white">
 <script src="scripts/taskbar.js"></script>
 
-    <div id="game-wrapper" class="relative w-full max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
-        <button class="fs-btn" onclick="toggleFS()" title="Fullscreen"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
+<!-- Translation Scripts -->
+<script src="scripts/global_translations.js?v=7.0"></script>
+<script src="scripts/spanish_translations.js?v=1.0"></script>
+<script src="scripts/hindi_translations.js?v=1.0"></script>
+
+    <div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
+
+    <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
         <button class="pause-btn" onclick="togglePause()" title="Pause"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
         <div class="flex justify-between items-end mb-4">
             <div>
@@ -111,7 +255,7 @@
                     <div id="lines" class="text-2xl font-bold text-white">0</div>
                 </div>
                 <div>
-                    <div class="text-xs text-gray-400 font-sans">SCORE</div>
+                    <div class="text-xs text-gray-400 font-sans" data-i18n="SCORE">SCORE</div>
                     <div id="score" class="text-2xl font-bold text-white">0</div>
                 </div>
             </div>
@@ -137,12 +281,12 @@
 
         <!-- Game Over -->
         <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
-            <h2 class="text-3xl text-red-500 font-bold mb-2">GAME OVER</h2>
+            <h2 class="text-3xl text-red-500 font-bold mb-2" data-i18n="GAME OVER">GAME OVER</h2>
             <p class="text-gray-300 mb-2 font-sans">Board filled up!</p>
             <div class="text-4xl font-bold text-white mb-2" id="final-score">0</div>
             <p class="text-gray-400 mb-6 font-sans text-sm" id="final-lines">0 lines</p>
             <button onclick="resetGame()" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
-                TRY AGAIN
+                <span data-i18n="TRY AGAIN">TRY AGAIN</span>
             </button>
         </div>
         
@@ -152,7 +296,7 @@
             <p class="text-gray-300 mb-4 font-sans">Stack tetrominoes,<br>clear lines to score!</p>
             <p class="text-sm text-gray-400 mb-6 font-sans">⬅️➡️ Move | ⬆️ Rotate | Space Hard Drop</p>
             <button onclick="startGame()" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
-                START
+                <span data-i18n="START">START</span>
             </button>
         </div>
 
@@ -162,27 +306,19 @@
             <p class="text-gray-400 mb-4 font-sans">Game is paused</p>
             <p class="text-sm text-gray-500 mb-6 font-sans">⬅️➡️ Move | ⬆️ Rotate | Space Hard Drop</p>
             <button onclick="togglePause()" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
-                RESUME
+                <span data-i18n="RESUME">RESUME</span>
             </button>
+        </div>
+
+    <div id="game-sidebar">
+        <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600;">
+            SESSION
         </div>
     </div>
 
-    <script>
-        function toggleFS() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().then(() => {
-                    const el = document.getElementById('game-wrapper');
-                    const r = el.getBoundingClientRect();
-                    const s = Math.min(window.innerWidth / r.width, window.innerHeight / r.height) * 0.88;
-                    el.style.transform = `scale(${s})`;
-                    el.style.transformOrigin = 'center center';
-                }).catch(()=>{});
-            } else { document.exitFullscreen(); }
-        }
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) { const el = document.getElementById('game-wrapper'); el.style.transform = ''; }
-        });
+    </div>
 
+    <script>
         let gamePaused = false;
         function togglePause() {
             if (!running && !gamePaused) return;
@@ -515,6 +651,23 @@
             drawNext();
             gameLoop = setInterval(tick, dropInterval);
         }
+
+        // Auto-pause game (and stop timer updates) when tab loses visibility
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (!gamePaused && running && typeof togglePause === 'function') {
+                    togglePause();
+                }
+                if (typeof timerIntervalId !== 'undefined' && timerIntervalId) {
+                    clearInterval(timerIntervalId);
+                    timerIntervalId = null;
+                }
+            } else {
+                if ((typeof timerIntervalId === 'undefined' || !timerIntervalId) && typeof window.initializeTimer === 'function') {
+                    window.initializeTimer();
+                }
+            }
+        });
 
         function resetGame() {
             document.getElementById('game-over').classList.add('hidden');

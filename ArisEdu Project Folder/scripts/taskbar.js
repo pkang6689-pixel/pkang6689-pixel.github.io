@@ -278,6 +278,7 @@
               '<button class="lang-option" data-lang="hindi" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">हिन्दी</button>' +
               '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">中文</button>' +
               '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
+              '<div style="border-top:1px solid var(--border-color,#444);padding:0.5rem 1rem;font-size:0.8rem;color:var(--text-muted,#a0a0a0);text-align:center;background:rgba(0,0,0,0.2);">💡 Reload to apply</div>' +
             '</div>' +
         '</div>' +
         '<div aria-hidden="true" class="settings-menu" id="settings-menu">' +
@@ -316,6 +317,7 @@
           '<button class="lang-option" data-lang="hindi" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">हिन्दी</button>' +
           '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">中文</button>' +
           '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
+          '<div style="border-top:1px solid var(--border-color,#444);padding:0.5rem 1rem;font-size:0.8rem;color:var(--text-muted,#a0a0a0);text-align:center;background:rgba(0,0,0,0.2);">💡 Reload to apply</div>' +
         '</div>' +
       '</div>' +
       '<div aria-hidden="true" class="settings-menu" id="settings-menu">' +

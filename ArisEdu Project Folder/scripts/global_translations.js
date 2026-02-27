@@ -6,7 +6,7 @@
     var _arisLang = null;
     try { _arisLang = localStorage.getItem('arisEduLanguage'); } catch(e) {}
     // Only hide page if non-English mode is explicitly set
-    var _needsTranslation = (_arisLang === 'chinese' || _arisLang === 'traditional' || _arisLang === 'zh' || _arisLang === 'spanish');
+    var _needsTranslation = (_arisLang === 'chinese' || _arisLang === 'traditional' || _arisLang === 'zh' || _arisLang === 'spanish' || _arisLang === 'hindi');
     if (_needsTranslation) {
         document.documentElement.style.opacity = '0';
     }
@@ -32514,6 +32514,21 @@
     "√(9 + 16) = √25 = 5.": "√(9 + 16) = √25 = 5.",
     "√(sin²t + cos²t) = 1.": "√(sin²t + cos²t) = 1.",
     "⌊−2.3⌋ equals:": "⌊−2.3⌋ 等于：",
+    
+    // --- Arcade Games ---
+    "👾 Arcade": "👾 游戏厅",
+    "SNAKE": "贪吃蛇",
+    "Eat apples, grow longer, don't hit yourself!": "吃苹果，变长，不要撞到自己！",
+    "PAC-MAN": "吃豆人",
+    "Chomp pellets, dodge ghosts, clear the maze!": "吃豆子，躲避幽灵，通关迷宫！",
+    "PLATFORMER": "平台跳跃",
+    "Jump, run, and reach the flag!": "跳跃、奔跑并到达旗帜！",
+    "SPACE SHOOTER": "太空射手",
+    "Blast enemies, dodge asteroids, survive waves!": "摧毁敌人，躲避小行星，生存顶浪！",
+    "TETRIS": "俄罗斯方块",
+    "Stack blocks, clear lines, beat your high score!": "堆叠方块，消除行，打破纪录！",
+    "BLOCK PUZZLE": "方块拼图",
+    "Drag & drop shapes, clear rows and columns!": "拖放形状，消除行和列！"
     };
 
     // ── Expose Chinese translations globally ──
@@ -32525,10 +32540,12 @@
         var lang = null;
         try { lang = localStorage.getItem('arisEduLanguage'); } catch(e) {}
         if (lang === 'spanish') {
-            return window.arisEduSpanishTranslations || {};
+            var spanishDict = window.arisEduSpanishTranslations || window.spanishTranslations || {};
+            return spanishDict;
         }
         if (lang === 'hindi') {
-            return window.arisEduHindiTranslations || {};
+            var hindiDict = window.arisEduHindiTranslations || window.hindiTranslations || {};
+            return hindiDict;
         }
         if (lang === 'chinese' || lang === 'traditional' || lang === 'zh') {
             return translations;
@@ -32707,16 +32724,33 @@
         var translatableCount = document.querySelectorAll('.translatable').length;
         var dataEnCount = document.querySelectorAll('[data-en]').length;
         
+        // Count [data-i18n] elements and track which ones were translated
+        var i18nElements = document.querySelectorAll('[data-i18n]');
+        var matchableNodes = i18nElements.length;
+        var matchedNodes = 0;
+        var unmatchedSamples = [];
+        
+        i18nElements.forEach(function(el) {
+            var key = el.getAttribute('data-i18n');
+            if (key && dict && dict[key]) {
+                matchedNodes++;
+            } else if (key && unmatchedSamples.length < 10) {
+                unmatchedSamples.push(key);
+            }
+        });
+        
+        var unmatchedNodes = matchableNodes - matchedNodes;
+        
         return {
             lang: lang,
             isChinese: isChinese,
             totalKeys: totalKeys,
             translatableCount: translatableCount,
             dataEnCount: dataEnCount,
-            matchableNodes: 0,
-            matchedNodes: 0,
-            unmatchedNodes: 0,
-            unmatchedSamples: []
+            matchableNodes: matchableNodes,
+            matchedNodes: matchedNodes,
+            unmatchedNodes: unmatchedNodes,
+            unmatchedSamples: unmatchedSamples
         };
     };
 

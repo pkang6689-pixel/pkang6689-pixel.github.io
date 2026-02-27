@@ -165,6 +165,37 @@
         `;
         content.appendChild(stats);
 
+        // Token reward notice (only if tokens were awarded on this completion)
+        if (quizAnalytics.tokensAwarded && quizAnalytics.tokensAwarded > 0) {
+            const rewardBox = document.createElement('div');
+            rewardBox.style.cssText = `
+                margin-top: 0;
+                margin-bottom: 2rem;
+                padding: 1rem 1.25rem;
+                border-radius: 0.9rem;
+                background: ${document.body.classList.contains('dark-mode') ? '#14532d' : '#dcfce7'};
+                border: 1px solid ${document.body.classList.contains('dark-mode') ? '#22c55e' : '#16a34a'};
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            `;
+
+            const totalLine = (typeof quizAnalytics.totalTokensAfter === 'number')
+                ? `<div style="font-size:0.9rem; opacity:0.85;">Total arcade tokens: ${quizAnalytics.totalTokensAfter}</div>`
+                : '';
+
+            rewardBox.innerHTML = `
+                <div style="font-size:1.8rem;">🪙</div>
+                <div>
+                    <div style="font-weight:700; font-size:1.05rem;">You earned ${quizAnalytics.tokensAwarded} arcade tokens!</div>
+                    ${totalLine}
+                </div>
+            `;
+
+            // Insert the reward box just after the stats block
+            content.insertBefore(rewardBox, timingSection);
+        }
+
         // Time per question breakdown
         const timingSection = document.createElement('div');
         timingSection.style.cssText = `margin-bottom: 2rem;`;
@@ -502,6 +533,48 @@
     };
     } // end if (!window.checkQuizAnswer)
 
+    // Award arcade tokens for completing a lesson quiz the first time
+    function awardLessonTokensIfFirstCompletion() {
+        if (typeof getLessonQuizStorageKey !== 'function') return;
+        const storageKey = getLessonQuizStorageKey();
+        if (!storageKey) return;
+
+        let alreadyCompleted = false;
+        try {
+            alreadyCompleted = (localStorage.getItem(storageKey) === 'true');
+        } catch (e) {
+            alreadyCompleted = false;
+        }
+
+        // If this lesson was already completed before, do not award again
+        if (alreadyCompleted) {
+            quizAnalytics.tokensAwarded = 0;
+            return;
+        }
+
+        // Award 100 arcade tokens and mark lesson as completed
+        let user = {};
+        try {
+            user = JSON.parse(localStorage.getItem('user') || '{}');
+        } catch (e) {
+            user = {};
+        }
+
+        const currentPoints = parseInt(user.points || '0', 10) || 0;
+        const reward = 100;
+        user.points = currentPoints + reward;
+
+        try {
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem(storageKey, 'true');
+        } catch (e) {
+            // If storage fails, just skip without breaking quiz flow
+        }
+
+        quizAnalytics.tokensAwarded = reward;
+        quizAnalytics.totalTokensAfter = user.points;
+    }
+
     // Check if every question on the quiz has been answered correctly
     function checkQuizCompletion() {
         const questions = document.querySelectorAll('.quiz-question');
@@ -515,6 +588,9 @@
 
         // Record quiz end time
         quizAnalytics.quizEndTime = Date.now();
+
+        // Award tokens (only on first completion of this lesson)
+        awardLessonTokensIfFirstCompletion();
 
         // Call the per-file markQuizComplete() if it exists (each quiz file defines its own)
         if (typeof window.markQuizComplete === 'function') {
@@ -616,8 +692,9 @@
 
         // Fix for Quiz pages showing Summary by default
         const path = window.location.pathname;
-        // Check if we are on a Quiz page (lesson quiz, not unit test)
-        const isLessonQuiz = (path.endsWith('Quiz.html') || path.indexOf('Quiz.html') !== -1) && path.indexOf('Unit') === -1;
+        const fileName = decodeURIComponent(path.split('/').pop() || '');
+        // Check if we are on a lesson Quiz page (Lesson X.Y_Quiz.html), not a Unit test page
+        const isLessonQuiz = (fileName.endsWith('Quiz.html') || fileName.indexOf('Quiz.html') !== -1) && fileName.indexOf('Unit') === -1;
         if (isLessonQuiz) {
             // Check if already completed
             var quizKey = getLessonQuizStorageKey();
