@@ -266,7 +266,7 @@
             // Account & Settings
             '<div class="taskbar-category" title="Account & Settings">' +
                 '<button class="taskbar-button" id="settings-button">\u2699\uFE0F Settings</button>' +
-                '<a class="taskbar-button" href="/ArisEdu Project Folder/LoginSignup.html" id="login-signup-button"'+getDisp('login')+'>\uD83D\uDD10 Login</a>' +
+                '<a class="taskbar-button" href="/ArisEdu Project Folder/Login.html" id="login-signup-button"'+getDisp('login')+'>\uD83D\uDD10 Login</a>' +
                 '<button class="taskbar-button" id="streak-button" title="Current Login Streak" style="display:none; color: #fbbf24;">🔥 0</button>' +
             '</div>' +
 
@@ -309,7 +309,7 @@
         '<button class="taskbar-button" id="forums-button" onclick="window.location.href=\'/ArisEdu Project Folder/forums.html\'"'+getDisp('forums')+'>\uD83D\uDCAC Forums</button>' +
         '<button class="taskbar-button" id="settings-button">\u2699\uFE0F Settings</button>' +
         '<a class="taskbar-button" href="/ArisEdu Project Folder/arcade.html" id="arcade-button"'+getDisp('arcade')+'>\uD83D\uDC7E Arcade</a>' +
-        '<a class="taskbar-button" href="/ArisEdu Project Folder/LoginSignup.html" id="login-signup-button"'+getDisp('login')+'>\uD83D\uDD10 Login/Signup</a>' +
+        '<a class="taskbar-button" href="/ArisEdu Project Folder/Login.html" id="login-signup-button"'+getDisp('login')+'>\uD83D\uDD10 Login/Signup</a>' +
         '<button id="language-toggle-button" title="Switch Language" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:2000;background:none;border:none;color:rgba(255,255,255,0.85);cursor:pointer;padding:0.3rem 0.5rem;display:inline-flex;align-items:center;"><svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg></button>' +
         '<div id="language-dropdown" style="display:none;position:fixed;z-index:10000;min-width:160px;background:var(--card-bg,#1e1e2e);border:1px solid var(--border-color,#444);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.35);overflow:hidden;">' +
           '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#e0e0e0);cursor:pointer;font-size:0.95rem;" data-i18n="English">English</button>' +
@@ -1097,7 +1097,7 @@
       localStorage.removeItem('user');
       menu.style.display = 'none';
       loginButton.setAttribute('aria-expanded', 'false');
-      window.location.href = '/ArisEdu Project Folder/LoginSignup.html';
+      window.location.href = '/ArisEdu Project Folder/Login.html';
     });
 
     // Account Information link

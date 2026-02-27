@@ -1,0 +1,1230 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - ArisEdu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FIREBASE SDKs -->
+  <script type="module">
+    import { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, doc, setDoc, getDoc } from "./firebase-config.js";
+
+    if (auth) {
+        window.authInstance = auth;
+        window.dbInstance = db;
+        window.firebaseFunctions = { 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            sendPasswordResetEmail,
+            updateProfile,
+            doc,
+            setDoc,
+            getDoc
+        };
+    } else {
+        window.firebaseMissing = true;
+    }
+  </script>
+  <style>
+    /* === BASE STYLES === */
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      overflow-x: hidden;
+      width: 100vw;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      transition: background 0.3s ease;
+      overflow-x: hidden;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body.dark-mode {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    }
+   
+    .logo-font {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+   
+    /* === ANIMATIONS === */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .logo-glow {
+      filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+    }
+
+    .atom-orbit {
+      animation: rotate 20s linear infinite;
+    }
+
+    /* === LAYOUT === */
+    .main-container {
+      min-height: 100vh;
+      width: 100%;
+      padding: 5rem 2rem 2rem 2rem;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+   
+    .taskbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+   
+    .taskbar-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.5rem 1rem;
+      max-width: 1200px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+   
+    .taskbar-button {
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      color: white;
+      font-size: 0.875rem;
+      transition: opacity 0.3s, transform 0.2s;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+   
+    .taskbar-button:hover {
+      opacity: 0.9;
+      scale: 1.05;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .settings-item {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+
+    .settings-item:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    body.dark-mode .settings-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* === AUTH FORM STYLES === */
+    .auth-container {
+      width: 100%;
+      max-width: 450px;
+      animation: fadeInDown 0.6s ease;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      animation: slideInUp 0.6s ease 0.1s backwards;
+    }
+
+    .auth-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .auth-subtitle {
+      font-size: 1rem;
+      color: #64748b;
+    }
+
+    body.dark-mode .auth-subtitle {
+      color: #cbd5e1;
+    }
+
+    .auth-card {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+      animation: slideInUp 0.6s ease 0.2s backwards;
+      transition: box-shadow 0.3s ease;
+    }
+
+    body.dark-mode .auth-card {
+      background: #1e293b;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .auth-card:hover {
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #1e293b;
+      font-size: 0.95rem;
+    }
+
+    .signup-role-label span {
+      color: #1e293b;
+      font-weight: 600;
+    }
+    body.dark-mode .signup-role-label span {
+      color: #f1f5f9;
+    }
+
+    body.dark-mode .form-label {
+      color: #f1f5f9;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+      background: white;
+      color: #1e293b;
+    }
+
+    body.dark-mode .form-input {
+      background: #0f172a;
+      color: #f1f5f9;
+      border-color: #334155;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      transform: translateY(-2px);
+    }
+
+    body.dark-mode .form-input:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .form-input::placeholder {
+      color: #94a3b8;
+    }
+
+    body.dark-mode .form-input::placeholder {
+      color: #64748b;
+    }
+
+    .form-button {
+      width: 100%;
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      cursor: pointer;
+      transition: opacity 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+    }
+
+    .form-button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 12px rgba(59, 130, 246, 0.4);
+    }
+
+    .form-button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    }
+
+    .form-divider {
+      text-align: center;
+      margin: 1.5rem 0;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    body.dark-mode .form-divider {
+      color: #64748b;
+    }
+
+    .form-divider::before,
+    .form-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e2e8f0;
+    }
+
+    body.dark-mode .form-divider::before,
+    body.dark-mode .form-divider::after {
+      background: #334155;
+    }
+
+    .toggle-auth {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.95rem;
+      margin-top: 1rem;
+    }
+
+    body.dark-mode .toggle-auth {
+      color: #cbd5e1;
+    }
+
+    .toggle-auth a {
+      color: #3b82f6;
+      font-weight: 700;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      text-decoration: underline;
+    }
+
+    .toggle-auth a:hover {
+      color: #10b981;
+    }
+
+    .form-visible {
+      display: block !important;
+      visibility: visible;
+      pointer-events: auto;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .form-hidden {
+      display: none !important;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .deco-circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.1;
+      pointer-events: none;
+      display: none;
+    }
+
+    .auth-container-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .small-logo-section {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      animation: slideInUp 0.6s ease 0.3s backwards;
+    }
+
+    .small-logo-symbol {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .company-name {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Search Modal */
+    .search-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .search-modal.active {
+      display: flex;
+    }
+
+    .search-modal-content {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+      animation: slideInUp 0.3s ease;
+    }
+
+    body.dark-mode .search-modal-content {
+      background: #1e293b;
+    }
+
+    .search-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    body.dark-mode .search-modal-title {
+      color: #f1f5f9;
+    }
+
+    .search-modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #64748b;
+      transition: color 0.3s ease;
+    }
+
+    .search-modal-close:hover {
+      color: #1e293b;
+    }
+
+    body.dark-mode .search-modal-close:hover {
+      color: #f1f5f9;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+      transition: border-color 0.3s ease;
+      margin-bottom: 1rem;
+    }
+
+    body.dark-mode .search-input {
+      background: #0f172a;
+      color: #f1f5f9;
+      border-color: #334155;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .search-results {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .search-result-item {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e2e8f0;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      border-radius: 0.25rem;
+    }
+
+    body.dark-mode .search-result-item {
+      border-bottom-color: #334155;
+    }
+
+    .search-result-item:hover {
+      background: #f1f5f9;
+    }
+
+    body.dark-mode .search-result-item:hover {
+      background: #0f172a;
+    }
+
+    /* Form Error/Success Messages */
+    .form-message {
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      animation: slideInUp 0.3s ease;
+    }
+
+    .form-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    body.dark-mode .form-error {
+      background: #7f1d1d;
+      color: #fecaca;
+      border-color: #991b1b;
+    }
+
+    .form-success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    body.dark-mode .form-success {
+      background: #166534;
+      color: #86efac;
+      border-color: #22c55e;
+    }
+
+    .input-error {
+      border-color: #dc2626 !important;
+    }
+
+    @media (max-width: 640px) {
+      .main-container {
+        padding: 4rem 1rem 2rem 1rem;
+      }
+
+      .auth-card {
+        padding: 1.5rem;
+      }
+
+      .auth-title {
+        font-size: 2rem;
+      }
+
+      .taskbar-container {
+        gap: 0.5rem;
+      }
+
+      .taskbar-button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+      }
+
+      .search-modal-content {
+        width: 95%;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="theme_manager.js"></script>
+</head>
+<body class="dark-mode h-full logo-font">
+<script src="scripts/taskbar.js"></script>
+
+  <main class="main-container">
+    <div class="deco-circle deco-circle-1"></div>
+    <div class="deco-circle deco-circle-2"></div>
+
+    <!-- Search Modal -->
+    <div class="search-modal" id="search-modal">
+      <div class="search-modal-content">
+        <div class="search-modal-header">
+          <h3 class="search-modal-title">Search</h3>
+          <button class="search-modal-close" id="close-search-modal">&times;</button>
+        </div>
+        <input type="text" class="search-input" id="search-input" placeholder="Search courses, lessons, topics...">
+        <div class="search-results" id="search-results"></div>
+      </div>
+    </div>
+
+    <div class="auth-container-wrapper">
+      <div class="small-logo-section">
+        <div class="small-logo-symbol logo-glow">
+          <svg width="100" height="100" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <g class="atom-orbit" transform-origin="60 60">
+              <ellipse cx="60" cy="60" rx="45" ry="20" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.6" />
+              <ellipse cx="60" cy="60" rx="45" ry="20" fill="none" stroke="#10b981" stroke-width="2" opacity="0.6" transform="rotate(60 60 60)" />
+              <ellipse cx="60" cy="60" rx="45" ry="20" fill="none" stroke="#8b5cf6" stroke-width="2" opacity="0.6" transform="rotate(120 60 60)" />
+            </g>
+            <circle cx="60" cy="60" r="12" fill="#3b82f6" />
+            <text x="60" y="67" font-size="18" fill="white" font-weight="bold" font-family="'Poppins', sans-serif" text-anchor="middle">π</text>
+          </svg>
+        </div>
+        <h1 class="company-name">ArisEdu</h1>
+      </div>
+
+      <div class="auth-card">
+        <!-- Signup Form -->
+        <form id="signup-form" class="form-visible">
+          <div class="auth-header">
+            <h2 class="auth-title">Get Started</h2>
+            <p class="auth-subtitle">Create your account</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-name">Full Name</label>
+            <input class="form-input" type="text" id="signup-name" placeholder="John Doe" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Email Address</label>
+            <input class="form-input" type="email" id="signup-email" placeholder="you@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Password</label>
+            <input class="form-input" type="password" id="signup-password" placeholder="Create a password" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-confirm">Confirm Password</label>
+            <input class="form-input" type="password" id="signup-confirm" placeholder="Confirm your password" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">I am a:</label>
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+              <label class="signup-role-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="signup-role" value="student" checked>
+                <span>Student</span>
+              </label>
+              <label class="signup-role-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="signup-role" value="teacher">
+                <span>Teacher</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" id="class-code-group">
+            <label class="form-label" for="signup-class-code">Class Code (Optional)</label>
+            <input class="form-input" type="text" id="signup-class-code" placeholder="Enter class code provided by teacher">
+          </div>
+
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 0.5rem; color: #64748b; cursor: pointer;">
+              <input type="checkbox" required />
+              <span style="font-size: 0.9rem;">I agree to the <span id="open-tos" style="color: #3b82f6; text-decoration: underline; cursor: pointer;">Terms of Service</span></span>
+            </label>
+          </div>
+
+          <button type="submit" class="form-button">Sign Up</button>
+
+          <div class="form-divider">or</div>
+
+          <div class="toggle-auth">
+            Already have an account? <a href="Login.html">Sign In</a>
+          </div>
+        </form>
+
+        <!-- Account View (shown when already logged in) -->
+        <div id="account-view" class="form-hidden">
+          <div class="auth-header">
+            <h2 class="auth-title" id="account-name">Welcome Back</h2>
+            <p class="auth-subtitle">You are signed in.</p>
+          </div>
+          <div class="form-divider">or</div>
+          <div class="toggle-auth">
+            <span>Go to the homepage to continue learning.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Search Data
+    const searchData = [
+      { title: 'Algebra 1', category: 'Mathematics' },
+      { title: 'Algebra 2', category: 'Mathematics' },
+      { title: 'Geometry', category: 'Mathematics' },
+      { title: 'Trigonometry', category: 'Mathematics' },
+      { title: 'Physics & Mechanics', category: 'Science' },
+      { title: 'Chemistry & Molecular Science', category: 'Science' },
+      { title: 'Biology', category: 'Science' },
+      { title: 'Calculus', category: 'Mathematics' },
+      { title: 'Linear Algebra', category: 'Mathematics' },
+    ];
+
+    const searchModal = document.getElementById('search-modal');
+    const searchButton = document.getElementById('search-button');
+    const closeSearchModalButton = document.getElementById('close-search-modal');
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+
+    function openSearchModal() {
+      searchModal.classList.add('active');
+      searchInput.focus();
+    }
+
+    function closeSearchModal() {
+      searchModal.classList.remove('active');
+      searchInput.value = '';
+      searchResults.innerHTML = '';
+    }
+
+    function performSearch(query) {
+      searchResults.innerHTML = '';
+      if (!query.trim()) return;
+
+      const results = searchData.filter(item =>
+        item.title.toLowerCase().includes(query.toLowerCase()) ||
+        item.category.toLowerCase().includes(query.toLowerCase())
+      );
+
+      if (results.length === 0) {
+        searchResults.innerHTML = '<div style="padding: 1rem; text-align: center; color: #94a3b8;">No results found</div>';
+        return;
+      }
+
+      results.forEach(result => {
+        const resultItem = document.createElement('div');
+        resultItem.className = 'search-result-item';
+        resultItem.innerHTML = `
+          <div style="font-weight: 600; color: #1e293b;">${result.title}</div>
+          <div style="font-size: 0.85rem; color: #64748b; margin-top: 0.25rem;">${result.category}</div>
+        `;
+        resultItem.addEventListener('click', () => {
+          closeSearchModal();
+          alert(`You selected: ${result.title}`);
+        });
+        searchResults.appendChild(resultItem);
+      });
+    }
+
+    if (searchButton) searchButton.addEventListener('click', openSearchModal);
+    closeSearchModalButton.addEventListener('click', closeSearchModal);
+    searchInput.addEventListener('input', (e) => performSearch(e.target.value));
+    searchModal.addEventListener('click', (e) => { if (e.target === searchModal) closeSearchModal(); });
+
+    // Form Validation Functions
+    function showFormMessage(formId, message, type) {
+      const form = document.getElementById(formId);
+      let messageEl = form.querySelector('.form-message');
+      if (!messageEl) {
+        messageEl = document.createElement('div');
+        messageEl.className = 'form-message';
+        form.insertBefore(messageEl, form.firstChild);
+      }
+      messageEl.textContent = message;
+      messageEl.className = `form-message form-${type}`;
+    }
+
+    function validateEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function validatePassword(password) {
+      return password.length >= 8;
+    }
+
+    // Account View
+    const signupForm = document.getElementById('signup-form');
+    const accountView = document.getElementById('account-view');
+    const accountName = document.getElementById('account-name');
+
+    function showAccountView(user) {
+      if (!user) return;
+      const displayName = user.name || user.email || 'Account';
+      accountName.textContent = displayName;
+      signupForm.classList.remove('form-visible');
+      signupForm.classList.add('form-hidden');
+      accountView.classList.remove('form-hidden');
+      accountView.classList.add('form-visible');
+    }
+
+    // Toggle role-specific fields
+    const signupRoleRadios = document.getElementsByName('signup-role');
+    const classCodeGroup = document.getElementById('class-code-group');
+    const classCodeInput = document.getElementById('signup-class-code');
+
+    function toggleRoleInputs() {
+      let selectedRole = 'student';
+      for (const radio of signupRoleRadios) {
+        if (radio.checked) {
+          selectedRole = radio.value;
+          break;
+        }
+      }
+
+      if (selectedRole === 'teacher') {
+        classCodeGroup.style.display = 'none';
+        classCodeInput.value = ''; 
+      } else {
+        classCodeGroup.style.display = 'block';
+      }
+    }
+
+    signupRoleRadios.forEach(radio => {
+        radio.addEventListener('change', toggleRoleInputs);
+    });
+    toggleRoleInputs();
+
+    // Form Submission - Signup
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+     
+      const name = document.getElementById('signup-name').value;
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+      const confirm = document.getElementById('signup-confirm').value;
+      const classCode = document.getElementById('signup-class-code').value;
+
+      let role = 'student';
+      for (const radio of signupRoleRadios) {
+        if (radio.checked) {
+          role = radio.value;
+          break;
+        }
+      }
+
+      const nameInput = document.getElementById('signup-name');
+      const emailInput = document.getElementById('signup-email');
+      const passwordInput = document.getElementById('signup-password');
+      const confirmInput = document.getElementById('signup-confirm');
+      const submitButton = signupForm.querySelector('button[type="submit"]');
+
+      nameInput.classList.remove('input-error');
+      emailInput.classList.remove('input-error');
+      passwordInput.classList.remove('input-error');
+      confirmInput.classList.remove('input-error');
+
+      let hasError = false;
+
+      if (!name.trim() || name.length < 2) {
+        nameInput.classList.add('input-error');
+        hasError = true;
+      }
+
+      if (!validateEmail(email)) {
+        emailInput.classList.add('input-error');
+        hasError = true;
+      }
+
+      if (!validatePassword(password)) {
+        passwordInput.classList.add('input-error');
+        hasError = true;
+      }
+
+      if (password !== confirm) {
+        passwordInput.classList.add('input-error');
+        confirmInput.classList.add('input-error');
+        hasError = true;
+      }
+
+      if (hasError) {
+        showFormMessage('signup-form', 'Check all fields. Password must be 8+ characters.', 'error');
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = 'Creating account...';
+
+      if (window.firebaseMissing) {
+          showFormMessage('signup-form', 'Missing Firebase Config.', 'error');
+          submitButton.disabled = false;
+          submitButton.textContent = 'Sign Up';
+          return;
+      }
+
+      try {
+          const { createUserWithEmailAndPassword, updateProfile, doc, setDoc } = window.firebaseFunctions;
+          const db = window.dbInstance;
+          
+          const userCredential = await createUserWithEmailAndPassword(window.authInstance, email, password);
+          const user = userCredential.user;
+
+          await updateProfile(user, {
+              displayName: name.trim()
+          });
+
+          const userData = {
+            uid: user.uid,
+            name: name.trim(),
+            email: email.trim(),
+            createdAt: new Date().toISOString(),
+            role: role
+          };
+
+          if (role === 'teacher') {
+             const generatedClassCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+             userData.myClassCode = generatedClassCode;
+             userData.createdClasses = [];
+          } else {
+             if (classCode && classCode.trim()) {
+               userData.joinedClassCode = classCode.trim().toUpperCase();
+             }
+          }
+
+          await setDoc(doc(db, "users", user.uid), userData);
+
+          let successMsg = 'Account created! Logging you in...';
+          if (role === 'teacher') {
+             successMsg = `Teacher account created! Your Class Code: ${userData.myClassCode}`;
+          }
+
+          showFormMessage('signup-form', successMsg, 'success');
+          
+          const storedUser = { 
+              name: name.trim(), 
+              email: email.trim(),
+              password: password,
+              role: role,
+              myClassCode: userData.myClassCode || null,
+              joinedClassCode: userData.joinedClassCode || null
+          };
+          localStorage.setItem('user', JSON.stringify(storedUser));
+
+          try {
+            const knownUsers = JSON.parse(localStorage.getItem('known_users') || '[]');
+            const existingIndex = knownUsers.findIndex(u => u.email === storedUser.email);
+            if (existingIndex >= 0) {
+                knownUsers[existingIndex] = storedUser;
+            } else {
+                knownUsers.push(storedUser);
+            }
+            localStorage.setItem('known_users', JSON.stringify(knownUsers));
+          } catch (e) {
+            console.error('Error updating known_users', e);
+          }
+
+          showAccountView(storedUser);
+
+          setTimeout(() => {
+            window.location.href="../index.html";
+          }, 2000);
+
+      } catch (error) {
+          console.error("Signup Error:", error);
+          let msg = 'Error creating account.';
+          if (error.code === 'auth/email-already-in-use') msg = 'An account with this email already exists.';
+          if (error.code === 'auth/weak-password') msg = 'Password is too weak.';
+          
+          showFormMessage('signup-form', msg, 'error');
+          submitButton.disabled = false;
+          submitButton.textContent = 'Sign Up';
+      }
+    });
+
+    // Dark Mode Toggle
+    const darkModeCheckbox = document.getElementById('dark-mode-checkbox');
+    if (darkModeCheckbox) {
+      darkModeCheckbox.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      });
+      document.body.classList.add('dark-mode');
+      darkModeCheckbox.checked = true;
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSearchModal();
+    });
+
+    // Check if already logged in
+    const existingUser = localStorage.getItem('user');
+    if (existingUser) {
+      try {
+        const userObj = JSON.parse(existingUser);
+        showAccountView(userObj);
+        
+        const welcomeTitle = document.querySelector('#account-view .auth-title');
+        const username = userObj.name || userObj.email;
+        const displayDetails = username.includes('@') ? username.split('@')[0] : username;
+        
+        if (welcomeTitle) {
+          welcomeTitle.textContent = `Welcome back, ${displayDetails}`;
+          if (displayDetails.length > 15) {
+             welcomeTitle.style.fontSize = '1.75rem';
+          }
+        }
+      } catch (error) {
+        localStorage.removeItem('user');
+      }
+    }
+  </script>
+
+<!-- Terms of Service Modal -->
+<div id="tos-modal" class="tos-modal-overlay" style="display: none;">
+  <div class="tos-modal-content">
+    <div class="tos-modal-header">
+      <h2>Terms of Service & Privacy Policy</h2>
+      <button id="close-tos" class="tos-close-btn">&times;</button>
+    </div>
+    <div class="tos-modal-body">
+      <h3>1. Introduction</h3>
+      <p>ArisEdu values your privacy. This Privacy Policy explains how we collect, use, and protect your information when you access or use our website and services.</p>
+
+      <h3>2. Information We Collect</h3>
+      <p>We may collect the following types of information:</p>
+      <ul>
+        <li><strong>Personal Information:</strong> When you create an account or contact us, we may collect your name, email address, and other identifiers you provide.</li>
+        <li><strong>Usage Data:</strong> Information about how you interact with ArisEdu, including pages visited, resources accessed, and technical details (browser type, IP address).</li>
+        <li><strong>Contributions:</strong> Any educational content, translations, or feedback you submit.</li>
+        <li><strong>Third-Party Content:</strong> ArisEdu embeds external educational resources (e.g., Khan Academy videos). We do not collect personal data through these embeds, but third-party providers may collect data in accordance with their own policies.</li>
+      </ul>
+
+      <h3>3. How We Use Your Information</h3>
+      <p>We use collected information to:</p>
+      <ul>
+        <li>Provide and improve educational resources.</li>
+        <li>Maintain website functionality and security.</li>
+        <li>Respond to inquiries and support requests.</li>
+        <li>Analyze usage trends to enhance accessibility and user experience.</li>
+        <li>Comply with legal obligations.</li>
+      </ul>
+
+      <h3>4. Sharing of Information</h3>
+      <p>We do not sell or rent your personal information. We may share information only in the following cases:</p>
+      <ul>
+        <li><strong>Service Providers:</strong> With trusted partners who help operate ArisEdu.</li>
+        <li><strong>Legal Requirements:</strong> If required by law, regulation, or court order.</li>
+        <li><strong>Embedded Content:</strong> When you access third-party resources (e.g., Khan Academy), your interaction is governed by their privacy policies.</li>
+      </ul>
+
+      <h3>5. Cookies and Tracking</h3>
+      <p>ArisEdu may use cookies or similar technologies to improve functionality and analyze usage. You can disable cookies in your browser settings, but some features may not work properly.</p>
+
+      <h3>6. Data Security</h3>
+      <p>We implement reasonable technical and organizational measures to protect your information. However, no system is completely secure, and we cannot guarantee absolute protection against unauthorized access.</p>
+
+      <h3>7. Children's Privacy</h3>
+      <p>ArisEdu does not knowingly collect personal information from children under 13. If you believe a child has provided personal data, please contact us so we can remove it.</p>
+
+      <h3>8. Third-Party Links and Resources</h3>
+      <p>ArisEdu may contain links or embedded content from third-party providers (e.g., Khan Academy). We are not responsible for their privacy practices. Please review their policies before engaging with their content.</p>
+
+      <h3>9. Your Rights</h3>
+      <p>Depending on your jurisdiction, you may have rights to:</p>
+      <ul>
+        <li>Access, correct, or delete your personal information.</li>
+        <li>Restrict or object to certain processing.</li>
+        <li>Request data portability.</li>
+      </ul>
+      <p>To exercise these rights, contact us using the details below.</p>
+
+      <h3>10. Changes to This Policy</h3>
+      <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with the updated effective date. Continued use of ArisEdu after changes indicates acceptance.</p>
+
+      <h3>11. Contact Information</h3>
+      <p>For questions or concerns regarding this Privacy Policy, please contact:</p>
+      <p>Email: <a href="mailto:Pkang6689@gmail.com">Pkang6689@gmail.com</a></p>
+      <p>Instagram: <a href="https://www.instagram.com/arisedu_insta/" target="_blank">https://www.instagram.com/arisedu_insta/</a></p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .tos-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    animation: fadeInModal 0.3s forwards;
+  }
+
+  .tos-modal-content {
+    background: white;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.9);
+    animation: scaleUpModal 0.3s forwards;
+  }
+
+  body.dark-mode .tos-modal-content {
+    background: #1e293b;
+    color: #f1f5f9;
+  }
+
+  .tos-modal-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  body.dark-mode .tos-modal-header {
+    border-bottom-color: #334155;
+  }
+
+  .tos-modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .tos-close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #64748b;
+    transition: color 0.2s;
+  }
+
+  .tos-close-btn:hover {
+    color: #ef4444; 
+  }
+
+  .tos-modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .tos-modal-body h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #3b82f6; 
+  }
+
+  .tos-modal-body h3:first-child {
+    margin-top: 0;
+  }
+
+  .tos-modal-body ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .tos-modal-body p {
+    margin-bottom: 1rem;
+  }
+  
+  .tos-modal-body a {
+    color: #3b82f6;
+    text-decoration: underline;
+  }
+
+  @keyframes fadeInModal {
+    to { opacity: 1; }
+  }
+
+  @keyframes scaleUpModal {
+    to { transform: scale(1); }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const openTosBtn = document.getElementById('open-tos');
+    const tosModal = document.getElementById('tos-modal');
+    const closeTosBtn = document.getElementById('close-tos');
+
+    if (openTosBtn && tosModal && closeTosBtn) {
+      openTosBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        tosModal.style.display = 'flex';
+      });
+
+      closeTosBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        tosModal.style.display = 'none';
+      });
+
+      tosModal.addEventListener('click', (e) => {
+        if (e.target === tosModal) {
+          tosModal.style.display = 'none';
+        }
+      });
+    }
+  });
+</script>
+
+    <script src="scripts/global_translations.js?v=7.0"></script>
+    <script src="scripts/spanish_translations.js?v=1.0"></script>
+    <script src="scripts/hindi_translations.js?v=1.0"></script>
+    <script src="../search_data.js"></script>
+    <script src="../search_logic.js"></script>
+    <script>
+      (function() {
+        const theme = localStorage.getItem('arisEduColorTheme') || 'blue-green';
+        const taskbar = document.querySelector('.taskbar');
+        if (taskbar && theme === 'sunset') {
+          taskbar.style.background = 'linear-gradient(to right, #FF7E5F, #00C9A7, #1A2A6C)';
+        }
+      })();
+    </script>
+</body>
+</html>
