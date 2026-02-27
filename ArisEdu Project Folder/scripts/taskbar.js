@@ -1,12 +1,12 @@
 
 // Inject AI Assistant and Features Scripts
 (function() {
-    // Translation Helper
-    function _t(key) {
+    // Translation Helper - expose globally
+    window._t = window._t || function(key) {
         if (window.arisTranslate) return window.arisTranslate(key);
         if (window.globalTranslations && window.globalTranslations[key]) return window.globalTranslations[key];
         return key;
-    }
+    };
 
     // Detect base path for GitHub Pages vs Local File
     // If we are in /ArisEdu Project Folder/, scripts are in ./scripts/
@@ -623,7 +623,7 @@
             <h3 style="margin: 0; border-bottom: 1px solid var(--border-color, #ccc); padding-bottom: 10px;" data-i18n="Settings">Settings</h3>
             <div>
                 <label style="display:block; margin-bottom:5px; font-weight: bold; font-size:0.9em;" data-i18n="Google Gemini API Key">Google Gemini API Key</label>
-                <input type="password" id="ai-api-key-input" placeholder="${_t('Enter API Key')}" data-i18n-ph="Enter API Key" style="
+                <input type="password" id="ai-api-key-input" placeholder="Enter API Key" data-i18n-ph="Enter API Key" style="
                     width: 100%;
                     padding: 10px;
                     border: 1px solid var(--border-color, #ccc);
@@ -634,9 +634,9 @@
                 " value="${keyInputVal}">
             </div>
             <div style="font-size: 0.85em; color: var(--text-muted, #666); line-height: 1.4;">
-                <span data-i18n="To use the AI assistant, you need a free API key from Google.">${_t('To use the AI assistant, you need a free API key from Google.')}</span>
+                <span data-i18n="To use the AI assistant, you need a free API key from Google.">To use the AI assistant, you need a free API key from Google.</span>
                 <br><br>
-                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--primary-color, #4a90e2); text-decoration: underline;" data-i18n="Get a key here">${_t('Get a key here')}</a>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--primary-color, #4a90e2); text-decoration: underline;" data-i18n="Get a key here">Get a key here</a>
             </div>
             <div style="margin-top: auto; display: flex; gap: 10px;">
                 <button id="ai-save-key-btn" data-i18n="Save API Key" style="
@@ -648,7 +648,7 @@
                     border-radius: 6px;
                     cursor: pointer;
                     font-weight: bold;
-                ">${_t('Save API Key')}</button>
+                ">Save API Key</button>
             </div>
         `;
         bodyWrapper.appendChild(settingsPanel);
@@ -690,7 +690,7 @@
         
         inputField = document.createElement('input');
         inputField.type = 'text';
-        inputField.placeholder = _t('Type your question...');
+        inputField.placeholder = 'Type your question...';
         inputField.setAttribute('data-i18n-ph', 'Type your question...');
         inputField.style.cssText = `
             flex: 1;

@@ -10,6 +10,9 @@
   <link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="theme_manager.js"></script>
+  <script charset="UTF-8" src="scripts/global_translations.js?v=7.4"></script>
+  <script src="scripts/spanish_translations.js?v=1.4"></script>
+  <script src="scripts/hindi_translations.js?v=1.4"></script>
 </head>
  <body class="dark-mode h-full">
 <script src="scripts/taskbar.js"></script>
@@ -596,16 +599,53 @@
             target.classList.add('segment-hover');
         }
 
-        // Translate title if in Chinese/Spanish/Hindi mode
+        // Get the correct translation dictionary based on current language
         const lang = localStorage.getItem("arisEduLanguage");
         const isChinese = (lang === "chinese" || lang === "traditional");
-        const t = window.arisEduTranslations;
+        
+        // Get proper translation dict based on language
+        let t = null;
+        if (lang === 'spanish') {
+            t = window.arisEduSpanishTranslations || window.spanishTranslations;
+        } else if (lang === 'hindi') {
+            t = window.arisEduHindiTranslations || window.hindiTranslations;
+        } else if (isChinese) {
+            t = window.arisEduTranslations;
+        }
 
-        if (isChinese && t) {
+        const isFirstAttempt = !window._popupDebugLogged || window._popupDebugLogged !== text;
+        if (isFirstAttempt && t && lang !== 'english') {
+            window._popupDebugLogged = text;
+            console.log(`[Popup Debug] Text: "${text}", Lang: ${lang}, Dict loaded: ${!!t}`);
+        }
+
+        if (t && lang !== 'english') {
+            // Try direct lookup first
             if (t[displayText]) {
                 displayText = t[displayText];
+                if (isFirstAttempt) console.log(`[Popup] Direct match found: ${text}`);
+            } else {
+                // Extract title part (e.g., "1.1 Review..." -> "Review...")
+                const match = displayText.match(/^(\d+\.\d+)\s+(.+)$/);
+                if (match) {
+                    const lessonNum = match[1]; // "1.6"
+                    const coreTitle = match[2]; // "Applications of Linear Systems"
+                    
+                    // Try with lesson prefix format
+                    const lessonKey = "Lesson " + lessonNum + ": " + coreTitle;
+                    if (t[lessonKey]) {
+                        displayText = t[lessonKey];
+                        if (isFirstAttempt) console.log(`[Popup] Lesson key match: ${lessonKey}`);
+                    } else if (t[coreTitle]) {
+                        // Try just core title
+                        displayText = t[coreTitle];
+                        if (isFirstAttempt) console.log(`[Popup] Core title match: ${coreTitle}`);
+                    } else {
+                        if (isFirstAttempt) console.log(`[Popup] NO MATCH for: ${text} (tried: "${lessonKey}")`);
+                    }
+                }
             }
-            if (lang === "traditional" && window.convertToTraditional) {
+            if (isChinese && lang === "traditional" && window.convertToTraditional) {
                 displayText = window.convertToTraditional(displayText);
             }
         }
@@ -615,9 +655,9 @@
             if (match) {
                 const unit = match[1];
                 const lesson = match[2];
-                if (isChinese && t) {
+                if (t && lang !== 'english') {
                     let lessonLabel = t["Lesson"] || "第";
-                    if (lang === "traditional" && window.convertToTraditional) lessonLabel = window.convertToTraditional(lessonLabel);
+                    if (isChinese && lang === "traditional" && window.convertToTraditional) lessonLabel = window.convertToTraditional(lessonLabel);
                     displayText = `${lessonLabel} ${unit}.${lesson}: ${displayText}`;
                 } else {
                     displayText = `Lesson ${unit}.${lesson}: ${displayText}`;
@@ -637,7 +677,7 @@
         if (target) {
             const fill = target.getAttribute('fill');
             if (fill === '#16a34a' || fill === '#16A34A') {
-                if (t) {
+                if (t && lang !== 'english') {
                     let status = t["COMPLETED"] || "COMPLETED";
                     if (isChinese && lang === "traditional" && window.convertToTraditional) status = window.convertToTraditional(status);
                     displayText = status + " \u2714 " + displayText;
@@ -645,7 +685,7 @@
                     displayText = "COMPLETED \u2714 " + displayText;
                 }
             } else if (fill === '#f97316' || fill === '#F97316') {
-                if (t) {
+                if (t && lang !== 'english') {
                     let status = t["IN PROGRESS"] || "IN PROGRESS";
                     if (isChinese && lang === "traditional" && window.convertToTraditional) status = window.convertToTraditional(status);
                     displayText = status + " " + displayText;
@@ -790,9 +830,6 @@
     </script>
 
     <!-- ArisEdu Global Search -->
-    <script src="scripts/global_translations.js?v=7.0"></script>
-    <script src="scripts/spanish_translations.js?v=1.0"></script>
-    <script src="scripts/hindi_translations.js?v=1.0"></script>
     <script src="../search_data.js"></script>
     <script src="../search_logic.js"></script>
     <script src="scripts/dev_tools.js"></script>
