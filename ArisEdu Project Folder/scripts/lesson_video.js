@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-    // --- Discussion / Help Section Injection ---
+    // --- Discussion / Help Section with Firebase Integration ---
     (function() {
         // Wait for DOM
         if (document.readyState === 'loading') {
@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(initHelpSection, 100);
         }
 
-        function initHelpSection() {
+        async function initHelpSection() {
             // Target the lesson-layout or main-container
             const layout = document.querySelector('.lesson-layout') || document.querySelector('.main-container');
             if (!layout) return;
@@ -344,11 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const helpSection = document.createElement('div');
             helpSection.id = 'help-section';
             helpSection.className = 'help-section';
-            
-            // Flex column to append at bottom
-            // If inside lesson-layout (which is flex-row usually or grid), we might need to be outside or handle placement carefully
-            // The user asked for "scroll down to on the bottom of video files"
-            // Appending to main-container is safest fallback if lesson-layout structure varies
             
             // Improved Container style
             helpSection.classList.add('discussion-container');
@@ -386,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     gap: 1rem;
                     padding-right: 0.5rem;
                 ">
-                    <!-- Comments go here -->
+                    <p style="color: #94a3b8; font-style: italic;">Loading comments...</p>
                 </div>
                 
                 <form id="comment-form" style="display: flex; flex-direction: column; gap: 1rem; background:rgba(255,255,255,0.05); padding:1.5rem; border-radius:1rem;">
@@ -424,48 +419,157 @@ document.addEventListener('DOMContentLoaded', () => {
                  layout.appendChild(helpSection);
             }
 
-            // Logic
-            const list = document.getElementById('comments-list');
-            const fileKey = window.location.pathname.split('/').pop().replace('.html', ''); // Unique key per file
-            const storageKey = 'comments_' + fileKey;
-
-            function renderComments() {
-                const comments = JSON.parse(localStorage.getItem(storageKey) || '[]');
-                if (comments.length === 0) {
-                    list.innerHTML = '<p style="color: #94a3b8; font-style: italic;">No questions yet.</p>';
-                    return;
-                }
+            // Initialize Firebase discussion system
+            try {
+                const { db, auth, collection, addDoc, getDocs, query, orderBy, where, serverTimestamp, onAuthStateChanged } = await import('../firebase-config.js');
                 
-                list.innerHTML = comments.map(c => `
-                    <div style="padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 0.5rem;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center;">
-                            <span style="font-weight: 600; color: #3b82f6;">${c.user}</span>
-                            <span style="font-size: 0.8rem; color: #94a3b8;">${new Date(c.date).toLocaleDateString()}</span>
-                        </div>
-                        <div style="color: inherit; line-height: 1.5;">${c.text}</div>
-                    </div>
-                `).join('');
-                list.scrollTop = list.scrollHeight;
-            }
-
-            document.getElementById('comment-form').addEventListener('submit', (e) => {
-                e.preventDefault();
+                const list = document.getElementById('comments-list');
+                const fileKey = window.location.pathname.split('/').pop().replace('.html', ''); // Unique key per file
+                const form = document.getElementById('comment-form');
                 const input = document.getElementById('comment-input');
-                const text = input.value;
-                if (!text.trim()) return;
+                
+                let currentUser = null;
 
-                const userJson = localStorage.getItem('user');
-                let user = 'Guest';
-                if (userJson) { try { user = JSON.parse(userJson).name || 'User'; } catch(e){} }
-                
-                const comments = JSON.parse(localStorage.getItem(storageKey) || '[]');
-                comments.push({ user, text, date: new Date().toISOString() });
-                localStorage.setItem(storageKey, JSON.stringify(comments));
-                
-                input.value = '';
+                // Monitor auth state
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                });
+
+                // Load comments from Firestore
+                async function renderComments() {
+                    try {
+                        const commentsRef = collection(db, 'discussions');
+                        const q = query(
+                            commentsRef,
+                            where('pageKey', '==', fileKey),
+                            orderBy('timestamp', 'desc')
+                        );
+                        
+                        const querySnapshot = await getDocs(q);
+                        
+                        if (querySnapshot.empty) {
+                            list.innerHTML = '<p style="color: #94a3b8; font-style: italic;">No questions yet.</p>';
+                            return;
+                        }
+                        
+                        list.innerHTML = querySnapshot.docs.map(doc => {
+                            const c = doc.data();
+                            const date = new Date(c.timestamp?.toDate?.() || c.timestamp);
+                            return `
+                                <div style="padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 0.5rem;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center;">
+                                        <span style="font-weight: 600; color: #3b82f6;">${escapeHtml(c.user)}</span>
+                                        <span style="font-size: 0.8rem; color: #94a3b8;">${date.toLocaleDateString()}</span>
+                                    </div>
+                                    <div style="color: inherit; line-height: 1.5;">${escapeHtml(c.text)}</div>
+                                </div>
+                            `;
+                        }).join('');
+                        list.scrollTop = list.scrollHeight;
+                    } catch (error) {
+                        console.error('Error loading comments:', error);
+                        list.innerHTML = '<p style="color: #ef4444;">Failed to load comments. Please refresh the page.</p>';
+                    }
+                }
+
+                // Helper to escape HTML
+                function escapeHtml(text) {
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
+                }
+
+                // Handle form submission
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const text = input.value.trim();
+                    if (!text) return;
+
+                    try {
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'Posting...';
+
+                        const userJson = localStorage.getItem('user');
+                        let user = 'Guest';
+                        if (userJson) { 
+                            try { 
+                                user = JSON.parse(userJson).name || 'User'; 
+                            } catch(e){}
+                        }
+
+                        // Add to Firestore
+                        await addDoc(collection(db, 'discussions'), {
+                            pageKey: fileKey,
+                            user: user,
+                            text: text,
+                            timestamp: serverTimestamp(),
+                            userId: currentUser?.uid || null,
+                            userEmail: currentUser?.email || null
+                        });
+
+                        input.value = '';
+                        await renderComments();
+                        
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Post';
+                    } catch (error) {
+                        console.error('Error posting comment:', error);
+                        alert('Error posting comment: ' + error.message);
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Post';
+                    }
+                });
+
+                // Initial load
+                await renderComments();
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                // Fallback to localStorage if Firebase fails
+                const list = document.getElementById('comments-list');
+                const form = document.getElementById('comment-form');
+                const input = document.getElementById('comment-input');
+                const fileKey = window.location.pathname.split('/').pop().replace('.html', '');
+                const storageKey = 'comments_' + fileKey;
+
+                function renderComments() {
+                    const comments = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                    if (comments.length === 0) {
+                        list.innerHTML = '<p style="color: #94a3b8; font-style: italic;">No questions yet.</p>';
+                        return;
+                    }
+                    
+                    list.innerHTML = comments.map(c => `
+                        <div style="padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center;">
+                                <span style="font-weight: 600; color: #3b82f6;">${c.user}</span>
+                                <span style="font-size: 0.8rem; color: #94a3b8;">${new Date(c.date).toLocaleDateString()}</span>
+                            </div>
+                            <div style="color: inherit; line-height: 1.5;">${c.text}</div>
+                        </div>
+                    `).join('');
+                    list.scrollTop = list.scrollHeight;
+                }
+
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const text = input.value;
+                    if (!text.trim()) return;
+
+                    const userJson = localStorage.getItem('user');
+                    let user = 'Guest';
+                    if (userJson) { try { user = JSON.parse(userJson).name || 'User'; } catch(e){} }
+                    
+                    const comments = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                    comments.push({ user, text, date: new Date().toISOString() });
+                    localStorage.setItem(storageKey, JSON.stringify(comments));
+                    
+                    input.value = '';
+                    renderComments();
+                });
+
                 renderComments();
-            });
-
-            renderComments();
+            }
         }
     })();

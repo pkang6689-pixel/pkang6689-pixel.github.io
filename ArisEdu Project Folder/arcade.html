@@ -5,11 +5,100 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arcade</title>
   <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-compat/app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-compat/firestore.js"></script>
+  <script src="firebase-utils.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
   <style>
+    .arcade-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    #game-session-display {
+      background: rgba(34, 197, 94, 0.15);
+      border: 2px solid rgba(34, 197, 94, 0.3);
+      border-radius: 1rem;
+      padding: 1rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-width: 200px;
+    }
+
+    #game-session-display.warning {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .session-timer {
+      font-size: 1.2rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .session-time {
+      font-size: 3.5rem;
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      color: #22c55e;
+      letter-spacing: 2px;
+    }
+
+    #game-session-display.warning .session-time {
+      color: #ef4444;
+      animation: pulse-warning 1s infinite;
+    }
+
+    @keyframes pulse-warning {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .extend-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .extend-btn {
+      flex: 1;
+      min-width: 90px;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      border: none;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .extend-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .extend-btn:active {
+      transform: scale(0.95);
+    }
+
+    .extend-btn:disabled {
+      background: #e2e8f0;
+      color: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .arcade-container {
       background: #f8fafc;
       border: 2px solid rgba(226, 232, 240, 0.8);
@@ -21,6 +110,11 @@
     body.dark-mode .arcade-container {
       background: #273244;
       border: 2px solid rgba(226, 232, 240, 0.22);
+    }
+
+    body.dark-mode #game-session-display {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: rgba(34, 197, 94, 0.2);
     }
 
     .arcade-grid {
@@ -38,6 +132,10 @@
     @media (max-width: 480px) {
       .arcade-grid {
         grid-template-columns: 1fr;
+      }
+      .arcade-header {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
 
@@ -147,18 +245,87 @@
     .game-card.blocks::before { background: linear-gradient(90deg, #14b8a6, #0d9488); }
     .game-card.blocks .game-icon { background: rgba(20, 184, 166, 0.15); }
     .game-card.blocks .game-title { color: #14b8a6; }
+
+    /* 2048 - amber */
+    .game-card.game2048::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .game-card.game2048 .game-icon { background: rgba(245, 158, 11, 0.15); }
+    .game-card.game2048 .game-title { color: #f59e0b; }
+
+    /* Breakout - pink/rose */
+    .game-card.breakout::before { background: linear-gradient(90deg, #ec4899, #db2777); }
+    .game-card.breakout .game-icon { background: rgba(236, 72, 153, 0.15); }
+    .game-card.breakout .game-title { color: #ec4899; }
+
+    /* Flappy - cyan */
+    .game-card.flappy::before { background: linear-gradient(90deg, #06b6d4, #0891b2); }
+    .game-card.flappy .game-icon { background: rgba(6, 182, 212, 0.15); }
+    .game-card.flappy .game-title { color: #06b6d4; }
+
+    /* Minesweeper - indigo */
+    .game-card.minesweeper::before { background: linear-gradient(90deg, #6366f1, #4f46e5); }
+    .game-card.minesweeper .game-icon { background: rgba(99, 102, 241, 0.15); }
+    .game-card.minesweeper .game-title { color: #6366f1; }
+
+    /* Match - lime */
+    .game-card.match::before { background: linear-gradient(90deg, #84cc16, #65a30d); }
+    .game-card.match .game-icon { background: rgba(132, 204, 22, 0.15); }
+    .game-card.match .game-title { color: #84cc16; }
   </style>
   <script src="theme_manager.js"></script>
 </head>
  <body class="dark-mode h-full">
 <script src="scripts/taskbar.js"></script>
   <main class="main-container">
-    <div class="logo-title-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+    <div class="arcade-header">
       <h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0;" data-i18n="👾 Arcade">👾 Arcade</h1>
+      <div id="game-session-display">
+        <div class="session-timer" data-i18n="Your Tokens">Your Tokens</div>
+        <div class="session-time" id="token-balance">0</div>
+      </div>
     </div>
 
     <div class="arcade-container">
       <div class="arcade-grid">
+
+        <!-- 2048 -->
+        <a href="Game2048.html" class="game-card game2048">
+          <div class="game-icon">2️⃣
+          </div>
+          <span class="game-title" data-i18n="2048">2048</span>
+          <span class="game-desc" data-i18n="Slide tiles, merge to 2048!">Slide tiles, merge to 2048!</span>
+        </a>
+
+        <!-- Flappy Bird -->
+        <a href="GameFlappy.html" class="game-card flappy">
+          <div class="game-icon">🐦
+          </div>
+          <span class="game-title" data-i18n="FLAPPY BIRD">FLAPPY BIRD</span>
+          <span class="game-desc" data-i18n="Tap to fly, dodge the pipes!">Tap to fly, dodge the pipes!</span>
+        </a>
+
+        <!-- Breakout -->
+        <a href="GameBreakout.html" class="game-card breakout">
+          <div class="game-icon">🧱
+          </div>
+          <span class="game-title" data-i18n="BREAKOUT">BREAKOUT</span>
+          <span class="game-desc" data-i18n="Smash all the bricks!">Smash all the bricks!</span>
+        </a>
+
+        <!-- Minesweeper -->
+        <a href="GameMinesweeper.html" class="game-card minesweeper">
+          <div class="game-icon">💣
+          </div>
+          <span class="game-title" data-i18n="MINESWEEPER">MINESWEEPER</span>
+          <span class="game-desc" data-i18n="Find all the safe squares!">Find all the safe squares!</span>
+        </a>
+
+        <!-- Match -->
+        <a href="GameMatch.html" class="game-card match">
+          <div class="game-icon">🃏
+          </div>
+          <span class="game-title" data-i18n="MATCH">MATCH</span>
+          <span class="game-desc" data-i18n="Find matching pairs!">Find matching pairs!</span>
+        </a>
 
         <!-- Snake -->
         <a href="GameSnake.html" class="game-card snake">
@@ -283,276 +450,39 @@
   <script src="scripts/hindi_translations.js?v=1.0"></script>
 
   <script>
-    (function() {
-      // 1. Theme Logic
-      const theme = localStorage.getItem('arisEduColorTheme') || 'blue-green';
-      const taskbar = document.querySelector('.taskbar');
-      if (taskbar && theme === 'sunset') {
-        taskbar.style.background = 'linear-gradient(to right, #FF7E5F, #00C9A7, #1A2A6C)';
+    (async function() {
+      // Initialize Firebase
+      await initializeFirebase();
+
+      async function updateTokenDisplay() {
+        const user = await getUser();
+        const tokenBalance = document.getElementById('token-balance');
+        if (tokenBalance) {
+          tokenBalance.textContent = (user.points || 0) + '💎';
+        }
       }
 
-      // 2. Arcade Locking Mechanism
-      // CSS Injection for Locked State
-      const style = document.createElement('style');
-      style.textContent = `
-        .game-card { position: relative; }
-        .game-card.locked {
-            filter: grayscale(0.9) contrast(0.8);
-            pointer-events: none; /* Disable link navigation */
-        }
-        .lock-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.6);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 1.25rem;
-            z-index: 10;
-            pointer-events: auto; /* Catch clicks */
-            cursor: pointer;
-            backdrop-filter: blur(2px);
-            transition: background 0.2s;
-        }
-        .lock-overlay:hover {
-            background: rgba(15, 23, 42, 0.7);
-        }
-        .lock-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .lock-text { color: white; font-weight: 700; font-family: 'Poppins', sans-serif; }
-        .lock-price { 
-            background: #f59e0b; color: #000; 
-            padding: 0.25rem 0.75rem; border-radius: 1rem; 
-            font-size: 0.9rem; font-weight: 700; 
-            margin-top: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .unlock-timer {
-            position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            background: rgba(34, 197, 94, 0.95);
-            color: white;
-            padding: 0.4rem 0.8rem;
-            border-radius: 0.5rem;
-            font-weight: 700;
-            font-size: 0.85rem;
-            font-family: monospace;
-            z-index: 5;
-        }
-        .unlock-timer.warning {
-            background: rgba(239, 68, 68, 0.95);
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-      `;
-      document.head.appendChild(style);
+      // Update token display on load
+      updateTokenDisplay();
 
-      // Game Costs (Example Economy)
-      const gameCosts = {
-          'match': 100, 
-          'snake': 100, 
-          'platformer': 100,
-          'spaceship': 100,
-          'tetris': 100,
-          'blocks': 100,
-          'pacman': 100,
-      };
+      // Listen for storage changes (token updates from games)
+      window.addEventListener('storage', updateTokenDisplay);
 
-      // Ensure all game cards have identifiable classes if not present
-      // Current classes: game-card match, game-card snake, etc.
-      // Need to handle generic ones just in case.
-
-      // User Data
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      
-      // Ensure unlockedGames is an object (convert from array if needed for backwards compatibility)
-      let unlockedGames = user.unlockedGames || {};
-      if (Array.isArray(unlockedGames)) {
-          // Convert old array format to new object format
-          const oldUnlocked = unlockedGames;
-          unlockedGames = {};
-          // Store as objects with a long expiration time for old unlocks (treat as permanent during this session)
-          oldUnlocked.forEach(gameId => {
-              unlockedGames[gameId] = Math.floor(Date.now() / 1000) + 86400; // 24 hours
-          });
-      }
-      
-      const currentPoints = user.points || 0;
-      const UNLOCK_DURATION = 100; // seconds
-      const EXTEND_COST = 50; // tokens to extend
-      const EXTEND_DURATION = 50; // seconds to add
-      
-      // Check unlock expiration and clean up
-      const now = Math.floor(Date.now() / 1000);
-      Object.keys(unlockedGames).forEach(gameId => {
-          if (unlockedGames[gameId] < now) {
-              delete unlockedGames[gameId];
-          }
-      });
-      user.unlockedGames = unlockedGames;
-      localStorage.setItem('user', JSON.stringify(user)); 
-
-      // Apply Locks and Timers
+      // Add click handler to all game cards
       document.querySelectorAll('.game-card').forEach(card => {
-          // Identify game from href or class
-          let gameId = '';
-          if(card.classList.contains('match')) gameId = 'match';
-          else if(card.classList.contains('snake')) gameId = 'snake';
-          else if(card.classList.contains('platformer') || card.href.includes('Platformer')) gameId = 'platformer';
-          else if(card.classList.contains('spaceship') || card.href.includes('Spaceship')) gameId = 'spaceship';
-          else if(card.classList.contains('tetris') || card.href.includes('Tetris')) gameId = 'tetris';
-          else if(card.classList.contains('blocks') || card.href.includes('Blocks')) gameId = 'blocks';
-          else if(card.href.includes('Pacman')) gameId = 'pacman';
-
-          // Default cost if not listed (e.g. new games)
-          if(gameId && !(gameId in gameCosts)) gameCosts[gameId] = 500;
-
-          const isUnlocked = gameId in unlockedGames;
-          const now = Math.floor(Date.now() / 1000);
-          const timeRemaining = isUnlocked ? Math.max(0, unlockedGames[gameId] - now) : 0;
-          
-          if(gameId && gameCosts[gameId] > 0 && !isUnlocked) {
-              // Lock it
-              card.classList.add('locked');
-              
-              const overlay = document.createElement('div');
-              overlay.className = 'lock-overlay';
-              overlay.innerHTML = `
-                  <div class="lock-icon">🔒</div>
-                  <div class="lock-text">LOCKED</div>
-                  <div class="lock-price">${gameCosts[gameId]} Tokens</div>
-              `;
-              
-              overlay.onclick = (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  
-                  // Custom Modal Logic
-                  const modalOverlay = document.createElement('div');
-                  modalOverlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:9999;display:flex;justify-content:center;align-items:center;";
-                  
-                  const modalContent = document.createElement('div');
-                  modalContent.style.cssText = "background:white;padding:2rem;border-radius:1rem;width:90%;max-width:400px;text-align:center;box-shadow:0 10px 25px rgba(0,0,0,0.3);animation:popIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);";
-                  
-                  const canAfford = currentPoints >= gameCosts[gameId];
-                  
-                  modalContent.innerHTML = `
-                      <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:1rem;color:#1e293b;">Unlock ${gameId.charAt(0).toUpperCase() + gameId.slice(1)}?</h2>
-                      <div style="font-size:3rem;margin-bottom:1rem;">${canAfford ? '🔓' : '🔒'}</div>
-                      <p style="margin-bottom:0.5rem;color:#64748b;">
-                        <strong style="color:#f59e0b;">${gameCosts[gameId]} Tokens</strong>
-                      </p>
-                      <p style="margin-bottom:1.5rem;color:#94a3b8;font-size:0.9rem;">
-                        ⏱️ Access for ${UNLOCK_DURATION} seconds
-                      </p>
-                      <p style="margin-bottom:1.5rem;color:#64748b;">
-                        You have: <strong>${currentPoints} Tokens</strong>
-                      </p>
-                      <div style="display:flex;gap:1rem;justify-content:center;">
-                          <button id="cancel-unlock" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:1px solid #cbd5e1;background:white;color:#64748b;cursor:pointer;font-weight:600;">Cancel</button>
-                          ${canAfford ? 
-                            `<button id="confirm-unlock" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#10b981;color:white;cursor:pointer;font-weight:600;box-shadow:0 4px 6px rgba(16,185,129,0.2);">Unlock Now</button>` : 
-                            `<button disabled style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#e2e8f0;color:#94a3b8;cursor:not-allowed;font-weight:600;">Need More Tokens</button>`
-                          }
-                      </div>
-                  `;
-                  
-                  modalOverlay.appendChild(modalContent);
-                  document.body.appendChild(modalOverlay);
-                  
-                  // Animation keyframes if not exists
-                  if(!document.getElementById('popInAnim')) {
-                      const s = document.createElement('style');
-                      s.id = 'popInAnim';
-                      s.innerHTML = `@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }`;
-                      document.head.appendChild(s);
-                  }
-
-                  // Event Listeners
-                  modalContent.querySelector('#cancel-unlock').onclick = () => modalOverlay.remove();
-                  
-                  const confirmBtn = modalContent.querySelector('#confirm-unlock');
-                  if(confirmBtn) {
-                      confirmBtn.onclick = async () => {
-                          confirmBtn.textContent = "Unlocking...";
-                          // Deduct and Unlock with expiration time
-                          const expirationTime = Math.floor(Date.now() / 1000) + UNLOCK_DURATION;
-                          user.points = currentPoints - gameCosts[gameId];
-                          user.unlockedGames = user.unlockedGames || {};
-                          user.unlockedGames[gameId] = expirationTime;
-                          localStorage.setItem('user', JSON.stringify(user));
-                          
-                          // Sync Firebase
-                          try {
-                              const { auth, db, doc, updateDoc, increment } = await import('./firebase-config.js');
-                              if(auth.currentUser) {
-                                  const userRef = doc(db, "users", auth.currentUser.uid);
-                                  await updateDoc(userRef, {
-                                      points: increment(-gameCosts[gameId])
-                                  });
-                              }
-                          } catch(e) { console.warn("Offline unlock"); }
-
-                          // Visual Update
-                          card.classList.remove('locked');
-                          overlay.remove();
-                          modalOverlay.remove();
-                          
-                          // Success Toast
-                          const toast = document.createElement('div');
-                          toast.textContent = `Game Unlocked for ${UNLOCK_DURATION}s!`;
-                          toast.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:0.75rem 1.5rem;border-radius:2rem;box-shadow:0 10px 15px rgba(0,0,0,0.1);z-index:9999;font-weight:600;";
-                          document.body.appendChild(toast);
-                          setTimeout(() => toast.remove(), 2500);
-                          setTimeout(() => location.reload(), 1000);
-                      };
-                  }
-              };
-              
-              card.appendChild(overlay);
-          } else if(isUnlocked && timeRemaining > 0) {
-              // Game is unlocked - show timer and add click handler
-              const timer = document.createElement('div');
-              timer.className = 'unlock-timer' + (timeRemaining <= 20 ? ' warning' : '');
-              timer.textContent = timeRemaining + 's';
-              timer.style.pointerEvents = 'none';
-              card.appendChild(timer);
-              
-              // Update timer every second
-              const timerInterval = setInterval(() => {
-                  const now = Math.floor(Date.now() / 1000);
-                  const remaining = Math.max(0, unlockedGames[gameId] - now);
-                  timer.textContent = remaining + 's';
-                  timer.className = 'unlock-timer' + (remaining <= 20 ? ' warning' : '');
-                  
-                  if(remaining <= 0) {
-                      clearInterval(timerInterval);
-                      location.reload();
-                  }
-              }, 1000);
-              
-              card.onclick = (e) => {
-                  e.preventDefault();
-                  sessionStorage.setItem('validGameAccess', 'true');
-                  sessionStorage.setItem('gameUnlockExpire', unlockedGames[gameId].toString());
-                  // Navigate to the game
-                  window.location.href = card.href;
-              };
-          } else {
-              // Unlock expired or no access - re-lock if needed
-              if(isUnlocked && timeRemaining <= 0) {
-                  delete unlockedGames[gameId];
-                  user.unlockedGames = unlockedGames;
-                  localStorage.setItem('user', JSON.stringify(user));
-                  location.reload();
-              }
-          }
+        card.onclick = (e) => {
+          e.preventDefault();
+          updateTokenDisplay().then(() => {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if ((user.points || 0) <= 0) {
+              alert('You need tokens to play! Earn more by completing lessons.');
+              return;
+            }
+            sessionStorage.setItem('validGameAccess', 'true');
+            window.location.href = card.href;
+          });
+        };
       });
-
     })();
   </script>
  </body>

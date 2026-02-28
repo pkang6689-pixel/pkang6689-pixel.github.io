@@ -4,78 +4,114 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Breakout - Arcade</title>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-compat/app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-compat/firestore.js"></script>
+    <script src="firebase-utils.js"></script>
+    <style>
+        #game-session-timer {
+            font-size: 2.5rem !important;
+            font-weight: 700 !important;
+        }
+    </style>
     <script>
-        // Tier 2 Token Drain System
+        let timerIntervalId;
         let drainIntervalId;
-        const DRAIN_RATE = parseInt(sessionStorage.getItem('gameDrainRate')) || 2;
-
-        (function() {
-
+        
+        (async function() {
+            await initializeFirebase();
+            
+            if (sessionStorage.getItem('validGameAccess') !== 'true') {
+                alert('You must access this game from the Arcade page.');
+                window.location.href = 'arcade.html';
+                return;
+            }
+            
             function getUser() {
                 return JSON.parse(localStorage.getItem('user') || '{}');
             }
+            
+            function saveUser(user) {
+                localStorage.setItem('user', JSON.stringify(user));
+            }
 
             function showOutOfTokensPopup() {
+                clearInterval(timerIntervalId);
                 clearInterval(drainIntervalId);
+                
                 const overlay = document.createElement('div');
-                overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;';
+                overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;';
+                
                 const modal = document.createElement('div');
                 modal.style.cssText = 'background:white;border-radius:1rem;padding:2rem;max-width:400px;text-align:center;box-shadow:0 20px 25px rgba(0,0,0,0.3);';
+                
                 modal.innerHTML = `
                     <div style="font-size:3rem;margin-bottom:1rem;">💸</div>
-                    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;color:#1e293b;">Out of Tokens!</h2>
-                    <p style="margin-bottom:0.5rem;color:#64748b;">Your token balance hit zero.</p>
+                    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:1rem;color:#1e293b;">Out of Tokens!</h2>
+                    <p style="margin-bottom:1.5rem;color:#64748b;">Your token balance hit zero.</p>
                     <p style="margin-bottom:1.5rem;color:#94a3b8;font-size:0.85rem;">Earn more tokens by completing lessons and quizzes!</p>
                     <button id="back-to-arcade" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#f59e0b;color:#000;cursor:pointer;font-weight:700;font-size:1rem;">Back to Arcade</button>
                 `;
+                
                 overlay.appendChild(modal);
                 document.body.appendChild(overlay);
-                modal.querySelector('#back-to-arcade').onclick = () => { window.location.href = 'arcade.html'; };
+                
+                modal.querySelector('#back-to-arcade').onclick = () => {
+                    sessionStorage.removeItem('validGameAccess');
+                    window.location.href = 'arcade.html';
+                };
             }
+            
+            window.initializeTokenDrain = function() {
+                const sidebar = document.getElementById('game-sidebar');
+                if (!sidebar) return;
+                
+                let timerDisplay = document.getElementById('game-session-timer');
+                if (!timerDisplay) {
+                    timerDisplay = document.createElement('div');
+                    timerDisplay.id = 'game-session-timer';
+                    sidebar.appendChild(timerDisplay);
+                }
 
-            window.startTokenDrain = function() {
-                drainIntervalId = setInterval(() => {
+                function updateTimerDisplay() {
                     const user = getUser();
-                    const pts = user.points || 0;
-                    if (pts >= DRAIN_RATE) {
-                        user.points = pts - DRAIN_RATE;
-                        localStorage.setItem('user', JSON.stringify(user));
-                        const display = document.getElementById('token-display');
-                        if (display) display.textContent = user.points + '💎';
-                    } else {
-                        user.points = 0;
-                        localStorage.setItem('user', JSON.stringify(user));
+                    const remaining = Math.max(0, user.points || 0);
+                    timerDisplay.textContent = remaining + '💎';
+                    timerDisplay.className = remaining <= 20 ? 'warning' : '';
+                    
+                    if (remaining <= 0) {
                         showOutOfTokensPopup();
                     }
-                }, 1000);
-            };
-
-            window.stopTokenDrain = function() {
-                clearInterval(drainIntervalId);
-            };
-
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) { clearInterval(drainIntervalId); }
-                else { window.startTokenDrain(); }
-            });
-
-            document.addEventListener('DOMContentLoaded', () => {
-                const user = getUser();
-                const sidebar = document.getElementById('game-sidebar');
-                if (sidebar) {
-                    const tokenEl = document.createElement('div');
-                    tokenEl.id = 'token-display';
-                    tokenEl.style.cssText = 'background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;padding:1rem 1.5rem;border-radius:0.75rem;font-weight:800;font-size:1.8rem;font-family:monospace;width:100%;text-align:center;margin-top:0.5rem;letter-spacing:2px;';
-                    tokenEl.textContent = (user.points || 0) + '💎';
-                    sidebar.appendChild(tokenEl);
-
-                    const rateEl = document.createElement('div');
-                    rateEl.style.cssText = 'color:#f59e0b;font-size:0.85rem;font-weight:700;text-align:center;margin-top:0.5rem;';
-                    rateEl.textContent = '−' + DRAIN_RATE + ' tokens/sec';
-                    sidebar.appendChild(rateEl);
                 }
-                window.startTokenDrain();
-            });
+                
+                function drainTokens() {
+                    const user = getUser();
+                    const pts = user.points || 0;
+                    if (pts > 0) {
+                        user.points = pts - 1;
+                        saveUser(user);
+                        updateTimerDisplay();
+                    } else if (pts <= 0) {
+                        showOutOfTokensPopup();
+                    }
+                }
+                
+                if (timerIntervalId) clearInterval(timerIntervalId);
+                if (drainIntervalId) clearInterval(drainIntervalId);
+                
+                updateTimerDisplay();
+                drainIntervalId = setInterval(drainTokens, 1000);
+                
+                // Pause drain when page is hidden
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        clearInterval(drainIntervalId);
+                    } else {
+                        drainIntervalId = setInterval(drainTokens, 1000);
+                    }
+                });
+            };
+            
+            document.addEventListener('DOMContentLoaded', window.initializeTokenDrain);
         })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -325,17 +361,24 @@
         blocksTurning = true;
         // Blocks move down by 1 row
         setTimeout(() => {
+            let bricksPassedBottom = false;
             for (const br of bricks) {
                 br.y += BRICK_H;
                 if (br.y > H) {
-                    lives--;
-                    document.getElementById('lives').textContent = lives;
-                    if (lives <= 0) {
-                        gameOver();
-                        return;
-                    }
+                    bricksPassedBottom = true;
                 }
             }
+            
+            // Only lose 1 life per turn, even if multiple bricks pass the bottom
+            if (bricksPassedBottom) {
+                lives--;
+                document.getElementById('lives').textContent = lives;
+                if (lives <= 0) {
+                    gameOver();
+                    return;
+                }
+            }
+            
             // Powerups move down with blocks
             for (const p of powerups) {
                 p.y += BRICK_H;

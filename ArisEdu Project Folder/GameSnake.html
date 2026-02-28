@@ -4,76 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snake - Arcade</title>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-compat/app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-compat/firestore.js"></script>
+    <script src="firebase-utils.js"></script>
+    <style>
+        #game-session-timer {
+            font-size: 2.5rem !important;
+            font-weight: 700 !important;
+        }
+    </style>
     <script>
-        // Unlock expiration and access check
         let timerIntervalId;
-        let gameUnlockExpire = 0;
-        let timeoutId;
+        let drainIntervalId;
         
-        (function() {
-            const EXTEND_COST = 50;
-            const EXTEND_DURATION = 50;
-            const EXTEND_OPTIONS = [
-                { cost: EXTEND_COST, duration: EXTEND_DURATION },
-                { cost: 100, duration: 100 },
-                { cost: 200, duration: 200 }
-            ];
+        (async function() {
+            await initializeFirebase();
             
             if (sessionStorage.getItem('validGameAccess') !== 'true') {
                 alert('You must access this game from the Arcade page.');
                 window.location.href = 'arcade.html';
                 return;
             }
-            
-            const expireTime = parseInt(sessionStorage.getItem('gameUnlockExpire')) || 0;
-            const now = Math.floor(Date.now() / 1000);
 
-            function checkExpiration() {
-                const now = Math.floor(Date.now() / 1000);
-                if (now >= gameUnlockExpire) {
-                    showExpiredPopup();
-                }
-            }
-
-            function getUser() {
-                return JSON.parse(localStorage.getItem('user') || '{}');
-            }
-
-            function canAfford(cost) {
-                const user = getUser();
-                return (user.points || 0) >= cost;
-            }
-
-            function extendSession(cost, duration) {
-                const user = getUser();
-                if ((user.points || 0) < cost) {
-                    return false;
-                }
-
-                user.points = (user.points || 0) - cost;
-                localStorage.setItem('user', JSON.stringify(user));
-
-                const base = Math.max(gameUnlockExpire || expireTime, Math.floor(Date.now() / 1000));
-                gameUnlockExpire = base + duration;
-                sessionStorage.setItem('gameUnlockExpire', gameUnlockExpire);
-
-                if (timeoutId) clearTimeout(timeoutId);
-                if (timerIntervalId) clearInterval(timerIntervalId);
-
-                if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                    window.initializeTimer();
-                } else {
-                    document.addEventListener('DOMContentLoaded', window.initializeTimer, { once: true });
-                }
-
-                const now = Math.floor(Date.now() / 1000);
-                timeoutId = setTimeout(checkExpiration, Math.max(0, gameUnlockExpire - now) * 1000);
-                return true;
-            }
-            
-            function showExpiredPopup() {
+            function showOutOfTokensPopup() {
                 clearInterval(timerIntervalId);
-                const canExtend = canAfford(EXTEND_COST);
+                clearInterval(drainIntervalId);
                 
                 const overlay = document.createElement('div');
                 overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;';
@@ -82,43 +37,23 @@
                 modal.style.cssText = 'background:white;border-radius:1rem;padding:2rem;max-width:400px;text-align:center;box-shadow:0 20px 25px rgba(0,0,0,0.3);';
                 
                 modal.innerHTML = `
-                    <div style="font-size:3rem;margin-bottom:1rem;">⏱️</div>
-                    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:1rem;color:#1e293b;">Session Expired!</h2>
-                    <p style="margin-bottom:1.5rem;color:#64748b;">Your access time has run out.</p>
-                    <div style="display:flex;gap:1rem;justify-content:center;">
-                        <button id="back-to-arcade" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:1px solid #cbd5e1;background:white;color:#64748b;cursor:pointer;font-weight:600;">Back to Arcade</button>
-                        ${canExtend ? 
-                            `<button id="extend-session" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#f59e0b;color:#000;cursor:pointer;font-weight:600;">Extend +${EXTEND_DURATION}s (${EXTEND_COST}💎)</button>` :
-                            `<button disabled style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#e2e8f0;color:#94a3b8;cursor:not-allowed;font-weight:600;">Need ${EXTEND_COST} Tokens</button>`
-                        }
-                    </div>
+                    <div style="font-size:3rem;margin-bottom:1rem;">💸</div>
+                    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:1rem;color:#1e293b;">Out of Tokens!</h2>
+                    <p style="margin-bottom:1.5rem;color:#64748b;">Your token balance hit zero.</p>
+                    <p style="margin-bottom:1.5rem;color:#94a3b8;font-size:0.85rem;">Earn more tokens by completing lessons and quizzes!</p>
+                    <button id="back-to-arcade" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#f59e0b;color:#000;cursor:pointer;font-weight:700;font-size:1rem;">Back to Arcade</button>
                 `;
                 
                 overlay.appendChild(modal);
                 document.body.appendChild(overlay);
                 
                 modal.querySelector('#back-to-arcade').onclick = () => {
+                    sessionStorage.removeItem('validGameAccess');
                     window.location.href = 'arcade.html';
                 };
-                
-                if (canExtend) {
-                    modal.querySelector('#extend-session').onclick = () => {
-                        if (extendSession(EXTEND_COST, EXTEND_DURATION)) {
-                            overlay.remove();
-                        }
-                    };
-                }
             }
             
-            if (expireTime <= 0 || expireTime < now) {
-                showExpiredPopup();
-                return;
-            }
-            
-            sessionStorage.removeItem('validGameAccess');
-            gameUnlockExpire = expireTime;
-            
-            window.initializeTimer = function() {
+            window.initializeTokenDrain = function() {
                 const sidebar = document.getElementById('game-sidebar');
                 if (!sidebar) return;
                 
@@ -129,50 +64,46 @@
                     sidebar.appendChild(timerDisplay);
                 }
 
-                // Create token-based extend buttons under the timer (once)
-                let controls = document.getElementById('game-session-controls');
-                if (!controls) {
-                    controls = document.createElement('div');
-                    controls.id = 'game-session-controls';
-                    controls.style.cssText = 'margin-top:0.75rem;display:flex;flex-direction:column;gap:0.5rem;width:100%;';
-
-                    EXTEND_OPTIONS.forEach(opt => {
-                        const btn = document.createElement('button');
-                        btn.textContent = `+${opt.duration}s (${opt.cost}💎)`;
-                        btn.style.cssText = 'width:100%;padding:0.5rem 0.75rem;border-radius:0.5rem;border:none;background:#2563eb;color:white;font-weight:600;font-size:0.9rem;cursor:pointer;';
-                        btn.onclick = () => {
-                            if (!extendSession(opt.cost, opt.duration)) {
-                                alert('Not enough tokens to add time.');
-                            }
-                        };
-                        controls.appendChild(btn);
-                    });
-
-                    sidebar.appendChild(controls);
-                }
-
                 function updateTimerDisplay() {
-                    const now = Math.floor(Date.now() / 1000);
-                    const remaining = Math.max(0, gameUnlockExpire - now);
-                    timerDisplay.textContent = remaining + 's';
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    const remaining = Math.max(0, user.points || 0);
+                    timerDisplay.textContent = remaining + '💎';
                     timerDisplay.className = remaining <= 20 ? 'warning' : '';
                     
                     if (remaining <= 0) {
-                        clearInterval(timerIntervalId);
-                        showExpiredPopup();
+                        showOutOfTokensPopup();
+                    }
+                }
+                
+                function drainTokens() {
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    const pts = user.points || 0;
+                    if (pts > 0) {
+                        user.points = pts - 1;
+                        localStorage.setItem('user', JSON.stringify(user));
+                        updateTimerDisplay();
+                    } else if (pts <= 0) {
+                        showOutOfTokensPopup();
                     }
                 }
                 
                 if (timerIntervalId) clearInterval(timerIntervalId);
+                if (drainIntervalId) clearInterval(drainIntervalId);
+                
                 updateTimerDisplay();
-                timerIntervalId = setInterval(updateTimerDisplay, 1000);
+                drainIntervalId = setInterval(drainTokens, 1000);
+                
+                // Pause drain when page is hidden
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        clearInterval(drainIntervalId);
+                    } else {
+                        drainIntervalId = setInterval(drainTokens, 1000);
+                    }
+                });
             };
             
-            // Initialize timer after DOM loads
-            document.addEventListener('DOMContentLoaded', window.initializeTimer);
-            
-            // Set up timeout for expiration
-            timeoutId = setTimeout(checkExpiration, (expireTime - now) * 1000);
+            document.addEventListener('DOMContentLoaded', window.initializeTokenDrain);
         })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -195,9 +126,6 @@
         :fullscreen { background: #111827; }
         
         #game-sidebar {
-            position: fixed;
-            top: 80px;
-            right: 32px;
             background: rgba(55, 65, 81, 0.98);
             border-radius: 1rem;
             padding: 1.5rem;
@@ -207,10 +135,8 @@
             justify-content: flex-start;
             width: 400px;
             min-height: 800px;
-            margin-right: 15rem;
             border: 2px solid rgba(107, 114, 128, 0.9);
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
-            z-index: 1000;
         }
         #game-session-timer {
             background: rgba(34, 197, 94, 0.95);
