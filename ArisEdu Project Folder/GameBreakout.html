@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breakout - Arcade</title>
+    <script>
+        // Tier 2 Token Drain System
+        let drainIntervalId;
+        const DRAIN_RATE = parseInt(sessionStorage.getItem('gameDrainRate')) || 2;
+
+        (function() {
+
+            function getUser() {
+                return JSON.parse(localStorage.getItem('user') || '{}');
+            }
+
+            function showOutOfTokensPopup() {
+                clearInterval(drainIntervalId);
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;';
+                const modal = document.createElement('div');
+                modal.style.cssText = 'background:white;border-radius:1rem;padding:2rem;max-width:400px;text-align:center;box-shadow:0 20px 25px rgba(0,0,0,0.3);';
+                modal.innerHTML = `
+                    <div style="font-size:3rem;margin-bottom:1rem;">💸</div>
+                    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;color:#1e293b;">Out of Tokens!</h2>
+                    <p style="margin-bottom:0.5rem;color:#64748b;">Your token balance hit zero.</p>
+                    <p style="margin-bottom:1.5rem;color:#94a3b8;font-size:0.85rem;">Earn more tokens by completing lessons and quizzes!</p>
+                    <button id="back-to-arcade" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#f59e0b;color:#000;cursor:pointer;font-weight:700;font-size:1rem;">Back to Arcade</button>
+                `;
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+                modal.querySelector('#back-to-arcade').onclick = () => { window.location.href = 'arcade.html'; };
+            }
+
+            window.startTokenDrain = function() {
+                drainIntervalId = setInterval(() => {
+                    const user = getUser();
+                    const pts = user.points || 0;
+                    if (pts >= DRAIN_RATE) {
+                        user.points = pts - DRAIN_RATE;
+                        localStorage.setItem('user', JSON.stringify(user));
+                        const display = document.getElementById('token-display');
+                        if (display) display.textContent = user.points + '💎';
+                    } else {
+                        user.points = 0;
+                        localStorage.setItem('user', JSON.stringify(user));
+                        showOutOfTokensPopup();
+                    }
+                }, 1000);
+            };
+
+            window.stopTokenDrain = function() {
+                clearInterval(drainIntervalId);
+            };
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) { clearInterval(drainIntervalId); }
+                else { window.startTokenDrain(); }
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const user = getUser();
+                const sidebar = document.getElementById('game-sidebar');
+                if (sidebar) {
+                    const tokenEl = document.createElement('div');
+                    tokenEl.id = 'token-display';
+                    tokenEl.style.cssText = 'background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;padding:1rem 1.5rem;border-radius:0.75rem;font-weight:800;font-size:1.8rem;font-family:monospace;width:100%;text-align:center;margin-top:0.5rem;letter-spacing:2px;';
+                    tokenEl.textContent = (user.points || 0) + '💎';
+                    sidebar.appendChild(tokenEl);
+
+                    const rateEl = document.createElement('div');
+                    rateEl.style.cssText = 'color:#f59e0b;font-size:0.85rem;font-weight:700;text-align:center;margin-top:0.5rem;';
+                    rateEl.textContent = '−' + DRAIN_RATE + ' tokens/sec';
+                    sidebar.appendChild(rateEl);
+                }
+                window.startTokenDrain();
+            });
+        })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
+        canvas { border-radius: 0.5rem; }
+        #game {
+            width: 100%;
+            height: auto;
+        }
+        #game-wrapper { margin-left: 150px; width: min(720px, calc(100vw - 360px)); max-width: 100%; }
+        #game-sidebar {
+            position: fixed; top: 80px; right: 32px;
+            background: rgba(55, 65, 81, 0.98); border-radius: 1rem; padding: 1.5rem;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 400px;
+            min-height: 200px; margin-right: 15rem;
+            border: 2px solid rgba(107, 114, 128, 0.9);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6); z-index: 1000;
+        }
+        .pause-btn { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
+        .pause-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+    </style>
+    <script src="theme_manager.js"></script>
+</head>
+<body class="dark-mode bg-gray-900 min-h-screen text-white">
+<script src="scripts/taskbar.js"></script>
+
+<!-- Translation Scripts -->
+<script src="scripts/global_translations.js?v=7.0"></script>
+<script src="scripts/spanish_translations.js?v=1.0"></script>
+<script src="scripts/hindi_translations.js?v=1.0"></script>
+
+<div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
+    <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+        <button class="pause-btn" onclick="togglePause()" title="Pause"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
+        <div class="flex justify-between items-end mb-4">
+            <div>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-rose-400 to-pink-500 bg-clip-text text-transparent" data-i18n="BREAKOUT">BREAKOUT</h1>
+                <p class="text-xs text-gray-400 font-sans" data-i18n="Smash all the bricks!">Smash all the bricks!</p>
+            </div>
+            <div class="flex gap-4 text-right">
+                <div>
+                    <div class="text-xs text-gray-400 font-sans">LIVES</div>
+                    <div id="lives" class="text-2xl font-bold text-rose-400">3</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-400 font-sans" data-i18n="SCORE">SCORE</div>
+                    <div id="score" class="text-3xl font-bold text-white">0</div>
+                </div>
+            </div>
+        </div>
+
+        <canvas id="game" class="bg-gray-900 border-2 border-gray-700 mx-auto block" width="480" height="400"></canvas>
+
+        <p class="text-center text-xs text-gray-500 mt-4 font-sans" data-i18n="Mouse / Arrow keys / Touch to move paddle">Mouse / Arrow keys / Touch to move paddle</p>
+
+        <!-- Start Overlay -->
+        <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-3xl text-rose-400 font-bold mb-4">🧱 BREAKOUT</h2>
+            <p class="text-gray-300 mb-4 font-sans">Bounce the ball to destroy all bricks!</p>
+            <div class="text-left text-xs text-gray-400 font-sans mb-6 space-y-1">
+                <p><span class="text-rose-300 font-bold">Mouse / Arrow Keys</span> — Move paddle</p>
+                <p><span class="text-rose-300 font-bold">Touch Drag</span> — Move (mobile)</p>
+                <p><span class="text-rose-300 font-bold">Esc / P</span> — Pause</p>
+            </div>
+            <button onclick="startGame()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                START
+            </button>
+        </div>
+
+        <!-- Game Over Overlay -->
+        <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 id="end-title" class="text-3xl font-bold mb-2 text-red-500" data-i18n="GAME OVER">GAME OVER</h2>
+            <p id="end-msg" class="text-gray-300 mb-6 font-sans">All lives lost!</p>
+            <div class="text-4xl font-bold text-white mb-8" id="final-score">0</div>
+            <button onclick="resetGame()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95" data-i18n="TRY AGAIN">
+                TRY AGAIN
+            </button>
+        </div>
+
+        <!-- Pause Overlay -->
+        <div id="pause-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-30 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-4xl text-white font-bold mb-4" data-i18n="PAUSED">PAUSED</h2>
+            <button onclick="togglePause()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95" data-i18n="RESUME">
+                RESUME
+            </button>
+        </div>
+    </div>
+
+    <div id="game-sidebar">
+        <div style="width:100%;text-align:center;color:#9ca3af;margin-bottom:1rem;font-size:0.875rem;font-weight:600;">
+            ⭐ TOKEN SESSION
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+
+    // Launcher/Cannon
+    const LAUNCHER_X = W / 2;
+    const LAUNCHER_Y = H - 30;
+    const LAUNCHER_LEN = 40;
+    let launcherAngle = Math.PI / 3; // 60 degrees
+
+    // Balls
+    let balls = [];
+    const BALL_R = 6;
+    const BALL_SPEED = 6;
+
+    // Bricks
+    let bricks = [];
+    const BRICK_W = 50;
+    const BRICK_H = 20;
+    let brickRowCount = 0;
+    let nextBrickSpawn = 0;
+    const BRICK_SPAWN_INTERVAL = 120; // frames between spawning rows
+    
+    // Powerups: 3 types × 2 levels = 6 powerup types
+    let powerups = [];
+    const POWERUP_TYPES = [
+        'multiShot_1',   // +1 ball per turn
+        'multiShot_2',   // +2 balls per turn
+        'damage_1',      // 1.5x damage multiplier
+        'damage_2',      // 2x damage multiplier
+        'bigBall_1',     // 1.5x ball size
+        'bigBall_2'      // 2x ball size
+    ];
+    
+    // Player stats
+    let damageMultiplier = 1;
+    let ballSizeMultiplier = 1;
+    
+    // Turn system
+    let playerTurn = true;
+    let ballsFiredThisTurn = 0;
+    let maxBallsPerTurn = 1;
+    let turnCount = 0;
+    let blocksTurning = false;
+
+    // State
+    let score = 0, lives = 5;
+    let gameRunning = false, gamePaused = false;
+    let animFrame = null;
+    let mouseAngle = Math.PI / 3;
+
+    function init() {
+        balls = [];
+        bricks = [];
+        powerups = [];
+        score = 0;
+        lives = 5;
+        launcherAngle = Math.PI / 3;
+        mouseAngle = Math.PI / 3;
+        nextBrickSpawn = 0;
+        brickRowCount = 0;
+        playerTurn = true;
+        ballsFiredThisTurn = 0;
+        maxBallsPerTurn = 1;
+        turnCount = 0;
+        blocksTurning = false;
+        damageMultiplier = 1;
+        ballSizeMultiplier = 1;
+        document.getElementById('score').textContent = '0';
+        document.getElementById('lives').textContent = '5';
+        document.getElementById('game-over').classList.add('hidden');
+        // Spawn initial random blocks
+        for (let i = 0; i < 3; i++) spawnRandomBlocks();
+    }
+
+    function fireBall() {
+        if (!playerTurn || ballsFiredThisTurn >= maxBallsPerTurn) return;
+        
+        balls.push({
+            x: LAUNCHER_X + Math.cos(launcherAngle) * LAUNCHER_LEN,
+            y: LAUNCHER_Y - Math.sin(launcherAngle) * LAUNCHER_LEN,
+            vx: Math.cos(launcherAngle) * BALL_SPEED,
+            vy: -Math.sin(launcherAngle) * BALL_SPEED,
+            life: 600,
+            r: BALL_R * ballSizeMultiplier
+        });
+        ballsFiredThisTurn++;
+    }
+
+    function spawnRandomBlocks() {
+        // Spawn random number of blocks (1-4) at random x positions
+        const numBlocks = Math.floor(Math.random() * 4) + 1; // 1-4 blocks
+        const brickHealth = Math.max(1, 1 + Math.floor(turnCount / 3)); // Health increases faster
+        
+        for (let i = 0; i < numBlocks; i++) {
+            const randomCol = Math.floor(Math.random() * 8); // Random column 0-7
+            const startX = (W - 8 * BRICK_W) / 2;
+            bricks.push({
+                x: startX + randomCol * BRICK_W + 5,
+                y: 20, // Spawn at top
+                alive: true,
+                health: brickHealth,
+                maxHealth: brickHealth
+            });
+        }
+    }
+    
+    function normalizeAngle(angle) {
+        // Properly wrap angle to [0, π] range
+        if (angle < 0) angle += Math.PI;
+        if (angle > Math.PI) angle -= Math.PI;
+        // Clamp at boundaries
+        return Math.max(0, Math.min(Math.PI, angle));
+    }
+    
+    function getTrajectoryPoint(steps = 50) {
+        // Simulate ball trajectory to show where it will go
+        let x = LAUNCHER_X + Math.cos(launcherAngle) * LAUNCHER_LEN;
+        let y = LAUNCHER_Y - Math.sin(launcherAngle) * LAUNCHER_LEN;
+        let vx = Math.cos(launcherAngle) * BALL_SPEED;
+        let vy = -Math.sin(launcherAngle) * BALL_SPEED;
+        
+        for (let i = 0; i < steps; i++) {
+            x += vx;
+            y += vy;
+            
+            // Wall bounces
+            if (x - BALL_R < 0 || x + BALL_R > W) vx *= -1;
+            if (y - BALL_R < 0) vy *= -1;
+            
+            // Stop if goes off bottom
+            if (y > H + 50) break;
+            
+            // Check brick collision - stop at first brick
+            for (const br of bricks) {
+                if (!br.alive) continue;
+                if (x - BALL_R < br.x + BRICK_W && x + BALL_R > br.x &&
+                    y - BALL_R < br.y + BRICK_H && y + BALL_R > br.y) {
+                    return {x, y, hitBrick: true};
+                }
+            }
+        }
+        return {x, y, hitBrick: false};
+    }
+    
+    function endPlayerTurn() {
+        playerTurn = false;
+        blocksTurning = true;
+        // Blocks move down by 1 row
+        setTimeout(() => {
+            for (const br of bricks) {
+                br.y += BRICK_H;
+                if (br.y > H) {
+                    lives--;
+                    document.getElementById('lives').textContent = lives;
+                    if (lives <= 0) {
+                        gameOver();
+                        return;
+                    }
+                }
+            }
+            // Powerups move down with blocks
+            for (const p of powerups) {
+                p.y += BRICK_H;
+            }
+            bricks = bricks.filter(br => br.y <= H);
+            
+            blocksTurning = false;
+            playerTurn = true;
+            ballsFiredThisTurn = 0;
+            turnCount++;
+            // Spawn new random blocks every turn
+            spawnRandomBlocks();
+        }, 500);
+    }
+
+    function update() {
+        // Update launcher angle - normalize to 0-π for full 180 degree range
+        launcherAngle = normalizeAngle(mouseAngle);
+
+        // Update balls (no gravity - vacuum physics)
+        for (let i = balls.length - 1; i >= 0; i--) {
+            const b = balls[i];
+            const ballR = b.r || BALL_R; // Use stored ball radius
+            b.x += b.vx;
+            b.y += b.vy;
+            b.life--;
+
+            // Wall collisions (bounce with perfect reflection)
+            if (b.x - ballR < 0 || b.x + ballR > W) b.vx *= -1;
+            if (b.y - ballR < 0) b.vy *= -1;
+
+            // Remove if off screen or life expired
+            if (b.life <= 0 || b.y > H + 50) {
+                balls.splice(i, 1);
+                // Check if all balls are gone - end player turn
+                if (playerTurn && balls.length === 0 && ballsFiredThisTurn > 0) {
+                    endPlayerTurn();
+                }
+                continue;
+            }
+
+            // Brick collision with proper side detection
+            for (let j = bricks.length - 1; j >= 0; j--) {
+                const br = bricks[j];
+                if (!br.alive) continue;
+                // AABB collision with dynamic ball radius
+                if (b.x - ballR < br.x + BRICK_W && b.x + ballR > br.x &&
+                    b.y - ballR < br.y + BRICK_H && b.y + ballR > br.y) {
+                    br.health -= damageMultiplier;
+                    if (br.health <= 0) {
+                        br.alive = false;
+                        score += 50 * br.maxHealth; // More points for higher HP bricks
+                        // Random powerup drop
+                        if (Math.random() < 0.15) { // 15% chance
+                            const powerupType = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+                            powerups.push({
+                                x: br.x + BRICK_W / 2,
+                                y: br.y + BRICK_H / 2,
+                                type: powerupType,
+                                collected: false
+                            });
+                        }
+                    }
+                    
+                    // Determine which side was hit
+                    const overlapLeft = (b.x + ballR) - br.x;
+                    const overlapRight = (br.x + BRICK_W) - (b.x - ballR);
+                    const overlapTop = (b.y + ballR) - br.y;
+                    const overlapBottom = (br.y + BRICK_H) - (b.y - ballR);
+                    
+                    const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+                    
+                    if (minOverlap === overlapLeft || minOverlap === overlapRight) {
+                        b.vx *= -1; // Bounce horizontally
+                    } else {
+                        b.vy *= -1; // Bounce vertically
+                    }
+                    break;
+                }
+            }
+            
+            // Check powerup collision with ball
+            for (let k = 0; k < powerups.length; k++) {
+                const p = powerups[k];
+                if (p.collected) continue; // Skip already collected powerups
+                const pDist = Math.sqrt((b.x - p.x) ** 2 + (b.y - p.y) ** 2);
+                if (pDist < ballR + 12) { // Ball radius + powerup radius
+                    // Collect powerup
+                    p.collected = true;
+                    // Apply powerup effect
+                    if (p.type === 'multiShot_1') maxBallsPerTurn += 1;
+                    else if (p.type === 'multiShot_2') maxBallsPerTurn += 2;
+                    else if (p.type === 'damage_1') damageMultiplier *= 1.5;
+                    else if (p.type === 'damage_2') damageMultiplier *= 2;
+                    else if (p.type === 'bigBall_1') ballSizeMultiplier *= 1.1;  // Reduced from 1.5x
+                    else if (p.type === 'bigBall_2') ballSizeMultiplier *= 1.2;  // Reduced from 2x
+                    break; // Only collect one powerup per frame
+                }
+            }
+        }
+        
+        // Update powerups (no expiration)
+        for (let i = powerups.length - 1; i >= 0; i--) {
+            const p = powerups[i];
+            // Powerups stay forever until collected, no life timer
+        }
+
+        document.getElementById('score').textContent = score;
+        document.getElementById('lives').textContent = lives;
+    }
+
+    function draw() {
+        ctx.fillStyle = '#111827';
+        ctx.fillRect(0, 0, W, H);
+
+        // Grid background
+        ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= W; x += 40) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, H);
+            ctx.stroke();
+        }
+
+        // Bricks
+        for (const br of bricks) {
+            if (!br.alive) continue;
+            // Color based on health
+            if (br.health > 2) ctx.fillStyle = '#f97316'; // Orange for 3+ HP
+            else if (br.health === 2) ctx.fillStyle = '#fb923c'; // Light orange for 2 HP
+            else ctx.fillStyle = '#f43f5e'; // Pink for 1 HP
+            
+            ctx.shadowColor = 'rgba(244, 63, 94, 0.4)';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.roundRect(br.x, br.y, BRICK_W, BRICK_H, 4);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // Draw HP number on brick
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(br.health, br.x + BRICK_W / 2, br.y + BRICK_H / 2);
+        }
+
+        // Powerups
+        for (const p of powerups) {
+            const pulseSize = 12 + Math.sin(performance.now() / 300) * 4;
+            // Different colors for each powerup type
+            let color, label;
+            if (p.type.startsWith('multiShot')) {
+                color = 'rgba(59, 130, 246, 0.3)'; // Blue
+                label = p.type === 'multiShot_1' ? '+1' : '+2';
+            } else if (p.type.startsWith('damage')) {
+                color = 'rgba(239, 68, 68, 0.3)'; // Red
+                label = p.type === 'damage_1' ? '1.5x' : '2x';
+            } else { // bigBall
+                color = 'rgba(34, 197, 94, 0.3)'; // Green
+                label = p.type === 'bigBall_1' ? '1.5x' : '2x';
+            }
+            
+            ctx.fillStyle = color;
+            ctx.shadowColor = color.replace('0.3', '0.8');
+            ctx.shadowBlur = 12;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, pulseSize, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Inner core
+            if (p.type.startsWith('multiShot')) ctx.fillStyle = '#3b82f6';
+            else if (p.type.startsWith('damage')) ctx.fillStyle = '#ef4444';
+            else ctx.fillStyle = '#22c55e';
+            
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Powerup label/icon
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 9px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Dim if already collected
+            if (p.collected) {
+                ctx.globalAlpha = 0.5;
+            }
+            ctx.fillText(label, p.x, p.y);
+            ctx.globalAlpha = 1; // Reset alpha
+        }
+
+        // Balls (size varies with powerup)
+        for (const b of balls) {
+            const ballR = BALL_R * ballSizeMultiplier;
+            ctx.fillStyle = '#fbbf24';
+            ctx.shadowColor = 'rgba(251, 191, 36, 0.6)';
+            ctx.shadowBlur = 12;
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, ballR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            // Highlight
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.beginPath();
+            ctx.arc(b.x - 2, b.y - 2, ballR * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Launcher (grayed out if not player's turn)
+        const launchX = LAUNCHER_X + Math.cos(launcherAngle) * LAUNCHER_LEN;
+        const launchY = LAUNCHER_Y - Math.sin(launcherAngle) * LAUNCHER_LEN;
+        const launcherOpacity = playerTurn ? 1 : 0.5;
+
+        // Barrel
+        ctx.strokeStyle = playerTurn ? '#e2e8f0' : 'rgba(226, 232, 240, 0.5)';
+        ctx.lineWidth = 6;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(LAUNCHER_X, LAUNCHER_Y);
+        ctx.lineTo(launchX, launchY);
+        ctx.stroke();
+
+        // Base
+        ctx.fillStyle = playerTurn ? '#94a3b8' : 'rgba(148, 163, 184, 0.5)';
+        ctx.beginPath();
+        ctx.arc(LAUNCHER_X, LAUNCHER_Y, 12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = playerTurn ? '#e2e8f0' : 'rgba(226, 232, 240, 0.5)';
+        ctx.beginPath();
+        ctx.arc(LAUNCHER_X, LAUNCHER_Y, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Angle indicator
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(LAUNCHER_X, LAUNCHER_Y, 25, 0, Math.PI, true);
+        ctx.stroke();
+
+        // Aim indicator line
+        if (playerTurn) {
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]); // Dotted line
+            ctx.beginPath();
+            ctx.moveTo(LAUNCHER_X + Math.cos(launcherAngle) * LAUNCHER_LEN, 
+                       LAUNCHER_Y - Math.sin(launcherAngle) * LAUNCHER_LEN);
+            // Extend line 200 pixels in the direction of the cannon
+            const endX = LAUNCHER_X + Math.cos(launcherAngle) * 200;
+            const endY = LAUNCHER_Y - Math.sin(launcherAngle) * 200;
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset to solid
+        }
+
+        // HUD - Turn indicator and ball counter
+        ctx.fillStyle = playerTurn ? '#22c55e' : '#f97316';
+        ctx.font = 'bold 14px Arial';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(playerTurn ? '→ YOUR TURN' : '← BLOCKS MOVING', 10, 10);
+        
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '12px Arial';
+        ctx.fillText('Balls: ' + ballsFiredThisTurn + '/' + maxBallsPerTurn, 10, 28);
+        ctx.fillText('Turn: ' + turnCount, 10, 42);
+    }
+
+    function loop() {
+        if (!gameRunning || gamePaused) return;
+        update();
+        if (!gameRunning) return;
+        draw();
+        animFrame = requestAnimationFrame(loop);
+    }
+
+    function gameOver() {
+        gameRunning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        document.getElementById('final-score').textContent = score;
+        // In endless mode, only game over when lives reach 0
+        document.getElementById('end-title').textContent = 'GAME OVER';
+        document.getElementById('end-title').style.color = '#ef4444';
+        document.getElementById('end-msg').textContent = 'Lives lost!';
+        document.getElementById('game-over').classList.remove('hidden');
+    }
+
+    function togglePause() {
+        if (!gameRunning) return;
+        gamePaused = !gamePaused;
+        document.getElementById('pause-screen').classList.toggle('hidden', !gamePaused);
+        if (!gamePaused) animFrame = requestAnimationFrame(loop);
+    }
+
+    function startGame() {
+        document.getElementById('start-screen').classList.add('hidden');
+        init();
+        gameRunning = true;
+        draw();
+        animFrame = requestAnimationFrame(loop);
+    }
+
+    function resetGame() {
+        document.getElementById('game-over').classList.add('hidden');
+        init();
+        gameRunning = true;
+        draw();
+        animFrame = requestAnimationFrame(loop);
+    }
+
+    // Mouse aim
+    canvas.addEventListener('mousemove', e => {
+        const rect = canvas.getBoundingClientRect();
+        const mx = (e.clientX - rect.left);
+        const my = (e.clientY - rect.top);
+        mouseAngle = Math.atan2(LAUNCHER_Y - my, mx - LAUNCHER_X);
+    });
+
+    canvas.addEventListener('click', () => {
+        if (gameRunning && !gamePaused) fireBall();
+    });
+
+    // Keyboard
+    const keysHeld = {};
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { togglePause(); e.preventDefault(); return; }
+        if (e.key === ' ') { 
+            if (gameRunning && !gamePaused) fireBall();
+            e.preventDefault(); 
+            return;
+        }
+        keysHeld[e.key] = true;
+    });
+    document.addEventListener('keyup', e => { keysHeld[e.key] = false; });
+
+    // Keyboard aiming
+    setInterval(() => {
+        if (!gameRunning || gamePaused) return;
+        if (keysHeld['ArrowLeft'] || keysHeld['a'] || keysHeld['A']) mouseAngle += 0.05;
+        if (keysHeld['ArrowRight'] || keysHeld['d'] || keysHeld['D']) mouseAngle -= 0.05;
+        mouseAngle = normalizeAngle(mouseAngle);
+    }, 16);
+
+    // Touch
+    let touchAngle = null;
+    canvas.addEventListener('touchmove', e => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const mx = (e.touches[0].clientX - rect.left);
+        const my = (e.touches[0].clientY - rect.top);
+        mouseAngle = Math.atan2(LAUNCHER_Y - my, mx - LAUNCHER_X);
+    });
+
+    canvas.addEventListener('touchstart', e => {
+        if (gameRunning && !gamePaused) fireBall();
+        e.preventDefault();
+    });
+
+    // Auto-pause on tab hidden
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            if (!gamePaused && gameRunning && typeof togglePause === 'function') {
+                togglePause();
+            }
+        }
+    });
+
+    // Initial draw
+    init();
+    draw();
+
+</script>
+</body>
+</html>

@@ -208,6 +208,24 @@
       }
     });
 
+    // Override with stored course origin (middle school support)
+    try {
+      var folderKeyMap = {
+        'algebra1lessons': 'Algebra1Lessons',
+        'algebra2lessons': 'Algebra2Lessons',
+        'geometrylessons': 'GeometryLessons',
+        'physicslessons': 'PhysicsLessons',
+        'chemistrylessons': 'ChemistryLessons',
+        'biologylessons': 'BiologyLessons'
+      };
+      Object.keys(folderKeyMap).forEach(function(key) {
+        if (coursePath.includes(key)) {
+          var stored = sessionStorage.getItem('courseOrigin_' + folderKeyMap[key]);
+          if (stored) { backUrl = stored; }
+        }
+      });
+    } catch(e) {}
+
     // Insert after quiz-form
     const finishHTML = `
       <div id="quiz-results" style="margin-top:2rem;font-weight:bold;display:none;padding:1rem;border-radius:0.5rem;"></div>
@@ -217,7 +235,7 @@
         <div style="font-size:1.25rem;margin-bottom:0.75rem;">Percentage: <span id="quiz-final-percent" style="font-weight:700;">0%</span></div>
         <div style="font-size:1.25rem;margin-bottom:2rem;">Time Spent: <span id="quiz-time-spent" style="font-weight:700;">00:00</span></div>
         <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;width:100%;">
-          <button class="side-button" onclick="location.reload()" style="flex:1;min-width:150px;">Retake Quiz</button>
+          <button class="side-button" onclick="retakeUnitTest()" style="flex:1;min-width:150px;">Retake Quiz</button>
           <button class="side-button" onclick="window.location.href='${backUrl}'" style="flex:1;min-width:150px;">${backLabel}</button>
         </div>
         <div style="margin-top:1.5rem;width:100%;">
@@ -289,6 +307,13 @@
       var practiceUrl = currentUrl.replace('_Test.html', '_Test_Practice.html');
       window.location.href = practiceUrl;
     }
+  };
+
+  // Clear unit test completion key and reload to allow retake
+  window.retakeUnitTest = function () {
+    var key = getUnitTestStorageKey();
+    if (key) localStorage.removeItem(key);
+    location.reload();
   };
 
   // ========== 5. Show Quiz / Show Practice ==========
@@ -418,7 +443,47 @@
           }
           
           if (coursePrefix && lessonNum) {
-            localStorage.setItem(coursePrefix + '_u' + unitId + '_l' + lessonNum + '_completed', 'true');
+            var msPrefixMap = {
+              'alg1': 'ms_alg1', 'alg2': 'ms_alg2', 'geometry': 'ms_geom',
+              'physics': 'ms_phys', 'chem': 'ms_chem', 'bio': 'ms_bio'
+            };
+            var folderMap = {
+              'alg1': 'Algebra1Lessons', 'alg2': 'Algebra2Lessons', 'geometry': 'GeometryLessons',
+              'physics': 'PhysicsLessons', 'chem': 'ChemistryLessons', 'bio': 'BiologyLessons'
+            };
+
+            var _utIsMS = (sessionStorage.getItem('courseOrigin') || '').indexOf('ms_') === 0;
+
+            if (_utIsMS) {
+              // MS student: write MS key only (do NOT write HS key)
+              var msP = msPrefixMap[coursePrefix];
+              var folder = folderMap[coursePrefix];
+              if (msP && folder) {
+                try {
+                  var msMap = JSON.parse(localStorage.getItem('_msMap_' + folder) || '{}');
+                  var msEntry = msMap[unitId + '_' + lessonNum];
+                  if (msEntry) {
+                    var mp = msEntry.split('_');
+                    localStorage.setItem(msP + '_u' + mp[0] + '_l' + mp.slice(1).join('_') + '_completed', 'true');
+                  }
+                } catch(e) {}
+              }
+            } else {
+              // HS student: write HS key + also mirror to MS
+              localStorage.setItem(coursePrefix + '_u' + unitId + '_l' + lessonNum + '_completed', 'true');
+              try {
+                var msP = msPrefixMap[coursePrefix];
+                var folder = folderMap[coursePrefix];
+                if (msP && folder) {
+                  var msMap = JSON.parse(localStorage.getItem('_msMap_' + folder) || '{}');
+                  var msEntry = msMap[unitId + '_' + lessonNum];
+                  if (msEntry) {
+                    var mp = msEntry.split('_');
+                    localStorage.setItem(msP + '_u' + mp[0] + '_l' + mp.slice(1).join('_') + '_completed', 'true');
+                  }
+                }
+              } catch(e) {}
+            }
           }
         }
       }

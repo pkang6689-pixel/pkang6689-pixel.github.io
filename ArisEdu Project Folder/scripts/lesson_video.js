@@ -1,5 +1,9 @@
 let videoStopTimer = null;
 
+// MS Mode Detection — auto-select easiest video for middle school students
+var _msOriginLV = (sessionStorage.getItem('courseOrigin') || '');
+var _isMSVideo = _msOriginLV.indexOf('ms_') === 0;
+
     function appendVideoParam(src, key, value) {
       if (!src || src.includes(`${key}=`)) {
         return src;
@@ -275,6 +279,47 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.className = 'rubric-box';
         wrapper.innerHTML = html;
         rubricData.replaceWith(wrapper);
+    }
+
+    // MS Mode: auto-select the easiest-rated video
+    if (_isMSVideo) {
+        const videoLinks = document.querySelectorAll('.videos-panel a[data-rating-difficulty]');
+        if (videoLinks.length > 1) {
+            const difficultyRank = { 'Easy': 1, 'Medium': 2, 'Hard': 3, 'TBD': 2 };
+            let easiest = null;
+            let easiestScore = 99;
+            videoLinks.forEach(link => {
+                const rating = (link.getAttribute('data-rating-difficulty') || 'TBD').trim();
+                const score = difficultyRank[rating] || 2;
+                if (score < easiestScore) {
+                    easiestScore = score;
+                    easiest = link;
+                }
+            });
+            if (easiest) {
+                const videoSrc = easiest.getAttribute('data-video-src');
+                const videoId = easiest.getAttribute('data-video-id');
+                const videoTitle = easiest.getAttribute('data-video-title') || 'Lesson video';
+                const iframe = document.querySelector('.video-embed iframe');
+                const nextSrc = buildVideoSrc(videoSrc, videoId);
+                if (nextSrc && iframe) {
+                    iframe.src = nextSrc;
+                    iframe.title = videoTitle;
+                    scheduleVideoStop(iframe, easiest);
+                    if (typeof updateRubricFromLink === 'function') updateRubricFromLink(easiest);
+                    if (typeof updateVideoInfo === 'function') updateVideoInfo(easiest);
+                }
+            }
+        }
+        // Inject MS mode badge on video page
+        const mainTitle = document.querySelector('.page-title');
+        if (mainTitle && !document.querySelector('.ms-video-badge')) {
+            const badge = document.createElement('div');
+            badge.className = 'ms-video-badge';
+            badge.style.cssText = 'background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:0.4rem 0.8rem;border-radius:0.5rem;font-size:0.8rem;font-weight:700;display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.5rem;';
+            badge.textContent = '📘 Middle School Mode — easiest video auto-selected';
+            mainTitle.after(badge);
+        }
     }
 });
 

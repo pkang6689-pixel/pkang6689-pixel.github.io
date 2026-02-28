@@ -112,9 +112,9 @@ answer_translations = {
         "\u0394v con la velocidad de escape y la relaci\u00f3n de masas",
         "\u0394v \u0914\u0930 \u0928\u093f\u0915\u093e\u0938 \u0935\u0947\u0917 \u0924\u0925\u093e \u0926\u094d\u0930\u0935\u094d\u092f\u092e\u093e\u0928 \u0905\u0928\u0941\u092a\u093e\u0924 \u0915\u093e \u0938\u0902\u092c\u0902\u0927"
     ),
-    "\ud83c\udf89 Course Complete!": (
-        "\ud83c\udf89 \u8bfe\u7a0b\u5b8c\u6210\uff01",
-        "\ud83c\udf89 \u00a1Curso completado!",
-        "\ud83c\udf89 \u092a\u093e\u0920\u094d\u092f\u0915\u094d\u0930\u092e \u092a\u0942\u0930\u094d\u0923!"
+    "\U0001f389 Course Complete!": (
+        "\U0001f389 \u8bfe\u7a0b\u5b8c\u6210\uff01",
+        "\U0001f389 \u00a1Curso completado!",
+        "\U0001f389 \u092a\u093e\u0920\u094d\u092f\u0915\u094d\u0930\u092e \u092a\u0942\u0930\u094d\u0923!"
     ),
 }

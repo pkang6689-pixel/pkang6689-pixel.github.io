@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minesweeper - Arcade</title>
+    <script>
+        // Tier 2 Token Drain System
+        let drainIntervalId;
+        const DRAIN_RATE = parseInt(sessionStorage.getItem('gameDrainRate')) || 2;
+
+        (function() {
+
+            function getUser() {
+                return JSON.parse(localStorage.getItem('user') || '{}');
+            }
+
+            function showOutOfTokensPopup() {
+                clearInterval(drainIntervalId);
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;';
+                const modal = document.createElement('div');
+                modal.style.cssText = 'background:white;border-radius:1rem;padding:2rem;max-width:400px;text-align:center;box-shadow:0 20px 25px rgba(0,0,0,0.3);';
+                modal.innerHTML = `
+                    <div style="font-size:3rem;margin-bottom:1rem;">💸</div>
+                    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;color:#1e293b;">Out of Tokens!</h2>
+                    <p style="margin-bottom:0.5rem;color:#64748b;">Your token balance hit zero.</p>
+                    <p style="margin-bottom:1.5rem;color:#94a3b8;font-size:0.85rem;">Earn more tokens by completing lessons and quizzes!</p>
+                    <button id="back-to-arcade" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#f59e0b;color:#000;cursor:pointer;font-weight:700;font-size:1rem;">Back to Arcade</button>
+                `;
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+                modal.querySelector('#back-to-arcade').onclick = () => { window.location.href = 'arcade.html'; };
+            }
+
+            window.startTokenDrain = function() {
+                drainIntervalId = setInterval(() => {
+                    const user = getUser();
+                    const pts = user.points || 0;
+                    if (pts >= DRAIN_RATE) {
+                        user.points = pts - DRAIN_RATE;
+                        localStorage.setItem('user', JSON.stringify(user));
+                        const display = document.getElementById('token-display');
+                        if (display) display.textContent = user.points + '💎';
+                    } else {
+                        user.points = 0;
+                        localStorage.setItem('user', JSON.stringify(user));
+                        showOutOfTokensPopup();
+                    }
+                }, 1000);
+            };
+
+            window.stopTokenDrain = function() {
+                clearInterval(drainIntervalId);
+            };
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearInterval(drainIntervalId);
+                } else {
+                    window.startTokenDrain();
+                }
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const user = getUser();
+                const sidebar = document.getElementById('game-sidebar');
+                if (sidebar) {
+                    const tokenEl = document.createElement('div');
+                    tokenEl.id = 'token-display';
+                    tokenEl.style.cssText = 'background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;padding:1rem 1.5rem;border-radius:0.75rem;font-weight:800;font-size:1.8rem;font-family:monospace;width:100%;text-align:center;margin-top:0.5rem;letter-spacing:2px;';
+                    tokenEl.textContent = (user.points || 0) + '💎';
+                    sidebar.appendChild(tokenEl);
+
+                    const rateEl = document.createElement('div');
+                    rateEl.style.cssText = 'color:#f59e0b;font-size:0.85rem;font-weight:700;text-align:center;margin-top:0.5rem;';
+                    rateEl.textContent = '−' + DRAIN_RATE + ' tokens/sec';
+                    sidebar.appendChild(rateEl);
+                }
+                window.startTokenDrain();
+            });
+        })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
+        canvas { border-radius: 0.5rem; }
+        #game {
+            width: 100%;
+            height: auto;
+        }
+        #game-wrapper { margin-left: 150px; width: min(720px, calc(100vw - 360px)); max-width: 100%; }
+        #game-sidebar {
+            position: fixed; top: 80px; right: 32px;
+            background: rgba(55, 65, 81, 0.98); border-radius: 1rem; padding: 1.5rem;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 400px;
+            min-height: 200px; margin-right: 15rem;
+            border: 2px solid rgba(107, 114, 128, 0.9);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6); z-index: 1000;
+        }
+    </style>
+    <script src="theme_manager.js"></script>
+</head>
+<body class="dark-mode bg-gray-900 min-h-screen text-white">
+<script src="scripts/taskbar.js"></script>
+
+<!-- Translation Scripts -->
+<script src="scripts/global_translations.js?v=7.0"></script>
+<script src="scripts/spanish_translations.js?v=1.0"></script>
+<script src="scripts/hindi_translations.js?v=1.0"></script>
+
+<div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
+    <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+        <div class="flex justify-between items-end mb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-400 bg-clip-text" data-i18n="MINESWEEPER">MINESWEEPER</h1>
+                <p class="text-xs text-gray-400 font-sans" data-i18n="Find all mines without detonating!">Find all mines without detonating!</p>
+            </div>
+            <div class="flex gap-4 text-right">
+                <div>
+                    <div class="text-xs text-gray-400 font-sans">MINES</div>
+                    <div id="mine-count" class="text-2xl font-bold text-yellow-400">10</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-400 font-sans" data-i18n="SCORE">SCORE</div>
+                    <div id="score" class="text-2xl font-bold text-white">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-2 mb-4">
+            <button onclick="newGame(9,9,10)" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm font-bold">Easy</button>
+            <button onclick="newGame(16,16,40)" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm font-bold">Medium</button>
+            <button onclick="newGame(16,30,99)" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm font-bold">Hard</button>
+        </div>
+
+        <canvas id="game" class="bg-gray-900 border-2 border-gray-700 mx-auto"></canvas>
+
+        <p class="text-center text-xs text-gray-500 mt-4 font-sans" data-i18n="Click to reveal · Right-click to flag">Click to reveal · Right-click to flag</p>
+
+        <!-- Game Over Overlay -->
+        <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 id="end-title" class="text-3xl font-bold mb-2">GAME OVER</h2>
+            <p id="end-msg" class="text-gray-300 mb-6 font-sans"></p>
+            <div class="text-4xl font-bold text-white mb-8" id="final-score">0</div>
+            <button onclick="newGame()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95" data-i18n="PLAY AGAIN">
+                PLAY AGAIN
+            </button>
+        </div>
+    </div>
+
+    <div id="game-sidebar">
+        <div style="width:100%;text-align:center;color:#9ca3af;margin-bottom:1rem;font-size:0.875rem;font-weight:600;">
+            ⭐ TOKEN SESSION
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===== Canvas-based Minesweeper =====
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    const CELL = 34;       // total cell size including gap
+    const GAP = 2;         // gap between cells
+    const INNER = CELL - GAP * 2;  // drawable area per cell
+    const BOARD_PAD = 4;   // padding around the whole board
+
+    const NUM_COLORS = {
+        1: '#3b82f6', 2: '#22c55e', 3: '#ef4444', 4: '#7c3aed',
+        5: '#b45309', 6: '#06b6d4', 7: '#475569', 8: '#6b7280'
+    };
+
+    let rows = 9, cols = 9, mineCount = 10;
+    let board = [], revealed = [], flagged = [];
+    let gameActive = true, score = 0, firstClick = true;
+    let hoverR = -1, hoverC = -1;
+
+    // ---- Coordinate conversion ----
+    function getCellFromMouse(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const mx = (e.clientX - rect.left) * scaleX - BOARD_PAD;
+        const my = (e.clientY - rect.top) * scaleY - BOARD_PAD;
+        const c = Math.floor(mx / CELL);
+        const r = Math.floor(my / CELL);
+        if (r >= 0 && r < rows && c >= 0 && c < cols) return { r, c };
+        return null;
+    }
+
+    // ---- Game logic ----
+    function newGame(r, c, m) {
+        rows = r || rows;
+        cols = c || cols;
+        mineCount = m || mineCount;
+        board = []; revealed = []; flagged = [];
+        gameActive = true; firstClick = true; score = 0;
+        hoverR = -1; hoverC = -1;
+        document.getElementById('score').textContent = '0';
+        document.getElementById('mine-count').textContent = mineCount;
+        document.getElementById('game-over').classList.add('hidden');
+
+        for (let i = 0; i < rows; i++) {
+            board[i] = []; revealed[i] = []; flagged[i] = [];
+            for (let j = 0; j < cols; j++) {
+                board[i][j] = 0;
+                revealed[i][j] = false;
+                flagged[i][j] = false;
+            }
+        }
+        // Resize canvas to fit board
+        canvas.width = cols * CELL + BOARD_PAD * 2;
+        canvas.height = rows * CELL + BOARD_PAD * 2;
+        draw();
+    }
+
+    function placeMines(safeR, safeC) {
+        let placed = 0;
+        while (placed < mineCount) {
+            const r = Math.floor(Math.random() * rows);
+            const c = Math.floor(Math.random() * cols);
+            if (board[r][c] !== -1 && !(Math.abs(r - safeR) <= 1 && Math.abs(c - safeC) <= 1)) {
+                board[r][c] = -1;
+                placed++;
+            }
+        }
+        // Calculate neighbor counts
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (board[i][j] === -1) continue;
+                let count = 0;
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        const nr = i + dr, nc = j + dc;
+                        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && board[nr][nc] === -1) count++;
+                    }
+                }
+                board[i][j] = count;
+            }
+        }
+    }
+
+    function floodReveal(startR, startC) {
+        const stack = [[startR, startC]];
+        while (stack.length > 0) {
+            const [r, c] = stack.pop();
+            if (r < 0 || r >= rows || c < 0 || c >= cols) continue;
+            if (revealed[r][c] || flagged[r][c]) continue;
+            revealed[r][c] = true;
+            score += 5;
+            if (board[r][c] === 0) {
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        if (dr !== 0 || dc !== 0) stack.push([r + dr, c + dc]);
+                    }
+                }
+            }
+        }
+    }
+
+    function checkWin() {
+        let unrevealed = 0;
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (!revealed[i][j]) unrevealed++;
+            }
+        }
+        if (unrevealed === mineCount) {
+            score += 100;
+            endGame(true);
+        }
+    }
+
+    function endGame(won) {
+        gameActive = false;
+        document.getElementById('score').textContent = score;
+        document.getElementById('final-score').textContent = score;
+        document.getElementById('end-title').textContent = won ? '🎉 YOU WIN!' : '💥 BOOM!';
+        document.getElementById('end-title').style.color = won ? '#22c55e' : '#ef4444';
+        document.getElementById('end-msg').textContent = won ? 'All mines found!' : 'You hit a mine!';
+        document.getElementById('game-over').classList.remove('hidden');
+    }
+
+    // ---- Input handling ----
+    canvas.addEventListener('click', (e) => {
+        if (!gameActive) return;
+        const pos = getCellFromMouse(e);
+        if (!pos) return;
+        const { r, c } = pos;
+        if (flagged[r][c]) return;
+        if (firstClick) { placeMines(r, c); firstClick = false; }
+        if (board[r][c] === -1) {
+            revealed[r][c] = true;
+            gameActive = false;
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    if (board[i][j] === -1) revealed[i][j] = true;
+                }
+            }
+            draw();
+            endGame(false);
+            return;
+        }
+        floodReveal(r, c);
+        document.getElementById('score').textContent = score;
+        draw();
+        checkWin();
+    });
+
+    canvas.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        if (!gameActive) return;
+        const pos = getCellFromMouse(e);
+        if (!pos) return;
+        const { r, c } = pos;
+        if (revealed[r][c]) return;
+        flagged[r][c] = !flagged[r][c];
+        const flagCount = flagged.flat().filter(Boolean).length;
+        document.getElementById('mine-count').textContent = Math.max(0, mineCount - flagCount);
+        draw();
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        const pos = getCellFromMouse(e);
+        const newR = pos ? pos.r : -1;
+        const newC = pos ? pos.c : -1;
+        if (newR !== hoverR || newC !== hoverC) {
+            hoverR = newR;
+            hoverC = newC;
+            draw();
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        hoverR = -1; hoverC = -1;
+        draw();
+    });
+
+    // ---- Canvas drawing ----
+    function roundRect(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+    }
+
+    function draw() {
+        const W = canvas.width, H = canvas.height;
+
+        // Board background
+        ctx.fillStyle = '#334155';
+        roundRect(0, 0, W, H, 8);
+        ctx.fill();
+
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                const x = BOARD_PAD + j * CELL + GAP;
+                const y = BOARD_PAD + i * CELL + GAP;
+
+                if (revealed[i][j]) {
+                    if (board[i][j] === -1) {
+                        // Mine cell - red background
+                        ctx.fillStyle = '#ef4444';
+                        roundRect(x, y, INNER, INNER, 4);
+                        ctx.fill();
+                        // Mine body (dark circle)
+                        ctx.fillStyle = '#1e293b';
+                        ctx.beginPath();
+                        ctx.arc(x + INNER / 2, y + INNER / 2, 8, 0, Math.PI * 2);
+                        ctx.fill();
+                        // Mine spikes
+                        ctx.strokeStyle = '#1e293b';
+                        ctx.lineWidth = 2;
+                        const cx = x + INNER / 2, cy = y + INNER / 2;
+                        for (let a = 0; a < 4; a++) {
+                            const angle = (a * Math.PI) / 4;
+                            ctx.beginPath();
+                            ctx.moveTo(cx + Math.cos(angle) * 5, cy + Math.sin(angle) * 5);
+                            ctx.lineTo(cx + Math.cos(angle) * 11, cy + Math.sin(angle) * 11);
+                            ctx.stroke();
+                        }
+                        // Highlight dot
+                        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                        ctx.beginPath();
+                        ctx.arc(cx - 3, cy - 3, 2.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        // Revealed empty / number cell
+                        ctx.fillStyle = '#0f172a';
+                        roundRect(x, y, INNER, INNER, 4);
+                        ctx.fill();
+
+                        if (board[i][j] > 0) {
+                            ctx.fillStyle = NUM_COLORS[board[i][j]] || '#e2e8f0';
+                            ctx.font = 'bold 16px Orbitron, monospace';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(board[i][j], x + INNER / 2, y + INNER / 2 + 1);
+                        }
+                    }
+                } else if (flagged[i][j]) {
+                    // Flagged cell - amber
+                    ctx.fillStyle = '#d97706';
+                    roundRect(x, y, INNER, INNER, 4);
+                    ctx.fill();
+                    // Flag pole
+                    ctx.strokeStyle = '#1e293b';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x + INNER / 2, y + 6);
+                    ctx.lineTo(x + INNER / 2, y + INNER - 6);
+                    ctx.stroke();
+                    // Red flag triangle
+                    ctx.fillStyle = '#ef4444';
+                    ctx.beginPath();
+                    ctx.moveTo(x + INNER / 2, y + 6);
+                    ctx.lineTo(x + INNER / 2 + 9, y + 12);
+                    ctx.lineTo(x + INNER / 2, y + 18);
+                    ctx.closePath();
+                    ctx.fill();
+                    // Base bar
+                    ctx.fillStyle = '#1e293b';
+                    ctx.fillRect(x + INNER / 2 - 5, y + INNER - 8, 10, 2);
+                } else {
+                    // Hidden cell
+                    const isHover = (i === hoverR && j === hoverC && gameActive);
+                    ctx.fillStyle = isHover ? '#94a3b8' : '#64748b';
+                    roundRect(x, y, INNER, INNER, 4);
+                    ctx.fill();
+                    // Subtle top highlight (bevel effect)
+                    ctx.fillStyle = isHover ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)';
+                    ctx.fillRect(x + 2, y + 2, INNER - 4, INNER / 2 - 2);
+                }
+            }
+        }
+    }
+
+    // ---- Start default game ----
+    newGame(9, 9, 10);
+
+</script>
+</body>
+</html>

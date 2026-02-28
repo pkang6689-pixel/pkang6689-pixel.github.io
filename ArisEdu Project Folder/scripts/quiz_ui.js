@@ -1,6 +1,12 @@
 
 // Start of quiz logic
 (function() {
+    // MS Mode Detection — students from middle school courses get easier quizzes
+    const _msOrigin = (sessionStorage.getItem('courseOrigin') || '');
+    const isMS = _msOrigin.startsWith('ms_');
+    const MS_ATTEMPTS = 3;   // MS students get 3 attempts (vs 2 for HS)
+    const MS_MAX_QUESTIONS = 5; // MS quizzes show at most 5 questions
+
     // Quiz Analytics Tracking
     const quizAnalytics = {
         quizStartTime: null,
@@ -437,11 +443,12 @@
             // Track question interaction
             trackQuestionStart(name);
             
-            // Get or Init Attempts
+            // Get or Init Attempts — MS students get 3 attempts
             let attemptsElem = parent.querySelector('.attempts-indicator');
             if (!attemptsElem) return;
             
-            let attempts = parseInt(parent.dataset.attempts || '2');
+            const defaultAttempts = isMS ? MS_ATTEMPTS : 2;
+            let attempts = parseInt(parent.dataset.attempts || String(defaultAttempts));
 
             const selected = parent.querySelector(`input[name="${name}"]:checked`);
             let feedback = parent.querySelector('.feedback');
@@ -501,6 +508,24 @@
                 parent.dataset.attempts = attempts;
                 attemptsElem.textContent = _t("Attempts left:", "Attempts left:") + " " + attempts;
                 attemptsElem.style.display = 'block';
+
+                // MS Mode: eliminate one wrong option after each wrong answer
+                if (isMS && attempts > 0) {
+                    const wrongInputs = Array.from(parent.querySelectorAll(`input[name="${name}"][value="wrong"]`));
+                    const eliminable = wrongInputs.filter(i => {
+                        const lbl = i.closest('label') || i.parentElement;
+                        return !lbl.classList.contains('ms-eliminated') && !i.checked;
+                    });
+                    if (eliminable.length > 0) {
+                        const pick = eliminable[Math.floor(Math.random() * eliminable.length)];
+                        const lbl = pick.closest('label') || pick.parentElement;
+                        lbl.classList.add('ms-eliminated');
+                        lbl.style.opacity = '0.35';
+                        lbl.style.textDecoration = 'line-through';
+                        lbl.style.pointerEvents = 'none';
+                        pick.disabled = true;
+                    }
+                }
 
                 if (attempts <= 0) {
                      // Find the correct answer text to display
@@ -577,7 +602,8 @@
 
     // Check if every question on the quiz has been answered correctly
     function checkQuizCompletion() {
-        const questions = document.querySelectorAll('.quiz-question');
+        // Only check visible questions (MS mode may hide some)
+        const questions = Array.from(document.querySelectorAll('.quiz-question')).filter(q => q.style.display !== 'none');
         if (questions.length === 0) return;
 
         const allCorrect = Array.from(questions).every(q => {
@@ -598,7 +624,7 @@
         } else {
             // Fallback: parse lesson info from URL and detect course
             const path = decodeURIComponent(window.location.pathname);
-            const lessonMatch = path.match(/Lesson\s*(\d+)\.(\d+)_Quiz/);
+            const lessonMatch = path.match(/Lesson\s*(\w+)\.(\d+)_Quiz/);
             
             if (lessonMatch) {
                 const unit = lessonMatch[1];
@@ -606,15 +632,47 @@
                 
                 // Detect course from path
                 let coursePrefix = null;
-                if (path.includes('Algebra1Lessons')) coursePrefix = 'alg1';
-                else if (path.includes('Algebra2Lessons')) coursePrefix = 'alg2';
-                else if (path.includes('GeometryLessons')) coursePrefix = 'geometry';
-                else if (path.includes('PhysicsLessons')) coursePrefix = 'physics';
-                else if (path.includes('ChemistryLessons')) coursePrefix = 'chem';
-                else if (path.includes('BiologyLessons')) coursePrefix = 'bio';
+                let msPrefix = null;
+                if (path.includes('Algebra1Lessons'))      { coursePrefix = 'alg1';     msPrefix = 'ms_alg1'; }
+                else if (path.includes('Algebra2Lessons')) { coursePrefix = 'alg2';     msPrefix = 'ms_alg2'; }
+                else if (path.includes('GeometryLessons')) { coursePrefix = 'geometry'; msPrefix = 'ms_geom'; }
+                else if (path.includes('PhysicsLessons'))  { coursePrefix = 'physics';  msPrefix = 'ms_phys'; }
+                else if (path.includes('ChemistryLessons')){ coursePrefix = 'chem';     msPrefix = 'ms_chem'; }
+                else if (path.includes('BiologyLessons'))  { coursePrefix = 'bio';      msPrefix = 'ms_bio'; }
                 
                 if (coursePrefix) {
-                    localStorage.setItem(`${coursePrefix}_u${unit}_l${lesson}_completed`, 'true');
+                    if (isMS) {
+                        // MS student: write MS key only (do NOT write HS key)
+                        if (msPrefix) {
+                            try {
+                                var folder = path.match(/(Algebra1Lessons|Algebra2Lessons|GeometryLessons|PhysicsLessons|ChemistryLessons|BiologyLessons)/);
+                                if (folder) {
+                                    var msMap = JSON.parse(localStorage.getItem('_msMap_' + folder[1]) || '{}');
+                                    var msEntry = msMap[unit + '_' + lesson];
+                                    if (msEntry) {
+                                        var mp = msEntry.split('_');
+                                        localStorage.setItem(msPrefix + '_u' + mp[0] + '_l' + mp.slice(1).join('_') + '_completed', 'true');
+                                    }
+                                }
+                            } catch(e) {}
+                        }
+                    } else {
+                        // HS student: write HS key + also mirror to MS
+                        localStorage.setItem(`${coursePrefix}_u${unit}_l${lesson}_completed`, 'true');
+                        if (msPrefix) {
+                            try {
+                                var folder = path.match(/(Algebra1Lessons|Algebra2Lessons|GeometryLessons|PhysicsLessons|ChemistryLessons|BiologyLessons)/);
+                                if (folder) {
+                                    var msMap = JSON.parse(localStorage.getItem('_msMap_' + folder[1]) || '{}');
+                                    var msEntry = msMap[unit + '_' + lesson];
+                                    if (msEntry) {
+                                        var mp = msEntry.split('_');
+                                        localStorage.setItem(msPrefix + '_u' + mp[0] + '_l' + mp.slice(1).join('_') + '_completed', 'true');
+                                    }
+                                }
+                            } catch(e) {}
+                        }
+                    }
                 }
             }
         }
@@ -650,7 +708,7 @@
         // Re-enable and uncheck all inputs
         p.querySelectorAll('input').forEach(i => { i.disabled = false; i.checked = false; });
         p.dataset.status = '';
-        p.dataset.attempts = '2';
+        p.dataset.attempts = isMS ? String(MS_ATTEMPTS) : '2';
         // Reset attempts indicator
         const attemptsIndicator = p.querySelector('.attempts-indicator');
         if (attemptsIndicator) { attemptsIndicator.style.display = 'none'; attemptsIndicator.textContent = ''; }
@@ -661,6 +719,16 @@
         btn.style.background = '';
         btn.style.color = '';
         btn.style.animation = '';
+
+        // Reset MS eliminated labels
+        p.querySelectorAll('.ms-eliminated').forEach(lbl => {
+            lbl.classList.remove('ms-eliminated');
+            lbl.style.opacity = '';
+            lbl.style.textDecoration = '';
+            lbl.style.pointerEvents = '';
+            const inp = lbl.querySelector('input');
+            if (inp) inp.disabled = false;
+        });
 
         // Shuffle answer labels so it feels like a new question
         const labels = Array.from(p.querySelectorAll('label'));
@@ -711,7 +779,7 @@
                 var retakeBtn = document.createElement('button');
                 retakeBtn.textContent = '\u21BB Retake Quiz';
                 retakeBtn.style.cssText = 'padding:0.75rem 1.5rem;background:#3b82f6;color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer;font-size:1rem;';
-                retakeBtn.onclick = function() { modal.remove(); };
+                retakeBtn.onclick = function() { var key = getLessonQuizStorageKey(); if (key) localStorage.removeItem(key); location.reload(); };
                 var practiceBtn = document.createElement('button');
                 practiceBtn.textContent = '\uD83D\uDCDD Go to Practice';
                 practiceBtn.style.cssText = 'padding:0.75rem 1.5rem;background:#10b981;color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer;font-size:1rem;';
@@ -739,7 +807,6 @@
             // 4. Initialize quiz analytics
             quizAnalytics.quizStartTime = Date.now();
             const questions = document.querySelectorAll('.quiz-question');
-            quizAnalytics.totalQuestions = questions.length;
             
             // Pre-initialize analytics for each question
             let qIndex = 1;
@@ -763,10 +830,44 @@
                 }
             });
             
-            // 5. Randomize Questions
+            // 5a. MS Mode: remove HS-only questions before shuffling
+            if (isMS) {
+                document.querySelectorAll('.quiz-question[data-hs-only="true"]').forEach(function(q) { q.remove(); });
+            }
+
+            // 5. Randomize Questions (shuffle BEFORE MS mode hides extras)
             if (window.randomizeQuizQuestions) window.randomizeQuizQuestions();
+
+            // 6. MS Mode: limit visible questions, set extra attempts, show badge
+            if (isMS) {
+                const allQ = Array.from(document.querySelectorAll('.quiz-question'));
+                if (allQ.length > MS_MAX_QUESTIONS) {
+                    allQ.slice(MS_MAX_QUESTIONS).forEach(q => { q.style.display = 'none'; });
+                }
+                allQ.filter(q => q.style.display !== 'none').forEach(q => {
+                    q.dataset.attempts = String(MS_ATTEMPTS);
+                });
+                // Re-number visible questions
+                let visNum = 1;
+                allQ.filter(q => q.style.display !== 'none').forEach(q => {
+                    const p = q.querySelector('p');
+                    if (p) p.textContent = p.textContent.replace(/^\d+\.\s*/, `${visNum++}. `);
+                });
+                // Inject MS mode badge
+                const qv = document.getElementById('quiz-content-view');
+                if (qv) {
+                    const badge = document.createElement('div');
+                    badge.style.cssText = 'background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:0.5rem 1rem;border-radius:0.5rem;font-size:0.85rem;font-weight:700;display:inline-flex;align-items:center;gap:0.4rem;margin-bottom:1rem;';
+                    badge.innerHTML = '📘 Middle School Mode &mdash; 3 attempts per question, wrong answers eliminated';
+                    const titleEl = qv.querySelector('.page-title');
+                    if (titleEl) titleEl.after(badge);
+                    else qv.prepend(badge);
+                }
+            }
+
+            quizAnalytics.totalQuestions = Array.from(document.querySelectorAll('.quiz-question')).filter(q => q.style.display !== 'none').length;
             
-            // 6. Scroll top
+            // 7. Scroll top
             window.scrollTo(0, 0);
         }
     });

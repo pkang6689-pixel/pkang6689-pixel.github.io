@@ -1,4 +1,8 @@
 
+// MS Mode Detection — easier games for middle school students
+var _msOriginPG = (sessionStorage.getItem('courseOrigin') || '');
+var _isMSPractice = _msOriginPG.indexOf('ms_') === 0;
+
 // Toggle Practices Panel
 function _t(key, fallback) {
     var langMode = null;
@@ -105,7 +109,8 @@ window.checkQuizAnswer = function(name, correct, btn) {
     if (!parent) return;
     let attemptsElem = parent.querySelector('.attempts-indicator');
     if (!attemptsElem) return;
-    let attempts = parseInt(parent.dataset.attempts || '2');
+    var _defAtt = _isMSPractice ? '3' : '2';
+    let attempts = parseInt(parent.dataset.attempts || _defAtt);
     const selected = parent.querySelector(`input[name="${name}"]:checked`);
     let feedback = parent.querySelector('.feedback');
     if (!feedback) {
@@ -240,6 +245,11 @@ window.switchToBlockPuzzle = function() {
 };
 
 // ========== FLASHCARD GAME LOGIC ==========
+// MS Mode: swap flashcards with curated MS set if available
+if (_isMSPractice && window.msFlashcards && window.msFlashcards.length > 0) {
+    window.lessonFlashcards = window.msFlashcards;
+}
+
 window.flashcardsInitialized = false;
 window.initFlashcards = function() {
     if (window.flashcardsInitialized) return;
@@ -457,11 +467,11 @@ window.initFlashcards = function() {
     let currentQuestion = null;
     document.addEventListener('keydown', (e) => { if(e.code === 'Space') { spacePressed = true; if(isGameRunning) e.preventDefault(); } });
     document.addEventListener('keyup', (e) => { if(e.code === 'Space') spacePressed = false; });
-    let climbFuel = 50; let downwardAccel = 0;
+    let climbFuel = _isMSPractice ? 75 : 50; let downwardAccel = 0;
     
     var WIN_HEIGHT = 90; 
     var CLIMB_STEP = 15; 
-    var FALL_RATE = 0.04; 
+    var FALL_RATE = _isMSPractice ? 0.02 : 0.04;   // MS: half the fall speed
     var TICK_RATE = 20; 
     
     window.initClimbGame = function() {
@@ -557,9 +567,9 @@ window.exitClimbGame = function() {
         if (interaction) interaction.style.opacity = "1";
 
         climbScore = 0;
-        climbFuel = 50;
+        climbFuel = _isMSPractice ? 75 : 50;
         
-        playerPosition = 35;
+        playerPosition = _isMSPractice ? 45 : 35;
         isGameRunning = true;
         
         document.getElementById('climb-start-screen').style.display = 'none';
@@ -726,15 +736,15 @@ window.exitClimbGame = function() {
         const feedback = document.getElementById('climb-feedback');
         
         if(selected === currentQuestion.answer) {
-            // Correct
+            // Correct — MS students get more fuel reward
             climbScore += 10;
-            climbFuel = Math.min(100, climbFuel + 20);
+            climbFuel = Math.min(100, climbFuel + (_isMSPractice ? 35 : 20));
             feedback.innerText = (window.globalTranslations && window.globalTranslations["Correct! Adding fuel..."]) || "Correct! Adding fuel...";
             feedback.style.color = "#16a34a";
 
         } else {
-            // Incorrect
-            playerPosition -= 5;
+            // Incorrect — MS students penalized less
+            playerPosition -= (_isMSPractice ? 2 : 5);
             feedback.innerText = (window.globalTranslations && window.globalTranslations["Oops! Slipping down..."]) || "Oops! Slipping down...";
             feedback.style.color = "#dc2626";
         }
@@ -803,7 +813,7 @@ window.exitClimbGame = function() {
     let totalPairsInGame = 0;
     let streak = 0;
 
-    const MIX_MATCH_MAX_PAIRS = 10; // Cap similar to lesson Practice files
+    const MIX_MATCH_MAX_PAIRS = _isMSPractice ? 6 : 10; // MS: fewer pairs for easier matching
 
     window.startMixMatchGame = function() {
         if ((!window.lessonFlashcards || window.lessonFlashcards.length === 0) && window.initFlashcards) {

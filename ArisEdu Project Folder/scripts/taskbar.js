@@ -141,7 +141,7 @@
     if (parts[i].indexOf('Lessons') !== -1) { lessonFolder = parts[i]; break; }
   }
 
-  // Map lesson folders → course pages
+  // Map lesson folders → course pages (default: high school)
   var courseMap = {
     ChemistryLessons: '/ArisEdu Project Folder/chem.html',
     PhysicsLessons:   '/ArisEdu Project Folder/physics.html',
@@ -150,6 +150,40 @@
     Algebra2Lessons:  '/ArisEdu Project Folder/algebra2.html',
     GeometryLessons:  '/ArisEdu Project Folder/geometry.html'
   };
+
+  // --- Course origin tracking (middle school / high school) ---
+  // Map course page filenames to their lesson folder
+  var fileToLessonFolder = {
+    'chem.html': 'ChemistryLessons', 'ms_chem.html': 'ChemistryLessons',
+    'physics.html': 'PhysicsLessons', 'ms_physics.html': 'PhysicsLessons',
+    'bio.html': 'BiologyLessons', 'ms_bio.html': 'BiologyLessons',
+    'algebra1.html': 'Algebra1Lessons', 'ms_algebra1.html': 'Algebra1Lessons',
+    'algebra2.html': 'Algebra2Lessons', 'ms_algebra2.html': 'Algebra2Lessons',
+    'geometry.html': 'GeometryLessons', 'ms_geometry.html': 'GeometryLessons'
+  };
+
+  // If we're on a course page (HS or MS), store origin for lesson back-navigation
+  var folderForCurrent = fileToLessonFolder[filename];
+  if (folderForCurrent) {
+    try {
+      sessionStorage.setItem('courseOrigin_' + folderForCurrent, '/ArisEdu Project Folder/' + filename);
+      // Also set simple courseOrigin for MS-mode detection in other scripts
+      sessionStorage.setItem('courseOrigin', filename);
+    } catch(e) {}
+  }
+
+  // If we're on a lesson page, override courseMap with stored origin
+  if (lessonFolder) {
+    try {
+      var storedOrigin = sessionStorage.getItem('courseOrigin_' + lessonFolder);
+      if (storedOrigin) {
+        courseMap[lessonFolder] = storedOrigin;
+        // Also set simple courseOrigin for MS-mode detection in other scripts
+        var _originFile = storedOrigin.split('/').pop();
+        sessionStorage.setItem('courseOrigin', _originFile);
+      }
+    } catch(e) {}
+  }
 
   // --- Chemistry lesson files (underscore suffixes) ---
   if (filename.indexOf('_Practice') !== -1) {
@@ -192,8 +226,8 @@
     backText = '\u2190 Back to Course';
     backUrl = courseMap[lessonFolder] || '/ArisEdu Project Folder/Courses.html';
   }
-  // --- Course pages (chem.html, physics.html, etc.) —→ back to Courses ---
-  else if (/^(chem|physics|bio|algebra1|algebra2|geometry)\.html$/.test(filename)) {
+  // --- Course pages (chem.html, ms_chem.html, physics.html, etc.) —→ back to Courses ---
+  else if (/^(ms_)?(chem|physics|bio|algebra1|algebra2|geometry)\.html$/.test(filename)) {
     backText = '\u2190 Back to Courses';
     backUrl = '/ArisEdu Project Folder/Courses.html';
   }
@@ -1220,5 +1254,186 @@
       }
   })();
 
+  // --- Rewrite hardcoded "Back to [Subject]" buttons for middle school origin ---
+  if (lessonFolder) {
+    document.addEventListener('DOMContentLoaded', function() {
+      var storedOrigin;
+      try { storedOrigin = sessionStorage.getItem('courseOrigin_' + lessonFolder); } catch(e) {}
+      if (!storedOrigin) return;
+
+      // HS course filenames and their relative paths used in hardcoded buttons
+      var hsFiles = ['chem.html', 'physics.html', 'bio.html', 'algebra1.html', 'algebra2.html', 'geometry.html'];
+
+      var allClickables = document.querySelectorAll('button[onclick], a[onclick], a[href]');
+      for (var i = 0; i < allClickables.length; i++) {
+        var el = allClickables[i];
+        var onclick = el.getAttribute('onclick') || '';
+        var href = el.getAttribute('href') || '';
+
+        for (var j = 0; j < hsFiles.length; j++) {
+          var hsFile = hsFiles[j];
+          var relPath = '../../' + hsFile;
+          if (onclick.indexOf(relPath) !== -1) {
+            el.setAttribute('onclick', onclick.replace(relPath, storedOrigin));
+          }
+          if (href.indexOf(relPath) !== -1) {
+            el.setAttribute('href', href.replace(relPath, storedOrigin));
+          }
+        }
+      }
+    });
+  }
+
   // End taskbar.js main IIFE
+})();
+
+// ========== MS ↔ HS Course Progress Sync ==========
+// Ensures lesson progress is shared between middle school and high school course pages.
+// Both versions link to the same lesson files; this syncs started/completed status bidirectionally.
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      var pagePath = decodeURIComponent(window.location.pathname);
+      var pageFile = pagePath.split('/').pop();
+
+      // Course page pairings: MS prefix ↔ HS prefix
+      var coursePairs = {
+        'ms_chem.html':     { ms: 'ms_chem', hs: 'chem', folder: 'ChemistryLessons', isMS: true },
+        'ms_bio.html':      { ms: 'ms_bio', hs: 'bio', folder: 'BiologyLessons', isMS: true },
+        'ms_physics.html':  { ms: 'ms_phys', hs: 'physics', folder: 'PhysicsLessons', isMS: true },
+        'ms_algebra1.html': { ms: 'ms_alg1', hs: 'alg1', folder: 'Algebra1Lessons', isMS: true },
+        'ms_algebra2.html': { ms: 'ms_alg2', hs: 'alg2', folder: 'Algebra2Lessons', isMS: true },
+        'ms_geometry.html': { ms: 'ms_geom', hs: 'geometry', folder: 'GeometryLessons', isMS: true },
+        'chem.html':        { ms: 'ms_chem', hs: 'chem', folder: 'ChemistryLessons', isMS: false },
+        'bio.html':         { ms: 'ms_bio', hs: 'bio', folder: 'BiologyLessons', isMS: false },
+        'physics.html':     { ms: 'ms_phys', hs: 'physics', folder: 'PhysicsLessons', isMS: false },
+        'algebra1.html':    { ms: 'ms_alg1', hs: 'alg1', folder: 'Algebra1Lessons', isMS: false },
+        'algebra2.html':    { ms: 'ms_alg2', hs: 'alg2', folder: 'Algebra2Lessons', isMS: false },
+        'geometry.html':    { ms: 'ms_geom', hs: 'geometry', folder: 'GeometryLessons', isMS: false }
+      };
+
+      var cfg = coursePairs[pageFile];
+      if (!cfg) return;
+
+      // HS unit test indices: the lesson index of the test item on the HS page for each unit
+      var hsTestIdx = {
+        'ChemistryLessons': {'1':9,'2':6,'3':9,'4':10,'5A':9,'5B':6,'6':8,'7':9,'8':10,'9':9,'10':11,'11':7,'12':6},
+        'PhysicsLessons':   {'1':7,'2':7,'3':9,'4':7,'5':7,'6':7,'7':9,'8':7,'9':7,'10':10,'11':7},
+        'BiologyLessons':   {'1':8,'2':8,'3':6,'4':7,'5':7,'6':7,'7':7,'8':6,'9':6,'10':7,'11':7,'12':7},
+        'Algebra1Lessons':  {'1':8,'2':10,'3':8,'4':9,'5':11,'6':7,'7':9,'8':5,'9':5,'10':5,'11':4,'12':5},
+        'Algebra2Lessons':  {'1':10,'2':8,'3':8,'4':7,'5':8,'6':6,'7':8,'8':7,'9':5},
+        'GeometryLessons':  {'1':8,'2':10,'3':8,'4':9,'5':7,'6':8,'7':9,'8':9,'9':8,'10':10,'11':7,'12':10,'13':8}
+      };
+      var tMap = hsTestIdx[cfg.folder] || {};
+
+      // Scan all lesson links to build local→HS index mapping
+      var allLinks = document.querySelectorAll('a[onclick*="markLessonStarted"]');
+      var localToHs = {}; // "localUnit_localIdx" → { hsU, hsL }
+
+      allLinks.forEach(function(a) {
+        var oc = a.getAttribute('onclick') || '';
+        var m = oc.match(/markLessonStarted\(\s*'([^']+)'\s*,\s*(\d+)\s*\)/);
+        if (!m) return;
+        var lU = m[1], lI = m[2];
+        var href = decodeURIComponent(a.getAttribute('href') || '');
+
+        var hsU, hsL;
+        // Regular lesson: "Lesson3.5_Video.html" or "Lesson 3.5_Video.html" or "Lesson 5A.2_Video.html"
+        var lm = href.match(/Lesson\s*(\w+)\.(\d+)/);
+        // Unit test: "Unit3_Test_Practice.html"
+        var tm = href.match(/Unit(\w+)_Test/);
+
+        if (lm) { hsU = lm[1]; hsL = lm[2]; }
+        else if (tm) { hsU = tm[1]; hsL = tMap[tm[1]]; }
+
+        if (hsU && hsL) {
+          localToHs[lU + '_' + lI] = { hsU: String(hsU), hsL: String(hsL) };
+        }
+      });
+
+      // MS pages: store reverse map (HS→MS) so HS pages can use it later
+      if (cfg.isMS) {
+        var reverseMap = {};
+        for (var k in localToHs) {
+          var v = localToHs[k];
+          reverseMap[v.hsU + '_' + v.hsL] = k;
+        }
+        try { localStorage.setItem('_msMap_' + cfg.folder, JSON.stringify(reverseMap)); } catch(e) {}
+      }
+
+      // Helper: one-way sync HS → MS (completing HS also completes MS, but NOT vice-versa)
+      function syncPair(msBase, hsBase) {
+        ['_started', '_completed'].forEach(function(suf) {
+          var mk = msBase + suf, hk = hsBase + suf;
+          if (localStorage.getItem(hk) === 'true' && localStorage.getItem(mk) !== 'true')
+            localStorage.setItem(mk, 'true');
+        });
+      }
+
+      // === Sync existing progress on page load ===
+      if (cfg.isMS) {
+        // MS page: sync each local entry with its HS counterpart
+        for (var key in localToHs) {
+          var parts = key.split('_');
+          var msU = parts[0], msI = parts.slice(1).join('_'); // Handle units like "5A"
+          var hs = localToHs[key];
+          syncPair(
+            cfg.ms + '_u' + msU + '_l' + msI,
+            cfg.hs + '_u' + hs.hsU + '_l' + hs.hsL
+          );
+        }
+      } else {
+        // HS page: load MS reverse map (stored when MS page was visited)
+        var msMap = {};
+        try { msMap = JSON.parse(localStorage.getItem('_msMap_' + cfg.folder) || '{}'); } catch(e) {}
+
+        allLinks.forEach(function(a) {
+          var oc = a.getAttribute('onclick') || '';
+          var m = oc.match(/markLessonStarted\(\s*'([^']+)'\s*,\s*(\d+)\s*\)/);
+          if (!m) return;
+          var hsU = m[1], hsI = m[2];
+          var msEntry = msMap[hsU + '_' + hsI];
+          if (msEntry) {
+            var mp = msEntry.split('_');
+            var msU = mp[0], msI = mp.slice(1).join('_');
+            syncPair(
+              cfg.ms + '_u' + msU + '_l' + msI,
+              cfg.hs + '_u' + hsU + '_l' + hsI
+            );
+          }
+        });
+      }
+
+      // === Wrap markLessonStarted to sync in real-time on click ===
+      if (typeof window.markLessonStarted === 'function') {
+        var origMLS = window.markLessonStarted;
+        window.markLessonStarted = function(unit, lesson) {
+          origMLS(unit, lesson);
+
+          if (cfg.isMS) {
+            // MS click → do NOT write HS key (one-way: HS→MS only)
+          } else {
+            // HS click → also write MS started key (if reverse map exists)
+            try {
+              var ms = JSON.parse(localStorage.getItem('_msMap_' + cfg.folder) || '{}');
+              var msK = ms[unit + '_' + lesson];
+              if (msK) {
+                var mp = msK.split('_');
+                var msCompletedKey = cfg.ms + '_u' + mp[0] + '_l' + mp.slice(1).join('_') + '_completed';
+                if (localStorage.getItem(msCompletedKey) !== 'true') {
+                  localStorage.setItem(cfg.ms + '_u' + mp[0] + '_l' + mp.slice(1).join('_') + '_started', 'true');
+                }
+              }
+            } catch(e) {}
+          }
+        };
+      }
+
+      // Re-apply progress colors after sync (the function is defined by the course page)
+      if (typeof window.applyProgressColors === 'function') {
+        setTimeout(function() { window.applyProgressColors(); }, 10);
+      }
+
+    } catch(e) { /* fail silently */ }
+  });
 })();

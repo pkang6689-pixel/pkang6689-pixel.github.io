@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit 5A: Unit Test</title>
+<script src="/_sdk/element_sdk.js"></script>
+<script src="../../scripts/global_translations.js?v=7.0"></script>
+    <script src="../../scripts/spanish_translations.js?v=1.0"></script>
+    <script src="../../scripts/hindi_translations.js?v=1.0"></script>
+<script src="/quiz_logic.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+<style>@view-transition { navigation: auto; }
+    
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="../../theme_manager.js"></script>
+    <script>
+        // Apply translations when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.applyTranslations) {
+                setTimeout(function() {
+                    window.applyTranslations();
+                }, 50);
+            }
+        });
+    </script>
+    </head>
+<body class="dark-mode h-full">
+<script src="../../scripts/taskbar.js"></script>
+<main class="main-container">
+<div id="practice-content-view">
+<h2 class="page-title" data-i18n="Unit 5A Practice">Unit 5A Practice</h2>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button class="side-button" onclick="window.location.href='../../chem.html'" style="font-size:0.9rem;padding:0.5rem 1rem;">Back to Chemistry</button>
+</div>
+<div class="diagram-card">
+<div class="flashcard-game" id="flashcard-game" style="margin-top:2rem;display:flex;flex-direction:column;align-items:center;perspective:1000px;overflow:hidden;">
+<div class="flashcard-box" id="flashcard" style="background:#fff;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.12);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;text-align:center;min-width:calc(320px + 56rem);min-height:calc(120px + 24rem);font-weight:600;color:#0f172a;margin-bottom:1rem;cursor:pointer;transition:background 0.2s, color 0.2s;">
+<span id="flashcard-content" style="width:100%;display:block;"></span>
+</div>
+<div style="display:flex;gap:1rem;">
+<button id="prev-flashcard" style="background:#ef4444;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="next-flashcard" style="background:#10b981;padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+<svg fill="none" height="28" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+<button id="shuffle-flashcard" title="Shuffle flashcards">
+<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l-1.5 1.5M20 20h-7l1.5-1.5M4 20l16-16" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+Shuffle
+</button>
+<span id="flashcard-counter" style="display:flex;align-items:center;font-weight:600;font-size:1rem;color:#64748b;white-space:nowrap;"></span>
+</div>
+</div>
+<div class="Practice-actions" style="margin-top:2rem;display:flex;justify-content:flex-end;width:100%;">
+<button class="side-button" onclick="window.location.href='Unit5A_Test.html'" style="text-align:center;">Start Unit Test</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+window.lessonFlashcards = [
+    { question: "What is nomenclature?", answer: "The system of naming chemical compounds" },
+    { question: "What two main types of compounds require different naming rules?", answer: "Ionic compounds and covalent (molecular) compounds" },
+    { question: "What determines the type of bond formed?", answer: "Whether atoms transfer or share electrons" },
+    { question: "What electrons are involved in bond formation?", answer: "Valence electrons" },
+    { question: "Is energy released or absorbed when bonds form?", answer: "Released" },
+    { question: "Is energy released or absorbed to break bonds?", answer: "Absorbed" },
+    { question: "What is net charge?", answer: "The sum of all positive and negative charges on an ion or compound" },
+    { question: "What is the net charge of a neutral compound?", answer: "Zero" },
+    { question: "What charge do metals typically form?", answer: "Positive (cations)" },
+    { question: "What charge do nonmetals typically form?", answer: "Negative (anions)" },
+    { question: "What is a cation?", answer: "A positively charged ion (lost electrons)" },
+    { question: "What is an anion?", answer: "A negatively charged ion (gained electrons)" },
+    { question: "How do you find the charge of a main-group metal ion?", answer: "It equals the group number" },
+    { question: "How do you find the charge of a nonmetal ion?", answer: "Group number minus 8" },
+    { question: "What is a chemical bond?", answer: "An attractive force that holds atoms together" },
+    { question: "Why do atoms form bonds?", answer: "To achieve a stable electron configuration (full outer shell)" },
+    { question: "What is the octet rule?", answer: "Atoms tend to gain, lose, or share electrons to have 8 valence electrons" },
+    { question: "What is an ionic bond?", answer: "A bond formed by the transfer of electrons from a metal to a nonmetal" },
+    { question: "Between what types of elements do ionic bonds form?", answer: "A metal and a nonmetal" },
+    { question: "What structure do ionic compounds form?", answer: "A crystal lattice" },
+    { question: "Do ionic compounds conduct electricity as solids?", answer: "No, only when melted or dissolved in water" },
+    { question: "What are properties of ionic compounds?", answer: "High melting points, brittle, conduct electricity when dissolved" },
+    { question: "What is an electrolyte?", answer: "A substance that conducts electricity when dissolved in water" },
+    { question: "What is the crisscross method?", answer: "A method where ion charges are swapped as subscripts to write a formula" },
+    { question: "Use the crisscross method: what is the formula for aluminum oxide?", answer: "Al₂O₃ (Al³⁺ and O²⁻)" },
+    { question: "How do you name an ionic compound?", answer: "Metal name + nonmetal name ending in -ide" },
+    { question: "What is the name of NaCl?", answer: "Sodium chloride" },
+    { question: "What is the name of MgO?", answer: "Magnesium oxide" },
+    { question: "What is the name of CaBr₂?", answer: "Calcium bromide" },
+    { question: "Do you use prefixes when naming ionic compounds?", answer: "No" },
+    { question: "How do you name ionic compounds with transition metals?", answer: "Use Roman numerals to show the metal's charge" },
+    { question: "What is the name of FeCl₃?", answer: "Iron(III) chloride" },
+    { question: "What is a polyatomic ion?", answer: "A group of atoms bonded together that acts as a single ion" },
+    { question: "What is the formula and charge of nitrate?", answer: "NO₃⁻" },
+    { question: "What is the formula and charge of sulfate?", answer: "SO₄²⁻" },
+    { question: "What is the formula and charge of hydroxide?", answer: "OH⁻" },
+    { question: "What is the formula and charge of ammonium?", answer: "NH₄⁺" },
+    { question: "What is the formula and charge of phosphate?", answer: "PO₄³⁻" },
+    { question: "What is the formula and charge of carbonate?", answer: "CO₃²⁻" },
+    { question: "How do you write formulas with polyatomic ions?", answer: "Use parentheses around the polyatomic ion when subscript > 1" },
+    { question: "What is the formula for calcium nitrate?", answer: "Ca(NO₃)₂" },
+    { question: "What is the formula for sodium hydroxide?", answer: "NaOH" },
+    { question: "What suffix replaces the element ending for anions?", answer: "-ide" },
+    { question: "What is another name for table salt (NaCl)?", answer: "Sodium chloride" },
+    { question: "What is the charge of sodium ion?", answer: "+1 (Na⁺)" },
+    { question: "What is the charge of chloride ion?", answer: "-1 (Cl⁻)" }
+];
+
+// MS Mode: curated flashcard subset (auto-generated)
+window.msFlashcards = [
+    { question: "What type of electrons are involved in bond formation?", answer: "Valence electrons" },
+    { question: "Is energy released or absorbed when bonds form?", answer: "Released" },
+    { question: "Is energy released or absorbed when bonds break?", answer: "Absorbed" },
+    { question: "What is nomenclature?", answer: "The system of naming chemical compounds" },
+    { question: "What determines how a compound is named?", answer: "The type of bond (ionic vs covalent)" },
+    { question: "What is net charge?", answer: "The overall charge of an atom or ion (protons minus electrons)" },
+    { question: "What is an ion?", answer: "An atom that has gained or lost electrons" },
+    { question: "What is a cation?", answer: "A positively charged ion (lost electrons)" },
+    { question: "What is an anion?", answer: "A negatively charged ion (gained electrons)" },
+    { question: "What happens to the charge when an atom loses an electron?", answer: "It becomes positive (cation)" },
+    { question: "What must happen for a chemical bond to form?", answer: "Atoms must share or transfer valence electrons" },
+    { question: "What electrons are involved in bond formation?", answer: "Valence electrons" },
+    { question: "Is energy released or absorbed when bonds form?", answer: "Released" },
+    { question: "Is energy released or absorbed to break bonds?", answer: "Absorbed" },
+    { question: "What is a stable electron configuration?", answer: "A full outer electron shell (octet)" },
+    { question: "Ionic bonds involve _____ of electrons.", answer: "Transfer" },
+    { question: "Ionic bonds occur between what types of elements?", answer: "Metal and nonmetal" },
+    { question: "What structure do ionic compounds form?", answer: "Crystal lattice" },
+    { question: "Do ionic compounds conduct electricity?", answer: "When melted or dissolved (electrolyte)" },
+    { question: "What is an electrolyte?", answer: "A substance that conducts electricity when dissolved in water" },
+    { question: "What is the name for NaCl?", answer: "Sodium chloride" },
+    { question: "What is the name for MgO?", answer: "Magnesium oxide" },
+    { question: "Do we use prefixes for ionic compound names?", answer: "No" },
+    { question: "How do we indicate multiple charges for transition metals?", answer: "Roman numerals in parentheses" },
+    { question: "What ending do anions get in ionic naming?", answer: "-ide" }
+];
+</script>
+<script src="../../scripts/practice_games.js"></script>
+<script src="../../scripts/dev_tools.js"></script>
+<script src="../../scripts/blocks_puzzle.js"></script>
+<script src="/ArisEdu Project Folder/scripts/game_utils.js"></script>
+<script src="../../scripts/unit_test.js"></script>
+</body>
+</html>
