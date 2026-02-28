@@ -76,6 +76,78 @@
         return `${minutes}:${secs.toString().padStart(2, '0')}`;
     }
 
+    // Show explanation modal for why no tokens were awarded (daily cap hit)
+    function showTokenCapExplanation() {
+        const explanationModal = document.createElement('div');
+        explanationModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(4px);
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        `;
+
+        const explanationBox = document.createElement('div');
+        explanationBox.style.cssText = `
+            background: ${document.body.classList.contains('dark-mode') ? '#1e293b' : 'white'};
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            color: ${document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#0f172a'};
+        `;
+
+        explanationBox.innerHTML = `
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎮</div>
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0 0 0.5rem 0;">Daily Token Limit</h2>
+            </div>
+            <div style="background: ${document.body.classList.contains('dark-mode') ? '#334155' : '#f8fafc'}; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem; line-height: 1.6;">
+                <p style="margin: 0 0 1rem 0; color: ${document.body.classList.contains('dark-mode') ? '#cbd5e1' : '#475569'};">
+                    <strong style="color: ${document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#0f172a'};">You've already earned tokens for this lesson today!</strong>
+                </p>
+                <p style="margin: 0; color: ${document.body.classList.contains('dark-mode') ? '#cbd5e1' : '#475569'};">
+                    Each lesson can award <strong style="color: ${document.body.classList.contains('dark-mode') ? '#22c55e' : '#16a34a'};">100 arcade tokens once per day</strong>. Come back tomorrow to earn tokens from this lesson again.
+                </p>
+            </div>
+            <div style="background: ${document.body.classList.contains('dark-mode') ? '#14532d' : '#dcfce7'}; border-left: 4px solid ${document.body.classList.contains('dark-mode') ? '#22c55e' : '#16a34a'}; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem;">
+                <div style="font-weight: 700; margin-bottom: 0.5rem; color: ${document.body.classList.contains('dark-mode') ? '#22c55e' : '#16a34a'};">💡 Pro Tip</div>
+                <div style="font-size: 0.9rem; color: ${document.body.classList.contains('dark-mode') ? '#cbd5e1' : '#475569'};">
+                    Try different lessons across your courses to keep earning tokens today!
+                </div>
+            </div>
+            <button id="close-token-explanation" style="
+                width: 100%;
+                padding: 0.75rem;
+                background: #3b82f6;
+                color: white;
+                border: none;
+                border-radius: 0.5rem;
+                font-weight: 600;
+                font-size: 1rem;
+                cursor: pointer;
+            ">Got it!</button>
+        `;
+
+        explanationModal.appendChild(explanationBox);
+        document.body.appendChild(explanationModal);
+
+        // Close handlers
+        const closeBtn = explanationBox.querySelector('#close-token-explanation');
+        closeBtn.addEventListener('click', () => explanationModal.remove());
+        explanationModal.addEventListener('click', (e) => {
+            if (e.target === explanationModal) explanationModal.remove();
+        });
+    }
+
     // Create and show the quiz completion screen
     function showQuizCompletionScreen() {
         if (!quizAnalytics.quizStartTime || !quizAnalytics.quizEndTime) {
@@ -171,35 +243,62 @@
         `;
         content.appendChild(stats);
 
-        // Token reward notice (only if tokens were awarded on this completion)
-        if (quizAnalytics.tokensAwarded && quizAnalytics.tokensAwarded > 0) {
-            const rewardBox = document.createElement('div');
-            rewardBox.style.cssText = `
-                margin-top: 0;
-                margin-bottom: 2rem;
-                padding: 1rem 1.25rem;
-                border-radius: 0.9rem;
-                background: ${document.body.classList.contains('dark-mode') ? '#14532d' : '#dcfce7'};
-                border: 1px solid ${document.body.classList.contains('dark-mode') ? '#22c55e' : '#16a34a'};
-                display: flex;
-                align-items: center;
-                gap: 0.75rem;
-            `;
+        // ARCADE TOKENS SECTION (always shown, prominent)
+        const tokensEarned = (typeof quizAnalytics.tokensAwarded === 'number') ? quizAnalytics.tokensAwarded : 0;
+        const totalTokens = (typeof quizAnalytics.totalTokensAfter === 'number') ? quizAnalytics.totalTokensAfter : null;
+        const earnedTokens = tokensEarned > 0;
+        
+        const arcadeBox = document.createElement('div');
+        arcadeBox.style.cssText = `
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: 1.25rem;
+            background: ${earnedTokens 
+                ? (document.body.classList.contains('dark-mode') ? 'linear-gradient(135deg, #14532d 0%, #166534 100%)' : 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)')
+                : (document.body.classList.contains('dark-mode') ? '#334155' : '#f1f5f9')
+            };
+            border: 3px solid ${earnedTokens 
+                ? (document.body.classList.contains('dark-mode') ? '#22c55e' : '#16a34a')
+                : (document.body.classList.contains('dark-mode') ? '#475569' : '#cbd5e1')
+            };
+            text-align: center;
+            position: relative;
+        `;
 
-            const totalLine = (typeof quizAnalytics.totalTokensAfter === 'number')
-                ? `<div style="font-size:0.9rem; opacity:0.85;">Total arcade tokens: ${quizAnalytics.totalTokensAfter}</div>`
-                : '';
-
-            rewardBox.innerHTML = `
-                <div style="font-size:1.8rem;">🪙</div>
-                <div>
-                    <div style="font-weight:700; font-size:1.05rem;">You earned ${quizAnalytics.tokensAwarded} arcade tokens!</div>
-                    ${totalLine}
+        const tokenDisplayHTML = earnedTokens
+            ? `
+                <div style="font-size: 4rem; margin-bottom: 0.5rem;">🎮</div>
+                <div style="font-size: 2.5rem; font-weight: 900; color: ${document.body.classList.contains('dark-mode') ? '#22c55e' : '#16a34a'}; margin-bottom: 0.5rem; text-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    +${tokensEarned} Arcade Tokens!
                 </div>
+                ${totalTokens !== null ? `<div style="font-size: 1.1rem; opacity: 0.85; color: ${document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#475569'};">Total: ${totalTokens} 💎</div>` : ''}
+            `
+            : `
+                <div style="font-size: 3.5rem; margin-bottom: 0.5rem; opacity: 0.6;">🎮</div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                    <div style="font-size: 2rem; font-weight: 900; color: ${document.body.classList.contains('dark-mode') ? '#94a3b8' : '#64748b'};">
+                        +0 Arcade Tokens
+                    </div>
+                    <button id="token-cap-help-btn" style="width: 2rem; height: 2rem; border-radius: 50%; background: ${document.body.classList.contains('dark-mode') ? '#475569' : '#e2e8f0'}; color: ${document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#475569'}; border: 2px solid ${document.body.classList.contains('dark-mode') ? '#64748b' : '#94a3b8'}; font-size: 1.2rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; line-height: 1;">?</button>
+                </div>
+                <div style="font-size: 0.95rem; opacity: 0.75; color: ${document.body.classList.contains('dark-mode') ? '#cbd5e1' : '#64748b'}; margin-bottom: 0.5rem;">Already earned today</div>
+                ${totalTokens !== null ? `<div style="font-size: 1rem; opacity: 0.7; color: ${document.body.classList.contains('dark-mode') ? '#94a3b8' : '#64748b'};">Current balance: ${totalTokens} 💎</div>` : ''}
             `;
 
-            // Insert the reward box just after the stats block
-            content.insertBefore(rewardBox, timingSection);
+        arcadeBox.innerHTML = tokenDisplayHTML;
+        content.appendChild(arcadeBox);
+
+        // Add help modal for token cap explanation (shown when button clicked)
+        if (!earnedTokens) {
+            setTimeout(() => {
+                const helpBtn = document.getElementById('token-cap-help-btn');
+                if (helpBtn) {
+                    helpBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showTokenCapExplanation();
+                    });
+                }
+            }, 0);
         }
 
         // Time per question breakdown
@@ -363,6 +462,20 @@
         else if (path.indexOf('Geometry') !== -1) prefix = 'geometry';
         else if (path.indexOf('Biology') !== -1) prefix = 'bio';
         return prefix + '_u' + unit + '_l' + lesson + '_completed';
+    }
+
+    function getLocalDateStamp() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function getLessonDailyRewardStorageKey() {
+        const completionKey = getLessonQuizStorageKey();
+        if (!completionKey) return null;
+        return completionKey.replace(/_completed$/, '_rewarded_date');
     }
 
     window.toggleToPractice = function(event) {
@@ -558,26 +671,37 @@
     };
     } // end if (!window.checkQuizAnswer)
 
-    // Award arcade tokens for completing a lesson quiz the first time
+    // Award arcade tokens once per lesson per day
     function awardLessonTokensIfFirstCompletion() {
-        if (typeof getLessonQuizStorageKey !== 'function') return;
-        const storageKey = getLessonQuizStorageKey();
-        if (!storageKey) return;
+        if (typeof getLessonDailyRewardStorageKey !== 'function' || typeof getLessonQuizStorageKey !== 'function') return;
 
-        let alreadyCompleted = false;
+        const completionKey = getLessonQuizStorageKey();
+        const dailyRewardKey = getLessonDailyRewardStorageKey();
+        if (!completionKey || !dailyRewardKey) return;
+
+        const today = getLocalDateStamp();
+
+        let alreadyRewardedToday = false;
         try {
-            alreadyCompleted = (localStorage.getItem(storageKey) === 'true');
+            alreadyRewardedToday = (localStorage.getItem(dailyRewardKey) === today);
         } catch (e) {
-            alreadyCompleted = false;
+            alreadyRewardedToday = false;
         }
 
-        // If this lesson was already completed before, do not award again
-        if (alreadyCompleted) {
+        // If this lesson has already rewarded tokens today, do not award again
+        if (alreadyRewardedToday) {
             quizAnalytics.tokensAwarded = 0;
+            // Still get the current token balance to show in the completion screen
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                quizAnalytics.totalTokensAfter = parseInt(user.points || '0', 10) || 0;
+            } catch (e) {
+                quizAnalytics.totalTokensAfter = 0;
+            }
             return;
         }
 
-        // Award 100 arcade tokens and mark lesson as completed
+        // Award 100 arcade tokens and mark lesson as completed + rewarded today
         let user = {};
         try {
             user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -591,13 +715,69 @@
 
         try {
             localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem(storageKey, 'true');
+            localStorage.setItem(completionKey, 'true');
+            
+            // Mirror HS completion to MS lesson (one-way: HS→MS only)
+            mirrorHSToMSCompletion();
+            
+            localStorage.setItem(dailyRewardKey, today);
         } catch (e) {
             // If storage fails, just skip without breaking quiz flow
         }
 
         quizAnalytics.tokensAwarded = reward;
         quizAnalytics.totalTokensAfter = user.points;
+    }
+
+    // Mirror HS lesson completion to MS lesson (one-way: HS→MS only)
+    // When an HS student completes a lesson, mark the corresponding MS lesson as complete too
+    function mirrorHSToMSCompletion() {
+        // Only mirror for HS students (MS students completing should NOT affect HS)
+        if (isMS) return;
+
+        try {
+            const completionKey = getLessonQuizStorageKey();
+            if (!completionKey) return;
+
+            // Parse the lesson info from the current URL
+            const path = decodeURIComponent(window.location.pathname);
+            const lessonMatch = path.match(/Lesson\s*(\w+)\.(\d+)_Quiz/);
+            if (!lessonMatch) return;
+
+            const unit = lessonMatch[1];
+            const lesson = lessonMatch[2];
+
+            // Determine course and MS prefix
+            let folder = null;
+            let msPrefix = null;
+
+            if (path.includes('Algebra1Lessons'))      { folder = 'Algebra1Lessons'; msPrefix = 'ms_alg1'; }
+            else if (path.includes('Algebra2Lessons')) { folder = 'Algebra2Lessons'; msPrefix = 'ms_alg2'; }
+            else if (path.includes('GeometryLessons')) { folder = 'GeometryLessons'; msPrefix = 'ms_geom'; }
+            else if (path.includes('PhysicsLessons'))  { folder = 'PhysicsLessons';  msPrefix = 'ms_phys'; }
+            else if (path.includes('ChemistryLessons')){ folder = 'ChemistryLessons'; msPrefix = 'ms_chem'; }
+            else if (path.includes('BiologyLessons'))  { folder = 'BiologyLessons';  msPrefix = 'ms_bio'; }
+
+            if (!folder || !msPrefix) return;
+
+            // Look up the MS mapping (created when MS page was visited)
+            const msMap = JSON.parse(localStorage.getItem('_msMap_' + folder) || '{}');
+            const msEntry = msMap[unit + '_' + lesson];
+
+            if (msEntry) {
+                // Parse MS unit and lesson (handle units like "5A" with underscores)
+                const mp = msEntry.split('_');
+                const msUnit = mp[0];
+                const msLesson = mp.slice(1).join('_');
+                const msCompletionKey = msPrefix + '_u' + msUnit + '_l' + msLesson + '_completed';
+
+                // Mark corresponding MS lesson as complete
+                localStorage.setItem(msCompletionKey, 'true');
+            }
+        } catch (e) {
+            // Silently fail if mirroring doesn't work (don't break quiz flow)
+            console.debug('Error mirroring HS completion to MS:', e);
+        }
     }
 
     // Check if every question on the quiz has been answered correctly
@@ -678,6 +858,46 @@
         }
 
         // Show detailed completion screen
+        showQuizCompletionScreen();
+    }
+
+    function showCompletionScreenFromAlreadyCompleted() {
+        const now = Date.now();
+        const visibleQuestions = Array.from(document.querySelectorAll('.quiz-question')).filter(q => q.style.display !== 'none');
+
+        if (!quizAnalytics.quizStartTime) quizAnalytics.quizStartTime = now;
+        quizAnalytics.quizEndTime = now;
+        quizAnalytics.tokensAwarded = 0;
+        quizAnalytics.totalTokensAfter = undefined;
+
+        if (!quizAnalytics.totalQuestions || quizAnalytics.totalQuestions <= 0) {
+            quizAnalytics.totalQuestions = visibleQuestions.length || 1;
+        }
+
+        if (!quizAnalytics.questions || Object.keys(quizAnalytics.questions).length === 0) {
+            quizAnalytics.questions = {};
+            visibleQuestions.forEach((q, index) => {
+                const input = q.querySelector('input[type="radio"]');
+                const name = input ? input.name : ('q' + (index + 1));
+                const qText = q.querySelector('p');
+                quizAnalytics.questions[name] = {
+                    startTime: now,
+                    endTime: now,
+                    wrongAttempts: 0,
+                    question: qText ? qText.textContent : '',
+                    correctText: ''
+                };
+            });
+        } else {
+            Object.keys(quizAnalytics.questions).forEach((name) => {
+                if (!quizAnalytics.questions[name].startTime) quizAnalytics.questions[name].startTime = now;
+                if (!quizAnalytics.questions[name].endTime) quizAnalytics.questions[name].endTime = now;
+                if (typeof quizAnalytics.questions[name].wrongAttempts !== 'number') quizAnalytics.questions[name].wrongAttempts = 0;
+            });
+        }
+
+        const alreadyModal = document.getElementById('already-completed-modal');
+        if (alreadyModal) alreadyModal.remove();
         showQuizCompletionScreen();
     }
     
@@ -774,7 +994,7 @@
                 const box = document.createElement('div');
                 box.style.cssText = 'background:white;border-radius:1.5rem;padding:2.5rem;max-width:420px;width:100%;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);';
                 if (document.body.classList.contains('dark-mode')) { box.style.background = '#1e293b'; box.style.color = '#e2e8f0'; }
-                box.innerHTML = '<h2 style="font-size:2rem;margin-bottom:1rem;">\u2705 Already Completed!</h2><p style="color:#64748b;margin-bottom:2rem;">You\'ve already passed this quiz.</p><div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;"></div>';
+                box.innerHTML = '<h2 style="font-size:2rem;margin-bottom:1rem;">\u2705 Already Completed!</h2><p style="color:#64748b;margin-bottom:2rem;">You\'ve already passed this quiz.<br>Arcade tokens reset daily for each lesson, so you can earn again tomorrow.</p><div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;"></div>';
                 var btnContainer = box.querySelector('div:last-child');
                 var retakeBtn = document.createElement('button');
                 retakeBtn.textContent = '\u21BB Retake Quiz';
@@ -784,8 +1004,13 @@
                 practiceBtn.textContent = '\uD83D\uDCDD Go to Practice';
                 practiceBtn.style.cssText = 'padding:0.75rem 1.5rem;background:#10b981;color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer;font-size:1rem;';
                 practiceBtn.onclick = function() { var url = getPracticeFileUrl(); if (url) window.location.href = url; };
+                var completeBtn = document.createElement('button');
+                completeBtn.textContent = '\uD83D\uDCCA Show Complete Screen';
+                completeBtn.style.cssText = 'padding:0.75rem 1.5rem;background:#8b5cf6;color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer;font-size:1rem;';
+                completeBtn.onclick = function() { showCompletionScreenFromAlreadyCompleted(); };
                 btnContainer.appendChild(retakeBtn);
                 btnContainer.appendChild(practiceBtn);
+                btnContainer.appendChild(completeBtn);
                 modal.appendChild(box);
                 document.body.appendChild(modal);
             }

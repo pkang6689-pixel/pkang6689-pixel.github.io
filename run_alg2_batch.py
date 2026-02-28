@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
 Run all Algebra 2 translation batches for injection into translations_master.json
+
+Now uses consolidated algebra2_translations_database.py for cleaner organization.
 """
 import sys
 import os
@@ -10,42 +12,30 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from inject_translations_util import inject_all
 
-# Import all Algebra 2 batches
-from batch_alg2_summary_a import summary_a_translations
-from batch_alg2_summary_b import summary_b_translations
-from batch_alg2_summary_c import summary_c_translations
-from batch_alg2_summary_d import summary_d_translations
-from batch_alg2_quiz_a import quiz_a_translations
-from batch_alg2_quiz_b import quiz_b_translations
-from batch_alg2_quiz_c import quiz_c_translations
-from batch_alg2_quiz_d import quiz_d_translations
-from batch_alg2_quiz_e import quiz_e_translations
-from batch_alg2_answers_a import answers_a_translations
-from batch_alg2_answers_b import answers_b_translations
-from batch_alg2_answers_c import answers_c_translations
-from batch_alg2_answers_d import answers_d_translations
+# Import all translations from consolidated database
+from algebra2_translations_database import (
+    summary_a_translations,
+    summary_b_translations, 
+    summary_c_translations,
+    summary_d_translations,
+    quiz_a_translations,
+    quiz_b_translations,
+    quiz_c_translations,
+    quiz_d_translations,
+    quiz_e_translations,
+    answers_a_translations,
+    answers_b_translations,
+    answers_c_translations,
+    answers_d_translations,
+    all_translations as all_alg2_translations
+)
 
-# Combine all batches
-all_alg2_translations = {}
-
-# Summary batches
-all_alg2_translations.update(summary_a_translations)
-all_alg2_translations.update(summary_b_translations)
-all_alg2_translations.update(summary_c_translations)
-all_alg2_translations.update(summary_d_translations)
-
-# Quiz batches
-all_alg2_translations.update(quiz_a_translations)
-all_alg2_translations.update(quiz_b_translations)
-all_alg2_translations.update(quiz_c_translations)
-all_alg2_translations.update(quiz_d_translations)
-all_alg2_translations.update(quiz_e_translations)
-
-# Answer batches
-all_alg2_translations.update(answers_a_translations)
-all_alg2_translations.update(answers_b_translations)
-all_alg2_translations.update(answers_c_translations)
-all_alg2_translations.update(answers_d_translations)
+# Use pre-combined translations from database
+# (uncomment old method if needed):
+# all_alg2_translations = {}
+# all_alg2_translations.update(summary_a_translations)
+# all_alg2_translations.update(summary_b_translations)
+# ... etc
 
 print(f"Total Algebra 2 entries to inject: {len(all_alg2_translations)}")
 print(f"Summary A: {len(summary_a_translations)}")

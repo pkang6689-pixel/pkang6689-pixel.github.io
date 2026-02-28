@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Craft 2D - Arcade</title>
+    <script src="firebase-utils.js"></script>
+    <style>
+        #game-session-timer {
+            font-size: 1.05rem !important;
+            font-weight: 700 !important;
+        }
+    </style>
+    <script>
+        let timerIntervalId;
+        let drainIntervalId;
+
+        (async function() {
+            await initializeFirebase();
+
+            if (sessionStorage.getItem('validGameAccess') !== 'true') {
+                alert('You must access this game from the Arcade page.');
+                window.location.href = 'arcade.html';
+                return;
+            }
+
+            function showOutOfTokensPopup() {
+                clearInterval(timerIntervalId);
+                clearInterval(drainIntervalId);
+
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;';
+
+                const modal = document.createElement('div');
+                modal.style.cssText = 'background:white;border-radius:1rem;padding:2rem;max-width:400px;text-align:center;box-shadow:0 20px 25px rgba(0,0,0,0.3);';
+
+                modal.innerHTML = `
+                    <div style="font-size:3rem;margin-bottom:1rem;">💸</div>
+                    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:1rem;color:#1e293b;">Out of Tokens!</h2>
+                    <p style="margin-bottom:1.5rem;color:#64748b;">Your token balance hit zero.</p>
+                    <p style="margin-bottom:1.5rem;color:#94a3b8;font-size:0.85rem;">Earn more tokens by completing lessons and quizzes!</p>
+                    <button id="back-to-arcade" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#f59e0b;color:#000;cursor:pointer;font-weight:700;font-size:1rem;">Back to Arcade</button>
+                `;
+
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+
+                modal.querySelector('#back-to-arcade').onclick = () => {
+                    sessionStorage.removeItem('validGameAccess');
+                    window.location.href = 'arcade.html';
+                };
+            }
+
+            window.initializeTokenDrain = function() {
+                const sessionSlot = document.getElementById('hud-session-slot') || document.getElementById('game-sidebar');
+                if (!sessionSlot) return;
+
+                let timerDisplay = document.getElementById('game-session-timer');
+                if (!timerDisplay) {
+                    timerDisplay = document.createElement('div');
+                    timerDisplay.id = 'game-session-timer';
+                    sessionSlot.appendChild(timerDisplay);
+                }
+
+                function updateTimerDisplay() {
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    const remaining = Math.max(0, user.points || 0);
+                    timerDisplay.textContent = remaining + '💎';
+                    timerDisplay.className = remaining <= 20 ? 'warning' : '';
+
+                    if (remaining <= 0) {
+                        showOutOfTokensPopup();
+                    }
+                }
+
+                function drainTokens() {
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    const pts = user.points || 0;
+                    if (pts > 0) {
+                        user.points = pts - 1;
+                        localStorage.setItem('user', JSON.stringify(user));
+                        updateTimerDisplay();
+                    } else {
+                        showOutOfTokensPopup();
+                    }
+                }
+
+                if (timerIntervalId) clearInterval(timerIntervalId);
+                if (drainIntervalId) clearInterval(drainIntervalId);
+
+                updateTimerDisplay();
+                drainIntervalId = setInterval(drainTokens, 1000);
+
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        clearInterval(drainIntervalId);
+                    } else {
+                        drainIntervalId = setInterval(drainTokens, 1000);
+                    }
+                });
+            };
+
+            document.addEventListener('DOMContentLoaded', window.initializeTokenDrain);
+        })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
+        #game-wrapper {
+            margin-left: 150px;
+            width: min(1120px, calc(100vw - 180px));
+            max-width: 100%;
+        }
+        #game {
+            width: 100%;
+            height: auto;
+            image-rendering: pixelated;
+            border-radius: 0.5rem;
+        }
+        .pause-btn {
+            position: absolute;
+            bottom: 0.75rem;
+            left: 0.75rem;
+            z-index: 50;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 0.75rem;
+            color: white;
+            cursor: pointer;
+            padding: 8px;
+            line-height: 0;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .pause-btn:hover {
+            background: rgba(255,255,255,0.25);
+            transform: scale(1.1);
+        }
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 0.75rem;
+            right: 0.75rem;
+            z-index: 50;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 0.75rem;
+            color: white;
+            cursor: pointer;
+            padding: 8px;
+            line-height: 0;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .fullscreen-btn:hover {
+            background: rgba(255,255,255,0.25);
+            transform: scale(1.1);
+        }
+        #game-wrapper:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            max-width: none;
+            border-radius: 0;
+        }
+        .game-hud {
+            position: absolute;
+            z-index: 15;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .game-hud.left {
+            top: 1rem;
+            left: 1rem;
+            width: min(250px, 35%);
+        }
+        .game-hud.right {
+            top: 1rem;
+            right: 1rem;
+            width: min(280px, 38%);
+        }
+        .hud-panel {
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 0.75rem;
+            padding: 0.5rem;
+            backdrop-filter: blur(2px);
+            pointer-events: auto;
+        }
+        .hud-label {
+            font-size: 0.72rem;
+            color: #cbd5e1;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.35rem;
+            font-weight: 700;
+        }
+        #game-session-timer {
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+            padding: 0.45rem 0.7rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            font-size: 1.05rem;
+            font-family: monospace;
+            width: fit-content;
+            text-align: center;
+            margin-top: 0;
+            letter-spacing: 2px;
+        }
+        #game-session-timer.warning {
+            background: rgba(239, 68, 68, 0.95);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .inventory-item {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(17, 24, 39, 0.5);
+            border: 1px solid rgba(100, 116, 139, 0.55);
+            border-radius: 0.5rem;
+            padding: 0.35rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: system-ui, sans-serif;
+        }
+        .swatch {
+            width: 18px;
+            height: 18px;
+            border-radius: 0.25rem;
+            border: 1px solid rgba(255,255,255,0.35);
+            flex-shrink: 0;
+            margin-right: 0.5rem;
+        }
+    </style>
+    <script src="theme_manager.js"></script>
+</head>
+<body class="dark-mode bg-gray-900 min-h-screen text-white">
+<script src="scripts/taskbar.js"></script>
+
+<script src="scripts/global_translations.js?v=7.2"></script>
+<script src="scripts/spanish_translations.js?v=1.0"></script>
+<script src="scripts/hindi_translations.js?v=1.0"></script>
+
+<div class="p-4 overflow-x-auto overflow-y-visible">
+
+    <div id="game-wrapper" class="relative flex-shrink-0 bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+        <button class="pause-btn" onclick="togglePause()" title="Pause">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Fullscreen">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5"/><path d="M16 3h5v5"/><path d="M21 16v5h-5"/><path d="M3 16v5h5"/></svg>
+        </button>
+
+        <div class="flex justify-between items-end mb-4">
+            <div>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-lime-400 to-green-500 bg-clip-text text-transparent">CRAFT 2D</h1>
+                <p class="text-xs text-gray-400 font-sans">Mine, place blocks, and build.</p>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-gray-400 font-sans">BLOCKS MINED</div>
+                <div id="score" class="text-3xl font-bold text-white">0</div>
+            </div>
+        </div>
+
+        <canvas id="game" class="bg-gray-900 border-2 border-gray-700 mx-auto block" width="880" height="500"></canvas>
+        <p class="text-center text-xs text-gray-500 mt-3 font-sans">A / D move • Shift sprint • Space jump • Left hold break / sword attack • Right Click place/eat • 1-8 select slot • E inventory • C crafting • H HUD • F fullscreen</p>
+
+        <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-3xl text-lime-400 font-bold mb-4">⛏️ CRAFT 2D</h2>
+            <p class="text-gray-300 mb-4 font-sans">Gather resources, craft tools, and survive the night!</p>
+            <div class="text-left text-xs text-gray-400 font-sans mb-6 space-y-1">
+                <p><span class="text-lime-300 font-bold">A / D</span> — Move</p>
+                <p><span class="text-lime-300 font-bold">Shift</span> — Sprint</p>
+                <p><span class="text-lime-300 font-bold">Space</span> — Jump</p>
+                <p><span class="text-lime-300 font-bold">Left Click</span> — Mine block</p>
+                <p><span class="text-lime-300 font-bold">Right Click</span> — Place block / Eat food</p>
+                <p><span class="text-lime-300 font-bold">1-8</span> — Select hotbar slot</p>
+                <p><span class="text-lime-300 font-bold">E</span> — Open Inventory</p>
+                <p><span class="text-lime-300 font-bold">C</span> — Open Crafting (craft tools!)</p>
+                <p><span class="text-lime-300 font-bold">H</span> — Toggle HUD</p>
+                <p><span class="text-lime-300 font-bold">F</span> — Fullscreen</p>
+                <p><span class="text-lime-300 font-bold">Esc / P</span> — Pause</p>
+            </div>
+            <div class="text-xs text-amber-300 mb-4 font-sans">
+                <p>⚠️ Craft your first pickaxe with 4 wood!</p>
+                <p>🌙 Monsters spawn at night - be prepared!</p>
+            </div>
+            <button onclick="startGame()" class="bg-lime-600 hover:bg-lime-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">START</button>
+        </div>
+
+        <div id="pause-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-30 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-4xl text-white font-bold mb-4">PAUSED</h2>
+            <p class="text-gray-300 mb-8 font-sans">Press Esc, P, or Resume to continue.</p>
+            <button onclick="togglePause()" class="bg-lime-600 hover:bg-lime-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">RESUME</button>
+        </div>
+
+        <div id="inventory-screen" class="hidden absolute inset-0 bg-black/85 rounded-2xl z-30 flex flex-col items-center justify-center p-6 backdrop-blur-sm">
+            <div class="bg-gray-800 rounded-xl border-2 border-gray-600 p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                <h2 class="text-3xl text-lime-400 font-bold mb-4">📦 INVENTORY</h2>
+                <div id="full-inventory" class="grid grid-cols-3 gap-3"></div>
+                <button onclick="closeInventory()" class="mt-6 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg w-full">Close (E)</button>
+            </div>
+        </div>
+
+        <div id="crafting-screen" class="hidden absolute inset-0 bg-black/85 rounded-2xl z-30 flex flex-col items-center justify-center p-6 backdrop-blur-sm">
+            <div class="bg-gray-800 rounded-xl border-2 border-gray-600 p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                <h2 class="text-3xl text-amber-400 font-bold mb-4">🔨 CRAFTING</h2>
+                <div id="recipe-list" class="space-y-3"></div>
+                <button onclick="closeCrafting()" class="mt-6 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg w-full">Close (C)</button>
+            </div>
+        </div>
+
+        <div class="game-hud left">
+            <div class="hud-panel">
+                <div class="hud-label">SESSION</div>
+                <div id="hud-session-slot"></div>
+            </div>
+
+            <div class="hud-panel">
+                <div class="hud-label">STATUS</div>
+                <div id="status-panel" class="space-y-2"></div>
+            </div>
+        </div>
+
+        <div class="game-hud right">
+            <div class="hud-panel">
+                <div class="hud-label">HOTBAR</div>
+                <div id="hotbar" class="grid grid-cols-5 gap-2"></div>
+            </div>
+
+            <div class="hud-panel">
+                <div class="hud-label">INVENTORY</div>
+                <div id="inventory" class="space-y-2"></div>
+            </div>
+
+            <div class="hud-panel">
+                <div class="hud-label">WORLD SAVE</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="save-world-btn" class="rounded-lg border border-lime-400/40 bg-lime-500/20 hover:bg-lime-500/30 text-white text-xs py-2 font-bold">SAVE</button>
+                    <button id="load-world-btn" class="rounded-lg border border-sky-400/40 bg-sky-500/20 hover:bg-sky-500/30 text-white text-xs py-2 font-bold">LOAD</button>
+                </div>
+                <div id="save-status" class="text-xs text-gray-300 font-sans mt-2">No save yet.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TILE = 24;
+    const WORLD_W = 240;
+    const WORLD_H = 110;
+    const GRAVITY = 0.038;
+    const JUMP_V = -0.78;
+    const MOVE_V = 0.22;
+    const MAX_FALL = 0.9;
+    const REACH = 6;
+    const BOTTOM_RESPAWN_Y = WORLD_H - 1.2;
+    const SPRINT_MULT = 1.65;
+    const FALL_DAMAGE_START = 8;
+    const FALL_DAMAGE_SCALE = 1.25;
+    const SAVE_KEY = 'craft2d-save-v1';
+    const DAY_SPEED = 0.00025;
+    const HUNGER_DRAIN_IDLE = 0.0012;
+    const HUNGER_DRAIN_MOVE = 0.003;
+    const HUNGER_DRAIN_SPRINT = 0.0065;
+    const STARVE_DAMAGE_INTERVAL = 3.5;
+    const REGEN_INTERVAL = 5.5;
+    const BREAK_BASE_RATE = 0.024;
+
+    const TILE_TYPES = {
+        air: { id: 0, solid: false, color: null, name: 'Air', item: null },
+        grass: { id: 1, solid: true, color: '#5db33a', under: '#4a8a2f', name: 'Grass', item: 'grass' },
+        dirt: { id: 2, solid: true, color: '#8b5a2b', under: '#714722', name: 'Dirt', item: 'dirt' },
+        stone: { id: 3, solid: true, color: '#7a7f87', under: '#636871', name: 'Stone', item: 'stone' },
+        wood: { id: 4, solid: true, color: '#9a6838', under: '#7e542e', name: 'Wood', item: 'wood' },
+        leaves: { id: 5, solid: true, color: '#3f9b49', under: '#2f7c38', name: 'Leaves', item: 'leaves' },
+        iron_ore: { id: 6, solid: true, color: '#b87a5f', under: '#9d6650', name: 'Iron Ore', item: 'iron_ore' },
+        diamond_ore: { id: 7, solid: true, color: '#5dade2', under: '#4a8fc5', name: 'Diamond Ore', item: 'diamond_ore' }
+    };
+
+    const BY_ID = Object.values(TILE_TYPES).reduce((acc, tile) => {
+        acc[tile.id] = tile;
+        return acc;
+    }, {});
+
+    const hotbarItems = ['dirt', 'grass', 'stone', 'wood', 'leaves'];
+    const GEAR = {
+        wood_pickaxe: { name: 'Wood Pickaxe', icon: '⛏️', minePower: 1.35, damage: 1, toolType: 'pickaxe' },
+        stone_pickaxe: { name: 'Stone Pickaxe', icon: '⛏️', minePower: 1.9, damage: 1, toolType: 'pickaxe' },
+        iron_pickaxe: { name: 'Iron Pickaxe', icon: '⛏️', minePower: 2.5, damage: 1, toolType: 'pickaxe' },
+        diamond_pickaxe: { name: 'Diamond Pickaxe', icon: '⛏️', minePower: 3.5, damage: 2, toolType: 'pickaxe' },
+        wood_sword: { name: 'Wood Sword', icon: '🗡️', minePower: 0.7, damage: 2, toolType: 'sword' },
+        stone_sword: { name: 'Stone Sword', icon: '⚔️', minePower: 0.7, damage: 3, toolType: 'sword' },
+        iron_sword: { name: 'Iron Sword', icon: '⚔️', minePower: 0.7, damage: 4, toolType: 'sword' },
+        diamond_sword: { name: 'Diamond Sword', icon: '⚔️', minePower: 0.7, damage: 6, toolType: 'sword' }
+    };
+    const FOOD = {
+        raw_meat: { name: 'Raw Meat', icon: '🥩', hunger: 2 },
+        cooked_meat: { name: 'Cooked Meat', icon: '🍖', hunger: 5 },
+        apple: { name: 'Apple', icon: '🍎', hunger: 3 }
+    };
+    const RECIPES = {
+        wood_pickaxe: { wood: 4 },
+        wood_sword: { wood: 2 },
+        stone_pickaxe: { wood: 3, stone: 3 },
+        stone_sword: { wood: 1, stone: 2 },
+        iron_pickaxe: { wood: 2, iron_ore: 3 },
+        iron_sword: { wood: 1, iron_ore: 2 },
+        diamond_pickaxe: { wood: 2, diamond_ore: 3 },
+        diamond_sword: { wood: 1, diamond_ore: 2 },
+        cooked_meat: { raw_meat: 1 }
+    };
+    const hotbarSlots = [
+        { kind: 'block', key: 'dirt' },
+        { kind: 'block', key: 'grass' },
+        { kind: 'block', key: 'stone' },
+        { kind: 'block', key: 'wood' },
+        { kind: 'block', key: 'leaves' },
+        { kind: 'food', key: 'raw_meat' },
+        { kind: 'food', key: 'cooked_meat' },
+        { kind: 'food', key: 'apple' }
+    ];
+    let selectedSlot = 0;
+
+    const inventory = {
+        dirt: 12,
+        grass: 8,
+        stone: 0,
+        wood: 8,
+        leaves: 0,
+        iron_ore: 0,
+        diamond_ore: 0,
+        raw_meat: 2,
+        cooked_meat: 0,
+        apple: 3
+    };
+
+    let world = [];
+    let gameRunning = false;
+    let gamePaused = false;
+    let minedCount = 0;
+    let spawnPoint = { x: 18, y: 18 };
+    let worldTime = 0.2;
+    let lastAutoSave = 0;
+    let currentHealth = 10;
+    let maxHealth = 10;
+    let fallStartY = null;
+    let currentHunger = 10;
+    let maxHunger = 10;
+    let starveTimer = 0;
+    let regenTimer = 0;
+    let hudVisible = true;
+    let attackCooldown = 0;
+    let entities = [];
+    let craftingOpen = false;
+    let inventoryOpen = false;
+    let nightMobSpawnTimer = 0;
+    let lastTimePhase = 'Day';
+    const SAVE_KEY = 'craftgame_save';
+    const FIREBASE_SAVE_KEY = 'craftgame_world';
+    let breakingState = {
+        active: false,
+        targetX: null,
+        targetY: null,
+        progress: 0
+    };
+    let mouseState = {
+        leftDown: false,
+        rightDown: false
+    };
+
+    const BLOCK_HARDNESS = {
+        [TILE_TYPES.grass.id]: 0.65,
+        [TILE_TYPES.dirt.id]: 0.58,
+        [TILE_TYPES.stone.id]: 1.4,
+        [TILE_TYPES.wood.id]: 1.0,
+        [TILE_TYPES.leaves.id]: 0.25,
+        [TILE_TYPES.iron_ore.id]: 2.2,
+        [TILE_TYPES.diamond_ore.id]: 3.0
+    };
+
+    const player = {
+        x: 18,
+        y: 18,
+        w: 0.75,
+        h: 1.8,
+        vx: 0,
+        vy: 0,
+        onGround: false,
+        facing: 1,
+        hurtTimer: 0
+    };
+
+    const camera = { x: 0, y: 0 };
+    const keys = { a: false, d: false, left: false, right: false, shift: false };
+
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const inventoryEl = document.getElementById('inventory');
+    const hotbarEl = document.getElementById('hotbar');
+    const gameWrapper = document.getElementById('game-wrapper');
+    const statusPanelEl = document.getElementById('status-panel');
+    const saveStatusEl = document.getElementById('save-status');
+    const saveWorldBtn = document.getElementById('save-world-btn');
+    const loadWorldBtn = document.getElementById('load-world-btn');
+
+    function rand(seedX, seedY) {
+        const value = Math.sin(seedX * 12.9898 + seedY * 78.233) * 43758.5453;
+        return value - Math.floor(value);
+    }
+
+    function lerp(a, b, t) {
+        return a + (b - a) * t;
+    }
+
+    function smoothNoise(x, y, scale, offsetX = 0, offsetY = 0) {
+        const sx = x / scale;
+        const sy = y / scale;
+        const x0 = Math.floor(sx);
+        const y0 = Math.floor(sy);
+        const x1 = x0 + 1;
+        const y1 = y0 + 1;
+
+        const tx = sx - x0;
+        const ty = sy - y0;
+        const ux = tx * tx * (3 - 2 * tx);
+        const uy = ty * ty * (3 - 2 * ty);
+
+        const n00 = rand(x0 + offsetX, y0 + offsetY);
+        const n10 = rand(x1 + offsetX, y0 + offsetY);
+        const n01 = rand(x0 + offsetX, y1 + offsetY);
+        const n11 = rand(x1 + offsetX, y1 + offsetY);
+
+        return lerp(lerp(n00, n10, ux), lerp(n01, n11, ux), uy);
+    }
+
+    function caveDensity(x, y) {
+        const large = smoothNoise(x, y, 28, 43, 91);
+        const medium = smoothNoise(x, y, 14, 191, 37);
+        const detail = smoothNoise(x, y, 7, 503, 77);
+        const depthBoost = (y / WORLD_H) * 0.12;
+        return large * 0.5 + medium * 0.35 + detail * 0.15 + depthBoost;
+    }
+
+    function getTerrainHeight(x) {
+        const base = 58;
+        const wave1 = Math.sin(x * 0.075) * 5;
+        const wave2 = Math.sin(x * 0.019 + 1.2) * 8;
+        return Math.floor(base + wave1 + wave2);
+    }
+
+    function setTile(x, y, id) {
+        if (x < 0 || y < 0 || x >= WORLD_W || y >= WORLD_H) return;
+        world[y][x] = id;
+    }
+
+    function getTile(x, y) {
+        if (x < 0 || y < 0 || x >= WORLD_W || y >= WORLD_H) return TILE_TYPES.stone.id;
+        return world[y][x];
+    }
+
+    function isSolid(id) {
+        const tile = BY_ID[id];
+        return tile ? tile.solid : false;
+    }
+
+    function generateWorld() {
+        world = Array.from({ length: WORLD_H }, () => Array(WORLD_W).fill(TILE_TYPES.air.id));
+        const surfaceHeights = Array(WORLD_W).fill(0);
+
+        for (let x = 0; x < WORLD_W; x++) {
+            const surface = getTerrainHeight(x);
+            surfaceHeights[x] = surface;
+            for (let y = surface; y < WORLD_H; y++) {
+                if (y === surface) {
+                    setTile(x, y, TILE_TYPES.grass.id);
+                } else if (y <= surface + 3) {
+                    setTile(x, y, TILE_TYPES.dirt.id);
+                } else {
+                    setTile(x, y, TILE_TYPES.stone.id);
+                }
+            }
+
+            if (rand(x, 17) > 0.93 && x > 5 && x < WORLD_W - 6) {
+                growTree(x, surface - 1);
+            }
+        }
+
+        for (let x = 1; x < WORLD_W - 1; x++) {
+            const surface = surfaceHeights[x];
+            for (let y = surface + 5; y < WORLD_H - 2; y++) {
+                const density = caveDensity(x, y);
+                const tunnel = Math.abs(Math.sin(x * 0.22 + y * 0.09)) < 0.09 && y > surface + 8;
+                if (density > 0.625 || tunnel) {
+                    setTile(x, y, TILE_TYPES.air.id);
+                }
+            }
+        }
+
+        const caveSnapshot = world.map((row) => row.slice());
+        for (let x = 2; x < WORLD_W - 2; x++) {
+            for (let y = surfaceHeights[x] + 6; y < WORLD_H - 3; y++) {
+                if (caveSnapshot[y][x] === TILE_TYPES.air.id) continue;
+                let airNeighbors = 0;
+                for (let oy = -1; oy <= 1; oy++) {
+                    for (let ox = -1; ox <= 1; ox++) {
+                        if (ox === 0 && oy === 0) continue;
+                        if (caveSnapshot[y + oy][x + ox] === TILE_TYPES.air.id) {
+                            airNeighbors += 1;
+                        }
+                    }
+                }
+                if (airNeighbors >= 5) {
+                    setTile(x, y, TILE_TYPES.air.id);
+                }
+            }
+        }
+
+        // Spawn ores in deep caves
+        for (let x = 10; x < WORLD_W - 10; x++) {
+            for (let y = 65; y < WORLD_H - 2; y++) {
+                const tileId = getTile(x, y);
+                if (tileId === TILE_TYPES.stone.id) {
+                    const oreRand = rand(x * 13.7, y * 17.3);
+                    
+                    // Iron ore: spawns from y=65 onwards (common in deep caves)
+                    if (y >= 65 && oreRand > 0.985) {
+                        setTile(x, y, TILE_TYPES.iron_ore.id);
+                        // Create small veins
+                        if (rand(x * 2, y * 3) > 0.6) setTile(x + 1, y, TILE_TYPES.iron_ore.id);
+                        if (rand(x * 3, y * 2) > 0.6) setTile(x, y + 1, TILE_TYPES.iron_ore.id);
+                    }
+                    
+                    // Diamond ore: only spawns very deep (y >= 85, very rare)
+                    if (y >= 85 && oreRand > 0.996) {
+                        setTile(x, y, TILE_TYPES.diamond_ore.id);
+                        // Smaller clusters
+                        if (rand(x * 5, y * 7) > 0.75) setTile(x + 1, y, TILE_TYPES.diamond_ore.id);
+                    }
+                }
+            }
+        }
+
+        player.x = 18;
+        player.y = getTerrainHeight(18) - 3;
+        player.vx = 0;
+        player.vy = 0;
+        spawnPoint = { x: player.x, y: player.y };
+        spawnMobs();
+    }
+
+    function respawnPlayer() {
+        currentHealth = Math.max(1, currentHealth - 2);
+        currentHunger = Math.max(2, currentHunger - 1.5);
+        player.x = spawnPoint.x;
+        player.y = spawnPoint.y;
+        player.vx = 0;
+        player.vy = 0;
+        player.onGround = false;
+        fallStartY = null;
+        renderStatusPanel();
+
+        if (currentHealth <= 0) {
+            currentHealth = maxHealth;
+            currentHunger = maxHunger;
+            minedCount = 0;
+            scoreEl.textContent = minedCount;
+            Object.keys(inventory).forEach((item) => {
+                inventory[item] = Math.max(0, Math.floor(inventory[item] * 0.5));
+            });
+            renderInventory();
+            renderHotbar();
+            renderStatusPanel();
+        }
+    }
+
+    function applyFallDamage(fallDistance) {
+        if (fallDistance < FALL_DAMAGE_START) return;
+        const damage = Math.max(1, Math.floor((fallDistance - FALL_DAMAGE_START) / FALL_DAMAGE_SCALE));
+        currentHealth = Math.max(0, currentHealth - damage);
+        player.hurtTimer = 15;
+        renderStatusPanel();
+
+        if (currentHealth <= 0) {
+            respawnPlayer();
+        }
+    }
+
+    function getTimeLabel() {
+        const cycle = worldTime % 1;
+        if (cycle < 0.23) return 'Morning';
+        if (cycle < 0.5) return 'Day';
+        if (cycle < 0.73) return 'Evening';
+        return 'Night';
+    }
+
+    function getSelectedSlot() {
+        return hotbarSlots[selectedSlot] || hotbarSlots[0];
+    }
+
+    function getSelectedGear() {
+        const slot = getSelectedSlot();
+        return slot.kind === 'gear' ? GEAR[slot.key] : null;
+    }
+
+    function toggleHud(forceValue = null) {
+        hudVisible = forceValue === null ? !hudVisible : !!forceValue;
+        document.querySelectorAll('.game-hud').forEach((hud) => {
+            hud.style.display = hudVisible ? '' : 'none';
+        });
+    }
+
+    function openInventory() {
+        if (inventoryOpen || !gameRunning) return;
+        inventoryOpen = true;
+        gamePaused = true;
+        document.getElementById('inventory-screen').classList.remove('hidden');
+        renderFullInventory();
+    }
+
+    function closeInventory() {
+        inventoryOpen = false;
+        gamePaused = false;
+        document.getElementById('inventory-screen').classList.add('hidden');
+        if (gameRunning) requestAnimationFrame(tick);
+    }
+
+    function openCrafting() {
+        if (craftingOpen || !gameRunning) return;
+        craftingOpen = true;
+        gamePaused = true;
+        document.getElementById('crafting-screen').classList.remove('hidden');
+        renderCraftingRecipes();
+    }
+
+    function closeCrafting() {
+        craftingOpen = false;
+        gamePaused = false;
+        document.getElementById('crafting-screen').classList.add('hidden');
+        if (gameRunning) requestAnimationFrame(tick);
+    }
+
+    function craftItem(outputKey) {
+        const recipe = RECIPES[outputKey];
+        if (!recipe) return;
+
+        // Check if player has enough materials
+        for (const ingredient in recipe) {
+            if ((inventory[ingredient] || 0) < recipe[ingredient]) {
+                return;
+            }
+        }
+
+        // Consume materials
+        for (const ingredient in recipe) {
+            inventory[ingredient] -= recipe[ingredient];
+        }
+
+        // Give the output
+        const isGear = GEAR[outputKey];
+        const isFood = FOOD[outputKey];
+        
+        if (isGear) {
+            // Add to hotbar if not already there
+            const existingSlot = hotbarSlots.findIndex(s => s.kind === 'gear' && s.key === outputKey);
+            if (existingSlot === -1) {
+                hotbarSlots.push({ kind: 'gear', key: outputKey });
+            }
+        } else if (isFood) {
+            inventory[outputKey] = (inventory[outputKey] || 0) + 1;
+        }
+
+        renderInventory();
+        renderHotbar();
+        renderCraftingRecipes();
+        renderStatusPanel();
+    }
+
+    function consumeFood(foodKey) {
+        const food = FOOD[foodKey];
+        if (!food || (inventory[foodKey] || 0) <= 0) return false;
+
+        inventory[foodKey] -= 1;
+        currentHunger = Math.min(maxHunger, currentHunger + food.hunger);
+        renderInventory();
+        renderHotbar();
+        renderStatusPanel();
+        return true;
+    }
+
+    function getBreakRate(tileId) {
+        const hardness = BLOCK_HARDNESS[tileId] || 1;
+        const tool = getSelectedGear();
+        let minePower = 1;
+
+        if (tool) {
+            minePower = tool.minePower || 1;
+            if (tileId === TILE_TYPES.stone.id && tool.toolType !== 'pickaxe') {
+                minePower *= 0.5;
+            }
+            if (tileId === TILE_TYPES.leaves.id && tool.toolType === 'sword') {
+                minePower *= 1.25;
+            }
+        }
+
+        return (BREAK_BASE_RATE * minePower) / hardness;
+    }
+
+    function clearBreakingState() {
+        breakingState.active = false;
+        breakingState.targetX = null;
+        breakingState.targetY = null;
+        breakingState.progress = 0;
+    }
+
+    function startBreaking(tx, ty) {
+        const tileId = getTile(tx, ty);
+        if (!withinReach(tx, ty) || tileId === TILE_TYPES.air.id) {
+            clearBreakingState();
+            return;
+        }
+
+        if (breakingState.active && breakingState.targetX === tx && breakingState.targetY === ty) {
+            return;
+        }
+
+        breakingState.active = true;
+        breakingState.targetX = tx;
+        breakingState.targetY = ty;
+        breakingState.progress = 0;
+    }
+
+    function updateBreaking(dt) {
+        if (!breakingState.active) return;
+        const tx = breakingState.targetX;
+        const ty = breakingState.targetY;
+
+        if (!withinReach(tx, ty)) {
+            clearBreakingState();
+            return;
+        }
+
+        const tileId = getTile(tx, ty);
+        if (tileId === TILE_TYPES.air.id) {
+            clearBreakingState();
+            return;
+        }
+
+        breakingState.progress += getBreakRate(tileId) * dt;
+        if (breakingState.progress >= 1) {
+            mineBlock(tx, ty);
+            clearBreakingState();
+        }
+    }
+
+    function drawBreakOverlay() {
+        if (!breakingState.active) return;
+        const tx = breakingState.targetX;
+        const ty = breakingState.targetY;
+        const drawX = tx * TILE - camera.x;
+        const drawY = ty * TILE - camera.y;
+
+        if (drawX + TILE < 0 || drawY + TILE < 0 || drawX > canvas.width || drawY > canvas.height) return;
+
+        const stage = Math.min(5, Math.floor(breakingState.progress * 6));
+        ctx.save();
+        ctx.strokeStyle = `rgba(255,255,255,${0.25 + stage * 0.12})`;
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i <= stage; i++) {
+            const t = (i + 1) / (stage + 2);
+            ctx.beginPath();
+            ctx.moveTo(drawX + TILE * t, drawY + 2);
+            ctx.lineTo(drawX + TILE * (1 - t * 0.5), drawY + TILE - 2);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function spawnMobs() {
+        entities = [];
+        // Only spawn passive mobs at world generation
+        const passiveCount = 10;
+        for (let i = 0; i < passiveCount; i++) {
+            const x = 14 + Math.floor(rand(i * 17.3 + 200, 131) * (WORLD_W - 28));
+            const y = getTerrainHeight(x) - 1;
+            const types = ['cow', 'pig'];
+            const type = types[Math.floor(rand(i * 23.7, 99) * types.length)];
+            entities.push({
+                type,
+                hostile: false,
+                x,
+                y,
+                w: 1.1,
+                h: 1.0,
+                vx: 0,
+                vy: 0,
+                dir: rand(i + 50, 19) > 0.5 ? 1 : -1,
+                health: 3,
+                hurtTimer: 0,
+                attackTimer: 0,
+                jumpTimer: 0
+            });
+        }
+    }
+
+    function spawnHostileMob() {
+        // Spawn near player but not too close (minimum 15 tiles away)
+        const spawnDist = 15 + Math.random() * 10;
+        const side = Math.random() > 0.5 ? 1 : -1;
+        const x = Math.max(14, Math.min(WORLD_W - 14, player.x + side * spawnDist));
+        const y = getTerrainHeight(Math.floor(x)) - 1;
+        
+        entities.push({
+            type: 'slime',
+            hostile: true,
+            x,
+            y,
+            w: 0.9,
+            h: 0.8,
+            vx: 0,
+            vy: 0,
+            dir: Math.random() > 0.5 ? 1 : -1,
+            health: 4,
+            hurtTimer: 0,
+            attackTimer: 0,
+            jumpTimer: 0
+        });
+    }
+
+    function manageHostileMobs(dt) {
+        const timePhase = getTimeLabel();
+        const isNight = timePhase === 'Night' || timePhase === 'Evening';
+        
+        // Track phase changes
+        if (timePhase !== lastTimePhase) {
+            if (!isNight && lastTimePhase !== 'Day') {
+                // Daytime arrived - remove all hostile mobs
+                entities = entities.filter(mob => !mob.hostile);
+            }
+            lastTimePhase = timePhase;
+        }
+        
+        // Spawn hostile mobs during night
+        if (isNight) {
+            nightMobSpawnTimer += dt;
+            const hostileMobCount = entities.filter(mob => mob.hostile).length;
+            
+            // Spawn up to 8 hostile mobs, one every ~4 seconds
+            if (nightMobSpawnTimer > 240 && hostileMobCount < 8) {
+                spawnHostileMob();
+                nightMobSpawnTimer = 0;
+            }
+        } else {
+            nightMobSpawnTimer = 0;
+        }
+    }
+
+    function mobCollides(mob, nx, ny) {
+        const left = Math.floor(nx);
+        const right = Math.floor(nx + mob.w - 0.001);
+        const top = Math.floor(ny);
+        const bottom = Math.floor(ny + mob.h - 0.001);
+
+        for (let y = top; y <= bottom; y++) {
+            for (let x = left; x <= right; x++) {
+                if (isSolid(getTile(x, y))) return true;
+            }
+        }
+        return false;
+    }
+
+    function updateMobs(dt) {
+        entities.forEach((mob) => {
+            const dx = player.x - mob.x;
+            const dy = player.y - mob.y;
+            const dist = Math.abs(dx);
+            const chase = mob.hostile && dist < 10 && (getTimeLabel() === 'Night' || getTimeLabel() === 'Evening');
+            
+            if (chase) {
+                mob.dir = dx > 0 ? 1 : -1;
+            } else if (rand(mob.x + worldTime, mob.y) > 0.995) {
+                mob.dir *= -1;
+            }
+
+            const mobSpeed = chase ? 0.07 : 0.035;
+            mob.vx = mob.dir * mobSpeed;
+
+            const tx = mob.x + mob.vx * dt;
+            const blocked = mobCollides(mob, tx, mob.y);
+            
+            if (!blocked) {
+                mob.x = tx;
+            } else {
+                // BETTER PATHFINDING: Try to jump over obstacles
+                mob.jumpTimer = Math.max(0, mob.jumpTimer - dt);
+                
+                // Check if there's a block ahead and we're on ground
+                const checkX = Math.floor(mob.x + mob.dir * (mob.w + 0.2));
+                const checkY = Math.floor(mob.y + mob.h);
+                const blockAhead = isSolid(getTile(checkX, checkY));
+                const onGround = mobCollides(mob, mob.x, mob.y + 0.1);
+                
+                // Jump if blocked and on ground and not in cooldown
+                if (blockAhead && onGround && mob.jumpTimer <= 0) {
+                    // Check if block is only 1-2 blocks high (jumpable)
+                    const blockAbove1 = isSolid(getTile(checkX, checkY - 1));
+                    const blockAbove2 = isSolid(getTile(checkX, checkY - 2));
+                    const blockAbove3 = isSolid(getTile(checkX, checkY - 3));
+                    
+                    if (!blockAbove3 || !blockAbove2) {
+                        // Can jump over this obstacle
+                        mob.vy = -0.65;
+                        mob.jumpTimer = 30;
+                    } else if (chase) {
+                        // Can't jump over - hostile mobs turn around
+                        mob.dir *= -1;
+                    } else {
+                        // Passive mob turns around
+                        mob.dir *= -1;
+                    }
+                } else if (!chase) {
+                    // Passive mobs just turn around when blocked
+                    mob.dir *= -1;
+                }
+            }
+
+            mob.vy = Math.min(0.65, mob.vy + GRAVITY * dt);
+            const ty = mob.y + mob.vy * dt;
+            if (!mobCollides(mob, mob.x, ty)) {
+                mob.y = ty;
+            } else {
+                mob.vy = 0;
+            }
+
+            mob.hurtTimer = Math.max(0, mob.hurtTimer - dt * 0.08);
+            mob.attackTimer = Math.max(0, mob.attackTimer - dt * 0.04);
+
+            const closeEnough = Math.hypot((mob.x + mob.w * 0.5) - (player.x + player.w * 0.5), (mob.y + mob.h * 0.5) - (player.y + player.h * 0.5)) < 1.2;
+            if (mob.hostile && closeEnough && mob.attackTimer <= 0) {
+                currentHealth = Math.max(0, currentHealth - 1);
+                player.hurtTimer = 15;
+                mob.attackTimer = 25;
+                renderStatusPanel();
+                if (currentHealth <= 0) {
+                    respawnPlayer();
+                }
+            }
+        });
+
+        entities = entities.filter((mob) => mob.health > 0 && mob.y < WORLD_H + 2);
+    }
+
+    function drawMobs() {
+        entities.forEach((mob) => {
+            const x = mob.x * TILE - camera.x;
+            const y = mob.y * TILE - camera.y;
+            const w = mob.w * TILE;
+            const h = mob.h * TILE;
+            if (x + w < 0 || y + h < 0 || x > canvas.width || y > canvas.height) return;
+            
+            // Different colors for different mob types
+            let baseColor = '#22c55e'; // slime
+            if (mob.type === 'cow') baseColor = '#a8a29e';
+            if (mob.type === 'pig') baseColor = '#fda4af';
+            
+            ctx.fillStyle = mob.hurtTimer > 0 ? '#f87171' : baseColor;
+            ctx.fillRect(x, y, w, h);
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(x + w * 0.25, y + h * 0.35, w * 0.12, h * 0.12);
+            ctx.fillRect(x + w * 0.63, y + h * 0.35, w * 0.12, h * 0.12);
+        });
+    }
+
+    function tryWeaponAttack(tx, ty) {
+        const gear = getSelectedGear();
+        if (!gear || gear.toolType !== 'sword' || attackCooldown > 0) return false;
+        if (!withinReach(tx, ty)) return false;
+
+        let target = null;
+        let bestDist = Number.POSITIVE_INFINITY;
+        entities.forEach((mob) => {
+            const cx = mob.x + mob.w * 0.5;
+            const cy = mob.y + mob.h * 0.5;
+            const d = Math.hypot(cx - (player.x + player.w * 0.5), cy - (player.y + player.h * 0.5));
+            const nearCursor = Math.abs(Math.floor(cx) - tx) <= 1 && Math.abs(Math.floor(cy) - ty) <= 1;
+            if (d < 2.3 && nearCursor && d < bestDist) {
+                target = mob;
+                bestDist = d;
+            }
+        });
+
+        if (!target) return false;
+
+        target.health -= gear.damage;
+        target.hurtTimer = 12;
+        target.vx += player.facing * 0.18;
+        attackCooldown = 16;
+        if (target.health <= 0) {
+            minedCount += 2;
+            scoreEl.textContent = minedCount;
+            // Drop food from passive mobs
+            if (!target.hostile) {
+                const dropChance = rand(target.x * 1000, target.y * 1000);
+                if (dropChance > 0.3) {
+                    inventory.raw_meat = (inventory.raw_meat || 0) + 1;
+                    renderInventory();
+                }
+                if (dropChance > 0.7) {
+                    inventory.apple = (inventory.apple || 0) + 1;
+                    renderInventory();
+                }
+            }
+        }
+        return true;
+    }
+
+    function updateNeeds(dt) {
+        const moving = Math.abs(player.vx) > 0.001;
+        const drain = keys.shift && moving ? HUNGER_DRAIN_SPRINT : (moving ? HUNGER_DRAIN_MOVE : HUNGER_DRAIN_IDLE);
+        currentHunger = Math.max(0, currentHunger - drain * dt);
+
+        if (currentHunger <= 0) {
+            starveTimer += dt / 60;
+            if (starveTimer >= STARVE_DAMAGE_INTERVAL) {
+                currentHealth = Math.max(1, currentHealth - 1);
+                player.hurtTimer = 10;
+                starveTimer = 0;
+            }
+        } else {
+            starveTimer = 0;
+        }
+
+        if (currentHunger > 8.2 && currentHealth < maxHealth) {
+            regenTimer += dt / 60;
+            if (regenTimer >= REGEN_INTERVAL) {
+                currentHealth = Math.min(maxHealth, currentHealth + 1);
+                regenTimer = 0;
+            }
+        } else {
+            regenTimer = 0;
+        }
+    }
+
+    function renderStatusPanel() {
+        const hearts = '❤️'.repeat(Math.max(0, currentHealth)) + '🖤'.repeat(Math.max(0, maxHealth - currentHealth));
+        const hunger = '🍖'.repeat(Math.floor(currentHunger)) + '▫️'.repeat(Math.max(0, maxHunger - Math.floor(currentHunger)));
+        const selected = getSelectedSlot();
+        let heldLabel = 'Nothing';
+        if (selected.kind === 'block') heldLabel = TILE_TYPES[selected.key].name;
+        else if (selected.kind === 'gear') heldLabel = GEAR[selected.key].name;
+        else if (selected.kind === 'food') heldLabel = FOOD[selected.key].name;
+        
+        statusPanelEl.innerHTML = `
+            <div class="inventory-item"><span>Health</span><span style="font-size:0.8rem;">${hearts}</span></div>
+            <div class="inventory-item"><span>Hunger</span><span style="font-size:0.75rem;">${hunger}</span></div>
+            <div class="inventory-item"><span>Time</span><span style="color:#bfdbfe;font-weight:700;">${getTimeLabel()}</span></div>
+            <div class="inventory-item"><span>Held</span><span style="color:#fde68a;font-weight:700;">${heldLabel}</span></div>
+            <div class="inventory-item"><span>Spawn</span><span style="color:#d1fae5;font-weight:700;">${Math.floor(spawnPoint.x)}, ${Math.floor(spawnPoint.y)}</span></div>
+        `;
+    }
+
+    function updateSaveStatus(message, success = true) {
+        if (!saveStatusEl) return;
+        saveStatusEl.textContent = message;
+        saveStatusEl.style.color = success ? '#93c5fd' : '#fca5a5';
+    }
+
+    function saveWorldState(isAuto = false) {
+        try {
+            const payload = {
+                world,
+                player: { x: player.x, y: player.y, vx: player.vx, vy: player.vy },
+                inventory,
+                minedCount,
+                spawnPoint,
+                selectedSlot,
+                currentHealth,
+                currentHunger,
+                worldTime,
+                entities,
+                savedAt: Date.now()
+            };
+
+            localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+            if (!isAuto) {
+                updateSaveStatus(`Saved at ${new Date(payload.savedAt).toLocaleTimeString()}`);
+            }
+        } catch (error) {
+            updateSaveStatus('Save failed.', false);
+        }
+    }
+
+    function loadWorldState() {
+        try {
+            const raw = localStorage.getItem(SAVE_KEY);
+            if (!raw) {
+                updateSaveStatus('No save file found.', false);
+                return;
+            }
+
+            const data = JSON.parse(raw);
+            if (!Array.isArray(data.world) || data.world.length !== WORLD_H) {
+                updateSaveStatus('Save file invalid.', false);
+                return;
+            }
+
+            world = data.world;
+            if (data.player) {
+                player.x = Number(data.player.x) || player.x;
+                player.y = Number(data.player.y) || player.y;
+                player.vx = 0;
+                player.vy = 0;
+            }
+            if (data.inventory && typeof data.inventory === 'object') {
+                Object.keys(inventory).forEach((k) => {
+                    inventory[k] = Math.max(0, Number(data.inventory[k] || 0));
+                });
+            }
+            minedCount = Math.max(0, Number(data.minedCount || 0));
+            scoreEl.textContent = minedCount;
+
+            if (data.spawnPoint) {
+                spawnPoint = {
+                    x: Number(data.spawnPoint.x) || spawnPoint.x,
+                    y: Number(data.spawnPoint.y) || spawnPoint.y
+                };
+            }
+
+            selectedSlot = Math.max(0, Math.min(hotbarSlots.length - 1, Number(data.selectedSlot || 0)));
+            currentHealth = Math.max(1, Math.min(maxHealth, Number(data.currentHealth || maxHealth)));
+            currentHunger = Math.max(0, Math.min(maxHunger, Number(data.currentHunger ?? maxHunger)));
+            worldTime = Math.max(0, Math.min(1, Number(data.worldTime || 0)));
+            entities = Array.isArray(data.entities) ? data.entities : entities;
+            // Ensure all entities have jumpTimer
+            entities.forEach(mob => {
+                if (mob.jumpTimer === undefined) mob.jumpTimer = 0;
+            });
+            starveTimer = 0;
+            regenTimer = 0;
+            fallStartY = null;
+            nightMobSpawnTimer = 0;
+            lastTimePhase = getTimeLabel();
+
+            renderInventory();
+            renderHotbar();
+            renderStatusPanel();
+            updateCamera();
+            render();
+            updateSaveStatus(`Loaded save from ${new Date(data.savedAt || Date.now()).toLocaleTimeString()}`);
+        } catch (error) {
+            updateSaveStatus('Load failed.', false);
+        }
+    }
+
+    function growTree(x, y) {
+        const trunk = 3 + Math.floor(rand(x, y) * 2);
+        for (let t = 0; t < trunk; t++) {
+            setTile(x, y - t, TILE_TYPES.wood.id);
+        }
+
+        const top = y - trunk;
+        for (let dy = -2; dy <= 1; dy++) {
+            for (let dx = -2; dx <= 2; dx++) {
+                if (Math.abs(dx) + Math.abs(dy) <= 3 && rand(x + dx, top + dy) > 0.18) {
+                    setTile(x + dx, top + dy, TILE_TYPES.leaves.id);
+                }
+            }
+        }
+    }
+
+    function collides(nx, ny) {
+        const left = Math.floor(nx);
+        const right = Math.floor(nx + player.w - 0.001);
+        const top = Math.floor(ny);
+        const bottom = Math.floor(ny + player.h - 0.001);
+
+        for (let y = top; y <= bottom; y++) {
+            for (let x = left; x <= right; x++) {
+                if (isSolid(getTile(x, y))) return true;
+            }
+        }
+        return false;
+    }
+
+    function moveAndCollide(dt) {
+        const moveDir = (keys.a || keys.left ? -1 : 0) + (keys.d || keys.right ? 1 : 0);
+        const speedMult = keys.shift && currentHunger > 1.2 ? SPRINT_MULT : 1;
+        player.vx = moveDir * MOVE_V * speedMult;
+        if (moveDir !== 0) player.facing = moveDir;
+
+        const wasOnGround = player.onGround;
+        const preMoveY = player.y;
+
+        const targetX = player.x + player.vx * dt;
+        if (!collides(targetX, player.y)) {
+            player.x = targetX;
+        } else {
+            const step = Math.sign(player.vx) * 0.02;
+            while (!collides(player.x + step, player.y)) {
+                player.x += step;
+            }
+            player.vx = 0;
+        }
+
+        player.vy = Math.min(MAX_FALL, player.vy + GRAVITY * dt);
+        const targetY = player.y + player.vy * dt;
+
+        if (!collides(player.x, targetY)) {
+            player.y = targetY;
+            player.onGround = false;
+        } else {
+            const step = Math.sign(player.vy) * 0.02;
+            while (!collides(player.x, player.y + step)) {
+                player.y += step;
+            }
+            player.onGround = player.vy > 0;
+            player.vy = 0;
+        }
+
+        if (player.y + player.h >= BOTTOM_RESPAWN_Y) {
+            respawnPlayer();
+            return;
+        }
+
+        if (!wasOnGround && player.onGround && fallStartY !== null) {
+            const fallDistance = player.y - fallStartY;
+            applyFallDamage(fallDistance);
+            fallStartY = null;
+        } else if (wasOnGround && !player.onGround && player.vy > 0) {
+            fallStartY = preMoveY;
+        }
+
+        player.x = Math.max(1, Math.min(WORLD_W - player.w - 1, player.x));
+        player.y = Math.max(1, Math.min(WORLD_H - player.h - 1, player.y));
+    }
+
+    function resizeCanvasToContainer() {
+        const targetWidth = Math.max(640, Math.floor(gameWrapper.clientWidth - 4));
+        const fullscreenMode = document.fullscreenElement === gameWrapper;
+        const targetHeight = fullscreenMode
+            ? Math.max(420, Math.floor(window.innerHeight - 210))
+            : Math.max(420, Math.floor(targetWidth * 0.56));
+
+        if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            if (typeof updateCamera === 'function') updateCamera();
+            if (typeof render === 'function') render();
+        }
+    }
+
+    async function toggleFullscreen() {
+        try {
+            if (document.fullscreenElement === gameWrapper) {
+                await document.exitFullscreen();
+            } else {
+                await gameWrapper.requestFullscreen();
+            }
+        } catch (error) {
+            console.error('Fullscreen toggle failed:', error);
+        }
+    }
+
+    function drawTile(x, y, tileId, screenX, screenY) {
+        if (tileId === TILE_TYPES.air.id) return;
+        const tile = BY_ID[tileId];
+        if (!tile) return;
+
+        ctx.fillStyle = tile.color;
+        ctx.fillRect(screenX, screenY, TILE, TILE);
+
+        if (tile.under) {
+            ctx.fillStyle = tile.under;
+            ctx.fillRect(screenX, screenY + TILE * 0.58, TILE, TILE * 0.42);
+        }
+
+        ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+        ctx.strokeRect(screenX + 0.5, screenY + 0.5, TILE - 1, TILE - 1);
+    }
+
+    function drawSky() {
+        const cycle = worldTime % 1;
+        const dayFactor = (Math.sin(cycle * Math.PI * 2 - Math.PI / 2) + 1) / 2;
+        const skyTopR = Math.floor(20 + dayFactor * 123);
+        const skyTopG = Math.floor(30 + dayFactor * 185);
+        const skyTopB = Math.floor(60 + dayFactor * 195);
+        const skyBottomR = Math.floor(15 + dayFactor * 85);
+        const skyBottomG = Math.floor(25 + dayFactor * 143);
+        const skyBottomB = Math.floor(45 + dayFactor * 195);
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, `rgb(${skyTopR}, ${skyTopG}, ${skyTopB})`);
+        gradient.addColorStop(0.65, `rgb(${Math.floor(skyTopR * 0.9)}, ${Math.floor(skyTopG * 0.95)}, ${skyTopB})`);
+        gradient.addColorStop(1, `rgb(${skyBottomR}, ${skyBottomG}, ${skyBottomB})`);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const darkness = Math.max(0, 0.5 - dayFactor * 0.5);
+        if (darkness > 0.01) {
+            ctx.fillStyle = `rgba(8, 10, 20, ${darkness})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    function updateCamera() {
+        camera.x = player.x * TILE - canvas.width / 2;
+        camera.y = player.y * TILE - canvas.height / 2;
+
+        camera.x = Math.max(0, Math.min(WORLD_W * TILE - canvas.width, camera.x));
+        camera.y = Math.max(0, Math.min(WORLD_H * TILE - canvas.height, camera.y));
+    }
+
+    function drawPlayer() {
+        const px = player.x * TILE - camera.x;
+        const py = player.y * TILE - camera.y;
+        const pw = player.w * TILE;
+        const ph = player.h * TILE;
+
+        // Draw player with hurt animation (red flash)
+        const isHurt = player.hurtTimer > 0;
+        
+        ctx.fillStyle = isHurt ? '#dc2626' : '#2c3f75';
+        ctx.fillRect(px + pw * 0.15, py + ph * 0.45, pw * 0.7, ph * 0.55);
+        ctx.fillStyle = isHurt ? '#f87171' : '#4f69c6';
+        ctx.fillRect(px + pw * 0.18, py + ph * 0.48, pw * 0.64, ph * 0.52);
+
+        ctx.fillStyle = isHurt ? '#fca5a5' : '#f1c27d';
+        ctx.fillRect(px + pw * 0.22, py + ph * 0.12, pw * 0.56, ph * 0.34);
+
+        const eyeY = py + ph * 0.23;
+        const eyeOffset = player.facing > 0 ? pw * 0.07 : -pw * 0.07;
+        ctx.fillStyle = '#111827';
+        ctx.fillRect(px + pw * 0.38 + eyeOffset, eyeY, pw * 0.09, ph * 0.08);
+        ctx.fillRect(px + pw * 0.54 + eyeOffset, eyeY, pw * 0.09, ph * 0.08);
+    }
+
+    function getCanvasCoordsFromClient(clientX, clientY) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const sx = (clientX - rect.left) * scaleX;
+        const sy = (clientY - rect.top) * scaleY;
+        return { sx, sy };
+    }
+
+    function worldFromMouse(clientX, clientY) {
+        const { sx, sy } = getCanvasCoordsFromClient(clientX, clientY);
+        const worldX = Math.floor((sx + camera.x) / TILE);
+        const worldY = Math.floor((sy + camera.y) / TILE);
+        return { x: worldX, y: worldY, sx, sy };
+    }
+
+    function withinReach(tx, ty) {
+        const playerCenterX = player.x + player.w * 0.5;
+        const playerCenterY = player.y + player.h * 0.5;
+        const targetX = tx + 0.5;
+        const targetY = ty + 0.5;
+        const dx = targetX - playerCenterX;
+        const dy = targetY - playerCenterY;
+        return Math.hypot(dx, dy) <= REACH;
+    }
+
+    function mineBlock(tx, ty) {
+        if (!withinReach(tx, ty)) return;
+        const tileId = getTile(tx, ty);
+        if (tileId === TILE_TYPES.air.id) return;
+
+        const tile = BY_ID[tileId];
+        setTile(tx, ty, TILE_TYPES.air.id);
+
+        if (tile && tile.item && inventory[tile.item] !== undefined) {
+            inventory[tile.item] += 1;
+            minedCount += 1;
+            scoreEl.textContent = minedCount;
+            renderInventory();
+            renderHotbar();
+        }
+    }
+
+    function placeBlock(tx, ty) {
+        if (!withinReach(tx, ty)) return;
+        if (getTile(tx, ty) !== TILE_TYPES.air.id) return;
+
+        const slot = getSelectedSlot();
+        if (!slot || slot.kind !== 'block') return;
+
+        const item = slot.key;
+        if ((inventory[item] || 0) <= 0) return;
+
+        const tile = TILE_TYPES[item];
+        if (!tile) return;
+
+        setTile(tx, ty, tile.id);
+
+        if (collides(player.x, player.y)) {
+            setTile(tx, ty, TILE_TYPES.air.id);
+            return;
+        }
+
+        inventory[item] -= 1;
+        renderInventory();
+        renderHotbar();
+    }
+
+    function renderInventory() {
+        inventoryEl.innerHTML = '';
+        Object.keys(inventory).forEach((item) => {
+            const tile = TILE_TYPES[item];
+            if (!tile) return; // Only show blocks in side inventory
+            const row = document.createElement('div');
+            row.className = 'inventory-item';
+            row.innerHTML = `
+                <div style="display:flex;align-items:center;min-width:0;">
+                    <span class="swatch" style="background:${tile.color};"></span>
+                    <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${tile.name}</span>
+                </div>
+                <span style="font-weight:700;color:#d1fae5;">${inventory[item] || 0}</span>
+            `;
+            inventoryEl.appendChild(row);
+        });
+    }
+
+    function renderFullInventory() {
+        const fullInvEl = document.getElementById('full-inventory');
+        fullInvEl.innerHTML = '';
+        
+        // Show all inventory items
+        Object.keys(inventory).forEach((item) => {
+            const tile = TILE_TYPES[item];
+            const food = FOOD[item];
+            const itemData = tile || food;
+            if (!itemData) return;
+            
+            const card = document.createElement('div');
+            card.className = 'bg-gray-700 rounded-lg border border-gray-600 p-3 text-center';
+            card.innerHTML = `
+                ${tile ? `<div class="swatch mx-auto mb-2" style="background:${tile.color};width:32px;height:32px;"></div>` 
+                       : `<div class="text-3xl mb-2">${food.icon}</div>`}
+                <div class="text-xs text-gray-300 mb-1">${itemData.name}</div>
+                <div class="text-sm font-bold text-lime-400">${inventory[item] || 0}</div>
+            `;
+            fullInvEl.appendChild(card);
+        });
+        
+        // Show tools/weapons
+        Object.keys(GEAR).forEach((gearKey) => {
+            const gear = GEAR[gearKey];
+            const card = document.createElement('div');
+            card.className = 'bg-gray-700 rounded-lg border border-amber-600 p-3 text-center';
+            card.innerHTML = `
+                <div class="text-3xl mb-2">${gear.icon}</div>
+                <div class="text-xs text-gray-300 mb-1">${gear.name}</div>
+                <div class="text-xs text-amber-400">${gear.toolType}</div>
+            `;
+            fullInvEl.appendChild(card);
+        });
+    }
+
+    function renderCraftingRecipes() {
+        const recipeEl = document.getElementById('recipe-list');
+        recipeEl.innerHTML = '';
+        
+        Object.keys(RECIPES).forEach((outputKey) => {
+            const recipe = RECIPES[outputKey];
+            const output = GEAR[outputKey] || FOOD[outputKey];
+            if (!output) return;
+            
+            // Check if player has materials
+            let canCraft = true;
+            Object.keys(recipe).forEach((ingredient) => {
+                if ((inventory[ingredient] || 0) < recipe[ingredient]) {
+                    canCraft = false;
+                }
+            });
+            
+            const card = document.createElement('div');
+            card.className = `bg-gray-700 rounded-lg border ${canCraft ? 'border-lime-500' : 'border-gray-600'} p-4`;
+            
+            let ingredientsList = '';
+            Object.keys(recipe).forEach((ingredient) => {
+                const tile = TILE_TYPES[ingredient];
+                const food = FOOD[ingredient];
+                const itemData = tile || food;
+                const hasEnough = (inventory[ingredient] || 0) >= recipe[ingredient];
+                ingredientsList += `
+                    <span class="${hasEnough ? 'text-lime-300' : 'text-red-400'}">
+                        ${itemData?.name || ingredient} x${recipe[ingredient]}
+                    </span>
+                `;
+            });
+            
+            card.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-lg font-bold text-white mb-1">${output.icon} ${output.name}</div>
+                        <div class="text-xs text-gray-400">Requires: ${ingredientsList}</div>
+                    </div>
+                    <button onclick="craftItem('${outputKey}')" 
+                            class="py-2 px-4 rounded-lg font-bold ${canCraft ? 'bg-lime-600 hover:bg-lime-500 text-white' : 'bg-gray-600 text-gray-400 cursor-not-allowed'}"
+                            ${canCraft ? '' : 'disabled'}>
+                        CRAFT
+                    </button>
+                </div>
+            `;
+            recipeEl.appendChild(card);
+        });
+    }
+
+    function renderHotbar() {
+        hotbarEl.innerHTML = '';
+        hotbarSlots.forEach((slotItem, index) => {
+            const isBlock = slotItem.kind === 'block';
+            const isGear = slotItem.kind === 'gear';
+            const isFood = slotItem.kind === 'food';
+            
+            const tile = isBlock ? TILE_TYPES[slotItem.key] : null;
+            const gear = isGear ? GEAR[slotItem.key] : null;
+            const food = isFood ? FOOD[slotItem.key] : null;
+            
+            const slot = document.createElement('button');
+            const active = index === selectedSlot;
+            const amount = isBlock || isFood ? (inventory[slotItem.key] || 0) : '∞';
+
+            slot.className = 'rounded-lg border text-xs py-2 px-1 flex flex-col items-center gap-1';
+            slot.style.background = active ? 'rgba(132, 204, 22, 0.32)' : 'rgba(15, 23, 42, 0.6)';
+            slot.style.borderColor = active ? 'rgba(163, 230, 53, 0.95)' : 'rgba(75, 85, 99, 0.7)';
+            slot.innerHTML = `
+                ${isBlock
+                    ? `<span class="swatch" style="margin:0;background:${tile.color};"></span>`
+                    : isGear 
+                        ? `<span style="font-size:1rem;line-height:1.1;">${gear.icon}</span>`
+                        : `<span style="font-size:1rem;line-height:1.1;">${food.icon}</span>`}
+                <span style="font-family:system-ui,sans-serif;line-height:1;">${index + 1}</span>
+                <span style="font-family:system-ui,sans-serif;line-height:1;color:${isBlock || isFood ? (amount > 0 ? '#d1fae5' : '#f87171') : '#fde68a'};">${amount}</span>
+            `;
+            slot.onclick = () => {
+                selectedSlot = index;
+                renderHotbar();
+                renderStatusPanel();
+            };
+            hotbarEl.appendChild(slot);
+        });
+    }
+
+    function drawCrosshairTile() {
+        if (!lastMousePosition) return;
+        const { sx, sy } = getCanvasCoordsFromClient(lastMousePosition.clientX, lastMousePosition.clientY);
+        const tx = Math.floor((sx + camera.x) / TILE);
+        const ty = Math.floor((sy + camera.y) / TILE);
+
+        if (!withinReach(tx, ty)) return;
+
+        const drawX = tx * TILE - camera.x;
+        const drawY = ty * TILE - camera.y;
+        ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(drawX + 1, drawY + 1, TILE - 2, TILE - 2);
+    }
+
+    let lastMousePosition = null;
+
+    function render() {
+        drawSky();
+
+        const startX = Math.floor(camera.x / TILE) - 1;
+        const endX = Math.ceil((camera.x + canvas.width) / TILE) + 1;
+        const startY = Math.floor(camera.y / TILE) - 1;
+        const endY = Math.ceil((camera.y + canvas.height) / TILE) + 1;
+
+        for (let y = startY; y <= endY; y++) {
+            for (let x = startX; x <= endX; x++) {
+                const tileId = getTile(x, y);
+                if (tileId === TILE_TYPES.air.id) continue;
+                const sx = x * TILE - camera.x;
+                const sy = y * TILE - camera.y;
+                drawTile(x, y, tileId, sx, sy);
+            }
+        }
+
+        drawMobs();
+        drawPlayer();
+        drawBreakOverlay();
+        drawCrosshairTile();
+    }
+
+    function tick() {
+        if (!gameRunning || gamePaused) return;
+        worldTime = (worldTime + DAY_SPEED) % 1;
+        attackCooldown = Math.max(0, attackCooldown - 1);
+        player.hurtTimer = Math.max(0, player.hurtTimer - 1);
+        moveAndCollide(1);
+        updateNeeds(1);
+        manageHostileMobs(1);
+        updateMobs(1);
+        if (mouseState.leftDown) {
+            const slot = getSelectedSlot();
+            if (slot.kind === 'block' || (slot.kind === 'gear' && getSelectedGear()?.toolType !== 'sword')) {
+                updateBreaking(1);
+            }
+        }
+        updateCamera();
+        render();
+
+        const now = Date.now();
+        if (now - lastAutoSave > 30000) {
+            saveWorldState(true);
+            lastAutoSave = now;
+        }
+
+        if (Math.floor(now / 1000) % 2 === 0) {
+            renderStatusPanel();
+        }
+        requestAnimationFrame(tick);
+    }
+
+    function startGame() {
+        if (gameRunning) return;
+        gameRunning = true;
+        gamePaused = false;
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('pause-screen').classList.add('hidden');
+        updateCamera();
+        render();
+        requestAnimationFrame(tick);
+    }
+
+    function togglePause() {
+        if (!gameRunning) return;
+        gamePaused = !gamePaused;
+        document.getElementById('pause-screen').classList.toggle('hidden', !gamePaused);
+
+        if (!gamePaused) {
+            requestAnimationFrame(tick);
+        }
+    }
+
+    document.addEventListener('keydown', (event) => {
+        const key = event.key.toLowerCase();
+
+        if (key === 'a') keys.a = true;
+        if (key === 'd') keys.d = true;
+        if (event.key === 'ArrowLeft') keys.left = true;
+        if (event.key === 'ArrowRight') keys.right = true;
+        if (event.key === 'Shift') keys.shift = true;
+
+        if ((event.key === ' ' || event.code === 'Space') && player.onGround && gameRunning && !gamePaused) {
+            player.vy = JUMP_V;
+        }
+
+        if (key === 'p' || event.key === 'Escape') {
+            event.preventDefault();
+            togglePause();
+        }
+
+        if (key === 'f') {
+            event.preventDefault();
+            toggleFullscreen();
+        }
+
+        if (key === 'h') {
+            event.preventDefault();
+            toggleHud();
+        }
+
+        if (key === 'e') {
+            event.preventDefault();
+            if (inventoryOpen) {
+                closeInventory();
+            } else if (!craftingOpen && !gamePaused) {
+                openInventory();
+            }
+        }
+
+        if (key === 'c') {
+            event.preventDefault();
+            if (craftingOpen) {
+                closeCrafting();
+            } else if (!inventoryOpen && !gamePaused) {
+                openCrafting();
+            }
+        }
+
+        if (key >= '1' && key <= '8') {
+            selectedSlot = Number(key) - 1;
+            renderHotbar();
+            renderStatusPanel();
+        }
+    });
+
+    document.addEventListener('keyup', (event) => {
+        const key = event.key.toLowerCase();
+
+        if (key === 'a') keys.a = false;
+        if (key === 'd') keys.d = false;
+        if (event.key === 'ArrowLeft') keys.left = false;
+        if (event.key === 'ArrowRight') keys.right = false;
+        if (event.key === 'Shift') keys.shift = false;
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && gameRunning && !gamePaused) {
+            togglePause();
+        }
+    });
+
+    window.addEventListener('resize', resizeCanvasToContainer);
+    document.addEventListener('fullscreenchange', resizeCanvasToContainer);
+
+    canvas.addEventListener('mousemove', (event) => {
+        lastMousePosition = { clientX: event.clientX, clientY: event.clientY };
+        if (mouseState.leftDown) {
+            const slot = getSelectedSlot();
+            if (slot.kind === 'block' || (slot.kind === 'gear' && getSelectedGear()?.toolType !== 'sword')) {
+                const { x, y } = worldFromMouse(event.clientX, event.clientY);
+                startBreaking(x, y);
+            }
+        }
+    });
+
+    canvas.addEventListener('mousedown', (event) => {
+        if (!gameRunning || gamePaused) return;
+        const { x, y } = worldFromMouse(event.clientX, event.clientY);
+
+        if (event.button === 0) {
+            mouseState.leftDown = true;
+            if (!tryWeaponAttack(x, y)) {
+                startBreaking(x, y);
+            }
+        } else if (event.button === 2) {
+            mouseState.rightDown = true;
+            const slot = getSelectedSlot();
+            if (slot && slot.kind === 'food') {
+                consumeFood(slot.key);
+            } else {
+                placeBlock(x, y);
+            }
+        }
+
+        updateCamera();
+        render();
+    });
+
+    canvas.addEventListener('mouseup', (event) => {
+        if (event.button === 0) {
+            mouseState.leftDown = false;
+            clearBreakingState();
+        } else if (event.button === 2) {
+            mouseState.rightDown = false;
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        mouseState.leftDown = false;
+        mouseState.rightDown = false;
+        clearBreakingState();
+    });
+
+    canvas.addEventListener('contextmenu', (event) => event.preventDefault());
+
+    if (saveWorldBtn) {
+        saveWorldBtn.addEventListener('click', () => saveWorldState(false));
+    }
+
+    if (loadWorldBtn) {
+        loadWorldBtn.addEventListener('click', loadWorldState);
+    }
+
+    generateWorld();
+    resizeCanvasToContainer();
+    toggleHud(true);
+    renderInventory();
+    renderHotbar();
+    renderStatusPanel();
+    updateSaveStatus(localStorage.getItem(SAVE_KEY) ? 'Save file found. Ready to load.' : 'No save yet.');
+    updateCamera();
+    render();
+</script>
+</body>
+</html>
+

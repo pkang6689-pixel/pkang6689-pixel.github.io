@@ -256,6 +256,14 @@
       btn.addEventListener('click', action);
       body.appendChild(btn);
   }
+
+    function getLocalDateStamp() {
+      var now = new Date();
+      var year = now.getFullYear();
+      var month = String(now.getMonth() + 1).padStart(2, '0');
+      var day = String(now.getDate()).padStart(2, '0');
+      return year + '-' + month + '-' + day;
+    }
   
   // --- Update Log (moved to archived) ---
   addArchivedSection('Updates');
@@ -482,19 +490,78 @@
 
     addSection('Quiz Actions');
     addButton('\u2714 Auto-Pass Quiz', function () {
-        // Mark all answers correct
-        document.querySelectorAll('.quiz-question').forEach(function (q) {
-          var correctInput = q.querySelector('input[value="correct"]');
-          if (correctInput) {
-            correctInput.checked = true;
-            // Try to find generic submit button
-            var submitBtn = q.querySelector('button') || q.querySelector('.action-button');
-            if (submitBtn && !submitBtn.disabled) submitBtn.click();
+        // Mark all answers correct and click submit buttons with delay
+        var questions = Array.from(document.querySelectorAll('.quiz-question'));
+        var index = 0;
+        
+        function processNext() {
+          if (index < questions.length) {
+            var q = questions[index];
+            var correctInput = q.querySelector('input[value="correct"]');
+            if (correctInput) {
+              correctInput.checked = true;
+              var submitBtn = q.querySelector('button') || q.querySelector('.action-button');
+              if (submitBtn && !submitBtn.disabled) {
+                submitBtn.click();
+              }
+            }
+            index++;
+            setTimeout(processNext, 50);
+          } else {
+            // All buttons clicked, now check completion and force storage
+            setTimeout(function() {
+              if (window.checkQuizCompletion) {
+                window.checkQuizCompletion();
+              }
+              localStorage.setItem(prefix + qUnit + '_l' + qLesson + '_completed', 'true');
+            }, 100);
           }
-        });
-        // Also force storage just in case
-        localStorage.setItem(prefix + qUnit + '_l' + qLesson + '_completed', 'true');
+        }
+        
+        processNext();
     }, 'green');
+
+      addButton('\uD83E\uDDEA Test Daily Token Grant (+100)', function () {
+        var lessonBaseKey = prefix + qUnit + '_l' + qLesson;
+        var completionKey = lessonBaseKey + '_completed';
+        var rewardDateKey = lessonBaseKey + '_rewarded_date';
+        var today = getLocalDateStamp();
+
+        var pointsBefore = 0;
+        var pointsAfter = 0;
+        var granted = false;
+
+        try {
+          var user = JSON.parse(localStorage.getItem('user') || '{}');
+          pointsBefore = parseInt(user.points || '0', 10) || 0;
+
+          if (localStorage.getItem(rewardDateKey) !== today) {
+            user.points = pointsBefore + 100;
+            pointsAfter = user.points;
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem(completionKey, 'true');
+            localStorage.setItem(rewardDateKey, today);
+            granted = true;
+          } else {
+            pointsAfter = pointsBefore;
+          }
+
+          alert(
+            granted
+            ? ('Token grant SUCCESS for today.\n+100 tokens\nBefore: ' + pointsBefore + '\nAfter: ' + pointsAfter + '\nKey: ' + rewardDateKey)
+            : ('Token grant BLOCKED (already rewarded today).\nCurrent tokens: ' + pointsAfter + '\nKey: ' + rewardDateKey)
+          );
+        } catch (e) {
+          alert('Token grant test failed: ' + (e && e.message ? e.message : e));
+        }
+      }, 'green');
+
+      addButton('\u21BA Reset Daily Token Gate (This Lesson)', function () {
+        var lessonBaseKey = prefix + qUnit + '_l' + qLesson;
+        var rewardDateKey = lessonBaseKey + '_rewarded_date';
+        localStorage.removeItem(rewardDateKey);
+        alert('Removed daily reward key for this lesson.\nNext completion can grant tokens again.');
+      });
   }
 
   // --- Unit Test page ---

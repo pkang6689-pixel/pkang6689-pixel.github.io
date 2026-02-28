@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArisEdu - HS→MS Completion Sync Migration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            color: #1f2937;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+        
+        .info-box {
+            background: #f3f4f6;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+        }
+        
+        .info-box strong {
+            color: #1f2937;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            color: #4b5563;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        
+        .features li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+        
+        .features li::before {
+            content: "✓";
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            margin-right: 0.75rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        button {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        .output {
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            line-height: 1.4;
+        }
+        
+        .output.active {
+            display: block;
+        }
+        
+        .output-line {
+            margin-bottom: 0.25rem;
+        }
+        
+        .output-success {
+            color: #10b981;
+        }
+        
+        .output-warning {
+            color: #f59e0b;
+        }
+        
+        .output-error {
+            color: #ef4444;
+        }
+        
+        .output-header {
+            color: #60a5fa;
+            font-weight: bold;
+            border-bottom: 1px solid #374151;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status {
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: 600;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+        
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 Data Migration Tool</h1>
+            <p>Mirror High School Completion to Middle School</p>
+        </div>
+        
+        <div class="info-box">
+            <strong>What does this tool do?</strong>
+            <p>
+                This tool updates your browser's local data to synchronize previously completed high school lessons 
+                with their corresponding middle school lessons. When an HS student completes a lesson, the MS version 
+                will also be marked as complete.
+            </p>
+        </div>
+        
+        <ul class="features">
+            <li>One-way sync: HS completion → MS completion only</li>
+            <li>MS completion does NOT affect HS (keeps them independent)</li>
+            <li>Works for all subjects: Algebra, Geometry, Physics, Chemistry, Biology</li>
+            <li>Safe: Never deletes existing data, only adds missing mappings</li>
+            <li>Completely local: All data stays in your browser</li>
+        </ul>
+        
+        <div class="button-group">
+            <button class="btn-primary" id="runBtn">▶ Run Migration</button>
+            <button class="btn-secondary" id="docBtn">📖 View Instructions</button>
+        </div>
+        
+        <div class="output" id="output">
+            <div class="output-header">Migration Log</div>
+            <div id="outputContent"></div>
+        </div>
+        
+        <div class="status" id="status"></div>
+    </div>
+
+    <script src="migrate_hs_completion_to_ms.js"></script>
+    <script>
+        const runBtn = document.getElementById('runBtn');
+        const docBtn = document.getElementById('docBtn');
+        const output = document.getElementById('output');
+        const outputContent = document.getElementById('outputContent');
+        const status = document.getElementById('status');
+        
+        // Capture console output
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        
+        let logLines = [];
+        
+        function addLogLine(text, type = 'default') {
+            const line = document.createElement('div');
+            line.className = 'output-line ' + (type ? 'output-' + type : '');
+            line.textContent = text;
+            outputContent.appendChild(line);
+            logLines.push(text);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            const text = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+            addLogLine(text, getLogType(text));
+            originalLog.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            const text = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+            addLogLine(text, 'warning');
+            originalWarn.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            const text = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+            addLogLine(text, 'error');
+            originalError.apply(console, args);
+        };
+        
+        function getLogType(text) {
+            if (text.includes('✓') || text.includes('✅')) return 'success';
+            if (text.includes('❌') || text.includes('Error')) return 'error';
+            if (text.includes('⚠️') || text.includes('warning')) return 'warning';
+            return 'default';
+        }
+        
+        runBtn.addEventListener('click', function() {
+            output.classList.add('active');
+            logLines = [];
+            outputContent.innerHTML = '<div class="output-header">Migration Log</div>';
+            status.className = 'status';
+            runBtn.disabled = true;
+            runBtn.textContent = '⏳ Running...';
+            
+            // The migration script will run here
+            setTimeout(() => {
+                runBtn.disabled = false;
+                runBtn.textContent = '✓ Migration Complete';
+                
+                const totalMigrated = logLines.filter(l => l.includes('Migrated:')).length;
+                if (totalMigrated > 0) {
+                    status.className = 'status success';
+                    status.innerHTML = `✨ Successfully migrated ${totalMigrated} lessons!<br><small>Refresh your pages to see the updates.</small>`;
+                } else {
+                    status.className = 'status error';
+                    status.innerHTML = 'ℹ️ No lessons found to migrate, or mapping data not available.<br><small>MS courses may need to be visited first.</small>';
+                }
+            }, 500);
+        });
+        
+        docBtn.addEventListener('click', function() {
+            alert(`📖 MIGRATION INSTRUCTIONS\n\n` +
+                `1. This tool updates your browser's localStorage\n` +
+                `2. It finds all completed HS lessons\n` +
+                `3. For each HS lesson, it marks the MS version complete too\n` +
+                `4. MS lessons completing does NOT affect HS\n\n` +
+                `REQUIREMENTS:\n` +
+                `• You must have visited MS courses before (to generate mapping data)\n` +
+                `• You must have some completed HS lessons\n\n` +
+                `TIMING:\n` +
+                `• Click "Run Migration" to start\n` +
+                `• The output will update as it processes\n` +
+                `• Refresh your pages after completion`);
+        });
+    </script>
+</body>
+</html>

@@ -32057,7 +32057,7 @@
     "Yes, because 3 + 6 > 2": "Sí, porque 3 + 6 > 2",
     "Yes, because 7 + 10 = 17 > 12": "Sí, porque 7 + 10 = 17 > 12",
     "Yes, because a + a > a for any positive a": "Sí, porque a + a > a para cualquier a positivo",
-    "Yes, it is a degenerate triangle with area > 0": "Sí, es un triángulo degenerado con área > 0"
+    "Yes, it is a degenerate triangle with area > 0": "Sí, es un triángulo degenerado con área > 0",
     "Back to Algebra 2": "Volver a Álgebra 2"
 };
 

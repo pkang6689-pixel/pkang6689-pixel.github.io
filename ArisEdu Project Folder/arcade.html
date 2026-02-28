@@ -186,6 +186,90 @@
       box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
     }
 
+    .arcade-title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .arcade-help-btn {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 9999px;
+      border: 2px solid #3b82f6;
+      background: #ffffff;
+      color: #2563eb;
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .arcade-help-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.2);
+    }
+
+    body.dark-mode .arcade-help-btn {
+      background: #1e293b;
+      color: #60a5fa;
+      border-color: #3b82f6;
+    }
+
+    .arcade-help-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 1rem;
+    }
+
+    .arcade-help-modal.open {
+      display: flex;
+    }
+
+    .arcade-help-modal-box {
+      background: #ffffff;
+      border-radius: 1rem;
+      max-width: 480px;
+      width: 100%;
+      padding: 1.5rem;
+      border: 2px solid #e2e8f0;
+    }
+
+    body.dark-mode .arcade-help-modal-box {
+      background: #1e293b;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+
+    .arcade-help-list {
+      margin: 0.75rem 0 1rem;
+      padding-left: 1.25rem;
+      color: #475569;
+    }
+
+    body.dark-mode .arcade-help-list {
+      color: #cbd5e1;
+    }
+
+    .arcade-help-close {
+      border: none;
+      border-radius: 0.5rem;
+      background: #3b82f6;
+      color: #ffffff;
+      padding: 0.6rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
     .game-icon {
       width: 80px;
       height: 80px;
@@ -264,10 +348,10 @@
     .game-card.minesweeper .game-icon { background: rgba(99, 102, 241, 0.15); }
     .game-card.minesweeper .game-title { color: #6366f1; }
 
-    /* Match - lime */
-    .game-card.match::before { background: linear-gradient(90deg, #84cc16, #65a30d); }
-    .game-card.match .game-icon { background: rgba(132, 204, 22, 0.15); }
-    .game-card.match .game-title { color: #84cc16; }
+    /* Craft 2D - green */
+    .game-card.craft2d::before { background: linear-gradient(90deg, #65a30d, #16a34a); }
+    .game-card.craft2d .game-icon { background: rgba(101, 163, 13, 0.15); }
+    .game-card.craft2d .game-title { color: #65a30d; }
   </style>
   <script src="theme_manager.js"></script>
 </head>
@@ -275,7 +359,10 @@
 <script src="scripts/taskbar.js"></script>
   <main class="main-container">
     <div class="arcade-header">
-      <h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0;" data-i18n="👾 Arcade">👾 Arcade</h1>
+      <div class="arcade-title-row">
+        <h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0;" data-i18n="👾 Arcade">👾 Arcade</h1>
+        <button id="arcade-help-button" class="arcade-help-btn" type="button" aria-label="Arcade help" title="How arcade works">?</button>
+      </div>
       <div id="game-session-display">
         <div class="session-timer" data-i18n="Your Tokens">Your Tokens</div>
         <div class="session-time" id="token-balance">0</div>
@@ -315,14 +402,6 @@
           </div>
           <span class="game-title" data-i18n="MINESWEEPER">MINESWEEPER</span>
           <span class="game-desc" data-i18n="Find all the safe squares!">Find all the safe squares!</span>
-        </a>
-
-        <!-- Match -->
-        <a href="GameMatch.html" class="game-card match">
-          <div class="game-icon">🃏
-          </div>
-          <span class="game-title" data-i18n="MATCH">MATCH</span>
-          <span class="game-desc" data-i18n="Find matching pairs!">Find matching pairs!</span>
         </a>
 
         <!-- Snake -->
@@ -438,12 +517,33 @@
           <span class="game-desc" data-i18n="Drag & drop shapes, clear rows and columns!">Drag &amp; drop shapes, clear rows and columns!</span>
         </a>
 
+        <!-- Craft 2D -->
+        <a href="GameCraft2D.html" class="game-card craft2d">
+          <div class="game-icon">⛏️
+          </div>
+          <span class="game-title" data-i18n="CRAFT 2D">CRAFT 2D</span>
+          <span class="game-desc" data-i18n="Mine, place blocks, and build your world!">Mine, place blocks, and build your world!</span>
+        </a>
+
       </div>
     </div>
   </main>
 
+  <div id="arcade-help-modal" class="arcade-help-modal" aria-hidden="true">
+    <div class="arcade-help-modal-box" role="dialog" aria-modal="true" aria-labelledby="arcade-help-title">
+      <h2 id="arcade-help-title" style="font-size:1.35rem;font-weight:700;margin-bottom:0.5rem;">How Arcade Works</h2>
+      <ul class="arcade-help-list">
+        <li>Complete lesson quizzes to earn arcade tokens.</li>
+        <li>Each lesson can award 100 tokens once per day.</li>
+        <li>You can earn from the same lesson again the next day.</li>
+        <li>Games use your token balance, so keep earning from lessons.</li>
+      </ul>
+      <button id="arcade-help-close" class="arcade-help-close" type="button">Close</button>
+    </div>
+  </div>
+
   <!-- Translation Scripts -->
-  <script src="scripts/global_translations.js?v=7.0"></script>
+  <script src="scripts/global_translations.js?v=7.2"></script>
   <script src="scripts/spanish_translations.js?v=1.0"></script>
   <script src="scripts/hindi_translations.js?v=1.0"></script>
 
@@ -481,7 +581,39 @@
           });
         };
       });
+
+      const helpButton = document.getElementById('arcade-help-button');
+      const helpModal = document.getElementById('arcade-help-modal');
+      const helpClose = document.getElementById('arcade-help-close');
+
+      function closeArcadeHelpModal() {
+        if (!helpModal) return;
+        helpModal.classList.remove('open');
+        helpModal.setAttribute('aria-hidden', 'true');
+      }
+
+      if (helpButton && helpModal) {
+        helpButton.addEventListener('click', () => {
+          helpModal.classList.add('open');
+          helpModal.setAttribute('aria-hidden', 'false');
+        });
+      }
+
+      if (helpClose) {
+        helpClose.addEventListener('click', closeArcadeHelpModal);
+      }
+
+      if (helpModal) {
+        helpModal.addEventListener('click', (event) => {
+          if (event.target === helpModal) closeArcadeHelpModal();
+        });
+      }
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeArcadeHelpModal();
+      });
     })();
   </script>
  </body>
 </html>
+
