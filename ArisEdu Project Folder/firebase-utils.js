@@ -8,24 +8,14 @@ const FIREBASE_CONFIG = {
   appId: "YOUR_APP_ID"
 };
 
-// Initialize Firebase
+let currentUserId = null;
+
+// Initialize Firebase (REST API - no SDK needed)
 async function initializeFirebase() {
   try {
-    // Check if Firebase SDK is loaded
-    if (typeof firebase === 'undefined') {
-      console.log('⚠️ Firebase SDK not loaded, using localStorage fallback');
-      return false;
-    }
-    
-    // Initialize Firebase using compat API (doesn't return a promise)
-    if (!firebase.apps.length) {
-      firebase.initializeApp(FIREBASE_CONFIG);
-    }
-    db = firebase.firestore();
-    
     // Get current user ID
     currentUserId = getCurrentUserId();
-    console.log('✅ Firebase initialized successfully with user:', currentUserId);
+    console.log('✅ Firebase REST API initialized with user:', currentUserId);
     return true;
   } catch (error) {
     console.log('⚠️ Firebase initialization failed:', error.message, '- using localStorage fallback');
@@ -42,34 +32,67 @@ function getCurrentUserId() {
   return userId;
 }
 
-// Get user data from Firebase or localStorage
+// Get user data from Firebase or localStorage using REST API
 async function getUser() {
+  // Always return localStorage first (fast), Firebase is backup
+  const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+  
   try {
-    if (db && currentUserId) {
-      const doc = await db.collection('users').doc(currentUserId).get();
-      if (doc.exists) {
-        return doc.data();
+    if (!FIREBASE_CONFIG.projectId || FIREBASE_CONFIG.projectId === 'YOUR_PROJECT_ID') {
+      return localUser;
+    }
+    
+    // Bypass ORB by using REST API with API key
+    const docPath = `users/${currentUserId}`;
+    const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/${docPath}?key=${FIREBASE_CONFIG.apiKey}`;
+    
+    const response = await fetch(url);
+    
+    if (response.ok) {
+      const doc = await response.json();
+      if (doc.fields) {
+        return {
+          points: parseInt(doc.fields.points?.integerValue || 0),
+          timestamp: doc.fields.timestamp?.stringValue || new Date().toISOString()
+        };
       }
     }
   } catch (error) {
-    console.log('Firebase read failed, using localStorage');
+    // Silently fail, use localStorage
   }
   
-  // Fallback to localStorage
-  return JSON.parse(localStorage.getItem('user') || '{}');
+  return localUser;
 }
 
-// Save user data to Firebase and localStorage
+// Save user data to Firebase and localStorage using REST API
 async function saveUser(user) {
-  // Always save to localStorage as backup
+  // Always save to localStorage as primary store
   localStorage.setItem('user', JSON.stringify(user));
   
   try {
-    if (db && currentUserId) {
-      await db.collection('users').doc(currentUserId).set(user, { merge: true });
+    if (!FIREBASE_CONFIG.projectId || FIREBASE_CONFIG.projectId === 'YOUR_PROJECT_ID') {
+      return; // Config not set, skip Firebase
     }
+    
+    const docPath = `users/${currentUserId}`;
+    const firebaseData = {
+      fields: {
+        points: { integerValue: String(user.points || 0) },
+        timestamp: { stringValue: new Date().toISOString() }
+      }
+    };
+    
+    const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/${docPath}?key=${FIREBASE_CONFIG.apiKey}`;
+    
+    await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(firebaseData)
+    });
   } catch (error) {
-    console.log('Firebase write failed, data saved to localStorage only');
+    // Silently fail - localStorage still has the data
   }
 }
 

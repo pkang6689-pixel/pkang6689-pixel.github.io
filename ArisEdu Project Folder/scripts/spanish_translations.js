@@ -31747,7 +31747,7 @@
     "Photosynthesis only": "Solo fotosíntesis",
     "Photosynthesize": "Fotosintetizar",
     "Physics only": "Solo física",
-    "Ten": "Diez"
+    "Ten": "Diez",
     "A biconditional statement (p ↔ q) means \"p if and only if q.\" It is true when both p and q have the same truth value.": "Una declaración bicondicional (p ↔ q) significa \"p si y solo si q.\" Es verdadera cuando tanto p como q tienen el mismo valor de verdad.",
     "A conditional statement has the form \"If p, then q\" (written p → q). The hypothesis is p and the conclusion is q.": "Una declaración condicional tiene la forma \"Si p, entonces q\" (escrito p → q). La hipótesis es p y la conclusión es q.",
     "A ratio compares two quantities. It can be written as a:b, a/b, or \"a to b\".": "Una razón compara dos cantidades. Se puede escribir como a:b, a/b, o \"a a b\".",
