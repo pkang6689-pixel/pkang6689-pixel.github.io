@@ -18,12 +18,6 @@
         (async function() {
             await initializeFirebase();
             
-            if (sessionStorage.getItem('validGameAccess') !== 'true') {
-                alert('You must access this game from the Arcade page.');
-                window.location.href = 'arcade.html';
-                return;
-            }
-
             function showOutOfTokensPopup() {
                 clearInterval(timerIntervalId);
                 clearInterval(drainIntervalId);
@@ -182,6 +176,10 @@
                 <div class="text-xs text-gray-400 font-sans" data-i18n="SCORE">SCORE</div>
                 <div id="score" class="text-3xl font-bold text-white">0</div>
             </div>
+            <div class="text-right">
+                <div class="text-xs text-gray-400 font-sans">BEST</div>
+                <div id="best-score" class="text-3xl font-bold text-amber-400">0</div>
+            </div>
         </div>
 
         <!-- Canvas -->
@@ -201,15 +199,47 @@
         </div>
 
         <!-- Start Overlay -->
-        <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
-            <h2 class="text-3xl text-green-400 font-bold mb-4" data-i18n="🐍 SNAKE">🐍 SNAKE</h2>
-            <p class="text-gray-300 mb-4 font-sans" data-i18n="Eat apples to grow longer!">Eat apples to grow longer!</p>
-            <div class="text-left text-xs text-gray-400 font-sans mb-6 space-y-1">
-                <p><span class="text-green-300 font-bold" data-i18n="Arrow Keys / WASD">Arrow Keys / WASD</span> — <span data-i18n="Move">Move</span></p>
-                <p><span class="text-green-300 font-bold" data-i18n="Swipe">Swipe</span> — <span data-i18n="Move (mobile)">Move (mobile)</span></p>
-                <p><span class="text-green-300 font-bold" data-i18n="Esc / P">Esc / P</span> — <span data-i18n="Pause">Pause</span></p>
+        <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm overflow-y-auto">
+            <h2 class="text-3xl text-green-400 font-bold mb-3">🐍 SNAKE</h2>
+            <p class="text-gray-300 mb-3 font-sans text-sm">Eat apples to grow longer!</p>
+
+            <!-- Settings Panel -->
+            <div class="w-full max-w-xs space-y-3 mb-4">
+                <!-- Speed -->
+                <div class="bg-gray-800/80 rounded-lg p-3 border border-gray-700">
+                    <div class="text-xs text-gray-400 font-sans mb-2">🏃 SPEED</div>
+                    <div class="flex gap-2 justify-center" id="speed-options">
+                        <button onclick="setSetting('speed','slow')" data-val="slow" class="setting-btn bg-gray-700 text-gray-300 text-xs py-1.5 px-3 rounded-md font-bold transition hover:bg-gray-600">Slow</button>
+                        <button onclick="setSetting('speed','normal')" data-val="normal" class="setting-btn bg-green-600 text-white text-xs py-1.5 px-3 rounded-md font-bold transition ring-2 ring-green-400">Normal</button>
+                        <button onclick="setSetting('speed','fast')" data-val="fast" class="setting-btn bg-gray-700 text-gray-300 text-xs py-1.5 px-3 rounded-md font-bold transition hover:bg-gray-600">Fast</button>
+                        <button onclick="setSetting('speed','insane')" data-val="insane" class="setting-btn bg-gray-700 text-gray-300 text-xs py-1.5 px-3 rounded-md font-bold transition hover:bg-gray-600">Insane</button>
+                    </div>
+                </div>
+                <!-- Apple Count -->
+                <div class="bg-gray-800/80 rounded-lg p-3 border border-gray-700">
+                    <div class="text-xs text-gray-400 font-sans mb-2">🍎 APPLES ON BOARD</div>
+                    <div class="flex gap-2 justify-center" id="apple-options">
+                        <button onclick="setSetting('apples','1')" data-val="1" class="setting-btn bg-green-600 text-white text-xs py-1.5 px-3 rounded-md font-bold transition ring-2 ring-green-400">1</button>
+                        <button onclick="setSetting('apples','3')" data-val="3" class="setting-btn bg-gray-700 text-gray-300 text-xs py-1.5 px-3 rounded-md font-bold transition hover:bg-gray-600">3</button>
+                        <button onclick="setSetting('apples','5')" data-val="5" class="setting-btn bg-gray-700 text-gray-300 text-xs py-1.5 px-3 rounded-md font-bold transition hover:bg-gray-600">5</button>
+                    </div>
+                </div>
+                <!-- Grid Size -->
+                <div class="bg-gray-800/80 rounded-lg p-3 border border-gray-700">
+                    <div class="text-xs text-gray-400 font-sans mb-2">📐 GRID SIZE</div>
+                    <div class="flex gap-2 justify-center" id="grid-options">
+                        <button onclick="setSetting('grid','small')" data-val="small" class="setting-btn bg-gray-700 text-gray-300 text-xs py-1.5 px-3 rounded-md font-bold transition hover:bg-gray-600">Small</button>
+                        <button onclick="setSetting('grid','normal')" data-val="normal" class="setting-btn bg-green-600 text-white text-xs py-1.5 px-3 rounded-md font-bold transition ring-2 ring-green-400">Normal</button>
+                        <button onclick="setSetting('grid','large')" data-val="large" class="setting-btn bg-gray-700 text-gray-300 text-xs py-1.5 px-3 rounded-md font-bold transition hover:bg-gray-600">Large</button>
+                    </div>
+                </div>
             </div>
-            <button onclick="startGame()" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95" data-i18n="START">
+
+            <div class="text-left text-xs text-gray-500 font-sans mb-4 space-y-0.5">
+                <p><span class="text-green-300 font-bold">Arrow Keys / WASD</span> — Move</p>
+                <p><span class="text-green-300 font-bold">Swipe</span> — Move (mobile)</p>
+            </div>
+            <button onclick="startGame()" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
                 START
             </button>
         </div>
@@ -260,32 +290,75 @@
 
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
-        const GRID = 20;
-        const COLS = canvas.width / GRID;
-        const ROWS = canvas.height / GRID;
-        let snake, dir, nextDir, apple, score, speed;
+
+        // Settings (defaults)
+        let settings = { speed: 'normal', apples: '1', grid: 'normal' };
+        const GRID_CONFIGS = { small: {cols:12, rows:12, cell:28}, normal: {cols:17, rows:17, cell:20}, large: {cols:24, rows:24, cell:14} };
+        const SPEED_CONFIGS = { slow: 130, normal: 80, fast: 50, insane: 30 };
+
+        let GRID = 20, COLS = 17, ROWS = 17;
+        let snake, dir, nextDir, score, speed;
+        let apples = []; // multiple apple support
+        let goldenApple = null; // rare golden apple
+        let goldenTimer = 0;
         let eatParticles = [];
+        let bestScore = parseInt(localStorage.getItem('snake_best') || '0');
+
+        function setSetting(category, value) {
+            settings[category] = value;
+            const container = document.getElementById(category === 'speed' ? 'speed-options' : category === 'apples' ? 'apple-options' : 'grid-options');
+            container.querySelectorAll('.setting-btn').forEach(btn => {
+                const isSelected = btn.dataset.val === value;
+                btn.className = 'setting-btn text-xs py-1.5 px-3 rounded-md font-bold transition ' +
+                    (isSelected ? 'bg-green-600 text-white ring-2 ring-green-400' : 'bg-gray-700 text-gray-300 hover:bg-gray-600');
+            });
+        }
+
+        function applySettings() {
+            const gc = GRID_CONFIGS[settings.grid];
+            COLS = gc.cols; ROWS = gc.rows; GRID = gc.cell;
+            canvas.width = COLS * GRID;
+            canvas.height = ROWS * GRID;
+            speed = SPEED_CONFIGS[settings.speed];
+        }
 
         function init() {
+            applySettings();
             snake = [{x: Math.floor(COLS/2), y: Math.floor(ROWS/2)}];
             dir = {x: 1, y: 0};
             nextDir = {x: 1, y: 0};
             score = 0;
-            speed = 80;
             eatParticles = [];
             prevPositions = [];
             accumulator = 0;
             lastTime = 0;
+            goldenApple = null;
+            goldenTimer = 0;
+            apples = [];
+            const appleCount = parseInt(settings.apples);
+            for (let i = 0; i < appleCount; i++) placeApple();
             document.getElementById('score').textContent = '0';
-            placeApple();
+            document.getElementById('best-score').textContent = bestScore;
         }
 
         function lerp(a, b, t) { return a + (b - a) * t; }
 
         function placeApple() {
+            let a;
             do {
-                apple = {x: Math.floor(Math.random()*COLS), y: Math.floor(Math.random()*ROWS)};
-            } while (snake.some(s => s.x === apple.x && s.y === apple.y));
+                a = {x: Math.floor(Math.random()*COLS), y: Math.floor(Math.random()*ROWS)};
+            } while (snake.some(s => s.x === a.x && s.y === a.y) || apples.some(ap => ap.x === a.x && ap.y === a.y));
+            apples.push(a);
+        }
+
+        function spawnGoldenApple() {
+            if (goldenApple) return;
+            let g;
+            do {
+                g = {x: Math.floor(Math.random()*COLS), y: Math.floor(Math.random()*ROWS)};
+            } while (snake.some(s => s.x === g.x && s.y === g.y) || apples.some(a => a.x === g.x && a.y === g.y));
+            goldenApple = g;
+            goldenTimer = 80; // ticks before it disappears
         }
 
         function draw(interpT) {
@@ -298,23 +371,42 @@
             for (let i = 1; i < COLS; i++) { ctx.beginPath(); ctx.moveTo(i*GRID, 0); ctx.lineTo(i*GRID, canvas.height); ctx.stroke(); }
             for (let j = 1; j < ROWS; j++) { ctx.beginPath(); ctx.moveTo(0, j*GRID); ctx.lineTo(canvas.width, j*GRID); ctx.stroke(); }
 
-            // Apple glow with pulse
+            // Draw all apples with glow
             const pulse = 1 + Math.sin(Date.now() / 300) * 0.08;
-            const ag = ctx.createRadialGradient(apple.x*GRID+GRID/2, apple.y*GRID+GRID/2, 0, apple.x*GRID+GRID/2, apple.y*GRID+GRID/2, GRID*1.3*pulse);
-            ag.addColorStop(0, 'rgba(239,68,68,0.3)'); ag.addColorStop(1, 'rgba(239,68,68,0)');
-            ctx.fillStyle = ag;
-            ctx.fillRect(apple.x*GRID-GRID, apple.y*GRID-GRID, GRID*3, GRID*3);
+            apples.forEach(apple => {
+                const ag = ctx.createRadialGradient(apple.x*GRID+GRID/2, apple.y*GRID+GRID/2, 0, apple.x*GRID+GRID/2, apple.y*GRID+GRID/2, GRID*1.3*pulse);
+                ag.addColorStop(0, 'rgba(239,68,68,0.3)'); ag.addColorStop(1, 'rgba(239,68,68,0)');
+                ctx.fillStyle = ag;
+                ctx.fillRect(apple.x*GRID-GRID, apple.y*GRID-GRID, GRID*3, GRID*3);
+                const ax = apple.x*GRID+GRID/2, ay = apple.y*GRID+GRID/2;
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath(); ctx.arc(ax, ay, (GRID/2-2)*pulse, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.beginPath(); ctx.arc(ax-2, ay-3, Math.max(2, GRID*0.15), 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = '#854d0e'; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(ax, ay-GRID/2+2); ctx.lineTo(ax+1, ay-GRID/2-2); ctx.stroke();
+                ctx.fillStyle = '#22c55e';
+                ctx.beginPath(); ctx.ellipse(ax+3, ay-GRID/2, Math.max(2, GRID*0.14), Math.max(1.5, GRID*0.1), 0.3, 0, Math.PI*2); ctx.fill();
+            });
 
-            // Apple body
-            const ax = apple.x*GRID+GRID/2, ay = apple.y*GRID+GRID/2;
-            ctx.fillStyle = '#ef4444';
-            ctx.beginPath(); ctx.arc(ax, ay, (GRID/2-2)*pulse, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = 'rgba(255,255,255,0.3)';
-            ctx.beginPath(); ctx.arc(ax-2, ay-3, 3, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = '#854d0e'; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.moveTo(ax, ay-GRID/2+2); ctx.lineTo(ax+1, ay-GRID/2-2); ctx.stroke();
-            ctx.fillStyle = '#22c55e';
-            ctx.beginPath(); ctx.ellipse(ax+3, ay-GRID/2, 3, 2, 0.3, 0, Math.PI*2); ctx.fill();
+            // Golden apple (rare bonus)
+            if (goldenApple) {
+                const gp = 1 + Math.sin(Date.now() / 150) * 0.12;
+                const gx = goldenApple.x*GRID+GRID/2, gy = goldenApple.y*GRID+GRID/2;
+                const gg = ctx.createRadialGradient(gx, gy, 0, gx, gy, GRID*1.6*gp);
+                gg.addColorStop(0, 'rgba(250,204,21,0.4)'); gg.addColorStop(1, 'rgba(250,204,21,0)');
+                ctx.fillStyle = gg;
+                ctx.fillRect(goldenApple.x*GRID-GRID, goldenApple.y*GRID-GRID, GRID*3, GRID*3);
+                ctx.fillStyle = '#fbbf24';
+                ctx.beginPath(); ctx.arc(gx, gy, (GRID/2-2)*gp, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.45)';
+                ctx.beginPath(); ctx.arc(gx-2, gy-3, Math.max(2, GRID*0.15), 0, Math.PI*2); ctx.fill();
+                // Star sparkle
+                ctx.save(); ctx.translate(gx + GRID*0.3, gy - GRID*0.3);
+                ctx.rotate(Date.now()/300); ctx.fillStyle = '#fff';
+                for (let s = 0; s < 4; s++) { ctx.fillRect(-0.5, -3, 1, 6); ctx.rotate(Math.PI/4); }
+                ctx.restore();
+            }
 
             // Calculate interpolated positions for smooth movement
             const len = snake.length;
@@ -404,20 +496,48 @@
 
             snake.unshift(head);
 
-            if (head.x === apple.x && head.y === apple.y) {
+            // Check all apples
+            let ate = false;
+            const eatenIdx = apples.findIndex(a => head.x === a.x && head.y === a.y);
+            if (eatenIdx !== -1) {
+                const eaten = apples[eatenIdx];
                 score += 10;
-                document.getElementById('score').textContent = score;
-                // Eat particles burst
+                ate = true;
                 for (let i = 0; i < 8; i++) {
-                    eatParticles.push({ x: apple.x*GRID+GRID/2, y: apple.y*GRID+GRID/2,
+                    eatParticles.push({ x: eaten.x*GRID+GRID/2, y: eaten.y*GRID+GRID/2,
                         vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4,
                         r: Math.random()*3+1, life: 15, maxLife: 15,
                         color: Math.random()>0.5 ? '#ef4444' : '#22c55e' });
                 }
+                apples.splice(eatenIdx, 1);
                 placeApple();
-                if (speed > 55) speed -= 2;
+                // Chance to spawn golden apple (15%)
+                if (!goldenApple && Math.random() < 0.15) spawnGoldenApple();
+            }
+
+            // Check golden apple
+            if (goldenApple && head.x === goldenApple.x && head.y === goldenApple.y) {
+                score += 50;
+                ate = true;
+                for (let i = 0; i < 14; i++) {
+                    eatParticles.push({ x: goldenApple.x*GRID+GRID/2, y: goldenApple.y*GRID+GRID/2,
+                        vx: (Math.random()-0.5)*6, vy: (Math.random()-0.5)*6,
+                        r: Math.random()*4+1, life: 20, maxLife: 20,
+                        color: Math.random()>0.5 ? '#fbbf24' : '#fde68a' });
+                }
+                goldenApple = null; goldenTimer = 0;
+            }
+
+            if (ate) {
+                document.getElementById('score').textContent = score;
             } else {
                 snake.pop();
+            }
+
+            // Golden apple timer countdown
+            if (goldenApple) {
+                goldenTimer--;
+                if (goldenTimer <= 0) goldenApple = null;
             }
 
             eatParticles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life--; });
@@ -442,11 +562,20 @@
             animFrame = requestAnimationFrame(loop);
         }
 
+        function saveBest() {
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('snake_best', bestScore);
+                document.getElementById('best-score').textContent = bestScore;
+            }
+        }
+
         function gameOver() {
             gameRunning = false;
             if (animFrame) cancelAnimationFrame(animFrame);
             animFrame = null;
             gamePaused = false;
+            saveBest();
             document.getElementById('pause-screen').classList.add('hidden');
             document.getElementById('final-score').textContent = score;
             document.getElementById('game-over').classList.remove('hidden');

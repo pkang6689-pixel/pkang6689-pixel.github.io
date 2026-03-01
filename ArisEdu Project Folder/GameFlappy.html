@@ -18,12 +18,6 @@
         (async function() {
             await initializeFirebase();
             
-            if (sessionStorage.getItem('validGameAccess') !== 'true') {
-                alert('You must access this game from the Arcade page.');
-                window.location.href = 'arcade.html';
-                return;
-            }
-            
             function getUser() {
                 return JSON.parse(localStorage.getItem('user') || '{}');
             }
@@ -143,14 +137,21 @@
 
 <div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
     <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+        <button class="pause-btn" onclick="togglePause()" title="Pause" style="position:absolute;bottom:0.75rem;left:0.75rem;z-index:50;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:0.75rem;color:white;cursor:pointer;padding:8px;line-height:0;transition:background 0.2s,transform 0.2s;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
         <div class="flex justify-between items-end mb-4">
             <div>
                 <h1 class="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-teal-500 bg-clip-text text-transparent" data-i18n="FLAPPY BIRD">FLAPPY BIRD</h1>
                 <p class="text-xs text-gray-400 font-sans" data-i18n="Tap to fly, dodge the pipes!">Tap to fly, dodge the pipes!</p>
             </div>
-            <div class="text-right">
-                <div class="text-xs text-gray-400 font-sans" data-i18n="SCORE">SCORE</div>
-                <div id="score" class="text-3xl font-bold text-white">0</div>
+            <div class="flex gap-4 text-right">
+                <div>
+                    <div class="text-xs text-gray-400 font-sans" data-i18n="SCORE">SCORE</div>
+                    <div id="score" class="text-3xl font-bold text-white">0</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-400 font-sans">BEST</div>
+                    <div id="best-score" class="text-3xl font-bold text-cyan-300">0</div>
+                </div>
             </div>
         </div>
 
@@ -174,10 +175,24 @@
         <!-- Game Over Overlay -->
         <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
             <h2 class="text-3xl text-red-500 font-bold mb-2" data-i18n="GAME OVER">GAME OVER</h2>
-            <p class="text-gray-300 mb-6 font-sans">You crashed!</p>
-            <div class="text-4xl font-bold text-white mb-8" id="final-score">0</div>
+            <div id="medal-display" class="text-5xl mb-2"></div>
+            <p class="text-gray-300 mb-2 font-sans">You crashed!</p>
+            <div class="text-4xl font-bold text-white mb-2" id="final-score">0</div>
+            <p id="new-best" class="hidden text-cyan-400 font-bold mb-4 font-sans">NEW BEST!</p>
             <button onclick="resetGame()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95" data-i18n="TRY AGAIN">
                 TRY AGAIN
+            </button>
+        </div>
+
+        <!-- Pause Overlay -->
+        <div id="pause-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-30 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-4xl text-white font-bold mb-4" data-i18n="PAUSED">PAUSED</h2>
+            <div class="text-left text-xs text-gray-400 font-sans mb-6 space-y-1">
+                <p><span class="text-cyan-300 font-bold">Click / Space</span> — Flap</p>
+                <p><span class="text-cyan-300 font-bold">Esc / P</span> — Pause</p>
+            </div>
+            <button onclick="togglePause()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                <span data-i18n="RESUME">RESUME</span>
             </button>
         </div>
     </div>
@@ -200,18 +215,50 @@
     const GRAVITY = 0.45;
     const FLAP = -7;
 
-    // Pipes
+    // Pipes - dynamic difficulty
     let pipes = [];
     const PIPE_WIDTH = 50;
-    const PIPE_GAP = 140;
-    const PIPE_SPEED = 2.5;
+    let pipeGap = 150; // starts wider, shrinks
+    let pipeSpeed = 2.2; // starts slower, speeds up
     let pipeTimer = 0;
-    const PIPE_INTERVAL = 90;
+    let pipeInterval = 100; // frames between pipes (decreases)
 
     // State
     let score = 0;
+    let bestScore = parseInt(localStorage.getItem('flappy_best') || '0');
     let gameRunning = false;
+    let gamePaused = false;
     let animFrame = null;
+    let screenShake = 0;
+    let particles = [];
+    let scorePopups = [];
+    let groundOffset = 0;
+    // Clouds
+    let clouds = [];
+    function initClouds() {
+        clouds = [];
+        for (let i = 0; i < 5; i++) {
+            clouds.push({x: Math.random() * W, y: 20 + Math.random() * 120, w: 40 + Math.random() * 50, speed: 0.2 + Math.random() * 0.3});
+        }
+    }
+    // Color lerp helper for day/night cycle
+    function lerpColor(a, b, t) {
+        return [Math.round(a[0] + (b[0]-a[0])*t), Math.round(a[1] + (b[1]-a[1])*t), Math.round(a[2] + (b[2]-a[2])*t)];
+    }
+
+    document.getElementById('best-score').textContent = bestScore;
+
+    function togglePause() {
+        if (!gameRunning && !gamePaused) return;
+        gamePaused = !gamePaused;
+        document.getElementById('pause-screen').classList.toggle('hidden', !gamePaused);
+        if (!gamePaused) { animFrame = requestAnimationFrame(loop); }
+    }
+
+    // Auto-pause on tab hide
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && gameRunning && !gamePaused) togglePause();
+    });
 
     function init() {
         birdY = H / 2;
@@ -219,156 +266,328 @@
         pipes = [];
         pipeTimer = 0;
         score = 0;
+        pipeGap = 150;
+        pipeSpeed = 2.2;
+        pipeInterval = 100;
+        particles = [];
+        scorePopups = [];
+        screenShake = 0;
+        groundOffset = 0;
+        initClouds();
         document.getElementById('score').textContent = '0';
     }
 
     function flap() {
+        if (gamePaused) return;
         if (!gameRunning) return;
         birdVel = FLAP;
+        // Flap particles
+        for (let i = 0; i < 4; i++) {
+            particles.push({
+                x: birdX - 8, y: birdY + 5,
+                vx: -1 - Math.random() * 2, vy: 1 + Math.random() * 2,
+                life: 1, color: '#67e8f9', size: 2 + Math.random() * 2
+            });
+        }
     }
 
     function addPipe() {
         const minTop = 60;
-        const maxTop = H - PIPE_GAP - 80;
+        const maxTop = H - pipeGap - 80;
         const topH = minTop + Math.random() * (maxTop - minTop);
-        pipes.push({
-            x: W,
-            topH: topH,
-            scored: false
-        });
+        pipes.push({ x: W, topH: topH, scored: false });
+    }
+
+    function getMedal(s) {
+        if (s >= 40) return '🏆';
+        if (s >= 25) return '🥇';
+        if (s >= 15) return '🥈';
+        if (s >= 5) return '🥉';
+        return '';
+    }
+
+    function updateDifficulty() {
+        // Gradually increase difficulty as score rises
+        pipeSpeed = Math.min(4.5, 2.2 + score * 0.05);
+        pipeGap = Math.max(105, 150 - score * 1.2);
+        pipeInterval = Math.max(55, 100 - score * 0.8);
     }
 
     function update() {
-        // Bird physics
         birdVel += GRAVITY;
         birdY += birdVel;
 
-        // Pipe movement
+        groundOffset = (groundOffset + pipeSpeed) % 20;
+
         pipeTimer++;
-        if (pipeTimer >= PIPE_INTERVAL) {
+        if (pipeTimer >= pipeInterval) {
             addPipe();
             pipeTimer = 0;
         }
 
         for (let i = pipes.length - 1; i >= 0; i--) {
-            pipes[i].x -= PIPE_SPEED;
+            pipes[i].x -= pipeSpeed;
 
-            // Score
             if (!pipes[i].scored && pipes[i].x + PIPE_WIDTH < birdX) {
                 pipes[i].scored = true;
                 score++;
                 document.getElementById('score').textContent = score;
+                updateDifficulty();
+                // Score popup
+                scorePopups.push({ x: birdX + 20, y: birdY - 20, text: '+1', life: 1 });
             }
 
-            // Remove off-screen
             if (pipes[i].x + PIPE_WIDTH < -10) pipes.splice(i, 1);
         }
 
         // Collision: ground/ceiling
-        if (birdY + birdRadius > H || birdY - birdRadius < 0) { gameOver(); return; }
+        if (birdY + birdRadius > H - 20 || birdY - birdRadius < 0) { gameOver(); return; }
 
         // Collision: pipes
         for (const pipe of pipes) {
             if (birdX + birdRadius > pipe.x && birdX - birdRadius < pipe.x + PIPE_WIDTH) {
-                if (birdY - birdRadius < pipe.topH || birdY + birdRadius > pipe.topH + PIPE_GAP) {
+                if (birdY - birdRadius < pipe.topH || birdY + birdRadius > pipe.topH + pipeGap) {
                     gameOver(); return;
                 }
             }
         }
+
+        // Update particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx; p.y += p.vy;
+            p.life -= 0.04;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        // Update score popups
+        for (let i = scorePopups.length - 1; i >= 0; i--) {
+            scorePopups[i].y -= 1;
+            scorePopups[i].life -= 0.03;
+            if (scorePopups[i].life <= 0) scorePopups.splice(i, 1);
+        }
+    }
+
+    // Color lerp helper for day/night cycle
+    function lerpColor(a, b, t) {
+        return [Math.round(a[0] + (b[0]-a[0])*t), Math.round(a[1] + (b[1]-a[1])*t), Math.round(a[2] + (b[2]-a[2])*t)];
     }
 
     function draw() {
-        // Sky gradient
-        const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
-        skyGrad.addColorStop(0, '#0f172a');
-        skyGrad.addColorStop(1, '#1e3a5f');
-        ctx.fillStyle = skyGrad;
-        ctx.fillRect(0, 0, W, H);
-
-        // Stars
-        ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        for (let i = 0; i < 30; i++) {
-            const sx = (i * 137.5 + 23) % W;
-            const sy = (i * 97.3 + 11) % (H * 0.6);
-            ctx.beginPath();
-            ctx.arc(sx, sy, 0.8, 0, Math.PI * 2);
-            ctx.fill();
+        ctx.save();
+        // Screen shake
+        if (screenShake > 0) {
+            ctx.translate((Math.random()-0.5)*screenShake, (Math.random()-0.5)*screenShake);
+            screenShake *= 0.85;
+            if (screenShake < 0.5) screenShake = 0;
         }
 
-        // Pipes
+        // Sky gradient with day/night cycle based on score
+        const nightT = Math.min(1, score / 50); // transitions from day to night over 50 points
+        const skyTop = lerpColor([50, 120, 200], [15, 23, 42], nightT);
+        const skyMid = lerpColor([100, 160, 220], [30, 58, 95], nightT);
+        const skyBot = lerpColor([160, 200, 230], [30, 41, 59], nightT);
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+        skyGrad.addColorStop(0, `rgb(${skyTop[0]},${skyTop[1]},${skyTop[2]})`);
+        skyGrad.addColorStop(0.6, `rgb(${skyMid[0]},${skyMid[1]},${skyMid[2]})`);
+        skyGrad.addColorStop(1, `rgb(${skyBot[0]},${skyBot[1]},${skyBot[2]})`);
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(-10, -10, W + 20, H + 20);
+
+        // Stars (only visible at night)
+        if (nightT > 0.3) {
+            const starAlpha = (nightT - 0.3) / 0.7;
+            for (let i = 0; i < 40; i++) {
+                const sx = (i * 137.5 + 23) % W;
+                const sy = (i * 97.3 + 11) % (H * 0.5);
+                const twinkle = 0.2 + 0.3 * Math.sin(Date.now() / 500 + i * 1.7);
+                ctx.fillStyle = `rgba(255,255,255,${twinkle * starAlpha})`;
+                ctx.beginPath();
+                ctx.arc(sx, sy, 0.8 + Math.sin(Date.now()/800 + i) * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Clouds
+        clouds.forEach(c => {
+            c.x -= pipeSpeed * 0.3;
+            if (c.x + c.w < -20) { c.x = W + 20; c.y = 20 + Math.random() * 120; }
+            const cloudAlpha = 0.15 - nightT * 0.08;
+            ctx.fillStyle = `rgba(255,255,255,${Math.max(0.04, cloudAlpha)})`;
+            ctx.beginPath();
+            ctx.arc(c.x, c.y, c.w * 0.3, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath();
+            ctx.arc(c.x + c.w * 0.25, c.y - c.w * 0.08, c.w * 0.25, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath();
+            ctx.arc(c.x + c.w * 0.5, c.y + c.w * 0.02, c.w * 0.22, 0, Math.PI * 2); ctx.fill();
+        });
+
+        // Distant mountains (parallax)
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.moveTo(0, H - 20);
+        for (let x = 0; x <= W; x += 40) {
+            ctx.lineTo(x, H - 60 - Math.sin(x * 0.02 + 1) * 25 - Math.cos(x * 0.035) * 15);
+        }
+        ctx.lineTo(W, H - 20);
+        ctx.fill();
+
+        // Pipes with gradient and shadows
         for (const pipe of pipes) {
+            // Pipe shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.fillRect(pipe.x + 4, 0, PIPE_WIDTH, pipe.topH);
+            ctx.fillRect(pipe.x + 4, pipe.topH + pipeGap, PIPE_WIDTH, H - pipe.topH - pipeGap);
+
             // Top pipe
             const topGrad = ctx.createLinearGradient(pipe.x, 0, pipe.x + PIPE_WIDTH, 0);
             topGrad.addColorStop(0, '#22c55e');
+            topGrad.addColorStop(0.3, '#4ade80');
             topGrad.addColorStop(0.5, '#16a34a');
             topGrad.addColorStop(1, '#15803d');
             ctx.fillStyle = topGrad;
             ctx.fillRect(pipe.x, 0, PIPE_WIDTH, pipe.topH);
-            // Top pipe cap
-            ctx.fillStyle = '#22c55e';
-            ctx.fillRect(pipe.x - 4, pipe.topH - 16, PIPE_WIDTH + 8, 16);
-            ctx.strokeStyle = '#15803d';
+            // Top pipe cap with 3D effect
+            ctx.fillStyle = '#4ade80';
+            ctx.fillRect(pipe.x - 4, pipe.topH - 18, PIPE_WIDTH + 8, 18);
+            ctx.fillStyle = '#15803d';
+            ctx.fillRect(pipe.x - 4, pipe.topH - 4, PIPE_WIDTH + 8, 4);
+            ctx.strokeStyle = '#166534';
             ctx.lineWidth = 1;
-            ctx.strokeRect(pipe.x - 4, pipe.topH - 16, PIPE_WIDTH + 8, 16);
+            ctx.strokeRect(pipe.x - 4, pipe.topH - 18, PIPE_WIDTH + 8, 18);
+            // Pipe shine highlight
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            ctx.fillRect(pipe.x + 3, 0, 4, pipe.topH - 18);
+            // Vine detail on top pipe cap
+            ctx.strokeStyle = '#15803d'; ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(pipe.x + PIPE_WIDTH + 2, pipe.topH - 10);
+            ctx.quadraticCurveTo(pipe.x + PIPE_WIDTH + 8, pipe.topH - 3, pipe.x + PIPE_WIDTH + 4, pipe.topH + 5);
+            ctx.stroke();
 
             // Bottom pipe
-            const botY = pipe.topH + PIPE_GAP;
+            const botY = pipe.topH + pipeGap;
             ctx.fillStyle = topGrad;
-            ctx.fillRect(pipe.x, botY, PIPE_WIDTH, H - botY);
+            ctx.fillRect(pipe.x, botY, PIPE_WIDTH, H - botY - 20);
             // Bottom pipe cap
-            ctx.fillStyle = '#22c55e';
-            ctx.fillRect(pipe.x - 4, botY, PIPE_WIDTH + 8, 16);
-            ctx.strokeStyle = '#15803d';
-            ctx.strokeRect(pipe.x - 4, botY, PIPE_WIDTH + 8, 16);
+            ctx.fillStyle = '#4ade80';
+            ctx.fillRect(pipe.x - 4, botY, PIPE_WIDTH + 8, 18);
+            ctx.fillStyle = '#15803d';
+            ctx.fillRect(pipe.x - 4, botY, PIPE_WIDTH + 8, 4);
+            ctx.strokeStyle = '#166534';
+            ctx.strokeRect(pipe.x - 4, botY, PIPE_WIDTH + 8, 18);
         }
 
-        // Bird body
+        // Particles
+        for (const p of particles) {
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        // Score popups
+        for (const sp of scorePopups) {
+            ctx.globalAlpha = sp.life;
+            ctx.fillStyle = '#67e8f9';
+            ctx.font = 'bold 16px Orbitron';
+            ctx.fillText(sp.text, sp.x, sp.y);
+        }
+        ctx.globalAlpha = 1;
+
+        // Bird with improved graphics
         ctx.save();
         ctx.translate(birdX, birdY);
         const angle = Math.min(Math.max(birdVel * 3, -30), 60) * Math.PI / 180;
         ctx.rotate(angle);
 
+        // Bird glow
+        ctx.fillStyle = 'rgba(6,182,212,0.15)';
+        ctx.beginPath(); ctx.arc(0, 0, birdRadius + 6, 0, Math.PI * 2); ctx.fill();
+
         // Body
-        ctx.fillStyle = '#06b6d4';
+        const bodyGrad = ctx.createRadialGradient(-2, -2, 0, 0, 0, birdRadius + 2);
+        bodyGrad.addColorStop(0, '#22d3ee');
+        bodyGrad.addColorStop(1, '#0891b2');
+        ctx.fillStyle = bodyGrad;
         ctx.beginPath();
         ctx.ellipse(0, 0, birdRadius + 2, birdRadius, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Wing
-        ctx.fillStyle = '#0891b2';
+        // Belly
+        ctx.fillStyle = '#67e8f9';
         ctx.beginPath();
-        const wingY = Math.sin(Date.now() / 80) * 3;
-        ctx.ellipse(-4, wingY, 8, 5, -0.3, 0, Math.PI * 2);
+        ctx.ellipse(2, 3, birdRadius - 4, birdRadius - 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Wing
+        ctx.fillStyle = '#0e7490';
+        ctx.beginPath();
+        const wingY = Math.sin(Date.now() / 60) * 4;
+        ctx.ellipse(-4, wingY, 9, 6, -0.3, 0, Math.PI * 2);
         ctx.fill();
 
         // Eye
         ctx.fillStyle = 'white';
         ctx.beginPath();
-        ctx.arc(6, -4, 4.5, 0, Math.PI * 2);
+        ctx.arc(6, -4, 5, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = '#0f172a';
         ctx.beginPath();
-        ctx.arc(7.5, -3.5, 2.2, 0, Math.PI * 2);
+        ctx.arc(7.5, -3.5, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        // Eye highlight
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(8.5, -5, 1, 0, Math.PI * 2);
         ctx.fill();
 
         // Beak
         ctx.fillStyle = '#f59e0b';
         ctx.beginPath();
-        ctx.moveTo(12, -1);
-        ctx.lineTo(20, 1);
+        ctx.moveTo(12, -2);
+        ctx.lineTo(22, 1);
+        ctx.lineTo(12, 4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#d97706';
+        ctx.beginPath();
+        ctx.moveTo(12, 1);
+        ctx.lineTo(22, 1);
         ctx.lineTo(12, 4);
         ctx.closePath();
         ctx.fill();
 
         ctx.restore();
 
-        // Ground
-        ctx.fillStyle = '#22c55e';
-        ctx.fillRect(0, H - 4, W, 4);
+        // Ground with scrolling pattern
+        const groundGrad = ctx.createLinearGradient(0, H - 20, 0, H);
+        groundGrad.addColorStop(0, '#22c55e');
+        groundGrad.addColorStop(1, '#15803d');
+        ctx.fillStyle = groundGrad;
+        ctx.fillRect(-10, H - 20, W + 20, 24);
+        // Ground texture
+        ctx.fillStyle = '#16a34a';
+        for (let x = -groundOffset; x < W + 20; x += 20) {
+            ctx.fillRect(x, H - 20, 2, 4);
+        }
+
+        // Score display on canvas (large, centered)
+        if (gameRunning) {
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.font = 'bold 64px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.fillText(score, W/2, 80);
+            ctx.textAlign = 'start';
+        }
+
+        ctx.restore();
     }
 
     function loop() {
-        if (!gameRunning) return;
+        if (!gameRunning || gamePaused) return;
         update();
         if (!gameRunning) return;
         draw();
@@ -377,7 +596,31 @@
 
     function gameOver() {
         gameRunning = false;
+        screenShake = 12;
+        // Death particles
+        for (let i = 0; i < 15; i++) {
+            const a = Math.random() * Math.PI * 2;
+            particles.push({
+                x: birdX, y: birdY,
+                vx: Math.cos(a) * (2 + Math.random() * 3),
+                vy: Math.sin(a) * (2 + Math.random() * 3),
+                life: 1, color: i % 2 ? '#06b6d4' : '#f59e0b', size: 3 + Math.random() * 3
+            });
+        }
+        draw(); // one last draw with shake
         if (animFrame) cancelAnimationFrame(animFrame);
+
+        // Best score
+        const isNewBest = score > bestScore;
+        if (isNewBest) {
+            bestScore = score;
+            localStorage.setItem('flappy_best', bestScore);
+            document.getElementById('best-score').textContent = bestScore;
+        }
+        document.getElementById('new-best').classList.toggle('hidden', !isNewBest);
+
+        // Medal
+        document.getElementById('medal-display').textContent = getMedal(score);
         document.getElementById('final-score').textContent = score;
         document.getElementById('game-over').classList.remove('hidden');
     }
@@ -386,6 +629,7 @@
         document.getElementById('start-screen').classList.add('hidden');
         init();
         gameRunning = true;
+        gamePaused = false;
         draw();
         animFrame = requestAnimationFrame(loop);
     }
@@ -394,16 +638,18 @@
         document.getElementById('game-over').classList.add('hidden');
         init();
         gameRunning = true;
+        gamePaused = false;
         draw();
         animFrame = requestAnimationFrame(loop);
     }
 
     // Input
     document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { togglePause(); e.preventDefault(); return; }
         if (e.code === 'Space' || e.key === ' ') { flap(); e.preventDefault(); }
     });
-    canvas.addEventListener('click', flap);
-    canvas.addEventListener('touchstart', e => { flap(); e.preventDefault(); });
+    canvas.addEventListener('click', () => { if (!gamePaused) flap(); });
+    canvas.addEventListener('touchstart', e => { if (!gamePaused) flap(); e.preventDefault(); });
 
     // Initial draw
     init();

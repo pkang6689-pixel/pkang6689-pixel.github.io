@@ -18,12 +18,6 @@
         (async function() {
             await initializeFirebase();
             
-            if (sessionStorage.getItem('validGameAccess') !== 'true') {
-                alert('You must access this game from the Arcade page.');
-                window.location.href = 'arcade.html';
-                return;
-            }
-            
             function getUser() {
                 return JSON.parse(localStorage.getItem('user') || '{}');
             }
@@ -161,6 +155,10 @@
                     <div class="text-xs text-gray-400 font-sans" data-i18n="SCORE">SCORE</div>
                     <div id="score" class="text-3xl font-bold text-white">0</div>
                 </div>
+                <div>
+                    <div class="text-xs text-gray-400 font-sans">BEST</div>
+                    <div id="best-score" class="text-3xl font-bold text-amber-400">0</div>
+                </div>
             </div>
         </div>
 
@@ -256,14 +254,42 @@
 
     // State
     let score = 0, lives = 5;
+    let bestScore = parseInt(localStorage.getItem('breakout_best') || '0');
     let gameRunning = false, gamePaused = false;
     let animFrame = null;
     let mouseAngle = Math.PI / 3;
+
+    // Visual effects
+    let bgStars = [];
+    let brickParticles = [];
+    let ballTrails = [];
+    let screenShake = 0;
+
+    function initStars() {
+        bgStars = [];
+        for (let i = 0; i < 50; i++) {
+            bgStars.push({ x: Math.random() * W, y: Math.random() * H, s: Math.random() * 1.2 + 0.3, speed: Math.random() * 0.3 + 0.1 });
+        }
+    }
+
+    function addBrickParticles(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 1.5 + Math.random() * 3;
+            brickParticles.push({
+                x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                life: 30 + Math.random() * 20, color, r: Math.random() * 3 + 1
+            });
+        }
+    }
 
     function init() {
         balls = [];
         bricks = [];
         powerups = [];
+        brickParticles = [];
+        ballTrails = [];
+        screenShake = 0;
         score = 0;
         lives = 5;
         launcherAngle = Math.PI / 3;
@@ -277,8 +303,10 @@
         blocksTurning = false;
         damageMultiplier = 1;
         ballSizeMultiplier = 1;
+        if (bgStars.length === 0) initStars();
         document.getElementById('score').textContent = '0';
         document.getElementById('lives').textContent = '5';
+        document.getElementById('best-score').textContent = bestScore;
         document.getElementById('game-over').classList.add('hidden');
         // Spawn initial random blocks
         for (let i = 0; i < 3; i++) spawnRandomBlocks();
@@ -336,8 +364,9 @@
             y += vy;
             
             // Wall bounces
-            if (x - BALL_R < 0 || x + BALL_R > W) vx *= -1;
-            if (y - BALL_R < 0) vy *= -1;
+            const currentBallR = BALL_R * ballSizeMultiplier;
+            if (x - currentBallR < 0 || x + currentBallR > W) vx *= -1;
+            if (y - currentBallR < 0) vy *= -1;
             
             // Stop if goes off bottom
             if (y > H + 50) break;
@@ -345,8 +374,8 @@
             // Check brick collision - stop at first brick
             for (const br of bricks) {
                 if (!br.alive) continue;
-                if (x - BALL_R < br.x + BRICK_W && x + BALL_R > br.x &&
-                    y - BALL_R < br.y + BRICK_H && y + BALL_R > br.y) {
+                if (x - currentBallR < br.x + BRICK_W && x + currentBallR > br.x &&
+                    y - currentBallR < br.y + BRICK_H && y + currentBallR > br.y) {
                     return {x, y, hitBrick: true};
                 }
             }
@@ -428,9 +457,11 @@
                     br.health -= damageMultiplier;
                     if (br.health <= 0) {
                         br.alive = false;
-                        score += 50 * br.maxHealth; // More points for higher HP bricks
+                        score += 50 * br.maxHealth;
+                        addBrickParticles(br.x + BRICK_W/2, br.y + BRICK_H/2, br.maxHealth > 2 ? '#f97316' : '#f43f5e', 10);
+                        screenShake = 4;
                         // Random powerup drop
-                        if (Math.random() < 0.15) { // 15% chance
+                        if (Math.random() < 0.15) {
                             const powerupType = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
                             powerups.push({
                                 x: br.x + BRICK_W / 2,
@@ -471,62 +502,108 @@
                     else if (p.type === 'multiShot_2') maxBallsPerTurn += 2;
                     else if (p.type === 'damage_1') damageMultiplier *= 1.5;
                     else if (p.type === 'damage_2') damageMultiplier *= 2;
-                    else if (p.type === 'bigBall_1') ballSizeMultiplier *= 1.1;  // Reduced from 1.5x
-                    else if (p.type === 'bigBall_2') ballSizeMultiplier *= 1.2;  // Reduced from 2x
+                    else if (p.type === 'bigBall_1') {
+                        ballSizeMultiplier *= 1.1;
+                        balls.forEach(ball => ball.r = BALL_R * ballSizeMultiplier);
+                    }
+                    else if (p.type === 'bigBall_2') {
+                        ballSizeMultiplier *= 1.2;
+                        balls.forEach(ball => ball.r = BALL_R * ballSizeMultiplier);
+                    }
                     break; // Only collect one powerup per frame
                 }
             }
         }
         
-        // Update powerups (no expiration)
-        for (let i = powerups.length - 1; i >= 0; i--) {
-            const p = powerups[i];
-            // Powerups stay forever until collected, no life timer
+        // Update powerups - remove collected ones
+        powerups = powerups.filter(p => !p.collected);
+
+        // Update particles
+        brickParticles.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.life--; });
+        brickParticles = brickParticles.filter(p => p.life > 0);
+
+        // Update ball trails
+        for (const b of balls) {
+            ballTrails.push({ x: b.x, y: b.y, life: 8, r: b.r || BALL_R });
         }
+        ballTrails.forEach(t => t.life--);
+        ballTrails = ballTrails.filter(t => t.life > 0);
+
+        // Update stars
+        bgStars.forEach(s => { s.y += s.speed; if (s.y > H) { s.y = 0; s.x = Math.random() * W; } });
+
+        // Screen shake decay
+        screenShake *= 0.85;
 
         document.getElementById('score').textContent = score;
         document.getElementById('lives').textContent = lives;
     }
 
     function draw() {
-        ctx.fillStyle = '#111827';
+        // Screen shake offset
+        const shakeX = screenShake > 0.5 ? (Math.random() - 0.5) * screenShake : 0;
+        const shakeY = screenShake > 0.5 ? (Math.random() - 0.5) * screenShake : 0;
+        ctx.save();
+        ctx.translate(shakeX, shakeY);
+
+        // Gradient background
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+        bgGrad.addColorStop(0, '#030712'); bgGrad.addColorStop(0.5, '#0f172a'); bgGrad.addColorStop(1, '#030712');
+        ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, W, H);
 
-        // Grid background
-        ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+        // Starfield
+        bgStars.forEach(s => {
+            const twinkle = 0.4 + Math.sin(performance.now() / 600 + s.x * 5) * 0.2;
+            ctx.fillStyle = `rgba(255,255,255,${twinkle})`;
+            ctx.beginPath(); ctx.arc(s.x, s.y, s.s * 0.5, 0, Math.PI * 2); ctx.fill();
+        });
+
+        // Grid background (subtle)
+        ctx.strokeStyle = 'rgba(255,255,255,0.02)';
         ctx.lineWidth = 1;
         for (let x = 0; x <= W; x += 40) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, H);
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+        }
+        for (let y = 0; y <= H; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
         }
 
-        // Bricks
+        // Bricks with gradient and 3D bevel
         for (const br of bricks) {
             if (!br.alive) continue;
-            // Color based on health
-            if (br.health > 2) ctx.fillStyle = '#f97316'; // Orange for 3+ HP
-            else if (br.health === 2) ctx.fillStyle = '#fb923c'; // Light orange for 2 HP
-            else ctx.fillStyle = '#f43f5e'; // Pink for 1 HP
-            
-            ctx.shadowColor = 'rgba(244, 63, 94, 0.4)';
-            ctx.shadowBlur = 8;
-            ctx.beginPath();
-            ctx.roundRect(br.x, br.y, BRICK_W, BRICK_H, 4);
-            ctx.fill();
+            let c1, c2, shadowC;
+            if (br.health > 2) { c1 = '#fb923c'; c2 = '#c2410c'; shadowC = 'rgba(249,115,22,0.5)'; }
+            else if (br.health === 2) { c1 = '#fdba74'; c2 = '#ea580c'; shadowC = 'rgba(251,146,60,0.4)'; }
+            else { c1 = '#fb7185'; c2 = '#be123c'; shadowC = 'rgba(244,63,94,0.5)'; }
+
+            const bGrad = ctx.createLinearGradient(br.x, br.y, br.x, br.y + BRICK_H);
+            bGrad.addColorStop(0, c1); bGrad.addColorStop(1, c2);
+            ctx.fillStyle = bGrad;
+            ctx.shadowColor = shadowC; ctx.shadowBlur = 10;
+            ctx.beginPath(); ctx.roundRect(br.x, br.y, BRICK_W, BRICK_H, 4); ctx.fill();
             ctx.shadowBlur = 0;
-            
-            // Draw HP number on brick
+
+            // Top bevel highlight
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.fillRect(br.x + 3, br.y + 2, BRICK_W - 6, 3);
+            // Bottom shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect(br.x + 3, br.y + BRICK_H - 4, BRICK_W - 6, 2);
+
+            // HP number
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 2;
             ctx.fillText(br.health, br.x + BRICK_W / 2, br.y + BRICK_H / 2);
+            ctx.shadowBlur = 0;
         }
 
-        // Powerups
+        // Powerups (only uncollected ones now)
         for (const p of powerups) {
+            if (p.collected) continue;
             const pulseSize = 12 + Math.sin(performance.now() / 300) * 4;
             // Different colors for each powerup type
             let color, label;
@@ -564,53 +641,88 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
-            // Dim if already collected
-            if (p.collected) {
-                ctx.globalAlpha = 0.5;
-            }
             ctx.fillText(label, p.x, p.y);
-            ctx.globalAlpha = 1; // Reset alpha
         }
+
+        // Ball trails
+        ballTrails.forEach(t => {
+            const alpha = t.life / 8 * 0.3;
+            ctx.fillStyle = `rgba(251,191,36,${alpha})`;
+            ctx.beginPath(); ctx.arc(t.x, t.y, t.r * 0.8, 0, Math.PI * 2); ctx.fill();
+        });
+
+        // Brick destruction particles
+        brickParticles.forEach(p => {
+            ctx.globalAlpha = p.life / 50;
+            ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        });
+        ctx.globalAlpha = 1;
 
         // Balls (size varies with powerup)
         for (const b of balls) {
-            const ballR = BALL_R * ballSizeMultiplier;
-            ctx.fillStyle = '#fbbf24';
-            ctx.shadowColor = 'rgba(251, 191, 36, 0.6)';
-            ctx.shadowBlur = 12;
+            const ballR = b.r || BALL_R;
+            // Outer glow
+            const bGlow = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, ballR * 2.5);
+            bGlow.addColorStop(0, 'rgba(251,191,36,0.2)'); bGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = bGlow;
+            ctx.beginPath(); ctx.arc(b.x, b.y, ballR * 2.5, 0, Math.PI * 2); ctx.fill();
+            // Ball body gradient
+            const ballGrad = ctx.createRadialGradient(b.x - 2, b.y - 2, 0, b.x, b.y, ballR);
+            ballGrad.addColorStop(0, '#fef3c7'); ballGrad.addColorStop(0.5, '#fbbf24'); ballGrad.addColorStop(1, '#d97706');
+            ctx.fillStyle = ballGrad;
+            ctx.shadowColor = 'rgba(251, 191, 36, 0.7)';
+            ctx.shadowBlur = 14;
             ctx.beginPath();
             ctx.arc(b.x, b.y, ballR, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
-            // Highlight
-            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            // Specular highlight
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
             ctx.beginPath();
-            ctx.arc(b.x - 2, b.y - 2, ballR * 0.3, 0, Math.PI * 2);
+            ctx.arc(b.x - 2, b.y - 2, ballR * 0.25, 0, Math.PI * 2);
             ctx.fill();
         }
 
         // Launcher (grayed out if not player's turn)
         const launchX = LAUNCHER_X + Math.cos(launcherAngle) * LAUNCHER_LEN;
         const launchY = LAUNCHER_Y - Math.sin(launcherAngle) * LAUNCHER_LEN;
-        const launcherOpacity = playerTurn ? 1 : 0.5;
 
-        // Barrel
+        // Launcher platform glow
+        if (playerTurn) {
+            const platGlow = ctx.createRadialGradient(LAUNCHER_X, LAUNCHER_Y, 0, LAUNCHER_X, LAUNCHER_Y, 35);
+            platGlow.addColorStop(0, 'rgba(226,232,240,0.12)'); platGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = platGlow;
+            ctx.beginPath(); ctx.arc(LAUNCHER_X, LAUNCHER_Y, 35, 0, Math.PI * 2); ctx.fill();
+        }
+
+        // Barrel with gradient
         ctx.strokeStyle = playerTurn ? '#e2e8f0' : 'rgba(226, 232, 240, 0.5)';
-        ctx.lineWidth = 6;
+        ctx.lineWidth = 7;
         ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(LAUNCHER_X, LAUNCHER_Y);
         ctx.lineTo(launchX, launchY);
         ctx.stroke();
+        // Barrel inner highlight
+        ctx.strokeStyle = playerTurn ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(LAUNCHER_X, LAUNCHER_Y);
+        ctx.lineTo(launchX, launchY);
+        ctx.stroke();
 
-        // Base
-        ctx.fillStyle = playerTurn ? '#94a3b8' : 'rgba(148, 163, 184, 0.5)';
+        // Base with gradient
+        const baseGrad = ctx.createRadialGradient(LAUNCHER_X-2, LAUNCHER_Y-2, 0, LAUNCHER_X, LAUNCHER_Y, 12);
+        baseGrad.addColorStop(0, playerTurn ? '#cbd5e1' : 'rgba(203,213,225,0.5)');
+        baseGrad.addColorStop(1, playerTurn ? '#64748b' : 'rgba(100,116,139,0.5)');
+        ctx.fillStyle = baseGrad;
         ctx.beginPath();
         ctx.arc(LAUNCHER_X, LAUNCHER_Y, 12, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = playerTurn ? '#e2e8f0' : 'rgba(226, 232, 240, 0.5)';
         ctx.beginPath();
-        ctx.arc(LAUNCHER_X, LAUNCHER_Y, 8, 0, Math.PI * 2);
+        ctx.arc(LAUNCHER_X, LAUNCHER_Y, 6, 0, Math.PI * 2);
         ctx.fill();
 
         // Angle indicator
@@ -647,6 +759,8 @@
         ctx.font = '12px Arial';
         ctx.fillText('Balls: ' + ballsFiredThisTurn + '/' + maxBallsPerTurn, 10, 28);
         ctx.fillText('Turn: ' + turnCount, 10, 42);
+
+        ctx.restore(); // End screen shake transform
     }
 
     function loop() {
@@ -657,11 +771,19 @@
         animFrame = requestAnimationFrame(loop);
     }
 
+    function saveBest() {
+        if (score > bestScore) {
+            bestScore = score;
+            localStorage.setItem('breakout_best', bestScore);
+            document.getElementById('best-score').textContent = bestScore;
+        }
+    }
+
     function gameOver() {
         gameRunning = false;
         if (animFrame) cancelAnimationFrame(animFrame);
+        saveBest();
         document.getElementById('final-score').textContent = score;
-        // In endless mode, only game over when lives reach 0
         document.getElementById('end-title').textContent = 'GAME OVER';
         document.getElementById('end-title').style.color = '#ef4444';
         document.getElementById('end-msg').textContent = 'Lives lost!';

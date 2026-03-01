@@ -16,12 +16,6 @@
         (async function() {
             await initializeFirebase();
             
-            if (sessionStorage.getItem('validGameAccess') !== 'true') {
-                alert('You must access this game from the Arcade page.');
-                window.location.href = 'arcade.html';
-                return;
-            }
-            
             function getUser() {
                 return JSON.parse(localStorage.getItem('user') || '{}');
             }
@@ -143,10 +137,14 @@
     <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
         <div class="flex justify-between items-end mb-4">
             <div>
-                <h1 class="text-2xl font-bold text-gray-400 bg-clip-text" data-i18n="MINESWEEPER">MINESWEEPER</h1>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-gray-300 to-gray-500 bg-clip-text text-transparent" data-i18n="MINESWEEPER">MINESWEEPER</h1>
                 <p class="text-xs text-gray-400 font-sans" data-i18n="Find all mines without detonating!">Find all mines without detonating!</p>
             </div>
             <div class="flex gap-4 text-right">
+                <div>
+                    <div class="text-xs text-gray-400 font-sans">⏱ TIME</div>
+                    <div id="timer" class="text-2xl font-bold text-cyan-400">0:00</div>
+                </div>
                 <div>
                     <div class="text-xs text-gray-400 font-sans">MINES</div>
                     <div id="mine-count" class="text-2xl font-bold text-yellow-400">10</div>
@@ -159,10 +157,11 @@
         </div>
 
         <div class="flex gap-2 mb-4">
-            <button onclick="newGame(9,9,10)" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm font-bold">Easy</button>
-            <button onclick="newGame(16,16,40)" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm font-bold">Medium</button>
-            <button onclick="newGame(16,30,99)" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm font-bold">Hard</button>
+            <button onclick="newGame(9,9,10)" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm font-bold transition active:scale-95">😊 Easy</button>
+            <button onclick="newGame(16,16,40)" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm font-bold transition active:scale-95">😐 Medium</button>
+            <button onclick="newGame(16,30,99)" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm font-bold transition active:scale-95">😈 Hard</button>
         </div>
+        <p id="best-time" class="text-xs text-gray-500 mb-2 font-sans"></p>
 
         <canvas id="game" class="bg-gray-900 border-2 border-gray-700 mx-auto"></canvas>
 
@@ -205,6 +204,38 @@
     let board = [], revealed = [], flagged = [];
     let gameActive = true, score = 0, firstClick = true;
     let hoverR = -1, hoverC = -1;
+    let timerSeconds = 0, timerInterval = null;
+    let bestTimes = JSON.parse(localStorage.getItem('minesweeper_best') || '{}');
+    let revealAnim = []; // {r, c, progress} for animated reveal
+
+    function getDiffKey() { return rows + 'x' + cols + 'x' + mineCount; }
+
+    function updateBestDisplay() {
+        const key = getDiffKey();
+        const best = bestTimes[key];
+        const el = document.getElementById('best-time');
+        if (best) {
+            const m = Math.floor(best / 60), s = best % 60;
+            el.textContent = 'Best: ' + m + ':' + (s < 10 ? '0' : '') + s;
+        } else {
+            el.textContent = '';
+        }
+    }
+
+    function startTimer() {
+        stopTimer();
+        timerSeconds = 0;
+        document.getElementById('timer').textContent = '0:00';
+        timerInterval = setInterval(() => {
+            timerSeconds++;
+            const m = Math.floor(timerSeconds / 60), s = timerSeconds % 60;
+            document.getElementById('timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        }, 1000);
+    }
+
+    function stopTimer() {
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    }
 
     // ---- Coordinate conversion ----
     function getCellFromMouse(e) {
@@ -227,9 +258,14 @@
         board = []; revealed = []; flagged = [];
         gameActive = true; firstClick = true; score = 0;
         hoverR = -1; hoverC = -1;
+        revealAnim = [];
+        stopTimer();
+        timerSeconds = 0;
+        document.getElementById('timer').textContent = '0:00';
         document.getElementById('score').textContent = '0';
         document.getElementById('mine-count').textContent = mineCount;
         document.getElementById('game-over').classList.add('hidden');
+        updateBestDisplay();
 
         for (let i = 0; i < rows; i++) {
             board[i] = []; revealed[i] = []; flagged[i] = [];
@@ -278,6 +314,7 @@
             if (r < 0 || r >= rows || c < 0 || c >= cols) continue;
             if (revealed[r][c] || flagged[r][c]) continue;
             revealed[r][c] = true;
+            revealAnim.push({ r, c, progress: 0 });
             score += 5;
             if (board[r][c] === 0) {
                 for (let dr = -1; dr <= 1; dr++) {
@@ -304,8 +341,17 @@
 
     function endGame(won) {
         gameActive = false;
+        stopTimer();
+        // Save best time on win
+        if (won) {
+            const key = getDiffKey();
+            if (!bestTimes[key] || timerSeconds < bestTimes[key]) {
+                bestTimes[key] = timerSeconds;
+                localStorage.setItem('minesweeper_best', JSON.stringify(bestTimes));
+            }
+        }
         document.getElementById('score').textContent = score;
-        document.getElementById('final-score').textContent = score;
+        document.getElementById('final-score').textContent = score + (won ? ' (' + document.getElementById('timer').textContent + ')' : '');
         document.getElementById('end-title').textContent = won ? '🎉 YOU WIN!' : '💥 BOOM!';
         document.getElementById('end-title').style.color = won ? '#22c55e' : '#ef4444';
         document.getElementById('end-msg').textContent = won ? 'All mines found!' : 'You hit a mine!';
@@ -319,13 +365,17 @@
         if (!pos) return;
         const { r, c } = pos;
         if (flagged[r][c]) return;
-        if (firstClick) { placeMines(r, c); firstClick = false; }
+        if (firstClick) { placeMines(r, c); firstClick = false; startTimer(); }
         if (board[r][c] === -1) {
             revealed[r][c] = true;
+            revealAnim.push({ r, c, progress: 0 });
             gameActive = false;
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < cols; j++) {
-                    if (board[i][j] === -1) revealed[i][j] = true;
+                    if (board[i][j] === -1) {
+                        revealed[i][j] = true;
+                        revealAnim.push({ r: i, c: j, progress: 0 });
+                    }
                 }
             }
             draw();
@@ -385,28 +435,36 @@
     function draw() {
         const W = canvas.width, H = canvas.height;
 
-        // Board background
-        ctx.fillStyle = '#334155';
+        // Board background with gradient
+        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+        bgGrad.addColorStop(0, '#374151'); bgGrad.addColorStop(1, '#1f2937');
+        ctx.fillStyle = bgGrad;
         roundRect(0, 0, W, H, 8);
         ctx.fill();
+
+        // Update reveal animations
+        revealAnim = revealAnim.filter(a => { a.progress += 0.12; return a.progress < 1; });
 
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < cols; j++) {
                 const x = BOARD_PAD + j * CELL + GAP;
                 const y = BOARD_PAD + i * CELL + GAP;
 
+                const anim = revealAnim.find(a => a.r === i && a.c === j);
+                const animScale = anim ? Math.min(1, anim.progress * 1.5) : 1;
+
                 if (revealed[i][j]) {
                     if (board[i][j] === -1) {
-                        // Mine cell - red background
-                        ctx.fillStyle = '#ef4444';
+                        // Mine cell
+                        const mGrad = ctx.createLinearGradient(x, y, x+INNER, y+INNER);
+                        mGrad.addColorStop(0, '#f87171'); mGrad.addColorStop(1, '#ef4444');
+                        ctx.fillStyle = mGrad;
                         roundRect(x, y, INNER, INNER, 4);
                         ctx.fill();
-                        // Mine body (dark circle)
                         ctx.fillStyle = '#1e293b';
                         ctx.beginPath();
                         ctx.arc(x + INNER / 2, y + INNER / 2, 8, 0, Math.PI * 2);
                         ctx.fill();
-                        // Mine spikes
                         ctx.strokeStyle = '#1e293b';
                         ctx.lineWidth = 2;
                         const cx = x + INNER / 2, cy = y + INNER / 2;
@@ -417,38 +475,49 @@
                             ctx.lineTo(cx + Math.cos(angle) * 11, cy + Math.sin(angle) * 11);
                             ctx.stroke();
                         }
-                        // Highlight dot
                         ctx.fillStyle = 'rgba(255,255,255,0.4)';
                         ctx.beginPath();
                         ctx.arc(cx - 3, cy - 3, 2.5, 0, Math.PI * 2);
                         ctx.fill();
                     } else {
-                        // Revealed empty / number cell
-                        ctx.fillStyle = '#0f172a';
+                        // Revealed cell with depth
+                        ctx.save();
+                        if (anim) {
+                            ctx.translate(x + INNER/2, y + INNER/2);
+                            ctx.scale(animScale, animScale);
+                            ctx.translate(-(x + INNER/2), -(y + INNER/2));
+                        }
+                        const revGrad = ctx.createLinearGradient(x, y, x, y+INNER);
+                        revGrad.addColorStop(0, '#111827'); revGrad.addColorStop(1, '#0f172a');
+                        ctx.fillStyle = revGrad;
                         roundRect(x, y, INNER, INNER, 4);
                         ctx.fill();
 
                         if (board[i][j] > 0) {
-                            ctx.fillStyle = NUM_COLORS[board[i][j]] || '#e2e8f0';
+                            const numColor = NUM_COLORS[board[i][j]] || '#e2e8f0';
+                            ctx.shadowColor = numColor;
+                            ctx.shadowBlur = 4;
+                            ctx.fillStyle = numColor;
                             ctx.font = 'bold 16px Orbitron, monospace';
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'middle';
                             ctx.fillText(board[i][j], x + INNER / 2, y + INNER / 2 + 1);
+                            ctx.shadowBlur = 0;
                         }
+                        ctx.restore();
                     }
                 } else if (flagged[i][j]) {
-                    // Flagged cell - amber
-                    ctx.fillStyle = '#d97706';
+                    const fGrad = ctx.createLinearGradient(x, y, x+INNER, y+INNER);
+                    fGrad.addColorStop(0, '#f59e0b'); fGrad.addColorStop(1, '#d97706');
+                    ctx.fillStyle = fGrad;
                     roundRect(x, y, INNER, INNER, 4);
                     ctx.fill();
-                    // Flag pole
                     ctx.strokeStyle = '#1e293b';
                     ctx.lineWidth = 2;
                     ctx.beginPath();
                     ctx.moveTo(x + INNER / 2, y + 6);
                     ctx.lineTo(x + INNER / 2, y + INNER - 6);
                     ctx.stroke();
-                    // Red flag triangle
                     ctx.fillStyle = '#ef4444';
                     ctx.beginPath();
                     ctx.moveTo(x + INNER / 2, y + 6);
@@ -456,20 +525,34 @@
                     ctx.lineTo(x + INNER / 2, y + 18);
                     ctx.closePath();
                     ctx.fill();
-                    // Base bar
                     ctx.fillStyle = '#1e293b';
                     ctx.fillRect(x + INNER / 2 - 5, y + INNER - 8, 10, 2);
                 } else {
-                    // Hidden cell
+                    // Hidden cell with 3D bevel
                     const isHover = (i === hoverR && j === hoverC && gameActive);
-                    ctx.fillStyle = isHover ? '#94a3b8' : '#64748b';
+                    const cellGrad = ctx.createLinearGradient(x, y, x, y + INNER);
+                    if (isHover) {
+                        cellGrad.addColorStop(0, '#a1b0c4'); cellGrad.addColorStop(1, '#7e8ea0');
+                    } else {
+                        cellGrad.addColorStop(0, '#6b7a8d'); cellGrad.addColorStop(1, '#556270');
+                    }
+                    ctx.fillStyle = cellGrad;
                     roundRect(x, y, INNER, INNER, 4);
                     ctx.fill();
-                    // Subtle top highlight (bevel effect)
-                    ctx.fillStyle = isHover ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)';
-                    ctx.fillRect(x + 2, y + 2, INNER - 4, INNER / 2 - 2);
+                    // Top bevel highlight
+                    ctx.fillStyle = isHover ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.1)';
+                    ctx.fillRect(x + 2, y + 2, INNER - 4, 3);
+                    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+                    ctx.fillRect(x + 2, y + 5, 3, INNER - 10);
+                    // Bottom shadow
+                    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+                    ctx.fillRect(x + 2, y + INNER - 4, INNER - 4, 2);
                 }
             }
+        }
+        
+        if (revealAnim.length > 0) {
+            requestAnimationFrame(draw);
         }
     }
 

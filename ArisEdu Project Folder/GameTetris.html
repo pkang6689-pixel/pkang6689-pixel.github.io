@@ -18,12 +18,6 @@
         (async function() {
             await initializeFirebase();
             
-            if (sessionStorage.getItem('validGameAccess') !== 'true') {
-                alert('You must access this game from the Arcade page.');
-                window.location.href = 'arcade.html';
-                return;
-            }
-            
             function getUser() {
                 return JSON.parse(localStorage.getItem('user') || '{}');
             }
@@ -194,6 +188,17 @@
         </div>
 
         <div class="flex gap-4 justify-center">
+            <!-- Hold Piece -->
+            <div class="flex flex-col gap-4">
+                <div>
+                    <div class="text-xs text-gray-400 font-sans mb-1 text-center">HOLD</div>
+                    <canvas id="hold" class="bg-gray-950 border-2 border-gray-700" width="80" height="80"></canvas>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-400 font-sans">BEST</div>
+                    <div id="best-score" class="text-xl font-bold text-red-300 text-center">0</div>
+                </div>
+            </div>
             <!-- Main Board -->
             <canvas id="board" class="bg-gray-950 border-2 border-gray-700" width="200" height="400"></canvas>
             <!-- Next Piece -->
@@ -209,7 +214,7 @@
             </div>
         </div>
 
-        <p class="text-center text-xs text-gray-500 mt-4 font-sans">← → move | ↑ rotate | ↓ soft drop | Space hard drop</p>
+        <p class="text-center text-xs text-gray-500 mt-4 font-sans">← → move | ↑ rotate | ↓ soft drop | Space hard drop | C hold</p>
 
         <!-- Game Over -->
         <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
@@ -242,6 +247,8 @@
             </button>
         </div>
 
+    </div>
+
     <div id="game-sidebar">
         <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600;">
             SESSION
@@ -262,8 +269,10 @@
 
         const boardCanvas = document.getElementById('board');
         const nextCanvas = document.getElementById('next');
+        const holdCanvas = document.getElementById('hold');
         const bCtx = boardCanvas.getContext('2d');
         const nCtx = nextCanvas.getContext('2d');
+        const hCtx = holdCanvas.getContext('2d');
 
         const COLS = 10, ROWS = 20, CELL = 20;
         const NEXT_CELL = 16;
@@ -281,9 +290,12 @@
             [[0,1],[0,1],[1,1]]
         ];
 
-        let grid, current, nextPiece, score, lines, level, dropTimer, dropInterval, gameLoop, running;
+        let grid, current, nextPiece, holdPiece, holdUsed, score, lines, level, dropTimer, dropInterval, gameLoop, running;
         let clearingRows = [], clearAnimTimer = 0, clearAnimPhase = false;
         let clearParticles = [];
+        let bestScore = parseInt(localStorage.getItem('tetris_best') || '0');
+
+        document.getElementById('best-score').textContent = bestScore;
 
         function createPiece(shapeIdx) {
             const shape = SHAPES[shapeIdx].map(r => [...r]);
@@ -306,6 +318,12 @@
             lines = 0;
             level = 1;
             dropInterval = 500;
+            holdPiece = null;
+            holdUsed = false;
+            clearingRows = [];
+            clearAnimTimer = 0;
+            clearAnimPhase = 0;
+            clearParticles = [];
             current = randomPiece();
             nextPiece = randomPiece();
             updateUI();
@@ -315,6 +333,26 @@
             document.getElementById('score').textContent = score;
             document.getElementById('lines').textContent = lines;
             document.getElementById('level').textContent = level;
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('tetris_best', bestScore);
+                document.getElementById('best-score').textContent = bestScore;
+            }
+        }
+
+        function holdCurrentPiece() {
+            if (holdUsed) return;
+            holdUsed = true;
+            if (holdPiece === null) {
+                holdPiece = current.idx;
+                current = nextPiece;
+                nextPiece = randomPiece();
+            } else {
+                const oldHold = holdPiece;
+                holdPiece = current.idx;
+                current = createPiece(oldHold);
+            }
+            drawHold();
         }
 
         function collides(piece, dx, dy) {
@@ -351,6 +389,7 @@
             clearLines();
             current = nextPiece;
             nextPiece = randomPiece();
+            holdUsed = false; // allow hold again after lock
 
             // Check if new piece immediately collides
             if (collides(current, 0, 0)) {
@@ -454,8 +493,19 @@
         }
 
         function drawBoard() {
-            bCtx.fillStyle = '#030712';
+            // Background gradient
+            const bgGrad = bCtx.createLinearGradient(0, 0, 0, boardCanvas.height);
+            bgGrad.addColorStop(0, '#030712'); bgGrad.addColorStop(1, '#0a1628');
+            bCtx.fillStyle = bgGrad;
             bCtx.fillRect(0, 0, boardCanvas.width, boardCanvas.height);
+
+            // Danger zone indicator near top
+            if (current && current.y < 4) {
+                const dangerGrad = bCtx.createLinearGradient(0, 0, 0, 80);
+                dangerGrad.addColorStop(0, 'rgba(239,68,68,0.08)'); dangerGrad.addColorStop(1, 'transparent');
+                bCtx.fillStyle = dangerGrad;
+                bCtx.fillRect(0, 0, boardCanvas.width, 80);
+            }
 
             // Subtle grid
             bCtx.strokeStyle = 'rgba(255,255,255,0.03)';
@@ -514,22 +564,33 @@
 
         function drawCell(context, x, y, color, size, alpha) {
             context.globalAlpha = alpha;
-            // Shadow
-            context.fillStyle = 'rgba(0,0,0,0.3)';
+            // Drop shadow
+            context.fillStyle = 'rgba(0,0,0,0.4)';
             context.beginPath();
             context.roundRect(x * size + 2, y * size + 2, size - 2, size - 2, 3);
             context.fill();
-            // Main cell
+            // Main cell body
             context.fillStyle = color;
             context.beginPath();
             context.roundRect(x * size + 1, y * size + 1, size - 2, size - 2, 3);
             context.fill();
-            // Top shine
-            context.fillStyle = 'rgba(255,255,255,0.2)';
-            context.fillRect(x * size + 2, y * size + 2, size - 4, 3);
-            // Inner glow
+            // Top bevel highlight
+            context.fillStyle = 'rgba(255,255,255,0.25)';
+            context.fillRect(x * size + 2, y * size + 2, size - 4, 2);
+            // Left bevel highlight
+            context.fillStyle = 'rgba(255,255,255,0.12)';
+            context.fillRect(x * size + 2, y * size + 4, 2, size - 8);
+            // Bottom bevel shadow
+            context.fillStyle = 'rgba(0,0,0,0.2)';
+            context.fillRect(x * size + 2, y * size + size - 3, size - 4, 2);
+            // Right bevel shadow
+            context.fillStyle = 'rgba(0,0,0,0.15)';
+            context.fillRect(x * size + size - 3, y * size + 4, 2, size - 8);
+            // Center glow
             context.fillStyle = 'rgba(255,255,255,0.06)';
-            context.fillRect(x * size + 3, y * size + 3, size - 6, size - 6);
+            context.beginPath();
+            context.roundRect(x * size + 4, y * size + 4, size - 8, size - 8, 2);
+            context.fill();
             context.globalAlpha = 1;
         }
 
@@ -553,6 +614,27 @@
             }
         }
 
+        function drawHold() {
+            hCtx.fillStyle = '#030712';
+            hCtx.fillRect(0, 0, holdCanvas.width, holdCanvas.height);
+            if (holdPiece === null) return;
+            const shape = SHAPES[holdPiece];
+            const color = COLORS[holdPiece];
+            const offX = Math.floor((5 - shape[0].length) / 2);
+            const offY = Math.floor((5 - shape.length) / 2);
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (!shape[r][c]) continue;
+                    hCtx.fillStyle = holdUsed ? '#4b5563' : color;
+                    hCtx.beginPath();
+                    hCtx.roundRect((offX + c) * NEXT_CELL + 1, (offY + r) * NEXT_CELL + 1, NEXT_CELL - 2, NEXT_CELL - 2, 2);
+                    hCtx.fill();
+                    hCtx.fillStyle = 'rgba(255,255,255,0.15)';
+                    hCtx.fillRect((offX + c) * NEXT_CELL + 2, (offY + r) * NEXT_CELL + 2, NEXT_CELL - 4, 3);
+                }
+            }
+        }
+
         function tick() {
             if (!running) return;
 
@@ -567,12 +649,14 @@
                 }
                 drawBoard();
                 drawNext();
+                drawHold();
                 return;
             }
 
             drop();
             drawBoard();
             drawNext();
+            drawHold();
         }
 
         function startGame() {
@@ -581,6 +665,7 @@
             running = true;
             drawBoard();
             drawNext();
+            drawHold();
             gameLoop = setInterval(tick, dropInterval);
         }
 
@@ -607,6 +692,7 @@
             running = true;
             drawBoard();
             drawNext();
+            drawHold();
             gameLoop = setInterval(tick, dropInterval);
         }
 
@@ -629,9 +715,13 @@
                 case ' ':
                     hardDrop();
                     e.preventDefault(); break;
+                case 'c': case 'C':
+                    holdCurrentPiece();
+                    e.preventDefault(); break;
             }
             drawBoard();
             drawNext();
+            drawHold();
         });
 
         // Mobile swipe controls
@@ -682,6 +772,7 @@
         init();
         drawBoard();
         drawNext();
+        drawHold();
     </script>
 </body>
 </html>

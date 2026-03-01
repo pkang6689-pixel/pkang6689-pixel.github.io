@@ -1,7 +1,11 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initializeSearch() {
     // 1. Check if Search Button exists
     const searchBtn = document.getElementById('search-button');
-    if (!searchBtn) return; // Exit if no button
+    if (!searchBtn) {
+        // Retry after a short delay if button doesn't exist yet
+        setTimeout(initializeSearch, 500);
+        return;
+    }
 
     // 2. Create Modal HTML (With injected styles for Dark Mode support)
     const modalHTML = `
@@ -27,6 +31,22 @@ document.addEventListener('DOMContentLoaded', () => {
             .aris-search-result-subtitle {
                 font-size: 0.85rem;
                 color: #64748b;
+            }
+
+            /* Scrollbar Styling */
+            #aris-search-results::-webkit-scrollbar {
+                width: 8px;
+            }
+            #aris-search-results::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 10px;
+            }
+            #aris-search-results::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+            #aris-search-results::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
             }
 
             /* Dynamic Dark Mode Support */
@@ -62,8 +82,18 @@ document.addEventListener('DOMContentLoaded', () => {
             body.dark-mode .aris-search-result-subtitle {
                 color: #cbd5e1 !important;
             }
+            /* Dark Mode Scrollbar */
+            body.dark-mode #aris-search-results::-webkit-scrollbar-track {
+                background: #0f172a;
+            }
+            body.dark-mode #aris-search-results::-webkit-scrollbar-thumb {
+                background: #475569;
+            }
+            body.dark-mode #aris-search-results::-webkit-scrollbar-thumb:hover {
+                background: #64748b;
+            }
         </style>
-        <div id="aris-search-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.8); z-index:9999; backdrop-filter:blur(4px); align-items:flex-start; justify-content:center; padding-top:5rem;">
+        <div id="aris-search-modal" style="display:none; visibility:hidden; opacity:0; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.8); z-index:99999; backdrop-filter:blur(4px); align-items:flex-start; justify-content:center; padding-top:5rem; transition: opacity 0.2s ease;">
             <div id="aris-search-content" style="background:white; width:90%; max-width:600px; border-radius:1rem; box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow:hidden; display:flex; flex-direction:column; max-height:80vh;">
                 <!-- Header -->
                 <div style="padding:1rem; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; gap:0.5rem;">
@@ -72,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button id="aris-search-close" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
                 </div>
                 <!-- Results -->
-                <div id="aris-search-results" style="padding:0; overflow-y:auto; flex:1;">
+                <div id="aris-search-results" style="padding:0; overflow-y:auto; flex:1; min-height:200px; max-height:400px; scrollbar-width:thin; scrollbar-color:#cbd5e1 #f1f5f9;">
                     <div style="padding:2rem; text-align:center; color:#94a3b8;">${_t('Type to start searching...')}</div>
                 </div>
                 <!-- Footer -->
@@ -91,6 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('aris-search-input');
     const resultsContainer = document.getElementById('aris-search-results');
     const closeBtn = document.getElementById('aris-search-close');
+    const footerDiv = document.getElementById('aris-search-footer');
+    
+    // Track results count for display
+    let totalResults = 0;
+    let displayedResults = 0;
 
     // 5. Functions
     function _t(key) {
@@ -100,19 +135,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openSearch() {
-        modal.style.display = 'flex';
+        console.log("Opening search modal..."); // Debug
+        modal.style.setProperty('display', 'flex', 'important');
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
         input.value = '';
-        input.focus();
+        setTimeout(() => input.focus(), 50);
+        totalResults = 0;
+        displayedResults = 0;
         renderResults([]); // Clear previous
+        updateResultsCounter(0, 0);
     }
 
     function closeSearch() {
-        modal.style.display = 'none';
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.style.display = 'none';
+            modal.style.visibility = 'hidden';
+        }, 200);
     }
 
     function performSearch(query) {
         if (!query || query.length < 2) {
             resultsContainer.innerHTML = `<div style="padding:2rem; text-align:center; color:#94a3b8;">${_t('Type at least 2 characters...')}</div>`;
+            updateResultsCounter(0, 0);
             return;
         }
         
@@ -121,23 +167,31 @@ document.addEventListener('DOMContentLoaded', () => {
         // Ensure index exists
         if (typeof ARIS_EDU_SEARCH_INDEX === 'undefined') {
             resultsContainer.innerHTML = `<div style="padding:1rem; color:#ef4444;">${_t('Search index not loaded.')}</div>`;
+            updateResultsCounter(0, 0);
             return;
         }
 
-        const matches = ARIS_EDU_SEARCH_INDEX.filter(item => {
+        const allMatches = ARIS_EDU_SEARCH_INDEX.filter(item => {
             return (item.title && item.title.toLowerCase().includes(q)) || 
                    (item.subtitle && item.subtitle.toLowerCase().includes(q)) ||
                    (item.content && item.content.toLowerCase().includes(q));
-        }).slice(0, 10); // Limit to 10 results
+        });
+        
+        const matches = allMatches.slice(0, 10); // Limit displayed to 10 results
 
-        renderResults(matches);
+        renderResults(matches, allMatches.length);
     }
 
-    function renderResults(items) {
+    function renderResults(items, totalCount = 0) {
+        totalResults = totalCount;
+        displayedResults = items.length;
+        
         if (items.length === 0 && input.value.length >= 2) {
             resultsContainer.innerHTML = `<div style="padding:2rem; text-align:center; color:#94a3b8;">${_t('No results found.')}</div>`;
+            updateResultsCounter(0, 0);
             return;
         } else if (items.length === 0) {
+            updateResultsCounter(0, 0);
             return; // Already handled empty state
         }
 
@@ -151,10 +205,23 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         });
         resultsContainer.innerHTML = html;
+        updateResultsCounter(displayedResults, totalResults);
+    }
+
+    function updateResultsCounter(displayed, total) {
+        let counterText = '';
+        if (total === 0) {
+            counterText = _t('ArisEdu Search');
+        } else if (displayed === total) {
+            counterText = `${_t('Showing all')} ${total} ${_t('results')}`;
+        } else {
+            counterText = `${_t('Showing')} ${displayed} ${_t('of')} ${total} ${_t('results')}`;
+        }
+        footerDiv.textContent = counterText;
     }
 
     function highlight(text, query) {
-        if(!text) return '';
+        if (!text) return '';
         const regex = new RegExp(`(${query})`, 'gi');
         return text.replace(regex, '<span style="background:#fef08a; color:#854d0e;">$1</span>');
     }
@@ -162,6 +229,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. Event Listeners
     searchBtn.addEventListener('click', (e) => {
         e.preventDefault();
+        e.stopPropagation();
+        openSearch();
+    });
+
+    // Fallback in case taskbar re-renders and detaches the original listener
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('#search-button');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
         openSearch();
     });
 
@@ -174,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Close on Escape
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.style.display === 'flex') {
+        if (e.key === 'Escape' && modal.style.display !== 'none' && modal.style.visibility !== 'hidden') {
             closeSearch();
         }
         // Easy open with Ctrl+K or / (optional, maybe distracting)
@@ -315,4 +392,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Expose to window for dynamic updates
     window.applyGlobalTheme = applyGlobalTheme;
-});
+}
+
+// Initialize search functionality
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSearch);
+} else {
+    // DOM is already loaded
+    initializeSearch();
+}

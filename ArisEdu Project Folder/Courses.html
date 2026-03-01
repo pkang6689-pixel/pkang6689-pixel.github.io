@@ -289,6 +289,19 @@
       background-clip: text;
     }
 
+    /* WIP Badge */
+    .wip-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      letter-spacing: 0.05em;
+      margin-top: 0.25rem;
+    }
+
     body.dark-mode .courses-container {
       background: #273244;
       border: 2px solid rgba(226, 232, 240, 0.22);
@@ -302,6 +315,128 @@
       background: transparent !important;
       border-color: transparent !important;
       box-shadow: none !important;
+    }
+
+    /* WIP Disclaimer Modal */
+    .wip-disclaimer-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .wip-disclaimer-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .wip-disclaimer-modal {
+      background: #ffffff;
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.3s ease;
+    }
+
+    body.dark-mode .wip-disclaimer-modal {
+      background: #1e293b;
+      color: #f1f5f9;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .wip-disclaimer-icon {
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .wip-disclaimer-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-align: center;
+      color: #0f172a;
+    }
+
+    body.dark-mode .wip-disclaimer-title {
+      color: #f1f5f9;
+    }
+
+    .wip-disclaimer-text {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #475569;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    body.dark-mode .wip-disclaimer-text {
+      color: #cbd5e1;
+    }
+
+    .wip-disclaimer-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .wip-disclaimer-btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+    }
+
+    .wip-disclaimer-btn-dismiss {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .wip-disclaimer-btn-dismiss:hover {
+      background: #cbd5e1;
+    }
+
+    body.dark-mode .wip-disclaimer-btn-dismiss {
+      background: #334155;
+      color: #f1f5f9;
+    }
+
+    body.dark-mode .wip-disclaimer-btn-dismiss:hover {
+      background: #475569;
+    }
+
+    .wip-disclaimer-btn-proceed {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      color: white;
+    }
+
+    .wip-disclaimer-btn-proceed:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(255, 107, 107, 0.4);
     }
   </style>
   <style>@view-transition { navigation: auto; }
@@ -442,6 +577,60 @@
                 <span class="course-title" data-i18n="High School Geometry">High School Geometry</span>
               </a>
             </div>
+            <div class="course-box math">
+              <a id="precalc-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <text x="12" y="18" text-anchor="middle" fill="url(#math-grad)" font-size="16" font-weight="700" font-family="serif">∫</text>
+                </svg>
+                <span class="course-title">Precalculus</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box math">
+              <a id="trig-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 28 L20 28 L12 8 Z" fill="none" stroke="url(#math-grad)" stroke-width="0.6"/>
+                  <path d="M12 8 L12 28" fill="none" stroke="url(#math-grad)" stroke-width="0.4" stroke-dasharray="1,1"/>
+                </svg>
+                <span class="course-title">Trigonometry</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box math">
+              <a id="statistics-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="5" y="20" width="3" height="10" fill="none" stroke="url(#math-grad)" stroke-width="0.5"/>
+                  <rect x="10" y="15" width="3" height="15" fill="none" stroke="url(#math-grad)" stroke-width="0.5"/>
+                  <rect x="15" y="10" width="3" height="20" fill="none" stroke="url(#math-grad)" stroke-width="0.5"/>
+                </svg>
+                <span class="course-title">Statistics & Probability</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box math">
+              <a id="linalg-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="6" y1="10" x2="18" y2="10" stroke="url(#math-grad)" stroke-width="0.5"/>
+                  <line x1="6" y1="18" x2="18" y2="18" stroke="url(#math-grad)" stroke-width="0.5"/>
+                  <line x1="6" y1="26" x2="18" y2="26" stroke="url(#math-grad)" stroke-width="0.5"/>
+                  <line x1="6" y1="10" x2="6" y2="26" stroke="url(#math-grad)" stroke-width="0.5"/>
+                  <line x1="12" y1="10" x2="12" y2="26" stroke="url(#math-grad)" stroke-width="0.5"/>
+                  <line x1="18" y1="10" x2="18" y2="26" stroke="url(#math-grad)" stroke-width="0.5"/>
+                </svg>
+                <span class="course-title">Linear Algebra</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box math">
+              <a id="finmath-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="14" r="5" fill="none" stroke="url(#math-grad)" stroke-width="0.5"/>
+                  <text x="12" y="15" text-anchor="middle" fill="url(#math-grad)" font-size="8" font-weight="700" font-family="serif">$</text>
+                </svg>
+                <span class="course-title">Financial Math</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
           </div>
         </div>
         <!-- Science Section -->
@@ -484,6 +673,72 @@
                   <line x1="15" y1="18.5" x2="9" y2="18.5" opacity="0.4"/>
                 </svg>
                 <span class="course-title" data-i18n="High School Biology">High School Biology</span>
+              </a>
+            </div>
+            <div class="course-box chemistry">
+              <a id="earthsci-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#3b82f6" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="16" r="6" fill="none" stroke="#3b82f6"/>
+                  <path d="M12 10 L14 14 L12 18 L10 14 Z" fill="none" stroke="#3b82f6" stroke-width="0.4"/>
+                  <path d="M8 16 L10 14" fill="none" stroke="#3b82f6" stroke-width="0.3"/>
+                  <path d="M16 16 L14 14" fill="none" stroke="#3b82f6" stroke-width="0.3"/>
+                </svg>
+                <span class="course-title">Earth Science/Integrated Science</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box chemistry">
+              <a id="envscience-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#3b82f6" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="8" fill="none" stroke="#3b82f6"/>
+                  <path d="M12 4 L14 9 L10 9 Z" fill="none" stroke="#3b82f6" stroke-width="0.5"/>
+                  <path d="M8 12 L6 14" fill="none" stroke="#3b82f6" stroke-width="0.4"/>
+                  <path d="M16 12 L18 14" fill="none" stroke="#3b82f6" stroke-width="0.4"/>
+                  <path d="M10 20 L10 26" fill="none" stroke="#3b82f6" stroke-width="0.4"/>
+                  <path d="M14 20 L14 26" fill="none" stroke="#3b82f6" stroke-width="0.4"/>
+                </svg>
+                <span class="course-title">Environmental Science</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box physics">
+              <a id="astronomy-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#fbbf24" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="16" r="6" fill="none" stroke="#fbbf24"/>
+                  <circle cx="7" cy="10" r="1.5" fill="#fbbf24"/>
+                  <circle cx="18" cy="12" r="1" fill="#fbbf24"/>
+                  <circle cx="15" cy="24" r="0.8" fill="#fbbf24"/>
+                  <path d="M7 10 L12 16" fill="none" stroke="#fbbf24" stroke-width="0.3" opacity="0.5"/>
+                  <path d="M18 12 L12 16" fill="none" stroke="#fbbf24" stroke-width="0.3" opacity="0.5"/>
+                </svg>
+                <span class="course-title">Astronomy/Space Science</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box biology">
+              <a id="anatomy-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#22c55e" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="2" fill="none" stroke="#22c55e"/>
+                  <line x1="12" y1="10" x2="12" y2="18" stroke="#22c55e" stroke-width="0.5"/>
+                  <line x1="8" y1="13" x2="16" y2="13" stroke="#22c55e" stroke-width="0.5"/>
+                  <line x1="12" y1="18" x2="9" y2="26" stroke="#22c55e" stroke-width="0.5"/>
+                  <line x1="12" y1="18" x2="15" y2="26" stroke="#22c55e" stroke-width="0.5"/>
+                </svg>
+                <span class="course-title">Human Anatomy & Physiology</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box biology">
+              <a id="marine-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#22c55e" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 20 Q8 12 12 18 Q16 10 19 20" fill="none" stroke="#22c55e" stroke-width="0.5"/>
+                  <line x1="7" y1="24" x2="7" y2="30" stroke="#22c55e" stroke-width="0.4"/>
+                  <line x1="12" y1="24" x2="12" y2="30" stroke="#22c55e" stroke-width="0.4"/>
+                  <line x1="17" y1="24" x2="17" y2="30" stroke="#22c55e" stroke-width="0.4"/>
+                  <circle cx="12" cy="14" r="1.5" fill="none" stroke="#22c55e" stroke-width="0.4"/>
+                </svg>
+                <span class="course-title">Marine Science/Biology</span>
+                <span class="wip-badge">WIP</span>
               </a>
             </div>
           </div>
@@ -565,10 +820,232 @@
           </div>
         </div>
       </div>
+
+      <!-- AP/Advanced Placement Courses -->
+      <div class="courses-container" style="margin-top: 2rem;">
+        <!-- AP Mathematics Section -->
+        <div class="courses-section">
+          <h2 class="courses-section-title">AP (Advanced Placement)</h2>
+          <div class="courses-grid">
+            <div class="course-box math">
+              <a id="ap-calc-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 25 Q12 10 18 25" fill="none" stroke="url(#math-grad)" stroke-width="0.8"/>
+                  <text x="12" y="6" text-anchor="middle" fill="url(#math-grad)" font-size="10" font-weight="700" font-family="serif">AP</text>
+                </svg>
+                <span class="course-title">AP Calculus</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box biology">
+              <a id="ap-bio-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 32" fill="none" stroke="#22c55e" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 2 C15 5 3 8 9 11 C15 14 3 17 9 22" fill="none"/>
+                  <path d="M15 2 C9 5 21 8 15 11 C9 14 21 17 15 22" fill="none"/>
+                  <line x1="9" y1="3.5" x2="15" y2="3.5" opacity="0.4"/>
+                  <line x1="6" y1="6.5" x2="18" y2="6.5" opacity="0.4"/>
+                  <line x1="9" y1="9.5" x2="15" y2="9.5" opacity="0.4"/>
+                  <line x1="15" y1="12.5" x2="9" y2="12.5" opacity="0.4"/>
+                  <line x1="18" y1="15.5" x2="6" y2="15.5" opacity="0.4"/>
+                  <line x1="15" y1="18.5" x2="9" y2="18.5" opacity="0.4"/>
+                  <text x="12" y="30" text-anchor="middle" fill="#22c55e" font-size="8" font-weight="700" font-family="serif">AP</text>
+                </svg>
+                <span class="course-title">AP Biology</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box chemistry">
+              <a id="ap-chem-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#3b82f6" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 3 V30 A 3 3 0 0 0 15 30 V3"/>
+                  <circle cx="11" cy="20" r="0.5" fill="white" fill-opacity="0.5" stroke="none"/>
+                  <circle cx="13" cy="15" r="0.4" fill="white" fill-opacity="0.5" stroke="none"/>
+                  <circle cx="12" cy="25" r="0.6" fill="white" fill-opacity="0.5" stroke="none"/>
+                  <text x="12" y="6" text-anchor="middle" fill="#3b82f6" font-size="8" font-weight="700" font-family="serif">AP</text>
+                </svg>
+                <span class="course-title">AP Chemistry</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box physics">
+              <a id="ap-physics-em-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#fbbf24" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17H9v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
+                  <line x1="9" y1="19" x2="15" y2="19" />
+                  <line x1="10" y1="21" x2="14" y2="21" />
+                  <text x="12" y="31" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="700" font-family="serif">AP</text>
+                </svg>
+                <span class="course-title">AP Physics E&M</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box physics">
+              <a id="ap-physics-mech-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#fbbf24" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="8" cy="12" r="2" fill="none" stroke="#fbbf24" stroke-width="0.5"/>
+                  <circle cx="16" cy="16" r="2.5" fill="none" stroke="#fbbf24" stroke-width="0.5"/>
+                  <path d="M10 13 L14 15" fill="none" stroke="#fbbf24" stroke-width="0.4"/>
+                  <path d="M8 15 L16 25" fill="none" stroke="#fbbf24" stroke-width="0.4" stroke-dasharray="1,1"/>
+                  <text x="12" y="6" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="700" font-family="serif">AP</text>
+                </svg>
+                <span class="course-title">AP Physics C: Mechanics</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box math">
+              <a id="ap-stats-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="5" y="16" width="3" height="14" fill="none" stroke="url(#math-grad)" stroke-width="0.5"/>
+                  <rect x="10" y="10" width="3" height="20" fill="none" stroke="url(#math-grad)" stroke-width="0.5"/>
+                  <rect x="15" y="6" width="3" height="24" fill="none" stroke="url(#math-grad)" stroke-width="0.5"/>
+                  <text x="12" y="6" text-anchor="middle" fill="url(#math-grad)" font-size="8" font-weight="700" font-family="serif">AP</text>
+                </svg>
+                <span class="course-title">AP Statistics</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box chemistry">
+              <a id="ap-envscience-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#3b82f6" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="8" fill="none" stroke="#3b82f6"/>
+                  <path d="M12 4 L14 9 L10 9 Z" fill="none" stroke="#3b82f6" stroke-width="0.5"/>
+                  <path d="M8 12 L6 14" fill="none" stroke="#3b82f6" stroke-width="0.4"/>
+                  <path d="M16 12 L18 14" fill="none" stroke="#3b82f6" stroke-width="0.4"/>
+                  <path d="M10 20 L10 26" fill="none" stroke="#3b82f6" stroke-width="0.4"/>
+                  <path d="M14 20 L14 26" fill="none" stroke="#3b82f6" stroke-width="0.4"/>
+                  <text x="12" y="31" text-anchor="middle" fill="#3b82f6" font-size="8" font-weight="700" font-family="serif">AP</text>
+                </svg>
+                <span class="course-title">AP Environmental Science</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Olympiad Training Courses -->
+      <div class="courses-container" style="margin-top: 2rem;">
+        <div class="courses-section">
+          <h2 class="courses-section-title">Olympiad Training</h2>
+          <div class="courses-grid">
+            <div class="course-box math">
+              <a id="math-olympiad-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <defs>
+                    <linearGradient id="olympiad-math-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#3b82f6"/>
+                      <stop offset="50%" style="stop-color:#10b981"/>
+                      <stop offset="100%" style="stop-color:#8b5cf6"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M12 2 L15 10 L23 10 L17 15 L20 23 L12 18 L4 23 L7 15 L1 10 L9 10 Z" fill="none" stroke="url(#olympiad-math-grad)" stroke-width="0.6"/>
+                </svg>
+                <span class="course-title">Math Olympiad Training</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+            <div class="course-box physics">
+              <a id="science-olympiad-link" href="#">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#fbbf24" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2 L15 10 L23 10 L17 15 L20 23 L12 18 L4 23 L7 15 L1 10 L9 10 Z" fill="none" stroke="#fbbf24" stroke-width="0.6"/>
+                  <circle cx="12" cy="8" r="3" fill="none" stroke="#fbbf24" stroke-width="0.4" opacity="0.6"/>
+                  <path d="M12 8 L12 14" fill="none" stroke="#fbbf24" stroke-width="0.3" opacity="0.6"/>
+                </svg>
+                <span class="course-title">Science Olympiad Training</span>
+                <span class="wip-badge">WIP</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
+
+  <!-- WIP Disclaimer Modal -->
+  <div id="wip-disclaimer-overlay" class="wip-disclaimer-overlay">
+    <div class="wip-disclaimer-modal">
+      <div class="wip-disclaimer-icon">⚠️</div>
+      <h2 class="wip-disclaimer-title">Work In Progress</h2>
+      <p class="wip-disclaimer-text">
+        This course is currently under development and may not contain complete lessons, quizzes, or 
+        all the features of a fully launched course. Thank you for your patience!
+      </p>
+      <div class="wip-disclaimer-buttons">
+        <button class="wip-disclaimer-btn wip-disclaimer-btn-dismiss" id="wip-dismiss-btn">
+          Go Back
+        </button>
+        <button class="wip-disclaimer-btn wip-disclaimer-btn-proceed" id="wip-proceed-btn">
+          I Understand
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
-            // ...existing code...
+    // WIP Course Disclaimer Handler
+    (function() {
+      const overlay = document.getElementById('wip-disclaimer-overlay');
+      const dismissBtn = document.getElementById('wip-dismiss-btn');
+      const proceedBtn = document.getElementById('wip-proceed-btn');
+      let pendingLink = null;
+
+      // Get all course links with WIP badges
+      function initWIPHandlers() {
+        const links = document.querySelectorAll('a[href="#"]');
+        links.forEach(link => {
+          // Check if this link has a WIP badge
+          if (link.querySelector('.wip-badge')) {
+            link.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              pendingLink = link;
+              showWIPDisclaimer();
+            });
+          }
+        });
+      }
+
+      function showWIPDisclaimer() {
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+      }
+
+      function hideWIPDisclaimer() {
+        overlay.classList.remove('active');
+        document.body.style.overflow = ''; // Restore scrolling
+        pendingLink = null;
+      }
+
+      // Dismiss button - close without action
+      dismissBtn.addEventListener('click', hideWIPDisclaimer);
+
+      // Proceed button - can also close (since href="#", nothing happens anyway)
+      proceedBtn.addEventListener('click', function() {
+        hideWIPDisclaimer();
+        // You can add additional logic here in the future (e.g., redirect to a coming-soon page)
+      });
+
+      // Close on overlay click (outside the modal)
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+          hideWIPDisclaimer();
+        }
+      });
+
+      // Close on Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && overlay.classList.contains('active')) {
+          hideWIPDisclaimer();
+        }
+      });
+
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initWIPHandlers);
+      } else {
+        initWIPHandlers();
+      }
+    })();
   </script>
 
 

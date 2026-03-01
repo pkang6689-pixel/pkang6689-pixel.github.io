@@ -88,8 +88,9 @@
 
     function initAI() {
         if (shouldHideAI()) {
-            const aiBtn = document.getElementById('ai-assistant-button');
-            if (aiBtn) aiBtn.style.display = 'none';
+            // Don't hide the button – tools_panel.js will morph it into a Tools dropdown.
+            // Just skip binding AI click and don't create the overlay.
+            window._arisAiHidden = true;
             return;
         }
 

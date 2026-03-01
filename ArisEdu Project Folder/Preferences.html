@@ -247,10 +247,94 @@
       justify-content: flex-start;
       align-items: flex-start;
       color: #1e293b;
+      overflow-y: auto;
     }
 
     body.dark-mode .preferences-panel {
       color: #e2e8f0;
+    }
+
+    /* Tool Category Collapsible Styles */
+    .tool-category {
+      margin-bottom: 1.5rem;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      background: #f9fafb;
+    }
+
+    body.dark-mode .tool-category {
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    .tool-category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background: #f3f4f6;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #374151;
+    }
+
+    body.dark-mode .tool-category-header {
+      background: #334155;
+      color: #e2e8f0;
+    }
+
+    .tool-category-header:hover {
+      background: #e5e7eb;
+    }
+
+    body.dark-mode .tool-category-header:hover {
+      background: #475569;
+    }
+
+    .tool-category-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+      color: #666;
+    }
+
+    body.dark-mode .tool-category-arrow {
+      color: #cbd5e1;
+    }
+
+    .tool-category-arrow.open {
+      transform: rotate(180deg);
+    }
+
+    .tool-category-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem;
+      max-height: 500px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .tool-category-content.collapsed {
+      max-height: 0;
+      padding: 0;
+      opacity: 0;
+    }
+
+    .tool-category-section-title {
+      font-size: 0.95rem;
+      opacity: 0.7;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
     }
 
   </style>
@@ -267,6 +351,7 @@
       <button class="settings-category" data-category="appearance">Appearance</button>
       <button class="settings-category" data-category="account">Account</button>
       <button class="settings-category" data-category="taskbar">Taskbar</button>
+      <button class="settings-category" data-category="tools">Tools</button>
     </div>
   </aside>
   <section id="settings-panel" class="preferences-panel">
@@ -290,6 +375,7 @@ const sidebarLabels = {
     preferences: 'Preferences',
     darkMode: 'Dark Mode',
     taskbar: 'Taskbar',
+    tools: 'Tools',
   },
   spanish: {
     settings: 'Configuración',
@@ -305,6 +391,7 @@ const sidebarLabels = {
     preferences: 'Preferencias',
     darkMode: 'Modo oscuro',
     taskbar: 'Barra de tareas',
+    tools: 'Herramientas',
   },
   chinese: {
     settings: '设置',
@@ -319,6 +406,7 @@ const sidebarLabels = {
     loginSignup: '🔐 登录/注册',
     preferences: '偏好设置',
     darkMode: '深色模式',
+    tools: '工具',
   }
 };
 
@@ -331,10 +419,11 @@ function updateSidebarLanguage() {
 
   safeText(el('aside h2'), labels.settings);
   const buttons = document.querySelectorAll('.settings-category');
-  if (buttons.length >= 3) {
+  if (buttons.length >= 4) {
     buttons[0].textContent = labels.appearance;
     buttons[1].textContent = labels.account;
     buttons[2].textContent = labels.taskbar;
+    buttons[3].textContent = labels.tools || 'Tools';
   }
   safeText(byId('search-button'), labels.search);
   safeText(byId('homepage-button'), labels.homepage);
@@ -859,6 +948,291 @@ const settingsOptions = {
       <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem; font-style: italic;">* 更改立即生效</p>
     </form>
   `,
+  tools_en: `
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">Tools Settings</h2>
+    <form id="tools-form">
+      <div style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+          <p style="margin-bottom: 0.5rem; font-size: 1.05rem; opacity: 0.8;">Select which tools to show in the Tools dropdown:</p>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="calc" checked> <span>🧮 Calculator</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="graph" checked> <span>📈 Graphing Calculator</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="ai" checked> <span>🤖 AI Agent</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="timer" checked> <span>⏱️ Timer</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="notepad" checked> <span>📝 Notepad</span></label>
+          <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; margin: 0.5rem 0;">
+          <p style="margin-bottom: 1rem; font-size: 0.95rem; opacity: 0.7;">Additional tools (hidden by default):</p>
+          
+          <!-- Math Tools Category -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="math">
+              <span>📊 Math Tools</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="unitconv" data-hidden-default="true"> <span>📏 Unit Converter</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="statcalc" data-hidden-default="true"> <span>📊 Statistics Calculator</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="matrix" data-hidden-default="true"> <span>🔢 Matrix Calculator</span></label>
+            </div>
+          </div>
+
+          <!-- Science Tools Category -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="science">
+              <span>🧪 Science Tools</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="ptable" data-hidden-default="true"> <span>⚛️ Periodic Table</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="formulas" data-hidden-default="true"> <span>📐 Formula Sheet</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="eqbalance" data-hidden-default="true"> <span>🧪 Equation Balancer</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="dataplotter" data-hidden-default="true"> <span>📉 Data Plotter</span></label>
+            </div>
+          </div>
+
+          <!-- Study Tools Category -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="study">
+              <span>📚 Study Tools</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="flashcard" data-hidden-default="true"> <span>🗂️ Flashcards</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="planner" data-hidden-default="true"> <span>📅 Study Planner</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="pomodoro" data-hidden-default="true"> <span>🍅 Pomodoro Timer</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="gradecalc" data-hidden-default="true"> <span>📊 Grade Calculator</span></label>
+            </div>
+          </div>
+
+          <!-- Productivity Tools Category -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="productivity">
+              <span>✅ Productivity Tools</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="todolist" data-hidden-default="true"> <span>✅ To-Do List</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="whiteboard" data-hidden-default="true"> <span>🎨 Whiteboard</span></label>
+            </div>
+          </div>
+
+          <!-- Writing Tools Category -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="writing">
+              <span>✍️ Writing Tools</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="texttools" data-hidden-default="true"> <span>🔤 Text Tools</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="essay" data-hidden-default="true"> <span>📝 Essay Outliner</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="citation" data-hidden-default="true"> <span>💡 Citation Generator</span></label>
+            </div>
+          </div>
+
+          <!-- Utility Tools Category -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="utility">
+              <span>🎲 Utility Tools</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="randomgen" data-hidden-default="true"> <span>🎲 Random Generator</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="focussound" data-hidden-default="true"> <span>🎵 Focus Sounds</span></label>
+            </div>
+          </div>
+
+      </div>
+      <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem; font-style: italic;">* Changes apply next time you open the Tools dropdown</p>
+    </form>
+  `,
+  tools_es: `
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">Configuración de herramientas</h2>
+    <form id="tools-form">
+      <div style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+          <p style="margin-bottom: 0.5rem; font-size: 1.05rem; opacity: 0.8;">Seleccione qué herramientas mostrar en el menú de herramientas:</p>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="calc" checked> <span>🧮 Calculadora</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="graph" checked> <span>📈 Calculadora gráfica</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="ai" checked> <span>🤖 Agente IA</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="timer" checked> <span>⏱️ Temporizador</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="notepad" checked> <span>📝 Bloc de notas</span></label>
+          <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; margin: 0.5rem 0;">
+          <p style="margin-bottom: 1rem; font-size: 0.95rem; opacity: 0.7;">Herramientas adicionales (ocultas por defecto):</p>
+          
+          <!-- Herramientas de Matemáticas -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="math">
+              <span>📊 Herramientas de Matemáticas</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="unitconv" data-hidden-default="true"> <span>📏 Convertidor de unidades</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="statcalc" data-hidden-default="true"> <span>📊 Calculadora de estadísticas</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="matrix" data-hidden-default="true"> <span>🔢 Calculadora de matrices</span></label>
+            </div>
+          </div>
+
+          <!-- Herramientas de Ciencias -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="science">
+              <span>🧪 Herramientas de Ciencias</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="ptable" data-hidden-default="true"> <span>⚛️ Tabla periódica</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="formulas" data-hidden-default="true"> <span>📐 Hoja de fórmulas</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="eqbalance" data-hidden-default="true"> <span>🧪 Balanceador de ecuaciones</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="dataplotter" data-hidden-default="true"> <span>📉 Graficador de datos</span></label>
+            </div>
+          </div>
+
+          <!-- Herramientas de Estudio -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="study">
+              <span>📚 Herramientas de Estudio</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="flashcard" data-hidden-default="true"> <span>🗂️ Tarjetas didácticas</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="planner" data-hidden-default="true"> <span>📅 Planificador de estudio</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="pomodoro" data-hidden-default="true"> <span>🍅 Temporizador Pomodoro</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="gradecalc" data-hidden-default="true"> <span>📊 Calculadora de calificaciones</span></label>
+            </div>
+          </div>
+
+          <!-- Herramientas de Productividad -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="productivity">
+              <span>✅ Herramientas de Productividad</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="todolist" data-hidden-default="true"> <span>✅ Lista de tareas</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="whiteboard" data-hidden-default="true"> <span>🎨 Pizarra</span></label>
+            </div>
+          </div>
+
+          <!-- Herramientas de Escritura -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="writing">
+              <span>✍️ Herramientas de Escritura</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="texttools" data-hidden-default="true"> <span>🔤 Herramientas de texto</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="essay" data-hidden-default="true"> <span>📝 Esquema de ensayo</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="citation" data-hidden-default="true"> <span>💡 Generador de citas</span></label>
+            </div>
+          </div>
+
+          <!-- Herramientas de Utilidad -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="utility">
+              <span>🎲 Herramientas de Utilidad</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="randomgen" data-hidden-default="true"> <span>🎲 Generador aleatorio</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="focussound" data-hidden-default="true"> <span>🎵 Sonidos de enfoque</span></label>
+            </div>
+          </div>
+
+      </div>
+      <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem; font-style: italic;">* Los cambios se aplican la próxima vez que abra el menú de herramientas</p>
+    </form>
+  `,
+  tools_zh: `
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;">工具设置</h2>
+    <form id="tools-form">
+      <div style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+          <p style="margin-bottom: 0.5rem; font-size: 1.05rem; opacity: 0.8;">选择在工具菜单中显示哪些工具:</p>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="calc" checked> <span>🧮 计算器</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="graph" checked> <span>📈 图形计算器</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="ai" checked> <span>🤖 AI 助手</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="timer" checked> <span>⏱️ 计时器</span></label>
+          <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="notepad" checked> <span>📝 记事本</span></label>
+          <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; margin: 0.5rem 0;">
+          <p style="margin-bottom: 1rem; font-size: 0.95rem; opacity: 0.7;">附加工具 (默认隐藏):</p>
+          
+          <!-- 数学工具 -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="math">
+              <span>📊 数学工具</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="unitconv" data-hidden-default="true"> <span>📏 单位转换器</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="statcalc" data-hidden-default="true"> <span>📊 统计计算器</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="matrix" data-hidden-default="true"> <span>🔢 矩阵计算器</span></label>
+            </div>
+          </div>
+
+          <!-- 科学工具 -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="science">
+              <span>🧪 科学工具</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="ptable" data-hidden-default="true"> <span>⚛️ 元素周期表</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="formulas" data-hidden-default="true"> <span>📐 公式表</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="eqbalance" data-hidden-default="true"> <span>🧪 方程式配平</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="dataplotter" data-hidden-default="true"> <span>📉 数据绘图</span></label>
+            </div>
+          </div>
+
+          <!-- 学习工具 -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="study">
+              <span>📚 学习工具</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="flashcard" data-hidden-default="true"> <span>🗂️ 单词卡</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="planner" data-hidden-default="true"> <span>📅 学习计划</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="pomodoro" data-hidden-default="true"> <span>🍅 番茄钟</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="gradecalc" data-hidden-default="true"> <span>📊 成绩计算器</span></label>
+            </div>
+          </div>
+
+          <!-- 生产力工具 -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="productivity">
+              <span>✅ 生产力工具</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="todolist" data-hidden-default="true"> <span>✅ 待办事项</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="whiteboard" data-hidden-default="true"> <span>🎨 画板</span></label>
+            </div>
+          </div>
+
+          <!-- 写作工具 -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="writing">
+              <span>✍️ 写作工具</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="texttools" data-hidden-default="true"> <span>🔤 文本工具</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="essay" data-hidden-default="true"> <span>📝 论文大纲</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="citation" data-hidden-default="true"> <span>💡 引用生成器</span></label>
+            </div>
+          </div>
+
+          <!-- 实用工具 -->
+          <div class="tool-category">
+            <div class="tool-category-header" data-category="utility">
+              <span>🎲 实用工具</span>
+              <span class="tool-category-arrow open">⌄</span>
+            </div>
+            <div class="tool-category-content">
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="randomgen" data-hidden-default="true"> <span>🎲 随机生成器</span></label>
+              <label style="display: flex; align-items: center; gap: 0.75rem;"><input type="checkbox" data-tool="focussound" data-hidden-default="true"> <span>🎵 专注音效</span></label>
+            </div>
+          </div>
+
+      </div>
+      <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem; font-style: italic;">* 更改将在下次打开工具菜单时生效</p>
+    </form>
+  `,
 
 };
 
@@ -873,6 +1247,7 @@ function renderSettings(category) {
   if (category === 'appearance') key = (lang === 'chinese' || lang === 'traditional') ? 'appearance_zh' : (lang === 'spanish') ? 'appearance_es' : 'appearance_en';
   if (category === 'account') key = (lang === 'chinese' || lang === 'traditional') ? 'account_zh' : (lang === 'spanish') ? 'account_es' : 'account_en';
   if (category === 'taskbar') key = (lang === 'chinese' || lang === 'traditional') ? 'taskbar_zh' : (lang === 'spanish') ? 'taskbar_es' : 'taskbar_en';
+  if (category === 'tools') key = (lang === 'chinese' || lang === 'traditional') ? 'tools_zh' : (lang === 'spanish') ? 'tools_es' : 'tools_en';
   document.getElementById('settings-panel').innerHTML = settingsOptions[key] || '';
   // Add form logic for each category
   if (category === 'taskbar') {
@@ -949,6 +1324,70 @@ function renderSettings(category) {
              };
              const el = document.getElementById(ids[k]);
              if(el) el.style.display = input.checked ? '' : 'none';
+          });
+      });
+  }
+
+  if (category === 'tools') {
+      const toolInputs = document.querySelectorAll('#tools-form input[type="checkbox"]');
+      const toolSettings = JSON.parse(localStorage.getItem('arisEduToolsSettings') || '{}');
+
+      toolInputs.forEach(input => {
+          const toolId = input.getAttribute('data-tool');
+          const hiddenDefault = input.hasAttribute('data-hidden-default');
+          // Hidden-by-default tools: unchecked unless explicitly true
+          // Normal tools: checked unless explicitly false
+          if (hiddenDefault) {
+              input.checked = (toolSettings[toolId] === true);
+          } else {
+              input.checked = (toolSettings[toolId] !== false);
+          }
+
+          input.addEventListener('change', () => {
+              toolSettings[toolId] = input.checked;
+              localStorage.setItem('arisEduToolsSettings', JSON.stringify(toolSettings));
+              // Rebuild dropdown on the current page so it takes effect immediately
+              const existingMenu = document.getElementById('tools-dropdown-menu');
+              if (existingMenu) existingMenu.remove();
+          });
+      });
+
+      // Handle collapsible tool categories
+      const categoryHeaders = document.querySelectorAll('.tool-category-header');
+      const categoryStates = JSON.parse(localStorage.getItem('arisEduToolCategoryStates') || '{}');
+
+      categoryHeaders.forEach(header => {
+          const categoryName = header.getAttribute('data-category');
+          const content = header.nextElementSibling;
+          const arrow = header.querySelector('.tool-category-arrow');
+
+          // Set initial state
+          const isCollapsed = categoryStates[categoryName] === false;
+          if (isCollapsed) {
+              content.classList.add('collapsed');
+              arrow.classList.remove('open');
+          } else {
+              content.classList.remove('collapsed');
+              arrow.classList.add('open');
+          }
+
+          // Add click handler
+          header.addEventListener('click', () => {
+              const isCurrentlyCollapsed = content.classList.contains('collapsed');
+              
+              if (isCurrentlyCollapsed) {
+                  // Expand
+                  content.classList.remove('collapsed');
+                  arrow.classList.add('open');
+                  categoryStates[categoryName] = true;
+              } else {
+                  // Collapse
+                  content.classList.add('collapsed');
+                  arrow.classList.remove('open');
+                  categoryStates[categoryName] = false;
+              }
+
+              localStorage.setItem('arisEduToolCategoryStates', JSON.stringify(categoryStates));
           });
       });
   }

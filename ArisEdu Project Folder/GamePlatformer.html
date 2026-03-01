@@ -16,12 +16,6 @@
         (async function() {
             await initializeFirebase();
             
-            if (sessionStorage.getItem('validGameAccess') !== 'true') {
-                alert('You must access this game from the Arcade page.');
-                window.location.href = 'arcade.html';
-                return;
-            }
-            
             function getUser() {
                 return JSON.parse(localStorage.getItem('user') || '{}');
             }
@@ -192,11 +186,15 @@
                     <div class="text-xs text-gray-400 font-sans">COINS</div>
                     <div id="coins" class="text-2xl font-bold text-yellow-400">0</div>
                 </div>
+                <div>
+                    <div class="text-xs text-gray-400 font-sans">BEST</div>
+                    <div id="best-coins" class="text-2xl font-bold text-amber-400">0</div>
+                </div>
             </div>
         </div>
 
         <canvas id="game" class="bg-gray-900 border-2 border-gray-700 mx-auto block" width="480" height="320"></canvas>
-        <p class="text-center text-xs text-gray-500 mt-4 font-sans">Arrow keys / WASD to move. Space / Up to jump.</p>
+        <p class="text-center text-xs text-gray-500 mt-4 font-sans">Arrow keys / WASD to move. Space / Up to jump. Double-jump in air!</p>
 
         <!-- Game Over -->
         <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
@@ -235,13 +233,10 @@
                 <span data-i18n="RESUME">RESUME</span>
             </button>
         </div>
-
     <div id="game-sidebar">
         <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600;">
             SESSION
         </div>
-    </div>
-
     </div>
 
     <script>
@@ -260,12 +255,18 @@
 
         const keys = {};
         let player, platforms, coins, flag, cameraX, coinCount, currentLevel, animFrame, running;
+        let enemies = [], spikes = [], particles = [];
+        let movingPlatforms = []; // new: platforms that move
+        let bestCoins = parseInt(localStorage.getItem('platformer_best') || '0');
         const GRAVITY = 0.5;
         const JUMP = -10;
         const SPEED = 4;
         const PLAYER_W = 20, PLAYER_H = 28;
+        const MAX_JUMPS = 2; // double jump
 
         // Level definitions: platforms = [x, y, w], coins = [x, y], flag = {x, y}
+        // enemies = [platformIndex, speed] - patrols on that platform
+        // spikes = [x, y] - spike hazards on platforms
         const LEVELS = [
             {
                 platforms: [
@@ -273,6 +274,8 @@
                     [560, 220, 80], [700, 250, 100], [850, 210, 80], [980, 180, 120]
                 ],
                 coins: [[180, 220], [330, 190], [460, 160], [590, 190], [740, 220], [890, 180]],
+                enemies: [[3, 0.8], [5, 0.7]],
+                spikes: [],
                 flag: {x: 1040, y: 148},
                 start: {x: 30, y: 250}
             },
@@ -283,6 +286,8 @@
                     [900, 130, 60], [1000, 160, 80], [1120, 200, 120]
                 ],
                 coins: [[140, 230], [240, 200], [350, 230], [460, 170], [570, 140], [720, 170], [820, 130], [920, 100], [1040, 130]],
+                enemies: [[1, 0.6], [5, 0.9], [10, 1.0]],
+                spikes: [[460, 192]],
                 flag: {x: 1180, y: 168},
                 start: {x: 20, y: 250}
             },
@@ -294,6 +299,8 @@
                     [1150, 140, 100]
                 ],
                 coins: [[120, 220], [200, 180], [160, 130], [270, 110], [380, 150], [500, 120], [600, 90], [740, 120], [850, 150], [950, 110], [1070, 80]],
+                enemies: [[3, 0.7], [5, 1.0], [8, 0.9], [12, 1.1]],
+                spikes: [[270, 132], [600, 112]],
                 flag: {x: 1200, y: 108},
                 start: {x: 10, y: 250}
             }
@@ -304,8 +311,23 @@
             platforms = L.platforms.map(p => ({x: p[0], y: p[1], w: p[2], h: 12}));
             coins = L.coins.map(c => ({x: c[0], y: c[1], r: 8, collected: false}));
             flag = {x: L.flag.x, y: L.flag.y};
-            player = {x: L.start.x, y: L.start.y, vx: 0, vy: 0, onGround: false, facingRight: true};
+            player = {x: L.start.x, y: L.start.y, vx: 0, vy: 0, onGround: false, facingRight: true, jumpsLeft: MAX_JUMPS};
             cameraX = 0;
+            particles = [];
+            // Init enemies
+            enemies = (L.enemies || []).map(e => {
+                const p = platforms[e[0]];
+                return {x: p.x + p.w/2, y: p.y - 16, speed: e[1], dir: 1, platIdx: e[0], alive: true, squishTimer: 0, w: 16, h: 16};
+            });
+            // Init spikes
+            spikes = (L.spikes || []).map(s => ({x: s[0], y: s[1], w: 20, h: 8}));
+            // Moving platforms (every other platform after index 2 oscillates)
+            movingPlatforms = [];
+            platforms.forEach((p, i) => {
+                if (i > 2 && i % 3 === 0) {
+                    movingPlatforms.push({platIdx: i, startX: p.x, range: 30, speed: 0.5 + currentLevel * 0.15, dir: 1});
+                }
+            });
         }
 
         function init() {
@@ -313,8 +335,28 @@
             coinCount = 0;
             document.getElementById('coins').textContent = '0';
             document.getElementById('level').textContent = '1';
+            document.getElementById('best-coins').textContent = bestCoins;
             initLevel(0);
         }
+
+        function saveBest() {
+            if (coinCount > bestCoins) {
+                bestCoins = coinCount;
+                localStorage.setItem('platformer_best', bestCoins);
+                document.getElementById('best-coins').textContent = bestCoins;
+            }
+        }
+
+        function spawnParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y, vx: (Math.random()-0.5)*4, vy: -Math.random()*3 - 1,
+                    life: 30 + Math.random()*20, maxLife: 50, r: 2 + Math.random()*2, color
+                });
+            }
+        }
+
+        let jumpKeyWasUp = true; // prevent holding jump
 
         function update() {
             // Horizontal movement
@@ -329,11 +371,19 @@
                 if (Math.abs(player.vx) < 0.5) player.vx = 0;
             }
 
-            // Jump
-            if ((keys['ArrowUp'] || keys['w'] || keys['W'] || keys[' ']) && player.onGround) {
+            // Jump (double-jump support)
+            const jumpPressed = keys['ArrowUp'] || keys['w'] || keys['W'] || keys[' '];
+            if (jumpPressed && jumpKeyWasUp && player.jumpsLeft > 0) {
                 player.vy = JUMP;
                 player.onGround = false;
+                player.jumpsLeft--;
+                jumpKeyWasUp = false;
+                // Double jump particles
+                if (player.jumpsLeft === 0) {
+                    spawnParticles(player.x + PLAYER_W/2, player.y + PLAYER_H, '#60a5fa', 6);
+                }
             }
+            if (!jumpPressed) jumpKeyWasUp = true;
 
             // Gravity
             player.vy += GRAVITY;
@@ -349,18 +399,68 @@
                     player.y = p.y - PLAYER_H;
                     player.vy = 0;
                     player.onGround = true;
+                    player.jumpsLeft = MAX_JUMPS;
                 }
             });
 
-            // Coin collection
+            // Enemy update & collision
+            enemies.forEach(en => {
+                if (!en.alive) {
+                    if (en.squishTimer > 0) en.squishTimer--;
+                    return;
+                }
+                const p = platforms[en.platIdx];
+                en.x += en.speed * en.dir;
+                if (en.x < p.x + 2) { en.x = p.x + 2; en.dir = 1; }
+                if (en.x + en.w > p.x + p.w - 2) { en.x = p.x + p.w - en.w - 2; en.dir = -1; }
+
+                // Check player collision with enemy
+                const overlapX = player.x + PLAYER_W > en.x && player.x < en.x + en.w;
+                const overlapY = player.y + PLAYER_H > en.y && player.y < en.y + en.h;
+                if (overlapX && overlapY) {
+                    // Stomp from above
+                    if (player.vy > 0 && player.y + PLAYER_H < en.y + en.h/2 + 6) {
+                        en.alive = false;
+                        en.squishTimer = 20;
+                        player.vy = JUMP * 0.6; // bounce
+                        player.jumpsLeft = MAX_JUMPS;
+                        spawnParticles(en.x + en.w/2, en.y + en.h/2, '#ef4444', 8);
+                    } else {
+                        // Killed by enemy
+                        playerDeath();
+                        return;
+                    }
+                }
+            });
+
+            // Spike collision
+            spikes.forEach(s => {
+                if (player.x + PLAYER_W > s.x && player.x < s.x + s.w &&
+                    player.y + PLAYER_H > s.y && player.y < s.y + s.h) {
+                    playerDeath();
+                    return;
+                }
+            });
+
+            // If dead, stop
+            if (!running) return;
+
+            // Coin collection with magnetism
             coins.forEach(c => {
                 if (!c.collected) {
                     const dx = (player.x + PLAYER_W/2) - c.x;
                     const dy = (player.y + PLAYER_H/2) - c.y;
-                    if (Math.sqrt(dx*dx + dy*dy) < c.r + 12) {
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    // Magnetic pull when close
+                    if (dist < 40 && dist > 12) {
+                        c.x += dx / dist * 2;
+                        c.y += dy / dist * 2;
+                    }
+                    if (dist < c.r + 12) {
                         c.collected = true;
                         coinCount++;
                         document.getElementById('coins').textContent = coinCount;
+                        spawnParticles(c.x, c.y, '#fde047', 6);
                     }
                 }
             });
@@ -371,6 +471,7 @@
             if (Math.sqrt(dx*dx + dy*dy) < 30) {
                 running = false;
                 cancelAnimationFrame(animFrame);
+                saveBest();
                 document.getElementById('level-msg').textContent = `Level ${currentLevel+1} cleared! Coins: ${coinCount}`;
                 document.getElementById('level-complete').classList.remove('hidden');
                 return;
@@ -378,15 +479,44 @@
 
             // Fall off screen
             if (player.y > H + 100) {
-                running = false;
-                cancelAnimationFrame(animFrame);
-                document.getElementById('game-over').classList.remove('hidden');
+                playerDeath();
                 return;
             }
+
+            // Update particles
+            particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.life--; });
+            particles = particles.filter(p => p.life > 0);
+
+            // Update moving platforms
+            movingPlatforms.forEach(mp => {
+                const p = platforms[mp.platIdx];
+                p.x += mp.speed * mp.dir;
+                if (p.x > mp.startX + mp.range) mp.dir = -1;
+                if (p.x < mp.startX - mp.range) mp.dir = 1;
+                // Move player if standing on moving platform
+                if (player.onGround && player.x + PLAYER_W > p.x && player.x < p.x + p.w &&
+                    Math.abs((player.y + PLAYER_H) - p.y) < 3) {
+                    player.x += mp.speed * mp.dir;
+                }
+                // Also move enemies on this platform
+                enemies.forEach(en => {
+                    if (en.platIdx === mp.platIdx && en.alive) en.x += mp.speed * mp.dir;
+                });
+            });
 
             // Camera follow
             cameraX = player.x - W / 3;
             if (cameraX < 0) cameraX = 0;
+        }
+
+        function playerDeath() {
+            running = false;
+            cancelAnimationFrame(animFrame);
+            saveBest();
+            spawnParticles(player.x + PLAYER_W/2, player.y + PLAYER_H/2, '#ef4444', 12);
+            // Draw one last frame with particles
+            draw();
+            document.getElementById('game-over').classList.remove('hidden');
         }
 
         function draw() {
@@ -481,6 +611,51 @@
             ctx.lineTo(flag.x + 3, flag.y + 8);
             ctx.fill();
 
+            // Spikes
+            spikes.forEach(s => {
+                ctx.fillStyle = '#dc2626';
+                for (let i = 0; i < s.w; i += 7) {
+                    ctx.beginPath();
+                    ctx.moveTo(s.x + i, s.y + s.h);
+                    ctx.lineTo(s.x + i + 3.5, s.y);
+                    ctx.lineTo(s.x + i + 7, s.y + s.h);
+                    ctx.fill();
+                }
+                // Base
+                ctx.fillStyle = '#991b1b';
+                ctx.fillRect(s.x, s.y + s.h - 2, s.w, 2);
+            });
+
+            // Enemies
+            enemies.forEach(en => {
+                if (!en.alive && en.squishTimer <= 0) return;
+                const squish = !en.alive ? (1 - en.squishTimer / 20) : 0;
+                ctx.save();
+                ctx.translate(en.x + en.w/2, en.y + en.h);
+                if (!en.alive) ctx.scale(1 + squish * 0.5, 1 - squish * 0.8);
+                ctx.translate(-(en.x + en.w/2), -(en.y + en.h));
+                // Body
+                const eGrad = ctx.createRadialGradient(en.x + en.w/2, en.y + en.h/2, 0, en.x + en.w/2, en.y + en.h/2, en.w/2);
+                eGrad.addColorStop(0, '#f87171'); eGrad.addColorStop(1, '#dc2626');
+                ctx.fillStyle = eGrad;
+                ctx.beginPath(); ctx.arc(en.x + en.w/2, en.y + en.h/2, en.w/2, 0, Math.PI * 2); ctx.fill();
+                // Eyes
+                if (en.alive) {
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath(); ctx.arc(en.x + en.w/2 - 3, en.y + en.h/2 - 2, 3, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(en.x + en.w/2 + 3, en.y + en.h/2 - 2, 3, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#1e1e1e';
+                    const pupilDir = en.dir > 0 ? 1 : -1;
+                    ctx.beginPath(); ctx.arc(en.x + en.w/2 - 3 + pupilDir, en.y + en.h/2 - 2, 1.5, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(en.x + en.w/2 + 3 + pupilDir, en.y + en.h/2 - 2, 1.5, 0, Math.PI*2); ctx.fill();
+                    // Angry eyebrows
+                    ctx.strokeStyle = '#7f1d1d'; ctx.lineWidth = 1.5;
+                    ctx.beginPath(); ctx.moveTo(en.x + en.w/2 - 5, en.y + en.h/2 - 6); ctx.lineTo(en.x + en.w/2 - 1, en.y + en.h/2 - 4); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(en.x + en.w/2 + 5, en.y + en.h/2 - 6); ctx.lineTo(en.x + en.w/2 + 1, en.y + en.h/2 - 4); ctx.stroke();
+                }
+                ctx.restore();
+            });
+
             // Player with improved graphics
             const px = player.x, py = player.y;
             // Shadow
@@ -517,6 +692,15 @@
             ctx.fillRect(px + 3, py + PLAYER_H - 1 + legAnim, 6, 2);
             ctx.fillRect(px + PLAYER_W - 9, py + PLAYER_H - 1 - legAnim, 6, 2);
 
+            // Particles
+            particles.forEach(p => {
+                const alpha = p.life / p.maxLife;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r * alpha, 0, Math.PI * 2); ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+
             ctx.restore();
         }
 
@@ -540,6 +724,7 @@
             document.getElementById('coins').textContent = '0';
             initLevel(currentLevel);
             running = true;
+            jumpKeyWasUp = true;
             gameLoop();
         }
 
@@ -549,6 +734,7 @@
             document.getElementById('level').textContent = currentLevel + 1;
             initLevel(currentLevel);
             running = true;
+            jumpKeyWasUp = true;
             gameLoop();
         }
 
