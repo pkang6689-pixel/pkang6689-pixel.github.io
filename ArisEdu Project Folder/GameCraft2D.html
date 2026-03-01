@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -242,7 +242,7 @@
 <body class="dark-mode bg-gray-900 min-h-screen text-white">
 <script src="scripts/taskbar.js"></script>
 
-<script src="scripts/global_translations.js?v=7.2"></script>
+<script src="scripts/global_translations.js?v=8.0"></script>
 <script src="scripts/spanish_translations.js?v=1.0"></script>
 <script src="scripts/hindi_translations.js?v=1.0"></script>
 
@@ -289,6 +289,8 @@
             <div class="text-xs text-amber-300 mb-4 font-sans">
                 <p>⚠️ Craft your first pickaxe with 4 wood!</p>
                 <p>🌙 Monsters spawn at night - be prepared!</p>
+                <p>💎 Explore deep caves (y≥65) for iron & diamond!</p>
+                <p>☁️ Save to cloud for cross-session play!</p>
             </div>
             <button onclick="startGame()" class="bg-lime-600 hover:bg-lime-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">START</button>
         </div>
@@ -312,6 +314,33 @@
                 <h2 class="text-3xl text-amber-400 font-bold mb-4">🔨 CRAFTING</h2>
                 <div id="recipe-list" class="space-y-3"></div>
                 <button onclick="closeCrafting()" class="mt-6 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg w-full">Close (C)</button>
+            </div>
+        </div>
+
+        <div id="death-screen" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-40 flex flex-col items-center justify-center p-6 backdrop-blur-sm">
+            <div class="bg-gray-900 rounded-xl border-4 border-red-500/70 p-8 max-w-md w-full text-center">
+                <div style="font-size:4rem;margin-bottom:1rem;">💀</div>
+                <h2 class="text-4xl text-red-400 font-bold mb-2">YOU DIED</h2>
+                <p class="text-gray-300 mb-6 text-sm">Your items were dropped and inventory halved.</p>
+                <button onclick="respawnAfterDeath()" class="w-full bg-lime-600 hover:bg-lime-500 text-white font-bold py-3 px-6 rounded-lg text-lg transition active:scale-95">RESPAWN</button>
+            </div>
+        </div>
+
+        <div id="hotbar-customize-screen" class="hidden absolute inset-0 bg-black/85 rounded-2xl z-30 flex flex-col items-center justify-center p-6 backdrop-blur-sm">
+            <div class="bg-gray-800 rounded-xl border-2 border-amber-600 p-6 max-w-3xl w-full max-h-[85vh] overflow-y-auto">
+                <h2 class="text-3xl text-amber-400 font-bold mb-4">⚙️ CUSTOMIZE HOTBAR</h2>
+                <p class="text-gray-300 text-sm mb-4">Click items to add them to your hotbar. Click hotbar slots to select where to place them.</p>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <h3 class="text-amber-300 font-bold mb-3 text-sm">AVAILABLE ITEMS</h3>
+                        <div id="available-items" class="grid grid-cols-5 gap-2"></div>
+                    </div>
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <h3 class="text-amber-300 font-bold mb-3 text-sm">YOUR HOTBAR</h3>
+                        <div id="hotbar-customize" class="grid grid-cols-4 gap-2"></div>
+                    </div>
+                </div>
+                <button onclick="closeHotbarCustomize()" class="mt-4 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg w-full">Done</button>
             </div>
         </div>
 
@@ -340,10 +369,15 @@
 
             <div class="hud-panel">
                 <div class="hud-label">WORLD SAVE</div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-2 gap-2 mb-2">
                     <button id="save-world-btn" class="rounded-lg border border-lime-400/40 bg-lime-500/20 hover:bg-lime-500/30 text-white text-xs py-2 font-bold">SAVE</button>
                     <button id="load-world-btn" class="rounded-lg border border-sky-400/40 bg-sky-500/20 hover:bg-sky-500/30 text-white text-xs py-2 font-bold">LOAD</button>
                 </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="save-firebase-btn" class="rounded-lg border border-amber-400/40 bg-amber-500/20 hover:bg-amber-500/30 text-white text-xs py-2 font-bold">CLOUD ☁️</button>
+                    <button id="load-firebase-btn" class="rounded-lg border border-purple-400/40 bg-purple-500/20 hover:bg-purple-500/30 text-white text-xs py-2 font-bold">LOAD ☁️</button>
+                </div>
+                <button onclick="openHotbarCustomize()" class="w-full mt-2 rounded-lg border border-blue-400/40 bg-blue-500/20 hover:bg-blue-500/30 text-white text-xs py-2 font-bold">⚙️ HOTBAR</button>
                 <div id="save-status" class="text-xs text-gray-300 font-sans mt-2">No save yet.</div>
             </div>
         </div>
@@ -459,9 +493,11 @@
     let entities = [];
     let craftingOpen = false;
     let inventoryOpen = false;
+    let deathScreenVisible = false;
+    let hotbarCustomizeOpen = false;
+    let hotbarCustomizeSlot = null;
     let nightMobSpawnTimer = 0;
     let lastTimePhase = 'Day';
-    const SAVE_KEY = 'craftgame_save';
     const FIREBASE_SAVE_KEY = 'craftgame_world';
     let breakingState = {
         active: false,
@@ -656,28 +692,37 @@
     }
 
     function respawnPlayer() {
-        currentHealth = Math.max(1, currentHealth - 2);
-        currentHunger = Math.max(2, currentHunger - 1.5);
+        deathScreenVisible = true;
+        gamePaused = true;
+        document.getElementById('death-screen').classList.remove('hidden');
+    }
+
+    function respawnAfterDeath() {
+        deathScreenVisible = false;
+        gamePaused = false;
+        document.getElementById('death-screen').classList.add('hidden');
+        
+        currentHealth = maxHealth;
+        currentHunger = maxHunger;
+        minedCount = 0;
+        scoreEl.textContent = minedCount;
+        
+        Object.keys(inventory).forEach((item) => {
+            inventory[item] = Math.max(0, Math.floor(inventory[item] * 0.5));
+        });
+        
         player.x = spawnPoint.x;
         player.y = spawnPoint.y;
         player.vx = 0;
         player.vy = 0;
         player.onGround = false;
         fallStartY = null;
+        
+        renderInventory();
+        renderHotbar();
         renderStatusPanel();
-
-        if (currentHealth <= 0) {
-            currentHealth = maxHealth;
-            currentHunger = maxHunger;
-            minedCount = 0;
-            scoreEl.textContent = minedCount;
-            Object.keys(inventory).forEach((item) => {
-                inventory[item] = Math.max(0, Math.floor(inventory[item] * 0.5));
-            });
-            renderInventory();
-            renderHotbar();
-            renderStatusPanel();
-        }
+        
+        if (gameRunning) requestAnimationFrame(tick);
     }
 
     function applyFallDamage(fallDistance) {
@@ -731,6 +776,22 @@
         if (gameRunning) requestAnimationFrame(tick);
     }
 
+    function openHotbarCustomize() {
+        if (hotbarCustomizeOpen || !gameRunning) return;
+        hotbarCustomizeOpen = true;
+        gamePaused = true;
+        document.getElementById('hotbar-customize-screen').classList.remove('hidden');
+        renderHotbarCustomizeScreen();
+    }
+
+    function closeHotbarCustomize() {
+        hotbarCustomizeOpen = false;
+        gamePaused = false;
+        document.getElementById('hotbar-customize-screen').classList.add('hidden');
+        hotbarCustomizeSlot = null;
+        if (gameRunning) requestAnimationFrame(tick);
+    }
+
     function openCrafting() {
         if (craftingOpen || !gameRunning) return;
         craftingOpen = true;
@@ -767,10 +828,48 @@
         const isFood = FOOD[outputKey];
         
         if (isGear) {
-            // Add to hotbar if not already there
-            const existingSlot = hotbarSlots.findIndex(s => s.kind === 'gear' && s.key === outputKey);
-            if (existingSlot === -1) {
-                hotbarSlots.push({ kind: 'gear', key: outputKey });
+            // Tool progression hierarchy: wood < stone < iron < diamond
+            const toolType = isGear.toolType;
+            const toolTiers = {
+                pickaxe: ['wood_pickaxe', 'stone_pickaxe', 'iron_pickaxe', 'diamond_pickaxe'],
+                sword: ['wood_sword', 'stone_sword', 'iron_sword', 'diamond_sword']
+            };
+            
+            const tierList = toolTiers[toolType];
+            const newTierIndex = tierList.indexOf(outputKey);
+            
+            // Find if player has any lower-tier version of this tool
+            let replacedIndex = -1;
+            for (let i = 0; i < hotbarSlots.length; i++) {
+                const slot = hotbarSlots[i];
+                if (slot.kind === 'gear') {
+                    const slotTierIndex = tierList.indexOf(slot.key);
+                    // Replace if this slot has a lower-tier version
+                    if (slotTierIndex !== -1 && slotTierIndex < newTierIndex) {
+                        replacedIndex = i;
+                        break; // Replace the first lower-tier version found
+                    }
+                }
+            }
+            
+            if (replacedIndex !== -1) {
+                // Replace lower-tier tool
+                hotbarSlots[replacedIndex] = { kind: 'gear', key: outputKey };
+            } else {
+                // Add to hotbar if not already there
+                const existingSlot = hotbarSlots.findIndex(s => s.kind === 'gear' && s.key === outputKey);
+                if (existingSlot === -1) {
+                    // Try to add to hotbar, or replace food slot if full
+                    if (hotbarSlots.length < 8) {
+                        hotbarSlots.push({ kind: 'gear', key: outputKey });
+                    } else {
+                        // Find a food slot and replace it
+                        const foodSlotIndex = hotbarSlots.findIndex(s => s.kind === 'food');
+                        if (foodSlotIndex !== -1) {
+                            hotbarSlots[foodSlotIndex] = { kind: 'gear', key: outputKey };
+                        }
+                    }
+                }
             }
         } else if (isFood) {
             inventory[outputKey] = (inventory[outputKey] || 0) + 1;
@@ -1258,6 +1357,178 @@
         }
     }
 
+    async function saveWorldToFirebase() {
+        try {
+            updateSaveStatus('Saving to cloud...', true);
+            
+            const payload = {
+                world,
+                player: { x: player.x, y: player.y, vx: player.vx, vy: player.vy },
+                inventory,
+                minedCount,
+                spawnPoint,
+                selectedSlot,
+                currentHealth,
+                currentHunger,
+                worldTime,
+                entities,
+                savedAt: Date.now()
+            };
+
+            // Save to localStorage as backup
+            localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+
+            // Save to Firebase
+            const userId = getCurrentUserId();
+            const compressedData = JSON.stringify(payload);
+            
+            // Use Firestore REST API
+            const FIREBASE_CONFIG = {
+                projectId: "arisedu-1bb22",
+                apiKey: "AIzaSyCOauFIB0fu4BSbHBeBo_8dwR3F1Fct5IM"
+            };
+            
+            if (FIREBASE_CONFIG.projectId === 'YOUR_PROJECT_ID') {
+                console.log('❌ Firebase not configured. Update FIREBASE_CONFIG in the code.');
+                updateSaveStatus('⚠️ Configure Firebase config in page', false);
+                return;
+            }
+
+            const docPath = `game_saves/${userId}/worlds/${FIREBASE_SAVE_KEY}`;
+            const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/${docPath}?key=${FIREBASE_CONFIG.apiKey}`;
+            
+            const firebaseData = {
+                fields: {
+                    data: { stringValue: compressedData },
+                    timestamp: { stringValue: new Date().toISOString() },
+                    userId: { stringValue: userId }
+                }
+            };
+
+            console.log('📤 Uploading to Firebase:', { userId, docPath, size: compressedData.length });
+            
+            const response = await fetch(url, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(firebaseData)
+            });
+
+            if (response.ok) {
+                console.log('✅ Firebase save successful!');
+                updateSaveStatus(`☁️ Saved to cloud at ${new Date(payload.savedAt).toLocaleTimeString()}`);
+            } else {
+                const errorText = await response.text();
+                console.error('❌ Firebase save failed:', response.status, errorText);
+                updateSaveStatus('Cloud save failed - saved locally', false);
+            }
+        } catch (error) {
+            console.error('❌ Firebase save error:', error);
+            updateSaveStatus('Cloud save failed - saved locally', false);
+        }
+    }
+
+    async function loadWorldFromFirebase() {
+        try {
+            updateSaveStatus('Loading from cloud...', true);
+            
+            const userId = getCurrentUserId();
+            
+            // Use Firestore REST API
+            const FIREBASE_CONFIG = {
+                projectId: "arisedu-1bb22",
+                apiKey: "AIzaSyCOauFIB0fu4BSbHBeBo_8dwR3F1Fct5IM"
+            };
+            
+            if (FIREBASE_CONFIG.projectId === 'YOUR_PROJECT_ID') {
+                console.log('❌ Firebase not configured. Update FIREBASE_CONFIG in the code.');
+                updateSaveStatus('⚠️ Configure Firebase config in page', false);
+                return;
+            }
+
+            const docPath = `game_saves/${userId}/worlds/${FIREBASE_SAVE_KEY}`;
+            const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/${docPath}?key=${FIREBASE_CONFIG.apiKey}`;
+            
+            console.log('📥 Loading from Firebase:', { userId, docPath });
+            
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                console.log('❌ No save found on Firebase for user:', userId);
+                updateSaveStatus('No cloud save found', false);
+                return;
+            }
+
+            const doc = await response.json();
+            if (!doc.fields || !doc.fields.data) {
+                console.log('❌ Firebase document exists but has no data field');
+                updateSaveStatus('No cloud save found', false);
+                return;
+            }
+
+            const compressedData = doc.fields.data.stringValue;
+            console.log('✅ Data retrieved from Firebase:', { size: compressedData.length });
+            
+            const data = JSON.parse(compressedData);
+
+            if (!Array.isArray(data.world) || data.world.length !== WORLD_H) {
+                console.log('❌ Invalid save data structure');
+                updateSaveStatus('Cloud save invalid', false);
+                return;
+            }
+
+            console.log('✅ Save data is valid. Applying world state...');
+
+            // Apply the loaded data (same as loadWorldState)
+            world = data.world;
+            if (data.player) {
+                player.x = Number(data.player.x) || player.x;
+                player.y = Number(data.player.y) || player.y;
+                player.vx = 0;
+                player.vy = 0;
+            }
+            if (data.inventory && typeof data.inventory === 'object') {
+                Object.keys(inventory).forEach((k) => {
+                    inventory[k] = Math.max(0, Number(data.inventory[k] || 0));
+                });
+            }
+            minedCount = Math.max(0, Number(data.minedCount || 0));
+            scoreEl.textContent = minedCount;
+
+            if (data.spawnPoint) {
+                spawnPoint = {
+                    x: Number(data.spawnPoint.x) || spawnPoint.x,
+                    y: Number(data.spawnPoint.y) || spawnPoint.y
+                };
+            }
+
+            selectedSlot = Math.max(0, Math.min(hotbarSlots.length - 1, Number(data.selectedSlot || 0)));
+            currentHealth = Math.max(1, Math.min(maxHealth, Number(data.currentHealth || maxHealth)));
+            currentHunger = Math.max(0, Math.min(maxHunger, Number(data.currentHunger ?? maxHunger)));
+            worldTime = Math.max(0, Math.min(1, Number(data.worldTime || 0)));
+            entities = Array.isArray(data.entities) ? data.entities : entities;
+            entities.forEach(mob => {
+                if (mob.jumpTimer === undefined) mob.jumpTimer = 0;
+            });
+            starveTimer = 0;
+            regenTimer = 0;
+            fallStartY = null;
+            nightMobSpawnTimer = 0;
+            lastTimePhase = getTimeLabel();
+
+            renderInventory();
+            renderHotbar();
+            renderStatusPanel();
+            updateCamera();
+            render();
+            
+            console.log('✅ Firebase load successful! World loaded.');
+            updateSaveStatus(`☁️ Loaded from cloud at ${new Date(data.savedAt || Date.now()).toLocaleTimeString()}`);
+        } catch (error) {
+            console.error('❌ Firebase load error:', error);
+            updateSaveStatus('Cloud load failed', false);
+        }
+    }
+
     function growTree(x, y) {
         const trunk = 3 + Math.floor(rand(x, y) * 2);
         for (let t = 0; t < trunk; t++) {
@@ -1648,6 +1919,71 @@
         });
     }
 
+    function renderHotbarCustomizeScreen() {
+        const availableItemsEl = document.getElementById('available-items');
+        availableItemsEl.innerHTML = '';
+        
+        Object.entries(TILE_TYPES).forEach(([key, tile]) => {
+            const btn = document.createElement('button');
+            btn.style.cssText = 'background:' + tile.color + ';border-radius:0.5rem;padding:0.5rem;cursor:pointer;border:2px solid gray;';
+            btn.title = tile.name;
+            btn.onclick = () => setHotbarSlot({ kind: 'block', key });
+            availableItemsEl.appendChild(btn);
+        });
+        
+        Object.entries(GEAR).forEach(([key, gear]) => {
+            const btn = document.createElement('button');
+            btn.style.cssText = 'background:rgba(100,100,100,0.5);border-radius:0.5rem;padding:0.5rem;cursor:pointer;border:2px solid gray;color:white;font-size:1.2rem;';
+            btn.textContent = gear.icon;
+            btn.title = gear.name;
+            btn.onclick = () => setHotbarSlot({ kind: 'gear', key });
+            availableItemsEl.appendChild(btn);
+        });
+        
+        Object.entries(FOOD).forEach(([key, food]) => {
+            const btn = document.createElement('button');
+            btn.style.cssText = 'background:rgba(100,100,100,0.5);border-radius:0.5rem;padding:0.5rem;cursor:pointer;border:2px solid gray;color:white;font-size:1.2rem;';
+            btn.textContent = food.icon;
+            btn.title = food.name;
+            btn.onclick = () => setHotbarSlot({ kind: 'food', key });
+            availableItemsEl.appendChild(btn);
+        });
+        
+        const hotbarCustomizeEl = document.getElementById('hotbar-customize');
+        hotbarCustomizeEl.innerHTML = '';
+        hotbarSlots.forEach((slotItem, index) => {
+            const isBlock = slotItem.kind === 'block';
+            const isGear = slotItem.kind === 'gear';
+            const isFood = slotItem.kind === 'food';
+            
+            const tile = isBlock ? TILE_TYPES[slotItem.key] : null;
+            const gear = isGear ? GEAR[slotItem.key] : null;
+            const food = isFood ? FOOD[slotItem.key] : null;
+            
+            const slot = document.createElement('button');
+            slot.style.cssText = 'border-radius:0.5rem;padding:1rem;border:2px solid ' + (hotbarCustomizeSlot === index ? '#fbbf24' : '#666') + ';background:rgba(15,23,42,0.6);color:white;text-align:center;cursor:pointer;';
+            slot.innerHTML = `
+                <div style="font-size:1.5rem;">${isBlock ? '<span class="swatch" style="display:block;width:100%;height:30px;background:' + tile.color + ';border-radius:0.25rem;"></span>' : (isGear ? gear.icon : food.icon)}</div>
+                <div style="font-size:0.75rem;margin-top:0.25rem;">${index + 1}</div>
+            `;
+            slot.onclick = () => {
+                hotbarCustomizeSlot = hotbarCustomizeSlot === index ? null : index;
+                renderHotbarCustomizeScreen();
+            };
+            hotbarCustomizeEl.appendChild(slot);
+        });
+    }
+
+    function setHotbarSlot(slotItem) {
+        if (hotbarCustomizeSlot !== null) {
+            hotbarSlots[hotbarCustomizeSlot] = slotItem;
+            hotbarCustomizeSlot = null;
+            renderHotbar();
+            renderHotbarCustomizeScreen();
+        }
+    }
+
+
     function drawCrosshairTile() {
         if (!lastMousePosition) return;
         const { sx, sy } = getCanvasCoordsFromClient(lastMousePosition.clientX, lastMousePosition.clientY);
@@ -1869,6 +2205,17 @@
 
     if (loadWorldBtn) {
         loadWorldBtn.addEventListener('click', loadWorldState);
+    }
+
+    const saveFirebaseBtn = document.getElementById('save-firebase-btn');
+    const loadFirebaseBtn = document.getElementById('load-firebase-btn');
+
+    if (saveFirebaseBtn) {
+        saveFirebaseBtn.addEventListener('click', () => saveWorldToFirebase());
+    }
+
+    if (loadFirebaseBtn) {
+        loadFirebaseBtn.addEventListener('click', () => loadWorldFromFirebase());
     }
 
     generateWorld();
