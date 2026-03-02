@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jump Master - Arcade</title>
+    <script src="../scripts/arcade-core.js"></script>
+    <script src="../firebase-utils.js"></script>
+    <style>
+        #game-session-timer {
+            font-size: 2.5rem !important;
+            font-weight: 700 !important;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        #game-sidebar {
+            background: rgba(55, 65, 81, 0.98);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 400px;
+            min-height: 800px;
+            border: 2px solid rgba(107, 114, 128, 0.9);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+        }
+        #game-session-timer {
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 2rem;
+            font-family: monospace;
+            width: 100%;
+            text-align: center;
+            margin-top: 0.5rem;
+            letter-spacing: 2px;
+        }
+        #game-session-timer.warning {
+            background: rgba(239, 68, 68, 0.95);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
+        canvas { border-radius: 0.5rem; }
+        #game-wrapper { margin-left:150px; width: min(720px, calc(100vw - 360px)); max-width: 100%; }
+        .pause-btn { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
+        .pause-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+    </style>
+    <script src="../theme_manager.js"></script>
+</head>
+<body class="dark-mode bg-gray-900 min-h-screen text-white">
+<script src="../scripts/taskbar.js"></script>
+<script src="../scripts/global_translations.js?v=8.0"></script>
+
+<div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
+
+    <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+        <button class="pause-btn" onclick="togglePause()" title="Pause"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
+
+        <div class="flex justify-between items-end mb-4">
+            <div>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-orange-400 to-yellow-500 bg-clip-text text-transparent">🚂 JUMP MASTER</h1>
+                <p class="text-xs text-gray-400 font-sans">Avoid obstacles!</p>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-gray-400 font-sans">DISTANCE</div>
+                <div id="distance" class="text-3xl font-bold text-white">0</div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" class="bg-gray-900 border-2 border-gray-700 mx-auto block" width="400" height="600"></canvas>
+
+        <div class="flex justify-between items-center mt-4 text-center">
+            <div>
+                <div class="text-xs text-gray-400 font-sans">SCORE</div>
+                <div id="score" class="text-2xl font-bold text-white">0</div>
+            </div>
+            <div>
+                <div class="text-xs text-gray-400 font-sans">BEST</div>
+                <div id="highScore" class="text-2xl font-bold text-amber-400">0</div>
+            </div>
+        </div>
+
+        <p class="text-center text-xs text-gray-500 mt-4 font-sans">Arrow keys / WASD • Space to jump</p>
+
+        <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-3xl text-red-500 font-bold mb-2">GAME OVER</h2>
+            <div class="text-4xl font-bold text-white mb-4" id="final-distance">0</div>
+            <button onclick="resetGame()" class="bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                TRY AGAIN
+            </button>
+        </div>
+
+        <div id="pause-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-30 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-4xl text-white font-bold mb-4">PAUSED</h2>
+            <button onclick="togglePause()" class="bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                RESUME
+            </button>
+        </div>
+    </div>
+
+    <div id="game-sidebar">
+        <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600;">
+            ⭐ TOKEN SESSION
+        </div>
+    </div>
+</div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let gameState = {
+            player: {
+                x: canvas.width / 2,
+                y: canvas.height - 80,
+                width: 30,
+                height: 40,
+                vx: 0,
+                vy: 0,
+                jumping: false,
+                jumpPower: 0,
+                maxJumpPower: 15
+            },
+            distance: 0,
+            score: 0,
+            highScore: localStorage.getItem('jumpMasterHighScore') || 0,
+            gameOver: false,
+            obstacles: [],
+            coins: [],
+            particles: [],
+            groundY: canvas.height - 40,
+            difficulty: 1,
+            maxDistance: 1000,
+            coinsCollected: 0
+        };
+
+        const difficultyThresholds = [
+            { distance: 0, speed: 2, spawnRate: 0.02, obstacleWidth: 50 },
+            { distance: 500, speed: 2.5, spawnRate: 0.025, obstacleWidth: 45 },
+            { distance: 1500, speed: 3, spawnRate: 0.03, obstacleWidth: 40 },
+            { distance: 3000, speed: 3.5, spawnRate: 0.035, obstacleWidth: 35 }
+        ];
+
+        const keys = {};
+        let scrollOffset = 0;
+
+        function drawPlayer() {
+            const { player } = gameState;
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            // Eyes
+            ctx.fillStyle = 'white';
+            ctx.fillRect(player.x + 7, player.y + 8, 6, 6);
+            ctx.fillRect(player.x + 17, player.y + 8, 6, 6);
+            
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(player.x + 10, player.y + 11, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(player.x + 20, player.y + 11, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawObstacle(obstacle) {
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            
+            // Danger stripes
+            ctx.strokeStyle = '#991b1b';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < obstacle.width; i += 10) {
+                ctx.beginPath();
+                ctx.moveTo(obstacle.x + i, obstacle.y);
+                ctx.lineTo(obstacle.x + i + 5, obstacle.y + obstacle.height);
+                ctx.stroke();
+            }
+        }
+
+        function drawCoin(coin) {
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.arc(coin.x, coin.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            ctx.fillStyle = '#fbbf24';
+            ctx.font = 'bold 10px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('$', coin.x, coin.y);
+        }
+
+        function createParticles(x, y, color, count = 5) {
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.random() * Math.PI * 2);
+                gameState.particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * (2 + Math.random() * 3),
+                    vy: Math.sin(angle) * (2 + Math.random() * 3) - 1,
+                    life: 30,
+                    maxLife: 30,
+                    color: color
+                });
+            }
+        }
+
+        function drawParticles() {
+            gameState.particles = gameState.particles.filter(p => p.life > 0);
+            gameState.particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2;
+                p.life--;
+
+                const alpha = p.life / p.maxLife;
+                ctx.fillStyle = p.color.replace(')', `, ${alpha})`).replace('rgb', 'rgba');
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function getDifficultyConfig() {
+            for (let i = difficultyThresholds.length - 1; i >= 0; i--) {
+                if (gameState.distance >= difficultyThresholds[i].distance) {
+                    gameState.difficulty = i + 1;
+                    return difficultyThresholds[i];
+                }
+            }
+            return difficultyThresholds[0];
+        }
+
+        function update() {
+            if (shouldSkipGameUpdate()) return;
+
+            const { player } = gameState;
+            const config = getDifficultyConfig();
+
+            // Horizontal movement
+            player.vx = 0;
+            if (keys['ArrowLeft'] || keys['a'] || keys['A']) player.vx = -5;
+            if (keys['ArrowRight'] || keys['d'] || keys['D']) player.vx = 5;
+
+            player.x += player.vx;
+            player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+
+            // Gravity and jumping
+            if (!player.jumping) {
+                player.vy = 0;
+                player.y = gameState.groundY - player.height;
+            } else {
+                player.vy -= 0.6; // gravity
+                player.y -= player.vy;
+
+                if (player.y >= gameState.groundY - player.height) {
+                    player.y = gameState.groundY - player.height;
+                    player.jumping = false;
+                    player.jumpPower = 0;
+                    createParticles(player.x + player.width / 2, player.y + player.height, '#f59e0b', 4);
+                }
+            }
+
+            // Update distance and scroll
+            gameState.distance += config.speed;
+            scrollOffset += config.speed;
+
+            // Move obstacles
+            gameState.obstacles = gameState.obstacles.filter(obs => {
+                obs.y += 2;
+                return obs.y < canvas.height;
+            });
+
+            // Move coins
+            gameState.coins = gameState.coins.filter(coin => {
+                coin.y += 2;
+                return coin.y < canvas.height;
+            });
+
+            // Spawn obstacles
+            if (Math.random() < config.spawnRate && gameState.obstacles.length < 4) {
+                const width = config.obstacleWidth + Math.random() * 30;
+                const laneX = Math.random() * (canvas.width - width);
+                gameState.obstacles.push({
+                    x: laneX,
+                    y: -50,
+                    width: width,
+                    height: 30
+                });
+            }
+
+            // Spawn coins
+            if (Math.random() < 0.005 && gameState.coins.length < 3) {
+                gameState.coins.push({
+                    x: Math.random() * (canvas.width - 20) + 10,
+                    y: -20
+                });
+            }
+
+            // Collision with obstacles
+            gameState.obstacles.forEach(obs => {
+                if (player.x < obs.x + obs.width &&
+                    player.x + player.width > obs.x &&
+                    player.y < obs.y + obs.height &&
+                    player.y + player.height > obs.y) {
+                    setGameOver(true);
+                    createParticles(player.x, player.y, '#dc2626', 10);
+                }
+            });
+
+            // Collision with coins
+            gameState.coins.forEach((coin, idx) => {
+                if (Math.hypot(player.x + player.width / 2 - coin.x, player.y + player.height / 2 - coin.y) < 25) {
+                    gameState.coins.splice(idx, 1);
+                    gameState.score += 100;
+                    gameState.coinsCollected++;
+                    createParticles(coin.x, coin.y, '#fbbf24', 6);
+                }
+            });
+        }
+
+        function draw() {
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Clouds (background)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.beginPath();
+            ctx.arc(50 + (scrollOffset * 0.2) % 200, 50, 30, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(150 + (scrollOffset * 0.1) % 250, 80, 40, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Ground
+            ctx.fillStyle = '#22c55e';
+            ctx.fillRect(0, gameState.groundY, canvas.width, canvas.height - gameState.groundY);
+
+            // Draw all game objects
+            gameState.obstacles.forEach(drawObstacle);
+            gameState.coins.forEach(drawCoin);
+            drawParticles();
+            drawPlayer();
+
+            // Distance text with difficulty indicator
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Distance: ${Math.floor(gameState.distance)}m`, 10, 30);
+            
+            const diffLevel = ['Easy', 'Normal', 'Hard', 'Expert'];
+            ctx.font = '14px Arial';
+            ctx.fillText(`Difficulty: ${diffLevel[gameState.difficulty - 1]}`, 10, 50);
+            ctx.fillText(`Coins: ${gameState.coinsCollected}`, 10, 70);
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            
+            document.getElementById('distance').textContent = gameState.distance;
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('highScore').textContent = gameState.highScore;
+
+            if (gameState.gameOver) {
+                document.getElementById('final-distance').textContent = Math.floor(gameState.distance) + 'm';
+                document.getElementById('game-over').classList.remove('hidden');
+            }
+
+            arcadeState.animFrame = requestAnimationFrame(gameLoop);
+        }
+
+        function resetGame() {
+            gameState = {
+                player: {
+                    x: canvas.width / 2,
+                    y: canvas.height - 80,
+                    width: 30,
+                    height: 40,
+                    vx: 0,
+                    vy: 0,
+                    jumping: false,
+                    jumpPower: 0,
+                    maxJumpPower: 15
+                },
+                distance: 0,
+                score: 0,
+                highScore: localStorage.getItem('jumpMasterHighScore') || 0,
+                gameOver: false,
+                obstacles: [],
+                coins: [],
+                particles: [],
+                groundY: canvas.height - 40,
+                difficulty: 1,
+                maxDistance: 1000,
+                coinsCollected: 0
+            };
+            resetArcadeGame();
+            document.getElementById('game-over').classList.add('hidden');
+            document.getElementById('pause-screen').classList.add('hidden');
+        }
+
+        // Input handlers
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+
+            if (e.code === 'Space' && !gameState.player.jumping) {
+                e.preventDefault();
+                gameState.player.jumping = true;
+                gameState.player.vy = gameState.player.maxJumpPower;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        async function exitGame() {
+            const user = await getUser();
+            if (user) {
+                if (gameState.score > gameState.highScore) {
+                    gameState.highScore = gameState.score;
+                    localStorage.setItem('jumpMasterHighScore', gameState.score);
+                }
+                
+                const tokensEarned = Math.floor(gameState.score / 10);
+                await updateUserPoints(user.id, tokensEarned);
+                
+                setTimeout(() => {
+                    window.history.back();
+                }, 1000);
+            }
+        }
+
+        (async function() {
+            if (!await initializeArcadeGame('🚂 JUMP MASTER', 'from-orange-400', 'to-yellow-500')) return;
+            gameLoop();
+        })();
+    </script>
+</body>
+</html>

@@ -3,102 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Shooter - Arcade</title>    <script src="firebase-utils.js"></script>
+    <title>Space Shooter - Arcade</title>
+    <script src="../scripts/arcade-core.js"></script>
+    <script src="../firebase-utils.js"></script>
     <style>
         #game-session-timer {
             font-size: 2.5rem !important;
             font-weight: 700 !important;
         }
-    </style>    <script>
-        let timerIntervalId;
-        let drainIntervalId;
-        
-        (async function() {
-            await initializeFirebase();
-            
-            function showOutOfTokensPopup() {
-                clearInterval(timerIntervalId);
-                clearInterval(drainIntervalId);
-                
-                const overlay = document.createElement('div');
-                overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;';
-                
-                const modal = document.createElement('div');
-                modal.style.cssText = 'background:white;border-radius:1rem;padding:2rem;max-width:400px;text-align:center;box-shadow:0 20px 25px rgba(0,0,0,0.3);';
-                
-                modal.innerHTML = `
-                    <div style="font-size:3rem;margin-bottom:1rem;">💸</div>
-                    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:1rem;color:#1e293b;">Out of Tokens!</h2>
-                    <p style="margin-bottom:1.5rem;color:#64748b;">Your token balance hit zero.</p>
-                    <p style="margin-bottom:1.5rem;color:#94a3b8;font-size:0.85rem;">Earn more tokens by completing lessons and quizzes!</p>
-                    <button id="back-to-arcade" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#f59e0b;color:#000;cursor:pointer;font-weight:700;font-size:1rem;">Back to Arcade</button>
-                `;
-                
-                overlay.appendChild(modal);
-                document.body.appendChild(overlay);
-                
-                modal.querySelector('#back-to-arcade').onclick = () => {
-                    sessionStorage.removeItem('validGameAccess');
-                    window.location.href = 'arcade.html';
-                };
-            }
-            
-            window.initializeTokenDrain = function() {
-                const sidebar = document.getElementById('game-sidebar');
-                if (!sidebar) return;
-                
-                let timerDisplay = document.getElementById('game-session-timer');
-                if (!timerDisplay) {
-                    timerDisplay = document.createElement('div');
-                    timerDisplay.id = 'game-session-timer';
-                    sidebar.appendChild(timerDisplay);
-                }
-
-                function updateTimerDisplay() {
-                    const user = JSON.parse(localStorage.getItem('user') || '{}');
-                    const remaining = Math.max(0, user.points || 0);
-                    timerDisplay.textContent = remaining + '💎';
-                    timerDisplay.className = remaining <= 20 ? 'warning' : '';
-                    
-                    if (remaining <= 0) {
-                        showOutOfTokensPopup();
-                    }
-                }
-                
-                function drainTokens() {
-                    const user = JSON.parse(localStorage.getItem('user') || '{}');
-                    const pts = user.points || 0;
-                    if (pts > 0) {
-                        user.points = pts - 1;
-                        localStorage.setItem('user', JSON.stringify(user));
-                        updateTimerDisplay();
-                    } else if (pts <= 0) {
-                        showOutOfTokensPopup();
-                    }
-                }
-                
-                if (timerIntervalId) clearInterval(timerIntervalId);
-                if (drainIntervalId) clearInterval(drainIntervalId);
-                
-                updateTimerDisplay();
-                drainIntervalId = setInterval(drainTokens, 1000);
-                
-                // Pause drain when page is hidden
-                document.addEventListener('visibilitychange', () => {
-                    if (document.hidden) {
-                        clearInterval(drainIntervalId);
-                    } else {
-                        drainIntervalId = setInterval(drainTokens, 1000);
-                    }
-                });
-            };
-            
-            document.addEventListener('DOMContentLoaded', window.initializeTokenDrain);
-        })();
-    </script>
+    </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="../styles/main.css">
     <style>
         #game-sidebar {
             background: rgba(55, 65, 81, 0.98);
@@ -146,15 +62,15 @@
         :fullscreen { background: #111827; }
         
     </style>
-    <script src="theme_manager.js"></script>
+    <script src="../theme_manager.js"></script>
 </head>
 <body class="dark-mode bg-gray-900 min-h-screen text-white">
-<script src="scripts/taskbar.js"></script>
+<script src="../scripts/taskbar.js"></script>
 
 <!-- Translation Scripts -->
-<script src="scripts/global_translations.js?v=8.0"></script>
-<script src="scripts/spanish_translations.js?v=1.0"></script>
-<script src="scripts/hindi_translations.js?v=1.0"></script>
+<script src="../scripts/global_translations.js?v=8.0"></script>
+<script src="../scripts/spanish_translations.js?v=1.0"></script>
+<script src="../scripts/hindi_translations.js?v=1.0"></script>
 
     <div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
 
@@ -216,7 +132,7 @@
 
     <div id="game-sidebar">
         <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600;">
-            SESSION
+            ⭐ TOKEN SESSION
         </div>
     </div>
 
@@ -761,7 +677,8 @@
             animFrame = requestAnimationFrame(gameLoop);
         }
 
-        function startGame() {
+        async function startGame() {
+            if (!await initializeArcadeGame()) return;
             document.getElementById('start-screen').classList.add('hidden');
             init();
             running = true;

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower Defense - Arcade</title>
+    <script src="../scripts/arcade-core.js"></script>
+    <script src="../firebase-utils.js"></script>
+    <style>
+        #game-session-timer { font-size: 2.5rem !important; font-weight: 700 !important; }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        #game-sidebar { background: rgba(55, 65, 81, 0.98); border-radius: 1rem; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 400px; min-height: 800px; border: 2px solid rgba(107, 114, 128, 0.9); box-shadow: 0 20px 45px rgba(0,0,0,0.6); }
+        #game-session-timer { background: rgba(34, 197, 94, 0.95); color: white; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 700; font-size: 2rem; font-family: monospace; width: 100%; text-align: center; margin-top: 0.5rem; letter-spacing: 2px; }
+        #game-session-timer.warning { background: rgba(239, 68, 68, 0.95); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
+        #game-wrapper { margin-left:150px; width: min(720px, calc(100vw - 360px)); max-width: 100%; }
+        .pause-btn { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
+        .pause-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+    </style>
+    <script src="../theme_manager.js"></script>
+</head>
+<body class="dark-mode bg-gray-900 min-h-screen text-white">
+<script src="../scripts/taskbar.js"></script>
+<script src="../scripts/global_translations.js?v=8.0"></script>
+
+<div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
+    <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+        <button class="pause-btn" onclick="togglePause()" title="Pause"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
+        
+        <div class="flex justify-between items-end mb-4">
+            <div>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent">🏰 TOWER</h1>
+                <p class="text-xs text-gray-400 font-sans">Place towers & defend</p>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-gray-400 font-sans">WAVE</div>
+                <div id="wave" class="text-3xl font-bold text-white">1</div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" class="bg-green-100 border-2 border-gray-700 mx-auto block w-full" width="400" height="300"></canvas>
+
+        <div class="mt-3 flex gap-2 text-sm">
+            <div class="flex-1"><span class="text-gray-400">Gold:</span> <span id="gold" class="font-bold text-yellow-400">100</span></div>
+            <div class="flex-1"><span class="text-gray-400">Lives:</span> <span id="lives" class="font-bold text-red-400">20</span></div>
+        </div>
+
+        <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-3xl text-red-500 font-bold mb-2">GAME OVER</h2>
+            <div class="text-2xl font-bold text-white mb-2">Wave: <span id="final-wave">0</span></div>
+            <div class="text-4xl font-bold text-white mb-6" id="final-score">0</div>
+            <button onclick="resetGame()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">PLAY AGAIN</button>
+        </div>
+
+        <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-3xl text-teal-400 font-bold mb-2">🏰 TOWER DEFENSE</h2>
+            <p class="text-gray-300 mb-6 font-sans">Place towers to defend against waves!</p>
+            <button onclick="startGame()" class="bg-teal-600 hover:bg-teal-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">START</button>
+        </div>
+
+        <div id="pause-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-30 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-4xl text-white font-bold mb-4">PAUSED</h2>
+            <button onclick="togglePause()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">RESUME</button>
+        </div>
+    </div>
+
+    <div id="game-sidebar">
+        <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600;">
+            ⭐ TOKEN SESSION
+        </div>
+    </div>
+</div>
+
+<script src="../scripts/spanish_translations.js?v=1.0"></script>
+<script src="../scripts/hindi_translations.js?v=1.0"></script>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let gameStarted = false;
+
+    const towerCosts = { basic: 50, ice: 75, fire: 100, sniper: 150 };
+
+    let gameState = {
+        gold: 100, lives: 20, wave: 1, score: 0, selectedTower: 'basic',
+        towers: [], enemies: [], gameOver: false, difficulty: 1,
+        waveProgress: 0, maxEnemiesPerWave: 5, enemiesToSpawn: 5, particles: []
+    };
+
+    const difficultySettings = {
+        1: { name: 'Easy', enemyHealth: 20, enemySpeed: 1, spawnRate: 0.015, goldBonus: 1.2 },
+        2: { name: 'Normal', enemyHealth: 30, enemySpeed: 1.5, spawnRate: 0.025, goldBonus: 1.0 },
+        3: { name: 'Hard', enemyHealth: 40, enemySpeed: 2, spawnRate: 0.035, goldBonus: 0.8 }
+    };
+
+    function drawMap() {
+        ctx.fillStyle = '#90EE90';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#D2B48C';
+        ctx.fillRect(50, 0, 100, canvas.height);
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= canvas.width; i += 50) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, canvas.height);
+            ctx.stroke();
+        }
+    }
+
+    function drawTower(tower) {
+        ctx.fillStyle = tower.color;
+        ctx.fillRect(tower.x - 15, tower.y - 15, 30, 30);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(tower.icon, tower.x, tower.y);
+    }
+
+    function drawEnemy(enemy) {
+        ctx.fillStyle = '#ff6b6b';
+        ctx.beginPath();
+        ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
+        ctx.fill();
+        const healthPercent = Math.max(0, enemy.health / enemy.maxHealth);
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(enemy.x - 8, enemy.y - 15, 16 * healthPercent, 3);
+    }
+
+    function update() {
+        if (!gameStarted || shouldSkipGameUpdate()) return;
+        const difficulty = difficultySettings[gameState.difficulty];
+
+        gameState.enemies.forEach((enemy, idx) => {
+            const speed = enemy.froze ? 0 : enemy.speed;
+            enemy.x += enemy.vx * speed;
+            enemy.y += enemy.vy * speed;
+            if (enemy.froze) enemy.froze--;
+            if (enemy.x < 0 || enemy.x > canvas.width || enemy.y < 0 || enemy.y > canvas.height) {
+                gameState.enemies.splice(idx, 1);
+                gameState.lives--;
+                if (gameState.lives <= 0) {
+                    setGameOver(true);
+                }
+            }
+        });
+
+        gameState.towers.forEach(tower => {
+            gameState.enemies.forEach(enemy => {
+                const dist = Math.hypot(tower.x - enemy.x, tower.y - enemy.y);
+                if (dist < tower.range && !enemy.targeted) {
+                    enemy.health -= tower.damage;
+                    enemy.targeted = true;
+                    if (tower.type === 'ice') enemy.froze = 60;
+                    if (enemy.health <= 0) {
+                        gameState.enemies.splice(gameState.enemies.indexOf(enemy), 1);
+                        const goldReward = Math.floor(10 * difficulty.goldBonus * (1 + gameState.wave * 0.2));
+                        gameState.gold += goldReward;
+                        gameState.score += goldReward;
+                    }
+                } else {
+                    enemy.targeted = false;
+                }
+            });
+        });
+
+        if (gameState.enemiesToSpawn > 0 && Math.random() < difficulty.spawnRate) {
+            const baseHealth = difficulty.enemyHealth * (1 + gameState.wave * 0.3);
+            gameState.enemies.push({
+                x: 100, y: 0, vx: 0, vy: difficulty.enemySpeed + gameState.wave * 0.3,
+                health: baseHealth, maxHealth: baseHealth, radius: 8, speed: 1, froze: 0
+            });
+            gameState.enemiesToSpawn--;
+            gameState.waveProgress++;
+        }
+
+        if (gameState.enemies.length === 0 && gameState.enemiesToSpawn === 0 && gameState.waveProgress > 0) {
+            gameState.wave++;
+            gameState.maxEnemiesPerWave = Math.min(15, 5 + gameState.wave * 2);
+            gameState.enemiesToSpawn = gameState.maxEnemiesPerWave;
+            gameState.waveProgress = 0;
+            gameState.gold += Math.floor(50 * (1 + gameState.wave * 0.2));
+            gameState.difficulty = Math.min(3, Math.floor(gameState.wave / 5) + 1);
+        }
+    }
+
+    function draw() {
+        drawMap();
+        gameState.towers.forEach(drawTower);
+        gameState.enemies.forEach(drawEnemy);
+        if (gameState.gameOver) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    function gameLoop() {
+        update();
+        draw();
+        document.getElementById('gold').textContent = gameState.gold;
+        document.getElementById('lives').textContent = gameState.lives;
+        document.getElementById('wave').textContent = gameState.wave;
+        
+        if (gameState.gameOver) {
+            document.getElementById('final-wave').textContent = gameState.wave;
+            document.getElementById('final-score').textContent = gameState.score;
+            document.getElementById('game-over').classList.remove('hidden');
+        }
+        
+        arcadeState.animFrame = requestAnimationFrame(gameLoop);
+    }
+
+    canvas.addEventListener('click', (e) => {
+        if (!gameStarted || gameState.gameOver || arcadeState.gamePaused) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const cost = towerCosts[gameState.selectedTower];
+        if (gameState.gold >= cost) {
+            gameState.gold -= cost;
+            const towers = {
+                basic: { icon: '🔧', color: '#10b981', damage: 5, range: 80 },
+                ice: { icon: '❄️', color: '#06b6d4', damage: 3, range: 100 },
+                fire: { icon: '🔥', color: '#f97316', damage: 7, range: 70 },
+                sniper: { icon: '🎯', color: '#8b5cf6', damage: 15, range: 150 }
+            };
+            const tower = towers[gameState.selectedTower];
+            gameState.towers.push({ ...tower, x, y, type: gameState.selectedTower });
+        }
+    });
+
+    function startGame() {
+        document.getElementById('start-screen').classList.add('hidden');
+        gameStarted = true;
+        gameLoop();
+    }
+
+    function resetGame() {
+        gameState = {
+            gold: 100, lives: 20, wave: 1, score: 0, selectedTower: 'basic',
+            towers: [], enemies: [], gameOver: false, difficulty: 1,
+            waveProgress: 0, maxEnemiesPerWave: 5, enemiesToSpawn: 5, particles: []
+        };
+        document.getElementById('game-over').classList.add('hidden');
+        resetArcadeGame();
+        startGame();
+    }
+
+    window.togglePause = togglePause;
+    window.startGame = startGame;
+    window.resetGame = resetGame;
+    
+    (async function() {
+        if (!await initializeArcadeGame('🏰 TOWER', 'from-teal-400', 'to-cyan-500')) return;
+        document.getElementById('start-screen').classList.remove('hidden');
+    })();
+    
+    window.returnToArcade = function() {
+        sessionStorage.removeItem('validGameAccess');
+        window.location.href = '../arcade.html';
+    };
+</script>
+</body>
+</html>

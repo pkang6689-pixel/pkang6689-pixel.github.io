@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Tycoon - Arcade</title>
+    <script src="../scripts/arcade-core.js"></script>
+    <script src="../firebase-utils.js"></script>
+    <style>
+        #game-session-timer {
+            font-size: 2.5rem !important;
+            font-weight: 700 !important;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        #game-sidebar {
+            background: rgba(55, 65, 81, 0.98);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 400px;
+            min-height: 800px;
+            border: 2px solid rgba(107, 114, 128, 0.9);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+        }
+        #game-session-timer {
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 2rem;
+            font-family: monospace;
+            width: 100%;
+            text-align: center;
+            margin-top: 0.5rem;
+            letter-spacing: 2px;
+        }
+        #game-session-timer.warning {
+            background: rgba(239, 68, 68, 0.95);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
+        #game-wrapper { margin-left:150px; width: min(720px, calc(100vw - 360px)); max-width: 100%; }
+        .pause-btn { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
+        .pause-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+    </style>
+    <script src="../theme_manager.js"></script>
+</head>
+<body class="dark-mode bg-gray-900 min-h-screen text-white">
+<script src="../scripts/taskbar.js"></script>
+<script src="../scripts/global_translations.js?v=8.0"></script>
+
+<div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
+
+    <div id="game-wrapper" class="relative flex-shrink-0 bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+        <button class="pause-btn" onclick="togglePause()" title="Pause"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
+
+        <div class="mb-4">
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">🏭 FACTORY</h1>
+            <p class="text-xs text-gray-400 font-sans">Build your empire!</p>
+        </div>
+
+        <div class="bg-gray-700 rounded-lg p-4 mb-4">
+            <div class="text-3xl font-bold text-amber-300 mb-2" id="cookieCount">0</div>
+            <div class="text-sm text-gray-300 mb-2">🍪 Cookies</div>
+            <div class="text-xs text-gray-400">
+                Per second: <span id="perSecond" class="text-green-400">0</span> 🍪/s
+            </div>
+        </div>
+
+        <button class="w-full py-4 rounded-lg font-bold text-3xl bg-gradient-to-b from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 transform transition active:scale-95 shadow-lg mb-4" onclick="clickCookie()">🍪</button>
+
+        <div class="bg-gray-700 rounded-lg p-4 max-h-96 overflow-y-auto">
+            <div class="font-bold text-amber-300 mb-3">🛒 Upgrades</div>
+            <div id="shopContainer"></div>
+        </div>
+
+        <div id="pause-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-30 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-4xl text-white font-bold mb-4">PAUSED</h2>
+            <button onclick="togglePause()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                RESUME
+            </button>
+        </div>
+    </div>
+
+    <div id="game-sidebar">
+        <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600;">
+            ⭐ TOKEN SESSION
+        </div>
+    </div>
+</div>
+
+    <script>
+        let gameState = {
+            cookies: 0,
+            perSecond: 0,
+            score: 0,
+            playtime: 0,
+            upgrades: {
+                farm: { count: 0, cost: 10, base_cost: 10, production: 1, name: '🚜 Farm', icon: '🚜', unlocked: true },
+                factory: { count: 0, cost: 100, base_cost: 100, production: 10, name: '🏭 Factory', icon: '🏭', unlocked: false, unlocksAt: 50 },
+                robot: { count: 0, cost: 1000, base_cost: 1000, production: 100, name: '🤖 Robot', icon: '🤖', unlocked: false, unlocksAt: 500 },
+                ai: { count: 0, cost: 10000, base_cost: 10000, production: 1000, name: '🧠 AI System', icon: '🧠', unlocked: false, unlocksAt: 5000 },
+                quantum: { count: 0, cost: 100000, base_cost: 100000, production: 10000, name: '⚛️ Quantum', icon: '⚛️', unlocked: false, unlocksAt: 50000 }
+            },
+            achievements: {
+                firstCookie: false,
+                millionaire: false,
+                factoryOwner: false,
+                techGod: false
+            }
+        };
+
+        function clickCookie() {
+            gameState.cookies += 1;
+            gameState.score += 1;
+            updateDisplay();
+            
+            // Visual feedback
+            const button = event.target;
+            button.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                button.style.transform = '';
+            }, 50);
+        }
+
+        function calculatePerSecond() {
+            let perSecond = 0;
+            for (const key in gameState.upgrades) {
+                const upgrade = gameState.upgrades[key];
+                if (upgrade.unlocked) {
+                    perSecond += upgrade.count * upgrade.production;
+                }
+            }
+            return perSecond;
+        }
+
+        function checkUnlocks() {
+            for (const key in gameState.upgrades) {
+                const upgrade = gameState.upgrades[key];
+                if (!upgrade.unlocked && upgrade.unlocksAt && gameState.cookies >= upgrade.unlocksAt) {
+                    upgrade.unlocked = true;
+                    showNotification(`🔓 Unlocked: ${upgrade.name}!`);
+                }
+            }
+
+            // Check achievements
+            if (gameState.cookies >= 1 && !gameState.achievements.firstCookie) {
+                gameState.achievements.firstCookie = true;
+                showNotification('📜 Achievement: Your first cookie!');
+            }
+            if (gameState.cookies >= 1000000 && !gameState.achievements.millionaire) {
+                gameState.achievements.millionaire = true;
+                showNotification('💰 Achievement: Millionaire!');
+            }
+            if (gameState.upgrades.factory.count >= 50 && !gameState.achievements.factoryOwner) {
+                gameState.achievements.factoryOwner = true;
+                showNotification('🏭 Achievement: Factory Owner!');
+            }
+            if (gameState.upgrades.quantum.count >= 1 && !gameState.achievements.techGod) {
+                gameState.achievements.techGod = true;
+                showNotification('⚛️ Achievement: Tech God!');
+            }
+        }
+
+        function buyUpgrade(upgradeKey) {
+            const upgrade = gameState.upgrades[upgradeKey];
+            if (!upgrade.unlocked) {
+                return;
+            }
+            if (gameState.cookies >= upgrade.cost) {
+                gameState.cookies -= upgrade.cost;
+                upgrade.count++;
+                upgrade.cost = Math.ceil(upgrade.base_cost * Math.pow(1.15, upgrade.count));
+                gameState.perSecond = calculatePerSecond();
+                gameState.score += upgrade.production * 10;
+                checkUnlocks();
+                updateDisplay();
+                renderShop();
+            }
+        }
+
+        let notificationTimeout;
+        function showNotification(message) {
+            const container = document.getElementById('shopContainer');
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                background: rgba(34, 197, 94, 0.2);
+                border: 2px solid #22c55e;
+                padding: 0.75rem;
+                border-radius: 8px;
+                margin-bottom: 0.75rem;
+                color: white;
+                font-size: 0.9rem;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            container.insertBefore(notification, container.firstChild);
+            
+            clearTimeout(notificationTimeout);
+            notificationTimeout = setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function updateDisplay() {
+            document.getElementById('cookieCount').textContent = Math.floor(gameState.cookies);
+            document.getElementById('perSecond').textContent = gameState.perSecond;
+        }
+
+        function renderShop() {
+            const shopContainer = document.getElementById('shopContainer');
+            shopContainer.innerHTML = '';
+
+            for (const [key, upgrade] of Object.entries(gameState.upgrades)) {
+                const canAfford = gameState.cookies >= upgrade.cost;
+                const isLocked = !upgrade.unlocked;
+                
+                const button = document.createElement('button');
+                button.className = 'upgrade';
+                button.disabled = !canAfford || isLocked;
+                
+                if (!isLocked) {
+                    button.onclick = () => buyUpgrade(key);
+                }
+
+                if (isLocked) {
+                    button.innerHTML = `
+                        <div class="upgrade-name">🔒 ${upgrade.name}</div>
+                        <div class="upgrade-cost" style="color: #888;">Unlock at: ${upgrade.unlocksAt.toLocaleString()} 🍪</div>
+                        <div class="upgrade-effect">+${upgrade.production} 🍪/s</div>
+                        <div class="upgrade-count" style="color: #aaa;">Progress: ${Math.floor((gameState.cookies / upgrade.unlocksAt) * 100)}%</div>
+                    `;
+                } else {
+                    button.innerHTML = `
+                        <div class="upgrade-name">${upgrade.icon} ${upgrade.name}</div>
+                        <div class="upgrade-cost">Cost: ${upgrade.cost.toLocaleString()} 🍪</div>
+                        <div class="upgrade-effect">+${upgrade.production} 🍪/s</div>
+                        <div class="upgrade-count">Owned: ${upgrade.count}</div>
+                    `;
+                }
+
+                shopContainer.appendChild(button);
+            }
+        }
+
+        function gameLoop() {
+            if (!arcadeState.gamePaused) {
+                // Passive income
+                gameState.cookies += gameState.perSecond / 60; // 60 FPS
+                gameState.score += gameState.perSecond / 60;
+                gameState.playtime++;
+                
+                updateDisplay();
+                
+                // Check unlocks every frame
+                if (gameState.playtime % 30 === 0) {
+                    checkUnlocks();
+                }
+            }
+
+            arcadeState.animFrame = requestAnimationFrame(gameLoop);
+        }
+
+        async function exitGame() {
+            const user = await getUser();
+            if (user) {
+                const tokensEarned = Math.floor(gameState.score / 50);
+                await updateUserPoints(user.id, tokensEarned);
+                
+                setTimeout(() => {
+                    window.history.back();
+                }, 1000);
+            }
+        }
+
+        // Initialize
+        (async function() {
+            if (!await initializeArcadeGame('🏭 FACTORY', 'from-amber-400', 'to-orange-500')) return;
+            updateDisplay();
+            checkUnlocks();
+            renderShop();
+            gameLoop();
+        })();
+    </script>
+</body>
+</html>

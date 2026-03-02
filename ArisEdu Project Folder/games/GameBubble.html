@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Shooter - Arcade</title>
+    <script src="../scripts/arcade-core.js"></script>
+    <script src="../firebase-utils.js"></script>
+    <style>
+        #game-session-timer {
+            font-size: 2.5rem !important;
+            font-weight: 700 !important;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        #game-sidebar {
+            background: rgba(55, 65, 81, 0.98);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 400px;
+            min-height: 800px;
+            border: 2px solid rgba(107, 114, 128, 0.9);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+        }
+        #game-session-timer {
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 2rem;
+            font-family: monospace;
+            width: 100%;
+            text-align: center;
+            margin-top: 0.5rem;
+            letter-spacing: 2px;
+        }
+        #game-session-timer.warning {
+            background: rgba(239, 68, 68, 0.95);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
+        canvas { border-radius: 0.5rem; }
+        #game-wrapper { margin-left:150px; width: min(720px, calc(100vw - 360px)); max-width: 100%; }
+        .pause-btn { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
+        .pause-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+    </style>
+    <script src="../theme_manager.js"></script>
+</head>
+<body class="dark-mode bg-gray-900 min-h-screen text-white">
+<script src="../scripts/taskbar.js"></script>
+<script src="../scripts/global_translations.js?v=8.0"></script>
+
+<div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
+
+    <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+        <button class="pause-btn" onclick="togglePause()" title="Pause"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
+
+        <div class="flex justify-between items-end mb-4">
+            <div>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">🫧 BUBBLE</h1>
+                <p class="text-xs text-gray-400 font-sans">Match & pop bubbles!</p>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-gray-400 font-sans">SCORE</div>
+                <div id="score" class="text-3xl font-bold text-white">0</div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" class="bg-gray-900 border-2 border-gray-700 mx-auto block" width="480" height="400"></canvas>
+
+        <div class="flex justify-between items-center mt-4 text-center">
+            <div>
+                <div class="text-xs text-gray-400 font-sans">LEVEL</div>
+                <div id="level" class="text-2xl font-bold text-white">1</div>
+            </div>
+            <div>
+                <div class="text-xs text-gray-400 font-sans">COMBO</div>
+                <div id="combo" class="text-2xl font-bold text-yellow-400">0</div>
+            </div>
+        </div>
+
+        <p class="text-center text-xs text-gray-500 mt-4 font-sans">Click to aim and shoot • Match 3+ bubbles</p>
+
+        <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-3xl text-red-500 font-bold mb-2">GAME OVER</h2>
+            <div class="text-4xl font-bold text-white mb-4" id="final-score">0</div>
+            <button onclick="resetGame()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                TRY AGAIN
+            </button>
+        </div>
+
+        <div id="pause-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-30 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+            <h2 class="text-4xl text-white font-bold mb-4">PAUSED</h2>
+            <button onclick="togglePause()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                RESUME
+            </button>
+        </div>
+    </div>
+
+    <div id="game-sidebar">
+        <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600;">
+            ⭐ TOKEN SESSION
+        </div>
+    </div>
+</div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let user = null;
+        let gameState = {
+            score: 0,
+            level: 1,
+            difficulty: 1,
+            bubbles: [],
+            shooter: {
+                x: canvas.width / 2,
+                y: canvas.height - 30,
+                angle: Math.PI / 2,
+                nextBubble: createRandomBubble(),
+                nextNextBubble: createRandomBubble()
+            },
+            gameOver: false,
+            combo: 0,
+            maxCombo: 0,
+            shotsRemaining: 10,
+            particles: [],
+            bubblesCleared: 0
+        };
+
+        const bubbleColors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#C7CEEA'];
+        const bubbleRadius = 15;
+        let difficultyLevels = {
+            1: { name: 'Easy', speed: 0.3, bubbles: 3, colors: 3 },
+            2: { name: 'Normal', speed: 0.5, bubbles: 4, colors: 4 },
+            3: { name: 'Hard', speed: 0.8, bubbles: 5, colors: 5 }
+        };
+
+        function initGame() {
+            // Create initial bubbles based on difficulty
+            const config = difficultyLevels[gameState.difficulty];
+            for (let row = 0; row < config.bubbles; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const x = bubbleRadius * 2 + col * (bubbleRadius * 2.2);
+                    const y = bubbleRadius * 2 + row * (bubbleRadius * 2.2);
+                    gameState.bubbles.push({
+                        x: x,
+                        y: y,
+                        radius: bubbleRadius,
+                        color: bubbleColors[Math.floor(Math.random() * config.colors)],
+                        vx: 0,
+                        vy: 0,
+                        matched: false
+                    });
+                }
+            }
+        }
+
+        function createRandomBubble() {
+            return {
+                color: bubbleColors[Math.floor(Math.random() * bubbleColors.length)]
+            };
+        }
+
+        function createParticle(x, y, color) {
+            for (let i = 0; i < 8; i++) {
+                const angle = (Math.PI * 2 * i) / 8;
+                gameState.particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * 4,
+                    vy: Math.sin(angle) * 4,
+                    life: 30,
+                    maxLife: 30,
+                    color: color
+                });
+            }
+        }
+
+        function drawBubble(bubble) {
+            ctx.fillStyle = bubble.color;
+            ctx.beginPath();
+            ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Shine effect
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(bubble.x - 5, bubble.y - 5, bubble.radius * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawShooter() {
+            const { x, y, angle, nextBubble, nextNextBubble } = gameState.shooter;
+            
+            // Draw base
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw barrel
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + Math.cos(angle) * 40, y + Math.sin(angle) * 40);
+            ctx.stroke();
+
+            // Draw current bubble in barrel
+            ctx.fillStyle = nextBubble.color;
+            ctx.beginPath();
+            ctx.arc(x + Math.cos(angle) * 20, y + Math.sin(angle) * 20, bubbleRadius - 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw next bubble indicator
+            ctx.fillStyle = nextNextBubble.color;
+            ctx.fillRect(x - 30, y - 50, 25, 25);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x - 30, y - 50, 25, 25);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = '9px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Next', x - 17, y - 30);
+        }
+
+        function drawParticles() {
+            gameState.particles.forEach((particle, idx) => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vy += 0.2; // gravity
+                particle.life--;
+
+                const alpha = particle.life / particle.maxLife;
+                ctx.fillStyle = particle.color.replace(')', `, ${alpha})`).replace('rgb', 'rgba');
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (particle.life <= 0) {
+                    gameState.particles.splice(idx, 1);
+                }
+            });
+        }
+
+        function update() {
+            if (shouldSkipGameUpdate()) return;
+
+            const config = difficultyLevels[gameState.difficulty];
+
+            // Update bubble positions
+            gameState.bubbles.forEach(bubble => {
+                bubble.x += bubble.vx;
+                bubble.y += bubble.vy;
+                bubble.vy += config.speed; // gravity based on difficulty
+
+                // Bounce off walls
+                if (bubble.x - bubble.radius < 0 || bubble.x + bubble.radius > canvas.width) {
+                    bubble.vx *= -0.8;
+                    bubble.x = Math.max(bubble.radius, Math.min(canvas.width - bubble.radius, bubble.x));
+                }
+
+                // Game over if bubble reaches bottom
+                if (bubble.y + bubble.radius > canvas.height - 50) {
+                    gameState.gameOver = true;
+                }
+            });
+
+            // Check for matches
+            checkMatches();
+            
+            // Level up on cleared bubbles
+            if (gameState.bubblesCleared >= 20 * gameState.level) {
+                gameState.level++;
+                gameState.difficulty = Math.min(3, gameState.difficulty + 1);
+                gameState.shotsRemaining += 5;
+            }
+        }
+
+        function checkMatches() {
+            let matched = [];
+
+            for (let i = 0; i < gameState.bubbles.length; i++) {
+                if (gameState.bubbles[i].matched) continue;
+
+                const bubble = gameState.bubbles[i];
+                const group = [bubble];
+
+                // BFS to find connected bubbles of same color
+                const queue = [bubble];
+                const visited = new Set([bubble]);
+
+                while (queue.length > 0) {
+                    const current = queue.shift();
+
+                    for (let j = 0; j < gameState.bubbles.length; j++) {
+                        if (visited.has(gameState.bubbles[j]) || gameState.bubbles[j].matched) continue;
+
+                        const other = gameState.bubbles[j];
+                        const dist = Math.hypot(current.x - other.x, current.y - other.y);
+
+                        if (dist < bubbleRadius * 2.5 && current.color === other.color) {
+                            group.push(other);
+                            visited.add(other);
+                            queue.push(other);
+                        }
+                    }
+                }
+
+                if (group.length >= 3) {
+                    group.forEach(b => {
+                        b.matched = true;
+                        matched.push(b);
+                        createParticle(b.x, b.y, b.color);
+                    });
+                }
+            }
+
+            if (matched.length > 0) {
+                const multiplier = 1 + gameState.combo * 0.2;
+                gameState.score += matched.length * 10 * multiplier;
+                gameState.combo++;
+                gameState.maxCombo = Math.max(gameState.maxCombo, gameState.combo);
+                gameState.bubblesCleared += matched.length;
+                gameState.bubbles = gameState.bubbles.filter(b => !b.matched);
+                gameState.shooter.nextBubble = gameState.shooter.nextNextBubble;
+                gameState.shooter.nextNextBubble = createRandomBubble();
+            } else {
+                gameState.combo = 0;
+            }
+
+            if (gameState.bubbles.length === 0) {
+                gameState.level++;
+                gameState.difficulty = Math.min(3, gameState.difficulty + 1);
+                initGame();
+                gameState.shotsRemaining = 10;
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            gameState.bubbles.forEach(drawBubble);
+            drawShooter();
+            drawParticles();
+
+            // Draw UI
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Difficulty: ${difficultyLevels[gameState.difficulty].name}`, 10, 20);
+            
+            if (gameState.combo > 1) {
+                ctx.fillStyle = '#FFE66D';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`COMBO x${gameState.combo}!`, 10, 50);
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('combo').textContent = Math.max(0, gameState.combo - 1);
+            
+            if (gameState.gameOver) {
+                document.getElementById('final-score').textContent = gameState.score;
+                setGameOver(true);
+            }
+
+            arcadeState.animFrame = requestAnimationFrame(gameLoop);
+        }
+
+        function resetGame() {
+            gameState = {
+                score: 0,
+                level: 1,
+                difficulty: 1,
+                bubbles: [],
+                shooter: {
+                    x: canvas.width / 2,
+                    y: canvas.height - 30,
+                    angle: Math.PI / 2,
+                    nextBubble: createRandomBubble(),
+                    nextNextBubble: createRandomBubble()
+                },
+                gameOver: false,
+                combo: 0,
+                maxCombo: 0,
+                shotsRemaining: 10,
+                particles: [],
+                bubblesCleared: 0
+            };
+            resetArcadeGame();
+            initGame();
+        }
+
+        // Initialize arcade game
+        (async function() {
+            if (!await initializeArcadeGame()) return;
+            initGame();
+            gameLoop();
+        })();
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const dx = x - gameState.shooter.x;
+            const dy = y - gameState.shooter.y;
+            gameState.shooter.angle = Math.atan2(dy, dx);
+        });
+
+        canvas.addEventListener('click', () => {
+            if (!gameState.gameOver && gameState.shotsRemaining > 0) {
+                const { x, y, angle, nextBubble } = gameState.shooter;
+                gameState.bubbles.push({
+                    x: x + Math.cos(angle) * 40,
+                    y: y + Math.sin(angle) * 40,
+                    radius: bubbleRadius,
+                    color: nextBubble.color,
+                    vx: Math.cos(angle) * 8,
+                    vy: Math.sin(angle) * 8,
+                    matched: false
+                });
+                gameState.shotsRemaining--;
+                gameState.shooter.nextBubble = gameState.shooter.nextNextBubble;
+                gameState.shooter.nextNextBubble = createRandomBubble();
+            }
+        });
+
+        async function exitGame() {
+            const user = await getUser();
+            if (user) {
+                const tokensEarned = Math.floor(gameState.score / 50);
+                await updateUserPoints(user.id, tokensEarned);
+                document.getElementById('tokens').textContent = tokensEarned;
+                
+                setTimeout(() => {
+                    window.history.back();
+                }, 1000);
+            }
+        }
+
+        // Initialize and start game
+        initGame();
+        gameLoop();
+    </script>
+</body>
+</html>
