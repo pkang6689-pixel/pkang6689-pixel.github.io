@@ -6,6 +6,7 @@
     <title>2048 - Arcade</title>
     <script src="../scripts/arcade-core.js"></script>
     <script src="../firebase-utils.js"></script>
+    <script src="../scripts/badges.js"></script>
     <style>
         #game-session-timer {
             font-size: 2.5rem !important;
@@ -31,6 +32,8 @@
             background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
             box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,0.3);
             width: 100%; aspect-ratio: 1/1; max-width: 500px; margin: 0 auto;
+            position: relative;
+            overflow: visible;
         }
         .tile {
             min-width: 0; aspect-ratio: 1/1; border-radius: 0.75rem;
@@ -64,6 +67,11 @@
         @keyframes glow { 0%, 100% { box-shadow: 0 0 24px rgba(16, 185, 129, 0.5); } 50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.9); } }
         @keyframes tilePop { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
         @keyframes tileAppear { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes moveLeft { 0% { transform: translateX(0); } 50% { transform: translateX(-12px); } 100% { transform: translateX(0); } }
+        @keyframes moveRight { 0% { transform: translateX(0); } 50% { transform: translateX(12px); } 100% { transform: translateX(0); } }
+        @keyframes moveUp { 0% { transform: translateY(0); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0); } }
+        @keyframes moveDown { 0% { transform: translateY(0); } 50% { transform: translateY(12px); } 100% { transform: translateY(0); } }
+        .explosion-particle { position: absolute; border-radius: 50%; pointer-events: none; }
         .arrow-controls {
             display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 16px;
             background: rgba(31, 41, 55, 0.6); padding: 16px; border-radius: 0.75rem;
@@ -79,6 +87,16 @@
         }
         .arrow-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5); }
         .arrow-btn:active { transform: scale(0.92); box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4); }
+        .settings-box { background: rgba(31, 41, 55, 0.6); padding: 12px; border-radius: 0.75rem; border: 1px solid rgba(107, 114, 128, 0.3); margin-top: 12px; }
+        .settings-title { color: #9ca3af; font-size: 0.75rem; font-weight: 600; margin-bottom: 8px; text-align: center; }
+        .toggle-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; color: #d1d5db; font-size: 0.875rem; }
+        .toggle-item:last-child { margin-bottom: 0; }
+        .toggle-switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4b5563; transition: 0.3s; border-radius: 20px; }
+        .toggle-slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: 0.3s; border-radius: 50%; }
+        input:checked + .toggle-slider { background-color: #3b82f6; }
+        input:checked + .toggle-slider:before { transform: translateX(16px); }
     </style>
     <script src="../theme_manager.js"></script>
 </head>
@@ -151,8 +169,26 @@
     </div>
 
     <div id="game-sidebar">
-        <div style="width:100%;text-align:center;color:#9ca3af;margin-bottom:1rem;font-size:0.875rem;font-weight:600;">
+        <div style="width:100%;text-align:center;color:#9ca3af;margin-bottom:0.5rem;font-size:0.875rem;font-weight:600;">
             ⭐ TOKEN SESSION
+        </div>
+        <div id="token-display" style="width:100%;text-align:center;margin-bottom:1rem;color:#d1d5db;font-size:0.95rem;"></div>
+        <div class="settings-box">
+            <div class="settings-title">⚙️ EFFECTS</div>
+            <div class="toggle-item">
+                <span>Screen Shake</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleScreenShake" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-item">
+                <span>Explosions</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleExplosions" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
         </div>
     </div>
 </div>
@@ -162,14 +198,34 @@
     let bestScore = parseInt(localStorage.getItem('2048_best') || '0');
     let prevGrid = null, prevScore = 0;
     let moveCount = 0;
+    let enableScreenShake = true;
+    let enableExplosions = true;
 
     document.getElementById('best-score').textContent = bestScore;
+
+    // Toggle event listeners
+    document.getElementById('toggleScreenShake').addEventListener('change', (e) => {
+        enableScreenShake = e.target.checked;
+        localStorage.setItem('2048_screenShake', enableScreenShake);
+    });
+    document.getElementById('toggleExplosions').addEventListener('change', (e) => {
+        enableExplosions = e.target.checked;
+        localStorage.setItem('2048_explosions', enableExplosions);
+    });
+
+    // Load saved settings
+    enableScreenShake = localStorage.getItem('2048_screenShake') !== 'false';
+    enableExplosions = localStorage.getItem('2048_explosions') !== 'false';
+    document.getElementById('toggleScreenShake').checked = enableScreenShake;
+    document.getElementById('toggleExplosions').checked = enableExplosions;
 
     async function init() {
         if (!await initializeArcadeGame()) return;
         grid = Array.from({length: 4}, () => Array(4).fill(0));
         score = 0; gameActive = true; won2048 = false;
         prevGrid = null; prevScore = 0; moveCount = 0;
+        explosionParticles = [];
+        if (explosionAnimFrame) cancelAnimationFrame(explosionAnimFrame);
         document.getElementById('score').textContent = '0';
         document.getElementById('game-over').classList.add('hidden');
         document.getElementById('win-screen').classList.add('hidden');
@@ -187,7 +243,12 @@
 
     function render(mergedCells) {
         const board = document.getElementById('board');
+        
+        // Remove all tiles (keep particles)
+        const particleElements = Array.from(board.querySelectorAll('.explosion-particle'));
         board.innerHTML = '';
+        particleElements.forEach(el => board.appendChild(el));
+        
         for (let r = 0; r < 4; r++) {
             for (let c = 0; c < 4; c++) {
                 const tile = document.createElement('div');
@@ -204,11 +265,119 @@
                 board.appendChild(tile);
             }
         }
+        
+        // Create explosion effect for merged tiles with a slight delay (if enabled)
+        if (enableExplosions && mergedCells && mergedCells.size > 0) {
+            setTimeout(() => {
+                for (let key of mergedCells) {
+                    const [r, c] = key.split(',').map(Number);
+                    const val = grid[r][c];
+                    const allElements = Array.from(board.querySelectorAll('.tile'));
+                    const index = r * 4 + c;
+                    if (allElements[index]) {
+                        const color = getColorForValue(val);
+                        createExplosion(allElements[index], color);
+                    }
+                }
+            }, 80);
+        }
+        
         // Score pulse animation
         const scoreEl = document.getElementById('score');
         scoreEl.style.transition = 'transform 0.15s ease';
         scoreEl.style.transform = 'scale(1.15)';
         setTimeout(() => scoreEl.style.transform = 'scale(1)', 150);
+    }
+    
+    function getColorForValue(val) {
+        const colors = {
+            2:    '#fcd34d',    4:    '#fbbf24',    8:    '#fb923c',    16:   '#f87171',
+            32:   '#ef4444',    64:   '#dc2626',    128:  '#a78bfa',    256:  '#8b5cf6',
+            512:  '#7c3aed',    1024: '#6d28d9',    2048: '#34d399'
+        };
+        return colors[val] || '#a78bfa';
+    }
+
+    let explosionParticles = [];
+    let explosionAnimFrame = null;
+
+    function createExplosion(tileElement, color) {
+        const rect = tileElement.getBoundingClientRect();
+        const boardRect = document.getElementById('board').getBoundingClientRect();
+        const centerX = rect.left - boardRect.left + rect.width / 2;
+        const centerY = rect.top - boardRect.top + rect.height / 2;
+        
+        const particleCount = 20;
+        const redOrangePalette = ['#ff4444', '#ff6644', '#ff8844', '#ffaa44', '#ff5555', '#ff7755', '#ff9955'];
+        
+        for (let i = 0; i < particleCount; i++) {
+            const angle = (i / particleCount) * Math.PI * 2;
+            const velocity = 4 + Math.random() * 3;
+            
+            // Pick random red/orange color from palette
+            const variedColor = redOrangePalette[Math.floor(Math.random() * redOrangePalette.length)];
+            
+            explosionParticles.push({
+                x: centerX,
+                y: centerY,
+                vx: Math.cos(angle) * velocity,
+                vy: Math.sin(angle) * velocity,
+                life: 1.0,
+                color: variedColor,
+                element: null
+            });
+        }
+        
+        animateExplosion();
+    }
+    
+    function animateExplosion() {
+        if (explosionAnimFrame) cancelAnimationFrame(explosionAnimFrame);
+        
+        const board = document.getElementById('board');
+        
+        function updateParticles() {
+            let hasAliveParticles = false;
+            
+            for (let p of explosionParticles) {
+                if (p.life <= 0) continue;
+                hasAliveParticles = true;
+                
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.1; // gravity
+                p.life -= 0.016;
+                
+                if (!p.element) {
+                    p.element = document.createElement('div');
+                    p.element.className = 'explosion-particle';
+                    board.appendChild(p.element);
+                }
+                
+                const size = 35 * Math.max(0, p.life);
+                const offset = size / 2;
+                p.element.style.transform = `translate(${p.x - offset}px, ${p.y - offset}px)`;
+                p.element.style.width = size + 'px';
+                p.element.style.height = size + 'px';
+                p.element.style.background = p.color;
+                p.element.style.opacity = Math.max(0, p.life);
+                p.element.style.boxShadow = `0 0 ${12 * p.life}px ${p.color}`;
+            }
+            
+            if (hasAliveParticles) {
+                explosionAnimFrame = requestAnimationFrame(updateParticles);
+            } else {
+                // Clean up dead particles
+                for (let p of explosionParticles) {
+                    if (p.element && p.element.parentNode) {
+                        p.element.remove();
+                    }
+                }
+                explosionParticles = [];
+            }
+        }
+        
+        explosionAnimFrame = requestAnimationFrame(updateParticles);
     }
 
     function slide(row) {
@@ -290,10 +459,23 @@
 
             render(mergedCells);
 
+            // Award badge for achievements
             if (won2048) {
+                if (window.BadgeSystem) {
+                    window.BadgeSystem.award('2048_tile');
+                }
                 won2048 = false;
                 document.getElementById('win-screen').classList.remove('hidden');
                 return;
+            }
+
+            // Apply direction indicator animation to game wrapper (if enabled)
+            if (enableScreenShake) {
+                const wrapper = document.getElementById('game-wrapper');
+                wrapper.style.animation = 'none';
+                setTimeout(() => {
+                    wrapper.style.animation = `move${direction.charAt(0).toUpperCase() + direction.slice(1)} 0.3s ease-in-out`;
+                }, 10);
             }
 
             if (!canMove()) {

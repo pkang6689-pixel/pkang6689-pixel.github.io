@@ -2,17 +2,17 @@
     // Badge System
     window.BadgeSystem = {
         badges: {
-            'first_visit': { title: 'First Steps', desc: 'Visited your first lesson!' },
             'night_owl': { title: 'Night Owl', desc: 'Studying after 10 PM' },
             'early_bird': { title: 'Early Bird', desc: 'Studying before 7 AM' },
-            'scholar': { title: 'Scholar', desc: 'Visited 5 different lessons' },
-            'dedicated': { title: 'Dedicated', desc: 'Visited 20 pages' },
             'completionist': { title: 'Completionist', desc: 'Spent over an hour studying' },
             'quiz_master': { title: 'Quiz Master', desc: 'Completed a quiz' },
             'algebra_master': { title: 'Algebra Wizard', desc: 'Mastered Algebra concepts' },
             'physics_pro': { title: 'Physics Pro', desc: 'Excelled in Physics' },
             'chemistry_whiz': { title: 'Chem Whiz', desc: 'Ace in Chemistry' },
             'polyglot': { title: 'Polyglot', desc: 'Changed language settings' },
+            
+            // Game Badges
+            '2048_tile': { title: '2048 Master', desc: 'Reached the 2048 tile!' },
             
             // Streak Badges
             'streak_3': { title: 'Streak Starter', desc: 'Visited 3 days in a row' },
@@ -80,16 +80,10 @@
                 popup.style.transform = 'translateX(-50%) translateY(-200px)';
                 setTimeout(() => popup.remove(), 500);
             }, 4000);
-            
-            // Play Sound
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3'); // Success sound
-            audio.volume = 0.5;
-            audio.play().catch(e => {}); // Ignore autoplay errors
         },
 
         checkAll: function() {
             this.checkTimeBased();
-            this.checkVisits();
             this.checkTimeSpent();
             this.checkSubjectMastery(); // Handles alg, phys, chem
             this.checkStreaks(); 
@@ -99,21 +93,6 @@
             const hour = new Date().getHours();
             if (hour >= 22) this.award('night_owl');
             if (hour >= 5 && hour < 7) this.award('early_bird');
-        },
-
-        checkVisits: function() {
-            // Track unique pages visited
-            let visits = JSON.parse(localStorage.getItem('arisEdu_visits') || '[]');
-            
-            // Add current page if not already present
-            if (!visits.includes(window.location.pathname)) {
-                visits.push(window.location.pathname);
-                localStorage.setItem('arisEdu_visits', JSON.stringify(visits));
-            }
-
-            if (visits.length >= 1) this.award('first_visit');
-            if (visits.length >= 5) this.award('scholar');
-            if (visits.length >= 20) this.award('dedicated');
         },
 
         checkTimeSpent: function() {

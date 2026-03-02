@@ -123,9 +123,10 @@
       select.style.cssText = 'width:100%; padding:0.3rem; background:#334155; color:white; border:none; border-radius:0.3rem; margin-bottom:0.3rem;';
       
       var badgeKeys = [
-          'first_visit', 'night_owl', 'early_bird', 'scholar', 
-          'dedicated', 'completionist', 'quiz_master', 
+          'night_owl', 'early_bird',
+          'completionist', 'quiz_master', 
           'algebra_master', 'physics_pro', 'chemistry_whiz', 'polyglot',
+          '2048_tile',
           'streak_3', 'streak_7', 'streak_30'
       ];
       
