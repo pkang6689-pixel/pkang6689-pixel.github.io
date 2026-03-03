@@ -12,6 +12,7 @@
   <script charset="UTF-8" src="scripts/global_translations.js?v=7.4"></script>
   <script src="scripts/spanish_translations.js?v=1.4"></script>
   <script src="scripts/hindi_translations.js?v=1.4"></script>
+  <script type="module" src="scripts/course-progress-firebase.js"></script>
 </head>
 <body class="dark-mode h-full">
 <script src="scripts/taskbar.js"></script>
@@ -20,6 +21,9 @@
       <div style="display: flex; align-items: center; gap: 1.5rem;"><div style="color: currentColor; flex-shrink: 0;"><svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8C16 8 14 10 14 12L14 28C14 30 16 32 18 32C20 32 22 30 22 28L22 12C22 10 20 8 18 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="24" y1="6" x2="26" y2="34" stroke="currentColor" stroke-width="1.5"/></svg></div><h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0;">AP Calculus AB</h1></div>
     </div>
     <div id="courses-container" class="courses-container" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1rem; min-height: 60rem;"></div>
+    <div style="display: flex; justify-content: center; padding: 2rem; margin-top: 2rem;">
+      <button onclick="window.location.href='APLessons/AP Calculus AB/practice_exam.html'" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 3rem; border: none; border-radius: 0.5rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'">Take Practice Exam</button>
+    </div>
   </main>
 
   <script src="../search_data.js"></script>
@@ -36,6 +40,7 @@
   const courseConfig = {
     name: "AP Calculus AB",
     folder: "AP Calculus AB",
+    coursePrefix: "ap_calc_ab",
     units: {
       1: 11,
       2: 9,
@@ -79,7 +84,7 @@
       
       const href = `APLessons/${folderPath}/${unitText}/${lessonText}`;
       segments += `<g onclick="markLessonStarted(${unitNum}, ${lessonNum}); window.location.href='${href}';" style="cursor: pointer;">
-    <rect id="u${unitNum}-l${lessonNum}" stroke="none" x="3" y="${yPos}" width="18" height="${rectHeight}" fill="white" fill-opacity="0.25" pointer-events="auto" onmouseenter="showLessonPopup(event, '${lessonName}')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect></g>
+    <rect id="u${unitNum}-l${lessonNum}" stroke="none" x="3" y="${yPos}" width="18" height="${rectHeight}" fill="white" fill-opacity="0.25" pointer-events="auto" onmouseenter="showLessonPopup(event, '${lessonName}', ${unitNum}, ${lessonNum})" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect></g>
   <line x1="3" y1="${yPos}" x2="21" y2="${yPos}" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />`;
     }
     
@@ -88,7 +93,7 @@
     const testHref = `AP_Unit_Tests/${courseConfig.folder}/Unit${unitNum}/unit_tests.html`;
     const testName = `Unit ${unitNum} Test`;
     segments += `<g onclick="markLessonStarted(${unitNum}, 99); window.location.href='${testHref}';" style="cursor: pointer;">
-    <rect id="u${unitNum}-l99" stroke="none" x="3" y="${testYPos}" width="18" height="${rectHeight}" fill="white" fill-opacity="0.25" pointer-events="auto" onmouseenter="showLessonPopup(event, '${testName}')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect></g>
+    <rect id="u${unitNum}-l99" stroke="none" x="3" y="${testYPos}" width="18" height="${rectHeight}" fill="white" fill-opacity="0.25" pointer-events="auto" onmouseenter="showLessonPopup(event, '${testName}', ${unitNum}, 99)" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect></g>
   <line x1="3" y1="${testYPos}" x2="21" y2="${testYPos}" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />`;
     
     return `<div style="position: relative; display: flex; align-items: flex-start; justify-content: center; height: 100%;"><svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;"><rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" /><rect id="fill-unit-${unitNum}" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" /><g id="segments-unit-${unitNum}">
@@ -111,11 +116,31 @@ ${segments}</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stro
 
   let tooltipEl = null;
   function getOrCreateTooltip() { if (!tooltipEl) { tooltipEl = document.createElement('div'); tooltipEl.id = 'lesson-tooltip'; document.body.appendChild(tooltipEl); } return tooltipEl; }
-  function showLessonPopup(event, lessonTitle) { const tooltip = getOrCreateTooltip(); tooltip.textContent = lessonTitle; tooltip.setAttribute('data-visible', 'true'); }
+  function showLessonPopup(event, lessonTitle, unitNum, lessonNum) { 
+    const tooltip = getOrCreateTooltip();
+    let status = '';
+    const isCompleted = localStorage.getItem(`${courseConfig.coursePrefix}_u${unitNum}_l${lessonNum}_completed`) === 'true';
+    const isStarted = localStorage.getItem(`${courseConfig.coursePrefix}_u${unitNum}_l${lessonNum}_started`) === 'true';
+    if (isCompleted) {
+      status = '✅ COMPLETED\n';
+    } else if (isStarted) {
+      status = '⏳ IN PROGRESS\n';
+    }
+    tooltip.textContent = status + lessonTitle;
+    tooltip.setAttribute('data-visible', 'true');
+  }
   function moveLessonPopup(event) { const tooltip = getOrCreateTooltip(); tooltip.style.left = (event.pageX + 12) + 'px'; tooltip.style.top = (event.pageY + 12) + 'px'; }
   function hideLessonPopup() { const tooltip = getOrCreateTooltip(); tooltip.setAttribute('data-visible', 'false'); }
-  function markLessonStarted(unit, lesson) { localStorage.setItem(`ap_bio_u${unit}_l${lesson}_started`, 'true'); applyProgressColors(); }
-  function markLessonComplete(unit, lesson) { localStorage.setItem(`ap_bio_u${unit}_l${lesson}_completed`, 'true'); applyProgressColors(); }
+  function markLessonStarted(unit, lesson) { 
+    localStorage.setItem(`${courseConfig.coursePrefix}_u${unit}_l${lesson}_started`, 'true');
+    if (window.courseProgress) { window.courseProgress.markStarted('ap_calc_ab', unit, lesson); }
+    applyProgressColors();
+  }
+  function markLessonComplete(unit, lesson) { 
+    localStorage.setItem(`${courseConfig.coursePrefix}_u${unit}_l${lesson}_completed`, 'true');
+    if (window.courseProgress) { window.courseProgress.markComplete('ap_calc_ab', unit, lesson); }
+    applyProgressColors();
+  }
   function applyProgressColors() { 
     for (let u = 1; u <= courseConfig.numUnits; u++) { 
       const maxLessons = courseConfig.units[u] || 0;
@@ -135,8 +160,8 @@ ${segments}</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stro
       // Apply colors to unit test
       const testSegment = document.getElementById(`u${u}-l99`);
       if (testSegment) {
-        const isTestCompleted = localStorage.getItem(`ap_chem_u${u}_l99_completed`) === 'true';
-        const isTestStarted = localStorage.getItem(`ap_chem_u${u}_l99_started`) === 'true';
+        const isTestCompleted = localStorage.getItem(`ap_calc_ab_u${u}_l99_completed`) === 'true';
+        const isTestStarted = localStorage.getItem(`ap_calc_ab_u${u}_l99_started`) === 'true';
         if (isTestCompleted) {
           testSegment.setAttribute('fill', '#16a34a');
           testSegment.setAttribute('fill-opacity', '0.7');
@@ -149,7 +174,7 @@ ${segments}</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stro
   }
   // Listen for storage changes from other tabs/quiz completion
   window.addEventListener('storage', function(e) {
-    if (e.key && e.key.match(/ap_bio_u\d+_l\d+_(completed|started)/)) { applyProgressColors(); }
+    if (e.key && e.key.match(/ap_calc_ab_u\d+_l\d+_(completed|started)/)) { applyProgressColors(); }
   });
 </script>
 <script src="scripts/dev_tools.js"></script>

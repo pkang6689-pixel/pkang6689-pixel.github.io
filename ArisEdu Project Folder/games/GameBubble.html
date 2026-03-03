@@ -15,7 +15,35 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles/main.css">
-    <style>
+        <style>
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Orbitron', monospace; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        body > .flex { display: flex !important; flex-direction: row !important; overflow: hidden; height: 100vh; gap: 1rem; padding: 1rem; }
+        #game-wrapper { 
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: auto;
+            min-width: 0;
+            max-width: 100%;
+            margin: 0;
+            overflow: auto;
+        }
+        #game-wrapper > div:first-child {
+            width: 100%;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
         #game-sidebar {
             background: rgba(55, 65, 81, 0.98);
             border-radius: 1rem;
@@ -24,10 +52,13 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            width: 400px;
-            min-height: 800px;
+            width: 350px;
+            height: auto;
+            max-height: 100vh;
             border: 2px solid rgba(107, 114, 128, 0.9);
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+            overflow-y: auto;
+            flex-shrink: 0;
         }
         #game-session-timer {
             background: rgba(34, 197, 94, 0.95);
@@ -47,21 +78,36 @@
             animation: pulse 1s infinite;
         }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
-        canvas { border-radius: 0.5rem; }
-        #game-wrapper { margin-left:150px; width: min(720px, calc(100vw - 360px)); max-width: 100%; }
         .pause-btn { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
         .pause-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+        
+        @media (max-width: 1200px) {
+            #game-sidebar { width: 300px; padding: 1rem; }
+        }
+        @media (max-width: 768px) {
+            .flex { flex-direction: column; height: auto; }
+            #game-sidebar { width: 100%; height: auto; max-height: 250px; }
+            #game-wrapper { height: auto; }
+        }
     </style>
     <script src="../theme_manager.js"></script>
+    <style>
+        #pause-screen.hidden { display: none !important; }
+    </style>
+    <style>
+        #start-screen.hidden { display: none !important; }
+    </style>
+    <style>
+        #game-over.hidden { display: none !important; }
+    </style>
 </head>
 <body class="dark-mode bg-gray-900 min-h-screen text-white">
 <script src="../scripts/taskbar.js"></script>
 <script src="../scripts/global_translations.js?v=8.0"></script>
 
-<div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
+<div class="flex">
 
-    <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+    <div id="game-wrapper" class="relative max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
         <button class="pause-btn" onclick="togglePause()" title="Pause"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
 
         <div class="flex justify-between items-end mb-4">
@@ -90,15 +136,27 @@
 
         <p class="text-center text-xs text-gray-500 mt-4 font-sans">Click to aim and shoot • Match 3+ bubbles</p>
 
-        <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+        <div id="game-over" class="absolute inset-0 bg-black/90 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
             <h2 class="text-3xl text-red-500 font-bold mb-2">GAME OVER</h2>
             <div class="text-4xl font-bold text-white mb-4" id="final-score">0</div>
             <button onclick="resetGame()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
                 TRY AGAIN
             </button>
+        </div>        <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <h2 class="text-3xl purple-400 font-bold mb-3">🫧 BUBBLE</h2>
+            <p class="text-gray-300 mb-4 font-sans text-sm">Pop all the bubbles!</p>
+            <div class="text-left text-xs text-gray-400 font-sans mb-6 space-y-1">
+                <p><span class="font-bold">Mouse / Touch</span> — Aim and shoot</p><p><span class="font-bold">Click / Tap</span> — Fire</p>
+                <p><span class="font-bold">Esc / P</span> — Pause</p>
+            </div>
+            <button onclick="startGame()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                START
+            </button>
         </div>
 
-        <div id="pause-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-30 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+
+
+        <div id="pause-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-30 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
             <h2 class="text-4xl text-white font-bold mb-4">PAUSED</h2>
             <button onclick="togglePause()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
                 RESUME
@@ -415,17 +473,17 @@
             initGame();
         }
 
-        // Initialize arcade game
-        (async function() {
-            if (!await initializeArcadeGame()) return;
-            initGame();
-            gameLoop();
-        })();
+        // Initialize arcade game - deferred until user clicks START
+        // (async function() {
+        //     if (!await initializeArcadeGame()) return;
+        //     initGame();
+        //     gameLoop();
+        // })();
 
         canvas.addEventListener('mousemove', (e) => {
             const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const y = (e.clientY - rect.top) * (canvas.height / rect.height);
             
             const dx = x - gameState.shooter.x;
             const dy = y - gameState.shooter.y;
@@ -463,9 +521,15 @@
             }
         }
 
-        // Initialize and start game
-        initGame();
-        gameLoop();
+        // Game initialization is deferred until user clicks START
+    
+        async function startGame() {
+            if (!await initializeArcadeGame('🫧 BUBBLE', 'from-blue-400', 'to-purple-600')) return;
+            document.getElementById('start-screen').style.display = 'none';
+            initGame();
+            gameLoop();
+        }
+
     </script>
 </body>
 </html>

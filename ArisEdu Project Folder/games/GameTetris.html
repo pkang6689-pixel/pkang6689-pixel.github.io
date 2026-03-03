@@ -15,7 +15,59 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles/main.css">
-    <style>
+        <style>
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Orbitron', monospace; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        body > .flex { display: flex !important; flex-direction: row !important; overflow: hidden; height: 100vh; gap: 1rem; padding: 1rem; }
+        #game-wrapper { 
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: auto;
+            position: relative;
+        }
+        #game-wrapper > div:first-child {
+            width: 100%;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #game-wrapper > div.flex {
+            width: 100%;
+            height: auto;
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 1;
+            min-height: 0;
+        }
+        #board {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            display: block;
+        }
+        #hold, #next {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            display: block;
+        }
         #game-sidebar {
             background: rgba(55, 65, 81, 0.98);
             border-radius: 1rem;
@@ -24,10 +76,13 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            width: 400px;
-            min-height: 800px;
+            width: 350px;
+            height: auto;
+            max-height: 100vh;
             border: 2px solid rgba(107, 114, 128, 0.9);
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+            overflow-y: auto;
+            flex-shrink: 0;
         }
         #game-session-timer {
             background: rgba(34, 197, 94, 0.95);
@@ -46,23 +101,23 @@
             background: rgba(239, 68, 68, 0.95);
             animation: pulse 1s infinite;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
-        canvas { border-radius: 0.5rem; }
-        #game-wrapper {
-            margin-left:150px;
-            width: min(720px, calc(100vw - 360px));
-            max-width: 100%;
-        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         .pause-btn { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
         .pause-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
-        :fullscreen { background: #111827; }
         
+        @media (max-width: 1200px) {
+            #game-sidebar { width: 300px; padding: 1rem; }
+        }
+        @media (max-width: 768px) {
+            .flex { flex-direction: column; height: auto; }
+            #game-sidebar { width: 100%; height: auto; max-height: 250px; }
+            #game-wrapper { height: auto; }
+        }
     </style>
     <script src="../theme_manager.js"></script>
+    <style>
+        /* Overlays hidden by default via JS style.display */
+    </style>
 </head>
 <body class="dark-mode bg-gray-900 min-h-screen text-white">
 <script src="../scripts/taskbar.js"></script>
@@ -72,9 +127,9 @@
 <script src="../scripts/spanish_translations.js?v=1.0"></script>
 <script src="../scripts/hindi_translations.js?v=1.0"></script>
 
-    <div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
+    <div class="flex">
 
-    <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+    <div id="game-wrapper" class="relative bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
         <button class="pause-btn" onclick="togglePause()" title="Pause"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
         <div class="flex justify-between items-end mb-4">
             <div>
@@ -98,7 +153,7 @@
             <div class="flex flex-col gap-4">
                 <div>
                     <div class="text-xs text-gray-400 font-sans mb-1 text-center">HOLD</div>
-                    <canvas id="hold" class="bg-gray-950 border-2 border-gray-700" width="80" height="80"></canvas>
+                    <canvas id="hold" class="bg-gray-950 border-2 border-gray-700"></canvas>
                 </div>
                 <div>
                     <div class="text-xs text-gray-400 font-sans">BEST</div>
@@ -106,12 +161,12 @@
                 </div>
             </div>
             <!-- Main Board -->
-            <canvas id="board" class="bg-gray-950 border-2 border-gray-700" width="200" height="400"></canvas>
+            <canvas id="board" class="bg-gray-950 border-2 border-gray-700"></canvas>
             <!-- Next Piece -->
             <div class="flex flex-col gap-4">
                 <div>
                     <div class="text-xs text-gray-400 font-sans mb-1 text-center">NEXT</div>
-                    <canvas id="next" class="bg-gray-950 border-2 border-gray-700" width="80" height="80"></canvas>
+                    <canvas id="next" class="bg-gray-950 border-2 border-gray-700"></canvas>
                 </div>
                 <div>
                     <div class="text-xs text-gray-400 font-sans mb-1 text-center">LEVEL</div>
@@ -123,7 +178,7 @@
         <p class="text-center text-xs text-gray-500 mt-4 font-sans">← → move | ↑ rotate | ↓ soft drop | Space hard drop | C hold</p>
 
         <!-- Game Over -->
-        <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+        <div id="game-over" class="absolute inset-0 bg-black/90 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
             <h2 class="text-3xl text-red-500 font-bold mb-2" data-i18n="GAME OVER">GAME OVER</h2>
             <p class="text-gray-300 mb-2 font-sans">Board filled up!</p>
             <div class="text-4xl font-bold text-white mb-2" id="final-score">0</div>
@@ -134,7 +189,7 @@
         </div>
         
         <!-- Start -->
-        <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+        <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
             <h2 class="text-3xl text-red-400 font-bold mb-2">TETRIS</h2>
             <p class="text-gray-300 mb-4 font-sans">Stack tetrominoes,<br>clear lines to score!</p>
             <p class="text-sm text-gray-400 mb-6 font-sans">⬅️➡️ Move | ⬆️ Rotate | Space Hard Drop</p>
@@ -144,7 +199,7 @@
         </div>
 
         <!-- Pause Overlay -->
-        <div id="pause-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-30 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+        <div id="pause-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-30 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
             <h2 class="text-4xl text-white font-bold mb-2">PAUSED</h2>
             <p class="text-gray-400 mb-4 font-sans">Game is paused</p>
             <p class="text-sm text-gray-500 mb-6 font-sans">⬅️➡️ Move | ⬆️ Rotate | Space Hard Drop</p>
@@ -165,13 +220,23 @@
 
     <script>
         let gamePaused = false;
-        function togglePause() {
-            if (!running && !gamePaused) return;
-            gamePaused = !gamePaused;
-            document.getElementById('pause-screen').classList.toggle('hidden', !gamePaused);
-            if (gamePaused) { running = false; clearInterval(gameLoop); }
-            else { running = true; gameLoop = setInterval(tick, clearAnimPhase ? 33 : dropInterval); }
+        
+function togglePause() {
+    if (!running && !gamePaused) return;
+    gamePaused = !gamePaused;
+    const pauseScreen = document.getElementById('pause-screen');
+    if (gamePaused) {
+        pauseScreen.style.display = 'flex';
+        running = false;
+        if (gameLoop) clearInterval(gameLoop);
+    } else {
+        pauseScreen.style.display = 'none';
+        running = true;
+        if (typeof tick === 'function') {
+            gameLoop = setInterval(tick, clearAnimPhase ? 33 : dropInterval);
         }
+    }
+}
 
         const boardCanvas = document.getElementById('board');
         const nextCanvas = document.getElementById('next');
@@ -180,8 +245,32 @@
         const nCtx = nextCanvas.getContext('2d');
         const hCtx = holdCanvas.getContext('2d');
 
-        const COLS = 10, ROWS = 20, CELL = 20;
-        const NEXT_CELL = 16;
+        // Calculate responsive cell size to fill available space
+        function updateCanvasSizes() {
+            const gameWrapper = document.getElementById('game-wrapper');
+            // Use most of the container space
+            const availWidth = Math.max(gameWrapper.clientWidth * 0.95, 300);
+            const availHeight = Math.max(gameWrapper.clientHeight * 0.95, 400);
+            // Cell size calculated to maximize usage (50px max per cell, or fit 10x20 into available space)
+            let CELL = Math.floor(Math.min(availWidth / 12, availHeight / 22, 80)); // Increased max to 80
+            if (CELL < 5) CELL = 5; // Minimum cell size
+            let NEXT_CELL = Math.floor(CELL * 0.8);
+            
+            // Update canvas sizes
+            boardCanvas.width = CELL * 10;
+            boardCanvas.height = CELL * 20;
+            nextCanvas.width = NEXT_CELL * 4;
+            nextCanvas.height = NEXT_CELL * 4;
+            holdCanvas.width = NEXT_CELL * 4;
+            holdCanvas.height = NEXT_CELL * 4;
+            
+            return CELL;
+        }
+        
+        let CELL = updateCanvasSizes();
+        let NEXT_CELL = Math.floor(CELL * 0.8);
+
+        const COLS = 10, ROWS = 20;
 
         const COLORS = ['#06b6d4', '#eab308', '#a855f7', '#22c55e', '#ef4444', '#3b82f6', '#f97316'];
 
@@ -197,6 +286,8 @@
         ];
 
         let grid, current, nextPiece, holdPiece, holdUsed, score, lines, level, dropTimer, dropInterval, gameLoop, running;
+        running = false;
+        gameLoop = null;
         let clearingRows = [], clearAnimTimer = 0, clearAnimPhase = false;
         let clearParticles = [];
         let bestScore = parseInt(localStorage.getItem('tetris_best') || '0');
@@ -286,7 +377,7 @@
                         clearInterval(gameLoop);
                         document.getElementById('final-score').textContent = score;
                         document.getElementById('final-lines').textContent = lines + ' lines';
-                        document.getElementById('game-over').classList.remove('hidden');
+                        document.getElementById('game-over').style.display = 'flex';
                         return;
                     }
                     grid[y][x] = current.color;
@@ -303,7 +394,7 @@
                 clearInterval(gameLoop);
                 document.getElementById('final-score').textContent = score;
                 document.getElementById('final-lines').textContent = lines + ' lines';
-                document.getElementById('game-over').classList.remove('hidden');
+                document.getElementById('game-over').style.display = 'flex';
             }
         }
 
@@ -566,8 +657,9 @@
         }
 
         async function startGame() {
-            if (!await initializeArcadeGame()) return;
-            document.getElementById('start-screen').classList.add('hidden');
+            sessionStorage.setItem('validGameAccess', 'true');
+            if (!await initializeArcadeGame('🎮 TETRIS', 'from-cyan-400', 'to-blue-600')) return;
+            document.getElementById('start-screen').style.display = 'none';
             init();
             running = true;
             drawBoard();
@@ -594,7 +686,7 @@
         });
 
         function resetGame() {
-            document.getElementById('game-over').classList.add('hidden');
+            document.getElementById('game-over').style.display = 'none';
             init();
             running = true;
             drawBoard();
@@ -675,11 +767,6 @@
             }
             touchStartX = null;
         });
-
-        init();
-        drawBoard();
-        drawNext();
-        drawHold();
     </script>
 </body>
 </html>

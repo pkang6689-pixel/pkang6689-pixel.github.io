@@ -15,23 +15,91 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles/main.css">
-    <style>
-        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
-        canvas { border-radius: 0.5rem; }
-        #game {
+        <style>
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Orbitron', monospace; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        body > .flex { display: flex !important; flex-direction: row !important; overflow: hidden; height: 100vh; gap: 1rem; padding: 1rem; }
+        #game-wrapper { 
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: auto;
+            min-width: 0;
+            max-width: 100%;
+            margin: 0;
+            overflow: auto;
+        }
+        #game-wrapper > div:first-child {
             width: 100%;
             height: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-        #game-wrapper { margin-left: 150px; width: min(720px, calc(100vw - 360px)); max-width: 100%; }
         #game-sidebar {
-            background: rgba(55, 65, 81, 0.98); border-radius: 1rem; padding: 1.5rem;
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 400px;
-            min-height: 200px;
+            background: rgba(55, 65, 81, 0.98);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 350px;
+            height: auto;
+            max-height: 100vh;
             border: 2px solid rgba(107, 114, 128, 0.9);
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        #game-session-timer {
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 2rem;
+            font-family: monospace;
+            width: 100%;
+            text-align: center;
+            margin-top: 0.5rem;
+            letter-spacing: 2px;
+        }
+        #game-session-timer.warning {
+            background: rgba(239, 68, 68, 0.95);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .pause-btn { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
+        .pause-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+        
+        @media (max-width: 1200px) {
+            #game-sidebar { width: 300px; padding: 1rem; }
+        }
+        @media (max-width: 768px) {
+            .flex { flex-direction: column; height: auto; }
+            #game-sidebar { width: 100%; height: auto; max-height: 250px; }
+            #game-wrapper { height: auto; }
         }
     </style>
     <script src="../theme_manager.js"></script>
+    <style>
+        #pause-screen.hidden { display: none !important; }
+    </style>
+    <style>
+        #start-screen.hidden { display: none !important; }
+    </style>
+    <style>
+        #game-over.hidden { display: none !important; }
+    </style>
 </head>
 <body class="dark-mode bg-gray-900 min-h-screen text-white">
 <script src="../scripts/taskbar.js"></script>
@@ -41,8 +109,8 @@
 <script src="../scripts/spanish_translations.js?v=1.0"></script>
 <script src="../scripts/hindi_translations.js?v=1.0"></script>
 
-<div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
-    <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+<div class="flex">
+    <div id="game-wrapper" class="relative max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
         <div class="flex justify-between items-end mb-4">
             <div>
                 <h1 class="text-2xl font-bold bg-gradient-to-r from-gray-300 to-gray-500 bg-clip-text text-transparent" data-i18n="MINESWEEPER">MINESWEEPER</h1>
@@ -73,10 +141,21 @@
 
         <canvas id="game" class="bg-gray-900 border-2 border-gray-700 mx-auto"></canvas>
 
-        <p class="text-center text-xs text-gray-500 mt-4 font-sans" data-i18n="Click to reveal · Right-click to flag">Click to reveal · Right-click to flag</p>
+        <p class="text-center text-xs text-gray-500 mt-4 font-sans" data-i18n="Click to reveal · Right-click to flag">Click to reveal · Right-click to flag</p>        <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <h2 class="text-3xl emerald-400 font-bold mb-3">💣 MINESWEEPER</h2>
+            <p class="text-gray-300 mb-4 font-sans text-sm">Reveal the safe tiles!</p>
+            <div class="text-left text-xs text-gray-400 font-sans mb-6 space-y-1">
+                <p><span class="font-bold">Left Click</span> — Reveal tile</p><p><span class="font-bold">Right Click</span> — Flag tile</p>
+                <p><span class="font-bold">Esc / P</span> — Pause</p>
+            </div>
+            <button onclick="startGame()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                START
+            </button>
+        </div>
+
 
         <!-- Game Over Overlay -->
-        <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+        <div id="game-over" class="absolute inset-0 bg-black/90 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
             <h2 id="end-title" class="text-3xl font-bold mb-2">GAME OVER</h2>
             <p id="end-msg" class="text-gray-300 mb-6 font-sans"></p>
             <div class="text-4xl font-bold text-white mb-8" id="final-score">0</div>
@@ -173,7 +252,7 @@
         document.getElementById('timer').textContent = '0:00';
         document.getElementById('score').textContent = '0';
         document.getElementById('mine-count').textContent = mineCount;
-        document.getElementById('game-over').classList.add('hidden');
+        document.getElementById('game-over').style.display = 'none';
         updateBestDisplay();
 
         for (let i = 0; i < rows; i++) {
@@ -264,7 +343,7 @@
         document.getElementById('end-title').textContent = won ? '🎉 YOU WIN!' : '💥 BOOM!';
         document.getElementById('end-title').style.color = won ? '#22c55e' : '#ef4444';
         document.getElementById('end-msg').textContent = won ? 'All mines found!' : 'You hit a mine!';
-        document.getElementById('game-over').classList.remove('hidden');
+        document.getElementById('game-over').style.display = 'flex';
     }
 
     // ---- Input handling ----
@@ -466,9 +545,16 @@
     }
 
     // ---- Start default game ----
-    newGame(9, 9, 10);
+        // newGame is called by startGame() when user clicks START
+        // newGame(9, 9, 10);
 
-</script>
+    async function startGame() {
+        if (!await initializeArcadeGame('💣 MINESWEEPER', 'from-emerald-400', 'to-teal-600')) return;
+        document.getElementById('start-screen').style.display = 'none';
+        newGame(9, 9, 10);
+    }
+
+    </script>
 </body>
 </html>
 

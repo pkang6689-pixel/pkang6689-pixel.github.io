@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP Practice Exam</title>
+    <link rel="stylesheet" href="ArisEdu Project Folder/styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1e1b4b 0%, #2d1b4e 100%);
+        }
+
+        .exam-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        body.dark-mode .exam-container {
+            background: #1e293b;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .exam-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .exam-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .exam-header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .exam-attribution {
+            font-size: 0.85rem;
+            opacity: 0.85;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .exam-attribution a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        body.dark-mode .exam-attribution a {
+            color: #e0e7ff;
+        }
+
+        .exam-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        body.dark-mode .exam-controls {
+            border-bottom-color: #334155;
+            background: #0f172a;
+        }
+
+        .progress-info {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .progress-bar-wrapper {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        body.dark-mode .progress-bar {
+            background: #334155;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #667eea;
+            min-width: 80px;
+        }
+
+        body.dark-mode .timer {
+            color: #a78bfa;
+        }
+
+        .timer.warning {
+            color: #f97316;
+        }
+
+        .timer.critical {
+            color: #dc2626;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .exam-content {
+            padding: 2rem;
+        }
+
+        body.dark-mode .exam-content {
+            background: #1e293b;
+        }
+
+        .question-container {
+            margin-bottom: 2rem;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        body.dark-mode .question-number {
+            color: #a78bfa;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        body.dark-mode .question-text {
+            color: #e2e8f0;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option {
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            color: #1f2937;
+        }
+
+        body.dark-mode .option {
+            border-color: #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        body.dark-mode .option:hover {
+            border-color: #a78bfa;
+            background: #312e81;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        body.dark-mode .option.selected {
+            border-color: #a78bfa;
+            background: #312e81;
+        }
+
+        .option.correct {
+            border-color: #16a34a;
+            background: #f0fdf4;
+            color: #15803d;
+        }
+
+        body.dark-mode .option.correct {
+            border-color: #4ade80;
+            background: #1a3a1a;
+            color: #86efac;
+        }
+
+        .option.incorrect {
+            border-color: #dc2626;
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        body.dark-mode .option.incorrect {
+            border-color: #f87171;
+            background: #3a1a1a;
+            color: #fca5a5;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 0.75rem;
+        }
+
+        .exam-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        body.dark-mode .exam-buttons {
+            border-top-color: #334155;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #1f2937;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        body.dark-mode .btn-secondary {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+
+        body.dark-mode .btn-secondary:hover {
+            background: #1a202c;
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-container {
+            display: none;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        body.dark-mode .results-container {
+            color: #e2e8f0;
+        }
+
+        .results-container.show {
+            display: block;
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea;
+            margin: 2rem 0;
+        }
+
+        body.dark-mode .score-display {
+            color: #a78bfa;
+        }
+
+        .score-message {
+            font-size: 1.3rem;
+            color: #4b5563;
+            margin-bottom: 2rem;
+        }
+
+        body.dark-mode .score-message {
+            color: #cbd5e1;
+        }
+
+        .results-details {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        body.dark-mode .results-details {
+            background: #0f172a;
+            border: 1px solid #334155;
+        }
+
+        .results-details p {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+            color: #374151;
+        }
+
+        body.dark-mode .results-details p {
+            color: #cbd5e1;
+        }
+
+        .section-break {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        body.dark-mode .section-break {
+            background: #334155;
+        }
+
+        .exam-support-button {
+            padding: 0.5rem 1rem;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .exam-support-button:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+        }
+
+        body.dark-mode .exam-support-button {
+            background: #10b981;
+        }
+
+        .feedback-display {
+            display: none;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-display.show {
+            display: block;
+        }
+
+        .feedback-display.correct {
+            background: #f0fdf4;
+            border: 2px solid #16a34a;
+            color: #15803d;
+        }
+
+        body.dark-mode .feedback-display.correct {
+            background: #1a3a1a;
+            border-color: #4ade80;
+            color: #86efac;
+        }
+
+        .feedback-display.incorrect {
+            background: #fef2f2;
+            border: 2px solid #dc2626;
+            color: #b91c1c;
+        }
+
+        body.dark-mode .feedback-display.incorrect {
+            background: #3a1a1a;
+            border-color: #f87171;
+            color: #fca5a5;
+        }
+
+        .feedback-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .submit-question-btn {
+            margin-top: 1rem;
+        }
+
+        .exam-support-modal {
+            display: none;
+            position: fixed;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+            z-index: 100;
+            min-width: 300px;
+            max-width: 400px;
+            animation: slideUp 0.3s ease;
+        }
+
+        body.dark-mode .exam-support-modal {
+            background: #1e293b;
+            border-color: #a78bfa;
+            box-shadow: 0 10px 40px rgba(167, 139, 250, 0.3);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .exam-support-modal.show {
+            display: block;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.75rem;
+        }
+
+        body.dark-mode .modal-header {
+            border-bottom-color: #334155;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #1f2937;
+            font-size: 1.1rem;
+        }
+
+        body.dark-mode .modal-header h3 {
+            color: #e2e8f0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: #1f2937;
+        }
+
+        body.dark-mode .modal-close:hover {
+            color: #e2e8f0;
+        }
+
+        .modal-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-item:hover {
+            background: #f3f4f6;
+        }
+
+        body.dark-mode .option-item {
+            background: #0f172a;
+        }
+
+        body.dark-mode .option-item:hover {
+            background: #1a202c;
+        }
+
+        .option-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .option-label {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .option-label-title {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        body.dark-mode .option-label-title {
+            color: #e2e8f0;
+        }
+
+        .option-label-description {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        body.dark-mode .option-label-description {
+            color: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            .exam-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .exam-controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .progress-info {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .progress-bar-wrapper {
+                min-width: 100%;
+            }
+
+            .disclaimer-modal {
+                width: 95%;
+                max-height: 80vh;
+            }
+        }
+
+        /* Disclaimer Modal Styles */
+        .disclaimer-overlay {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .disclaimer-modal {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        body.dark-mode .disclaimer-modal {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        .disclaimer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 1rem;
+        }
+
+        body.dark-mode .disclaimer-header {
+            border-bottom-color: #334155;
+        }
+
+        .disclaimer-header h2 {
+            margin: 0;
+            color: #1f2937;
+            font-size: 1.5rem;
+        }
+
+        body.dark-mode .disclaimer-header h2 {
+            color: #e2e8f0;
+        }
+
+        .disclaimer-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease;
+        }
+
+        .disclaimer-close:hover {
+            color: #1f2937;
+        }
+
+        body.dark-mode .disclaimer-close:hover {
+            color: #e2e8f0;
+        }
+
+        .disclaimer-content {
+            color: #374151;
+            line-height: 1.7;
+        }
+
+        body.dark-mode .disclaimer-content {
+            color: #cbd5e1;
+        }
+
+        .disclaimer-content p {
+            margin: 0 0 1rem 0;
+        }
+
+        .disclaimer-links {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0 0 0;
+        }
+
+        .disclaimer-links li {
+            margin: 0.75rem 0;
+            padding: 0.75rem;
+            background: #f3f4f6;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        body.dark-mode .disclaimer-links li {
+            background: #0f172a;
+            border-left-color: #a78bfa;
+        }
+
+        .disclaimer-links a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        body.dark-mode .disclaimer-links a {
+            color: #a78bfa;
+        }
+
+        .disclaimer-links a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        body.dark-mode .disclaimer-links a:hover {
+            color: #e9d5ff;
+        }
+    </style>
+</head>
+<body>
+    <script src="ArisEdu Project Folder/scripts/taskbar.js"></script>
+    <script src="ArisEdu Project Folder/theme_manager.js"></script>
+
+    <!-- Disclaimer Modal -->
+    <div class="disclaimer-overlay" id="disclaimer-overlay">
+        <div class="disclaimer-modal" id="disclaimer-modal">
+            <div class="disclaimer-header">
+                <h2>⚠️ Disclaimer</h2>
+                <button class="disclaimer-close" onclick="dismissDisclaimer()">✕</button>
+            </div>
+            <div class="disclaimer-content">
+                <p>These practice exams are <strong>supplementary learning tools</strong> and <strong>may not represent the full quality and variety of official AP exams</strong>.</p>
+                
+                <p style="margin-top: 1.5rem; font-weight: 600;">For maximum exam preparation, we recommend combining these with other trusted resources:</p>
+                
+                <ul class="disclaimer-links">
+                    <li>
+                        <a href="https://www.khanacademy.org/test-prep/ap" target="_blank" rel="noopener noreferrer">
+                            <strong>Khan Academy</strong> - Free official AP resources and practice questions
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://apcentral.collegeboard.org/" target="_blank" rel="noopener noreferrer">
+                            <strong>AP Central (College Board)</strong> - Official released exams and course materials
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.albert.io/" target="_blank" rel="noopener noreferrer">
+                            <strong>Albert.io</strong> - Comprehensive practice questions for all AP courses
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://fiveable.me/" target="_blank" rel="noopener noreferrer">
+                            <strong>Fiveable</strong> - Free study guides and practice tests
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://apstudents.collegeboard.org/" target="_blank" rel="noopener noreferrer">
+                            <strong>AP Students Portal</strong> - Official AP resources and exam information
+                        </a>
+                    </li>
+                </ul>
+                
+                <p style="margin-top: 1.5rem; font-size: 0.95rem; color: #6b7280;">
+                    Use these exams to identify weak areas, but prioritize official College Board materials for the most accurate representation of exam content and difficulty.
+                </p>
+            </div>
+            <button class="btn-primary" style="width: 100%; margin-top: 1.5rem;" onclick="dismissDisclaimer()">I Understand - Continue to Exam</button>
+        </div>
+    </div>
+
+    <div class="exam-container">
+        <div class="exam-header">
+            <h1 id="exam-title">AP Practice Exam</h1>
+            <p id="exam-subtitle">Multiple Choice Section</p>
+            <div class="exam-attribution">
+                Questions based on <a href="https://apcentral.collegeboard.org/" target="_blank">College Board AP Exam Frameworks</a>
+            </div>
+        </div>
+
+        <div class="exam-controls">
+            <div class="progress-info">
+                <div>
+                    <span id="question-counter">Question 1 of 50</span>
+                </div>
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="timer" id="timer">60:00</div>
+        </div>
+
+        <div class="exam-content">
+            <div id="questions-container"></div>
+
+            <div class="results-container" id="results-container">
+                <h2>Exam Complete!</h2>
+                <div class="score-display" id="final-score">75%</div>
+                <div class="score-message" id="score-message">Great job! You scored above average.</div>
+                <div class="results-details">
+                    <p><strong>Correct Answers:</strong> <span id="correct-count">38</span> / <span id="total-count">50</span></p>
+                    <p><strong>Time Taken:</strong> <span id="time-taken">45:30</span></p>
+                    <p><strong>Accuracy:</strong> <span id="accuracy-percent">76%</span></p>
+                </div>
+                <button class="btn-primary" onclick="location.reload()">Take Exam Again</button>
+            </div>
+
+            <div class="exam-buttons" id="exam-buttons">
+                <button class="btn-secondary" id="prev-btn" onclick="previousQuestion()" disabled>← Previous</button>
+                <button class="btn-primary" id="next-btn" onclick="nextQuestion()">Next →</button>
+            </div>
+
+            <div style="display: flex; justify-content: center; margin-top: 1rem;">
+                <button class="exam-support-button" id="exam-support-toggle" onclick="toggleExamSupportModal()">📚 Exam Support</button>
+            </div>
+
+            <div class="exam-support-modal" id="exam-support-modal">
+                <div class="modal-header">
+                    <h3>📊 Exam Support Options</h3>
+                    <button class="modal-close" onclick="closeExamSupportModal()">✕</button>
+                </div>
+                <div class="modal-options">
+                    <label class="option-item">
+                        <input type="checkbox" id="immediate-feedback-checkbox" onchange="toggleImmediateFeedback()">
+                        <div class="option-label">
+                            <span class="option-label-title">Immediate Feedback</span>
+                            <span class="option-label-description">See if your answer is correct right away</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="exam-buttons" id="submit-buttons" style="display: none;">
+                <button class="btn-secondary" onclick="window.history.back()">← Back</button>
+                <button class="btn-primary" onclick="submitExam()">Submit Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Disclaimer handling
+        function dismissDisclaimer() {
+            const overlay = document.getElementById('disclaimer-overlay');
+            overlay.style.display = 'none';
+            sessionStorage.setItem('disclaimerDismissed', 'true');
+        }
+
+        function showDisclaimerIfNeeded() {
+            if (!sessionStorage.getItem('disclaimerDismissed')) {
+                const overlay = document.getElementById('disclaimer-overlay');
+                overlay.style.display = 'flex';
+            } else {
+                const overlay = document.getElementById('disclaimer-overlay');
+                overlay.style.display = 'none';
+            }
+        }
+
+        // Exam configuration
+        const examConfig = {
+            courseId: new URLSearchParams(window.location.search).get('course') || 'ap_biology',
+            timeLimit: 3600, // 60 minutes in seconds
+            questions: []
+        };
+
+        let currentQuestionIndex = 0;
+        let answers = {};
+        let startTime = Date.now();
+        let timerInterval = null;
+        let isReviewMode = false;
+        let isExamSupportEnabled = false;
+        let checkedAnswers = {};
+
+        // Load questions from JSON
+        async function loadQuestions() {
+            try {
+                const courseMap = {
+                    'ap_biology': 'AP Biology',
+                    'ap_chemistry': 'AP Chemistry',
+                    'ap_physics2': 'AP Physics 2',
+                    'ap_physics1': 'AP Physics 1',
+                    'ap_calculus': 'AP Calculus AB',
+                    'ap_statistics': 'AP Statistics',
+                    'ap_environmental_science': 'AP Environmental Science',
+                    'ap_hug': 'AP Human Geography',
+                    'ap_physics_mechanics': 'AP Physics C - Mechanics'
+                };
+
+                const courseName = courseMap[examConfig.courseId] || 'AP Biology';
+                const jsonMap = {
+                    'AP Biology': 'ap_biology_lessons.json',
+                    'AP Chemistry': 'ap_chemistry_lessons.json',
+                    'AP Physics 2': 'ap_physics_2_lessons.json',
+                    'AP Physics 1': 'ap_physics_1_lessons.json',
+                    'AP Calculus AB': 'ap_calculus_ab_lessons.json',
+                    'AP Statistics': 'ap_statistics_lessons.json',
+                    'AP Environmental Science': 'ap_environmental_science_lessons.json',
+                    'AP Human Geography': 'ap_human_geography_lessons.json',
+                    'AP Physics C - Mechanics': 'ap_physics_c_-_mechanics_lessons.json'
+                };
+
+                const jsonFile = jsonMap[courseName];
+                const response = await fetch(`content_data/AP_Courses/${jsonFile}`);
+                const data = await response.json();
+
+                // Extract all quiz questions
+                let allQuestions = [];
+                const seenQuestions = new Set(); // Track unique questions to avoid duplicates
+                for (const lesson of Object.values(data)) {
+                    if (lesson.quiz_questions) {
+                        lesson.quiz_questions.forEach(q => {
+                            // Only add if we haven't seen this question text before
+                            if (!seenQuestions.has(q.question_text)) {
+                                seenQuestions.add(q.question_text);
+                                allQuestions.push({
+                                    question: q.question_text,
+                                    options: q.options.map(opt => ({
+                                        text: opt.text,
+                                        correct: opt.is_correct
+                                    })),
+                                    explanation: q.explanation || 'Review course materials for more information.'
+                                });
+                            }
+                        });
+                    }
+                }
+
+                // Shuffle and limit to 50 questions (or fewer if not enough unique questions available)
+                // Using getRandomQuestions to ensure no duplicates within the exam
+                examConfig.questions = getRandomQuestions(allQuestions, 50);
+                document.getElementById('exam-title').textContent = `${courseName} - Practice Exam`;
+
+                // Initialize answers object
+                examConfig.questions.forEach((_, i) => {
+                    answers[i] = null;
+                });
+
+                renderQuestion();
+                startTimer();
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                document.getElementById('questions-container').innerHTML = '<p>Error loading exam. Please try again.</p>';
+            }
+        }
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function getRandomQuestions(array, count) {
+            // Intelligently select questions: 80% from MCQ pool, 20% fallback to lesson content
+            // This ensures authentic practice while preserving some lesson question variety
+            
+            // Separate MCQ questions (marked with _source) from lesson questions
+            const mcqQuestions = array.filter(q => q._source === 'mcq');
+            const lessonQuestions = array.filter(q => q._source !== 'mcq');
+            
+            // Calculate target counts: 80% MCQ, 20% lesson
+            const mcqTarget = Math.ceil(count * 0.8);  // 40 for 50-question exam
+            const lessonTarget = count - mcqTarget;    // 10 for 50-question exam
+            
+            // Shuffle both pools
+            const shuffledMcq = shuffleArray(mcqQuestions);
+            const shuffledLesson = shuffleArray(lessonQuestions);
+            
+            // Select from each pool (but don't go over available questions)
+            const selectedMcq = shuffledMcq.slice(0, Math.min(mcqTarget, mcqQuestions.length));
+            const selectedLesson = shuffledLesson.slice(0, Math.min(lessonTarget, lessonQuestions.length));
+            
+            // Combine both pools
+            let combined = [...selectedMcq, ...selectedLesson];
+            
+            // If we don't have enough lesson questions, fill gap with more MCQ questions
+            if (combined.length < count && mcqQuestions.length > mcqTarget) {
+                const additionalMcq = shuffledMcq.slice(mcqTarget, count - combined.length);
+                combined = [...combined, ...additionalMcq];
+            }
+            
+            // Final shuffle to mix MCQ and lesson questions randomly
+            const finalShuffled = shuffleArray(combined);
+            
+            // Double-check for duplicates by question text
+            const seenTexts = new Set();
+            const uniqueSelected = [];
+            for (const q of finalShuffled) {
+                if (!seenTexts.has(q.question)) {
+                    seenTexts.add(q.question);
+                    uniqueSelected.push(q);
+                    if (uniqueSelected.length >= count) break;
+                }
+            }
+            
+            return uniqueSelected;
+        }
+
+        function toggleExamSupportModal() {
+            const modal = document.getElementById('exam-support-modal');
+            modal.classList.toggle('show');
+        }
+
+        function closeExamSupportModal() {
+            const modal = document.getElementById('exam-support-modal');
+            modal.classList.remove('show');
+        }
+
+        function toggleImmediateFeedback() {
+            const checkbox = document.getElementById('immediate-feedback-checkbox');
+            isExamSupportEnabled = checkbox.checked;
+            // Reset checked answers when toggling exam support
+            checkedAnswers = {};
+            renderQuestion();
+        }
+
+        function submitQuestion() {
+            const currentAnswer = answers[currentQuestionIndex];
+            if (currentAnswer === null) {
+                alert('Please select an answer first!');
+                return;
+            }
+
+            // Move to next question
+            nextQuestion();
+        }
+
+        function checkAnswer() {
+            const currentAnswer = answers[currentQuestionIndex];
+            if (currentAnswer === null) {
+                alert('Please select an answer first!');
+                return;
+            }
+
+            // Mark answer as checked to show feedback
+            checkedAnswers[currentQuestionIndex] = true;
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const container = document.getElementById('questions-container');
+            const question = examConfig.questions[currentQuestionIndex];
+            const answered = answers[currentQuestionIndex] !== null;
+
+            // Show/hide result container
+            if (currentQuestionIndex >= examConfig.questions.length) {
+                container.style.display = 'none';
+                document.getElementById('results-container').classList.add('show');
+                document.getElementById('exam-buttons').style.display = 'none';
+                document.getElementById('submit-buttons').style.display = 'none';
+                showResults();
+                return;
+            }
+
+            container.style.display = 'block';
+            document.getElementById('results-container').classList.remove('show');
+
+            let html = `
+                <div class="question-container">
+                    <div class="question-number">Question ${currentQuestionIndex + 1} of ${examConfig.questions.length}</div>
+                    <div class="question-text">${question.question}</div>
+                    <div class="options">
+            `;
+
+            question.options.forEach((option, index) => {
+                const isSelected = answers[currentQuestionIndex] === index;
+                const classes = ['option'];
+                if (isSelected) classes.push('selected');
+
+                html += `
+                    <label class="${classes.join(' ')}">
+                        <input type="radio" name="answer" value="${index}" 
+                               ${isSelected ? 'checked' : ''} 
+                               onchange="selectAnswer(${index})">
+                        <span>${String.fromCharCode(65 + index)}. ${option.text}</span>
+                    </label>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            // Add feedback display if exam support is enabled and answer has been checked
+            const currentAnswer = answers[currentQuestionIndex];
+            const isAnswerChecked = checkedAnswers[currentQuestionIndex];
+            
+            if (isExamSupportEnabled && currentAnswer !== null && isAnswerChecked) {
+                const selectedOption = question.options[currentAnswer];
+                const isCorrect = selectedOption.correct;
+                html += `
+                    <div class="feedback-display show ${isCorrect ? 'correct' : 'incorrect'}">
+                        <span class="feedback-icon">${isCorrect ? '✓' : '✗'}</span>
+                        <span>${isCorrect ? 'Correct!' : 'Incorrect'}</span>
+                        ${!isCorrect ? `<div style="margin-top: 0.5rem; font-weight: normal;">Correct answer: ${question.options.find(opt => opt.correct).text}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+
+            // Update controls
+            document.getElementById('question-counter').textContent = `Question ${currentQuestionIndex + 1} of ${examConfig.questions.length}`;
+            document.getElementById('progress-fill').style.width = ((currentQuestionIndex + 1) / examConfig.questions.length * 100) + '%';
+            
+            const examButtons = document.getElementById('exam-buttons');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            // Show/hide buttons based on exam support mode
+            if (isExamSupportEnabled) {
+                // Show check answer button when exam support is enabled
+                nextBtn.disabled = false;
+                const existingCheckBtn = document.getElementById('check-answer-btn');
+                if (!existingCheckBtn) {
+                    const checkBtn = document.createElement('button');
+                    checkBtn.id = 'check-answer-btn';
+                    checkBtn.className = 'btn-secondary';
+                    checkBtn.textContent = 'Check Answer';
+                    checkBtn.onclick = () => checkAnswer();
+                    // Insert between prev-btn and next-btn
+                    examButtons.insertBefore(checkBtn, nextBtn);
+                }
+                nextBtn.textContent = currentQuestionIndex === examConfig.questions.length - 1 ? 'Review & Submit →' : 'Next →';
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.textContent = currentQuestionIndex === examConfig.questions.length - 1 ? 'Review & Submit →' : 'Next →';
+                // Remove check button if it exists
+                const existingCheckBtn = document.getElementById('check-answer-btn');
+                if (existingCheckBtn) {
+                    existingCheckBtn.remove();
+                }
+            }
+        }
+
+        function selectAnswer(optionIndex) {
+            answers[currentQuestionIndex] = optionIndex;
+            // Re-render to show/hide Check Answer button if exam support is enabled
+            if (isExamSupportEnabled) {
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < examConfig.questions.length - 1) {
+                currentQuestionIndex++;
+                // Reset checked status for new question
+                delete checkedAnswers[currentQuestionIndex - 1];
+                renderQuestion();
+            } else {
+                showReviewPage();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        function showReviewPage() {
+            const container = document.getElementById('questions-container');
+            let html = '<h2 style="margin-bottom: 2rem;">Review Your Answers</h2>';
+
+            examConfig.questions.forEach((question, index) => {
+                const answered = answers[index] !== null;
+                const selectedOption = answered ? examConfig.questions[index].options[answers[index]] : null;
+                const correctOption = examConfig.questions[index].options.find(opt => opt.correct);
+
+                html += `
+                    <div class="question-container" style="padding: 1.5rem; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 1rem;">
+                        <div class="question-number">Question ${index + 1}</div>
+                        <div class="question-text">${question.question}</div>
+                        <div style="margin: 1rem 0;">
+                            <p><strong>Your Answer:</strong> ${answered ? selectedOption.text : 'Not answered'}</p>
+                            <p><strong>Correct Answer:</strong> ${correctOption.text}</p>
+                            ${answered && selectedOption.correct ? '<p style="color: #16a34a;">✓ Correct</p>' : '<p style="color: #dc2626;">✗ Incorrect</p>'}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            document.getElementById('exam-buttons').style.display = 'none';
+            document.getElementById('submit-buttons').style.display = 'flex';
+        }
+
+        function submitExam() {
+            clearInterval(timerInterval);
+            currentQuestionIndex = examConfig.questions.length;
+            renderQuestion();
+        }
+
+        function showResults() {
+            const correctCount = Object.entries(answers).filter(([index, selectedOption]) => {
+                return selectedOption !== null && examConfig.questions[index].options[selectedOption].correct;
+            }).length;
+
+            const percentage = Math.round((correctCount / examConfig.questions.length) * 100);
+            const timeElapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(timeElapsed / 60);
+            const seconds = timeElapsed % 60;
+
+            let message = '';
+            if (percentage >= 80) message = 'Excellent! You are well-prepared for the exam.';
+            else if (percentage >= 70) message = 'Great job! You are above average.';
+            else if (percentage >= 60) message = 'Good effort! Keep studying to improve.';
+            else message = 'Keep practicing! Focus on weak areas.';
+
+            document.getElementById('final-score').textContent = percentage + '%';
+            document.getElementById('score-message').textContent = message;
+            document.getElementById('correct-count').textContent = correctCount;
+            document.getElementById('total-count').textContent = examConfig.questions.length;
+            document.getElementById('accuracy-percent').textContent = percentage + '%';
+            document.getElementById('time-taken').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            let remaining = examConfig.timeLimit;
+
+            timerInterval = setInterval(() => {
+                remaining--;
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                document.getElementById('timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                const timerEl = document.getElementById('timer');
+                timerEl.classList.remove('warning', 'critical');
+
+                if (remaining <= 300) {
+                    timerEl.classList.add('critical');
+                } else if (remaining <= 600) {
+                    timerEl.classList.add('warning');
+                }
+
+                if (remaining === 0) {
+                    clearInterval(timerInterval);
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            showDisclaimerIfNeeded();
+            loadQuestions();
+        });
+    </script>
+</body>
+</html>

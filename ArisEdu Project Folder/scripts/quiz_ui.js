@@ -545,6 +545,25 @@
         window.checkQuizAnswer(questionName, correctValue, submitBtn);
     };
 
+    // Helper function to display explanation (for lesson quizzes)
+    function displayExplanationLesson(parent) {
+        const explanation = parent.dataset.explanation;
+        if (explanation) {
+            const existingExpl = parent.querySelector('.explanation-text');
+            if (existingExpl) existingExpl.remove();
+            const expl = document.createElement('div');
+            expl.className = 'explanation-text';
+            expl.style.marginTop = '1rem';
+            expl.style.padding = '1rem';
+            expl.style.borderRadius = '0.5rem';
+            expl.style.backgroundColor = '#f0f9ff';
+            expl.style.borderLeft = '4px solid #3b82f6';
+            expl.style.color = '#1e40af';
+            expl.innerHTML = '<strong>Explanation:</strong> ' + explanation;
+            parent.appendChild(expl);
+        }
+    }
+
     // Only define checkQuizAnswer if quiz_logic.js hasn't already defined it
     // quiz_logic.js handles unit tests (value="a","b","c","d"), quiz_ui.js handles lesson quizzes (value="correct","wrong")
     if (!window.checkQuizAnswer) {
@@ -604,6 +623,9 @@
                 const tryAgainBtn = parent.querySelector('.nav-button');
                 if (tryAgainBtn) tryAgainBtn.style.display = 'none';
                 
+                // Display explanation
+                displayExplanationLesson(parent);
+                
                 // Track the correct answer
                 trackQuestionEnd(name);
                 const correctInput = parent.querySelector(`input[name="${name}"][value="correct"]`);
@@ -652,6 +674,10 @@
                      btn.disabled = true;
                      const inputs = parent.querySelectorAll('input');
                      inputs.forEach(i => i.disabled = true);
+                     
+                     // Display explanation
+                     displayExplanationLesson(parent);
+                     
                      // Highlight Try Again button
                      const tryAgainBtn = parent.querySelector('.nav-button');
                      if (tryAgainBtn) {
@@ -1096,5 +1122,22 @@
             window.scrollTo(0, 0);
         }
     });
+    
+    // Enhance quiz questions with explanations from data
+    // This function will be called after the quiz content is loaded
+    window.injectExplanationsIntoQuiz = function(quizData) {
+        if (!quizData || !quizData.quiz_questions) return;
+        
+        const quizQuestions = document.querySelectorAll('.quiz-question');
+        quizQuestions.forEach((questionEl, index) => {
+            if (quizData.quiz_questions[index]) {
+                const questionData = quizData.quiz_questions[index];
+                if (questionData.explanation) {
+                    // Store explanation in data attribute so checkQuizAnswer can access it
+                    questionEl.dataset.explanation = questionData.explanation;
+                }
+            }
+        });
+    };
     
 })();

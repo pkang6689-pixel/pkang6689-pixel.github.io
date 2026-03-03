@@ -15,8 +15,35 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles/main.css">
-    <style>
-        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
+        <style>
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Orbitron', monospace; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        body > .flex { display: flex !important; flex-direction: row !important; overflow: hidden; height: 100vh; gap: 1rem; padding: 1rem; }
+        #game-wrapper { 
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: auto;
+            min-width: 0;
+            max-width: 100%;
+            margin: 0;
+            overflow: auto;
+        }
+        #game-wrapper > div:first-child {
+            width: 100%;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
         #game-sidebar {
             background: rgba(55, 65, 81, 0.98);
             border-radius: 1rem;
@@ -25,10 +52,13 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            width: 400px;
-            min-height: 800px;
+            width: 350px;
+            height: auto;
+            max-height: 100vh;
             border: 2px solid rgba(107, 114, 128, 0.9);
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+            overflow-y: auto;
+            flex-shrink: 0;
         }
         #game-session-timer {
             background: rgba(34, 197, 94, 0.95);
@@ -47,57 +77,38 @@
             background: rgba(239, 68, 68, 0.95);
             animation: pulse 1s infinite;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        .grid-cell { transition: background-color 0.2s; }
-        .block-shape { 
-            touch-action: none; 
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-        }
-        .block-shape * {
-            pointer-events: none;
-        }
-        .filled { animation: neonPulse 1.5s infinite alternate; }
-        @keyframes neonPulse {
-            from { box-shadow: 0 0 5px currentColor, inset 0 0 4px rgba(255,255,255,0.1); }
-            to { box-shadow: 0 0 15px currentColor, inset 0 0 8px rgba(255,255,255,0.15); }
-        }
-        @keyframes lineClearFlash {
-            0% { background: #fff !important; box-shadow: 0 0 20px #fff; transform: scale(1.15); }
-            50% { background: #fbbf24 !important; box-shadow: 0 0 15px #fbbf24; transform: scale(1.05); }
-            100% { background: transparent !important; box-shadow: none; transform: scale(0); opacity: 0; }
-        }
-        .line-clear { animation: lineClearFlash 0.6s ease-out forwards !important; }
-        @keyframes cellPlace {
-            0% { transform: scale(0.6); opacity: 0.5; }
-            60% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .cell-placed { animation: cellPlace 0.25s ease-out; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         .pause-btn { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
         .pause-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
-        :fullscreen { background: #111827; }
-        #game-wrapper {
-            margin-left:150px;
-            width: min(720px, calc(100vw - 360px));
-            max-width: 100%;
+        
+        @media (max-width: 1200px) {
+            #game-sidebar { width: 300px; padding: 1rem; }
+        }
+        @media (max-width: 768px) {
+            .flex { flex-direction: column; height: auto; }
+            #game-sidebar { width: 100%; height: auto; max-height: 250px; }
+            #game-wrapper { height: auto; }
         }
     </style>
     <script src="../theme_manager.js"></script>
+    <style>
+        #pause-screen.hidden { display: none !important; }
+    </style>
+    <style>
+        #start-screen.hidden { display: none !important; }
+    </style>
+    </style>
+    <style>
+        #game-over.hidden { display: none !important; }
+    </style>
 </head>
 <body class="dark-mode bg-gray-900 min-h-screen text-white">
 <script src="../scripts/taskbar.js"></script>
 
-    <div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
+    <div class="flex">
 
     <!-- Game UI -->
-    <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+    <div id="game-wrapper" class="relative max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
         <button class="pause-btn" onclick="togglePause()" title="Pause"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
         <!-- Header -->
         <div class="flex justify-between items-end mb-6">
@@ -116,7 +127,7 @@
         </div>
 
         <!-- Grid Board -->
-        <div id="board" class="grid grid-cols-8 gap-1 bg-gray-900 p-2 rounded-lg border-2 border-gray-700 mx-auto" style="width: 340px; height: 340px;">
+        <div id="board" class="grid grid-cols-8 gap-1 bg-gray-900 p-2 rounded-lg border-2 border-gray-700 mx-auto" style="width: min(90%, calc(100vh - 22rem)); aspect-ratio: 1;">
             <!-- Cells generated by JS -->
         </div>
 
@@ -129,7 +140,7 @@
         </div>
 
         <!-- Start Screen -->
-        <div id="start-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+        <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
             <h2 class="text-3xl text-green-400 font-bold mb-2">BLOCK PUZZLE</h2>
             <p class="text-gray-300 mb-4 font-sans">Clear lines and columns to score!</p>
             <p class="text-sm text-gray-400 mb-6 font-sans">Click/Tap and drag blocks to the board. Match rows/columns!</p>
@@ -139,7 +150,7 @@
         </div>
 
         <!-- Game Over Overlay -->
-        <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+        <div id="game-over" class="absolute inset-0 bg-black/90 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
             <h2 class="text-3xl text-red-500 font-bold mb-2" data-i18n="GAME OVER">GAME OVER</h2>
             <p class="text-gray-300 mb-2 font-sans">No more moves possible!</p>
             <p class="text-xs text-gray-400 mb-6 font-sans">Click & drag blocks onto board<br>P / Esc to pause</p>
@@ -150,7 +161,7 @@
         </div>
 
         <!-- Pause Overlay -->
-        <div id="pause-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-30 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+        <div id="pause-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-30 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
             <h2 class="text-4xl text-white font-bold mb-2">PAUSED</h2>
             <p class="text-xs text-gray-400 mb-6 font-sans">Click & drag blocks onto board</p>
             <p class="text-gray-400 mb-8 font-sans">Game is paused</p>
@@ -564,7 +575,7 @@
             // No valid moves
             saveBest();
             document.getElementById('final-score').textContent = score;
-            document.getElementById('game-over').classList.remove('hidden');
+            document.getElementById('game-over').style.display = 'flex';
         }
 
         function resetGame() {
@@ -574,19 +585,19 @@
             scoreEl.innerText = 0;
             initBoard();
             spawnBlocks();
-            document.getElementById('game-over').classList.add('hidden');
+            document.getElementById('game-over').style.display = 'none';
         }
 
         async function startGame() {
             if (!await initializeArcadeGame()) return;
-            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('start-screen').style.display = 'none';
             grid = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
             score = 0;
             comboCount = 0;
             scoreEl.innerText = 0;
             initBoard();
             spawnBlocks();
-            document.getElementById('game-over').classList.add('hidden');
+            document.getElementById('game-over').style.display = 'none';
         }
 
         initBoard();

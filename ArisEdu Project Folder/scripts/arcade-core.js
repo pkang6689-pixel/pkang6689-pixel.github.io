@@ -33,6 +33,9 @@ async function initializeArcadeGame(gameTitle, colorClass1, colorClass2) {
         titleEl.textContent = gameTitle;
     }
     
+    // Reset game state (ensures pause screen is hidden, game over is hidden, etc)
+    resetArcadeGame();
+    
     // Initialize token drain
     initializeTokenDrain();
     
@@ -128,7 +131,11 @@ function togglePause() {
     arcadeState.gamePaused = !arcadeState.gamePaused;
     const pauseScreen = document.getElementById('pause-screen');
     if (pauseScreen) {
-        pauseScreen.classList.toggle('hidden', !arcadeState.gamePaused);
+        if (arcadeState.gamePaused) {
+            pauseScreen.style.display = 'flex';
+        } else {
+            pauseScreen.style.display = 'none';
+        }
     }
 }
 
@@ -140,9 +147,9 @@ function setGameOver(isGameOver = true) {
     const gameOverScreen = document.getElementById('game-over');
     if (gameOverScreen) {
         if (isGameOver) {
-            gameOverScreen.classList.remove('hidden');
+            gameOverScreen.style.display = 'flex';
         } else {
-            gameOverScreen.classList.add('hidden');
+            gameOverScreen.style.display = 'none';
         }
     }
 }
@@ -155,8 +162,8 @@ function resetArcadeGame() {
     arcadeState.gameOver = false;
     const gameOverScreen = document.getElementById('game-over');
     const pauseScreen = document.getElementById('pause-screen');
-    if (gameOverScreen) gameOverScreen.classList.add('hidden');
-    if (pauseScreen) pauseScreen.classList.add('hidden');
+    if (gameOverScreen) gameOverScreen.style.display = 'none';
+    if (pauseScreen) pauseScreen.style.display = 'none';
 }
 
 /**
@@ -193,3 +200,66 @@ function stopArcadeGame() {
 
 // Clean up on page unload
 window.addEventListener('beforeunload', stopArcadeGame);
+
+/**
+ * Auto-scale the main game canvas to fill available wrapper space.
+ * Sets CSS width/height on the largest canvas inside #game-wrapper.
+ * Canvas rendering resolution (attributes) stays unchanged.
+ * Games with mouse input must use corrected coordinates:
+ *   const scaleX = canvas.width / rect.width;
+ *   const x = (e.clientX - rect.left) * scaleX;
+ */
+(function() {
+    function findMainCanvas() {
+        var w = document.getElementById('game-wrapper');
+        if (!w) return null;
+        var main = null, maxA = 0;
+        w.querySelectorAll('canvas').forEach(function(c) {
+            var a = c.width * c.height;
+            if (a > maxA) { maxA = a; main = c; }
+        });
+        return main;
+    }
+
+    function scaleCanvas() {
+        var wrapper = document.getElementById('game-wrapper');
+        var mc = findMainCanvas();
+        if (!wrapper || !mc || mc.width < 1 || mc.height < 1) return;
+
+        // Measure non-canvas sibling heights once
+        if (mc._sibH == null) {
+            mc._sibH = 0;
+            for (var i = 0; i < wrapper.children.length; i++) {
+                var ch = wrapper.children[i];
+                if (ch === mc || ch.contains(mc) || ch.tagName === 'CANVAS') continue;
+                var s = getComputedStyle(ch);
+                if (s.position === 'absolute' || s.position === 'fixed' || s.display === 'none') continue;
+                mc._sibH += ch.offsetHeight + parseFloat(s.marginTop || 0) + parseFloat(s.marginBottom || 0);
+            }
+            mc._sibH = Math.max(mc._sibH, 40);
+        }
+
+        var cs = getComputedStyle(wrapper);
+        var pX = parseFloat(cs.paddingLeft || 0) + parseFloat(cs.paddingRight || 0);
+        var pY = parseFloat(cs.paddingTop || 0) + parseFloat(cs.paddingBottom || 0);
+        var wR = wrapper.getBoundingClientRect();
+        var availW = wR.width - pX;
+        var availH = wR.height - pY - mc._sibH;
+
+        if (availW < 50 || availH < 50) return;
+
+        var ratio = mc.width / mc.height;
+        var dW, dH;
+        if (availW / availH > ratio) { dH = availH; dW = dH * ratio; }
+        else { dW = availW; dH = dW / ratio; }
+
+        mc.style.width = Math.floor(dW) + 'px';
+        mc.style.height = Math.floor(dH) + 'px';
+    }
+
+    window.addEventListener('load', function() { setTimeout(scaleCanvas, 80); });
+    var rt;
+    window.addEventListener('resize', function() { clearTimeout(rt); rt = setTimeout(scaleCanvas, 200); });
+    // Expose so games can re-trigger after dynamic canvas resize
+    window._acScaleCanvas = scaleCanvas;
+})();

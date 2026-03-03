@@ -61,6 +61,30 @@ window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
 
     let attempts = parseInt(parent.dataset.attempts || "2");
 
+    // Helper function to display explanation if available
+    function displayExplanation(parent) {
+        const explanation = parent.dataset.explanation;
+        if (explanation) {
+            // Remove old explanation if exists
+            const existingExpl = parent.querySelector('.explanation-text');
+            if (existingExpl) existingExpl.remove();
+            
+            // Create explanation div
+            const expl = document.createElement('div');
+            expl.className = 'explanation-text';
+            expl.style.marginTop = '1rem';
+            expl.style.padding = '1rem';
+            expl.style.borderRadius = '0.5rem';
+            expl.style.backgroundColor = '#f0f9ff';
+            expl.style.borderLeft = '4px solid #3b82f6';
+            expl.style.color = '#1e40af';
+            expl.style.fontSize = '0.95rem';
+            expl.style.lineHeight = '1.5';
+            expl.innerHTML = '<strong>Explanation:</strong> ' + explanation;
+            parent.appendChild(expl);
+        }
+    }
+
     if (selectedValue === correctValue) {
         // Correct Answer
         parent.dataset.status = 'correct';
@@ -81,6 +105,9 @@ window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
         buttonElement.style.background = "#10b981";
         buttonElement.style.color = "white";
         buttonElement.style.border = "none";
+        
+        // Display explanation
+        displayExplanation(parent);
         
         // Hide "Get another question" button if it exists nearby
         const siblings = parent.querySelectorAll('button');
@@ -113,6 +140,9 @@ window.checkQuizAnswer = function(questionId, correctValue, buttonElement) {
             buttonElement.style.background = "#ef4444";
             buttonElement.style.color = "white";
             buttonElement.style.border = "none";
+
+            // Display explanation
+            displayExplanation(parent);
 
              // Hide "Get another question" button
              const siblings = parent.querySelectorAll('button');

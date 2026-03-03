@@ -476,50 +476,94 @@
   }, 'red');
 
   // --- Quiz page Specific ---
-  // Matches both "Lesson 1.1_Quiz" (chemistry, space) and "Lesson7.1_Quiz" (physics, no space)
+  // Check for AP quiz pages (APLessons course structure)
+  var apQuizMatch = path.match(/APLessons.*?Unit[\s]?(\d+)[\/\\]Lesson[\s]?(\d+\.\d+)_(Quiz|Practice)/i);
+  var isAPQuiz = !!apQuizMatch;
+  
+  // Check for regular course quiz pages
   var quizMatch = path.match(/Lesson[\s]?(\w+)\.(\d+)_Quiz/);
   
-  if (quizMatch) {
-    var qUnit = quizMatch[1];
-    var qLesson = quizMatch[2];
-    var prefix = 'chem_u';
-    if (path.indexOf('Physics') !== -1) prefix = 'physics_u';
-    else if (path.indexOf('Algebra1') !== -1) prefix = 'alg1_u';
-    else if (path.indexOf('Algebra2') !== -1) prefix = 'alg2_u';
-    else if (path.indexOf('Geometry') !== -1) prefix = 'geometry_u';
-    else if (path.indexOf('Biology') !== -1) prefix = 'bio_u';
+  if (quizMatch || isAPQuiz) {
+    var qUnit, qLesson, prefix;
+    
+    if (isAPQuiz) {
+      // AP course quiz
+      qUnit = apQuizMatch[1];
+      qLesson = apQuizMatch[2];
+      var apCourse = '';
+      if (path.indexOf('AP_Biology') !== -1 || path.indexOf('ap_biology') !== -1) apCourse = 'ap_bio';
+      else if (path.indexOf('AP_Chemistry') !== -1 || path.indexOf('ap_chemistry') !== -1) apCourse = 'ap_chem';
+      else if (path.indexOf('AP_Environmental') !== -1 || path.indexOf('ap_environmental') !== -1) apCourse = 'ap_env';
+      else if (path.indexOf('AP_Human_Geography') !== -1 || path.indexOf('ap_hug') !== -1) apCourse = 'ap_hug';
+      else if (path.indexOf('AP_Calculus') !== -1 || path.indexOf('ap_calculus') !== -1) apCourse = 'ap_calc';
+      else if (path.indexOf('AP_Statistics') !== -1 || path.indexOf('ap_statistics') !== -1) apCourse = 'ap_stats';
+      else if (path.indexOf('AP_Physics_2') !== -1 || path.indexOf('ap_physics_2') !== -1) apCourse = 'ap_phys2';
+      else if (path.indexOf('AP_Physics_C') !== -1 || path.indexOf('ap_physics_c') !== -1) apCourse = 'ap_physc';
+      prefix = apCourse + '_u';
+    } else {
+      // Regular course quiz
+      qUnit = quizMatch[1];
+      qLesson = quizMatch[2];
+      prefix = 'chem_u';
+      if (path.indexOf('Physics') !== -1) prefix = 'physics_u';
+      else if (path.indexOf('Algebra1') !== -1) prefix = 'alg1_u';
+      else if (path.indexOf('Algebra2') !== -1) prefix = 'alg2_u';
+      else if (path.indexOf('Geometry') !== -1) prefix = 'geometry_u';
+      else if (path.indexOf('Biology') !== -1) prefix = 'bio_u';
+    }
 
     addSection('Quiz Actions');
     addButton('\u2714 Auto-Pass Quiz', function () {
-        // Mark all answers correct and click submit buttons with delay
-        var questions = Array.from(document.querySelectorAll('.quiz-question'));
+        // Works with new quiz_loader.js that renders one question at a time
         var index = 0;
+        var totalQuestions = quizLoader && quizLoader.quizData ? quizLoader.quizData.questions.length : 7;
         
-        function processNext() {
-          if (index < questions.length) {
-            var q = questions[index];
-            var correctInput = q.querySelector('input[value="correct"]');
-            if (correctInput) {
-              correctInput.checked = true;
-              var submitBtn = q.querySelector('button') || q.querySelector('.action-button');
+        function processQuestion() {
+          if (index >= totalQuestions) {
+            // Quiz complete
+            console.log('Quiz auto-pass complete!');
+            return;
+          }
+          
+          // Select the correct answer for current question
+          var question = quizLoader.quizData.questions[index];
+          var correctAnswer = question.answer || question.correct_answer;
+          
+          // Find the radio input with the correct answer value
+          var correctInput = document.querySelector(`input[name="answer"][value="${correctAnswer.replace(/"/g, '&quot;')}"]`);
+          
+          if (correctInput) {
+            correctInput.checked = true;
+            // Trigger the onchange event to select the answer
+            quizLoader.selectAnswer(correctAnswer);
+            
+            // Click submit button after a brief delay
+            setTimeout(function() {
+              var submitBtn = document.querySelector('.submit-button');
               if (submitBtn && !submitBtn.disabled) {
                 submitBtn.click();
               }
-            }
-            index++;
-            setTimeout(processNext, 50);
+              
+              // Move to next question after feedback is shown
+              setTimeout(function() {
+                index++;
+                if (index < totalQuestions) {
+                  // Move to next question
+                  quizLoader.nextQuestion();
+                  setTimeout(processQuestion, 100);
+                } else {
+                  console.log('All questions completed!');
+                }
+              }, 300);
+            }, 50);
           } else {
-            // All buttons clicked, now check completion and force storage
-            setTimeout(function() {
-              if (window.checkQuizCompletion) {
-                window.checkQuizCompletion();
-              }
-              localStorage.setItem(prefix + qUnit + '_l' + qLesson + '_completed', 'true');
-            }, 100);
+            console.warn('Could not find answer:', correctAnswer);
+            index++;
+            processQuestion();
           }
         }
         
-        processNext();
+        processQuestion();
     }, 'green');
 
       addButton('\uD83E\uDDEA Test Daily Token Grant (+100)', function () {
@@ -798,6 +842,172 @@
   // Mark the button so refresh can find it
   body.lastChild.setAttribute('data-trans-debug-btn', '1');
   body.appendChild(transDebugContainer);
+
+  // ============= COURSE COMPLETION TOOLS =============
+  // Detect current course based on filename or global variable
+  function detectCurrentCourse() {
+    const path = window.location.pathname.toLowerCase();
+    
+    const courseMap = {
+      'ap_chemistry.html': 'ap_chem',
+      'ap_biology.html': 'ap_bio',
+      'ap_environmental_science.html': 'ap_env_sci',
+      'ap_hug.html': 'ap_hug',
+      'ap_calculus.html': 'ap_calc_ab',
+      'ap_statistics.html': 'ap_stats',
+      'ap_physics2.html': 'ap_phys2',
+      'ap_physics_mechanics.html': 'ap_phys_mech'
+    };
+    
+    for (const [filename, prefix] of Object.entries(courseMap)) {
+      if (path.includes(filename)) {
+        return prefix;
+      }
+    }
+    return null;
+  }
+
+  window.completeCurrentCourse = async function() {
+    const courses = {
+      'ap_bio': { name: 'AP Biology', units: { 1: 6, 2: 5, 3: 4, 4: 5, 5: 4, 6: 5, 7: 5, 8: 6 } },
+      'ap_chem': { name: 'AP Chemistry', units: { 1: 5, 2: 5, 3: 4, 4: 4, 5: 5, 6: 4, 7: 4, 8: 5, 9: 5 } },
+      'ap_env_sci': { name: 'AP Environmental Science', units: { 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5, 8: 5, 9: 5 } },
+      'ap_hug': { name: 'AP Human Geography', units: { 1: 5, 2: 6, 3: 6, 4: 6, 5: 6, 6: 6, 7: 6 } },
+      'ap_calc_ab': { name: 'AP Calculus AB', units: { 1: 11, 2: 9, 3: 6, 4: 7, 5: 12, 6: 12, 7: 7, 8: 12 } },
+      'ap_stats': { name: 'AP Statistics', units: { 1: 7, 2: 7, 3: 7, 4: 7, 5: 7, 6: 7, 7: 7, 8: 7 } },
+      'ap_phys2': { name: 'AP Physics 2', units: { 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5 } },
+      'ap_phys_mech': { name: 'AP Physics C: Mechanics', units: { 1: 4, 2: 4, 3: 4, 4: 4, 5: 4, 6: 4, 7: 4 } }
+    };
+
+    const currentPrefix = detectCurrentCourse();
+    
+    if (!currentPrefix || !courses[currentPrefix]) {
+      alert('❌ Could not detect current course.\n\nMake sure you\'re on an AP course homepage\n(ap_biology.html, ap_chemistry.html, etc.)');
+      return;
+    }
+
+    const courseData = courses[currentPrefix];
+    
+    if (!confirm(`Complete ALL ${courseData.name} lessons & tests?`)) {
+      return;
+    }
+
+    let totalMarked = 0;
+    const useFirebase = window.courseProgress && window.courseProgress.isFirebaseEnabled();
+    
+    const units = courseData.units;
+    
+    // Mark all lessons in each unit
+    for (const [unitNum, lessonCount] of Object.entries(units)) {
+      for (let lesson = 1; lesson <= lessonCount; lesson++) {
+        const key = `${currentPrefix}_u${unitNum}_l${lesson}_completed`;
+        localStorage.setItem(key, 'true');
+        
+        // Also save to Firebase if available
+        if (useFirebase && window.courseProgress) {
+          try {
+            await window.courseProgress.markComplete(currentPrefix, unitNum, lesson);
+          } catch (err) {
+            console.warn(`Failed to sync lesson ${unitNum}.${lesson} to Firebase:`, err.message);
+            // Continue marking lessons even if Firebase fails
+          }
+        }
+        
+        totalMarked++;
+      }
+      
+      // Mark unit test (lesson 99) as complete
+      const testKey = `${currentPrefix}_u${unitNum}_l99_completed`;
+      localStorage.setItem(testKey, 'true');
+      
+      if (useFirebase && window.courseProgress) {
+        try {
+          await window.courseProgress.markComplete(currentPrefix, unitNum, 99);
+        } catch (err) {
+          console.warn(`Failed to sync unit test ${unitNum} to Firebase:`, err.message);
+          // Continue marking lessons even if Firebase fails
+        }
+      }
+      
+      totalMarked++;
+    }
+
+    // Refresh any visible progress indicators
+    if (window.applyProgressColors) {
+      window.applyProgressColors();
+    }
+
+    const fbStatus = useFirebase ? ' [Synced to Firebase]' : ' [Local storage only]';
+    alert(`✅ Completed ${courseData.name}!\n\nMarked ${totalMarked} lessons/tests complete${fbStatus}`);
+  };
+
+  window.completeAllAPCourses = async function() {
+    const courses = {
+      'ap_bio': { name: 'AP Biology', units: { 1: 6, 2: 5, 3: 4, 4: 5, 5: 4, 6: 5, 7: 5, 8: 6 } },
+      'ap_chem': { name: 'AP Chemistry', units: { 1: 5, 2: 5, 3: 4, 4: 4, 5: 5, 6: 4, 7: 4, 8: 5, 9: 5 } },
+      'ap_env_sci': { name: 'AP Environmental Science', units: { 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5, 8: 5, 9: 5 } },
+      'ap_hug': { name: 'AP Human Geography', units: { 1: 5, 2: 6, 3: 6, 4: 6, 5: 6, 6: 6, 7: 6 } },
+      'ap_calc_ab': { name: 'AP Calculus AB', units: { 1: 11, 2: 9, 3: 6, 4: 7, 5: 12, 6: 12, 7: 7, 8: 12 } },
+      'ap_stats': { name: 'AP Statistics', units: { 1: 7, 2: 7, 3: 7, 4: 7, 5: 7, 6: 7, 7: 7, 8: 7 } },
+      'ap_phys2': { name: 'AP Physics 2', units: { 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5 } },
+      'ap_phys_mech': { name: 'AP Physics C: Mechanics', units: { 1: 4, 2: 4, 3: 4, 4: 4, 5: 4, 6: 4, 7: 4 } }
+    };
+
+    let totalMarked = 0;
+    const useFirebase = window.courseProgress && window.courseProgress.isFirebaseEnabled();
+    
+    for (const [prefix, courseData] of Object.entries(courses)) {
+      const units = courseData.units;
+      
+      // Mark all lessons in each unit
+      for (const [unitNum, lessonCount] of Object.entries(units)) {
+        for (let lesson = 1; lesson <= lessonCount; lesson++) {
+          const key = `${prefix}_u${unitNum}_l${lesson}_completed`;
+          localStorage.setItem(key, 'true');
+          
+          // Also save to Firebase if available
+          if (useFirebase && window.courseProgress) {
+            try {
+              await window.courseProgress.markComplete(prefix, unitNum, lesson);
+            } catch (err) {
+              console.warn(`Failed to sync ${prefix} lesson ${unitNum}.${lesson} to Firebase:`, err.message);
+              // Continue marking lessons even if Firebase fails
+            }
+          }
+          
+          totalMarked++;
+        }
+        
+        // Mark unit test (lesson 99) as complete
+        const testKey = `${prefix}_u${unitNum}_l99_completed`;
+        localStorage.setItem(testKey, 'true');
+        
+        if (useFirebase && window.courseProgress) {
+          try {
+            await window.courseProgress.markComplete(prefix, unitNum, 99);
+          } catch (err) {
+            console.warn(`Failed to sync ${prefix} unit test ${unitNum} to Firebase:`, err.message);
+            // Continue marking lessons even if Firebase fails
+          }
+        }
+        
+        totalMarked++;
+      }
+    }
+
+    // Refresh any visible progress indicators
+    if (window.applyProgressColors) {
+      window.applyProgressColors();
+    }
+
+    const fbStatus = useFirebase ? ' [Synced to Firebase]' : ' [Local storage only]';
+    alert(`[OK] Marked ${totalMarked} lessons/tests as complete!${fbStatus}\n\nReload any open course pages to see progress updates.`);
+  };
+
+  // Add AP Course completion buttons
+  addSection('AP Course Tools');
+  addButton('✓ Complete This Course', function() { window.completeCurrentCourse(); }, 'green');
+  addButton('✓ Complete All AP Courses', function() { window.completeAllAPCourses(); }, 'green');
 
   // Add panel to DOM after page loads
   function mount() {

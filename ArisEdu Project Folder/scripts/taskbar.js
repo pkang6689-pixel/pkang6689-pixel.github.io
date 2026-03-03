@@ -159,7 +159,7 @@
     'physics.html': 'PhysicsLessons', 'ms_physics.html': 'PhysicsLessons',
     'bio.html': 'BiologyLessons', 'ms_bio.html': 'BiologyLessons',
     'algebra1.html': 'Algebra1Lessons', 'ms_algebra1.html': 'Algebra1Lessons',
-    'algebra2.html': 'Algebra2Lessons', 'ms_algebra2.html': 'Algebra2Lessons',
+    'algebra2.html': 'Algebra2Lessons',
     'geometry.html': 'GeometryLessons', 'ms_geometry.html': 'GeometryLessons'
   };
 
@@ -937,7 +937,7 @@
         'ms_bio.html':      { ms: 'ms_bio', hs: 'bio', folder: 'BiologyLessons', isMS: true },
         'ms_physics.html':  { ms: 'ms_phys', hs: 'physics', folder: 'PhysicsLessons', isMS: true },
         'ms_algebra1.html': { ms: 'ms_alg1', hs: 'alg1', folder: 'Algebra1Lessons', isMS: true },
-        'ms_algebra2.html': { ms: 'ms_alg2', hs: 'alg2', folder: 'Algebra2Lessons', isMS: true },
+
         'ms_geometry.html': { ms: 'ms_geom', hs: 'geometry', folder: 'GeometryLessons', isMS: true },
         'chem.html':        { ms: 'ms_chem', hs: 'chem', folder: 'ChemistryLessons', isMS: false },
         'bio.html':         { ms: 'ms_bio', hs: 'bio', folder: 'BiologyLessons', isMS: false },

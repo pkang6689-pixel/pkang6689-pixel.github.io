@@ -1181,6 +1181,9 @@
     window.applyGlobalTheme = window.applyArisTheme; // Alias for preferences
     document.addEventListener('DOMContentLoaded', () => {
         window.applyArisTheme();
+        
+        // Load explanation enhancement scripts
+        loadExplanationScripts();
     });
     
     // Listen for changes from other tabs
@@ -1189,5 +1192,18 @@
             window.applyArisTheme();
         }
     });
+    
+    // Load explanation enhancement scripts
+    function loadExplanationScripts() {
+        // Load explanation injector for lessons quiz_ui.js system
+        const explainScript = document.createElement('script');
+        explainScript.src = '/ArisEdu Project Folder/scripts/explanation_injector.js';
+        document.head.appendChild(explainScript);
+        
+        // Load AP explanations loader
+        const apScript = document.createElement('script');
+        apScript.src = '/ArisEdu Project Folder/scripts/ap_explanations_loader.js';
+        document.head.appendChild(apScript);
+    }
 
 })();

@@ -206,7 +206,7 @@ class HTMLRenderer:
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
-    <style>@view-transition { navigation: auto; }</style>
+    <style>@view-transition {{ navigation: auto; }}</style>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="../../theme_manager.js"></script>
     <script>
@@ -318,11 +318,12 @@ class HTMLRenderer:
         
         flashcards_js = HTMLRenderer._generate_flashcards_js(lesson)
         
-        return HTMLRenderer.TEMPLATE_BASE.format(
-            title=f"Lesson {lesson.lesson_number}: {lesson.title} - Practice",
-            content=content,
-            scripts=f'<script src="../../scripts/practice_games.js"></script>\n<script>{flashcards_js}</script>'
-        )
+        # Use string replacement instead of format to avoid issues with flashcards_js braces
+        html = HTMLRenderer.TEMPLATE_BASE.replace('{title}', f"Lesson {lesson.lesson_number}: {lesson.title} - Practice")
+        html = html.replace('{content}', content)
+        html = html.replace('{scripts}', f'<script src="../../scripts/practice_games.js"></script>\n<script>{flashcards_js}</script>')
+        
+        return html
     
     @staticmethod
     def render_quiz(lesson: Lesson, course: str, next_lesson: str) -> str:

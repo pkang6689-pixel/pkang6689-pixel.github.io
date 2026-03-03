@@ -16,89 +16,248 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles/main.css">
-    <style>
-        body { font-family: 'Orbitron', monospace; padding-top: 50px; }
-        #game-wrapper { margin-left: 150px; width: min(900px, calc(100vw - 360px)); max-width: 100%; }
-        #game-sidebar {
-            background: rgba(55, 65, 81, 0.98); border-radius: 1rem; padding: 1.5rem;
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 400px;
-            min-height: 200px;
-            border: 2px solid rgba(107, 114, 128, 0.9);
-            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+        <style>
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Orbitron', monospace; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
-        .grid-2048 {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 12px; background: #1a1a1a; padding: 16px; border-radius: 1rem;
-            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,0.3);
-            width: 100%; aspect-ratio: 1/1; max-width: 500px; margin: 0 auto;
-            position: relative;
-            overflow: visible;
-        }
-        .tile {
-            min-width: 0; aspect-ratio: 1/1; border-radius: 0.75rem;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 2rem; font-family: 'Orbitron', monospace;
-            transition: all 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            position: relative;
+        body > .flex { display: flex !important; flex-direction: row !important; overflow: hidden; height: 100vh; gap: 0.5rem; padding: 0.5rem; }
+        #game-wrapper { 
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: auto;
+            min-width: 0;
+            max-width: 100%;
+            margin: 0;
             overflow: hidden;
         }
-        .tile::after {
-            content: ''; position: absolute; top: 0; left: 0; right: 50%; bottom: 50%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 100%);
-            border-radius: 0.75rem 0 0 0; pointer-events: none;
+        #game-wrapper > div:first-child {
+            width: 100%;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 1rem;
+            position: relative;
         }
-        .tile:active { transform: scale(0.95); }
-        .tile-0    { background: #374151; color: #9ca3af; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); }
-        .tile-0::after { display: none; }
-        .tile-2    { background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 50%, #f59e0b 100%); color: #78350f; box-shadow: 0 4px 16px rgba(251, 191, 36, 0.35), inset 0 1px 0 rgba(255,255,255,0.2); }
-        .tile-4    { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #f97316 100%); color: #ffffff; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35), inset 0 1px 0 rgba(255,255,255,0.15); }
-        .tile-8    { background: linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea580c 100%); color: white; box-shadow: 0 4px 16px rgba(249, 115, 22, 0.35), inset 0 1px 0 rgba(255,255,255,0.12); }
-        .tile-16   { background: linear-gradient(135deg, #f87171 0%, #ef4444 50%, #dc2626 100%); color: white; box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4), inset 0 1px 0 rgba(255,255,255,0.1); }
-        .tile-32   { background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%); color: white; box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4), inset 0 1px 0 rgba(255,255,255,0.1); }
-        .tile-64   { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%); color: white; box-shadow: 0 6px 20px rgba(185, 28, 28, 0.45), inset 0 1px 0 rgba(255,255,255,0.08); }
-        .tile-128  { background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%); color: white; font-size: 1.5rem; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4), inset 0 1px 0 rgba(255,255,255,0.12); }
-        .tile-256  { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%); color: white; font-size: 1.5rem; box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4), inset 0 1px 0 rgba(255,255,255,0.1); }
-        .tile-512  { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%); color: white; font-size: 1.3rem; box-shadow: 0 6px 24px rgba(109, 40, 217, 0.5), inset 0 1px 0 rgba(255,255,255,0.08); }
-        .tile-1024 { background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 50%, #4c1d95 100%); color: white; font-size: 1.2rem; box-shadow: 0 6px 24px rgba(91, 33, 182, 0.5), inset 0 1px 0 rgba(255,255,255,0.08); }
-        .tile-2048 { background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%); color: white; font-size: 1.1rem; box-shadow: 0 0 30px rgba(16, 185, 129, 0.6), inset 0 1px 0 rgba(255,255,255,0.15); animation: glow 2s ease-in-out infinite; }
-        @keyframes glow { 0%, 100% { box-shadow: 0 0 24px rgba(16, 185, 129, 0.5); } 50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.9); } }
-        @keyframes tilePop { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
-        @keyframes tileAppear { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes moveLeft { 0% { transform: translateX(0); } 50% { transform: translateX(-12px); } 100% { transform: translateX(0); } }
-        @keyframes moveRight { 0% { transform: translateX(0); } 50% { transform: translateX(12px); } 100% { transform: translateX(0); } }
-        @keyframes moveUp { 0% { transform: translateY(0); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0); } }
-        @keyframes moveDown { 0% { transform: translateY(0); } 50% { transform: translateY(12px); } 100% { transform: translateY(0); } }
-        .explosion-particle { position: absolute; border-radius: 50%; pointer-events: none; }
-        .arrow-controls {
-            display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 16px;
-            background: rgba(31, 41, 55, 0.6); padding: 16px; border-radius: 0.75rem;
-            border: 2px solid rgba(107, 114, 128, 0.3);
+        #text-header {
+            position: absolute !important;
+            top: 0.5rem !important;
+            left: 0.5rem !important;
+            z-index: 10 !important;
+            display: block !important;
+            width: auto !important;
+            align-items: unset !important;
+            justify-content: unset !important;
+            padding: 0 !important;
         }
-        .arrow-row { display: flex; gap: 8px; }
-        .arrow-btn {
-            width: 48px; height: 48px; border: none; border-radius: 0.5rem;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white; cursor: pointer; font-size: 1.5rem;
-            transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-            display: flex; align-items: center; justify-content: center;
+        #text-header h1 {
+            margin: 0 !important;
+            display: block !important;
         }
-        .arrow-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5); }
-        .arrow-btn:active { transform: scale(0.92); box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4); }
-        .settings-box { background: rgba(31, 41, 55, 0.6); padding: 12px; border-radius: 0.75rem; border: 1px solid rgba(107, 114, 128, 0.3); margin-top: 12px; }
-        .settings-title { color: #9ca3af; font-size: 0.75rem; font-weight: 600; margin-bottom: 8px; text-align: center; }
-        .toggle-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; color: #d1d5db; font-size: 0.875rem; }
-        .toggle-item:last-child { margin-bottom: 0; }
-        .toggle-switch { position: relative; display: inline-block; width: 36px; height: 20px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4b5563; transition: 0.3s; border-radius: 20px; }
-        .toggle-slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: 0.3s; border-radius: 50%; }
-        input:checked + .toggle-slider { background-color: #3b82f6; }
-        input:checked + .toggle-slider:before { transform: translateX(16px); }
+        #text-header p {
+            margin: 0 !important;
+            display: block !important;
+        }
+        #game-sidebar {
+            background: rgba(55, 65, 81, 0.98);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 350px;
+            height: auto;
+            max-height: 100vh;
+            border: 2px solid rgba(107, 114, 128, 0.9);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        #game-session-timer {
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 2rem;
+            font-family: monospace;
+            width: 100%;
+            text-align: center;
+            margin-top: 0.5rem;
+            letter-spacing: 2px;
+        }
+        #game-session-timer.warning {
+            background: rgba(239, 68, 68, 0.95);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .pause-btn { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; color: white; cursor: pointer; padding: 8px; line-height: 0; transition: background 0.2s, transform 0.2s; }
+        .pause-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+        
+        @media (max-width: 1200px) {
+            #game-sidebar { width: 300px; padding: 1rem; }
+        }
+        @media (max-width: 768px) {
+            .flex { flex-direction: column; height: auto; }
+            #game-sidebar { width: 100%; height: auto; max-height: 250px; }
+            #game-wrapper { height: auto; }
+        }
     </style>
     <script src="../theme_manager.js"></script>
+    <style>
+        #pause-screen.hidden { display: none !important; }
+    </style>
+    <style>
+        #start-screen.hidden { display: none !important; }
+    </style>
+    <style>
+        #game-over.hidden { display: none !important; }
+    </style>
+    <style>
+        #board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 8px;
+            width: 90%;
+            max-width: calc(100vh - 16rem);
+            aspect-ratio: 1;
+            padding: 8px;
+            background: rgba(187, 173, 160, 0.35);
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .tile {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(1rem, 5vw, 2rem);
+            font-weight: 700;
+            border-radius: 4px;
+            background: rgba(205, 193, 180, 0.35);
+            color: #776e65;
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .tile-2 { background: #eee4da; color: #776e65; }
+        .tile-4 { background: #ede0c8; color: #776e65; }
+        .tile-8 { background: #f2b179; color: #f9f6f2; }
+        .tile-16 { background: #f59563; color: #f9f6f2; }
+        .tile-32 { background: #f67c5f; color: #f9f6f2; }
+        .tile-64 { background: #f65e3b; color: #f9f6f2; }
+        .tile-128 { background: #edcf72; color: #095f6b; font-size: 1.5rem; }
+        .tile-256 { background: #edcc61; color: #095f6b; font-size: 1.5rem; }
+        .tile-512 { background: #edc850; color: #095f6b; font-size: 1.5rem; }
+        .tile-1024 { background: #edc53f; color: #095f6b; font-size: 1.25rem; }
+        .tile-2048 { background: #edc22e; color: #095f6b; font-size: 1.25rem; font-weight: 900; }
+        
+        .explosion-particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+        }
+        
+        @keyframes tileAppear {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes tilePop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes moveUp {
+            0% { transform: translateY(10px); }
+            100% { transform: translateY(0); }
+        }
+        
+        @keyframes moveDown {
+            0% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        
+        @keyframes moveLeft {
+            0% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+        
+        @keyframes moveRight {
+            0% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+        
+        .arrow-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+        
+        .arrow-row {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .arrow-btn {
+            flex: 1;
+            padding: 8px;
+            background: rgba(107, 114, 128, 0.7);
+            border: 1px solid rgba(107, 114, 128, 0.9);
+            border-radius: 6px;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .arrow-btn:hover {
+            background: rgba(107, 114, 128, 0.9);
+            transform: scale(1.05);
+        }
+        
+        .arrow-btn:active {
+            transform: scale(0.95);
+        }
+        
+        #game-wrapper {
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            padding: 2% !important;
+        }
+        
+        #game-wrapper h1 {
+            font-size: clamp(1.5rem, 5vw, 2.5rem) !important;
+        }
+        
+        #game-wrapper p {
+            font-size: clamp(0.7rem, 2vw, 1rem) !important;
+        }
+        
+        #score, #best-score {
+            font-size: clamp(1.5rem, 4vw, 3rem) !important;
+        }
+        
+        #game-wrapper button {
+            font-size: clamp(0.7rem, 1.5vw, 1rem) !important;
+            padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.5rem, 1.5vw, 1rem) !important;
+        }
+    </style>
 </head>
 <body class="dark-mode bg-gray-900 min-h-screen text-white">
 <script src="../scripts/taskbar.js"></script>
@@ -108,13 +267,15 @@
 <script src="../scripts/spanish_translations.js?v=1.0"></script>
 <script src="../scripts/hindi_translations.js?v=1.0"></script>
 
-<div class="flex flex-row items-start justify-start p-4 gap-10 overflow-x-auto overflow-y-visible">
-    <div id="game-wrapper" class="relative flex-shrink-0 max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+<div class="flex">
+    <div id="game-wrapper" class="relative max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
+        <div id="text-header">
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent" data-i18n="2048">2048</h1>
+            <p class="text-xs text-gray-400 font-sans" data-i18n="Slide tiles, merge to 2048!">Slide tiles, merge to 2048!</p>
+        </div>
+        
         <div class="flex justify-between items-end mb-4">
-            <div>
-                <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent" data-i18n="2048">2048</h1>
-                <p class="text-xs text-gray-400 font-sans" data-i18n="Slide tiles, merge to 2048!">Slide tiles, merge to 2048!</p>
-            </div>
+            <div></div>
             <div class="flex gap-4 text-right">
                 <div>
                     <div class="text-xs text-gray-400 font-sans" data-i18n="SCORE">SCORE</div>
@@ -127,7 +288,7 @@
             </div>
         </div>
 
-        <div class="flex gap-2 mb-3">
+        <div class="flex gap-2 mb-3 -mt-24">
             <button onclick="undoMove()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-lg text-xs transition active:scale-95" title="Undo">↩ UNDO</button>
             <button onclick="resetGame()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-lg text-xs transition active:scale-95" title="New Game">🔄 NEW</button>
         </div>
@@ -145,26 +306,27 @@
                 <button class="arrow-btn" onclick="move('down')" title="Down">⬇️</button>
                 <button class="arrow-btn" onclick="move('right')" title="Right">➡️</button>
             </div>
+        </div>        <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <h2 class="text-3xl gray-400 font-bold mb-3">2048</h2>
+            <p class="text-gray-300 mb-4 font-sans text-sm">Combine tiles to reach 2048!</p>
+            <div class="text-left text-xs text-gray-400 font-sans mb-6 space-y-1">
+                <p><span class="font-bold">Arrow Keys</span> — Move tiles</p><p><span class="font-bold">Swipe</span> — Move (mobile)</span></p>
+                <p><span class="font-bold">Esc / P</span> — Pause</p>
+            </div>
+            <button onclick="startGame()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                START
+            </button>
         </div>
 
+
         <!-- Game Over Overlay -->
-        <div id="game-over" class="hidden absolute inset-0 bg-black/90 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
+        <div id="game-over" class="absolute inset-0 bg-black/90 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
             <h2 id="end-title" class="text-3xl font-bold mb-2 text-red-500">GAME OVER</h2>
             <p id="end-msg" class="text-gray-300 mb-6 font-sans">No moves left!</p>
             <div class="text-4xl font-bold text-white mb-8" id="final-score">0</div>
             <button onclick="resetGame()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95" data-i18n="TRY AGAIN">
                 TRY AGAIN
             </button>
-        </div>
-
-        <!-- Win Overlay -->
-        <div id="win-screen" class="hidden absolute inset-0 bg-black/80 rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm">
-            <h2 class="text-3xl font-bold mb-4 text-green-400">🎉 2048!</h2>
-            <p class="text-gray-300 mb-6 font-sans">You reached 2048!</p>
-            <div class="flex gap-4">
-                <button onclick="continueGame()" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg">CONTINUE</button>
-                <button onclick="resetGame()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg">NEW GAME</button>
-            </div>
         </div>
     </div>
 
@@ -227,8 +389,7 @@
         explosionParticles = [];
         if (explosionAnimFrame) cancelAnimationFrame(explosionAnimFrame);
         document.getElementById('score').textContent = '0';
-        document.getElementById('game-over').classList.add('hidden');
-        document.getElementById('win-screen').classList.add('hidden');
+        document.getElementById('game-over').style.display = 'none';
         addRandom(); addRandom();
         render();
     }
@@ -307,7 +468,7 @@
         const centerX = rect.left - boardRect.left + rect.width / 2;
         const centerY = rect.top - boardRect.top + rect.height / 2;
         
-        const particleCount = 20;
+        const particleCount = 10;
         const redOrangePalette = ['#ff4444', '#ff6644', '#ff8844', '#ffaa44', '#ff5555', '#ff7755', '#ff9955'];
         
         for (let i = 0; i < particleCount; i++) {
@@ -402,7 +563,7 @@
         score = prevScore;
         gameActive = true;
         document.getElementById('score').textContent = score;
-        document.getElementById('game-over').classList.add('hidden');
+        document.getElementById('game-over').style.display = 'none';
         render();
         prevGrid = null; // can only undo once
     }
@@ -465,8 +626,6 @@
                     window.BadgeSystem.award('2048_tile');
                 }
                 won2048 = false;
-                document.getElementById('win-screen').classList.remove('hidden');
-                return;
             }
 
             // Apply direction indicator animation to game wrapper (if enabled)
@@ -481,7 +640,7 @@
             if (!canMove()) {
                 gameActive = false;
                 document.getElementById('final-score').textContent = score;
-                document.getElementById('game-over').classList.remove('hidden');
+                document.getElementById('game-over').style.display = 'flex';
             }
         } else {
             prevGrid = null; // no actual move, don't save undo state
@@ -498,9 +657,6 @@
     }
 
     function resetGame() { init(); }
-    function continueGame() {
-        document.getElementById('win-screen').classList.add('hidden');
-    }
 
     // Keyboard
     document.addEventListener('keydown', e => {
@@ -529,9 +685,24 @@
         touchStart = null;
     });
 
-    init();
+    // Game loop for continuous animation
+    function gameLoop() {
+        if (gameActive) {
+            animFrame = requestAnimationFrame(gameLoop);
+        }
+    }
 
-</script>
+    // init() is called by startGame() when user clicks START
+
+    async function startGame() {
+        if (!await initializeArcadeGame('2048', 'from-slate-400', 'to-slate-600')) return;
+        document.getElementById('start-screen').style.display = 'none';
+        init();
+        gameActive = true;
+        animFrame = requestAnimationFrame(gameLoop);
+    }
+
+    </script>
 </body>
 </html>
 
