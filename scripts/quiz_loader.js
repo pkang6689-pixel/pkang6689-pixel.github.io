@@ -61,7 +61,13 @@ class QuizLoader {
         'Biology': 'Biology',
         'Chemistry': 'Chemistry',
         'Geometry': 'Geometry',
-        'Physics': 'Physics'
+        'Physics': 'Physics',
+        'MS_Algebra1': 'Algebra 1',
+        'MS_Algebra2': 'Algebra 2',
+        'MS_Biology': 'Biology',
+        'MS_Chemistry': 'Chemistry',
+        'MS_Geometry': 'Geometry',
+        'MS_Physics': 'Physics'
       };
       
       const courseFolder = courseNameMap[coursePrefix] || coursePrefix;
