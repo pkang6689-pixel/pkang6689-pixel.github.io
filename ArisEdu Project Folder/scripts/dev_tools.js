@@ -4,12 +4,16 @@
 (function () {
   'use strict';
 
-  var DEV_EMAIL = 'pkang6689@gmail.com';
+  var DEV_EMAILS = [
+    'pkang6689@gmail.com',
+    'angad.singh.b.23@gmail.com',
+    'neilmartinbalboa@gmail.com'
+  ];
 
   function isDev() {
     try {
       var u = JSON.parse(localStorage.getItem('user'));
-      return u && u.email && u.email.toLowerCase() === DEV_EMAIL;
+      return u && u.email && DEV_EMAILS.includes(u.email.toLowerCase());
     } catch (e) {
       return false;
     }
