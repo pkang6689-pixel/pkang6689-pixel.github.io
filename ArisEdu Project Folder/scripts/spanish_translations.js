@@ -23712,7 +23712,6 @@
     "Topic": "Tema",
     "Total Internal Reflection (TIR)": "Reflexión Interna Total (TIR)",
     "Total Lessons Completed:": "Total de lecciones completadas:",
-    "Total Lessons Started:": "Total de lecciones iniciadas:",
     "Total Surface Area: The sum of the areas of all faces, including the bases.": "Área de Superficie Total: La suma de las áreas de todas las caras, incluidas las bases.",
     "Total current into a junction = total current out": "Corriente total en una unión = corriente total de salida",
     "Total displacement": "Desplazamiento total",

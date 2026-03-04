@@ -235,18 +235,30 @@ document.addEventListener('keydown', e => {
 });
 
 function emitSpark(color) {
-    sparkles.push({
-        x: centerX + (Math.random() - 0.5) * 120,
-        y: centerY + (Math.random() - 0.5) * 120,
-        vx: (Math.random() - 0.5) * 0.04,
-        vy: (Math.random() - 0.5) * 0.04,
-        life: 1,
-        color
-    });
+    for (let i = 0; i < 8; i++) {
+        const angle = (Math.PI * 2 / 8) * i + Math.random() * 0.5;
+        const spd = 0.02 + Math.random() * 0.04;
+        sparkles.push({
+            x: centerX + Math.cos(angle) * 40,
+            y: centerY + Math.sin(angle) * 40,
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd,
+            life: 1,
+            color,
+            size: 3 + Math.random() * 5
+        });
+    }
+}
+
+let clickRipples = [];
+let bgStars = [];
+for (let i = 0; i < 40; i++) {
+    bgStars.push({x: Math.random()*600, y: Math.random()*600, s: 0.5+Math.random()*1.5, phase: Math.random()*Math.PI*2});
 }
 
 function handleClick() {
     if (!running) return;
+    clickRipples.push({x: centerX, y: centerY, r: 40, alpha: 0.8, color: state === 'waiting' ? '#ef4444' : '#22c55e'});
     if (state === 'waiting') {
         state = 'fail';
         score = 'TOO EARLY';
@@ -276,6 +288,7 @@ function init() {
     reactTimer = 0;
     frameCount = 0;
     sparkles = [];
+    clickRipples = [];
     score = 0;
     document.getElementById('score').textContent = '0 ms';
 }
@@ -301,60 +314,173 @@ function update(dt) {
         const sparkle = sparkles[i];
         sparkle.x += sparkle.vx * dt;
         sparkle.y += sparkle.vy * dt;
-        sparkle.life -= dt / 400;
+        sparkle.life -= dt / 600;
         if (sparkle.life <= 0) sparkles.splice(i, 1);
+    }
+    
+    for (let i = clickRipples.length - 1; i >= 0; i--) {
+        const r = clickRipples[i];
+        r.r += dt * 0.2;
+        r.alpha -= dt * 0.002;
+        if (r.alpha <= 0) clickRipples.splice(i, 1);
     }
 }
 
 function draw() {
-    const gradient = ctx.createLinearGradient(0, 0, 0, H);
-    gradient.addColorStop(0, '#030712');
-    gradient.addColorStop(1, state === 'ready' ? '#022c22' : '#1f2937');
-    ctx.fillStyle = gradient;
+    // Background with reactive color shift
+    const readyFactor = state === 'ready' ? Math.min(1, reactTimer / 500) : 0;
+    const bg = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, W * 0.7);
+    if (state === 'ready') {
+        bg.addColorStop(0, '#052e16');
+        bg.addColorStop(1, '#030712');
+    } else if (state === 'win') {
+        bg.addColorStop(0, '#052e16');
+        bg.addColorStop(1, '#022c22');
+    } else {
+        bg.addColorStop(0, '#1c1917');
+        bg.addColorStop(1, '#030712');
+    }
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 
+    // Stars
+    for (const s of bgStars) {
+        const twinkle = 0.2 + Math.sin(s.phase + frameCount * 0.015) * 0.2;
+        ctx.fillStyle = `rgba(255,255,255,${twinkle})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.s, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Click ripples
+    for (const r of clickRipples) {
+        ctx.strokeStyle = r.color;
+        ctx.globalAlpha = Math.max(0, r.alpha);
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    // Sparkle particles with glow
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     for (const sparkle of sparkles) {
         ctx.globalAlpha = Math.max(0, sparkle.life);
-        ctx.fillStyle = sparkle.color;
+        const sg = ctx.createRadialGradient(sparkle.x, sparkle.y, 0, sparkle.x, sparkle.y, sparkle.size);
+        sg.addColorStop(0, sparkle.color);
+        sg.addColorStop(1, 'transparent');
+        ctx.fillStyle = sg;
         ctx.beginPath();
-        ctx.arc(sparkle.x, sparkle.y, 6, 0, Math.PI * 2);
+        ctx.arc(sparkle.x, sparkle.y, sparkle.size * 2, 0, Math.PI * 2);
         ctx.fill();
     }
     ctx.restore();
+    ctx.globalCompositeOperation = 'source-over';
 
     ctx.save();
     ctx.translate(centerX, centerY);
-    const ringRadius = 70 + Math.sin(frameCount * 0.04) * 10;
-    ctx.lineWidth = 8;
-    ctx.strokeStyle = state === 'waiting' ? 'rgba(239,68,68,0.6)' : 'rgba(34,197,94,0.6)';
+    
+    // Outer pulsing ring
+    const ringRadius = 80 + Math.sin(frameCount * 0.03) * 12;
+    const ringColor = state === 'waiting' ? '#ef4444' : '#22c55e';
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = ringColor;
+    ctx.globalAlpha = 0.2;
+    ctx.beginPath();
+    ctx.arc(0, 0, ringRadius + 15, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 0.4;
+    ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.arc(0, 0, ringRadius, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.restore();
+    ctx.globalAlpha = 1;
 
+    // Rotating dashes around ring
     ctx.save();
-    ctx.shadowBlur = 20;
-    ctx.shadowColor = state === 'waiting' ? '#ef4444' : '#22c55e';
-    ctx.fillStyle = state === 'waiting' ? '#ef4444' : '#22c55e';
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, 40, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.rotate(frameCount * 0.01);
+    ctx.strokeStyle = ringColor;
+    ctx.lineWidth = 3;
+    ctx.globalAlpha = 0.5;
+    for (let i = 0; i < 12; i++) {
+        const a = (Math.PI * 2 / 12) * i;
+        ctx.beginPath();
+        ctx.arc(0, 0, ringRadius + 8, a, a + 0.15);
+        ctx.stroke();
+    }
     ctx.restore();
 
+    // Main circle with gradient
+    const mainColor1 = state === 'waiting' ? '#f87171' : state === 'win' ? '#4ade80' : '#22c55e';
+    const mainColor2 = state === 'waiting' ? '#991b1b' : state === 'win' ? '#15803d' : '#166534';
+    const cg = ctx.createRadialGradient(-8, -8, 2, 0, 0, 48);
+    cg.addColorStop(0, mainColor1);
+    cg.addColorStop(1, mainColor2);
+    ctx.fillStyle = cg;
+    ctx.shadowBlur = 35;
+    ctx.shadowColor = mainColor1;
+    ctx.beginPath();
+    ctx.arc(0, 0, 48, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Highlight on circle
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(-12, -15, 18, 10, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Countdown ring when waiting (shows how much wait time has passed)
+    if (state === 'waiting') {
+        ctx.strokeStyle = 'rgba(239,68,68,0.3)';
+        ctx.lineWidth = 4;
+        const waitProg = 1 - (waitTimer / 4000);
+        ctx.beginPath();
+        ctx.arc(0, 0, 55, -Math.PI/2, -Math.PI/2 + Math.PI * 2 * waitProg);
+        ctx.stroke();
+    }
+    
+    // Timer display when reacting
+    if (state === 'ready' && reactTimer > 0) {
+        ctx.strokeStyle = 'rgba(34,197,94,0.5)';
+        ctx.lineWidth = 4;
+        const timeProg = Math.min(1, reactTimer / 1000);
+        ctx.beginPath();
+        ctx.arc(0, 0, 55, -Math.PI/2, -Math.PI/2 + Math.PI * 2 * timeProg);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+
+    // Label text
     ctx.fillStyle = '#fff';
-    ctx.font = '28px "Orbitron", sans-serif';
+    ctx.font = 'bold 22px "Orbitron", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const label = state === 'waiting'
-        ? 'WAIT FOR GREEN'
+        ? 'WAIT...'
         : state === 'ready'
-            ? 'CLICK NOW'
+            ? 'CLICK!'
             : state === 'win'
                 ? `${score} ms`
                 : score;
     ctx.fillText(label, centerX, centerY);
+    
+    // Sub-label
+    ctx.font = '11px "Orbitron", sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    if (state === 'waiting') {
+        ctx.fillText('Wait for green', centerX, centerY + 85);
+    } else if (state === 'ready') {
+        ctx.fillText('Click/Tap/Space NOW!', centerX, centerY + 85);
+    } else if (state === 'win') {
+        const rating = score < 200 ? '⚡ AMAZING!' : score < 300 ? '🔥 GREAT!' : score < 400 ? '👍 GOOD' : '🐌 SLOW';
+        ctx.font = '13px "Orbitron", sans-serif';
+        ctx.fillStyle = score < 200 ? '#fbbf24' : score < 300 ? '#22c55e' : '#94a3b8';
+        ctx.fillText(rating, centerX, centerY + 85);
+    }
 }
 
 function loop(timestamp) {

@@ -424,44 +424,14 @@
         <div class="account-section">
           <h3 class="account-section-title" data-i18n="Learning Progress">Learning Progress</h3>
           <div class="account-field">
-            <span class="account-field-label" data-i18n="Total Lessons Started:">Total Lessons Started:</span>
-            <span class="account-field-value" id="lessons-started">0</span>
-          </div>
-          <div class="account-field">
             <span class="account-field-label" data-i18n="Total Lessons Completed:">Total Lessons Completed:</span>
             <span class="account-field-value" id="lessons-completed">0</span>
-          </div>
-          <div class="course-breakdown">
-            <div class="account-field">
-              <span class="account-field-label" data-i18n="📐 Algebra 1">📐 Algebra 1</span>
-              <span class="account-field-value"><span id="alg1-started">0</span> <span data-i18n="started">started</span> / <span id="alg1-completed">0</span> <span data-i18n="completed">completed</span></span>
-            </div>
-            <div class="account-field">
-              <span class="account-field-label" data-i18n="📐 Algebra 2">📐 Algebra 2</span>
-              <span class="account-field-value"><span id="alg2-started">0</span> <span data-i18n="started">started</span> / <span id="alg2-completed">0</span> <span data-i18n="completed">completed</span></span>
-            </div>
-            <div class="account-field">
-              <span class="account-field-label" data-i18n="△ Geometry">△ Geometry</span>
-              <span class="account-field-value"><span id="geometry-started">0</span> <span data-i18n="started">started</span> / <span id="geometry-completed">0</span> <span data-i18n="completed">completed</span></span>
-            </div>
-            <div class="account-field">
-              <span class="account-field-label" data-i18n="⚡ Physics">⚡ Physics</span>
-              <span class="account-field-value"><span id="physics-started">0</span> <span data-i18n="started">started</span> / <span id="physics-completed">0</span> <span data-i18n="completed">completed</span></span>
-            </div>
-            <div class="account-field">
-              <span class="account-field-label" data-i18n="🧪 Chemistry">🧪 Chemistry</span>
-              <span class="account-field-value"><span id="chem-started">0</span> <span data-i18n="started">started</span> / <span id="chem-completed">0</span> <span data-i18n="completed">completed</span></span>
-            </div>
-            <div class="account-field">
-              <span class="account-field-label" data-i18n="🧬 Biology">🧬 Biology</span>
-              <span class="account-field-value"><span id="bio-started">0</span> <span data-i18n="started">started</span> / <span id="bio-completed">0</span> <span data-i18n="completed">completed</span></span>
-            </div>
           </div>
         </div>
 
         <div class="account-section">
             <h3 class="account-section-title">Achievements & Badges</h3>
-            <div id="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 1rem; padding: 1rem; background: var(--card-bg, #f1f5f9); border: 1px solid var(--border-color, #e2e8f0); border-radius: 1rem;">
+            <div id="badges-grid" style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem; background: var(--card-bg, #f1f5f9); border: 1px solid var(--border-color, #e2e8f0); border-radius: 1rem; min-height: 100px;">
                 <!-- Badges injected here -->
             </div>
         </div>
@@ -494,89 +464,39 @@
   `;
 
   // Calculate learning progress from localStorage
-  // Key patterns: {subject}_u{unit}_l{lesson}_{started|completed} = 'true'
-  // Subjects: physics, phys, chem, bio
   const startedLessons = new Set();
   const completedLessons = new Set();
-  
-  // Per-course tracking
-  const courseProgress = {
-    alg1: { started: new Set(), completed: new Set() },
-    alg2: { started: new Set(), completed: new Set() },
-    geometry: { started: new Set(), completed: new Set() },
-    physics: { started: new Set(), completed: new Set() },
-    chem: { started: new Set(), completed: new Set() },
-    bio: { started: new Set(), completed: new Set() }
-  };
+  const badgeCounts = {}; // Key map for badge progress
   
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (!key) continue;
     
-    // Match patterns like physics_u1_l2_started, chem_u3_l4_completed, bio_u1_l1_started, alg1_u1_l1_started, alg2_u1_l1_started, geometry_u1_l1_started
-    const startedMatch = key.match(/^(physics|phys|chem|bio|alg1|alg2|geometry)_u(\d+)_l(\d+)_started$/);
-    const completedMatch = key.match(/^(physics|phys|chem|bio|alg1|alg2|geometry)_u(\d+)_l(\d+)_completed$/);
+    // Generic Match for any course format: {subject}_u{unit}_l{lesson}_{type}
+    const match = key.match(/^(.+)_u(\d+)_l(\d+)_(started|completed)$/);
     
-    if (startedMatch && localStorage.getItem(key) === 'true') {
-      const subject = startedMatch[1] === 'phys' ? 'physics' : startedMatch[1];
-      const lessonKey = `${subject}_u${startedMatch[2]}_l${startedMatch[3]}`;
-      startedLessons.add(lessonKey);
+    if (match && localStorage.getItem(key) === 'true') {
+      let subject = match[1];
+      const unit = match[2];
+      const lesson = match[3];
+      const type = match[4];
+
+      // Normalize legacy physics key
+      if (subject === 'phys') subject = 'physics';
+
+      const lessonKey = `${subject}_u${unit}_l${lesson}`;
       
-      // Track per-course
-      if (subject === 'physics' || startedMatch[1] === 'phys') {
-        courseProgress.physics.started.add(lessonKey);
-      } else if (subject === 'chem') {
-        courseProgress.chem.started.add(lessonKey);
-      } else if (subject === 'bio') {
-        courseProgress.bio.started.add(lessonKey);
-      } else if (subject === 'alg1') {
-        courseProgress.alg1.started.add(lessonKey);
-      } else if (subject === 'alg2') {
-        courseProgress.alg2.started.add(lessonKey);
-      } else if (subject === 'geometry') {
-        courseProgress.geometry.started.add(lessonKey);
-      }
-    }
-    
-    if (completedMatch && localStorage.getItem(key) === 'true') {
-      const subject = completedMatch[1] === 'phys' ? 'physics' : completedMatch[1];
-      const lessonKey = `${subject}_u${completedMatch[2]}_l${completedMatch[3]}`;
-      completedLessons.add(lessonKey);
-      
-      // Track per-course
-      if (subject === 'physics' || completedMatch[1] === 'phys') {
-        courseProgress.physics.completed.add(lessonKey);
-      } else if (subject === 'chem') {
-        courseProgress.chem.completed.add(lessonKey);
-      } else if (subject === 'bio') {
-        courseProgress.bio.completed.add(lessonKey);
-      } else if (subject === 'alg1') {
-        courseProgress.alg1.completed.add(lessonKey);
-      } else if (subject === 'alg2') {
-        courseProgress.alg2.completed.add(lessonKey);
-      } else if (subject === 'geometry') {
-        courseProgress.geometry.completed.add(lessonKey);
+      if (type === 'started') {
+        startedLessons.add(lessonKey);
+      } else if (type === 'completed') {
+        completedLessons.add(lessonKey);
+        badgeCounts[subject] = (badgeCounts[subject] || 0) + 1;
       }
     }
   }
   
   // Update totals
-  document.getElementById('lessons-started').textContent = startedLessons.size;
   document.getElementById('lessons-completed').textContent = completedLessons.size;
-  
-  // Update per-course counts
-  document.getElementById('alg1-started').textContent = courseProgress.alg1.started.size;
-  document.getElementById('alg1-completed').textContent = courseProgress.alg1.completed.size;
-  document.getElementById('alg2-started').textContent = courseProgress.alg2.started.size;
-  document.getElementById('alg2-completed').textContent = courseProgress.alg2.completed.size;
-  document.getElementById('geometry-started').textContent = courseProgress.geometry.started.size;
-  document.getElementById('geometry-completed').textContent = courseProgress.geometry.completed.size;
-  document.getElementById('physics-started').textContent = courseProgress.physics.started.size;
-  document.getElementById('physics-completed').textContent = courseProgress.physics.completed.size;
-  document.getElementById('chem-started').textContent = courseProgress.chem.started.size;
-  document.getElementById('chem-completed').textContent = courseProgress.chem.completed.size;
-  document.getElementById('bio-started').textContent = courseProgress.bio.started.size;
-  document.getElementById('bio-completed').textContent = courseProgress.bio.completed.size;
 
   // --- Badge Logic ---
   const badgesGrid = document.getElementById('badges-grid');
@@ -617,28 +537,138 @@
       }
   }, 1500);
 
-  const allBadges = [
-      // General
-      { id: 'first_visit', icon: '👋', name: 'First Steps', desc: 'Visited your first lesson!', condition: () => awardedBadges.includes('first_visit') },
-      { id: 'scholar', icon: '📚', name: 'Scholar', desc: 'Visited 5 different lessons', condition: () => awardedBadges.includes('scholar') || completedLessons.size >= 5 },
-      { id: 'dedicated', icon: '🤓', name: 'Dedicated', desc: 'Visited 20 pages', condition: () => awardedBadges.includes('dedicated') || completedLessons.size >= 20 },
-      { id: 'completionist', icon: '⌛', name: 'Completionist', desc: 'Spent over an hour studying', condition: () => awardedBadges.includes('completionist') || totalMinutesAllTime >= 60 },
-      
-      // Habits
-      { id: 'night_owl', icon: '🦉', name: 'Night Owl', desc: 'Studying after 10 PM', condition: () => awardedBadges.includes('night_owl') },
-      { id: 'early_bird', icon: '🌅', name: 'Early Bird', desc: 'Studying before 7 AM', condition: () => awardedBadges.includes('early_bird') },
-      
-      // Subjects
-      { id: 'algebra_master', icon: '📐', name: 'Algebra Wizard', desc: 'Mastered Algebra concepts', condition: () => awardedBadges.includes('algebra_master') || courseProgress.alg1.completed.size >= 5 },
-      { id: 'physics_pro', icon: '⚡', name: 'Physics Pro', desc: 'Excelled in Physics', condition: () => awardedBadges.includes('physics_pro') },
-      { id: 'chemistry_whiz', icon: '🧪', name: 'Chem Whiz', desc: 'Ace in Chemistry', condition: () => awardedBadges.includes('chemistry_whiz') },
-      { id: 'quiz_master', icon: '📝', name: 'Quiz Master', desc: 'Completed a quiz', condition: () => awardedBadges.includes('quiz_master') },
-      
-      // Streaks
-      { id: 'streak_3', icon: '🔥', name: 'Streak Starter', desc: 'Visited 3 days in a row', condition: () => streak >= 3 || awardedBadges.includes('streak_3') },
-      { id: 'streak_7', icon: '🚒', name: 'Week Warrior', desc: 'Visited 7 days in a row', condition: () => streak >= 7 || awardedBadges.includes('streak_7') },
-      { id: 'streak_30', icon: '📅', name: 'Month Master', desc: 'Visited 30 days in a row', condition: () => streak >= 30 || awardedBadges.includes('streak_30') }
+const BADGE_DEFS = {
+        'night_owl': { title: 'Night Owl', desc: t => `Studied after 10 PM on ${t} days`, icon: '🦉', thresholds: [1, 5, 15, 30, 50] },
+        'early_bird': { title: 'Early Bird', desc: t => `Studied before 7 AM on ${t} days`, icon: '🌅', thresholds: [1, 5, 15, 30, 50] },
+        'quiz_master': { title: 'Quiz Master', desc: t => `Completed ${t} quizzes`, icon: '🧠', thresholds: [1, 5, 15, 30, 50] },
+        
+        // High School (Legacy + New)
+        'algebra': { title: 'Algebra Wizard', desc: t => `Completed ${t}% of Algebra (HS)`, icon: '📐', thresholds: [10, 30, 50, 80, 100], max: 186 },
+        'hs_alg1': { title: 'Algebra 1 Mastery', desc: t => `Completed ${t}% of Algebra 1`, icon: '📐', thresholds: [10, 30, 50, 80, 100], max: 119 },
+        'hs_alg2': { title: 'Algebra 2 Mastery', desc: t => `Completed ${t}% of Algebra 2`, icon: '📐', thresholds: [10, 30, 50, 80, 100], max: 67 },
+        'geometry': { title: 'Geometry Expert', desc: t => `Completed ${t}% of Geometry (HS)`, icon: '△', thresholds: [10, 30, 50, 80, 100], max: 111 },
+        'physics': { title: 'Physics Pro', desc: t => `Completed ${t}% of Physics (HS)`, icon: '⚛️', thresholds: [10, 30, 50, 80, 100], max: 84 },
+        'chemistry': { title: 'Chem Whiz', desc: t => `Completed ${t}% of Chemistry (HS)`, icon: '⚗️', thresholds: [10, 30, 50, 80, 100], max: 109 },
+        'biology': { title: 'Biology Guru', desc: t => `Completed ${t}% of Biology (HS)`, icon: '🧬', thresholds: [10, 30, 50, 80, 100], max: 83 },
+
+        // Middle School
+        'ms_pre_alg': { title: 'Pre-Algebra Pro', desc: t => `Completed ${t}% of MS Pre-Algebra`, icon: '➗', thresholds: [10, 30, 50, 80, 100], max: 59 },
+        'ms_alg_found': { title: 'Algebra Foundations', desc: t => `Completed ${t}% of MS Alg Foundations`, icon: 'wd', thresholds: [10, 30, 50, 80, 100], max: 20 },
+        'ms_geom': { title: 'MS Geometry Star', desc: t => `Completed ${t}% of MS Geometry`, icon: '🔷', thresholds: [10, 30, 50, 80, 100], max: 60 },
+        'ms_phys': { title: 'MS Physics Explorer', desc: t => `Completed ${t}% of MS Physics`, icon: '🔭', thresholds: [10, 30, 50, 80, 100], max: 52 },
+        'ms_chem': { title: 'MS Chemistry Spark', desc: t => `Completed ${t}% of MS Chemistry`, icon: '🧪', thresholds: [10, 30, 50, 80, 100], max: 54 },
+        'ms_life_sci': { title: 'Life Science Badge', desc: t => `Completed ${t}% of MS Life Science`, icon: '🦠', thresholds: [10, 30, 50, 80, 100], max: 34 },
+
+        // AP Courses
+        'ap_bio': { title: 'AP Bio Scholar', desc: t => `Completed ${t}% of AP Biology`, icon: '🔬', thresholds: [10, 30, 50, 80, 100], max: 40 },
+        'ap_chem': { title: 'AP Chem Scholar', desc: t => `Completed ${t}% of AP Chemistry`, icon: '🧪', thresholds: [10, 30, 50, 80, 100], max: 41 },
+        'ap_env_sci': { title: 'AP Enviro Scholar', desc: t => `Completed ${t}% of AP Env Science`, icon: '🌍', thresholds: [10, 30, 50, 80, 100], max: 45 },
+        'ap_hug': { title: 'AP HUG Scholar', desc: t => `Completed ${t}% of AP Human Geo`, icon: '🗺️', thresholds: [10, 30, 50, 80, 100], max: 41 },
+        'ap_calc_ab': { title: 'AP Calc AB Scholar', desc: t => `Completed ${t}% of AP Calculus AB`, icon: '∫', thresholds: [10, 30, 50, 80, 100], max: 76 },
+        'ap_stats': { title: 'AP Stats Scholar', desc: t => `Completed ${t}% of AP Statistics`, icon: '📊', thresholds: [10, 30, 50, 80, 100], max: 56 },
+        'ap_phys1': { title: 'AP Phys 1 Scholar', desc: t => `Completed ${t}% of AP Physics 1`, icon: '🎢', thresholds: [10, 30, 50, 80, 100], max: 64 },
+        'ap_phys2': { title: 'AP Phys 2 Scholar', desc: t => `Completed ${t}% of AP Physics 2`, icon: '⚡', thresholds: [10, 30, 50, 80, 100], max: 35 },
+        'ap_phys_mech': { title: 'AP Mechanics Scholar', desc: t => `Completed ${t}% of AP Physics C`, icon: '⚙️', thresholds: [10, 30, 50, 80, 100], max: 28 },
+
+        // Aggregates
+        'master_hs': { title: 'High School Master', desc: t => `Completed ${t}% of High School Content`, icon: '🎓', thresholds: [10, 30, 50, 80, 100], max: 573 },
+        'master_ms': { title: 'Middle School Master', desc: t => `Completed ${t}% of Middle School Content`, icon: '🎒', thresholds: [10, 30, 50, 80, 100], max: 279 },
+        'master_ap': { title: 'AP Scholar Distinction', desc: t => `Completed ${t}% of AP Content`, icon: '🎖️', thresholds: [10, 30, 50, 80, 100], max: 426 },
+
+      'streak': { title: 'Streak Master', desc: t => `Reached a ${t}-day streak`, icon: '🔥', thresholds: [3, 7, 14, 30, 60] },
+      'game_2048': { title: 'Number Cruncher', desc: t => `Reached ${t} tile in 2048`, icon: '🎮', thresholds: [128, 256, 512, 1024, 2048], max: 2048 }
+  };
+
+  const TIERS = [
+      { id: 'bronze', name: 'Bronze', icon: '🥉' },
+      { id: 'silver', name: 'Silver', icon: '🥈' },
+      { id: 'gold', name: 'Gold', icon: '🥇' },
+      { id: 'diamond', name: 'Diamond', icon: '💎' },
+      { id: 'amethyst', name: 'Amethyst', icon: '🔮' }
   ];
+
+  const allBadges = [
+      { id: 'first_visit', icon: '👋', name: 'First Steps', desc: 'Visited your first lesson!', condition: () => awardedBadges.includes('first_visit') }
+  ];
+
+  Object.entries(BADGE_DEFS).forEach(([id, def]) => {
+        // Find highest earned tier
+        let highestIndex = -1;
+        for (let i = 0; i < def.thresholds.length; i++) {
+            if (awardedBadges.includes(`${id}_${TIERS[i].id}`)) {
+                highestIndex = i;
+            }
+        }
+        
+        // Show highest earned, OR show first tier if none earned
+        const indexToShow = Math.max(0, highestIndex);
+        const tier = TIERS[indexToShow];
+        const badgeId = `${id}_${tier.id}`;
+        
+        allBadges.push({
+            id: badgeId,
+            baseId: id, // Pass baseId explicitly
+            icon: def.icon + ' ' + tier.icon,
+            name: `${def.title} (${tier.name})`,
+            desc: def.desc(def.thresholds[indexToShow]),
+            condition: () => highestIndex >= indexToShow
+        }); // Close push
+    }); // Close forEach
+
+    // --- Helper to get actual progress values for bars ---
+    function getBadgeProgress(id, def) {
+        let current = 0;
+        let max = def.max || (def.thresholds ? def.thresholds[def.thresholds.length - 1] : 100);
+        
+        try {
+            // Stats Logic
+            if (id === 'night_owl') current = JSON.parse(localStorage.getItem('arisEdu_stats_night_owl_days') || '[]').length;
+            else if (id === 'early_bird') current = JSON.parse(localStorage.getItem('arisEdu_stats_early_bird_days') || '[]').length;
+            else if (id === 'streak') current = parseInt(localStorage.getItem('arisEdu_streak') || '0');
+            else if (id === 'quiz_master') current = parseInt(localStorage.getItem('arisEdu_stats_quizzes_completed') || '0');
+            else if (id === 'game_2048') current = parseInt(localStorage.getItem('2048_max_tile') || '0');
+            
+            // Course Logic (Using badgeCounts from pre-calc loop)
+            else if (id === 'algebra') current = (badgeCounts['alg1'] || 0) + (badgeCounts['alg2'] || 0);
+            else if (id === 'hs_alg1') current = badgeCounts['alg1'] || 0;
+            else if (id === 'hs_alg2') current = badgeCounts['alg2'] || 0;
+            else if (id === 'geometry') current = badgeCounts['geometry'] || 0;
+            else if (id === 'physics') current = badgeCounts['physics'] || 0;
+            else if (id === 'chemistry') current = badgeCounts['chem'] || 0;
+            else if (id === 'biology') current = badgeCounts['bio'] || 0;
+            
+            // MS Mappings
+            else if (id === 'ms_pre_alg') current = badgeCounts['alg1'] || 0;
+            else if (id === 'ms_alg_found') current = badgeCounts['alg2'] || 0;
+            else if (id === 'ms_geom') current = badgeCounts['ms_geom'] || 0;
+            else if (id === 'ms_phys') current = badgeCounts['ms_phys'] || 0;
+            else if (id === 'ms_chem') current = badgeCounts['chem'] || 0;
+            else if (id === 'ms_life_sci') current = badgeCounts['bio'] || 0;
+            
+            // AP Mappings (Direct lookup if key matches, else custom map)
+            else if (id === 'ap_phys1') current = badgeCounts['apphys1'] || 0;
+            else if (badgeCounts[id] !== undefined) current = badgeCounts[id]; // Generic fallback for matching IDs like ap_bio
+
+            // Aggregates
+            else if (id === 'master_hs') {
+                current = (badgeCounts['alg1']||0) + (badgeCounts['alg2']||0) + (badgeCounts['geometry']||0) + (badgeCounts['physics']||0) + (badgeCounts['chem']||0) + (badgeCounts['bio']||0);
+            }
+            else if (id === 'master_ms') {
+                current = (badgeCounts['alg1']||0) + (badgeCounts['alg2']||0) + (badgeCounts['ms_geom']||0) + (badgeCounts['ms_phys']||0) + (badgeCounts['chem']||0) + (badgeCounts['bio']||0);
+            }
+            else if (id === 'master_ap') {
+                 const keys = ['ap_bio', 'ap_chem', 'ap_env_sci', 'ap_hug', 'ap_calc_ab', 'ap_stats', 'apphys1', 'ap_phys2', 'ap_phys_mech'];
+                 current = keys.reduce((acc, k) => acc + (badgeCounts[k]||0), 0);
+            }
+
+        } catch (e) { console.error(e); }
+
+        // Cap current at max for display (unless streak?)
+        if (current > max && id !== 'streak' && id !== 'game_2048') current = max;
+        
+        const percent = Math.min(100, (current / max) * 100);
+        return { current, max, percent };
+    }
 
   // Inject Tooltip Styles
   const tooltipStyle = document.createElement('style');
@@ -678,40 +708,145 @@
           border-style: solid;
           border-color: #334155 transparent transparent transparent;
       }
-  `;
-  document.head.appendChild(tooltipStyle);
+        .progress-bar-container {
+            flex: 1;
+            margin-left: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .badge-checkpoints {
+            position: relative;
+            height: 10px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 5px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        .badge-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 0.5s ease-out;
+        }
+        .badge-checkpoint {
+            position: absolute;
+            top: -4px;
+            width: 2px;
+            height: 18px;
+            background: rgba(0,0,0,0.3);
+            z-index: 2;
+        }
+        .badge-checkpoint-label {
+            position: absolute;
+            top: 16px;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            opacity: 0.7;
+            white-space: nowrap;
+        }
+        body.dark-mode .badge-checkpoints {
+            background: rgba(255,255,255,0.1);
+        }
+        body.dark-mode .badge-checkpoint {
+            background: rgba(255,255,255,0.3);
+        }
+    `;
+    document.head.appendChild(tooltipStyle);
 
-  allBadges.forEach(badge => {
-      const earned = badge.condition();
-      const isDark = document.body.classList.contains('dark-mode');
-      const div = document.createElement('div');
-      div.className = 'badge-item';
-      const earnedBg = isDark ? '#1e293b' : 'white';
-      const earnedShadow = isDark ? '0 2px 5px rgba(0,0,0,0.2)' : '0 2px 5px rgba(0,0,0,0.05)';
-      div.style.cssText = `position: relative; display: flex; flex-direction: column; align-items: center; opacity: ${earned ? 1 : 0.4}; filter: grayscale(${earned ? 0 : 1}); transition: all 0.3s; padding: 10px; border-radius: 8px; background: ${earned ? earnedBg : 'transparent'}; box-shadow: ${earned ? earnedShadow : 'none'}; cursor: help;`;
-      
-      const labelColor = isDark ? '#94a3b8' : '#64748b';
-      div.innerHTML = `
-        <div style="font-size: 2.5rem; margin-bottom: 0.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">${badge.icon}</div>
-        <div style="font-size: 0.75rem; color: ${labelColor}; font-weight: 600; text-align: center;">${badge.name}</div>
-        <div class="badge-tooltip">
-            <strong style="display:block; margin-bottom:0.2rem; font-size:0.9rem;">${badge.name}</strong>
-            ${badge.desc}<br>
-            <span style="font-weight:bold; color:${earned ? '#4ade80' : '#f87171'}">${earned ? '✓ Earned' : '🔒 Locked'}</span>
-        </div>
-      `;
-      badgesGrid.appendChild(div);
-  });
-  
+    allBadges.forEach(badge => {
+        const earned = badge.condition();
+        const isDark = document.body.classList.contains('dark-mode');
+        const div = document.createElement('div');
+        div.className = 'badge-item';
+        const earnedBg = isDark ? '#1e293b' : 'white';
+        const earnedShadow = isDark ? '0 2px 5px rgba(0,0,0,0.2)' : '0 2px 5px rgba(0,0,0,0.05)';
+        
+        div.style.cssText = `position: relative; display: flex; flex-direction: row; align-items: center; width: 100%; opacity: ${earned ? 1 : 0.4}; filter: grayscale(${earned ? 0 : 1}); transition: all 0.3s; padding: 1.5rem; border-radius: 12px; background: ${earned ? earnedBg : 'transparent'}; box-shadow: ${earned ? earnedShadow : 'none'}; cursor: default; margin-bottom: 1rem;`;
+
+        const labelColor = isDark ? '#94a3b8' : '#64748b';
+        
+        // Progress Logic
+        let progressHTML = '';
+        let baseId = badge.baseId;
+        if (!baseId && badge.id) {
+            baseId = badge.id.split('_')[0];
+        }
+
+        if (baseId === 'polyglot') baseId = null; 
+        
+        const def = BADGE_DEFS[baseId];
+        
+        if (def && def.thresholds) {
+            const stats = getBadgeProgress(baseId, def);
+            
+            // Checkpoint markers logic
+            const markers = def.thresholds.map(t => {
+                let position = 0;
+                
+                // Absolute Count Badges (Non-linear scale or specific values)
+                const absoluteBadges = ['night_owl', 'early_bird', 'quiz_master', 'streak', 'game_2048'];
+                
+                if (absoluteBadges.includes(baseId)) {
+                    // Calculate position relative to max
+                    const maxVal = def.max || stats.max;
+                    position = (t / maxVal) * 100;
+                } else {
+                    // Percentage Based Badges (Courses)
+                    // The thresholds are already percentages (10, 30, 50, 80, 100)
+                    position = t;
+                }
+                
+                return `<div class="badge-checkpoint" style="left: ${position}%"></div>
+                        <div class="badge-checkpoint-label" style="left: ${position}%">${t}${absoluteBadges.includes(baseId) ? '' : '%'}</div>`;
+            }).join('');
+            
+            let unitLabel = 'count';
+            if (baseId === 'game_2048') unitLabel = 'max tile';
+            else if (def.max && baseId !== 'night_owl' && baseId !== 'early_bird' && baseId !== 'streak' && baseId !== 'quiz_master') unitLabel = 'lessons'; 
+
+            progressHTML = `
+                <div class="progress-bar-container">
+                    <div style="font-size:0.8rem; font-weight:600; opacity:0.8; display:flex; justify-content:space-between;">
+                        <span>Progress to next tier</span>
+                        <span>${stats.current} / ${stats.max} ${unitLabel}</span>
+                    </div>
+                    <div class="badge-checkpoints">
+                        <div class="badge-fill" style="width: ${stats.percent}%"></div>
+                        ${markers}
+                    </div>
+                </div>
+            `;
+        }
+
+        div.innerHTML = `
+          <div style="display:flex; flex-direction:column; align-items:center; min-width:120px; width:120px;">
+              <div style="font-size: 3rem; margin-bottom: 0.5rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">${badge.icon}</div>
+              <div style="font-size: 0.85rem; color: ${labelColor}; font-weight: 700; text-align: center; line-height:1.2;">
+                ${badge.name.replace(/\s\((.+)\)/, '<br><span style="font-weight:400; font-size:0.75rem; opacity:0.8;">$1</span>')}
+              </div>
+          </div>
+          
+          <div style="flex:1; padding-left:2rem; display:flex; align-items:center;">
+             ${progressHTML || '<div style="opacity:0.5; font-size:0.8rem;">Single achievement badge</div>'}
+          </div>
+          
+          <!-- Tooltip still useful for description -->
+          <div class="badge-tooltip" style="bottom: auto; top: -10px; transform: translateY(-100%) translateX(-50%);">
+              <strong style="display:block; margin-bottom:0.2rem; font-size:0.9rem;">${badge.name}</strong>
+              ${badge.desc}<br>
+              <span style="font-weight:bold; color:${earned ? '#4ade80' : '#f87171'}">${earned ? '✓ Earned' : '🔒 Locked'}</span>
+          </div>
+        `;
+        badgesGrid.appendChild(div);
+    });
+
   // --- Avatar Logic ---
   window.selectAvatar = function(emoji) {
-      // Create SVG from emoji for profile pic to look consistent with letter avatars
-      // Or just store the emoji character and render it textually
       const updatedUser = { ...user, avatar: null, avatarEmoji: emoji };
-      // For simplicity in this demo, let's just save the emoji to render as text
-      // But the UI expects an image src for user.avatar. 
-      // We'll update the display logic to handle emoji
-      
       user.avatarEmoji = emoji;
       localStorage.setItem('user', JSON.stringify(user));
       

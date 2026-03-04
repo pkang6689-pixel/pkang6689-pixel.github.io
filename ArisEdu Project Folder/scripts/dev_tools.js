@@ -122,12 +122,8 @@
       var select = document.createElement('select');
       select.style.cssText = 'width:100%; padding:0.3rem; background:#334155; color:white; border:none; border-radius:0.3rem; margin-bottom:0.3rem;';
       
-      var badgeKeys = [
-          'night_owl', 'early_bird',
-          'completionist', 'quiz_master', 
-          'algebra_master', 'physics_pro', 'chemistry_whiz', 'polyglot',
-          '2048_tile',
-          'streak_3', 'streak_7', 'streak_30'
+      var badgeKeys = window.BadgeSystem ? Object.keys(window.BadgeSystem.badges) : [
+          'polyglot', '2048_tile'
       ];
       
       badgeKeys.forEach(function(key) {
@@ -149,6 +145,24 @@
           }
       };
 
+      var awardAllBtn = document.createElement('button');
+      awardAllBtn.className = 'dev-btn';
+      awardAllBtn.style.background = '#8b5cf6';
+      awardAllBtn.textContent = 'Award All Badges';
+      awardAllBtn.style.marginTop = '0.5rem';
+      awardAllBtn.onclick = function() {
+          if (window.BadgeSystem) {
+              const allKeys = Object.keys(window.BadgeSystem.badges);
+              // Add a few hardcoded ones that may be in AccountInfo but not Badge_DEFS
+              if (!allKeys.includes('first_visit')) allKeys.push('first_visit');
+              localStorage.setItem('arisEdu_badges', JSON.stringify(allKeys));
+              alert('Awarded all badges! Refreshing page...');
+              location.reload();
+          } else {
+              alert('BadgeSystem not loaded on this page.');
+          }
+      };
+
       var resetBtn = document.createElement('button');
       resetBtn.className = 'dev-btn red';
       resetBtn.textContent = 'Reset All Badges';
@@ -160,6 +174,7 @@
       
       archivedContainer.appendChild(select);
       archivedContainer.appendChild(btn);
+      archivedContainer.appendChild(awardAllBtn);
       archivedContainer.appendChild(resetBtn);
 
       // Section: Role Switching (moved to archived)
@@ -849,6 +864,7 @@
     const path = window.location.pathname.toLowerCase();
     
     const courseMap = {
+      // AP Courses
       'ap_chemistry.html': 'ap_chem',
       'ap_biology.html': 'ap_bio',
       'ap_environmental_science.html': 'ap_env_sci',
@@ -856,7 +872,21 @@
       'ap_calculus.html': 'ap_calc_ab',
       'ap_statistics.html': 'ap_stats',
       'ap_physics2.html': 'ap_phys2',
-      'ap_physics_mechanics.html': 'ap_phys_mech'
+      'ap_physics_mechanics.html': 'ap_phys_mech',
+      // High School Courses
+      'algebra1.html': 'alg1',
+      'algebra2.html': 'alg2',
+      'bio.html': 'bio',
+      'chem.html': 'chem',
+      'geometry.html': 'geometry',
+      'physics.html': 'physics',
+      // Middle School Courses
+      'ms_algebra1.html': 'alg1_ms',
+      'ms_algebra2.html': 'alg2_ms',
+      'ms_bio.html': 'bio_ms',
+      'ms_chem.html': 'chem_ms',
+      'ms_geometry.html': 'ms_geom',
+      'ms_physics.html': 'ms_phys'
     };
     
     for (const [filename, prefix] of Object.entries(courseMap)) {
@@ -869,6 +899,7 @@
 
   window.completeCurrentCourse = async function() {
     const courses = {
+      // AP Courses
       'ap_bio': { name: 'AP Biology', units: { 1: 6, 2: 5, 3: 4, 4: 5, 5: 4, 6: 5, 7: 5, 8: 6 } },
       'ap_chem': { name: 'AP Chemistry', units: { 1: 5, 2: 5, 3: 4, 4: 4, 5: 5, 6: 4, 7: 4, 8: 5, 9: 5 } },
       'ap_env_sci': { name: 'AP Environmental Science', units: { 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5, 8: 5, 9: 5 } },
@@ -876,13 +907,27 @@
       'ap_calc_ab': { name: 'AP Calculus AB', units: { 1: 11, 2: 9, 3: 6, 4: 7, 5: 12, 6: 12, 7: 7, 8: 12 } },
       'ap_stats': { name: 'AP Statistics', units: { 1: 7, 2: 7, 3: 7, 4: 7, 5: 7, 6: 7, 7: 7, 8: 7 } },
       'ap_phys2': { name: 'AP Physics 2', units: { 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5 } },
-      'ap_phys_mech': { name: 'AP Physics C: Mechanics', units: { 1: 4, 2: 4, 3: 4, 4: 4, 5: 4, 6: 4, 7: 4 } }
+      'ap_phys_mech': { name: 'AP Physics C: Mechanics', units: { 1: 4, 2: 4, 3: 4, 4: 4, 5: 4, 6: 4, 7: 4 } },
+      // High School Courses
+      'alg1': { name: 'High School: Algebra 1', units: { 1: 8, 2: 10, 3: 6, 4: 9, 5: 13, 6: 16, 7: 11, 8: 10, 9: 12, 10: 11, 11: 8, 12: 5 } },
+      'alg2': { name: 'High School: Algebra 2', units: { 1: 10, 2: 8, 3: 8, 4: 7, 5: 8, 6: 6, 7: 8, 8: 7, 9: 5 } },
+      'bio': { name: 'High School: Biology', units: { 1: 8, 2: 8, 3: 6, 4: 7, 5: 7, 6: 7, 7: 7, 8: 6, 9: 6, 10: 7, 11: 7, 12: 7 } },
+      'chem': { name: 'High School: Chemistry', units: { 1: 9, 2: 6, 3: 9, 4: 10, '5A': 9, '5B': 6, 6: 8, 7: 9, 8: 10, 9: 9, 10: 11, 11: 7, 12: 6 } },
+      'geometry': { name: 'High School: Geometry', units: { 1: 8, 2: 10, 3: 8, 4: 9, 5: 7, 6: 8, 7: 9, 8: 9, 9: 8, 10: 10, 11: 7, 12: 10, 13: 8 } },
+      'physics': { name: 'High School: Physics', units: { 1: 7, 2: 7, 3: 9, 4: 7, 5: 7, 6: 7, 7: 9, 8: 7, 9: 7, 10: 10, 11: 7 } },
+      // Middle School Courses
+      'alg1_ms': { name: 'Middle School: Pre-Algebra', units: { 1: 23, 2: 18, 3: 18 } },
+      'alg2_ms': { name: 'Middle School: Algebra Foundations', units: { 1: 8, 2: 7, 3: 5 } },
+      'bio_ms': { name: 'Middle School: Life Science', units: { 1: 5, 2: 5, 3: 4, 4: 4, 5: 3, 6: 4, 7: 3, 8: 3, 9: 3 } },
+      'chem_ms': { name: 'Middle School: Chemistry Foundations', units: { 1: 21, 2: 9, 3: 24 } },
+      'ms_geom': { name: 'Middle School: Geometry', units: { 1: 23, 2: 14, 3: 23 } },
+      'ms_phys': { name: 'Middle School: Physics', units: { 1: 20, 2: 12, 3: 20 } }
     };
 
     const currentPrefix = detectCurrentCourse();
     
     if (!currentPrefix || !courses[currentPrefix]) {
-      alert('❌ Could not detect current course.\n\nMake sure you\'re on an AP course homepage\n(ap_biology.html, ap_chemistry.html, etc.)');
+      alert('❌ Could not detect current course.\n\nMake sure you\'re on a course homepage (e.g., algebra1.html, ap_biology.html, ms_algebra1.html, etc.)');
       return;
     }
 
@@ -909,27 +954,11 @@
             await window.courseProgress.markComplete(currentPrefix, unitNum, lesson);
           } catch (err) {
             console.warn(`Failed to sync lesson ${unitNum}.${lesson} to Firebase:`, err.message);
-            // Continue marking lessons even if Firebase fails
           }
         }
         
         totalMarked++;
       }
-      
-      // Mark unit test (lesson 99) as complete
-      const testKey = `${currentPrefix}_u${unitNum}_l99_completed`;
-      localStorage.setItem(testKey, 'true');
-      
-      if (useFirebase && window.courseProgress) {
-        try {
-          await window.courseProgress.markComplete(currentPrefix, unitNum, 99);
-        } catch (err) {
-          console.warn(`Failed to sync unit test ${unitNum} to Firebase:`, err.message);
-          // Continue marking lessons even if Firebase fails
-        }
-      }
-      
-      totalMarked++;
     }
 
     // Refresh any visible progress indicators
@@ -937,12 +966,12 @@
       window.applyProgressColors();
     }
 
-    const fbStatus = useFirebase ? ' [Synced to Firebase]' : ' [Local storage only]';
-    alert(`✅ Completed ${courseData.name}!\n\nMarked ${totalMarked} lessons/tests complete${fbStatus}`);
+    alert(`✅ Completed ${courseData.name}!\n\nMarked ${totalMarked} lessons complete`);
   };
 
-  window.completeAllAPCourses = async function() {
+  window.completeAllCourses = async function() {
     const courses = {
+      // AP Courses
       'ap_bio': { name: 'AP Biology', units: { 1: 6, 2: 5, 3: 4, 4: 5, 5: 4, 6: 5, 7: 5, 8: 6 } },
       'ap_chem': { name: 'AP Chemistry', units: { 1: 5, 2: 5, 3: 4, 4: 4, 5: 5, 6: 4, 7: 4, 8: 5, 9: 5 } },
       'ap_env_sci': { name: 'AP Environmental Science', units: { 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5, 8: 5, 9: 5 } },
@@ -950,7 +979,24 @@
       'ap_calc_ab': { name: 'AP Calculus AB', units: { 1: 11, 2: 9, 3: 6, 4: 7, 5: 12, 6: 12, 7: 7, 8: 12 } },
       'ap_stats': { name: 'AP Statistics', units: { 1: 7, 2: 7, 3: 7, 4: 7, 5: 7, 6: 7, 7: 7, 8: 7 } },
       'ap_phys2': { name: 'AP Physics 2', units: { 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5 } },
-      'ap_phys_mech': { name: 'AP Physics C: Mechanics', units: { 1: 4, 2: 4, 3: 4, 4: 4, 5: 4, 6: 4, 7: 4 } }
+      'ap_phys_mech': { name: 'AP Physics C: Mechanics', units: { 1: 4, 2: 4, 3: 4, 4: 4, 5: 4, 6: 4, 7: 4 } },
+      'ap_phys1': { name: 'AP Physics 1', units: { 1: 7, 2: 7, 3: 7, 4: 7, 5: 7, 6: 7, 7: 7, 8: 7 } },
+
+      // High School Courses
+      'alg1': { name: 'High School: Algebra 1', units: { 1: 8, 2: 10, 3: 6, 4: 9, 5: 13, 6: 16, 7: 11, 8: 10, 9: 12, 10: 11, 11: 8, 12: 5 } },
+      'alg2': { name: 'High School: Algebra 2', units: { 1: 10, 2: 8, 3: 8, 4: 7, 5: 8, 6: 6, 7: 8, 8: 7, 9: 5 } },
+      'bio': { name: 'High School: Biology', units: { 1: 8, 2: 8, 3: 6, 4: 7, 5: 7, 6: 7, 7: 7, 8: 6, 9: 6, 10: 7, 11: 7, 12: 7 } },
+      'chem': { name: 'High School: Chemistry', units: { 1: 9, 2: 6, 3: 9, 4: 10, '5A': 9, '5B': 6, 6: 8, 7: 9, 8: 10, 9: 9, 10: 11, 11: 7, 12: 6 } },
+      'geometry': { name: 'High School: Geometry', units: { 1: 8, 2: 10, 3: 8, 4: 9, 5: 7, 6: 8, 7: 9, 8: 9, 9: 8, 10: 10, 11: 7, 12: 10, 13: 8 } },
+      'physics': { name: 'High School: Physics', units: { 1: 7, 2: 7, 3: 9, 4: 7, 5: 7, 6: 7, 7: 9, 8: 7, 9: 7, 10: 10, 11: 7 } },
+      
+      // Middle School Courses
+      'alg1_ms': { name: 'Middle School: Pre-Algebra', units: { 1: 23, 2: 18, 3: 18 } },
+      'alg2_ms': { name: 'Middle School: Algebra Foundations', units: { 1: 8, 2: 7, 3: 5 } },
+      'bio_ms': { name: 'Middle School: Life Science', units: { 1: 5, 2: 5, 3: 4, 4: 4, 5: 3, 6: 4, 7: 3, 8: 3, 9: 3 } },
+      'chem_ms': { name: 'Middle School: Chemistry Foundations', units: { 1: 21, 2: 9, 3: 24 } },
+      'ms_geom': { name: 'Middle School: Geometry', units: { 1: 23, 2: 14, 3: 23 } },
+      'ms_phys': { name: 'Middle School: Physics', units: { 1: 20, 2: 12, 3: 20 } }
     };
 
     let totalMarked = 0;
@@ -1004,10 +1050,23 @@
     alert(`[OK] Marked ${totalMarked} lessons/tests as complete!${fbStatus}\n\nReload any open course pages to see progress updates.`);
   };
 
-  // Add AP Course completion buttons
-  addSection('AP Course Tools');
+  // Add Course completion buttons
+  addSection('Course Tools');
   addButton('✓ Complete This Course', function() { window.completeCurrentCourse(); }, 'green');
-  addButton('✓ Complete All AP Courses', function() { window.completeAllAPCourses(); }, 'green');
+  addButton('✓ Complete All Courses', function() { window.completeAllCourses(); }, 'green');
+
+  addSection('Badge Options');
+  addButton('🏆 Award All Badges', function() { 
+      if (window.BadgeSystem) {
+          const allKeys = Object.keys(window.BadgeSystem.badges);
+          if (!allKeys.includes('first_visit')) allKeys.push('first_visit');
+          localStorage.setItem('arisEdu_badges', JSON.stringify(allKeys));
+          alert('Awarded all badges! Refreshing page...');
+          location.reload();
+      } else {
+          alert('BadgeSystem not loaded on this page.');
+      }
+  }, 'green');
 
   // Add panel to DOM after page loads
   function mount() {

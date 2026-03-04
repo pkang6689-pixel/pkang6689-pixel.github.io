@@ -64,9 +64,7 @@
     "FIRST VISIT": "初次访问",
     "NIGHT OWL": "夜猫子",
     "EARLY BIRD": "早起的鸟儿",
-    "SCHOLAR": "学者",
-    "DEDICATED": "专注",
-    "COMPLETIONIST": "完美主义者",
+
     "QUIZ MASTER": "测验大师",
     "ALGEBRA MASTER": "代数大师",
     "PHYSICS PRO": "物理专家",
@@ -2373,7 +2371,6 @@
     "Email Address": "电子邮箱",
     "Member Since": "注册日期",
     "Learning Progress": "学习进度",
-    "Total Lessons Started:": "已开始课程总数：",
     "Total Lessons Completed:": "已完成课程总数：",
     "Time Spent Learning": "学习时长",
     "Today": "今天",

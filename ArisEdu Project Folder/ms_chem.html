@@ -38,14 +38,11 @@
     name: "Middle School: Chemistry Foundations",
     folder: "MS Chemistry",
     units: {
-      1: 5,
-      2: 4,
-      3: 4,
-      4: 4,
-      5: 3,
-      6: 4
+      1: 21,
+      2: 9,
+      3: 24
     },
-    numUnits: 6
+    numUnits: 3
   };
 
   // Generate unit SVG with adaptive spacing
@@ -54,18 +51,14 @@
     const maxLessons = 8;
     const actualLessonCount = Math.min(lessonCount, maxLessons);
     
-    // Adaptive spacing: distribute lessons evenly across 30 units of SVG height
-    const spacing = 30 / actualLessonCount;
-    const startY = 3 + 30; // Bottom of the usable area
+    // Smart lesson fitting: distribute lessons evenly across 30 units of SVG height
+    const totalSpace = 30;
+    const rectHeight = (totalSpace / actualLessonCount).toFixed(3);
     
     for (let lessonNum = 1; lessonNum <= actualLessonCount; lessonNum++) {
-      const yPos = (startY - (lessonNum - 1) * spacing).toFixed(3);
-      const folderPath = courseConfig.folder.replace(/\s+/g, '%20');
-      const unitText = `Unit ${unitNum}`.replace(/\s+/g, '%20');
-      const lessonText = `Lesson%20${unitNum}.${lessonNum}_Practice.html`;
-      
-      segments += `<a href="MS ChemistryLessons/Unit${unitNum}/Lesson${unitNum}.${lessonNum}_Video.html" onclick="markLessonStarted('${unitNum}', ${lessonNum})">
-    <rect id="u${unitNum}-l${lessonNum}" stroke="none" x="3" y="${yPos}" width="18" height="2.500" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson ${unitNum}.${lessonNum}')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect></a>
+      const yPos = (3 + totalSpace - (lessonNum * rectHeight)).toFixed(3);
+      segments += `<a href="MS_ChemistryLessons/Unit${unitNum}/Lesson ${unitNum}.${lessonNum}_Video.html" onclick="markLessonStarted('${unitNum}', ${lessonNum})">
+    <rect id="u${unitNum}-l${lessonNum}" stroke="none" x="3" y="${yPos}" width="18" height="${rectHeight}" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson ${unitNum}.${lessonNum}', ${unitNum}, ${lessonNum})" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect></a>
   <line x1="3" y1="${yPos}" x2="21" y2="${yPos}" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />`;
     }
     
@@ -89,17 +82,40 @@ ${segments}</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stro
 
   let tooltipEl = null;
   function getOrCreateTooltip() { if (!tooltipEl) { tooltipEl = document.createElement('div'); tooltipEl.id = 'lesson-tooltip'; document.body.appendChild(tooltipEl); } return tooltipEl; }
-  function showLessonPopup(event, lessonTitle) { const tooltip = getOrCreateTooltip(); tooltip.textContent = lessonTitle; tooltip.setAttribute('data-visible', 'true'); }
+  const lessonNames = {
+    '1.1': 'States of Matter', '1.2': 'Phase Changes', '1.3': 'Intensive & Extensive Properties', '1.4': 'Mass, Volume, & Density', '1.5': 'Heterogeneous & Homogeneous Mixtures', '1.6': 'Physical & Chemical Properties', '1.7': 'Physical & Chemical Changes', '1.8': 'Energy & Matter', '1.9': 'Scientific Notation', '1.10': 'Significant Figures', '1.11': 'Accuracy vs. Precision', '1.12': 'Metric System', '1.13': 'Unit Conversions', '1.14': 'Electrons, Protons, and Neutrons', '1.15': 'Atomic Structure', '1.16': 'Quantum Mechanical Model & Orbitals', '1.17': 'Electromagnetic Spectrum & Atomic Emission Spectra', '1.18': 'Radioactivity & Stability', '1.19': 'Isotopes & Radioisotopes', '1.20': 'Element Synthesis', '1.21': 'Atomic Theory',
+    '2.1': 'Chemical Symbols', '2.2': 'Periodic Table Arrangement', '2.3': 'Valence Electrons & Reactivity', '2.4': 'Electron Suborbitals', '2.5': 'Electron Configuration', '2.6': 'Periodic Trends', '2.7': 'Shielding Effect', '2.8': 'VSEPR Molecule Shapes', '2.9': 'Suborbital Shapes',
+    '3.1': 'Types of Reactions', '3.2': 'Combustion Reactions', '3.3': 'Redox Reactions', '3.4': 'Activation Energy', '3.5': 'Balancing Equations', '3.6': 'Reaction Rates & Catalysts', '3.7': 'Chemical Equilibrium & Le Chatelier\'s Principle', '3.8': 'Writing Correct Formulas', '3.9': 'Molar Mass & Molecular Mass', '3.10': 'Avogadro\'s Number', '3.11': 'Molar Conversions', '3.12': 'Empirical vs. Molecular Formulas', '3.13': 'Limiting Reagents', '3.14': 'Stoichiometric Calculations', '3.15': 'Percent Yield', '3.16': 'Monatomic & Diatomic Gases', '3.17': 'Pressure, Standard Atmosphere', '3.18': 'Kinetic Molecular Theory', '3.19': 'Boyle\'s Law', '3.20': 'Charles\' Law', '3.21': 'Gay-Lussac\'s Law', '3.22': 'Combined Gas Law', '3.23': 'Ideal Gas Law', '3.24': 'Real Gases & Deviations'
+  };
+
+  function showLessonPopup(event, lessonTitle, unitNum, lessonNum) { 
+    const tooltip = getOrCreateTooltip(); 
+    tooltip.setAttribute('data-visible', 'true'); 
+    
+    let status = '';
+    const isCompleted = localStorage.getItem(`chem_u${unitNum}_l${lessonNum}_completed`) === 'true';
+    const isStarted = localStorage.getItem(`chem_u${unitNum}_l${lessonNum}_started`) === 'true';
+    if (isCompleted) {
+      status = '✅ COMPLETED\n';
+    } else if (isStarted) {
+      status = '⏳ IN PROGRESS\n';
+    }
+    
+    // Look up lesson name from mapping
+    const lessonKey = `${unitNum}.${lessonNum}`;
+    const lessonName = lessonNames[lessonKey] || lessonTitle;
+    tooltip.textContent = status + `Lesson ${unitNum}.${lessonNum}: ${lessonName}`;
+  }
   function moveLessonPopup(event) { const tooltip = getOrCreateTooltip(); tooltip.style.left = (event.pageX + 12) + 'px'; tooltip.style.top = (event.pageY + 12) + 'px'; }
   function hideLessonPopup() { const tooltip = getOrCreateTooltip(); tooltip.setAttribute('data-visible', 'false'); }
-  function markLessonStarted(unit, lesson) { localStorage.setItem(`course_u${unit}_l${lesson}_started`, 'true'); applyProgressColors(); }
+  function markLessonStarted(unit, lesson) { localStorage.setItem(`chem_u${unit}_l${lesson}_started`, 'true'); applyProgressColors(); }
   function applyProgressColors() { 
     for (let u = 1; u <= courseConfig.numUnits; u++) { 
       for (let l = 1; l <= 12; l++) { 
         const segment = document.getElementById(`u${u}-l${l}`); 
         if (segment) { 
-          const isCompleted = localStorage.getItem(`course_u${u}_l${l}_completed`) === 'true'; 
-          const isStarted = localStorage.getItem(`course_u${u}_l${l}_started`) === 'true'; 
+          const isCompleted = localStorage.getItem(`chem_u${u}_l${l}_completed`) === 'true'; 
+          const isStarted = localStorage.getItem(`chem_u${u}_l${l}_started`) === 'true'; 
           if (isCompleted) { 
             segment.setAttribute('fill', '#16a34a'); 
             segment.setAttribute('fill-opacity', '0.7'); 

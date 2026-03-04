@@ -201,6 +201,17 @@ function stopArcadeGame() {
 // Clean up on page unload
 window.addEventListener('beforeunload', stopArcadeGame);
 
+// Global keyboard shortcut for pause (P / Escape) — works for all arcade games
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+        // Don't pause if start screen is still visible
+        const startScreen = document.getElementById('start-screen');
+        if (startScreen && startScreen.style.display !== 'none') return;
+        e.preventDefault();
+        togglePause();
+    }
+});
+
 /**
  * Auto-scale the main game canvas to fill available wrapper space.
  * Sets CSS width/height on the largest canvas inside #game-wrapper.

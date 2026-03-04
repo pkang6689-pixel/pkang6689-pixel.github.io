@@ -57,7 +57,8 @@
         "badges.js",
         "ambience_controller.js",
         "layout_adjuster.js",
-        "update_notifier.js"
+        "update_notifier.js",
+        "course-progress-firebase.js"
     ].forEach(name => {
         // Check if script already exists to prevent duplicates
         // Note: querySelector logic is imperfect for relative paths, check src content
@@ -69,6 +70,9 @@
         if(!exists) {
             var script = document.createElement('script');
             script.src = targetSrc;
+            if (name === "course-progress-firebase.js") {
+                script.type = "module";
+            }
             document.head.appendChild(script);
         }
     });

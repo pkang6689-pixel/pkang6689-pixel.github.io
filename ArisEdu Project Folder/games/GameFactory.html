@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab Empire - Arcade</title>
+    <title>Particle Clicker - Arcade</title>
     <script src="../scripts/arcade-core.js"></script>
     <script src="../firebase-utils.js"></script>
     <style>
@@ -115,14 +115,14 @@
 
         /* LEFT SIDE - MAIN GAME AREA */
         #game-wrapper { 
-            flex: 0 0 auto;
+            flex: 0 0 420px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            width: auto;
-            min-width: 0;
-            max-width: 100%;
+            width: 420px;
+            min-width: 420px;
+            max-width: 420px;
             margin: 0;
             margin-left: 2rem;
             overflow: visible;
@@ -155,7 +155,7 @@
             border-radius: 1rem;
             padding: 1.5rem;
             text-align: center;
-            width: 100%;
+            width: 400px;
             max-width: 400px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.4);
         }
@@ -165,6 +165,8 @@
             font-weight: bold;
             color: #fbbf24;
             margin-bottom: 0.5rem;
+            font-variant-numeric: tabular-nums;
+            min-width: 0;
         }
 
         .per-second-display {
@@ -179,9 +181,9 @@
             border-radius: 50%;
             cursor: pointer;
             transition: all 0.1s ease;
-            box-shadow: 0 0 40px rgba(251, 191, 36, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1);
-            border: 4px solid rgba(251, 191, 36, 0.4);
-            background: radial-gradient(circle at 30% 30%, rgba(255, 200, 0, 0.3), rgba(255, 150, 0, 0.1));
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1);
+            border: 4px solid rgba(139, 92, 246, 0.4);
+            background: radial-gradient(circle at 30% 30%, rgba(167, 139, 250, 0.3), rgba(124, 58, 237, 0.1));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -195,12 +197,12 @@
 
         #giant-clicker:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 50px rgba(251, 191, 36, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.2);
         }
 
         #giant-clicker:active {
             transform: scale(0.95);
-            box-shadow: 0 0 30px rgba(251, 191, 36, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
         }
 
         #game-session-timer {
@@ -226,260 +228,188 @@
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
         .pause-btn { 
-            position: absolute; 
-            bottom: 0.75rem; 
-            left: 0.75rem; 
-            z-index: 50; 
-            background: rgba(255,255,255,0.1); 
-            border: 1px solid rgba(255,255,255,0.2); 
-            border-radius: 0.75rem; 
-            color: white; 
-            cursor: pointer; 
-            padding: 8px; 
-            line-height: 0; 
-            transition: background 0.2s, transform 0.2s; 
+            display: none !important; 
         }
         .pause-btn:hover { 
-            background: rgba(255,255,255,0.25); 
-            transform: scale(1.1); 
+            display: none !important; 
         }
         
-        /* SOLAR SYSTEM BACKGROUND */
-        #solar-system {
+        /* LAB SCENE BACKGROUND */
+        #lab-scene {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            background: 
-                radial-gradient(ellipse 200% 200% at 40% 40%, rgba(80,20,120,0.3) 0%, rgba(30,10,80,0.2) 25%, transparent 50%),
-                radial-gradient(ellipse 150% 150% at 70% 60%, rgba(20,80,120,0.25) 0%, transparent 40%),
-                radial-gradient(ellipse 180% 100% at 50% 50%, rgba(15,10,40,0.8) 0%, rgba(5,2,15,0.95) 100%);
+            background: #f0f4f8;
             border-radius: 1rem;
             overflow: hidden;
             min-width: 0;
+            transition: background 0.3s ease;
         }
-        
-        /* Starfield */
-        #starfield {
+        body.dark-mode #lab-scene {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        /* Floating bubbles container */
+        #lab-bubbles {
             position: absolute;
             width: 100%;
             height: 100%;
             top: 0;
             left: 0;
             z-index: 1;
+            pointer-events: none;
         }
-        
-        .star {
+
+        .lab-bubble {
             position: absolute;
             border-radius: 50%;
-            background: white;
-            animation: twinkle 3s infinite;
-            box-shadow: 0 0 2px 0.5px rgba(255, 255, 255, 0.6);
+            background: radial-gradient(circle at 30% 30%, rgba(96,165,250,0.4), rgba(59,130,246,0.15));
+            border: 1px solid rgba(96,165,250,0.3);
+            animation: bubbleFloat linear infinite;
         }
-        
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 1; }
+        body.dark-mode .lab-bubble {
+            background: radial-gradient(circle at 30% 30%, rgba(96,165,250,0.25), rgba(59,130,246,0.08));
+            border: 1px solid rgba(96,165,250,0.15);
         }
-        
-        .solar-system-container {
+
+        @keyframes bubbleFloat {
+            0%   { transform: translateY(0) scale(1);   opacity: 0; }
+            10%  { opacity: 0.8; }
+            90%  { opacity: 0.6; }
+            100% { transform: translateY(-400px) scale(0.3); opacity: 0; }
+        }
+
+        /* SVG Lab illustration */
+        .lab-svg-container {
             position: relative;
-            width: 520px;
-            height: 520px;
+            width: 100%;
+            height: 100%;
             z-index: 5;
         }
+        .lab-svg-container svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Theme-aware SVG colors */
+        .lab-wall   { fill: #e2e8f0; transition: fill 0.3s; }
+        .lab-floor  { fill: #cbd5e1; transition: fill 0.3s; }
+        .lab-bench  { fill: #78716c; transition: fill 0.3s; }
+        .lab-bench-top { fill: #a8a29e; transition: fill 0.3s; }
+        .lab-shelf  { fill: #a1a1aa; transition: fill 0.3s; }
+        .lab-shelf-bracket { fill: #71717a; transition: fill 0.3s; }
+        .lab-cabinet { fill: #d4d4d8; stroke: #a1a1aa; transition: fill 0.3s, stroke 0.3s; }
+        .lab-cabinet-handle { fill: #71717a; }
+        .lab-text   { fill: #334155; transition: fill 0.3s; }
+
+        body.dark-mode .lab-wall   { fill: #1e293b; }
+        body.dark-mode .lab-floor  { fill: #0f172a; }
+        body.dark-mode .lab-bench  { fill: #44403c; }
+        body.dark-mode .lab-bench-top { fill: #57534e; }
+        body.dark-mode .lab-shelf  { fill: #3f3f46; }
+        body.dark-mode .lab-shelf-bracket { fill: #52525b; }
+        body.dark-mode .lab-cabinet { fill: #27272a; stroke: #3f3f46; }
+        body.dark-mode .lab-text   { fill: #94a3b8; }
+
+        /* Flask liquid animation */
+        @keyframes liquidBubble1 {
+            0%, 100% { transform: translateY(0); opacity: 0.7; }
+            50% { transform: translateY(-8px); opacity: 0; }
+        }
+        @keyframes liquidBubble2 {
+            0%, 100% { transform: translateY(0); opacity: 0.5; }
+            50% { transform: translateY(-12px); opacity: 0; }
+        }
+        @keyframes liquidBubble3 {
+            0%, 100% { transform: translateY(0); opacity: 0.6; }
+            50% { transform: translateY(-10px); opacity: 0; }
+        }
+        .flask-bubble-1 { animation: liquidBubble1 2.5s ease-in-out infinite; }
+        .flask-bubble-2 { animation: liquidBubble2 3.2s ease-in-out infinite 0.8s; }
+        .flask-bubble-3 { animation: liquidBubble3 2.8s ease-in-out infinite 1.5s; }
+
+        /* Glow effect for active equipment */
+        @keyframes equipGlow {
+            0%, 100% { filter: drop-shadow(0 0 3px rgba(96,165,250,0.4)); }
+            50% { filter: drop-shadow(0 0 8px rgba(96,165,250,0.8)); }
+        }
+        body.dark-mode .lab-glow { animation: equipGlow 3s ease-in-out infinite; }
         
-        /* Sun - Much Enhanced */
-        .sun {
+        
+        /* TIERED UPGRADES (Cookie Clicker style) */
+        #upgradesPanel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            min-height: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .tier-upgrade {
+            width: 48px; height: 48px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            position: relative;
+            transition: all 0.15s ease;
+            border: 2px solid;
+        }
+        .tier-upgrade:hover {
+            transform: scale(1.12);
+            z-index: 2;
+        }
+        .tier-upgrade.purchased {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .tier-upgrade.locked {
+            opacity: 0.25;
+            cursor: not-allowed;
+            filter: grayscale(0.8);
+        }
+        .tier-upgrade.affordable {
+            animation: tierPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes tierPulse {
+            0%, 100% { box-shadow: 0 0 4px rgba(255,255,255,0.2); }
+            50% { box-shadow: 0 0 12px rgba(255,255,255,0.5); }
+        }
+        /* Tier colors */
+        .tier-bronze   { background: linear-gradient(135deg, #92400e, #b45309); border-color: #d97706; }
+        .tier-silver   { background: linear-gradient(135deg, #6b7280, #9ca3af); border-color: #d1d5db; }
+        .tier-gold     { background: linear-gradient(135deg, #b45309, #f59e0b); border-color: #fbbf24; }
+        .tier-diamond  { background: linear-gradient(135deg, #0891b2, #67e8f9); border-color: #a5f3fc; }
+        .tier-amethyst { background: linear-gradient(135deg, #7c3aed, #c084fc); border-color: #ddd6fe; }
+        /* Tooltip */
+        .tier-tooltip {
+            display: none;
             position: absolute;
-            top: 50%;
+            top: 56px;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(circle at 30% 30%, #FFFACD, #FFD700, #FFA500, #FF8C00);
-            border-radius: 50%;
-            box-shadow: 
-                0 0 20px rgba(255, 215, 0, 1),
-                0 0 40px rgba(255, 165, 0, 0.9),
-                0 0 80px rgba(255, 140, 0, 0.7),
-                0 0 120px rgba(255, 100, 0, 0.4),
-                inset -3px -3px 10px rgba(0, 0, 0, 0.3),
-                inset 3px 3px 10px rgba(255, 255, 150, 0.2);
-            z-index: 10;
-            animation: sunPulse 4s ease-in-out infinite;
+            transform: translateX(-50%);
+            background: rgba(15,23,42,0.95);
+            border: 1px solid rgba(148,163,184,0.3);
+            border-radius: 8px;
+            padding: 8px 10px;
+            width: 180px;
+            z-index: 100;
+            font-size: 0.65rem;
+            color: #e2e8f0;
+            text-align: center;
+            pointer-events: none;
+            font-family: sans-serif;
         }
-        
-        @keyframes sunPulse {
-            0%, 100% { 
-                box-shadow: 
-                    0 0 20px rgba(255, 215, 0, 1),
-                    0 0 40px rgba(255, 165, 0, 0.9),
-                    0 0 80px rgba(255, 140, 0, 0.7),
-                    0 0 120px rgba(255, 100, 0, 0.4),
-                    inset -3px -3px 10px rgba(0, 0, 0, 0.3),
-                    inset 3px 3px 10px rgba(255, 255, 150, 0.2);
-            }
-            50% { 
-                box-shadow: 
-                    0 0 30px rgba(255, 215, 0, 1),
-                    0 0 60px rgba(255, 165, 0, 1),
-                    0 0 100px rgba(255, 140, 0, 0.8),
-                    0 0 150px rgba(255, 100, 0, 0.5),
-                    inset -3px -3px 10px rgba(0, 0, 0, 0.3),
-                    inset 3px 3px 10px rgba(255, 255, 150, 0.2);
-            }
-        }
-        
-        /* Orbit paths - More visible */
-        .orbit {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 1px solid rgba(100, 200, 255, 0.2);
-            border-radius: 50%;
-            box-shadow: 0 0 15px rgba(100, 200, 255, 0.15);
-        }
-        
-        .orbit-1 { width: 140px; height: 140px; }
-        .orbit-2 { width: 220px; height: 220px; }
-        .orbit-3 { width: 300px; height: 300px; }
-        .orbit-4 { width: 380px; height: 380px; }
-        
-        /* Planets - Highly Realistic */
-        .planet {
-            position: absolute;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.8));
-        }
-        
-        /* Mercury - Small rocky planet */
-        .planet-1 {
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle at 35% 35%, #B8860B, #8B5A2B, #5C3D2E);
-            box-shadow: 
-                0 0 16px rgba(139, 69, 19, 0.8),
-                inset -2px -2px 4px rgba(0, 0, 0, 0.6),
-                inset 2px 2px 4px rgba(184, 134, 11, 0.2);
-            animation: orbit1 8s linear infinite;
-            transform: translate(-50%, -50%);
-        }
-        
-        .planet-1::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 28px;
-            height: 5px;
-            border: 1px solid rgba(139, 69, 19, 0.25);
-            border-radius: 50%;
-            box-shadow: 0 0 6px rgba(139, 69, 19, 0.15);
-        }
-        
-        /* Venus - Orange with clouds */
-        .planet-2 {
-            width: 22px;
-            height: 22px;
-            background: radial-gradient(circle at 30% 25%, #FFF8DC, #FFD700, #FFA500, #FF8C00, #E67E22);
-            box-shadow: 
-                0 0 18px rgba(255, 140, 0, 0.9),
-                0 0 35px rgba(255, 100, 0, 0.5),
-                inset -2px -2px 5px rgba(0, 0, 0, 0.4),
-                inset 2px 2px 5px rgba(255, 200, 100, 0.3);
-            animation: orbit2 12s linear infinite;
-            transform: translate(-50%, -50%);
-        }
-        
-        .planet-2::before {
-            content: '';
-            position: absolute;
-            top: 30%;
-            left: 20%;
-            width: 60%;
-            height: 20%;
-            background: radial-gradient(ellipse at center, rgba(255, 255, 200, 0.4), transparent);
-            border-radius: 50%;
-            filter: blur(1px);
-        }
-        
-        /* Earth - Blue with continents */
-        .planet-3 {
-            width: 26px;
-            height: 26px;
-            background: radial-gradient(circle at 30% 30%, #4DD0E1, #2196F3, #1565C0, #0D47A1);
-            box-shadow: 
-                0 0 20px rgba(65, 105, 225, 0.9),
-                0 0 40px rgba(30, 144, 255, 0.6),
-                inset -2px -2px 6px rgba(0, 0, 0, 0.5),
-                inset 2px 2px 6px rgba(150, 220, 255, 0.3);
-            animation: orbit3 15s linear infinite;
-            transform: translate(-50%, -50%);
-        }
-        
-        .planet-3::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotateX(70deg) rotateZ(20deg);
-            width: 35px;
-            height: 12px;
-            border: 1.5px solid rgba(65, 105, 225, 0.35);
-            border-radius: 50%;
-            box-shadow: 0 0 12px rgba(65, 105, 225, 0.2);
-        }
-        
-        .planet-3::before {
-            content: '';
-            position: absolute;
-            top: 25%;
-            left: 60%;
-            width: 8px;
-            height: 4px;
-            background: radial-gradient(ellipse, rgba(76, 175, 80, 0.6), transparent);
-            border-radius: 50%;
-            filter: blur(0.5px);
-        }
-        
-        /* Mars - Red planet with dust */
-        .planet-4 {
-            width: 18px;
-            height: 18px;
-            background: radial-gradient(circle at 35% 35%, #E74C3C, #C0392B, #8B0000, #5D0000);
-            box-shadow: 
-                0 0 14px rgba(200, 0, 0, 0.85),
-                0 0 28px rgba(255, 100, 0, 0.4),
-                inset -2px -2px 4px rgba(0, 0, 0, 0.6),
-                inset 1px 1px 3px rgba(255, 150, 100, 0.2);
-            animation: orbit4 20s linear infinite;
-            transform: translate(-50%, -50%);
-        }
-        
-        .planet-4::before {
-            content: '';
-            position: absolute;
-            top: 40%;
-            left: 35%;
-            width: 6px;
-            height: 6px;
-            background: radial-gradient(circle, rgba(100, 50, 0, 0.5), transparent);
-            border-radius: 50%;
-            filter: blur(0.5px);
-        }
-        
-        @keyframes orbit1 { 0% { transform: translate(-50%, -50%) rotate(0deg) translateX(70px) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg) translateX(70px) rotate(-360deg); } }
-        @keyframes orbit2 { 0% { transform: translate(-50%, -50%) rotate(0deg) translateX(110px) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg) translateX(110px) rotate(-360deg); } }
-        @keyframes orbit3 { 0% { transform: translate(-50%, -50%) rotate(0deg) translateX(150px) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg) translateX(150px) rotate(-360deg); } }
-        @keyframes orbit4 { 0% { transform: translate(-50%, -50%) rotate(0deg) translateX(190px) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg) translateX(190px) rotate(-360deg); } }
-        
-        
+        .tier-upgrade:hover .tier-tooltip { display: block; }
+        .tier-tooltip .tt-name { font-weight: 700; margin-bottom: 3px; font-size: 0.7rem; }
+        .tier-tooltip .tt-cost { color: #fbbf24; }
+        .tier-tooltip .tt-effect { color: #86efac; margin-top: 2px; }
+        .tier-tooltip .tt-status { color: #f87171; margin-top: 2px; }
+
         @media (max-width: 1200px) {
             #game-sidebar { width: 300px; padding: 1rem; }
             #giant-clicker { width: 250px; height: 250px; font-size: 100px; }
@@ -488,15 +418,16 @@
         @media (max-width: 768px) {
             .flex { flex-direction: column; height: auto; }
             #game-sidebar { width: 100%; height: auto; max-height: 300px; max-width: none; }
-            #game-wrapper { height: auto; padding: 0.5rem; }
+            #game-wrapper { height: auto; padding: 0.5rem; flex: 0 0 auto; width: auto; min-width: 0; max-width: 100%; }
             #giant-clicker { width: 200px; height: 200px; font-size: 80px; margin: 1rem 0; }
-            .stats-panel { max-width: 100%; }
+            .stats-panel { max-width: 100%; width: 100%; }
             #game-session-timer { max-width: 100%; }
         }
     </style>
     <script src="../theme_manager.js"></script>
     <style>
         #pause-screen.hidden { display: none !important; }
+        #pause-screen:not(.hidden) { display: flex !important; }
     </style>
     <style>
         #start-screen.hidden { display: none !important; }
@@ -513,10 +444,8 @@
 
     <!-- LEFT SIDE - MAIN GAME AREA -->
     <div id="game-wrapper" class="relative">
-        <button class="pause-btn" onclick="togglePause()" title="Pause"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
-
         <div>
-            <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent text-center">🔬 LAB EMPIRE</h1>
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent text-center">⚛️ PARTICLE CLICKER</h1>
 
             <!-- STATS PANEL -->
             <div class="stats-panel">
@@ -525,81 +454,66 @@
                 <div class="per-second-display">
                     Per second: <span id="perSecond" style="color: #86efac; font-weight: bold;">0</span> ✨/s
                 </div>
+                <div id="prestigeMultDisplay" style="color: #c084fc; font-size: 0.8rem; margin-top: 0.5rem; display: none;">
+                    🌟 Prestige: <span id="prestigeMultText">1×</span>
+                </div>
             </div>
 
             <!-- GIANT CLICKER BUTTON -->
             <button id="giant-clicker" onclick="clickParticle()" title="Click for particles">
-                <svg width="100%" height="100%" viewBox="0 0 200 200" style="filter: drop-shadow(0 0 40px rgba(251, 191, 36, 0.9)) drop-shadow(0 0 60px rgba(255, 140, 0, 0.6))">
-                    <!-- Multiple glow circles for depth -->
+                <svg width="100%" height="100%" viewBox="0 0 200 200" style="filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8)) drop-shadow(0 0 50px rgba(96, 165, 250, 0.5))">
                     <defs>
-                        <radialGradient id="particleGradient" cx="35%" cy="35%">
-                            <stop offset="0%" style="stop-color:#FFFACD;stop-opacity:1" />
-                            <stop offset="40%" style="stop-color:#FFD700;stop-opacity:1" />
-                            <stop offset="70%" style="stop-color:#FFA500;stop-opacity:0.9" />
-                            <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:0.7" />
+                        <radialGradient id="quarkGrad" cx="40%" cy="40%">
+                            <stop offset="0%" style="stop-color:#e0e7ff;stop-opacity:1" />
+                            <stop offset="35%" style="stop-color:#a78bfa;stop-opacity:1" />
+                            <stop offset="70%" style="stop-color:#7c3aed;stop-opacity:0.9" />
+                            <stop offset="100%" style="stop-color:#4c1d95;stop-opacity:0.8" />
                         </radialGradient>
-                        <filter id="particleGlow">
-                            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                        <filter id="quarkGlow">
+                            <feGaussianBlur stdDeviation="3" result="blur"/>
                             <feMerge>
-                                <feMergeNode in="coloredBlur"/>
-                                <feMergeNode in="coloredBlur"/>
-                                <feMergeNode in="SourceGraphic"/>
-                            </feMerge>
-                        </filter>
-                        <filter id="shine">
-                            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                            <feMerge>
-                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="blur"/>
+                                <feMergeNode in="blur"/>
                                 <feMergeNode in="SourceGraphic"/>
                             </feMerge>
                         </filter>
                     </defs>
-                    
-                    <!-- Outer atmosphere -->
-                    <circle cx="100" cy="100" r="98" fill="none" stroke="rgba(255, 215, 0, 0.2)" stroke-width="2" opacity="0.8"/>
-                    <circle cx="100" cy="100" r="95" fill="none" stroke="rgba(251, 191, 36, 0.4)" stroke-width="2" opacity="0.6"/>
-                    
-                    <!-- Main star shape with enhanced gradient -->
-                    <g filter="url(#particleGlow)">
-                        <polygon points="100,20 130,70 185,70 147,110 175,170 100,130 25,170 53,110 15,70 70,70" fill="url(#particleGradient)" stroke="#FF8C00" stroke-width="2.5"/>
-                    </g>
-                    
-                    <!-- Inner shadow for depth -->
-                    <g opacity="0.3">
-                        <polygon points="100,20 130,70 185,70 147,110 175,170 100,130 25,170 53,110 15,70 70,70" fill="none" stroke="#1a1a00" stroke-width="1"/>
-                    </g>
-                    
-                    <!-- Primary highlight -->
-                    <circle cx="80" cy="75" r="18" fill="white" opacity="0.35" filter="url(#shine)"/>
-                    
-                    <!-- Secondary highlight -->
-                    <circle cx="95" cy="65" r="8" fill="white" opacity="0.25"/>
-                    
-                    <!-- Dynamic sparkles with animation group -->
-                    <g id="sparkles">
-                        <circle cx="40" cy="40" r="4" fill="#FFFF99" opacity="0.8"/>
-                        <circle cx="160" cy="50" r="3.5" fill="#FFFF88" opacity="0.7"/>
-                        <circle cx="185" cy="145" r="3" fill="#FFFF77" opacity="0.6"/>
-                        <circle cx="15" cy="135" r="2.5" fill="#FFFF66" opacity="0.5"/>
-                        <circle cx="155" cy="165" r="2" fill="#FFFF55" opacity="0.4"/>
-                    </g>
+
+                    <!-- Orbital ring 1 -->
+                    <ellipse cx="100" cy="100" rx="85" ry="30" fill="none" stroke="rgba(167,139,250,0.35)" stroke-width="1.5" transform="rotate(-30 100 100)"/>
+                    <!-- Orbital ring 2 -->
+                    <ellipse cx="100" cy="100" rx="85" ry="30" fill="none" stroke="rgba(96,165,250,0.3)" stroke-width="1.5" transform="rotate(30 100 100)"/>
+                    <!-- Orbital ring 3 -->
+                    <ellipse cx="100" cy="100" rx="85" ry="30" fill="none" stroke="rgba(192,132,252,0.25)" stroke-width="1.5" transform="rotate(90 100 100)"/>
+
+                    <!-- Core quark sphere -->
+                    <circle cx="100" cy="100" r="38" fill="url(#quarkGrad)" filter="url(#quarkGlow)"/>
+
+                    <!-- Highlight -->
+                    <circle cx="88" cy="88" r="14" fill="white" opacity="0.25"/>
+                    <circle cx="92" cy="84" r="6" fill="white" opacity="0.15"/>
+
+                    <!-- Orbiting particles -->
+                    <circle cx="28" cy="68" r="5" fill="#60a5fa" opacity="0.9"/>
+                    <circle cx="172" cy="132" r="5" fill="#c084fc" opacity="0.9"/>
+                    <circle cx="100" cy="15" r="4" fill="#a78bfa" opacity="0.8"/>
                 </svg>
             </button>
 
             <!-- SESSION TIMER -->
             <div id="start-screen" class="fixed inset-0 bg-black z-50 text-center p-6" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                <h2 class="text-3xl amber-400 font-bold mb-3">🔬 LAB EMPIRE</h2>
+                <h2 class="text-3xl amber-400 font-bold mb-3">⚛️ PARTICLE CLICKER</h2>
                 <p class="text-gray-300 mb-4 font-sans text-sm">Build your empire!</p>
                 <div class="text-left text-xs text-gray-400 font-sans mb-6 space-y-1">
                     <p><span class="font-bold">Click</span> — Tap particles</p><p><span class="font-bold">Touch</span> — Tap (mobile)</p>
-                    <p><span class="font-bold">Esc / P</span> — Pause</p>
                 </div>
+                <div id="save-indicator" class="text-emerald-400 text-xs mb-3 font-sans" style="display:none;">💾 Save detected — progress will be restored</div>
                 <button onclick="startGame()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
                     START
                 </button>
             </div>
 
-            <div id="pause-screen" class="absolute inset-0 bg-black/80 rounded-lg z-30 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:400px;height:auto;">
+            <div id="pause-screen" class="hidden absolute inset-0 bg-black/80 rounded-lg z-30 text-center p-6 backdrop-blur-sm" style="flex-direction:column;align-items:center;justify-content:center;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:400px;height:auto;">
                 <h2 class="text-4xl text-white font-bold mb-4">PAUSED</h2>
                 <button onclick="togglePause()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
                     RESUME
@@ -608,72 +522,673 @@
         </div>
     </div>
 
-    <!-- MIDDLE - SOLAR SYSTEM BACKGROUND -->
-    <div id="solar-system">
-        <div id="starfield"></div>
-        <div class="solar-system-container">
-            <div class="orbit orbit-1"></div>
-            <div class="orbit orbit-2"></div>
-            <div class="orbit orbit-3"></div>
-            <div class="orbit orbit-4"></div>
-            <div class="sun"></div>
-            <div class="planet planet-1"></div>
-            <div class="planet planet-2"></div>
-            <div class="planet planet-3"></div>
-            <div class="planet planet-4"></div>
+    <!-- MIDDLE - LAB SCENE BACKGROUND -->
+    <div id="lab-scene">
+        <div id="lab-bubbles"></div>
+        <div class="lab-svg-container">
+            <svg viewBox="0 0 520 520" xmlns="http://www.w3.org/2000/svg">
+                <!-- Wall & Floor -->
+                <rect class="lab-wall" x="0" y="0" width="520" height="380"/>
+                <rect class="lab-floor" x="0" y="380" width="520" height="140"/>
+                <!-- Floor tiles -->
+                <line x1="0" y1="380" x2="520" y2="380" stroke="#94a3b8" stroke-width="2" opacity="0.4"/>
+                <line x1="65" y1="380" x2="65" y2="520" stroke="#94a3b8" stroke-width="0.5" opacity="0.2"/>
+                <line x1="130" y1="380" x2="130" y2="520" stroke="#94a3b8" stroke-width="0.5" opacity="0.2"/>
+                <line x1="195" y1="380" x2="195" y2="520" stroke="#94a3b8" stroke-width="0.5" opacity="0.2"/>
+                <line x1="260" y1="380" x2="260" y2="520" stroke="#94a3b8" stroke-width="0.5" opacity="0.2"/>
+                <line x1="325" y1="380" x2="325" y2="520" stroke="#94a3b8" stroke-width="0.5" opacity="0.2"/>
+                <line x1="390" y1="380" x2="390" y2="520" stroke="#94a3b8" stroke-width="0.5" opacity="0.2"/>
+                <line x1="455" y1="380" x2="455" y2="520" stroke="#94a3b8" stroke-width="0.5" opacity="0.2"/>
+
+                <!-- Lab bench -->
+                <rect class="lab-bench" x="30" y="300" width="460" height="80" rx="3"/>
+                <rect class="lab-bench-top" x="25" y="290" width="470" height="16" rx="4"/>
+                <!-- Bench legs -->
+                <rect class="lab-bench" x="50" y="380" width="16" height="60" rx="2"/>
+                <rect class="lab-bench" x="454" y="380" width="16" height="60" rx="2"/>
+                <rect class="lab-bench" x="248" y="380" width="16" height="60" rx="2"/>
+                <!-- Cabinet doors -->
+                <rect class="lab-cabinet" x="60" y="310" width="80" height="65" rx="3" stroke-width="1.5"/>
+                <rect class="lab-cabinet-handle" x="130" y="335" width="6" height="16" rx="2"/>
+                <rect class="lab-cabinet" x="160" y="310" width="80" height="65" rx="3" stroke-width="1.5"/>
+                <rect class="lab-cabinet-handle" x="230" y="335" width="6" height="16" rx="2"/>
+                <rect class="lab-cabinet" x="280" y="310" width="80" height="65" rx="3" stroke-width="1.5"/>
+                <rect class="lab-cabinet-handle" x="350" y="335" width="6" height="16" rx="2"/>
+                <rect class="lab-cabinet" x="380" y="310" width="80" height="65" rx="3" stroke-width="1.5"/>
+                <rect class="lab-cabinet-handle" x="400" y="335" width="6" height="16" rx="2"/>
+
+                <!-- Shelf 1 (upper) -->
+                <rect class="lab-shelf" x="40" y="100" width="200" height="8" rx="2"/>
+                <rect class="lab-shelf-bracket" x="60" y="108" width="6" height="20" rx="1"/>
+                <rect class="lab-shelf-bracket" x="210" y="108" width="6" height="20" rx="1"/>
+
+                <!-- Shelf 2 (upper right) -->
+                <rect class="lab-shelf" x="310" y="80" width="170" height="8" rx="2"/>
+                <rect class="lab-shelf-bracket" x="330" y="88" width="6" height="20" rx="1"/>
+                <rect class="lab-shelf-bracket" x="455" y="88" width="6" height="20" rx="1"/>
+
+                <!-- ===== EQUIPMENT ON BENCH ===== -->
+
+                <!-- Erlenmeyer Flask (left) with green liquid - shows with centrifuge -->
+                <g id="equip-centrifuge" class="lab-glow" transform="translate(80, 220)" style="display:none">
+                    <!-- Flask body -->
+                    <polygon points="30,0 45,55 55,70 5,70 15,55" fill="none" stroke="#64748b" stroke-width="2"/>
+                    <!-- Neck -->
+                    <rect x="26" y="-15" width="8" height="18" fill="none" stroke="#64748b" stroke-width="2" rx="1"/>
+                    <!-- Liquid -->
+                    <polygon points="18,45 42,45 50,70 10,70" fill="#4ade80" opacity="0.6"/>
+                    <!-- Bubbles in flask -->
+                    <circle cx="25" cy="58" r="2" fill="#86efac" class="flask-bubble-1"/>
+                    <circle cx="35" cy="55" r="1.5" fill="#86efac" class="flask-bubble-2"/>
+                    <circle cx="30" cy="52" r="1.8" fill="#86efac" class="flask-bubble-3"/>
+                    <!-- Liquid surface shine -->
+                    <line x1="20" y1="46" x2="40" y2="46" stroke="#86efac" stroke-width="1" opacity="0.5"/>
+                </g>
+
+                <!-- Beaker (center-left) with blue liquid - shows with centrifuge -->
+                <g id="equip-centrifuge2" class="lab-glow" transform="translate(170, 230)" style="display:none">
+                    <rect x="0" y="0" width="40" height="55" fill="none" stroke="#64748b" stroke-width="2" rx="2"/>
+                    <!-- Spout -->
+                    <path d="M0,0 L-5,-3" stroke="#64748b" stroke-width="2" fill="none"/>
+                    <!-- Liquid -->
+                    <rect x="2" y="20" width="36" height="33" fill="#60a5fa" opacity="0.5" rx="1"/>
+                    <!-- Measurement marks -->
+                    <line x1="2" y1="15" x2="10" y2="15" stroke="#94a3b8" stroke-width="0.8"/>
+                    <line x1="2" y1="25" x2="8" y2="25" stroke="#94a3b8" stroke-width="0.8"/>
+                    <line x1="2" y1="35" x2="10" y2="35" stroke="#94a3b8" stroke-width="0.8"/>
+                    <line x1="2" y1="45" x2="8" y2="45" stroke="#94a3b8" stroke-width="0.8"/>
+                    <!-- Bubbles -->
+                    <circle cx="15" cy="40" r="1.5" fill="#93c5fd" class="flask-bubble-2"/>
+                    <circle cx="25" cy="38" r="1" fill="#93c5fd" class="flask-bubble-1"/>
+                </g>
+
+                <!-- Test tube rack (center) - shows with testtube -->
+                <g id="equip-testtube" transform="translate(240, 240)" style="display:none">
+                    <!-- Rack base -->
+                    <rect x="0" y="40" width="60" height="6" fill="#78716c" rx="2"/>
+                    <rect x="5" y="0" width="50" height="6" fill="#78716c" rx="2"/>
+                    <!-- Rack sides -->
+                    <rect x="5" y="0" width="4" height="46" fill="#78716c" rx="1"/>
+                    <rect x="51" y="0" width="4" height="46" fill="#78716c" rx="1"/>
+                    <!-- Test tubes -->
+                    <g>
+                        <rect x="14" y="-10" width="8" height="48" fill="none" stroke="#94a3b8" stroke-width="1.5" rx="4"/>
+                        <rect x="15" y="15" width="6" height="20" fill="#f472b6" opacity="0.6" rx="3"/>
+                    </g>
+                    <g>
+                        <rect x="26" y="-14" width="8" height="52" fill="none" stroke="#94a3b8" stroke-width="1.5" rx="4"/>
+                        <rect x="27" y="10" width="6" height="25" fill="#a78bfa" opacity="0.6" rx="3"/>
+                    </g>
+                    <g>
+                        <rect x="38" y="-8" width="8" height="46" fill="none" stroke="#94a3b8" stroke-width="1.5" rx="4"/>
+                        <rect x="39" y="18" width="6" height="17" fill="#fbbf24" opacity="0.6" rx="3"/>
+                    </g>
+                </g>
+
+                <!-- Microscope (right side) - shows with microscope -->
+                <g id="equip-microscope" transform="translate(360, 195)" style="display:none">
+                    <!-- Base -->
+                    <ellipse cx="30" cy="90" rx="35" ry="8" fill="#52525b"/>
+                    <!-- Arm/pillar -->
+                    <rect x="25" y="20" width="10" height="70" fill="#3f3f46" rx="2"/>
+                    <!-- Stage -->
+                    <rect x="10" y="62" width="40" height="5" fill="#52525b" rx="1"/>
+                    <!-- Slide on stage -->
+                    <rect x="18" y="58" width="24" height="4" fill="#e0f2fe" opacity="0.7" rx="1"/>
+                    <!-- Head/eyepiece tube -->
+                    <rect x="20" y="10" width="8" height="18" fill="#3f3f46" rx="2"/>
+                    <!-- Eyepiece -->
+                    <rect x="18" y="4" width="12" height="8" fill="#27272a" rx="2"/>
+                    <!-- Objective nosepiece -->
+                    <rect x="33" y="45" width="15" height="5" fill="#3f3f46" rx="1"/>
+                    <rect x="44" y="50" width="4" height="12" fill="#52525b" rx="1"/>
+                    <!-- Focus knob -->
+                    <circle cx="22" cy="50" r="5" fill="#52525b" stroke="#3f3f46" stroke-width="1"/>
+                </g>
+
+                <!-- Round-bottom flask (far right) - shows with spectrometer -->
+                <g id="equip-spectrometer" class="lab-glow" transform="translate(430, 230)" style="display:none">
+                    <!-- Neck -->
+                    <rect x="16" y="-10" width="8" height="20" fill="none" stroke="#64748b" stroke-width="2" rx="1"/>
+                    <!-- Body -->
+                    <circle cx="20" cy="35" r="25" fill="none" stroke="#64748b" stroke-width="2"/>
+                    <!-- Liquid -->
+                    <path d="M -3,38 Q 20,62 43,38 Q 42,60 20,60 Q -2,60 -3,38 Z" fill="#c084fc" opacity="0.5"/>
+                    <!-- Bubble -->
+                    <circle cx="15" cy="42" r="1.5" fill="#d8b4fe" class="flask-bubble-3"/>
+                </g>
+
+                <!-- ===== ITEMS ON SHELVES ===== -->
+                
+                <!-- Shelf 1 items -->
+                <!-- Reagent bottle 1 -->
+                <g transform="translate(60, 60)">
+                    <rect x="0" y="10" width="22" height="30" fill="#fef3c7" stroke="#d97706" stroke-width="1" rx="3"/>
+                    <rect x="5" y="2" width="12" height="10" fill="#fef3c7" stroke="#d97706" stroke-width="1" rx="1"/>
+                    <rect x="8" y="0" width="6" height="4" fill="#92400e" rx="1"/>
+                    <rect x="4" y="18" width="14" height="10" fill="white" rx="1" opacity="0.9"/>
+                    <text x="11" y="26" text-anchor="middle" font-size="5" class="lab-text" font-weight="bold">HCl</text>
+                </g>
+                <!-- Reagent bottle 2 -->
+                <g transform="translate(100, 65)">
+                    <rect x="0" y="10" width="20" height="25" fill="#dbeafe" stroke="#3b82f6" stroke-width="1" rx="3"/>
+                    <rect x="4" y="2" width="12" height="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="1" rx="1"/>
+                    <rect x="7" y="0" width="6" height="4" fill="#1e40af" rx="1"/>
+                    <rect x="3" y="16" width="14" height="9" fill="white" rx="1" opacity="0.9"/>
+                    <text x="10" y="23" text-anchor="middle" font-size="5" class="lab-text" font-weight="bold">NaOH</text>
+                </g>
+                <!-- Small flask on shelf -->
+                <g transform="translate(145, 68)">
+                    <polygon points="15,0 22,18 25,25 5,25 8,18" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+                    <rect x="12" y="-8" width="6" height="10" fill="none" stroke="#94a3b8" stroke-width="1.5" rx="1"/>
+                    <polygon points="10,15 20,15 23,25 7,25" fill="#fb923c" opacity="0.4"/>
+                </g>
+                <!-- Petri dish -->
+                <g transform="translate(190, 85)">
+                    <ellipse cx="20" cy="5" rx="20" ry="5" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+                    <ellipse cx="20" cy="7" rx="18" ry="4" fill="#bbf7d0" opacity="0.3"/>
+                </g>
+
+                <!-- Shelf 2 items -->
+                <!-- Graduated cylinder -->
+                <g transform="translate(330, 30)">
+                    <rect x="0" y="5" width="14" height="42" fill="none" stroke="#94a3b8" stroke-width="1.5" rx="2"/>
+                    <rect x="1" y="20" width="12" height="26" fill="#67e8f9" opacity="0.4" rx="1"/>
+                    <!-- Measurement lines -->
+                    <line x1="1" y1="15" x2="5" y2="15" stroke="#94a3b8" stroke-width="0.5"/>
+                    <line x1="1" y1="25" x2="5" y2="25" stroke="#94a3b8" stroke-width="0.5"/>
+                    <line x1="1" y1="35" x2="5" y2="35" stroke="#94a3b8" stroke-width="0.5"/>
+                </g>
+                <!-- Amber bottle -->
+                <g transform="translate(370, 38)">
+                    <rect x="0" y="10" width="24" height="32" fill="#92400e" stroke="#78350f" stroke-width="1" rx="4"/>
+                    <rect x="6" y="2" width="12" height="10" fill="#92400e" stroke="#78350f" stroke-width="1" rx="1"/>
+                    <rect x="9" y="0" width="6" height="4" fill="#451a03" rx="1"/>
+                    <rect x="4" y="20" width="16" height="10" fill="#fef3c7" rx="1" opacity="0.9"/>
+                    <text x="12" y="28" text-anchor="middle" font-size="4.5" class="lab-text" font-weight="bold">C₂H₅OH</text>
+                </g>
+                <!-- Wash bottle -->
+                <g transform="translate(420, 35)">
+                    <path d="M0,40 Q0,10 12,10 Q24,10 24,40 Z" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1.5"/>
+                    <path d="M12,10 Q12,0 18,-8" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+                    <text x="12" y="30" text-anchor="middle" font-size="5" fill="#3b82f6" font-weight="bold">H₂O</text>
+                </g>
+
+                <!-- ===== DECORATIVE ELEMENTS ===== -->
+                
+                <!-- Periodic table poster on wall -->
+                <g transform="translate(160, 150)">
+                    <rect x="0" y="0" width="80" height="55" fill="#f8fafc" stroke="#94a3b8" stroke-width="1" rx="2"/>
+                    <text x="40" y="12" text-anchor="middle" font-size="6" fill="#334155" font-weight="bold">PERIODIC TABLE</text>
+                    <!-- Mini grid representing elements -->
+                    <g opacity="0.6">
+                        <rect x="4" y="16" width="5" height="5" fill="#ef4444" rx="0.5"/>
+                        <rect x="72" y="16" width="5" height="5" fill="#3b82f6" rx="0.5"/>
+                        <rect x="4" y="23" width="5" height="5" fill="#f59e0b" rx="0.5"/>
+                        <rect x="10" y="23" width="5" height="5" fill="#f59e0b" rx="0.5"/>
+                        <rect x="54" y="23" width="5" height="5" fill="#22c55e" rx="0.5"/>
+                        <rect x="60" y="23" width="5" height="5" fill="#22c55e" rx="0.5"/>
+                        <rect x="66" y="23" width="5" height="5" fill="#8b5cf6" rx="0.5"/>
+                        <rect x="72" y="23" width="5" height="5" fill="#3b82f6" rx="0.5"/>
+                        <rect x="4" y="30" width="5" height="5" fill="#f59e0b" rx="0.5"/>
+                        <rect x="10" y="30" width="5" height="5" fill="#f59e0b" rx="0.5"/>
+                        <rect x="54" y="30" width="5" height="5" fill="#14b8a6" rx="0.5"/>
+                        <rect x="60" y="30" width="5" height="5" fill="#22c55e" rx="0.5"/>
+                        <rect x="66" y="30" width="5" height="5" fill="#8b5cf6" rx="0.5"/>
+                        <rect x="72" y="30" width="5" height="5" fill="#06b6d4" rx="0.5"/>
+                        <!-- Transition metals block -->
+                        <rect x="16" y="37" width="56" height="5" fill="#64748b" rx="0.5" opacity="0.4"/>
+                        <rect x="16" y="44" width="56" height="5" fill="#64748b" rx="0.5" opacity="0.3"/>
+                    </g>
+                </g>
+
+                <!-- Safety goggles hanging on wall -->
+                <g transform="translate(380, 160)">
+                    <path d="M0,10 Q15,-5 30,10" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+                    <circle cx="8" cy="14" r="8" fill="none" stroke="#64748b" stroke-width="2"/>
+                    <circle cx="8" cy="14" r="5" fill="#bfdbfe" opacity="0.3"/>
+                    <circle cx="22" cy="14" r="8" fill="none" stroke="#64748b" stroke-width="2"/>
+                    <circle cx="22" cy="14" r="5" fill="#bfdbfe" opacity="0.3"/>
+                    <line x1="16" y1="14" x2="14" y2="14" stroke="#64748b" stroke-width="2"/>
+                </g>
+
+                <!-- Atom model decoration on wall -->
+                <g transform="translate(60, 180)" opacity="0.4">
+                    <circle cx="25" cy="25" r="4" fill="#60a5fa"/>
+                    <ellipse cx="25" cy="25" rx="22" ry="8" fill="none" stroke="#60a5fa" stroke-width="1" transform="rotate(-30, 25, 25)"/>
+                    <ellipse cx="25" cy="25" rx="22" ry="8" fill="none" stroke="#60a5fa" stroke-width="1" transform="rotate(30, 25, 25)"/>
+                    <ellipse cx="25" cy="25" rx="22" ry="8" fill="none" stroke="#60a5fa" stroke-width="1" transform="rotate(90, 25, 25)"/>
+                    <circle cx="5" cy="18" r="2.5" fill="#f472b6"/>
+                    <circle cx="45" cy="32" r="2.5" fill="#f472b6"/>
+                    <circle cx="25" cy="3" r="2.5" fill="#f472b6"/>
+                </g>
+
+                <!-- Bunsen burner (right of test tubes) - shows with testtube -->
+                <g id="equip-testtube2" transform="translate(330, 248)" style="display:none">
+                    <rect x="5" y="25" width="14" height="35" fill="#52525b" rx="2"/>
+                    <rect x="0" y="58" width="24" height="4" fill="#3f3f46" rx="1"/>
+                    <!-- Blue flame -->
+                    <path d="M12,25 Q6,10 12,0 Q18,10 12,25 Z" fill="#60a5fa" opacity="0.7"/>
+                    <path d="M12,22 Q8,14 12,6 Q16,14 12,22 Z" fill="#93c5fd" opacity="0.8"/>
+                    <path d="M12,18 Q10,14 12,10 Q14,14 12,18 Z" fill="white" opacity="0.5"/>
+                </g>
+
+                <!-- Reactor - large glowing tank on floor -->
+                <g id="equip-reactor" transform="translate(30, 395)" style="display:none">
+                    <rect x="0" y="5" width="50" height="80" fill="#374151" stroke="#4b5563" stroke-width="2" rx="5"/>
+                    <rect x="5" y="10" width="40" height="60" fill="#0f172a" rx="3"/>
+                    <!-- Glowing core inside -->
+                    <circle cx="25" cy="40" r="15" fill="#22d3ee" opacity="0.3">
+                        <animate attributeName="opacity" values="0.2;0.5;0.2" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="25" cy="40" r="8" fill="#06b6d4" opacity="0.6">
+                        <animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                    <!-- Radiation symbol -->
+                    <text x="25" y="45" text-anchor="middle" font-size="10" fill="#fbbf24" opacity="0.8">☢</text>
+                    <!-- Pipes -->
+                    <rect x="18" y="-5" width="6" height="12" fill="#4b5563" rx="1"/>
+                    <rect x="28" y="-5" width="6" height="12" fill="#4b5563" rx="1"/>
+                    <!-- Status light -->
+                    <circle cx="42" cy="18" r="3" fill="#22c55e">
+                        <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+                    </circle>
+                    <text x="25" y="95" text-anchor="middle" font-size="6" fill="#94a3b8">REACTOR</text>
+                </g>
+
+                <!-- Accelerator - particle ring on wall -->
+                <g id="equip-accelerator" transform="translate(275, 130)" style="display:none">
+                    <circle cx="40" cy="40" r="38" fill="none" stroke="#6366f1" stroke-width="3" opacity="0.6"/>
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="#818cf8" stroke-width="1.5" stroke-dasharray="8 4" opacity="0.5">
+                        <animateTransform attributeName="transform" type="rotate" from="0 40 40" to="360 40 40" dur="4s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="40" cy="40" r="26" fill="none" stroke="#a5b4fc" stroke-width="1" stroke-dasharray="4 6" opacity="0.4">
+                        <animateTransform attributeName="transform" type="rotate" from="360 40 40" to="0 40 40" dur="3s" repeatCount="indefinite"/>
+                    </circle>
+                    <!-- Particle beam spots -->
+                    <circle cx="40" cy="2" r="3" fill="#c7d2fe">
+                        <animateTransform attributeName="transform" type="rotate" from="0 40 40" to="360 40 40" dur="1.5s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="78" cy="40" r="2" fill="#e0e7ff">
+                        <animateTransform attributeName="transform" type="rotate" from="180 40 40" to="540 40 40" dur="1.5s" repeatCount="indefinite"/>
+                    </circle>
+                    <!-- Center glow -->
+                    <circle cx="40" cy="40" r="6" fill="#818cf8" opacity="0.4">
+                        <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite"/>
+                        <animate attributeName="opacity" values="0.3;0.6;0.3" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                    <text x="40" y="88" text-anchor="middle" font-size="5" fill="#94a3b8">ACCELERATOR</text>
+                </g>
+
+                <!-- Quantum Core - hovering crystal on floor -->
+                <g id="equip-quantumcore" transform="translate(430, 390)" style="display:none">
+                    <!-- Containment chamber -->
+                    <rect x="0" y="15" width="60" height="85" fill="#1e1b4b" stroke="#6366f1" stroke-width="2" rx="5" opacity="0.8"/>
+                    <!-- Glass window -->
+                    <rect x="8" y="22" width="44" height="55" fill="#0f172a" stroke="#4f46e5" stroke-width="1" rx="3" opacity="0.9"/>
+                    <!-- Floating crystal -->
+                    <polygon points="30,35 40,50 30,65 20,50" fill="#a78bfa" stroke="#c4b5fd" stroke-width="1" opacity="0.8">
+                        <animateTransform attributeName="transform" type="translate" values="0,0;0,-4;0,0" dur="3s" repeatCount="indefinite"/>
+                    </polygon>
+                    <!-- Energy field around crystal -->
+                    <circle cx="30" cy="50" r="12" fill="none" stroke="#c4b5fd" stroke-width="0.8" opacity="0.4">
+                        <animate attributeName="r" values="10;16;10" dur="2.5s" repeatCount="indefinite"/>
+                        <animate attributeName="opacity" values="0.4;0.1;0.4" dur="2.5s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="30" cy="50" r="8" fill="#8b5cf6" opacity="0.15">
+                        <animate attributeName="r" values="6;12;6" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                    <!-- Status lights -->
+                    <circle cx="14" cy="82" r="2" fill="#a78bfa">
+                        <animate attributeName="opacity" values="1;0.2;1" dur="1s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="22" cy="82" r="2" fill="#c084fc">
+                        <animate attributeName="opacity" values="0.2;1;0.2" dur="1s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="30" cy="82" r="2" fill="#a78bfa">
+                        <animate attributeName="opacity" values="1;0.2;1" dur="1.2s" repeatCount="indefinite"/>
+                    </circle>
+                    <text x="30" y="110" text-anchor="middle" font-size="5" fill="#c4b5fd">QUANTUM CORE</text>
+                </g>
+
+                <!-- Clock on wall -->
+                <g transform="translate(440, 140)">
+                    <circle cx="20" cy="20" r="20" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+                    <circle cx="20" cy="20" r="1.5" fill="#334155"/>
+                    <!-- Hour marks -->
+                    <line x1="20" y1="4" x2="20" y2="8" stroke="#334155" stroke-width="1.5"/>
+                    <line x1="20" y1="32" x2="20" y2="36" stroke="#334155" stroke-width="1.5"/>
+                    <line x1="4" y1="20" x2="8" y2="20" stroke="#334155" stroke-width="1.5"/>
+                    <line x1="32" y1="20" x2="36" y2="20" stroke="#334155" stroke-width="1.5"/>
+                    <!-- Hands -->
+                    <line x1="20" y1="20" x2="20" y2="10" stroke="#334155" stroke-width="2"/>
+                    <line x1="20" y1="20" x2="28" y2="17" stroke="#334155" stroke-width="1.5"/>
+                    <line x1="20" y1="20" x2="30" y2="22" stroke="#ef4444" stroke-width="0.8"/>
+                </g>
+            </svg>
         </div>
     </div>
 
     <!-- RIGHT SIDEBAR - UPGRADES -->
     <div id="game-sidebar">
-        <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600;">
-            🛒 UPGRADES
+        <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 600;">
+            ⬆️ UPGRADES
         </div>
-        <div id="notificationContainer" style="min-height: 3rem; margin-bottom: 1rem;"></div>
+        <div id="upgradesPanel"></div>
+        <div id="notificationContainer" style="min-height: 1.5rem; margin-bottom: 0.5rem;"></div>
+        <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 600; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.5rem;">
+            🛒 BUILDINGS
+        </div>
         <div id="shopContainer"></div>
+
+        <!-- PRESTIGE PANEL -->
+        <div id="prestigePanel" style="margin-top: 1rem; border-top: 1px solid rgba(192,132,252,0.2); padding-top: 0.75rem;"></div>
+
+        <!-- SAVE PANEL -->
+        <div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+            <div style="text-align: center; color: #9ca3af; margin-bottom: 0.75rem; font-size: 0.75rem; font-weight: 600;">💾 SAVE & LOAD</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <button onclick="saveToCloud()" style="background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.4); color: white; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.7rem; font-weight: 700;">SAVE ☁️</button>
+                <button onclick="loadFromCloud()" style="background: rgba(139,92,246,0.2); border: 1px solid rgba(139,92,246,0.4); color: white; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.7rem; font-weight: 700;">LOAD ☁️</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <button onclick="exportSave()" style="background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.4); color: white; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.7rem; font-weight: 700;">EXPORT 📋</button>
+                <button onclick="importSave()" style="background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.4); color: white; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.7rem; font-weight: 700;">IMPORT 📥</button>
+            </div>
+            <div id="save-status" style="text-align: center; color: #6b7280; font-size: 0.65rem; font-family: sans-serif;">Auto-saves every 30s</div>
+        </div>
     </div>
 </div>
 
     <script>
+        // ====== NUMBER FORMATTING ======
+        function formatNum(n) {
+            if (n < 0) return '-' + formatNum(-n);
+            if (n < 1000) return Math.floor(n).toString();
+            const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc'];
+            const tier = Math.floor(Math.log10(n) / 3);
+            if (tier >= suffixes.length) return n.toExponential(2);
+            const scale = Math.pow(10, tier * 3);
+            const scaled = n / scale;
+            return (scaled < 10 ? scaled.toFixed(2) : scaled < 100 ? scaled.toFixed(1) : Math.floor(scaled)) + suffixes[tier];
+        }
+
+        // ====== PRESTIGE SYSTEM ======
+        const PRESTIGE_TIERS = [
+            { tier: 'bronze',   name: 'Bronze Prestige',   threshold: 1000000,        multiplier: 2,  color: '#d97706', bg: 'rgba(217,119,6,0.15)',  border: 'rgba(217,119,6,0.4)' },
+            { tier: 'silver',   name: 'Silver Prestige',   threshold: 50000000,       multiplier: 3,  color: '#d1d5db', bg: 'rgba(209,213,219,0.15)', border: 'rgba(209,213,219,0.4)' },
+            { tier: 'gold',     name: 'Gold Prestige',     threshold: 1000000000,     multiplier: 5,  color: '#fbbf24', bg: 'rgba(251,191,36,0.15)',  border: 'rgba(251,191,36,0.4)' },
+            { tier: 'diamond',  name: 'Diamond Prestige',  threshold: 50000000000,    multiplier: 8,  color: '#67e8f9', bg: 'rgba(103,232,249,0.15)', border: 'rgba(103,232,249,0.4)' },
+            { tier: 'amethyst', name: 'Amethyst Prestige', threshold: 1000000000000,  multiplier: 12, color: '#c084fc', bg: 'rgba(192,132,252,0.15)', border: 'rgba(192,132,252,0.4)' }
+        ];
+
+        let prestigeLevel = 0; // 0 = none, 1 = bronze, 2 = silver, etc.
+
+        function getPrestigeMultiplier() {
+            if (prestigeLevel <= 0) return 1;
+            return PRESTIGE_TIERS[prestigeLevel - 1].multiplier;
+        }
+
+        function getNextPrestige() {
+            if (prestigeLevel >= PRESTIGE_TIERS.length) return null;
+            return PRESTIGE_TIERS[prestigeLevel];
+        }
+
+        function canPrestige() {
+            const next = getNextPrestige();
+            return next && gameState.score >= next.threshold;
+        }
+
+        function doPrestige() {
+            const next = getNextPrestige();
+            if (!next || gameState.score < next.threshold) return;
+            if (!confirm(`🌟 ${next.name}\n\nThis will reset your particles, buildings, and tier upgrades.\nYou'll gain a permanent ${next.multiplier}× global multiplier!\n\nPrestige now?`)) return;
+
+            prestigeLevel++;
+
+            // Reset game state but keep prestige
+            gameState.particles = 0;
+            gameState.score = 0;
+            gameState.perSecond = 0;
+            gameState.playtime = 0;
+            purchasedTierUpgrades = {};
+            for (const key in gameState.upgrades) {
+                const u = gameState.upgrades[key];
+                u.count = 0;
+                u.cost = u.base_cost;
+                u.unlocked = key === 'microscope';
+            }
+            for (const k in gameState.achievements) gameState.achievements[k] = false;
+
+            // Refresh everything
+            gameState.perSecond = calculatePerSecond();
+            updateDisplay();
+            checkUnlocks();
+            renderShop();
+            updateLabScene();
+            renderTierUpgrades();
+            renderPrestigePanel();
+            saveGame();
+            showNotification(`🌟 ${next.name} achieved! ${next.multiplier}× multiplier!`);
+        }
+
+        function renderPrestigePanel() {
+            const panel = document.getElementById('prestigePanel');
+            if (!panel) return;
+            const next = getNextPrestige();
+            const current = prestigeLevel > 0 ? PRESTIGE_TIERS[prestigeLevel - 1] : null;
+
+            let html = '<div style="text-align: center; color: #9ca3af; margin-bottom: 0.5rem; font-size: 0.75rem; font-weight: 600;">🌟 PRESTIGE</div>';
+
+            if (current) {
+                html += `<div style="text-align: center; margin-bottom: 0.5rem; font-size: 0.7rem; color: ${current.color}; font-weight: 700;">${current.name} — ${current.multiplier}× Global</div>`;
+            }
+
+            if (next) {
+                const progress = Math.min(gameState.score / next.threshold, 1);
+                const pct = (progress * 100).toFixed(1);
+                const ready = gameState.score >= next.threshold;
+                html += `<div style="margin-bottom: 0.4rem;">`;
+                html += `<div style="display: flex; justify-content: space-between; font-size: 0.6rem; color: #9ca3af; margin-bottom: 2px;"><span>${next.name} (${next.multiplier}×)</span><span>${formatNum(gameState.score)} / ${formatNum(next.threshold)}</span></div>`;
+                html += `<div style="background: rgba(255,255,255,0.1); border-radius: 4px; height: 6px; overflow: hidden;"><div style="height: 100%; width: ${pct}%; background: ${next.color}; border-radius: 4px; transition: width 0.3s;"></div></div>`;
+                html += `</div>`;
+                html += `<button onclick="doPrestige()" ${ready ? '' : 'disabled'} style="width: 100%; padding: 0.5rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 700; cursor: ${ready ? 'pointer' : 'not-allowed'}; border: 1px solid ${ready ? next.border : 'rgba(255,255,255,0.1)'}; background: ${ready ? next.bg : 'rgba(255,255,255,0.05)'}; color: ${ready ? next.color : '#6b7280'}; transition: all 0.2s;">${ready ? '🌟 PRESTIGE NOW' : '🔒 ' + formatNum(next.threshold - gameState.score) + ' more score needed'}</button>`;
+            } else {
+                html += '<div style="text-align: center; font-size: 0.7rem; color: #c084fc; font-weight: 600;">✨ MAX PRESTIGE REACHED ✨</div>';
+            }
+
+            panel.innerHTML = html;
+
+            // Update stats panel prestige display
+            const multDisp = document.getElementById('prestigeMultDisplay');
+            const multText = document.getElementById('prestigeMultText');
+            if (multDisp && multText) {
+                if (prestigeLevel > 0) {
+                    multDisp.style.display = 'block';
+                    multText.textContent = getPrestigeMultiplier() + '×';
+                    multText.style.color = current.color;
+                } else {
+                    multDisp.style.display = 'none';
+                }
+            }
+        }
+
+        // ====== TIERED UPGRADES (Cookie Clicker style) ======
+        const TIER_COLORS = {
+            bronze:   'tier-bronze',
+            silver:   'tier-silver',
+            gold:     'tier-gold',
+            diamond:  'tier-diamond',
+            amethyst: 'tier-amethyst'
+        };
+        const TIER_NAMES = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', diamond: 'Diamond', amethyst: 'Amethyst' };
+
+        // Each upgrade targets a building and multiplies its production
+        // Structure: { id, building, tier, icon, name, desc, cost, multiplier, purchased }
+        const tierUpgrades = [
+            // Bronze tier (early game)
+            { id: 'b1', building: 'microscope',  tier: 'bronze', icon: '🔬', name: 'Polished Lens',        desc: 'Microscopes are 2× as efficient',      cost: 100,        multiplier: 2 },
+            { id: 'b2', building: 'testtube',     tier: 'bronze', icon: '🧪', name: 'Reinforced Glass',     desc: 'Test Tubes are 2× as efficient',        cost: 500,        multiplier: 2 },
+            { id: 'b3', building: 'centrifuge',   tier: 'bronze', icon: '⚗️', name: 'Balanced Rotor',       desc: 'Centrifuges are 2× as efficient',       cost: 5500,       multiplier: 2 },
+            { id: 'b4', building: 'spectrometer', tier: 'bronze', icon: '📡', name: 'Wider Bandwidth',      desc: 'Spectrometers are 2× as efficient',     cost: 60000,      multiplier: 2 },
+            { id: 'b5', building: 'reactor',      tier: 'bronze', icon: '⚡', name: 'Fuel Rods',            desc: 'Reactors are 2× as efficient',          cost: 650000,     multiplier: 2 },
+            { id: 'b6', building: 'accelerator',  tier: 'bronze', icon: '🌀', name: 'Stronger Magnets',     desc: 'Accelerators are 2× as efficient',      cost: 7000000,    multiplier: 2 },
+            { id: 'b7', building: 'quantumcore',  tier: 'bronze', icon: '⚛️', name: 'Qubit Array',          desc: 'Quantum Cores are 2× as efficient',     cost: 100000000,  multiplier: 2 },
+
+            // Silver tier
+            { id: 's1', building: 'microscope',  tier: 'silver', icon: '🔬', name: 'Electron Lens',        desc: 'Microscopes are 2× as efficient',       cost: 1000,       multiplier: 2 },
+            { id: 's2', building: 'testtube',     tier: 'silver', icon: '🧪', name: 'Borosilicate Tubes',   desc: 'Test Tubes are 2× as efficient',        cost: 5000,       multiplier: 2 },
+            { id: 's3', building: 'centrifuge',   tier: 'silver', icon: '⚗️', name: 'Ultra-Spin Motor',     desc: 'Centrifuges are 2× as efficient',       cost: 55000,      multiplier: 2 },
+            { id: 's4', building: 'spectrometer', tier: 'silver', icon: '📡', name: 'Prism Upgrade',        desc: 'Spectrometers are 2× as efficient',     cost: 600000,     multiplier: 2 },
+            { id: 's5', building: 'reactor',      tier: 'silver', icon: '⚡', name: 'Plutonium Core',       desc: 'Reactors are 2× as efficient',          cost: 6500000,    multiplier: 2 },
+            { id: 's6', building: 'accelerator',  tier: 'silver', icon: '🌀', name: 'Superconductors',      desc: 'Accelerators are 2× as efficient',      cost: 70000000,   multiplier: 2 },
+            { id: 's7', building: 'quantumcore',  tier: 'silver', icon: '⚛️', name: 'Entanglement Link',    desc: 'Quantum Cores are 2× as efficient',     cost: 1000000000, multiplier: 2 },
+
+            // Gold tier
+            { id: 'g1', building: 'microscope',  tier: 'gold', icon: '🔬', name: 'Quantum Imaging',        desc: 'Microscopes are 2× as efficient',       cost: 10000,      multiplier: 2 },
+            { id: 'g2', building: 'testtube',     tier: 'gold', icon: '🧪', name: 'Self-Heating Tubes',     desc: 'Test Tubes are 2× as efficient',        cost: 50000,      multiplier: 2 },
+            { id: 'g3', building: 'centrifuge',   tier: 'gold', icon: '⚗️', name: 'Magnetic Bearing',       desc: 'Centrifuges are 2× as efficient',       cost: 550000,     multiplier: 2 },
+            { id: 'g4', building: 'spectrometer', tier: 'gold', icon: '📡', name: 'Laser Calibration',      desc: 'Spectrometers are 2× as efficient',     cost: 6000000,    multiplier: 2 },
+            { id: 'g5', building: 'reactor',      tier: 'gold', icon: '⚡', name: 'Fusion Chamber',         desc: 'Reactors are 2× as efficient',          cost: 65000000,   multiplier: 2 },
+            { id: 'g6', building: 'accelerator',  tier: 'gold', icon: '🌀', name: 'Dark Matter Lens',       desc: 'Accelerators are 2× as efficient',      cost: 700000000,  multiplier: 2 },
+            { id: 'g7', building: 'quantumcore',  tier: 'gold', icon: '⚛️', name: 'Multiverse Tap',         desc: 'Quantum Cores are 2× as efficient',     cost: 10000000000,multiplier: 2 },
+
+            // Diamond tier
+            { id: 'd1', building: 'microscope',  tier: 'diamond', icon: '🔬', name: 'Subatomic Vision',     desc: 'Microscopes are 2× as efficient',       cost: 100000,     multiplier: 2 },
+            { id: 'd2', building: 'testtube',     tier: 'diamond', icon: '🧪', name: 'Phase-Shift Tubes',    desc: 'Test Tubes are 2× as efficient',        cost: 500000,     multiplier: 2 },
+            { id: 'd3', building: 'centrifuge',   tier: 'diamond', icon: '⚗️', name: 'Vortex Engine',        desc: 'Centrifuges are 2× as efficient',       cost: 5500000,    multiplier: 2 },
+            { id: 'd4', building: 'spectrometer', tier: 'diamond', icon: '📡', name: 'Gamma-Ray Sensor',     desc: 'Spectrometers are 2× as efficient',     cost: 60000000,   multiplier: 2 },
+            { id: 'd5', building: 'reactor',      tier: 'diamond', icon: '⚡', name: 'Antimatter Injection',  desc: 'Reactors are 2× as efficient',          cost: 650000000,  multiplier: 2 },
+            { id: 'd6', building: 'accelerator',  tier: 'diamond', icon: '🌀', name: 'Wormhole Bypass',      desc: 'Accelerators are 2× as efficient',      cost: 7000000000, multiplier: 2 },
+            { id: 'd7', building: 'quantumcore',  tier: 'diamond', icon: '⚛️', name: 'Reality Compiler',     desc: 'Quantum Cores are 2× as efficient',     cost: 100000000000,multiplier: 2 },
+
+            // Amethyst tier
+            { id: 'a1', building: 'microscope',  tier: 'amethyst', icon: '🔬', name: 'Omniscopic Lens',     desc: 'Microscopes are 3× as efficient',       cost: 1000000,     multiplier: 3 },
+            { id: 'a2', building: 'testtube',     tier: 'amethyst', icon: '🧪', name: 'Living Glass',        desc: 'Test Tubes are 3× as efficient',        cost: 5000000,     multiplier: 3 },
+            { id: 'a3', building: 'centrifuge',   tier: 'amethyst', icon: '⚗️', name: 'Gravity Well',        desc: 'Centrifuges are 3× as efficient',       cost: 55000000,    multiplier: 3 },
+            { id: 'a4', building: 'spectrometer', tier: 'amethyst', icon: '📡', name: 'Cosmic Antenna',      desc: 'Spectrometers are 3× as efficient',     cost: 600000000,   multiplier: 3 },
+            { id: 'a5', building: 'reactor',      tier: 'amethyst', icon: '⚡', name: 'Star Core',           desc: 'Reactors are 3× as efficient',          cost: 6500000000,  multiplier: 3 },
+            { id: 'a6', building: 'accelerator',  tier: 'amethyst', icon: '🌀', name: 'Big Bang Engine',     desc: 'Accelerators are 3× as efficient',      cost: 70000000000, multiplier: 3 },
+            { id: 'a7', building: 'quantumcore',  tier: 'amethyst', icon: '⚛️', name: 'Singularity Matrix',  desc: 'Quantum Cores are 3× as efficient',     cost: 1000000000000,multiplier: 3 },
+        ];
+
+        // Track purchased tier upgrades
+        let purchasedTierUpgrades = {};
+
+        function getProductionMultiplier(buildingKey) {
+            let mult = 1;
+            for (const u of tierUpgrades) {
+                if (u.building === buildingKey && purchasedTierUpgrades[u.id]) {
+                    mult *= u.multiplier;
+                }
+            }
+            return mult;
+        }
+
+        function buyTierUpgrade(id) {
+            const u = tierUpgrades.find(x => x.id === id);
+            if (!u || purchasedTierUpgrades[u.id]) return;
+            if (gameState.particles < u.cost) {
+                showNotification(`Need ${formatNum(Math.ceil(u.cost - gameState.particles))} more ✨`);
+                return;
+            }
+            // Must own at least 1 of the building
+            if (gameState.upgrades[u.building].count < 1) {
+                showNotification(`Buy a ${gameState.upgrades[u.building].name} first!`);
+                return;
+            }
+            gameState.particles -= u.cost;
+            purchasedTierUpgrades[u.id] = true;
+            gameState.perSecond = calculatePerSecond();
+            updateDisplay();
+            renderTierUpgrades();
+            renderShop();
+            showNotification(`⬆️ ${TIER_NAMES[u.tier]}: ${u.name}!`);
+        }
+
+        function renderTierUpgrades() {
+            const panel = document.getElementById('upgradesPanel');
+            if (!panel) return;
+            panel.innerHTML = '';
+            const tiers = ['bronze', 'silver', 'gold', 'diamond', 'amethyst'];
+            // One slot per building: show only the next unpurchased tier
+            const buildings = Object.keys(gameState.upgrades);
+            const visible = [];
+            for (const bKey of buildings) {
+                const bld = gameState.upgrades[bKey];
+                if (!bld.unlocked) continue;
+                // Find the first unpurchased tier for this building
+                for (const tier of tiers) {
+                    const u = tierUpgrades.find(x => x.building === bKey && x.tier === tier);
+                    if (u && !purchasedTierUpgrades[u.id]) {
+                        visible.push(u);
+                        break;
+                    }
+                }
+            }
+
+            for (const u of visible) {
+                const isPurchased = purchasedTierUpgrades[u.id];
+                const canAfford = gameState.particles >= u.cost;
+                const hasBuilding = gameState.upgrades[u.building].count >= 1;
+                const isLocked = !hasBuilding;
+
+                const div = document.createElement('div');
+                div.className = `tier-upgrade ${TIER_COLORS[u.tier]}`;
+                if (isPurchased) div.classList.add('purchased');
+                else if (isLocked) div.classList.add('locked');
+                else if (canAfford) div.classList.add('affordable');
+                div.innerHTML = `${u.icon}
+                    <div class="tier-tooltip">
+                        <div class="tt-name">${u.name}</div>
+                        <div>${u.desc}</div>
+                        ${isPurchased ? '<div class="tt-effect">✅ Purchased</div>' :
+                          `<div class="tt-cost">Cost: ${formatNum(u.cost)} ✨</div>
+                           ${isLocked ? '<div class="tt-status">Need 1 ' + gameState.upgrades[u.building].name + '</div>' : ''}`}
+                    </div>`;
+                if (!isPurchased) div.onclick = () => buyTierUpgrade(u.id);
+                panel.appendChild(div);
+            }
+        }
+
         let gameState = {
             particles: 0,
             perSecond: 0,
             score: 0,
             playtime: 0,
             upgrades: {
-                farm: { count: 0, cost: 10, base_cost: 10, production: 1, name: '🚜 Farm', icon: '🚜', unlocked: true },
-                factory: { count: 0, cost: 100, base_cost: 100, production: 10, name: '🏭 Factory', icon: '🏭', unlocked: false, unlocksAt: 50 },
-                robot: { count: 0, cost: 1000, base_cost: 1000, production: 100, name: '🤖 Robot', icon: '🤖', unlocked: false, unlocksAt: 500 },
-                ai: { count: 0, cost: 10000, base_cost: 10000, production: 1000, name: '🧠 AI System', icon: '🧠', unlocked: false, unlocksAt: 5000 },
-                quantum: { count: 0, cost: 100000, base_cost: 100000, production: 10000, name: '⚛️ Quantum', icon: '⚛️', unlocked: false, unlocksAt: 50000 }
+                microscope:   { count: 0, cost: 15,        base_cost: 15,        production: 1,     name: 'Microscope',    icon: '🔬', unlocked: true },
+                testtube:     { count: 0, cost: 100,       base_cost: 100,       production: 3,     name: 'Test Tube',     icon: '🧪', unlocked: false, unlocksAt: 50 },
+                centrifuge:   { count: 0, cost: 1100,      base_cost: 1100,      production: 15,    name: 'Centrifuge',    icon: '⚗️', unlocked: false, unlocksAt: 500 },
+                spectrometer: { count: 0, cost: 12000,     base_cost: 12000,     production: 80,    name: 'Spectrometer',  icon: '📡', unlocked: false, unlocksAt: 5000 },
+                reactor:      { count: 0, cost: 130000,    base_cost: 130000,    production: 400,   name: 'Reactor',       icon: '⚡', unlocked: false, unlocksAt: 50000 },
+                accelerator:  { count: 0, cost: 1400000,   base_cost: 1400000,   production: 2500,  name: 'Accelerator',   icon: '🌀', unlocked: false, unlocksAt: 500000 },
+                quantumcore:  { count: 0, cost: 20000000,  base_cost: 20000000,  production: 13000, name: 'Quantum Core',  icon: '⚛️', unlocked: false, unlocksAt: 5000000 }
             },
             achievements: {
                 firstParticle: false,
+                thousand: false,
                 millionaire: false,
-                factoryOwner: false,
-                techGod: false
+                billion: false,
+                labMaster: false,
+                quantumLeap: false
             }
         };
 
         function clickParticle() {
-            gameState.particles += 1;
-            gameState.score += 1;
+            const mult = getPrestigeMultiplier();
+            gameState.particles += 1 * mult;
+            gameState.score += 1 * mult;
             updateDisplay();
-            
-            // Visual feedback
-            const button = document.getElementById('giant-clicker');
-            button.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                button.style.transform = '';
-            }, 50);
         }
 
         function calculatePerSecond() {
             let perSecond = 0;
+            const pMult = getPrestigeMultiplier();
             for (const key in gameState.upgrades) {
                 const upgrade = gameState.upgrades[key];
                 if (upgrade.unlocked) {
-                    perSecond += upgrade.count * upgrade.production;
+                    perSecond += upgrade.count * upgrade.production * getProductionMultiplier(key) * pMult;
                 }
             }
             return perSecond;
@@ -691,26 +1206,34 @@
             // Check achievements
             if (gameState.particles >= 1 && !gameState.achievements.firstParticle) {
                 gameState.achievements.firstParticle = true;
-                showNotification('📜 Achievement: Your first particle!');
+                showNotification('📜 Achievement: First Particle!');
+            }
+            if (gameState.particles >= 1000 && !gameState.achievements.thousand) {
+                gameState.achievements.thousand = true;
+                showNotification('🧪 Achievement: Thousand Particles!');
             }
             if (gameState.particles >= 1000000 && !gameState.achievements.millionaire) {
                 gameState.achievements.millionaire = true;
-                showNotification('💰 Achievement: Millionaire!');
+                showNotification('💰 Achievement: Particle Millionaire!');
             }
-            if (gameState.upgrades.factory.count >= 50 && !gameState.achievements.factoryOwner) {
-                gameState.achievements.factoryOwner = true;
+            if (gameState.particles >= 1000000000 && !gameState.achievements.billion) {
+                gameState.achievements.billion = true;
+                showNotification('🌌 Achievement: Particle Billionaire!');
+            }
+            if (gameState.upgrades.centrifuge.count >= 25 && !gameState.achievements.labMaster) {
+                gameState.achievements.labMaster = true;
                 showNotification('🔬 Achievement: Lab Master!');
             }
-            if (gameState.upgrades.quantum.count >= 1 && !gameState.achievements.techGod) {
-                gameState.achievements.techGod = true;
-                showNotification('⚛️ Achievement: Tech God!');
+            if (gameState.upgrades.quantumcore.count >= 1 && !gameState.achievements.quantumLeap) {
+                gameState.achievements.quantumLeap = true;
+                showNotification('⚛️ Achievement: Quantum Leap!');
             }
         }
 
         function buyUpgrade(upgradeKey) {
             const upgrade = gameState.upgrades[upgradeKey];
             if (!upgrade.unlocked) {
-                showNotification(`🔒 Unlock at ${upgrade.unlocksAt.toLocaleString()} ✨`);
+                showNotification(`🔒 Unlock at ${formatNum(upgrade.unlocksAt)} ✨`);
                 return;
             }
             if (gameState.particles >= upgrade.cost) {
@@ -722,10 +1245,12 @@
                 checkUnlocks();
                 updateDisplay();
                 renderShop();
+                updateLabScene();
+                renderTierUpgrades();
                 showNotification(`Bought ${upgrade.name}!`);
             } else {
                 const needed = Math.ceil(upgrade.cost - gameState.particles);
-                showNotification(`Need ${needed} more ✨`);
+                showNotification(`Need ${formatNum(needed)} more ✨`);
             }
         }
 
@@ -754,8 +1279,50 @@
         }
 
         function updateDisplay() {
-            document.getElementById('particleCount').textContent = Math.floor(gameState.particles);
-            document.getElementById('perSecond').textContent = gameState.perSecond;
+            document.getElementById('particleCount').textContent = formatNum(gameState.particles);
+            document.getElementById('perSecond').textContent = formatNum(gameState.perSecond);
+        }
+
+        // Map upgrade keys to SVG equipment element IDs
+        const EQUIP_MAP = {
+            microscope:   ['equip-microscope'],
+            testtube:     ['equip-testtube', 'equip-testtube2'],
+            centrifuge:   ['equip-centrifuge', 'equip-centrifuge2'],
+            spectrometer: ['equip-spectrometer'],
+            reactor:      ['equip-reactor'],
+            accelerator:  ['equip-accelerator'],
+            quantumcore:  ['equip-quantumcore']
+        };
+
+        function updateLabScene() {
+            for (const key in EQUIP_MAP) {
+                const show = gameState.upgrades[key].count > 0;
+                for (const id of EQUIP_MAP[key]) {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = show ? '' : 'none';
+                }
+            }
+        }
+
+        // Tier color map for building name text
+        const TIER_TEXT_COLORS = {
+            bronze:   '#d97706',
+            silver:   '#d1d5db',
+            gold:     '#fbbf24',
+            diamond:  '#67e8f9',
+            amethyst: '#c084fc'
+        };
+        const TIER_ORDER = ['bronze', 'silver', 'gold', 'diamond', 'amethyst'];
+
+        function getHighestTierColor(buildingKey) {
+            let highest = -1;
+            for (const u of tierUpgrades) {
+                if (u.building === buildingKey && purchasedTierUpgrades[u.id]) {
+                    const idx = TIER_ORDER.indexOf(u.tier);
+                    if (idx > highest) highest = idx;
+                }
+            }
+            return highest >= 0 ? TIER_TEXT_COLORS[TIER_ORDER[highest]] : '#fbbf24';
         }
 
         function renderShop() {
@@ -765,6 +1332,7 @@
             for (const [key, upgrade] of Object.entries(gameState.upgrades)) {
                 const canAfford = gameState.particles >= upgrade.cost;
                 const isLocked = !upgrade.unlocked;
+                const effectiveProd = upgrade.production * getProductionMultiplier(key);
                 
                 const button = document.createElement('button');
                 button.className = 'upgrade';
@@ -774,24 +1342,24 @@
                     button.style.opacity = '0.5';
                     button.style.cursor = 'not-allowed';
                     button.innerHTML = `
-                        <div class="upgrade-name">🔒 ${upgrade.name}</div>
-                        <div class="upgrade-cost" style="color: #888;">Unlock at: ${upgrade.unlocksAt.toLocaleString()} ✨</div>
-                        <div class="upgrade-effect">+${upgrade.production} ✨/s</div>
+                        <div class="upgrade-name" style="color: #888;">🔒 ${upgrade.name}</div>
+                        <div class="upgrade-cost" style="color: #888;">Unlock at: ${formatNum(upgrade.unlocksAt)} ✨</div>
+                        <div class="upgrade-effect">+${formatNum(effectiveProd)} ✨/s</div>
                         <div class="upgrade-count" style="color: #aaa;">Progress: ${Math.floor((gameState.particles / upgrade.unlocksAt) * 100)}%</div>
                     `;
                 } else if (!canAfford) {
                     button.style.opacity = '0.6';
                     button.innerHTML = `
-                        <div class="upgrade-name">${upgrade.icon} ${upgrade.name}</div>
-                        <div class="upgrade-cost" style="color: #f87171;">Cost: ${upgrade.cost.toLocaleString()} ✨</div>
-                        <div class="upgrade-effect">+${upgrade.production} ✨/s</div>
+                        <div class="upgrade-name" style="color: ${getHighestTierColor(key)};">${upgrade.icon} ${upgrade.name}</div>
+                        <div class="upgrade-cost" style="color: #f87171;">Cost: ${formatNum(upgrade.cost)} ✨</div>
+                        <div class="upgrade-effect">+${formatNum(effectiveProd)} ✨/s</div>
                         <div class="upgrade-count">Owned: ${upgrade.count}</div>
                     `;
                 } else {
                     button.innerHTML = `
-                        <div class="upgrade-name">${upgrade.icon} ${upgrade.name}</div>
-                        <div class="upgrade-cost">Cost: ${upgrade.cost.toLocaleString()} ✨</div>
-                        <div class="upgrade-effect">+${upgrade.production} ✨/s</div>
+                        <div class="upgrade-name" style="color: ${getHighestTierColor(key)};">${upgrade.icon} ${upgrade.name}</div>
+                        <div class="upgrade-cost">Cost: ${formatNum(upgrade.cost)} ✨</div>
+                        <div class="upgrade-effect">+${formatNum(effectiveProd)} ✨/s</div>
                         <div class="upgrade-count">Owned: ${upgrade.count}</div>
                     `;
                 }
@@ -809,14 +1377,42 @@
                 
                 updateDisplay();
                 
-                // Check unlocks every frame
+                // Check unlocks every half second
                 if (gameState.playtime % 30 === 0) {
                     checkUnlocks();
+                    renderTierUpgrades();
+                    renderPrestigePanel();
                 }
             }
 
             arcadeState.animFrame = requestAnimationFrame(gameLoop);
         }
+        
+        function togglePause() {
+            const pauseScreen = document.getElementById('pause-screen');
+            console.log('togglePause called');
+            
+            if (pauseScreen) {
+                pauseScreen.classList.toggle('hidden');
+                
+                if (pauseScreen.classList.contains('hidden')) {
+                    // Game is running (pause screen hidden)
+                    if (window.arcadeState) {
+                        window.arcadeState.gamePaused = false;
+                    }
+                    console.log('Game resumed');
+                } else {
+                    // Game is paused (pause screen visible)
+                    if (window.arcadeState) {
+                        window.arcadeState.gamePaused = true;
+                    }
+                    console.log('Game paused');
+                }
+            } else {
+                console.error('pause-screen element not found');
+            }
+        }
+
 
         async function exitGame() {
             const user = await getUser();
@@ -832,45 +1428,244 @@
 
         // Initialize - deferred until user clicks START
         // (async function() {
-        //     if (!await initializeArcadeGame('🔬 LAB EMPIRE', 'from-amber-400', 'to-orange-500')) return;
+        //     if (!await initializeArcadeGame('⚛️ PARTICLE CLICKER', 'from-amber-400', 'to-orange-500')) return;
         //     updateDisplay();
         //     checkUnlocks();
         //     renderShop();
         //     gameLoop();
         
-        // Generate starfield with nebula colors
-        function generateStarfield() {
-            const starfield = document.getElementById('starfield');
-            const starCount = 150;
-            const colors = ['white', '#E8D5F2', '#B4D7FF', '#FFD7B5', '#D7F2FF', '#FFE8D7'];
-            for (let i = 0; i < starCount; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                const size = Math.random() * 2 + 0.3;
-                star.style.width = size + 'px';
-                star.style.height = size + 'px';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                star.style.opacity = Math.random() * 0.8 + 0.2;
-                star.style.background = colors[Math.floor(Math.random() * colors.length)];
-                starfield.appendChild(star);
+        // Generate floating lab bubbles
+        function generateLabBubbles() {
+            const container = document.getElementById('lab-bubbles');
+            const bubbleCount = 20;
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'lab-bubble';
+                const size = Math.random() * 12 + 4;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = Math.random() * 90 + 5 + '%';
+                bubble.style.bottom = '-20px';
+                bubble.style.animationDuration = (Math.random() * 6 + 5) + 's';
+                bubble.style.animationDelay = (Math.random() * 8) + 's';
+                container.appendChild(bubble);
             }
         }
         
-        // Initialize starfield on page load
-        generateStarfield();
-        // })();
-    
+        // Initialize lab bubbles on page load
+        generateLabBubbles();
+
+        // ====== SAVE / LOAD SYSTEM ======
+        const SAVE_KEY = 'particleClicker_save_v2';
+
+        function saveGame() {
+            const saveData = {
+                particles: gameState.particles,
+                score: gameState.score,
+                playtime: gameState.playtime,
+                upgrades: {},
+                achievements: { ...gameState.achievements },
+                tierUpgrades: { ...purchasedTierUpgrades },
+                prestigeLevel: prestigeLevel,
+                savedAt: Date.now()
+            };
+            for (const key in gameState.upgrades) {
+                const u = gameState.upgrades[key];
+                saveData.upgrades[key] = { count: u.count, cost: u.cost, unlocked: u.unlocked };
+            }
+            localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+        }
+
+        function loadGame() {
+            const raw = localStorage.getItem(SAVE_KEY);
+            if (!raw) return false;
+            try {
+                const d = JSON.parse(raw);
+                gameState.particles = d.particles || 0;
+                gameState.score = d.score || 0;
+                gameState.playtime = d.playtime || 0;
+                if (d.achievements) Object.assign(gameState.achievements, d.achievements);
+                if (d.tierUpgrades) purchasedTierUpgrades = d.tierUpgrades;
+                if (d.prestigeLevel !== undefined) prestigeLevel = d.prestigeLevel;
+                if (d.upgrades) {
+                    for (const key in d.upgrades) {
+                        if (gameState.upgrades[key]) {
+                            gameState.upgrades[key].count = d.upgrades[key].count || 0;
+                            gameState.upgrades[key].cost = d.upgrades[key].cost || gameState.upgrades[key].base_cost;
+                            gameState.upgrades[key].unlocked = d.upgrades[key].unlocked || false;
+                        }
+                    }
+                }
+                // Calculate offline earnings
+                if (d.savedAt) {
+                    const elapsed = (Date.now() - d.savedAt) / 1000; // seconds
+                    const perSec = calculatePerSecond();
+                    if (perSec > 0 && elapsed > 5) {
+                        const maxOffline = 3600; // cap at 1 hour
+                        const offlineSec = Math.min(elapsed, maxOffline);
+                        const earned = Math.floor(perSec * offlineSec);
+                        gameState.particles += earned;
+                        gameState.score += earned;
+                        setTimeout(() => showNotification(`⏰ Offline: +${formatNum(earned)} ✨ (${Math.floor(offlineSec / 60)}m)`), 500);
+                    }
+                }
+                gameState.perSecond = calculatePerSecond();
+                return true;
+            } catch(e) { return false; }
+        }
+
+        // Auto-save every 30 seconds
+        setInterval(saveGame, 30000);
+        // Save on page exit
+        window.addEventListener('beforeunload', saveGame);
+
+        // Show save indicator on start screen
+        if (localStorage.getItem(SAVE_KEY)) {
+            const ind = document.getElementById('save-indicator');
+            if (ind) ind.style.display = 'block';
+        }
+
+        // ====== FIREBASE CLOUD SAVE ======
+        const FB_CFG = {
+            projectId: "arisedu-1bb22",
+            apiKey: "AIzaSyCOauFIB0fu4BSbHBeBo_8dwR3F1Fct5IM"
+        };
+        const FIREBASE_SAVE_KEY = 'particleClicker_save_v2';
+
+        function updateSaveStatus(msg, ok = true) {
+            const el = document.getElementById('save-status');
+            if (el) { el.textContent = msg; el.style.color = ok ? '#4ade80' : '#f87171'; }
+            if (ok) setTimeout(() => { if (el) { el.textContent = 'Auto-saves every 30s'; el.style.color = '#6b7280'; } }, 4000);
+        }
+
+        function getSavePayload() {
+            const saveData = {
+                particles: gameState.particles,
+                score: gameState.score,
+                playtime: gameState.playtime,
+                upgrades: {},
+                achievements: { ...gameState.achievements },
+                tierUpgrades: { ...purchasedTierUpgrades },
+                prestigeLevel: prestigeLevel,
+                savedAt: Date.now()
+            };
+            for (const key in gameState.upgrades) {
+                const u = gameState.upgrades[key];
+                saveData.upgrades[key] = { count: u.count, cost: u.cost, unlocked: u.unlocked };
+            }
+            return saveData;
+        }
+
+        async function saveToCloud() {
+            try {
+                updateSaveStatus('Saving to cloud...', true);
+                saveGame(); // also save locally
+                const userId = getCurrentUserId();
+                const payload = JSON.stringify(getSavePayload());
+                const docPath = `game_saves/${userId}/saves/${FIREBASE_SAVE_KEY}`;
+                const url = `https://firestore.googleapis.com/v1/projects/${FB_CFG.projectId}/databases/(default)/documents/${docPath}?key=${FB_CFG.apiKey}`;
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fields: { data: { stringValue: payload }, timestamp: { stringValue: new Date().toISOString() }, userId: { stringValue: userId } } })
+                });
+                if (response.ok) {
+                    updateSaveStatus('☁️ Saved to cloud!');
+                } else {
+                    updateSaveStatus('Cloud save failed', false);
+                }
+            } catch(e) { updateSaveStatus('Cloud save error', false); }
+        }
+
+        async function loadFromCloud() {
+            try {
+                updateSaveStatus('Loading from cloud...', true);
+                const userId = getCurrentUserId();
+                const docPath = `game_saves/${userId}/saves/${FIREBASE_SAVE_KEY}`;
+                const url = `https://firestore.googleapis.com/v1/projects/${FB_CFG.projectId}/databases/(default)/documents/${docPath}?key=${FB_CFG.apiKey}`;
+                const response = await fetch(url);
+                if (!response.ok) { updateSaveStatus('No cloud save found', false); return; }
+                const doc = await response.json();
+                if (!doc.fields || !doc.fields.data) { updateSaveStatus('No cloud save found', false); return; }
+                const data = JSON.parse(doc.fields.data.stringValue);
+                applyLoadedData(data);
+                localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+                updateSaveStatus('☁️ Loaded from cloud!');
+            } catch(e) { updateSaveStatus('Cloud load failed', false); }
+        }
+
+        function applyLoadedData(d) {
+            gameState.particles = d.particles || 0;
+            gameState.score = d.score || 0;
+            gameState.playtime = d.playtime || 0;
+            if (d.achievements) Object.assign(gameState.achievements, d.achievements);
+            if (d.tierUpgrades) purchasedTierUpgrades = d.tierUpgrades;
+            if (d.prestigeLevel !== undefined) prestigeLevel = d.prestigeLevel;
+            if (d.upgrades) {
+                for (const key in d.upgrades) {
+                    if (gameState.upgrades[key]) {
+                        gameState.upgrades[key].count = d.upgrades[key].count || 0;
+                        gameState.upgrades[key].cost = d.upgrades[key].cost || gameState.upgrades[key].base_cost;
+                        gameState.upgrades[key].unlocked = d.upgrades[key].unlocked || false;
+                    }
+                }
+            }
+            gameState.perSecond = calculatePerSecond();
+            updateDisplay();
+            checkUnlocks();
+            renderShop();
+            updateLabScene();
+            renderTierUpgrades();
+            renderPrestigePanel();
+        }
+
+        // ====== EXPORT / IMPORT SAVE CODE ======
+        function exportSave() {
+            saveGame();
+            const raw = localStorage.getItem(SAVE_KEY);
+            if (!raw) { updateSaveStatus('Nothing to export', false); return; }
+            const code = btoa(raw);
+            // Copy to clipboard
+            navigator.clipboard.writeText(code).then(() => {
+                updateSaveStatus('📋 Save code copied to clipboard!');
+            }).catch(() => {
+                // Fallback: show prompt
+                prompt('Copy this save code:', code);
+                updateSaveStatus('📋 Save code ready');
+            });
+        }
+
+        function importSave() {
+            const code = prompt('Paste your save code:');
+            if (!code || !code.trim()) return;
+            try {
+                const raw = atob(code.trim());
+                const data = JSON.parse(raw);
+                if (data.particles === undefined && data.score === undefined) {
+                    updateSaveStatus('Invalid save code', false);
+                    return;
+                }
+                applyLoadedData(data);
+                localStorage.setItem(SAVE_KEY, raw);
+                updateSaveStatus('📥 Save imported!');
+            } catch(e) {
+                updateSaveStatus('Invalid save code', false);
+            }
+        }
+
     async function startGame() {
-        if (!await initializeArcadeGame('🔬 LAB EMPIRE', 'from-amber-400', 'to-orange-500')) return;
+        if (!await initializeArcadeGame('⚛️ PARTICLE CLICKER', 'from-amber-400', 'to-orange-500')) return;
         document.getElementById('start-screen').style.display = 'none';
+        loadGame();
         updateDisplay();
         checkUnlocks();
         renderShop();
+        updateLabScene();
+        renderTierUpgrades();
+        renderPrestigePanel();
         gameLoop();
     }
-
+    
     </script>
 </body>
 </html>

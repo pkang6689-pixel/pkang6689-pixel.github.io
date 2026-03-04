@@ -1,11 +1,11 @@
 // Firebase Configuration - Replace with your config
 const FIREBASE_CONFIG = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCOauFIB0fu4BSbHBeBo_8dwR3F1Fct5IM",
+  authDomain: "arisedu-1bb22.firebaseapp.com",
+  projectId: "arisedu-1bb22",
+  storageBucket: "arisedu-1bb22.firebasestorage.app",
+  messagingSenderId: "1003231707877",
+  appId: "1:1003231707877:web:0c97944e04b410941a0a0c"
 };
 
 let currentUserId = null;

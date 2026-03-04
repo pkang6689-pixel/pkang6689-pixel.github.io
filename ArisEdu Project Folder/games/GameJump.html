@@ -225,45 +225,76 @@ function doJump() {
 canvas.addEventListener('mousedown', doJump);
 document.addEventListener('keydown', e => { if(e.code==='Space') doJump(); });
 
+let jumpParticles = [];
+let screenShake = 0;
+let starsBg = [];
+for (let i = 0; i < 30; i++) {
+    starsBg.push({x: Math.random() * 600, y: Math.random() * 300, s: 0.5 + Math.random() * 1.5, twinkle: Math.random() * Math.PI * 2});
+}
+
 function emitDust() {
-    dust.push({
-        x: px + 8,
-        y: H - GROUND_HEIGHT - 4,
-        life: 1,
-        vx: -Math.random() * 0.5 - 0.2,
-        size: 6 + Math.random() * 6
+    for (let i = 0; i < 3; i++) {
+        dust.push({
+            x: px + 8 + Math.random() * 6,
+            y: H - GROUND_HEIGHT - 4,
+            life: 1,
+            vx: -Math.random() * 0.5 - 0.2,
+            vy: -Math.random() * 0.5,
+            size: 4 + Math.random() * 6
+        });
+    }
+}
+
+function emitJumpTrail() {
+    jumpParticles.push({
+        x: px + 10, y: py,
+        vx: (Math.random()-0.5)*0.5,
+        vy: Math.random()*0.5 + 0.2,
+        life: 1, size: 3 + Math.random() * 3
     });
 }
 
 function init() {
     px = 50; py = H - 40; pvy = 0;
     obstacles = [];
+    dust = [];
+    jumpParticles = [];
     spawnT = 1000;
     speed = 300;
+    screenShake = 0;
 }
 
 function update(dt) {
     frameCount++;
     pvy += 0.3;
     py += pvy;
+    
+    // Emit trail while airborne
+    if (py < H - 40 && frameCount % 2 === 0) emitJumpTrail();
+    
     if (py > H - 40) {
         py = H - 40;
+        if (pvy > 2) { emitDust(); screenShake = Math.min(5, pvy); }
         if (pvy !== 0) emitDust();
         pvy = 0;
     }
+    
+    if (screenShake > 0) screenShake *= 0.9;
 
     speed += dt * 0.01;
     spawnT -= dt;
     if (spawnT <= 0) {
         spawnT = 800 + Math.random() * 1000;
-        obstacles.push({x: W, w: 20 + Math.random() * 20, h: 20 + Math.random() * 30});
+        const type = Math.floor(Math.random() * 3); // 0=spike, 1=block, 2=tall
+        obstacles.push({x: W, w: 20 + Math.random() * 20, h: 20 + Math.random() * 30, type});
     }
 
     for (let i = obstacles.length - 1; i >= 0; i--) {
         let ob = obstacles[i];
         ob.x -= (speed * dt) / 1000;
 
-        if (px + 20 > ob.x && px < ob.x + ob.w && py + 20 > H - ob.h) {
+        if (px + 18 > ob.x && px + 2 < ob.x + ob.w && py + 18 > H - ob.h) {
+            screenShake = 8;
             gameOver();
             return;
         }
@@ -278,63 +309,246 @@ function update(dt) {
     for (let i = dust.length - 1; i >= 0; i--) {
         const puff = dust[i];
         puff.x += puff.vx * dt;
+        puff.y += (puff.vy || 0) * dt * 0.5;
         puff.life -= dt / 600;
         if (puff.life <= 0) dust.splice(i, 1);
     }
+    
+    for (let i = jumpParticles.length - 1; i >= 0; i--) {
+        const p = jumpParticles[i];
+        p.x += p.vx; p.y += p.vy; p.life -= 0.04;
+        if (p.life <= 0) jumpParticles.splice(i, 1);
+    }
+}
+
+function drawPlayer(x, y) {
+    const isAirborne = y < H - 40;
+    ctx.save();
+    ctx.translate(x + 10, y);
+    
+    // Body - gradient
+    const bodyG = ctx.createLinearGradient(-10, -20, 10, 0);
+    bodyG.addColorStop(0, '#60a5fa');
+    bodyG.addColorStop(1, '#2563eb');
+    ctx.fillStyle = bodyG;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#3b82f6';
+    
+    // Rounded body
+    ctx.beginPath();
+    ctx.moveTo(-8, 0);
+    ctx.lineTo(-10, -14);
+    ctx.quadraticCurveTo(-10, -22, -2, -22);
+    ctx.lineTo(2, -22);
+    ctx.quadraticCurveTo(10, -22, 10, -14);
+    ctx.lineTo(8, 0);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Face
+    ctx.shadowBlur = 0;
+    
+    // Eyes
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(-3, -14, 3, 0, Math.PI*2);
+    ctx.arc(5, -14, 3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#1e293b';
+    const eyeOff = isAirborne ? -1 : 0;
+    ctx.beginPath();
+    ctx.arc(-3, -14 + eyeOff, 1.5, 0, Math.PI*2);
+    ctx.arc(5, -14 + eyeOff, 1.5, 0, Math.PI*2);
+    ctx.fill();
+    
+    // Mouth
+    if (isAirborne) {
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(1, -8, 3, 0, Math.PI);
+        ctx.stroke();
+    }
+    
+    // Feet
+    ctx.fillStyle = '#1e40af';
+    ctx.fillRect(-8, -2, 6, 3);
+    ctx.fillRect(4, -2, 6, 3);
+    
+    // Highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(-4, -18, 3, 2, -0.3, 0, Math.PI*2);
+    ctx.fill();
+    
+    ctx.restore();
+}
+
+function drawObstacle(ob) {
+    const x = ob.x, h = ob.h, w = ob.w, y = H - h;
+    ctx.save();
+    
+    const colors = [
+        ['#ef4444','#991b1b'], // red spike
+        ['#f97316','#9a3412'], // orange block
+        ['#a855f7','#581c87']  // purple tall
+    ];
+    const [c1, c2] = colors[ob.type || 0];
+    
+    const g = ctx.createLinearGradient(x, y, x + w, H);
+    g.addColorStop(0, c1);
+    g.addColorStop(1, c2);
+    ctx.fillStyle = g;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = c1;
+    
+    if (ob.type === 0) {
+        // Spike/triangle
+        ctx.beginPath();
+        ctx.moveTo(x + w/2, y - 4);
+        ctx.lineTo(x + w, H - GROUND_HEIGHT);
+        ctx.lineTo(x, H - GROUND_HEIGHT);
+        ctx.closePath();
+        ctx.fill();
+    } else if (ob.type === 1) {
+        // Rounded block
+        const r = 4;
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, H - GROUND_HEIGHT);
+        ctx.lineTo(x, H - GROUND_HEIGHT);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.fill();
+        // face pattern
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.fillRect(x + 3, y + 5, 3, 3);
+        ctx.fillRect(x + w - 6, y + 5, 3, 3);
+    } else {
+        // Tall crystal
+        ctx.beginPath();
+        ctx.moveTo(x + w * 0.3, y - 6);
+        ctx.lineTo(x + w * 0.7, y - 6);
+        ctx.lineTo(x + w, H - GROUND_HEIGHT);
+        ctx.lineTo(x, H - GROUND_HEIGHT);
+        ctx.closePath();
+        ctx.fill();
+        // Shine line
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x + w*0.4, y);
+        ctx.lineTo(x + w*0.3, H - GROUND_HEIGHT);
+        ctx.stroke();
+    }
+    ctx.restore();
 }
 
 function draw() {
-    const gradient = ctx.createLinearGradient(0, 0, 0, H);
-    gradient.addColorStop(0, '#020617');
-    gradient.addColorStop(0.6, '#0f172a');
-    gradient.addColorStop(1, '#111827');
-    ctx.fillStyle = gradient;
+    ctx.save();
+    if (screenShake > 0.5) {
+        ctx.translate((Math.random()-0.5)*screenShake, (Math.random()-0.5)*screenShake);
+    }
+    
+    // Sky gradient
+    const sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#020617');
+    sky.addColorStop(0.5, '#0c1631');
+    sky.addColorStop(0.85, '#172554');
+    sky.addColorStop(1, '#1e3a5f');
+    ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
 
-    ctx.save();
-    ctx.fillStyle = 'rgba(59,130,246,0.25)';
-    for (let i = 0; i < 3; i++) {
-        const offset = (frameCount * 0.5 + i * 120) % (W + 200) - 100;
+    // Stars
+    for (const s of starsBg) {
+        const twinkle = 0.4 + Math.sin(s.twinkle + frameCount * 0.02) * 0.3;
+        ctx.fillStyle = `rgba(255,255,255,${twinkle})`;
         ctx.beginPath();
-        ctx.ellipse(offset, H - GROUND_HEIGHT - 8 - i * 6, W / 2 + i * 60, 40 + i * 10, 0, 0, Math.PI, true);
+        ctx.arc(s.x, s.y, s.s, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Background mountains/hills silhouettes
+    ctx.save();
+    ctx.fillStyle = 'rgba(30,58,138,0.3)';
+    for (let i = 0; i < 3; i++) {
+        const offset = (frameCount * (0.3 + i * 0.2)) % (W + 200) - 100;
+        ctx.beginPath();
+        ctx.ellipse(offset, H - GROUND_HEIGHT - 5 - i * 8, W / 2.5 + i * 60, 30 + i * 12, 0, 0, Math.PI, true);
         ctx.fill();
     }
     ctx.restore();
 
-    ctx.fillStyle = '#0f172a';
+    // Ground with gradient
+    const groundG = ctx.createLinearGradient(0, H - GROUND_HEIGHT, 0, H);
+    groundG.addColorStop(0, '#1e3a5f');
+    groundG.addColorStop(0.1, '#0f2847');
+    groundG.addColorStop(1, '#0a1929');
+    ctx.fillStyle = groundG;
     ctx.fillRect(0, H - GROUND_HEIGHT, W, GROUND_HEIGHT);
+    // Ground line
+    ctx.strokeStyle = 'rgba(96,165,250,0.3)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, H - GROUND_HEIGHT);
+    ctx.lineTo(W, H - GROUND_HEIGHT);
+    ctx.stroke();
+    // Running ground dots
+    ctx.fillStyle = 'rgba(96,165,250,0.15)';
+    for (let x = -(frameCount * 2) % 30; x < W; x += 30) {
+        ctx.fillRect(x, H - GROUND_HEIGHT + 8, 10, 2);
+    }
 
+    // Dust particles
+    ctx.save();
+    for (const puff of dust) {
+        ctx.globalAlpha = Math.max(0, puff.life) * 0.6;
+        ctx.fillStyle = 'rgba(203,213,225,0.6)';
+        ctx.beginPath();
+        ctx.arc(puff.x, puff.y, puff.size * puff.life, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.restore();
+    
+    // Jump trail particles
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.fillStyle = 'rgba(226,232,240,0.4)';
-    for (const puff of dust) {
-        ctx.globalAlpha = Math.max(0, puff.life);
-        ctx.fillRect(puff.x, puff.y, puff.size, 2);
+    for (const p of jumpParticles) {
+        ctx.globalAlpha = p.life * 0.5;
+        ctx.fillStyle = '#60a5fa';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI*2);
+        ctx.fill();
     }
     ctx.restore();
+    ctx.globalCompositeOperation = 'source-over';
 
-    ctx.save();
-    ctx.shadowBlur = 18;
-    ctx.shadowColor = '#3b82f6';
-    ctx.fillStyle = '#3b82f6';
-    ctx.fillRect(px, py - 20, 20, 20);
-    ctx.restore();
+    // Player
+    drawPlayer(px, py);
 
-    ctx.save();
-    ctx.shadowBlur = 12;
-    ctx.shadowColor = '#ef4444';
-    ctx.fillStyle = '#ef4444';
+    // Obstacles
     for (const ob of obstacles) {
-        ctx.fillRect(ob.x, H - ob.h, ob.w, ob.h);
+        drawObstacle(ob);
     }
-    ctx.restore();
 
+    // HUD
     ctx.fillStyle = '#e2e8f0';
-    ctx.font = '16px "Orbitron", sans-serif';
+    ctx.font = '14px "Orbitron", sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText('Score: ' + score, 10, 22);
     ctx.fillText('Best: ' + bestScore, 10, 42);
+    
+    // Speed indicator
+    const spdNorm = Math.min(1, (speed - 300) / 500);
+    const spdColor = spdNorm > 0.7 ? '#ef4444' : spdNorm > 0.4 ? '#fbbf24' : '#22c55e';
+    ctx.fillStyle = spdColor;
     ctx.fillText('Speed: ' + Math.min(999, Math.floor(speed)), 10, 62);
+    
+    ctx.restore(); // screenShake
 }
 
 

@@ -139,13 +139,25 @@
 
         <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
             <h2 class="text-3xl text-emerald-400 font-bold mb-2">🔬 LAB DEFENSE</h2>
-            <p class="text-gray-300 mb-4 font-sans text-sm">Deploy science to stop the outbreak!</p>
-            <div class="text-gray-400 text-xs mb-4 font-sans text-left" style="max-width:240px;">
+            <p class="text-gray-300 mb-3 font-sans text-sm">Deploy science to stop the outbreak!</p>
+            <div class="text-gray-400 text-xs mb-3 font-sans text-left" style="max-width:280px;">
+                <div class="mb-1 text-gray-300 font-bold">🎮 Controls</div>
                 <div class="mb-1">🔬 Click grid to place instruments</div>
                 <div class="mb-1">📍 Click placed unit to upgrade/sell</div>
                 <div class="mb-1">▶ Release pathogen waves when ready</div>
+                <div class="mt-2 mb-1 text-gray-300 font-bold">⌨️ Hotkeys</div>
+                <div class="mb-1"><span class="text-yellow-400">1-4</span> Switch category tabs</div>
+                <div class="mb-1"><span class="text-yellow-400">Q W E R</span> Select tower in category</div>
+                <div class="mb-1"><span class="text-yellow-400">ESC</span> Deselect tower</div>
+                <div class="mb-1"><span class="text-yellow-400">F</span> Toggle 2× fast-forward</div>
+                <div class="mt-2 mb-1 text-gray-300 font-bold">📂 Categories</div>
+                <div class="mb-1"><span class="text-red-400">⚔️ Fighter</span> — Close range, fast attack</div>
+                <div class="mb-1"><span class="text-green-400">🏹 Archer</span> — Balanced range & stats</div>
+                <div class="mb-1"><span class="text-purple-400">🎯 Sniper</span> — Long range, high damage</div>
+                <div class="mb-1"><span class="text-amber-400">🧬 Support</span> — Buffs, gold gen, debuffs</div>
             </div>
             <button onclick="startGame()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">BEGIN EXPERIMENT</button>
+            <div id="save-indicator" class="text-emerald-400 text-xs mt-3 font-sans" style="display:none;">💾 Save detected — towers will be restored</div>
         </div>
 
         <div id="pause-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-30 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
@@ -157,6 +169,21 @@
     <div id="game-sidebar">
         <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600;">
             ⭐ TOKEN SESSION
+        </div>
+
+        <!-- SAVE PANEL -->
+        <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+            <div style="text-align: center; color: #9ca3af; margin-bottom: 0.75rem; font-size: 0.75rem; font-weight: 600;">💾 SAVE & LOAD</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <button onclick="saveToCloud()" style="background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.4); color: white; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.7rem; font-weight: 700;">SAVE ☁️</button>
+                <button onclick="loadFromCloud()" style="background: rgba(139,92,246,0.2); border: 1px solid rgba(139,92,246,0.4); color: white; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.7rem; font-weight: 700;">LOAD ☁️</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <button onclick="exportSave()" style="background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.4); color: white; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.7rem; font-weight: 700;">EXPORT 📋</button>
+                <button onclick="importSave()" style="background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.4); color: white; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.7rem; font-weight: 700;">IMPORT 📥</button>
+            </div>
+            <div id="save-status" style="text-align: center; color: #6b7280; font-size: 0.65rem; font-family: sans-serif;">Auto-saves every 30s</div>
+            <button onclick="if(confirm('Restart game? Current progress will be lost.')) resetGame()" style="width: 100%; margin-top: 0.5rem; background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.7rem; font-weight: 700; transition: background 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.35)'" onmouseout="this.style.background='rgba(239,68,68,0.2)'">RESTART ↻</button>
         </div>
     </div>
 </div>
@@ -263,22 +290,192 @@
                 {cost:280, name:'Hadron Collider', desc:'50% crit, huge DMG', damage:140, critChance:0.5, critMult:3, fireRate:65},
                 {cost:550, name:'Dark Matter', desc:'Annihilation beam', damage:250, critChance:0.6, critMult:4, fireRate:55, range:240}
             ]}
+        },
+        shield: { name:'Bio Shield', icon:'🛡️', color:'#14b8a6', cost:60, damage:5, range:85, fireRate:35, projSpeed:4, projColor:'#5eead4', slowAmt:0.5, slowDur:80, desc:'Protective bio-barrier',
+            base:[
+                {cost:45, name:'Reinforced Membrane', desc:'+Slow & Range', damage:7, slowAmt:0.4, range:95},
+                {cost:85, name:'Viral Suppressor', desc:'Area suppression', damage:10, splash:30, slowDur:100}
+            ],
+            pathA:{ name:'Quarantine', color:'#2dd4bf', desc:'Maximum crowd control', upgrades:[
+                {cost:150, name:'Quarantine Zone', desc:'Huge slow field', damage:14, splash:60, slowAmt:0.15, slowDur:180, range:110},
+                {cost:300, name:'Containment Protocol', desc:'Total lockdown', damage:22, splash:85, slowAmt:0.08, slowDur:260, range:130}
+            ]},
+            pathB:{ name:'Toxin', color:'#a3e635', desc:'Poison damage specialist', upgrades:[
+                {cost:150, name:'Neurotoxin', desc:'Burns enemy HP', damage:15, burnDmg:4, burnDur:150, slowDur:60},
+                {cost:300, name:'Plague Agent', desc:'Devastating DoT', damage:25, burnDmg:8, burnDur:240, splash:45, range:100}
+            ]}
+        },
+        nano: { name:'Nanoswarm', icon:'🔩', color:'#f472b6', cost:90, damage:6, range:75, fireRate:10, projSpeed:8, projColor:'#f9a8d4', multishot:2, desc:'Rapid micro-bot assault',
+            base:[
+                {cost:55, name:'Swarm Protocol', desc:'+Bots & Speed', damage:8, multishot:3, fireRate:8},
+                {cost:100, name:'Adaptive Swarm', desc:'More bots', damage:10, multishot:4, fireRate:7}
+            ],
+            pathA:{ name:'Hive Mind', color:'#e879f9', desc:'Maximum swarm count', upgrades:[
+                {cost:180, name:'Micro Hive', desc:'6-bot barrage', damage:14, multishot:6, range:85},
+                {cost:380, name:'Nano Apocalypse', desc:'8-bot swarm', damage:20, multishot:8, fireRate:6, range:95}
+            ]},
+            pathB:{ name:'Corrosive', color:'#fb923c', desc:'Fewer bots, higher damage', upgrades:[
+                {cost:180, name:'Acid Nanites', desc:'Corrosive bots', damage:28, multishot:3, burnDmg:3, burnDur:90, fireRate:14},
+                {cost:380, name:'Molecular Acid', desc:'Disintegrating swarm', damage:45, multishot:3, burnDmg:7, burnDur:150, critChance:0.25, critMult:2}
+            ]}
+        },
+        gravity: { name:'Gravity Well', icon:'🌀', color:'#6366f1', cost:175, damage:15, range:70, fireRate:90, projSpeed:3, projColor:'#a5b4fc', splash:60, slowAmt:0.35, slowDur:100, desc:'Gravitational field disruptor',
+            base:[
+                {cost:100, name:'Dense Matter', desc:'+AOE & Slow', damage:22, splash:75, slowAmt:0.25, slowDur:120},
+                {cost:175, name:'Event Horizon', desc:'Wider pull field', damage:30, splash:90, range:80, slowDur:150}
+            ],
+            pathA:{ name:'Black Hole', color:'#818cf8', desc:'Massive area devastation', upgrades:[
+                {cost:300, name:'Singularity Core', desc:'Enormous pull zone', damage:50, splash:120, slowAmt:0.1, slowDur:200, range:95},
+                {cost:600, name:'Supermassive', desc:'Inescapable gravity', damage:85, splash:150, slowAmt:0.05, slowDur:300, range:110, fireRate:75}
+            ]},
+            pathB:{ name:'Warp', color:'#c084fc', desc:'Rapid micro black holes', upgrades:[
+                {cost:300, name:'Warp Rifts', desc:'Faster small holes', damage:35, splash:50, fireRate:50, multishot:2, slowDur:80},
+                {cost:600, name:'Dimensional Tear', desc:'Multi-warp barrage', damage:50, splash:60, fireRate:35, multishot:3, range:90, slowAmt:0.2}
+            ]}
+        },
+        sonic: { name:'Sonic Pulse', icon:'🔊', color:'#eab308', cost:80, damage:10, range:70, fireRate:50, projSpeed:3, projColor:'#fde047', splash:45, slowAmt:0.4, slowDur:70, desc:'Resonant frequency emitter',
+            base:[
+                {cost:55, name:'Amplifier', desc:'+Splash & Slow', damage:14, splash:55, slowAmt:0.35, slowDur:90},
+                {cost:95, name:'Subwoofer', desc:'Wider resonance', damage:18, splash:65, range:80, slowDur:110}
+            ],
+            pathA:{ name:'Earthquake', color:'#ca8a04', desc:'Maximum area disruption', upgrades:[
+                {cost:175, name:'Seismic Wave', desc:'Huge shockwave', damage:30, splash:90, slowAmt:0.15, slowDur:180, range:90},
+                {cost:360, name:'Tectonic Shift', desc:'Devastating quake', damage:50, splash:120, slowAmt:0.08, slowDur:250, range:110, fireRate:40}
+            ]},
+            pathB:{ name:'Ultrasonic', color:'#7dd3fc', desc:'Focused rapid waves', upgrades:[
+                {cost:175, name:'Ultrasonic Burst', desc:'Fast concentrated waves', damage:25, splash:30, fireRate:30, multishot:2},
+                {cost:360, name:'Hypersonic', desc:'Devastating rapid fire', damage:40, multishot:3, fireRate:22, range:85, splash:35}
+            ]}
+        },
+        acid: { name:'Acid Spray', icon:'☣️', color:'#84cc16', cost:70, damage:6, range:80, fireRate:30, projSpeed:5, projColor:'#bef264', burnDmg:3, burnDur:120, desc:'Corrosive chemical agent',
+            base:[
+                {cost:50, name:'Concentrated Acid', desc:'+Burn & DMG', damage:9, burnDmg:5, burnDur:150},
+                {cost:90, name:'Acid Rain', desc:'Splash corrosion', damage:12, splash:35, burnDmg:6, burnDur:170}
+            ],
+            pathA:{ name:'Biohazard', color:'#65a30d', desc:'Extreme DoT melting', upgrades:[
+                {cost:165, name:'Toxic Cloud', desc:'Lingering poison zone', damage:18, burnDmg:10, burnDur:240, splash:55, range:90},
+                {cost:340, name:'Plague Mist', desc:'Ultimate corrosion', damage:28, burnDmg:16, burnDur:300, splash:75, range:105}
+            ]},
+            pathB:{ name:'Dissolve', color:'#f97316', desc:'High direct damage bursts', upgrades:[
+                {cost:165, name:'Acid Bomb', desc:'Explosive corrosion', damage:30, splash:60, burnDmg:4, burnDur:90, fireRate:40},
+                {cost:340, name:'Meltdown', desc:'Devastating acid explosion', damage:55, splash:80, burnDmg:6, burnDur:120, fireRate:35, range:95}
+            ]}
+        },
+        magnetic: { name:'Mag-Lev', icon:'🧲', color:'#f43f5e', cost:110, damage:14, range:90, fireRate:40, projSpeed:8, projColor:'#fda4af', pierce:2, desc:'Electromagnetic rail system',
+            base:[
+                {cost:65, name:'Stronger Magnets', desc:'+Pierce & DMG', damage:20, pierce:3, range:100},
+                {cost:120, name:'Flux Capacitor', desc:'Enhanced fields', damage:28, pierce:3, fireRate:35, projSpeed:10}
+            ],
+            pathA:{ name:'Polarity', color:'#e11d48', desc:'Chain damage specialist', upgrades:[
+                {cost:200, name:'Polarity Shift', desc:'Chains between targets', damage:35, multishot:3, pierce:2, range:110},
+                {cost:400, name:'Magnetic Storm', desc:'Ultimate chain attack', damage:55, multishot:5, pierce:3, range:130, fireRate:30}
+            ]},
+            pathB:{ name:'Railshot', color:'#38bdf8', desc:'Extreme pierce damage', upgrades:[
+                {cost:200, name:'Gauss Rifle', desc:'Deep penetration', damage:50, pierce:5, fireRate:45, range:140},
+                {cost:400, name:'Mass Driver', desc:'Ultimate railgun', damage:90, pierce:7, critChance:0.3, critMult:2.5, range:180, fireRate:40}
+            ]}
+        },
+        drone: { name:'Sentinel', icon:'🤖', color:'#0ea5e9', cost:130, damage:9, range:130, fireRate:18, projSpeed:4, projColor:'#7dd3fc', multishot:2, desc:'Automated drone swarm',
+            base:[
+                {cost:75, name:'Drone Bay', desc:'+Drones & Range', damage:12, multishot:3, range:140},
+                {cost:130, name:'Smart Targeting', desc:'Better AI', damage:16, multishot:3, fireRate:15, critChance:0.15, critMult:2}
+            ],
+            pathA:{ name:'Armada', color:'#0284c7', desc:'Maximum drone count', upgrades:[
+                {cost:220, name:'Micro Fleet', desc:'5-drone barrage', damage:20, multishot:5, range:150},
+                {cost:450, name:'Drone Armada', desc:'8-drone swarm', damage:28, multishot:8, fireRate:12, range:160}
+            ]},
+            pathB:{ name:'Heavy Drone', color:'#facc15', desc:'Powerful single drones', upgrades:[
+                {cost:220, name:'War Machine', desc:'Heavy armored drone', damage:45, multishot:2, fireRate:25, critChance:0.25, critMult:2.5},
+                {cost:450, name:'Omega Mech', desc:'Devastating mech', damage:80, multishot:2, fireRate:22, critChance:0.35, critMult:3, range:170}
+            ]}
+        },
+        // ====== SUPPORT TOWERS ======
+        mutagen: { name:'Mutagen', icon:'🧬', color:'#d946ef', cost:100, damage:0, range:80, fireRate:999, projSpeed:0, projColor:'#d946ef', isSupport:true, buffType:'damage', buffAmt:0.2, buffRange:80, desc:'Boosts nearby tower damage +20%',
+            base:[
+                {cost:65, name:'Potent Formula', desc:'+25% buff & range', buffAmt:0.25, buffRange:90},
+                {cost:120, name:'Catalyst', desc:'+30% buff & range', buffAmt:0.3, buffRange:100}
+            ],
+            pathA:{ name:'Hyperboost', color:'#c026d3', desc:'Maximum damage buff', upgrades:[
+                {cost:200, name:'Super Mutagen', desc:'+45% damage buff', buffAmt:0.45, buffRange:110},
+                {cost:400, name:'Omega Serum', desc:'+65% damage buff', buffAmt:0.65, buffRange:120}
+            ]},
+            pathB:{ name:'Stimulant', color:'#06b6d4', desc:'Also boosts fire rate', upgrades:[
+                {cost:200, name:'Adrenaline', desc:'+Speed buff', buffAmt:0.3, buffType:'both', buffRange:100},
+                {cost:400, name:'Overdrive', desc:'Max dual buff', buffAmt:0.4, buffType:'both', buffRange:120}
+            ]}
+        },
+        biolab: { name:'Bio Lab', icon:'🏭', color:'#f59e0b', cost:120, damage:0, range:0, fireRate:999, projSpeed:0, projColor:'#f59e0b', isSupport:true, goldGen:3, goldInterval:180, desc:'Generates +3 gold every 3 sec',
+            base:[
+                {cost:80, name:'Incubator', desc:'+5 gold/3s', goldGen:5},
+                {cost:140, name:'Centrifuge', desc:'+8 gold/3s', goldGen:8}
+            ],
+            pathA:{ name:'Mega Lab', color:'#d97706', desc:'Maximum gold output', upgrades:[
+                {cost:250, name:'Research Grant', desc:'+14 gold/3s', goldGen:14},
+                {cost:500, name:'Mega Factory', desc:'+24 gold/3s', goldGen:24}
+            ]},
+            pathB:{ name:'Bank', color:'#16a34a', desc:'Wave bonus payouts', upgrades:[
+                {cost:250, name:'Investment', desc:'+10g + wave bonus', goldGen:10, waveBonus:20},
+                {cost:500, name:'Hedge Fund', desc:'+16g + big wave bonus', goldGen:16, waveBonus:50}
+            ]}
+        },
+        amplifier: { name:'Amplifier', icon:'📡', color:'#06b6d4', cost:90, damage:0, range:75, fireRate:999, projSpeed:0, projColor:'#06b6d4', isSupport:true, buffType:'speed', buffAmt:0.2, buffRange:75, desc:'Nearby towers fire 20% faster',
+            base:[
+                {cost:55, name:'Tuned Freq', desc:'+25% speed & range', buffAmt:0.25, buffRange:85},
+                {cost:100, name:'Overclock', desc:'+30% speed buff', buffAmt:0.3, buffRange:95}
+            ],
+            pathA:{ name:'Turbocharge', color:'#0891b2', desc:'Maximum speed boost', upgrades:[
+                {cost:180, name:'Warp Speed', desc:'+40% fire rate', buffAmt:0.4, buffRange:105},
+                {cost:380, name:'Hypercharge', desc:'+55% fire rate', buffAmt:0.55, buffRange:120}
+            ]},
+            pathB:{ name:'Enhancer', color:'#a855f7', desc:'Also boosts range', upgrades:[
+                {cost:180, name:'Range Amp', desc:'+Speed & range buff', buffAmt:0.3, buffType:'both_sr', buffRange:100},
+                {cost:380, name:'Full Spectrum', desc:'Max dual buff', buffAmt:0.4, buffType:'both_sr', buffRange:120}
+            ]}
+        },
+        weakener: { name:'Weakener', icon:'💀', color:'#a3a3a3', cost:85, damage:3, range:85, fireRate:50, projSpeed:4, projColor:'#d4d4d4', slowAmt:0.5, slowDur:80, isSupport:true, vulnAmt:0.2, desc:'Debuffs enemies: +20% damage taken',
+            base:[
+                {cost:50, name:'Corrosive Shot', desc:'+Vuln & Slow', damage:5, vulnAmt:0.25, slowAmt:0.45},
+                {cost:95, name:'Acid Tipped', desc:'Splash debuff', damage:7, splash:35, vulnAmt:0.3, slowDur:100}
+            ],
+            pathA:{ name:'Decompose', color:'#737373', desc:'Maximum vulnerability', upgrades:[
+                {cost:170, name:'Brittle', desc:'+45% vuln & splash', damage:10, vulnAmt:0.45, splash:55, range:95},
+                {cost:350, name:'Shatter Point', desc:'+65% vuln', damage:15, vulnAmt:0.65, splash:75, range:110, slowAmt:0.3}
+            ]},
+            pathB:{ name:'Entropy', color:'#ef4444', desc:'DoT + debuff hybrid', upgrades:[
+                {cost:170, name:'Decay Field', desc:'Burn + debuff', damage:12, vulnAmt:0.3, burnDmg:4, burnDur:150, range:90},
+                {cost:350, name:'Necrosis', desc:'Devastating DoT', damage:20, vulnAmt:0.35, burnDmg:8, burnDur:240, splash:50, range:100}
+            ]}
         }
     };
 
     // Enemy definitions — pathogens & anomalies
     const ENEMY_DEFS = {
-        normal: { color:'#ef4444', radius:7, hp:30, speed:1.2, gold:10, label:'Virus' },
-        fast:   { color:'#f59e0b', radius:5, hp:15, speed:2.2, gold:8, label:'Bacterium' },
-        tank:   { color:'#7c3aed', radius:10, hp:80, speed:0.7, gold:25, label:'Mutant Cell' },
-        healer: { color:'#10b981', radius:7, hp:45, speed:0.9, gold:20, label:'Stem Cell' },
-        boss:   { color:'#dc2626', radius:14, hp:300, speed:0.5, gold:100, label:'Superbug' }
+        normal: { color:'#ef4444', radius:7, hp:30, speed:1.2, gold:6, label:'Virus' },
+        fast:   { color:'#f59e0b', radius:5, hp:15, speed:2.2, gold:4, label:'Bacterium' },
+        tank:   { color:'#7c3aed', radius:10, hp:80, speed:0.7, gold:15, label:'Mutant Cell' },
+        healer: { color:'#10b981', radius:7, hp:45, speed:0.9, gold:10, label:'Stem Cell' },
+        boss:   { color:'#dc2626', radius:14, hp:300, speed:0.5, gold:55, label:'Superbug' }
     };
+
+    // ====== TOWER CATEGORIES (BTD6-style) ======
+    const TOWER_CATEGORIES = {
+        fighter: ['fire', 'cannon', 'nano', 'sonic'],
+        archer:  ['archer', 'ice', 'shield', 'acid'],
+        sniper:  ['sniper', 'gravity', 'magnetic', 'drone'],
+        support: ['mutagen', 'biolab', 'amplifier', 'weakener']
+    };
+    const CAT_NAMES  = { fighter:'\u2694\ufe0f FIGHTER', archer:'\ud83c\udff9 ARCHER', sniper:'\ud83c\udfaf SNIPER', support:'\ud83e\uddec SUPPORT' };
+    const CAT_COLORS = { fighter:'#ef4444', archer:'#22c55e', sniper:'#8b5cf6', support:'#f59e0b' };
+    let selectedCategory = 'fighter';
 
     // ====== STATE ======
     let autoWave = false;
+    let gameSpeed = 1; // 1 = normal, 2 = fast-forward
     let tutorialStep = 0;
     let tutorialFade = 0;
+    let towerInfoOverlay = null; // { type: 'archer' } when showing upgrade path overlay
+    let lastTowerClickTime = 0;
+    let lastTowerClickType = null;
     const flowDots = [];
     const ambientDots = [];
     for (let i = 0; i < 12; i++) flowDots.push({ seg: Math.floor(Math.random() * (WAYPOINTS.length - 1)), t: Math.random() });
@@ -291,15 +488,26 @@
         ice: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><line x1="16" y1="3" x2="16" y2="29" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/><line x1="4.7" y1="9.5" x2="27.3" y2="22.5" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/><line x1="4.7" y1="22.5" x2="27.3" y2="9.5" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="5" x2="16" y2="9" stroke="#67e8f9" stroke-width="1.2"/><line x1="19" y1="5" x2="16" y2="9" stroke="#67e8f9" stroke-width="1.2"/><line x1="13" y1="27" x2="16" y2="23" stroke="#67e8f9" stroke-width="1.2"/><line x1="19" y1="27" x2="16" y2="23" stroke="#67e8f9" stroke-width="1.2"/><circle cx="16" cy="16" r="2.5" fill="#67e8f9" opacity="0.8"/></svg>'),
         fire: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><polygon points="19,2 9,16 15,16 13,30 23,14 17,14" fill="#f97316" opacity="0.9"/><polygon points="18,5 11.5,15.5 15.5,15.5 14,27 21.5,14.5 17.5,14.5" fill="#fdba74" opacity="0.6"/></svg>'),
         cannon: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><ellipse cx="16" cy="16" rx="13" ry="5" fill="none" stroke="#ef4444" stroke-width="1.2" opacity="0.6"/><ellipse cx="16" cy="16" rx="13" ry="5" fill="none" stroke="#ef4444" stroke-width="1.2" opacity="0.6" transform="rotate(60 16 16)"/><ellipse cx="16" cy="16" rx="13" ry="5" fill="none" stroke="#ef4444" stroke-width="1.2" opacity="0.6" transform="rotate(120 16 16)"/><circle cx="16" cy="16" r="3.5" fill="#fca5a5" opacity="0.8"/><circle cx="16" cy="16" r="1.5" fill="#ef4444"/></svg>'),
-        sniper: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0.4"/><circle cx="16" cy="16" r="7" fill="none" stroke="#c4b5fd" stroke-width="1.2"/><line x1="16" y1="1" x2="16" y2="7" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="25" x2="16" y2="31" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round"/><line x1="1" y1="16" x2="7" y2="16" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round"/><line x1="25" y1="16" x2="31" y2="16" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="16" r="2" fill="#a78bfa"/></svg>')
+        sniper: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0.4"/><circle cx="16" cy="16" r="7" fill="none" stroke="#c4b5fd" stroke-width="1.2"/><line x1="16" y1="1" x2="16" y2="7" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="25" x2="16" y2="31" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round"/><line x1="1" y1="16" x2="7" y2="16" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round"/><line x1="25" y1="16" x2="31" y2="16" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="16" r="2" fill="#a78bfa"/></svg>'),
+        shield: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M16 3 L26 8 L26 16 C26 23 16 29 16 29 C16 29 6 23 6 16 L6 8 Z" fill="none" stroke="#14b8a6" stroke-width="1.8" opacity="0.7"/><path d="M16 7 L22 10.5 L22 16 C22 20.5 16 25 16 25 C16 25 10 20.5 10 16 L10 10.5 Z" fill="none" stroke="#5eead4" stroke-width="1.2" opacity="0.5"/><circle cx="16" cy="15" r="3" fill="#5eead4" opacity="0.6"/><line x1="16" y1="11" x2="16" y2="19" stroke="#5eead4" stroke-width="1.2" stroke-linecap="round"/><line x1="12" y1="15" x2="20" y2="15" stroke="#5eead4" stroke-width="1.2" stroke-linecap="round"/></svg>'),
+        nano: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="3" fill="#f472b6" opacity="0.8"/><circle cx="10" cy="10" r="2" fill="#f9a8d4" opacity="0.7"/><circle cx="22" cy="10" r="2" fill="#f9a8d4" opacity="0.7"/><circle cx="10" cy="22" r="2" fill="#f9a8d4" opacity="0.7"/><circle cx="22" cy="22" r="2" fill="#f9a8d4" opacity="0.7"/><circle cx="8" cy="16" r="1.5" fill="#f9a8d4" opacity="0.5"/><circle cx="24" cy="16" r="1.5" fill="#f9a8d4" opacity="0.5"/><circle cx="16" cy="8" r="1.5" fill="#f9a8d4" opacity="0.5"/><circle cx="16" cy="24" r="1.5" fill="#f9a8d4" opacity="0.5"/><line x1="16" y1="16" x2="10" y2="10" stroke="#f472b6" stroke-width="0.8" opacity="0.4"/><line x1="16" y1="16" x2="22" y2="10" stroke="#f472b6" stroke-width="0.8" opacity="0.4"/><line x1="16" y1="16" x2="10" y2="22" stroke="#f472b6" stroke-width="0.8" opacity="0.4"/><line x1="16" y1="16" x2="22" y2="22" stroke="#f472b6" stroke-width="0.8" opacity="0.4"/></svg>'),
+        gravity: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="none" stroke="#6366f1" stroke-width="1" opacity="0.3"/><circle cx="16" cy="16" r="8" fill="none" stroke="#818cf8" stroke-width="1.2" opacity="0.5" stroke-dasharray="4 3"/><circle cx="16" cy="16" r="4" fill="none" stroke="#a5b4fc" stroke-width="1.5" opacity="0.7"/><circle cx="16" cy="16" r="2" fill="#c7d2fe"/><path d="M 16 4 A 12 12 0 0 1 28 16" fill="none" stroke="#6366f1" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/><path d="M 16 28 A 12 12 0 0 1 4 16" fill="none" stroke="#6366f1" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/></svg>'),
+        sonic: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="12" cy="16" r="3" fill="#eab308" opacity="0.8"/><path d="M 17 8 A 10 10 0 0 1 17 24" fill="none" stroke="#fde047" stroke-width="2" stroke-linecap="round" opacity="0.7"/><path d="M 21 5 A 14 14 0 0 1 21 27" fill="none" stroke="#fde047" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/><path d="M 25 3 A 17 17 0 0 1 25 29" fill="none" stroke="#eab308" stroke-width="1" stroke-linecap="round" opacity="0.3"/></svg>'),
+        acid: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M16 3 C16 3 10 14 10 20 C10 24.4 12.7 28 16 28 C19.3 28 22 24.4 22 20 C22 14 16 3 16 3Z" fill="#84cc16" opacity="0.7"/><path d="M16 6 C16 6 12 14 12 19 C12 22.9 13.8 26 16 26 C18.2 26 20 22.9 20 19 C20 14 16 6 16 6Z" fill="#bef264" opacity="0.5"/><circle cx="14" cy="21" r="1.5" fill="#bef264" opacity="0.8"/><circle cx="17" cy="18" r="1" fill="#d9f99d" opacity="0.7"/><circle cx="15" cy="24" r="1" fill="#d9f99d" opacity="0.6"/></svg>'),
+        magnetic: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M8 8 L8 16 A 8 8 0 0 0 24 16 L24 8" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round"/><rect x="5" y="4" width="6" height="5" rx="1" fill="#fda4af" opacity="0.8"/><rect x="21" y="4" width="6" height="5" rx="1" fill="#fda4af" opacity="0.8"/><path d="M 10 22 Q 16 30 22 22" fill="none" stroke="#f43f5e" stroke-width="1" opacity="0.4" stroke-dasharray="2 2"/><path d="M 8 20 Q 16 32 24 20" fill="none" stroke="#f43f5e" stroke-width="0.8" opacity="0.25" stroke-dasharray="2 2"/></svg>'),
+        drone: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect x="12" y="13" width="8" height="6" rx="2" fill="#0ea5e9" opacity="0.8"/><line x1="12" y1="16" x2="6" y2="12" stroke="#7dd3fc" stroke-width="1.5"/><line x1="20" y1="16" x2="26" y2="12" stroke="#7dd3fc" stroke-width="1.5"/><line x1="12" y1="16" x2="6" y2="20" stroke="#7dd3fc" stroke-width="1.5"/><line x1="20" y1="16" x2="26" y2="20" stroke="#7dd3fc" stroke-width="1.5"/><circle cx="6" cy="12" r="2.5" fill="none" stroke="#7dd3fc" stroke-width="1.2" opacity="0.6"/><circle cx="26" cy="12" r="2.5" fill="none" stroke="#7dd3fc" stroke-width="1.2" opacity="0.6"/><circle cx="6" cy="20" r="2.5" fill="none" stroke="#7dd3fc" stroke-width="1.2" opacity="0.6"/><circle cx="26" cy="20" r="2.5" fill="none" stroke="#7dd3fc" stroke-width="1.2" opacity="0.6"/><circle cx="16" cy="16" r="1.5" fill="#bae6fd"/></svg>'),
+        mutagen: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M13 4 L13 13 C9 16 8 20 10 24 C12 28 20 28 22 24 C24 20 23 16 19 13 L19 4 Z" fill="none" stroke="#d946ef" stroke-width="1.5" opacity="0.7"/><path d="M14 14 C11 17 10 20 12 23 C14 26 18 26 20 23 C22 20 21 17 18 14" fill="#d946ef" opacity="0.35"/><circle cx="14" cy="20" r="1.5" fill="#f0abfc" opacity="0.8"/><circle cx="17" cy="22" r="1" fill="#f0abfc" opacity="0.6"/><circle cx="16" cy="18" r="1.8" fill="#e879f9" opacity="0.5"/><line x1="13" y1="4" x2="19" y2="4" stroke="#d946ef" stroke-width="2" stroke-linecap="round"/></svg>'),
+        biolab: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect x="6" y="14" width="20" height="14" rx="2" fill="none" stroke="#f59e0b" stroke-width="1.5" opacity="0.7"/><rect x="8" y="16" width="16" height="10" rx="1" fill="#f59e0b" opacity="0.2"/><line x1="6" y1="20" x2="26" y2="20" stroke="#fbbf24" stroke-width="0.8" opacity="0.4"/><line x1="6" y1="24" x2="26" y2="24" stroke="#fbbf24" stroke-width="0.8" opacity="0.4"/><rect x="10" y="8" width="12" height="6" rx="1" fill="none" stroke="#fbbf24" stroke-width="1.2" opacity="0.6"/><line x1="12" y1="5" x2="12" y2="8" stroke="#fbbf24" stroke-width="1" opacity="0.5"/><line x1="16" y1="4" x2="16" y2="8" stroke="#fbbf24" stroke-width="1" opacity="0.5"/><line x1="20" y1="5" x2="20" y2="8" stroke="#fbbf24" stroke-width="1" opacity="0.5"/><circle cx="16" cy="22" r="2" fill="#fbbf24" opacity="0.6"/></svg>'),
+        amplifier: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="4" fill="#06b6d4" opacity="0.6"/><circle cx="16" cy="16" r="8" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity="0.4" stroke-dasharray="3 3"/><circle cx="16" cy="16" r="12" fill="none" stroke="#06b6d4" stroke-width="1" opacity="0.25" stroke-dasharray="4 4"/><line x1="16" y1="2" x2="16" y2="8" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/><line x1="16" y1="24" x2="16" y2="30" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/><line x1="2" y1="16" x2="8" y2="16" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/><line x1="24" y1="16" x2="30" y2="16" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/><circle cx="16" cy="16" r="2" fill="#67e8f9"/></svg>'),
+        weakener: svgImg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="10" fill="none" stroke="#a3a3a3" stroke-width="1.5" opacity="0.4"/><path d="M10 10 L22 22 M22 10 L10 22" stroke="#d4d4d4" stroke-width="2" stroke-linecap="round" opacity="0.6"/><circle cx="16" cy="16" r="5" fill="none" stroke="#d4d4d4" stroke-width="1.2" opacity="0.5"/><circle cx="16" cy="16" r="2" fill="#e5e5e5" opacity="0.7"/><path d="M 8 8 L 5 5" stroke="#a3a3a3" stroke-width="1" opacity="0.3"/><path d="M 24 8 L 27 5" stroke="#a3a3a3" stroke-width="1" opacity="0.3"/><path d="M 8 24 L 5 27" stroke="#a3a3a3" stroke-width="1" opacity="0.3"/><path d="M 24 24 L 27 27" stroke="#a3a3a3" stroke-width="1" opacity="0.3"/></svg>')
     };
 
     let nextId = 1;
     let gs = newState();
     function newState() {
-        return { gold:150, lives:20, score:0, wave:0, waveActive:false, gameOver:false,
+        return { gold:100, lives:20, score:0, wave:0, waveActive:false, gameOver:false,
             towers:[], enemies:[], projectiles:[], particles:[],
-            selectedType:'archer', selectedTower:null,
+            selectedType:'fire', selectedTower:null,
             mouseGX:-1, mouseGY:-1, spawnQueue:[], spawnTimer:0, towerMap:{} };
     }
 
@@ -332,6 +540,13 @@
     function sendNextWave() {
         if (gs.waveActive || !gameStarted || gs.gameOver) return;
         gs.wave++;
+        // Bio Lab wave bonus payout
+        for (const t of gs.towers) {
+            if (t.waveBonus > 0) {
+                gs.gold += t.waveBonus;
+                gs.particles.push({ type:'text', text:'+'+t.waveBonus+' bonus', x:t.cx, y:t.cy-14, life:50, maxLife:50, color:'#4ade80', size:9 });
+            }
+        }
         gs.spawnQueue = getWaveEnemies(gs.wave);
         gs.spawnTimer = 0;
         gs.waveActive = true;
@@ -356,6 +571,7 @@
             else { e.x += (dx/dist)*speed; e.y += (dy/dist)*speed; }
             if (e.slowed > 0) e.slowed--;
             if (e.hit > 0) e.hit--;
+            if (e._vulnTimer > 0) { e._vulnTimer--; if (e._vulnTimer <= 0) e._vuln = 0; }
             // Burn DoT
             if (e.burnTimer > 0) {
                 e.burnTimer--;
@@ -379,14 +595,49 @@
         }
     }
 
+    function updateSupportTowers() {
+        // Reset all buff flags
+        for (const t of gs.towers) { t._dmgBuff = 0; t._spdBuff = 0; t._rngBuff = 0; }
+        // Apply buffs from support towers
+        for (const st of gs.towers) {
+            if (!st.isSupport) continue;
+            // Gold generation (Bio Lab)
+            if (st.goldGen > 0) {
+                st.goldTimer = (st.goldTimer || 0) + 1;
+                if (st.goldTimer >= st.goldInterval) {
+                    st.goldTimer = 0;
+                    gs.gold += st.goldGen; gs.score += Math.floor(st.goldGen / 2);
+                    gs.particles.push({ type:'text', text:'+'+st.goldGen, x:st.cx, y:st.cy-14, life:40, maxLife:40, color:'#fbbf24', size:10 });
+                }
+            }
+            // Damage / speed / range buffs (Mutagen, Amplifier)
+            if (st.buffAmt > 0 && st.buffRange > 0) {
+                for (const t of gs.towers) {
+                    if (t === st || t.isSupport) continue;
+                    if (Math.hypot(t.cx - st.cx, t.cy - st.cy) <= st.buffRange) {
+                        const bt = st.buffType || 'damage';
+                        if (bt === 'damage') t._dmgBuff = Math.max(t._dmgBuff, st.buffAmt);
+                        else if (bt === 'speed') t._spdBuff = Math.max(t._spdBuff, st.buffAmt);
+                        else if (bt === 'both') { t._dmgBuff = Math.max(t._dmgBuff, st.buffAmt); t._spdBuff = Math.max(t._spdBuff, st.buffAmt * 0.5); }
+                        else if (bt === 'both_sr') { t._spdBuff = Math.max(t._spdBuff, st.buffAmt); t._rngBuff = Math.max(t._rngBuff, st.buffAmt * 0.3); }
+                    }
+                }
+            }
+        }
+    }
+
     function updateTowers() {
+        updateSupportTowers();
         for (const t of gs.towers) {
+            if (t.isSupport && t.damage === 0) continue; // Pure support, no attacking (except weakener)
+            const effFireRate = Math.max(5, Math.floor(t.fireRate * (1 - (t._spdBuff || 0))));
             if (t.cooldown > 0) { t.cooldown--; continue; }
             // Find targets in range sorted by progress
+            const effRange = t.range * (1 + (t._rngBuff || 0));
             const inRange = [];
             for (const e of gs.enemies) {
                 const d = Math.hypot(t.cx-e.x, t.cy-e.y);
-                if (d <= t.range) {
+                if (d <= effRange) {
                     const wp = WAYPOINTS[Math.min(e.waypointIdx, WAYPOINTS.length-1)];
                     const prog = e.waypointIdx + (1 - Math.hypot(wp.x-e.x, wp.y-e.y)/200);
                     inRange.push({ enemy:e, prog });
@@ -397,15 +648,15 @@
             const shots = Math.min(t.multishot || 1, inRange.length);
             for (let s = 0; s < shots; s++) {
                 const target = inRange[s].enemy;
-                let dmg = t.damage;
+                let dmg = Math.floor(t.damage * (1 + (t._dmgBuff || 0)));
                 let isCrit = false;
                 if (t.critChance > 0 && Math.random() < t.critChance) { dmg = Math.floor(dmg * (t.critMult || 2)); isCrit = true; }
                 gs.projectiles.push({ x:t.cx, y:t.cy, targetId:target.id, damage:dmg, isCrit,
                     speed:t.projSpeed||5, color:isCrit ? '#ff0' : (t.projColor||'#fff'), splash:t.splash||0,
                     slowAmt:t.slowAmt||0, slowDur:t.slowDur||0, burnDmg:t.burnDmg||0, burnDur:t.burnDur||0,
-                    pierce:t.pierce||0, hitIds:[] });
+                    pierce:t.pierce||0, hitIds:[], vulnAmt:t.vulnAmt||0 });
             }
-            t.cooldown = t.fireRate;
+            t.cooldown = effFireRate;
             t.angle = Math.atan2(inRange[0].enemy.y-t.cy, inRange[0].enemy.x-t.cx);
         }
     }
@@ -429,7 +680,13 @@
                 if (p.splash > 0) {
                     for (const e of gs.enemies) {
                         const d2 = Math.hypot(e.x-target.x, e.y-target.y);
-                        if (d2 <= p.splash) { e.hp -= p.damage * (1 - d2/p.splash*0.5); e.hit = 6; if (p.slowAmt) { e.slowed = p.slowDur; e.slowMult = p.slowAmt; } applyBurn(e); }
+                        if (d2 <= p.splash) {
+                            const vulnMult = 1 + (e._vuln || 0);
+                            e.hp -= p.damage * (1 - d2/p.splash*0.5) * vulnMult; e.hit = 6;
+                            if (p.slowAmt) { e.slowed = p.slowDur; e.slowMult = p.slowAmt; }
+                            if (p.vulnAmt) { e._vuln = Math.max(e._vuln || 0, p.vulnAmt); e._vulnTimer = 180; }
+                            applyBurn(e);
+                        }
                     }
                     for (let j=0;j<8;j++) {
                         const a = Math.random()*Math.PI*2;
@@ -438,8 +695,10 @@
                             life:15+Math.random()*10, maxLife:25, color:p.color, size:3 });
                     }
                 } else {
-                    target.hp -= p.damage; target.hit = 6;
+                    const vulnMult = 1 + (target._vuln || 0);
+                    target.hp -= p.damage * vulnMult; target.hit = 6;
                     if (p.slowAmt) { target.slowed = p.slowDur; target.slowMult = p.slowAmt; }
+                    if (p.vulnAmt) { target._vuln = Math.max(target._vuln || 0, p.vulnAmt); target._vulnTimer = 180; }
                     applyBurn(target);
                 }
                 if (p.isCrit) gs.particles.push({ type:'text', text:'CRIT!', x:target.x, y:target.y-14, life:30, maxLife:30, color:'#ff0', size:9 });
@@ -851,6 +1110,27 @@
                 ctx.lineTo(t.cx + Math.cos(t.angle) * 17, t.cy + Math.sin(t.angle) * 17);
                 ctx.stroke(); ctx.restore();
             }
+            // Support buff aura ring
+            if (t.isSupport && t.buffRange > 0) {
+                const auraAlpha = 0.08 + 0.04 * Math.sin(time * 2);
+                ctx.strokeStyle = t.color; ctx.lineWidth = 1; ctx.globalAlpha = auraAlpha;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath(); ctx.arc(t.cx, t.cy, t.buffRange, 0, Math.PI * 2); ctx.stroke();
+                ctx.setLineDash([]); ctx.globalAlpha = 1;
+            }
+            // Gold gen sparkle for Bio Lab
+            if (t.goldGen > 0 && Math.random() < 0.03) {
+                gs.particles.push({ type:'dot', x:t.cx+(Math.random()-0.5)*16, y:t.cy-8, vx:(Math.random()-0.5)*0.5, vy:-0.5-Math.random()*0.5, life:15, maxLife:15, color:'#fbbf24', size:2 });
+            }
+            // Buff indicator on buffed towers
+            if ((t._dmgBuff || 0) > 0 || (t._spdBuff || 0) > 0) {
+                const buffPulse = 0.3 + 0.2 * Math.sin(time * 3);
+                ctx.globalAlpha = buffPulse;
+                ctx.strokeStyle = (t._dmgBuff || 0) >= (t._spdBuff || 0) ? '#d946ef' : '#06b6d4';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.arc(t.cx, t.cy, 15, 0, Math.PI * 2); ctx.stroke();
+                ctx.globalAlpha = 1;
+            }
             // Selected highlight
             if (gs.selectedTower === t) {
                 ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1;
@@ -1019,50 +1299,254 @@
         ctx.strokeStyle = 'rgba(56,189,248,0.04)'; ctx.lineWidth = 0.5;
         for (let x = 0; x < 600; x += 30) { ctx.beginPath(); ctx.moveTo(x, HUD_Y + 2); ctx.lineTo(x, HUD_Y + HUD_H); ctx.stroke(); }
         for (let hy = HUD_Y + 2; hy < HUD_Y + HUD_H; hy += 15) { ctx.beginPath(); ctx.moveTo(0, hy); ctx.lineTo(600, hy); ctx.stroke(); }
-        // Tower buttons
-        const types = Object.keys(TOWER_DEFS), BW = 50, BH = 68, BG = 5, BY = HUD_Y + 16;
-        for (let i = 0; i < types.length; i++) {
-            const type = types[i], def = TOWER_DEFS[type], bx = 10 + i * (BW + BG), by = BY;
+        // ---- Category tabs ----
+        const CATS = Object.keys(TOWER_CATEGORIES);
+        const TW = 54, TH = 15, TG = 2, TX = 6, TY = HUD_Y + 4;
+        for (let ci = 0; ci < CATS.length; ci++) {
+            const cat = CATS[ci], tx = TX + ci * (TW + TG), isSel = selectedCategory === cat;
+            ctx.fillStyle = isSel ? CAT_COLORS[cat] + '35' : 'rgba(31,41,55,0.8)';
+            roundRect(ctx, tx, TY, TW, TH, 4); ctx.fill();
+            ctx.strokeStyle = isSel ? CAT_COLORS[cat] : 'rgba(107,114,128,0.25)';
+            ctx.lineWidth = isSel ? 1.5 : 0.5;
+            roundRect(ctx, tx, TY, TW, TH, 4); ctx.stroke();
+            ctx.fillStyle = isSel ? '#fff' : '#6b7280';
+            ctx.font = isSel ? 'bold 6.5px Orbitron,monospace' : '6px Orbitron,monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(CAT_NAMES[cat], tx + TW/2, TY + TH/2);
+            ctx.fillStyle = 'rgba(156,163,175,0.35)'; ctx.font = '5.5px Orbitron,monospace';
+            ctx.fillText((ci + 1).toString(), tx + TW - 7, TY + TH/2);
+            uiButtons.push({ x:tx, y:TY, w:TW, h:TH, action:'selectCategory', category:cat });
+        }
+        // ---- Tower buttons (4 per category) ----
+        const catTowers = TOWER_CATEGORIES[selectedCategory];
+        const BW = 50, BH = 58, BG = 4, BY = HUD_Y + 24;
+        const HOTKEY_LABELS = 'QWER';
+        for (let i = 0; i < catTowers.length; i++) {
+            const type = catTowers[i], def = TOWER_DEFS[type], bx = 6 + i * (BW + BG), by = BY;
             const sel = gs.selectedType === type, ok = gs.gold >= def.cost;
             if (sel) { ctx.fillStyle = 'rgba(34,197,94,0.25)'; roundRect(ctx, bx, by, BW, BH, 5); ctx.fill(); ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 2; roundRect(ctx, bx, by, BW, BH, 5); ctx.stroke(); }
             else { ctx.fillStyle = ok ? 'rgba(31,41,55,0.9)' : 'rgba(20,20,28,0.9)'; roundRect(ctx, bx, by, BW, BH, 5); ctx.fill(); ctx.strokeStyle = ok ? 'rgba(107,114,128,0.5)' : 'rgba(55,65,81,0.3)'; ctx.lineWidth = 1; roundRect(ctx, bx, by, BW, BH, 5); ctx.stroke(); }
             ctx.globalAlpha = ok ? 1 : 0.35;
             const spr = SPRITES[type];
-            if (spr && spr.complete && spr.naturalWidth > 0) ctx.drawImage(spr, bx + BW/2 - 11, by + 5, 22, 22);
-            else { ctx.font = '16px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#fff'; ctx.fillText(def.icon, bx + BW/2, by + 16); }
+            if (spr && spr.complete && spr.naturalWidth > 0) ctx.drawImage(spr, bx + BW/2 - 12, by + 3, 24, 24);
+            else { ctx.font = '16px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#fff'; ctx.fillText(def.icon, bx + BW/2, by + 15); }
             ctx.fillStyle = ok ? '#fbbf24' : '#6b7280'; ctx.font = 'bold 9px Orbitron,monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.fillText(def.cost, bx + BW/2, by + 30);
-            ctx.fillStyle = 'rgba(156,163,175,0.6)'; ctx.font = '8px Orbitron,monospace'; ctx.fillText('QWERT'[i], bx + BW/2, by + 43);
-            ctx.fillStyle = ok ? def.color : '#4b5563'; ctx.font = '6px Orbitron,monospace'; ctx.fillText(def.name, bx + BW/2, by + 55);
+            ctx.fillText(def.cost, bx + BW/2, by + 29);
+            ctx.fillStyle = 'rgba(156,163,175,0.6)'; ctx.font = '8px Orbitron,monospace'; ctx.fillText(HOTKEY_LABELS[i], bx + BW/2, by + 40);
+            ctx.fillStyle = ok ? def.color : '#4b5563'; ctx.font = '6.5px Orbitron,monospace'; ctx.fillText(def.name, bx + BW/2, by + 51);
             ctx.globalAlpha = 1;
             uiButtons.push({ x:bx, y:by, w:BW, h:BH, action:'selectTower', towerType:type });
         }
         // Stats
-        const sx = 295, sy = HUD_Y + 20;
+        const sx = 235, sy = HUD_Y + 24;
         ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 12px Orbitron,monospace'; ctx.fillText('\u2697\ufe0f ' + gs.gold, sx, sy);
+        ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 11px Orbitron,monospace'; ctx.fillText('\u2697\ufe0f ' + gs.gold, sx, sy);
         ctx.fillStyle = '#ef4444'; ctx.fillText('\ud83e\udda0 ' + gs.lives, sx, sy + 20);
         ctx.fillStyle = '#e5e7eb'; ctx.fillText('\ud83d\udcca ' + gs.score, sx, sy + 40);
         // Wave
         ctx.fillStyle = '#9ca3af'; ctx.font = '8px Orbitron,monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText('OUTBREAK', 425, HUD_Y + 12);
+        ctx.fillText('OUTBREAK', 360, HUD_Y + 12);
         ctx.fillStyle = '#fff'; ctx.font = 'bold 22px Orbitron,monospace'; ctx.textBaseline = 'middle';
-        ctx.fillText(gs.wave, 425, HUD_Y + 48);
+        ctx.fillText(gs.wave, 360, HUD_Y + 52);
         // Wave button
-        const wbX = 480, wbY = HUD_Y + 14, wbW = 110, wbH = 30;
+        const wbX = 430, wbY = HUD_Y + 14, wbW = 115, wbH = 30;
         const wEn = !gs.waveActive && gameStarted && !gs.gameOver;
         ctx.fillStyle = wEn ? '#059669' : '#1f2937'; roundRect(ctx, wbX, wbY, wbW, wbH, 5); ctx.fill();
         if (wEn) { ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1; roundRect(ctx, wbX, wbY, wbW, wbH, 5); ctx.stroke(); }
         ctx.fillStyle = wEn ? '#fff' : '#4b5563'; ctx.font = 'bold 8px Orbitron,monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText('RELEASE \u25b6', wbX + wbW/2, wbY + wbH/2);
         uiButtons.push({ x:wbX, y:wbY, w:wbW, h:wbH, action:'sendWave' });
-        // Auto button
-        const abX = 480, abY = HUD_Y + 52, abW = 110, abH = 26;
+        // Auto button (narrower to fit speed button)
+        const abX = 430, abY = HUD_Y + 52, abW = 72, abH = 26;
         ctx.fillStyle = autoWave ? 'rgba(5,150,105,0.7)' : 'rgba(55,65,81,0.8)'; roundRect(ctx, abX, abY, abW, abH, 5); ctx.fill();
         ctx.strokeStyle = autoWave ? '#34d399' : '#4b5563'; ctx.lineWidth = 1; roundRect(ctx, abX, abY, abW, abH, 5); ctx.stroke();
         ctx.fillStyle = autoWave ? '#a7f3d0' : '#9ca3af'; ctx.font = 'bold 8px Orbitron,monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText('AUTO ' + (autoWave ? '\u2713' : '\u25cb'), abX + abW/2, abY + abH/2);
         uiButtons.push({ x:abX, y:abY, w:abW, h:abH, action:'toggleAuto' });
+        // Fast-forward button
+        const ffX = abX + abW + 4, ffY = HUD_Y + 52, ffW = 39, ffH = 26;
+        const ffOn = gameSpeed === 2;
+        ctx.fillStyle = ffOn ? 'rgba(59,130,246,0.7)' : 'rgba(55,65,81,0.8)'; roundRect(ctx, ffX, ffY, ffW, ffH, 5); ctx.fill();
+        ctx.strokeStyle = ffOn ? '#60a5fa' : '#4b5563'; ctx.lineWidth = 1; roundRect(ctx, ffX, ffY, ffW, ffH, 5); ctx.stroke();
+        ctx.fillStyle = ffOn ? '#bfdbfe' : '#9ca3af'; ctx.font = 'bold 9px Orbitron,monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(ffOn ? '\u25b6\u25b6' : '\u25b6\u25b6', ffX + ffW/2, ffY + ffH/2);
+        ctx.fillStyle = ffOn ? '#93c5fd' : '#6b7280'; ctx.font = '5.5px Orbitron,monospace';
+        ctx.fillText('F', ffX + ffW - 7, ffY + 7);
+        uiButtons.push({ x:ffX, y:ffY, w:ffW, h:ffH, action:'toggleSpeed' });
+        ctx.restore();
+    }
+
+    // ====== TOWER INFO OVERLAY (double-click upgrade tree) ======
+    function drawTowerInfoOverlay() {
+        if (!towerInfoOverlay) return;
+        const def = TOWER_DEFS[towerInfoOverlay.type];
+        if (!def) { towerInfoOverlay = null; return; }
+        ctx.save();
+
+        // Overlay dimensions
+        const OW = 460, OH = 380;
+        const OX = (600 - OW) / 2, OY = (550 - OH) / 2;
+        towerInfoOverlay._bounds = { x: OX, y: OY, w: OW, h: OH };
+
+        // Backdrop
+        ctx.fillStyle = 'rgba(0,0,0,0.65)';
+        ctx.fillRect(0, 0, 600, 550);
+
+        // Panel background
+        ctx.fillStyle = 'rgba(13,17,23,0.97)';
+        roundRect(ctx, OX, OY, OW, OH, 12); ctx.fill();
+        ctx.strokeStyle = def.color + '80'; ctx.lineWidth = 2;
+        roundRect(ctx, OX, OY, OW, OH, 12); ctx.stroke();
+
+        // Inner glow border
+        ctx.strokeStyle = def.color + '25'; ctx.lineWidth = 1;
+        roundRect(ctx, OX + 3, OY + 3, OW - 6, OH - 6, 10); ctx.stroke();
+
+        // Close button
+        const cbx = OX + OW - 22, cby = OY + 6;
+        ctx.fillStyle = 'rgba(239,68,68,0.7)'; ctx.beginPath(); ctx.arc(cbx + 8, cby + 8, 8, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(cbx + 4, cby + 4); ctx.lineTo(cbx + 12, cby + 12); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cbx + 12, cby + 4); ctx.lineTo(cbx + 4, cby + 12); ctx.stroke();
+
+        // Header — tower name + icon
+        const spr = SPRITES[towerInfoOverlay.type];
+        if (spr && spr.complete && spr.naturalWidth > 0) ctx.drawImage(spr, OX + 14, OY + 10, 28, 28);
+        else { ctx.font = '20px Arial'; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#fff'; ctx.fillText(def.icon, OX + 16, OY + 12); }
+        ctx.fillStyle = def.color; ctx.font = 'bold 16px Orbitron,monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText(def.name, OX + 48, OY + 12);
+        ctx.fillStyle = '#9ca3af'; ctx.font = '10px Orbitron,monospace';
+        ctx.fillText(def.desc, OX + 48, OY + 30);
+
+        // Base stats line
+        ctx.fillStyle = '#6b7280'; ctx.font = '9px Orbitron,monospace';
+        const statsText = `Cost: ${def.cost}g  |  DMG: ${def.damage}  |  Range: ${def.range}  |  Rate: ${def.fireRate}`;
+        ctx.fillText(statsText, OX + 14, OY + 52);
+
+        // Divider
+        ctx.strokeStyle = 'rgba(107,114,128,0.3)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(OX + 14, OY + 66); ctx.lineTo(OX + OW - 14, OY + 66); ctx.stroke();
+
+        // ---- BASE UPGRADES row ----
+        const baseY = OY + 76;
+        ctx.fillStyle = '#e5e7eb'; ctx.font = 'bold 10px Orbitron,monospace'; ctx.textAlign = 'left';
+        ctx.fillText('BASE UPGRADES', OX + 14, baseY);
+
+        const baseStartY = baseY + 16;
+        for (let i = 0; i < def.base.length; i++) {
+            const up = def.base[i];
+            const bx = OX + 14 + i * 212, by = baseStartY;
+            // Box
+            ctx.fillStyle = 'rgba(31,41,55,0.8)';
+            roundRect(ctx, bx, by, 200, 42, 6); ctx.fill();
+            ctx.strokeStyle = def.color + '50'; ctx.lineWidth = 1;
+            roundRect(ctx, bx, by, 200, 42, 6); ctx.stroke();
+            // Level pip
+            ctx.fillStyle = def.color; ctx.font = 'bold 9px Orbitron,monospace'; ctx.textAlign = 'left';
+            ctx.fillText('Lv.' + (i + 2), bx + 6, by + 12);
+            // Name
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 9px Orbitron,monospace';
+            ctx.fillText(up.name, bx + 38, by + 12);
+            // Cost
+            ctx.fillStyle = '#fbbf24'; ctx.font = '8px Orbitron,monospace'; ctx.textAlign = 'right';
+            ctx.fillText(up.cost + 'g', bx + 194, by + 12);
+            // Description
+            ctx.fillStyle = '#9ca3af'; ctx.font = '8px Orbitron,monospace'; ctx.textAlign = 'left';
+            ctx.fillText(up.desc, bx + 6, by + 30);
+        }
+
+        // Connection line from base to paths
+        const splitY = baseStartY + 54;
+        ctx.strokeStyle = 'rgba(107,114,128,0.3)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(OX + 14, splitY); ctx.lineTo(OX + OW - 14, splitY); ctx.stroke();
+
+        // ---- PATH A ----
+        const pathAY = splitY + 10;
+        const pathACol = def.pathA.color || def.color;
+        ctx.fillStyle = pathACol; ctx.font = 'bold 10px Orbitron,monospace'; ctx.textAlign = 'left';
+        ctx.fillText('\u25b2 PATH A: ' + def.pathA.name, OX + 14, pathAY);
+        ctx.fillStyle = '#9ca3af'; ctx.font = '8px Orbitron,monospace';
+        ctx.fillText(def.pathA.desc, OX + 14, pathAY + 14);
+
+        const pathAStartY = pathAY + 28;
+        for (let i = 0; i < def.pathA.upgrades.length; i++) {
+            const up = def.pathA.upgrades[i];
+            const bx = OX + 14 + i * 212, by = pathAStartY;
+            ctx.fillStyle = 'rgba(31,41,55,0.8)';
+            roundRect(ctx, bx, by, 200, 42, 6); ctx.fill();
+            ctx.strokeStyle = pathACol + '60'; ctx.lineWidth = 1;
+            roundRect(ctx, bx, by, 200, 42, 6); ctx.stroke();
+            // Level
+            ctx.fillStyle = pathACol; ctx.font = 'bold 9px Orbitron,monospace'; ctx.textAlign = 'left';
+            ctx.fillText('Lv.' + (def.base.length + i + 2), bx + 6, by + 12);
+            // Name
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 9px Orbitron,monospace';
+            ctx.fillText(up.name, bx + 38, by + 12);
+            // Cost
+            ctx.fillStyle = '#fbbf24'; ctx.font = '8px Orbitron,monospace'; ctx.textAlign = 'right';
+            ctx.fillText(up.cost + 'g', bx + 194, by + 12);
+            // Desc
+            ctx.fillStyle = '#9ca3af'; ctx.font = '8px Orbitron,monospace'; ctx.textAlign = 'left';
+            ctx.fillText(up.desc, bx + 6, by + 30);
+        }
+
+        // Connector arrow between path A boxes
+        if (def.pathA.upgrades.length > 1) {
+            ctx.strokeStyle = pathACol + '50'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(OX + 214, pathAStartY + 21); ctx.lineTo(OX + 226, pathAStartY + 21); ctx.stroke();
+            ctx.fillStyle = pathACol + '50'; ctx.beginPath(); ctx.moveTo(OX + 224, pathAStartY + 17); ctx.lineTo(OX + 230, pathAStartY + 21); ctx.lineTo(OX + 224, pathAStartY + 25); ctx.fill();
+        }
+
+        // ---- PATH B ----
+        const pathBY = pathAStartY + 56;
+        const pathBCol = def.pathB.color || def.color;
+        ctx.fillStyle = pathBCol; ctx.font = 'bold 10px Orbitron,monospace'; ctx.textAlign = 'left';
+        ctx.fillText('\u25bc PATH B: ' + def.pathB.name, OX + 14, pathBY);
+        ctx.fillStyle = '#9ca3af'; ctx.font = '8px Orbitron,monospace';
+        ctx.fillText(def.pathB.desc, OX + 14, pathBY + 14);
+
+        const pathBStartY = pathBY + 28;
+        for (let i = 0; i < def.pathB.upgrades.length; i++) {
+            const up = def.pathB.upgrades[i];
+            const bx = OX + 14 + i * 212, by = pathBStartY;
+            ctx.fillStyle = 'rgba(31,41,55,0.8)';
+            roundRect(ctx, bx, by, 200, 42, 6); ctx.fill();
+            ctx.strokeStyle = pathBCol + '60'; ctx.lineWidth = 1;
+            roundRect(ctx, bx, by, 200, 42, 6); ctx.stroke();
+            // Level
+            ctx.fillStyle = pathBCol; ctx.font = 'bold 9px Orbitron,monospace'; ctx.textAlign = 'left';
+            ctx.fillText('Lv.' + (def.base.length + i + 2), bx + 6, by + 12);
+            // Name
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 9px Orbitron,monospace';
+            ctx.fillText(up.name, bx + 38, by + 12);
+            // Cost
+            ctx.fillStyle = '#fbbf24'; ctx.font = '8px Orbitron,monospace'; ctx.textAlign = 'right';
+            ctx.fillText(up.cost + 'g', bx + 194, by + 12);
+            // Desc
+            ctx.fillStyle = '#9ca3af'; ctx.font = '8px Orbitron,monospace'; ctx.textAlign = 'left';
+            ctx.fillText(up.desc, bx + 6, by + 30);
+        }
+
+        // Connector arrow between path B boxes
+        if (def.pathB.upgrades.length > 1) {
+            ctx.strokeStyle = pathBCol + '50'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(OX + 214, pathBStartY + 21); ctx.lineTo(OX + 226, pathBStartY + 21); ctx.stroke();
+            ctx.fillStyle = pathBCol + '50'; ctx.beginPath(); ctx.moveTo(OX + 224, pathBStartY + 17); ctx.lineTo(OX + 230, pathBStartY + 21); ctx.lineTo(OX + 224, pathBStartY + 25); ctx.fill();
+        }
+
+        // Vertical split connector from base to paths
+        const splitCenterX = OX + OW / 2;
+        ctx.strokeStyle = 'rgba(107,114,128,0.25)'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+        ctx.beginPath(); ctx.moveTo(splitCenterX, splitY + 2); ctx.lineTo(splitCenterX, pathAY - 2); ctx.stroke();
+        // Fork lines
+        ctx.beginPath(); ctx.moveTo(splitCenterX, pathAY - 2); ctx.lineTo(OX + 50, pathAY - 2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(splitCenterX, pathBY - 8); ctx.lineTo(OX + 50, pathBY - 2); ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Hint text
+        ctx.fillStyle = 'rgba(156,163,175,0.4)'; ctx.font = '8px Orbitron,monospace'; ctx.textAlign = 'center';
+        ctx.fillText('Click outside or \u2715 to close  \u2022  Double-click a tower card to view', OX + OW / 2, OY + OH - 10);
+
         ctx.restore();
     }
 
@@ -1072,15 +1556,18 @@
         drawTutorial();
         if (gs.gameOver) { ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0,0,600,GAME_H); }
         drawHUD();
+        drawTowerInfoOverlay();
     }
 
     function gameLoop() {
-        update(); draw();
+        for (let i = 0; i < gameSpeed; i++) update();
+        draw();
         if (gs.lives <= 0 && !gs.gameOver) {
             gs.gameOver = true;
             document.getElementById('final-wave').textContent = gs.wave;
             document.getElementById('final-score').textContent = gs.score;
             document.getElementById('game-over').style.display = 'flex';
+            saveLabDefense();
         }
         arcadeState.animFrame = requestAnimationFrame(gameLoop);
     }
@@ -1091,6 +1578,30 @@
         const rect = canvas.getBoundingClientRect();
         const mx = (e.clientX-rect.left)*(canvas.width/rect.width);
         const my = (e.clientY-rect.top)*(canvas.height/rect.height);
+        // Close overlay if clicking outside or on close button
+        if (towerInfoOverlay) {
+            const ov = towerInfoOverlay._bounds;
+            if (ov) {
+                // Close button hit
+                const cbx = ov.x + ov.w - 22, cby = ov.y + 6;
+                if (mx >= cbx && mx <= cbx + 16 && my >= cby && my <= cby + 16) { towerInfoOverlay = null; return; }
+                // Click outside overlay
+                if (mx < ov.x || mx > ov.x + ov.w || my < ov.y || my > ov.y + ov.h) { towerInfoOverlay = null; return; }
+            }
+            return; // absorb click while overlay open
+        }
+        // Double-click detection for tower buttons
+        const now = Date.now();
+        for (const btn of uiButtons) {
+            if (btn.action === 'selectTower' && mx >= btn.x && mx <= btn.x+btn.w && my >= btn.y && my <= btn.y+btn.h) {
+                if (lastTowerClickType === btn.towerType && now - lastTowerClickTime < 400) {
+                    towerInfoOverlay = { type: btn.towerType };
+                    lastTowerClickTime = 0; lastTowerClickType = null;
+                    return;
+                }
+                lastTowerClickTime = now; lastTowerClickType = btn.towerType;
+            }
+        }
         // Check UI button hits first
         for (const btn of uiButtons) {
             if (mx >= btn.x && mx <= btn.x+btn.w && my >= btn.y && my <= btn.y+btn.h) {
@@ -1098,9 +1609,11 @@
                 else if (btn.action === 'upgradeA') upgradeTower('A');
                 else if (btn.action === 'upgradeB') upgradeTower('B');
                 else if (btn.action === 'sell') sellTower();
+                else if (btn.action === 'selectCategory') { selectedCategory = btn.category; gs.selectedType = TOWER_CATEGORIES[btn.category][0]; gs.selectedTower = null; }
                 else if (btn.action === 'selectTower') { gs.selectedType = btn.towerType; gs.selectedTower = null; }
                 else if (btn.action === 'sendWave') sendNextWave();
                 else if (btn.action === 'toggleAuto') toggleAutoWave();
+                else if (btn.action === 'toggleSpeed') { gameSpeed = gameSpeed === 1 ? 2 : 1; }
                 return;
             }
         }
@@ -1126,7 +1639,10 @@
             slowAmt:def.slowAmt||0, slowDur:def.slowDur||0, multishot:def.multishot||1,
             burnDmg:def.burnDmg||0, burnDur:def.burnDur||0, critChance:def.critChance||0,
             critMult:def.critMult||1, pierce:def.pierce||0, cooldown:0, level:1, totalCost:def.cost, angle:0,
-            chosenPath:null };
+            chosenPath:null, isSupport:def.isSupport||false, buffType:def.buffType||'',
+            buffAmt:def.buffAmt||0, buffRange:def.buffRange||0, goldGen:def.goldGen||0,
+            goldInterval:def.goldInterval||180, goldTimer:0, vulnAmt:def.vulnAmt||0,
+            waveBonus:def.waveBonus||0 };
         gs.towers.push(tower); gs.towerMap[key] = tower;
         if (tutorialStep === 0) { tutorialStep = 1; tutorialFade = 0; }
     });
@@ -1348,19 +1864,7 @@
         }
         if (gs.gold < up.cost) return;
         gs.gold -= up.cost; t.totalCost += up.cost; t.level++;
-        if (up.damage) t.damage = up.damage;
-        if (up.range) t.range = up.range;
-        if (up.fireRate) t.fireRate = up.fireRate;
-        if (up.splash !== undefined) t.splash = up.splash;
-        if (up.slowAmt) t.slowAmt = up.slowAmt;
-        if (up.slowDur) t.slowDur = up.slowDur;
-        if (up.multishot) t.multishot = up.multishot;
-        if (up.burnDmg) t.burnDmg = up.burnDmg;
-        if (up.burnDur) t.burnDur = up.burnDur;
-        if (up.critChance) t.critChance = up.critChance;
-        if (up.critMult) t.critMult = up.critMult;
-        if (up.pierce !== undefined) t.pierce = up.pierce;
-        if (up.projSpeed) t.projSpeed = up.projSpeed;
+        applyUpgradeProps(t, up);
         if (tutorialStep === 3) tutorialStep = 4;
     }
 
@@ -1377,26 +1881,34 @@
         document.getElementById('start-screen').style.display = 'none';
         gameStarted = true;
         tutorialStep = 0; tutorialFade = 0;
+        loadLabDefense();
         buildTowerBar();
+        if (arcadeState.animFrame) cancelAnimationFrame(arcadeState.animFrame);
         gameLoop();
     }
 
     function resetGame() {
         gs = newState(); nextId = 1;
         autoWave = false;
+        gameSpeed = 1;
         document.getElementById('game-over').style.display = 'none';
         resetArcadeGame();
+        // Clear saved run on manual reset
+        localStorage.removeItem(SAVE_KEY);
         startGame();
     }
 
-    // Keyboard hotkeys for tower selection
-    const HOTKEYS = { q:'archer', w:'ice', e:'fire', r:'cannon', t:'sniper' };
+    // Keyboard hotkeys — 1/2/3 switch category, Q/W/E/R select tower in category
+    const HOTKEY_IDX = { q:0, w:1, e:2, r:3 };
     document.addEventListener('keydown', (ev) => {
         if (!gameStarted || gs.gameOver) return;
         const key = ev.key.toLowerCase();
         if (key === 'escape') { gs.selectedTower = null; return; }
-        const tower = HOTKEYS[key];
-        if (tower) { gs.selectedType = tower; gs.selectedTower = null; }
+        if (key === 'f') { gameSpeed = gameSpeed === 1 ? 2 : 1; return; }
+        const cats = Object.keys(TOWER_CATEGORIES);
+        if (key >= '1' && key <= '4') { const ci = parseInt(key) - 1; if (ci < cats.length) { selectedCategory = cats[ci]; gs.selectedType = TOWER_CATEGORIES[selectedCategory][0]; gs.selectedTower = null; } return; }
+        const idx = HOTKEY_IDX[key];
+        if (idx !== undefined && idx < TOWER_CATEGORIES[selectedCategory].length) { gs.selectedType = TOWER_CATEGORIES[selectedCategory][idx]; gs.selectedTower = null; }
     });
 
     window.togglePause = togglePause;
@@ -1406,6 +1918,129 @@
     window.upgradeTower = upgradeTower;
     window.sellTower = sellTower;
     window.toggleAutoWave = toggleAutoWave;
+
+    // ====== SAVE / LOAD SYSTEM ======
+    const SAVE_KEY = 'labDefense_save';
+
+    // Apply upgrade properties to a tower object
+    function applyUpgradeProps(t, up) {
+        if (up.damage !== undefined) t.damage = up.damage;
+        if (up.range !== undefined) t.range = up.range;
+        if (up.fireRate !== undefined) t.fireRate = up.fireRate;
+        if (up.splash !== undefined) t.splash = up.splash;
+        if (up.slowAmt !== undefined) t.slowAmt = up.slowAmt;
+        if (up.slowDur !== undefined) t.slowDur = up.slowDur;
+        if (up.multishot !== undefined) t.multishot = up.multishot;
+        if (up.burnDmg !== undefined) t.burnDmg = up.burnDmg;
+        if (up.burnDur !== undefined) t.burnDur = up.burnDur;
+        if (up.critChance !== undefined) t.critChance = up.critChance;
+        if (up.critMult !== undefined) t.critMult = up.critMult;
+        if (up.pierce !== undefined) t.pierce = up.pierce;
+        if (up.projSpeed !== undefined) t.projSpeed = up.projSpeed;
+        if (up.buffAmt !== undefined) t.buffAmt = up.buffAmt;
+        if (up.buffRange !== undefined) t.buffRange = up.buffRange;
+        if (up.buffType !== undefined) t.buffType = up.buffType;
+        if (up.goldGen !== undefined) t.goldGen = up.goldGen;
+        if (up.vulnAmt !== undefined) t.vulnAmt = up.vulnAmt;
+        if (up.waveBonus !== undefined) t.waveBonus = up.waveBonus;
+    }
+
+    function saveLabDefense() {
+        const saveData = {
+            bestWave: Math.max(gs.wave, parseInt(localStorage.getItem('labDefense_bestWave') || '0')),
+            bestScore: Math.max(gs.score, parseInt(localStorage.getItem('labDefense_bestScore') || '0')),
+            currentRun: null
+        };
+        if (gameStarted && !gs.gameOver) {
+            saveData.currentRun = {
+                wave: gs.wave,
+                gold: gs.gold,
+                lives: gs.lives,
+                score: gs.score,
+                towers: gs.towers.map(t => ({
+                    type: t.type, gx: t.gx, gy: t.gy,
+                    level: t.level, chosenPath: t.chosenPath, totalCost: t.totalCost
+                }))
+            };
+        }
+        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+        localStorage.setItem('labDefense_bestWave', saveData.bestWave);
+        localStorage.setItem('labDefense_bestScore', saveData.bestScore);
+    }
+
+    function loadLabDefense() {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return false;
+        try {
+            const d = JSON.parse(raw);
+            if (d.currentRun && d.currentRun.towers && d.currentRun.towers.length > 0) {
+                gs.wave = d.currentRun.wave || 0;
+                gs.gold = d.currentRun.gold || 100;
+                gs.lives = d.currentRun.lives || 20;
+                gs.score = d.currentRun.score || 0;
+                // Rebuild towers from definitions + replay upgrades
+                d.currentRun.towers.forEach(st => {
+                    const def = TOWER_DEFS[st.type];
+                    if (!def) return;
+                    // Create full tower (identical to placement)
+                    const t = {
+                        type: st.type, gx: st.gx, gy: st.gy,
+                        cx: st.gx * GRID + GRID / 2, cy: st.gy * GRID + GRID / 2,
+                        icon: def.icon, color: def.color, damage: def.damage, range: def.range, fireRate: def.fireRate,
+                        projSpeed: def.projSpeed, projColor: def.projColor, splash: def.splash || 0,
+                        slowAmt: def.slowAmt || 0, slowDur: def.slowDur || 0, multishot: def.multishot || 1,
+                        burnDmg: def.burnDmg || 0, burnDur: def.burnDur || 0, critChance: def.critChance || 0,
+                        critMult: def.critMult || 1, pierce: def.pierce || 0, cooldown: 0, level: 1,
+                        totalCost: st.totalCost || def.cost, angle: 0,
+                        chosenPath: null, isSupport: def.isSupport || false, buffType: def.buffType || '',
+                        buffAmt: def.buffAmt || 0, buffRange: def.buffRange || 0, goldGen: def.goldGen || 0,
+                        goldInterval: def.goldInterval || 180, goldTimer: 0, vulnAmt: def.vulnAmt || 0,
+                        waveBonus: def.waveBonus || 0
+                    };
+                    const savedLevel = st.level || 1;
+                    const savedPath = st.chosenPath || st.path || null; // st.path for old saves
+                    // Replay base upgrades (levels 2-3)
+                    for (let i = 0; i < Math.min(savedLevel - 1, def.base.length); i++) {
+                        t.level++;
+                        applyUpgradeProps(t, def.base[i]);
+                    }
+                    // Replay path upgrades (levels 4-5)
+                    if (savedPath && savedLevel > def.base.length + 1) {
+                        t.chosenPath = savedPath;
+                        const pathDef = savedPath === 'A' ? def.pathA : def.pathB;
+                        t.color = pathDef.color;
+                        const pathUpgCount = savedLevel - def.base.length - 1;
+                        for (let i = 0; i < Math.min(pathUpgCount, pathDef.upgrades.length); i++) {
+                            t.level++;
+                            applyUpgradeProps(t, pathDef.upgrades[i]);
+                        }
+                    }
+                    gs.towers.push(t);
+                    gs.towerMap[`${t.gx},${t.gy}`] = t;
+                });
+                return true;
+            }
+            return false;
+        } catch(e) { return false; }
+    }
+
+    // Auto-save every 30 seconds and on exit
+    setInterval(saveLabDefense, 30000);
+    window.addEventListener('beforeunload', saveLabDefense);
+
+    // Show save indicator on start screen
+    (function() {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (raw) {
+            try {
+                const d = JSON.parse(raw);
+                if (d.currentRun && d.currentRun.towers && d.currentRun.towers.length > 0) {
+                    const ind = document.getElementById('save-indicator');
+                    if (ind) ind.style.display = 'block';
+                }
+            } catch(e) {}
+        }
+    })();
 
     (async function() {
         if (!await initializeArcadeGame('🔬 LAB DEF', 'from-emerald-400', 'to-cyan-400')) return;

@@ -209,99 +209,221 @@
 
         const keys = {};
 
+        let gridOffset = 0;
+        let screenShake = 0;
+        let waveFlash = 0;
+        let scorePopups = [];
+        const enemyTypes = [
+            {color1:'#ef4444', color2:'#991b1b', glowColor:'rgba(239,68,68,0.5)', shape:'circle'},
+            {color1:'#a855f7', color2:'#6b21a8', glowColor:'rgba(168,85,247,0.5)', shape:'diamond'},
+            {color1:'#f97316', color2:'#9a3412', glowColor:'rgba(249,115,22,0.5)', shape:'triangle'}
+        ];
+
         function drawPlayer() {
             const { player } = gameState;
             
-            // Invulnerability effect
             if (player.invulnerable > 0 && Math.floor(player.invulnerable / 5) % 2 === 0) {
                 ctx.globalAlpha = 0.5;
             }
             
-            // Draw player circle
-            ctx.fillStyle = '#22c55e';
+            // Player shadow
+            ctx.save();
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(player.x, player.y + player.radius + 4, player.radius * 0.8, 4, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.restore();
+            
+            // Player body with gradient
+            ctx.save();
+            const pGrad = ctx.createRadialGradient(player.x - 3, player.y - 3, 2, player.x, player.y, player.radius);
+            pGrad.addColorStop(0, '#4ade80');
+            pGrad.addColorStop(0.6, '#22c55e');
+            pGrad.addColorStop(1, '#15803d');
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = 'rgba(34,197,94,0.6)';
+            ctx.fillStyle = pGrad;
             ctx.beginPath();
             ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
             ctx.fill();
-            ctx.strokeStyle = '#16a34a';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            ctx.restore();
+            
+            // Player eyes
+            const eyeOffsetX = Math.cos(player.angle) * 3;
+            const eyeOffsetY = Math.sin(player.angle) * 3;
+            ctx.fillStyle = '#f0fdf4';
+            ctx.beginPath(); ctx.arc(player.x - 4 + eyeOffsetX*0.5, player.y - 3, 3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(player.x + 4 + eyeOffsetX*0.5, player.y - 3, 3, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#1a1a2e';
+            ctx.beginPath(); ctx.arc(player.x - 4 + eyeOffsetX, player.y - 3 + eyeOffsetY*0.5, 1.5, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(player.x + 4 + eyeOffsetX, player.y - 3 + eyeOffsetY*0.5, 1.5, 0, Math.PI*2); ctx.fill();
 
-            // Draw direction indicator
-            ctx.strokeStyle = '#16a34a';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(player.x, player.y);
-            ctx.lineTo(
-                player.x + Math.cos(player.angle) * 20,
-                player.y + Math.sin(player.angle) * 20
+            // Weapon barrel (line from center outward in aim direction)
+            ctx.save();
+            const barrelGrad = ctx.createLinearGradient(
+                player.x, player.y,
+                player.x + Math.cos(player.angle) * 22,
+                player.y + Math.sin(player.angle) * 22
             );
+            barrelGrad.addColorStop(0, '#94a3b8');
+            barrelGrad.addColorStop(1, '#64748b');
+            ctx.strokeStyle = barrelGrad;
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(player.x + Math.cos(player.angle) * 8, player.y + Math.sin(player.angle) * 8);
+            ctx.lineTo(player.x + Math.cos(player.angle) * 22, player.y + Math.sin(player.angle) * 22);
             ctx.stroke();
+            // Barrel tip glow
+            ctx.fillStyle = '#e2e8f0';
+            ctx.beginPath();
+            ctx.arc(player.x + Math.cos(player.angle) * 22, player.y + Math.sin(player.angle) * 22, 2, 0, Math.PI*2);
+            ctx.fill();
+            ctx.restore();
 
-            // Draw health bar
-            ctx.fillStyle = '#ef4444';
-            ctx.fillRect(player.x - 15, player.y - 25, 30 * (player.health / player.maxHealth), 4);
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(player.x - 15, player.y - 25, 30, 4);
+            // Health bar with gradient
+            const hpW = 30, hpH = 5;
+            const hpPercent = player.health / player.maxHealth;
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.fillRect(player.x - hpW/2 - 1, player.y - 27, hpW + 2, hpH + 2);
+            const hpGrad = ctx.createLinearGradient(player.x - hpW/2, 0, player.x - hpW/2 + hpW*hpPercent, 0);
+            hpGrad.addColorStop(0, hpPercent > 0.5 ? '#22c55e' : hpPercent > 0.25 ? '#eab308' : '#ef4444');
+            hpGrad.addColorStop(1, hpPercent > 0.5 ? '#16a34a' : hpPercent > 0.25 ? '#ca8a04' : '#dc2626');
+            ctx.fillStyle = hpGrad;
+            ctx.fillRect(player.x - hpW/2, player.y - 26, hpW * hpPercent, hpH);
             
             ctx.globalAlpha = 1;
         }
 
         function drawEnemy(enemy) {
-            ctx.fillStyle = '#ef4444';
+            const type = enemyTypes[enemy.typeIdx || 0];
+            
+            // Enemy shadow
+            ctx.save();
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
             ctx.beginPath();
-            ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
+            ctx.ellipse(enemy.x, enemy.y + enemy.radius + 3, enemy.radius*0.7, 3, 0, 0, Math.PI*2);
             ctx.fill();
-            ctx.strokeStyle = '#991b1b';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            ctx.restore();
+            
+            // Enemy body with gradient and glow
+            ctx.save();
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = type.glowColor;
+            const eGrad = ctx.createRadialGradient(enemy.x-2, enemy.y-2, 2, enemy.x, enemy.y, enemy.radius);
+            eGrad.addColorStop(0, type.color1);
+            eGrad.addColorStop(1, type.color2);
+            ctx.fillStyle = eGrad;
+            
+            if (type.shape === 'circle') {
+                ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2); ctx.fill();
+            } else if (type.shape === 'diamond') {
+                ctx.beginPath();
+                ctx.moveTo(enemy.x, enemy.y - enemy.radius);
+                ctx.lineTo(enemy.x + enemy.radius, enemy.y);
+                ctx.lineTo(enemy.x, enemy.y + enemy.radius);
+                ctx.lineTo(enemy.x - enemy.radius, enemy.y);
+                ctx.closePath(); ctx.fill();
+            } else {
+                ctx.beginPath();
+                for (let j = 0; j < 3; j++) {
+                    const a = (j * Math.PI * 2 / 3) - Math.PI/2;
+                    const tx = enemy.x + Math.cos(a) * enemy.radius;
+                    const ty = enemy.y + Math.sin(a) * enemy.radius;
+                    j === 0 ? ctx.moveTo(tx, ty) : ctx.lineTo(tx, ty);
+                }
+                ctx.closePath(); ctx.fill();
+            }
+            ctx.restore();
+            
+            // Enemy eyes
+            const dx = gameState.player.x - enemy.x;
+            const dy = gameState.player.y - enemy.y;
+            const dist = Math.max(1, Math.hypot(dx,dy));
+            const lookX = (dx/dist)*2, lookY = (dy/dist)*2;
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(enemy.x-3, enemy.y-2, 2.5, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(enemy.x+3, enemy.y-2, 2.5, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#1a1a2e';
+            ctx.beginPath(); ctx.arc(enemy.x-3+lookX, enemy.y-2+lookY*0.5, 1.2, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(enemy.x+3+lookX, enemy.y-2+lookY*0.5, 1.2, 0, Math.PI*2); ctx.fill();
 
             // Health bar
             const healthPercent = Math.max(0, enemy.health / enemy.maxHealth);
-            ctx.fillStyle = '#22c55e';
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.fillRect(enemy.x - 11, enemy.y - 21, 22, 4);
+            ctx.fillStyle = healthPercent > 0.5 ? '#22c55e' : healthPercent > 0.25 ? '#eab308' : '#ef4444';
             ctx.fillRect(enemy.x - 10, enemy.y - 20, 20 * healthPercent, 3);
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(enemy.x - 10, enemy.y - 20, 20, 3);
         }
 
         function drawProjectile(proj) {
-            ctx.fillStyle = '#fbbf24';
+            // Projectile trail
+            ctx.save();
+            const trailGrad = ctx.createLinearGradient(
+                proj.x, proj.y,
+                proj.x - proj.vx * 4, proj.y - proj.vy * 4
+            );
+            trailGrad.addColorStop(0, 'rgba(251,191,36,0.8)');
+            trailGrad.addColorStop(1, 'rgba(251,191,36,0)');
+            ctx.strokeStyle = trailGrad;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(proj.x, proj.y);
+            ctx.lineTo(proj.x - proj.vx * 4, proj.y - proj.vy * 4);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Projectile body
+            ctx.save();
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#fbbf24';
+            const pGrad = ctx.createRadialGradient(proj.x, proj.y, 1, proj.x, proj.y, 5);
+            pGrad.addColorStop(0, '#fef3c7');
+            pGrad.addColorStop(1, '#f59e0b');
+            ctx.fillStyle = pGrad;
             ctx.beginPath();
             ctx.arc(proj.x, proj.y, 4, 0, Math.PI * 2);
             ctx.fill();
-            
-            // Projectile trail
-            ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(proj.x, proj.y);
-            ctx.lineTo(proj.x - proj.vx * 3, proj.y - proj.vy * 3);
-            ctx.stroke();
+            ctx.restore();
         }
 
         function drawCoin(coin) {
-            ctx.fillStyle = '#fbbf24';
-            ctx.beginPath();
-            ctx.arc(coin.x, coin.y, 6, 0, Math.PI * 2);
-            ctx.fill();
+            // Coin glow
+            ctx.save();
+            const coinGlow = ctx.createRadialGradient(coin.x, coin.y, 2, coin.x, coin.y, 12);
+            coinGlow.addColorStop(0, 'rgba(251,191,36,0.3)');
+            coinGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = coinGlow;
+            ctx.beginPath(); ctx.arc(coin.x, coin.y, 12, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
             
-            ctx.strokeStyle = '#f59e0b';
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            // Coin body
+            ctx.save();
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = '#fbbf24';
+            const cGrad = ctx.createRadialGradient(coin.x-2, coin.y-2, 1, coin.x, coin.y, 6);
+            cGrad.addColorStop(0, '#fef3c7');
+            cGrad.addColorStop(1, '#f59e0b');
+            ctx.fillStyle = cGrad;
+            ctx.beginPath(); ctx.arc(coin.x, coin.y, 6, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#d97706'; ctx.lineWidth = 1; ctx.stroke();
+            // $ symbol
+            ctx.fillStyle = '#92400e';
+            ctx.font = 'bold 8px Arial';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('$', coin.x, coin.y);
+            ctx.restore();
         }
 
         function createParticles(x, y, color, count = 8) {
             for (let i = 0; i < count; i++) {
                 const angle = (Math.PI * 2 * i) / count;
                 gameState.particles.push({
-                    x: x,
-                    y: y,
+                    x: x, y: y,
                     vx: Math.cos(angle) * 4,
                     vy: Math.sin(angle) * 4,
-                    life: 30,
-                    maxLife: 30,
-                    color: color
+                    life: 30, maxLife: 30,
+                    color: color, r: Math.random()*3+2
                 });
             }
         }
@@ -309,16 +431,15 @@
         function drawParticles() {
             gameState.particles = gameState.particles.filter(p => p.life > 0);
             gameState.particles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.2;
-                p.life--;
-
+                p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life--;
                 const alpha = p.life / p.maxLife;
-                ctx.fillStyle = p.color.replace(')', `, ${alpha})`).replace('rgb', 'rgba');
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.shadowBlur = 4;
+                ctx.shadowColor = p.color.replace(')', `, ${alpha})`).replace('rgb', 'rgba');
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, (p.r || 3) * alpha, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
             });
         }
 
@@ -390,6 +511,7 @@
                             gameState.score += 100;
                             gameState.killCount++;
                             createParticles(enemy.x, enemy.y, '#ef4444', 10);
+                            screenShake = 8;
                             
                             // Drop coins
                             if (Math.random() < 0.3) {
@@ -430,7 +552,8 @@
                     maxHealth: 30 * multipliers.enemyHealth,
                     speed: 1 * multipliers.enemySpeed,
                     vx: 0,
-                    vy: 0
+                    vy: 0,
+                    typeIdx: Math.floor(Math.random() * enemyTypes.length)
                 });
             }
 
@@ -440,6 +563,8 @@
                 gameState.killCount = 0;
                 player.health = Math.min(player.maxHealth, player.health + 15);
                 gameState.difficulty = Math.min(3, Math.floor(gameState.wave / 5) + 1);
+                waveFlash = 1;
+                screenShake = 15;
                 
                 // Spawn health pack on wave clear
                 if (gameState.wave % 3 === 0) {
@@ -454,25 +579,63 @@
         }
 
         function draw() {
-            ctx.fillStyle = 'rgba(44, 62, 80, 0.5)';
+            // Proper dark space background with gradient
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bgGrad.addColorStop(0, '#030712');
+            bgGrad.addColorStop(0.5, '#0f172a');
+            bgGrad.addColorStop(1, '#030712');
+            ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Grid lines
+            gridOffset = (gridOffset + 0.3) % 40;
+            ctx.strokeStyle = 'rgba(59,130,246,0.07)';
+            ctx.lineWidth = 1;
+            for (let x = -gridOffset; x < canvas.width; x += 40) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = -gridOffset; y < canvas.height; y += 40) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+            
+            // Screen shake
+            ctx.save();
+            if (screenShake > 0) {
+                screenShake -= 0.5;
+                ctx.translate((Math.random()-0.5)*screenShake*0.5, (Math.random()-0.5)*screenShake*0.5);
+            }
+            
+            // Wave flash
+            if (waveFlash > 0) {
+                ctx.save();
+                ctx.globalAlpha = waveFlash * 0.15;
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.restore();
+                waveFlash -= 0.02;
+            }
 
             gameState.projectiles.forEach(drawProjectile);
             gameState.coins.forEach(drawCoin);
             gameState.enemies.forEach(drawEnemy);
             drawParticles();
             drawPlayer();
-
-            // Draw UI
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 14px Arial';
-            ctx.textAlign = 'left';
-            ctx.fillText(`Wave: ${gameState.wave}`, 10, 30);
-            ctx.fillText(`Difficulty: ${gameState.difficulty}`, 10, 50);
             
-            // Draw kill count towards next wave
+            ctx.restore();
+
+            // Draw HUD with better styling
+            ctx.save();
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.font = 'bold 13px "Orbitron", sans-serif';
+            ctx.textAlign = 'left';
+            ctx.shadowBlur = 4; ctx.shadowColor = 'rgba(59,130,246,0.5)';
+            ctx.fillText(`Wave: ${gameState.wave}`, 10, 24);
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.font = '11px "Orbitron", sans-serif';
+            ctx.shadowBlur = 0;
             const killsNeeded = 5 * gameState.wave;
-            ctx.fillText(`Kills: ${gameState.killCount}/${killsNeeded}`, 10, 70);
+            ctx.fillText(`Kills: ${gameState.killCount}/${killsNeeded}`, 10, 42);
+            ctx.restore();
         }
 
         function gameLoop() {
@@ -595,7 +758,7 @@
     async function startGame() {
         if (!await initializeArcadeGame('⚔️ ARENA', 'from-red-400', 'to-red-600')) return;
         document.getElementById('start-screen').style.display = 'none';
-        init();
+        resetGame();
         gameRunning = true;
         gameLoop();
     }

@@ -134,13 +134,13 @@ ${segments}</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stro
   function moveLessonPopup(event) { const tooltip = getOrCreateTooltip(); tooltip.style.left = (event.pageX + 12) + 'px'; tooltip.style.top = (event.pageY + 12) + 'px'; }
   function hideLessonPopup() { const tooltip = getOrCreateTooltip(); tooltip.setAttribute('data-visible', 'false'); }
   function markLessonStarted(unit, lesson) { 
-    localStorage.setItem(`ap_chem_u${unit}_l${lesson}_started`, 'true');
-    if (window.courseProgress) { window.courseProgress.markStarted('ap_chem', unit, lesson); }
+    localStorage.setItem(`${courseConfig.coursePrefix}_u${unit}_l${lesson}_started`, 'true');
+    if (window.courseProgress) { window.courseProgress.markStarted(courseConfig.coursePrefix, unit, lesson); }
     applyProgressColors();
   }
   function markLessonComplete(unit, lesson) { 
-    localStorage.setItem(`ap_chem_u${unit}_l${lesson}_completed`, 'true');
-    if (window.courseProgress) { window.courseProgress.markComplete('ap_chem', unit, lesson); }
+    localStorage.setItem(`${courseConfig.coursePrefix}_u${unit}_l${lesson}_completed`, 'true');
+    if (window.courseProgress) { window.courseProgress.markComplete(courseConfig.coursePrefix, unit, lesson); }
     applyProgressColors();
   }
   function applyProgressColors() { 
@@ -149,8 +149,8 @@ ${segments}</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stro
       for (let l = 1; l <= maxLessons; l++) { 
         const segment = document.getElementById(`u${u}-l${l}`); 
         if (segment) { 
-          const isCompleted = localStorage.getItem(`ap_chem_u${u}_l${l}_completed`) === 'true'; 
-          const isStarted = localStorage.getItem(`ap_chem_u${u}_l${l}_started`) === 'true'; 
+          const isCompleted = localStorage.getItem(`${courseConfig.coursePrefix}_u${u}_l${l}_completed`) === 'true'; 
+          const isStarted = localStorage.getItem(`${courseConfig.coursePrefix}_u${u}_l${l}_started`) === 'true'; 
           if (isCompleted) { 
             segment.setAttribute('fill', '#16a34a'); 
             segment.setAttribute('fill-opacity', '0.7'); 
@@ -162,8 +162,8 @@ ${segments}</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stro
       // Apply colors to unit test
       const testSegment = document.getElementById(`u${u}-l99`);
       if (testSegment) {
-        const isTestCompleted = localStorage.getItem(`ap_chem_u${u}_l99_completed`) === 'true';
-        const isTestStarted = localStorage.getItem(`ap_chem_u${u}_l99_started`) === 'true';
+        const isTestCompleted = localStorage.getItem(`${courseConfig.coursePrefix}_u${u}_l99_completed`) === 'true';
+        const isTestStarted = localStorage.getItem(`${courseConfig.coursePrefix}_u${u}_l99_started`) === 'true';
         if (isTestCompleted) {
           testSegment.setAttribute('fill', '#16a34a');
           testSegment.setAttribute('fill-opacity', '0.7');

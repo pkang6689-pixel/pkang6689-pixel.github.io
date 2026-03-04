@@ -129,13 +129,13 @@ Use the dev tool to mark all courses complete:
 1. Login as developer (`pkang6689@gmail.com`)
 2. Open any AP course page
 3. Look for dev tools panel (bottom-right)
-4. Click "✓ Complete All AP Courses" button
+4. Click "✓ Complete All Courses" button
 5. Firebase will sync all completions across all courses
 
 Or use console directly:
 ```javascript
 // In browser console
-window.completeAllAPCourses();
+window.completeAllCourses();
 ```
 
 ## Fallback Behavior

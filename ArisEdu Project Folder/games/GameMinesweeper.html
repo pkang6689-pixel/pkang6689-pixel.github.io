@@ -358,11 +358,19 @@
             revealed[r][c] = true;
             revealAnim.push({ r, c, progress: 0 });
             gameActive = false;
+            // Trigger explosion particles at hit cell
+            const hitX = BOARD_PAD + c * CELL + GAP + INNER/2;
+            const hitY = BOARD_PAD + r * CELL + GAP + INNER/2;
+            addMineExplosion(hitX, hitY);
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < cols; j++) {
                     if (board[i][j] === -1) {
                         revealed[i][j] = true;
                         revealAnim.push({ r: i, c: j, progress: 0 });
+                        // Delayed mini explosions at other mines
+                        const mx = BOARD_PAD + j * CELL + GAP + INNER/2;
+                        const my = BOARD_PAD + i * CELL + GAP + INNER/2;
+                        setTimeout(() => addMineExplosion(mx, my), 50 + Math.random() * 300);
                     }
                 }
             }
@@ -405,6 +413,23 @@
         draw();
     });
 
+    let mineExplosions = [];
+    
+    function addMineExplosion(x, y) {
+        for (let i = 0; i < 8; i++) {
+            const angle = (Math.PI * 2 / 8) * i;
+            const spd = 1 + Math.random() * 2;
+            mineExplosions.push({
+                x, y,
+                vx: Math.cos(angle) * spd,
+                vy: Math.sin(angle) * spd,
+                life: 1,
+                color: ['#ef4444','#f97316','#fbbf24'][Math.floor(Math.random()*3)],
+                size: 2 + Math.random() * 3
+            });
+        }
+    }
+
     // ---- Canvas drawing ----
     function roundRect(x, y, w, h, r) {
         ctx.beginPath();
@@ -423,12 +448,18 @@
     function draw() {
         const W = canvas.width, H = canvas.height;
 
-        // Board background with gradient
-        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-        bgGrad.addColorStop(0, '#374151'); bgGrad.addColorStop(1, '#1f2937');
+        // Board background with richer gradient
+        const bgGrad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.7);
+        bgGrad.addColorStop(0, '#374151'); bgGrad.addColorStop(1, '#111827');
         ctx.fillStyle = bgGrad;
         roundRect(0, 0, W, H, 8);
         ctx.fill();
+        
+        // Subtle border glow
+        ctx.strokeStyle = 'rgba(59,130,246,0.15)';
+        ctx.lineWidth = 2;
+        roundRect(1, 1, W-2, H-2, 8);
+        ctx.stroke();
 
         // Update reveal animations
         revealAnim = revealAnim.filter(a => { a.progress += 0.12; return a.progress < 1; });
@@ -443,12 +474,15 @@
 
                 if (revealed[i][j]) {
                     if (board[i][j] === -1) {
-                        // Mine cell
-                        const mGrad = ctx.createLinearGradient(x, y, x+INNER, y+INNER);
-                        mGrad.addColorStop(0, '#f87171'); mGrad.addColorStop(1, '#ef4444');
+                        // Mine cell with glow
+                        const mGrad = ctx.createRadialGradient(x+INNER/2, y+INNER/2, 2, x+INNER/2, y+INNER/2, INNER/2);
+                        mGrad.addColorStop(0, '#fca5a5'); mGrad.addColorStop(0.5, '#f87171'); mGrad.addColorStop(1, '#dc2626');
                         ctx.fillStyle = mGrad;
+                        ctx.shadowBlur = 8;
+                        ctx.shadowColor = '#ef4444';
                         roundRect(x, y, INNER, INNER, 4);
                         ctx.fill();
+                        ctx.shadowBlur = 0;
                         ctx.fillStyle = '#1e293b';
                         ctx.beginPath();
                         ctx.arc(x + INNER / 2, y + INNER / 2, 8, 0, Math.PI * 2);
@@ -496,10 +530,13 @@
                     }
                 } else if (flagged[i][j]) {
                     const fGrad = ctx.createLinearGradient(x, y, x+INNER, y+INNER);
-                    fGrad.addColorStop(0, '#f59e0b'); fGrad.addColorStop(1, '#d97706');
+                    fGrad.addColorStop(0, '#fbbf24'); fGrad.addColorStop(1, '#d97706');
                     ctx.fillStyle = fGrad;
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = '#f59e0b';
                     roundRect(x, y, INNER, INNER, 4);
                     ctx.fill();
+                    ctx.shadowBlur = 0;
                     ctx.strokeStyle = '#1e293b';
                     ctx.lineWidth = 2;
                     ctx.beginPath();
@@ -540,6 +577,26 @@
         }
         
         if (revealAnim.length > 0) {
+            requestAnimationFrame(draw);
+        }
+        
+        // Draw mine explosion particles
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = mineExplosions.length - 1; i >= 0; i--) {
+            const p = mineExplosions[i];
+            p.x += p.vx; p.y += p.vy; p.life -= 0.025;
+            if (p.life <= 0) { mineExplosions.splice(i, 1); continue; }
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.restore();
+        ctx.globalCompositeOperation = 'source-over';
+        
+        if (mineExplosions.length > 0) {
             requestAnimationFrame(draw);
         }
     }

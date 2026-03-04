@@ -212,53 +212,191 @@
 
         function drawPlayer() {
             const { player } = gameState;
-            ctx.fillStyle = '#f59e0b';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
+            const isAirborne = player.jumping;
+            
+            ctx.save();
+            ctx.translate(player.x + player.width/2, player.y + player.height/2);
+            
+            // Shadow on ground
+            if (isAirborne) {
+                ctx.save();
+                const shadowY = gameState.groundY - player.y - player.height/2;
+                ctx.globalAlpha = Math.max(0.1, 0.4 - shadowY / 300);
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.ellipse(0, shadowY, player.width * 0.6, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            
+            // Body gradient
+            const bodyG = ctx.createLinearGradient(-player.width/2, -player.height/2, player.width/2, player.height/2);
+            bodyG.addColorStop(0, '#fbbf24');
+            bodyG.addColorStop(1, '#d97706');
+            ctx.fillStyle = bodyG;
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = '#f59e0b';
+            
+            // Rounded body
+            const w = player.width, h = player.height, r = 6;
+            ctx.beginPath();
+            ctx.moveTo(-w/2 + r, -h/2);
+            ctx.lineTo(w/2 - r, -h/2);
+            ctx.quadraticCurveTo(w/2, -h/2, w/2, -h/2 + r);
+            ctx.lineTo(w/2, h/2 - r);
+            ctx.quadraticCurveTo(w/2, h/2, w/2 - r, h/2);
+            ctx.lineTo(-w/2 + r, h/2);
+            ctx.quadraticCurveTo(-w/2, h/2, -w/2, h/2 - r);
+            ctx.lineTo(-w/2, -h/2 + r);
+            ctx.quadraticCurveTo(-w/2, -h/2, -w/2 + r, -h/2);
+            ctx.fill();
+            
+            ctx.shadowBlur = 0;
+            
+            // Highlight
+            ctx.fillStyle = 'rgba(255,255,255,0.25)';
+            ctx.beginPath();
+            ctx.ellipse(-3, -h/4, 6, 4, -0.3, 0, Math.PI * 2);
+            ctx.fill();
             
             // Eyes
             ctx.fillStyle = 'white';
-            ctx.fillRect(player.x + 7, player.y + 8, 6, 6);
-            ctx.fillRect(player.x + 17, player.y + 8, 6, 6);
+            const eyeY = -5;
+            ctx.beginPath();
+            ctx.ellipse(-5, eyeY, 5, 5.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(5, eyeY, 5, 5.5, 0, 0, Math.PI * 2);
+            ctx.fill();
             
-            ctx.fillStyle = 'black';
+            // Pupils (look in movement direction)
+            const lookX = player.vx > 0 ? 1.5 : player.vx < 0 ? -1.5 : 0;
+            const lookY = isAirborne && player.vy > 0 ? -1 : isAirborne ? 1 : 0;
+            ctx.fillStyle = '#1e293b';
             ctx.beginPath();
-            ctx.arc(player.x + 10, player.y + 11, 2, 0, Math.PI * 2);
+            ctx.arc(-5 + lookX, eyeY + lookY, 2.5, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(player.x + 20, player.y + 11, 2, 0, Math.PI * 2);
+            ctx.arc(5 + lookX, eyeY + lookY, 2.5, 0, Math.PI * 2);
             ctx.fill();
+            
+            // Eye shine
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.beginPath();
+            ctx.arc(-6, eyeY - 2, 1.2, 0, Math.PI * 2);
+            ctx.arc(4, eyeY - 2, 1.2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Mouth
+            ctx.strokeStyle = '#92400e';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            if (isAirborne) {
+                ctx.arc(0, 5, 4, 0, Math.PI); // open mouth when jumping
+            } else {
+                ctx.arc(0, 3, 3, 0.2, Math.PI - 0.2); // smile
+            }
+            ctx.stroke();
+            
+            // Feet
+            ctx.fillStyle = '#92400e';
+            const footSpread = isAirborne ? 4 : 2;
+            ctx.beginPath();
+            ctx.ellipse(-footSpread - 3, h/2 + 2, 5, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(footSpread + 3, h/2 + 2, 5, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
         }
 
         function drawObstacle(obstacle) {
-            ctx.fillStyle = '#dc2626';
-            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            ctx.save();
+            const x = obstacle.x, y = obstacle.y, w = obstacle.width, h = obstacle.height;
+            
+            // Gradient fill
+            const g = ctx.createLinearGradient(x, y, x, y + h);
+            g.addColorStop(0, '#ef4444');
+            g.addColorStop(1, '#991b1b');
+            ctx.fillStyle = g;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#ef4444';
+            
+            // Rounded rectangle
+            const r = 4;
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.fill();
             
             // Danger stripes
-            ctx.strokeStyle = '#991b1b';
-            ctx.lineWidth = 2;
-            for (let i = 0; i < obstacle.width; i += 10) {
+            ctx.shadowBlur = 0;
+            ctx.save();
+            ctx.clip();
+            ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+            ctx.lineWidth = 4;
+            for (let i = -h; i < w + h; i += 12) {
                 ctx.beginPath();
-                ctx.moveTo(obstacle.x + i, obstacle.y);
-                ctx.lineTo(obstacle.x + i + 5, obstacle.y + obstacle.height);
+                ctx.moveTo(x + i, y);
+                ctx.lineTo(x + i - h, y + h);
                 ctx.stroke();
             }
+            ctx.restore();
+            
+            // Top highlight
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.fillRect(x + 2, y + 1, w - 4, 3);
+            
+            ctx.restore();
         }
 
         function drawCoin(coin) {
-            ctx.fillStyle = '#fbbf24';
+            ctx.save();
+            ctx.translate(coin.x, coin.y);
+            
+            // Glow
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#fbbf24';
+            
+            // Outer ring gradient
+            const g = ctx.createRadialGradient(0, 0, 2, 0, 0, 10);
+            g.addColorStop(0, '#fef3c7');
+            g.addColorStop(0.5, '#fbbf24');
+            g.addColorStop(1, '#d97706');
+            ctx.fillStyle = g;
             ctx.beginPath();
-            ctx.arc(coin.x, coin.y, 8, 0, Math.PI * 2);
+            ctx.arc(0, 0, 9, 0, Math.PI * 2);
             ctx.fill();
             
-            ctx.strokeStyle = '#f59e0b';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            // Inner circle
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#fef3c7';
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            ctx.fill();
             
-            ctx.fillStyle = '#fbbf24';
-            ctx.font = 'bold 10px Arial';
+            // $ symbol
+            ctx.fillStyle = '#d97706';
+            ctx.font = 'bold 10px "Orbitron", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('$', coin.x, coin.y);
+            ctx.fillText('$', 0, 0);
+            
+            // Shine
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.beginPath();
+            ctx.ellipse(-2, -3, 3, 2, -0.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
         }
 
         function createParticles(x, y, color, count = 5) {
@@ -391,21 +529,62 @@
         }
 
         function draw() {
-            ctx.fillStyle = '#87CEEB';
+            // Sky gradient
+            const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            sky.addColorStop(0, '#1e3a5f');
+            sky.addColorStop(0.4, '#3b82f6');
+            sky.addColorStop(0.7, '#7dd3fc');
+            sky.addColorStop(1, '#bae6fd');
+            ctx.fillStyle = sky;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Clouds (background)
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            // Clouds with parallax
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            const c1x = (80 + (scrollOffset * 0.15)) % (canvas.width + 100) - 50;
+            const c2x = (220 + (scrollOffset * 0.08)) % (canvas.width + 150) - 75;
+            // Cloud 1
             ctx.beginPath();
-            ctx.arc(50 + (scrollOffset * 0.2) % 200, 50, 30, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.arc(c1x, 50, 25, 0, Math.PI * 2); ctx.fill();
             ctx.beginPath();
-            ctx.arc(150 + (scrollOffset * 0.1) % 250, 80, 40, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.arc(c1x + 20, 40, 20, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath();
+            ctx.arc(c1x - 15, 48, 18, 0, Math.PI * 2); ctx.fill();
+            // Cloud 2
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+            ctx.beginPath();
+            ctx.arc(c2x, 85, 35, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath();
+            ctx.arc(c2x + 30, 70, 28, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath();
+            ctx.arc(c2x - 20, 78, 22, 0, Math.PI * 2); ctx.fill();
 
-            // Ground
-            ctx.fillStyle = '#22c55e';
+            // Ground with gradient
+            const groundG = ctx.createLinearGradient(0, gameState.groundY, 0, canvas.height);
+            groundG.addColorStop(0, '#22c55e');
+            groundG.addColorStop(0.3, '#16a34a');
+            groundG.addColorStop(1, '#15803d');
+            ctx.fillStyle = groundG;
             ctx.fillRect(0, gameState.groundY, canvas.width, canvas.height - gameState.groundY);
+            
+            // Ground detail lines
+            ctx.strokeStyle = 'rgba(21,128,61,0.4)';
+            ctx.lineWidth = 1;
+            for (let x = -(scrollOffset * 2) % 20; x < canvas.width; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, gameState.groundY + 5);
+                ctx.lineTo(x + 8, gameState.groundY + 3);
+                ctx.stroke();
+            }
+            
+            // Grass blades
+            ctx.strokeStyle = '#4ade80';
+            ctx.lineWidth = 1.5;
+            for (let x = -(scrollOffset * 1.5) % 15; x < canvas.width; x += 15) {
+                ctx.beginPath();
+                ctx.moveTo(x, gameState.groundY);
+                ctx.quadraticCurveTo(x + 2, gameState.groundY - 6, x + 4, gameState.groundY - 8);
+                ctx.stroke();
+            }
 
             // Draw all game objects
             gameState.obstacles.forEach(drawObstacle);
@@ -413,16 +592,23 @@
             drawParticles();
             drawPlayer();
 
-            // Distance text with difficulty indicator
-            ctx.fillStyle = '#333';
-            ctx.font = 'bold 20px Arial';
+            // Distance text with better styling
+            ctx.save();
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.fillRect(5, 8, 180, 68);
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = 'bold 16px "Orbitron", sans-serif';
             ctx.textAlign = 'left';
-            ctx.fillText(`Distance: ${Math.floor(gameState.distance)}m`, 10, 30);
+            ctx.fillText(`${Math.floor(gameState.distance)}m`, 12, 30);
             
             const diffLevel = ['Easy', 'Normal', 'Hard', 'Expert'];
-            ctx.font = '14px Arial';
-            ctx.fillText(`Difficulty: ${diffLevel[gameState.difficulty - 1]}`, 10, 50);
-            ctx.fillText(`Coins: ${gameState.coinsCollected}`, 10, 70);
+            const diffColors = ['#22c55e', '#fbbf24', '#f97316', '#ef4444'];
+            ctx.font = '11px "Orbitron", sans-serif';
+            ctx.fillStyle = diffColors[gameState.difficulty - 1];
+            ctx.fillText(diffLevel[gameState.difficulty - 1], 12, 48);
+            ctx.fillStyle = '#fbbf24';
+            ctx.fillText(`🪙 ${gameState.coinsCollected}`, 12, 66);
+            ctx.restore();
         }
 
         function gameLoop() {

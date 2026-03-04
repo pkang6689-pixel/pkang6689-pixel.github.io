@@ -266,20 +266,41 @@ import {
     getDocs
 } from "./firebase-config.js";
 
-const BADGE_INFO = {
-    'night_owl': { title: 'Night Owl', desc: 'Studying after 10 PM', icon: '🦉' },
-    'early_bird': { title: 'Early Bird', desc: 'Studying before 7 AM', icon: '🌅' },
-    'completionist': { title: 'Completionist', desc: 'Spent over an hour studying', icon: '⏳' },
-    'quiz_master': { title: 'Quiz Master', desc: 'Completed a quiz', icon: '🧠' },
-    'algebra_master': { title: 'Algebra Wizard', desc: 'Mastered Algebra concepts', icon: '📐' },
-    'physics_pro': { title: 'Physics Pro', desc: 'Excelled in Physics', icon: '⚛️' },
-    'chemistry_whiz': { title: 'Chem Whiz', desc: 'Ace in Chemistry', icon: '⚗️' },
-    'polyglot': { title: 'Polyglot', desc: 'Changed language settings', icon: '🌐' },
-    '2048_tile': { title: '2048 Master', desc: 'Reached the 2048 tile!', icon: '🎮' },
-    'streak_3': { title: 'Streak Starter', desc: 'Visited 3 days in a row', icon: '🔥' },
-    'streak_7': { title: 'Week Warrior', desc: 'Visited 7 days in a row', icon: '🗓️' },
-    'streak_30': { title: 'Month Master', desc: 'Visited 30 days in a row', icon: '🏆' }
+const BADGE_DEFS = {
+    'night_owl': { title: 'Night Owl', desc: t => `Studied after 10 PM on ${t} days`, icon: '🦉', thresholds: [1, 5, 15, 30, 50] },
+    'early_bird': { title: 'Early Bird', desc: t => `Studied before 7 AM on ${t} days`, icon: '🌅', thresholds: [1, 5, 15, 30, 50] },
+    'quiz_master': { title: 'Quiz Master', desc: t => `Completed ${t} quizzes`, icon: '🧠', thresholds: [1, 5, 15, 30, 50] },
+    'algebra': { title: 'Algebra Wizard', desc: t => `Completed ${t}% of Algebra`, icon: '📐', thresholds: [10, 30, 50, 80, 100] },
+    'geometry': { title: 'Geometry Expert', desc: t => `Completed ${t}% of Geometry`, icon: '△', thresholds: [10, 30, 50, 80, 100] },
+    'physics': { title: 'Physics Pro', desc: t => `Completed ${t}% of Physics`, icon: '⚛️', thresholds: [10, 30, 50, 80, 100] },
+    'chemistry': { title: 'Chem Whiz', desc: t => `Completed ${t}% of Chemistry`, icon: '⚗️', thresholds: [10, 30, 50, 80, 100] },
+    'biology': { title: 'Biology Guru', desc: t => `Completed ${t}% of Biology`, icon: '🧬', thresholds: [10, 30, 50, 80, 100] },
+    'streak': { title: 'Streak Master', desc: t => `Reached a ${t}-day streak`, icon: '🔥', thresholds: [3, 7, 14, 30, 60] }
 };
+
+const TIERS = [
+    { id: 'bronze', name: 'Bronze', icon: '🥉' },
+    { id: 'silver', name: 'Silver', icon: '🥈' },
+    { id: 'gold', name: 'Gold', icon: '🥇' },
+    { id: 'diamond', name: 'Diamond', icon: '💎' },
+    { id: 'amethyst', name: 'Amethyst', icon: '🔮' }
+];
+
+const BADGE_INFO = {
+    'polyglot': { title: 'Polyglot', desc: 'Changed language settings', icon: '🌐' },
+    '2048_tile': { title: '2048 Master', desc: 'Reached the 2048 tile!', icon: '🎮' }
+};
+
+for (const [id, def] of Object.entries(BADGE_DEFS)) {
+    def.thresholds.forEach((thresh, i) => {
+        const tier = TIERS[i];
+        BADGE_INFO[`${id}_${tier.id}`] = {
+            title: `${def.title} (${tier.name})`,
+            desc: def.desc(thresh),
+            icon: def.icon + ' ' + tier.icon
+        };
+    });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     // Check if we have auth state
@@ -782,8 +803,38 @@ function renderDashboard(visited, badges, flags = {}, streak = 0) {
     const badgeContainer = document.getElementById('badge-display');
     badgeContainer.innerHTML = ''; // User might reload
     
-    // Reverse to show newest first
-    const badgeList = badges.slice().reverse().slice(0, 10); // Show recent 10
+    // Filter out lower tiers to avoid duplicates (show only highest earned for each type)
+    const processedFamilies = new Set();
+    const uniqueBadges = [];
+    const reversedBadges = badges.slice().reverse();
+    
+    // TIERS array is available in scope (defined at top of module)
+    for (const badgeId of reversedBadges) {
+        // Check if tiered
+        let isTiered = false;
+        let familyId = badgeId;
+        
+        for (const tier of TIERS) {
+            if (badgeId.endsWith('_' + tier.id)) {
+                // It's a tiered badge. Extract family (e.g. 'algebra')
+                familyId = badgeId.substring(0, badgeId.length - tier.id.length - 1);
+                isTiered = true;
+                break;
+            }
+        }
+        
+        if (isTiered) {
+            if (!processedFamilies.has(familyId)) {
+                uniqueBadges.push(badgeId);
+                processedFamilies.add(familyId);
+            }
+        } else {
+            uniqueBadges.push(badgeId);
+        }
+    }
+
+    // Show recent 10 unique badges
+    const badgeList = uniqueBadges.slice(0, 10); 
     
     const isDarkBadge = document.body.classList.contains('dark-mode');
     badgeList.forEach(b => {

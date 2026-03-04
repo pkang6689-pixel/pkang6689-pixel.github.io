@@ -329,7 +329,12 @@ function update(dt) {
 }
 
 function draw() {
-    ctx.fillStyle = '#0f172a';
+    // Dark space background
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+    bgGrad.addColorStop(0, '#020617');
+    bgGrad.addColorStop(0.5, '#0f172a');
+    bgGrad.addColorStop(1, '#020617');
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0,0,W,H);
 
     ctx.save();
@@ -339,27 +344,32 @@ function draw() {
         ctx.translate(dx, dy);
     }
 
-    ctx.strokeStyle = '#1e293b';
+    // Scrolling grid
+    ctx.strokeStyle = 'rgba(30,41,59,0.5)';
     ctx.lineWidth = 1;
     const offset = (frameCount * 0.5) % 20;
     for (let i = -offset; i < W; i += 20) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, H);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke();
+    }
+    for (let i = -offset; i < H; i += 20) {
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke();
     }
 
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = '#334155';
+    // Center line with glow
+    ctx.save();
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = 'rgba(51,65,85,0.8)';
     ctx.setLineDash([10, 10]);
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(W/2, 0);
     ctx.lineTo(W/2, H);
-    ctx.strokeStyle = '#334155';
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.shadowBlur = 0;
+    ctx.restore();
 
+    // Ball trails with additive blend
     ctx.globalCompositeOperation = 'lighter';
     for (let t of trails) {
         const alpha = Math.max(0, Math.min(1, t.life));
@@ -371,6 +381,7 @@ function draw() {
     ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = 1.0;
 
+    // Particles
     for (let p of particles) {
         ctx.fillStyle = p.color;
         ctx.globalAlpha = Math.max(0, p.life);
@@ -380,20 +391,77 @@ function draw() {
     }
     ctx.globalAlpha = 1.0;
 
-    ctx.shadowBlur = 15;
+    // Player paddle with gradient and rounded corners
+    ctx.save();
+    ctx.shadowBlur = 20;
     ctx.shadowColor = '#3b82f6';
-    ctx.fillStyle = '#3b82f6';
-    ctx.fillRect(20, padY, padW, padH);
+    const pGrad = ctx.createLinearGradient(20, padY, 20+padW, padY+padH);
+    pGrad.addColorStop(0, '#60a5fa');
+    pGrad.addColorStop(0.5, '#3b82f6');
+    pGrad.addColorStop(1, '#2563eb');
+    ctx.fillStyle = pGrad;
+    ctx.beginPath();
+    const pr = 4;
+    ctx.moveTo(20+pr, padY); ctx.lineTo(20+padW-pr, padY);
+    ctx.quadraticCurveTo(20+padW, padY, 20+padW, padY+pr);
+    ctx.lineTo(20+padW, padY+padH-pr);
+    ctx.quadraticCurveTo(20+padW, padY+padH, 20+padW-pr, padY+padH);
+    ctx.lineTo(20+pr, padY+padH);
+    ctx.quadraticCurveTo(20, padY+padH, 20, padY+padH-pr);
+    ctx.lineTo(20, padY+pr);
+    ctx.quadraticCurveTo(20, padY, 20+pr, padY);
+    ctx.fill();
+    // Paddle highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fillRect(20, padY, padW*0.3, padH);
+    ctx.restore();
 
+    // AI paddle with gradient and rounded corners
+    ctx.save();
+    ctx.shadowBlur = 20;
     ctx.shadowColor = '#ef4444';
-    ctx.fillStyle = '#ef4444';
-    ctx.fillRect(W - 20 - padW, aiY, padW, aiH);
+    const aGrad = ctx.createLinearGradient(W-20-padW, aiY, W-20, aiY+aiH);
+    aGrad.addColorStop(0, '#f87171');
+    aGrad.addColorStop(0.5, '#ef4444');
+    aGrad.addColorStop(1, '#dc2626');
+    ctx.fillStyle = aGrad;
+    ctx.beginPath();
+    const ax = W-20-padW;
+    ctx.moveTo(ax+pr, aiY); ctx.lineTo(ax+padW-pr, aiY);
+    ctx.quadraticCurveTo(ax+padW, aiY, ax+padW, aiY+pr);
+    ctx.lineTo(ax+padW, aiY+aiH-pr);
+    ctx.quadraticCurveTo(ax+padW, aiY+aiH, ax+padW-pr, aiY+aiH);
+    ctx.lineTo(ax+pr, aiY+aiH);
+    ctx.quadraticCurveTo(ax, aiY+aiH, ax, aiY+aiH-pr);
+    ctx.lineTo(ax, aiY+pr);
+    ctx.quadraticCurveTo(ax, aiY, ax+pr, aiY);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fillRect(ax, aiY, padW*0.3, aiH);
+    ctx.restore();
 
+    // Ball with radial gradient and glow
+    ctx.save();
+    ctx.shadowBlur = 20;
     ctx.shadowColor = '#f8fafc';
-    ctx.fillStyle = '#f8fafc';
+    const ballGrad = ctx.createRadialGradient(ball.x-2, ball.y-2, 1, ball.x, ball.y, ball.r);
+    ballGrad.addColorStop(0, '#ffffff');
+    ballGrad.addColorStop(0.5, '#e2e8f0');
+    ballGrad.addColorStop(1, '#94a3b8');
+    ctx.fillStyle = ballGrad;
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
     ctx.fill();
+    ctx.restore();
+
+    // Score display on field
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.font = 'bold 60px "Orbitron", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(score, W/4, H/2 + 20);
+    ctx.fillText('AI', W*3/4, H/2 + 20);
+    ctx.restore();
 
     ctx.restore();
 }

@@ -234,14 +234,21 @@ canvas.addEventListener('mousedown', e => {
                     pairsFound++;
                     score += 10;
                     document.getElementById('score').textContent = score;
+                    flipped[0].matched = true;
+                    flipped[1].matched = true;
+                    // Emit particles for both cards
+                    for (const fc of flipped) {
+                        const ci = cards.indexOf(fc);
+                        const cr = Math.floor(ci/4), cc = ci%4;
+                        addMatchParticles(cc*(cell+gap)+cell/2, cr*(cell+gap)+cell/2, cols[fc.val]);
+                    }
                     flipped = [];
                     if (pairsFound === 8) {
                         saveBest();
-                        setTimeout(() => init(), 1000); // restart
+                        setTimeout(() => init(), 1000);
                     }
                 } else {
-                    wait = 800; // wait then unflip
-                }
+                    wait = 800;
             }
         }
     }
@@ -267,23 +274,131 @@ function update(dt) {
 }
 
 const cols = ['#000','#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899'];
+const symbols = ['','★','◆','♥','♣','✦','◎','♪','⚡'];
+const glowCols = ['#000','rgba(239,68,68,0.4)','rgba(249,115,22,0.4)','rgba(234,179,8,0.4)','rgba(34,197,94,0.4)','rgba(6,182,212,0.4)','rgba(59,130,246,0.4)','rgba(139,92,246,0.4)','rgba(236,72,153,0.4)'];
+let matchParticles = [];
+let starsBg = [];
+for (let i = 0; i < 30; i++) starsBg.push({x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.5+0.5, speed: Math.random()*0.3+0.1});
+
+function addMatchParticles(x, y, color) {
+    for (let i = 0; i < 12; i++) {
+        const angle = (Math.PI*2/12)*i;
+        matchParticles.push({x, y, vx: Math.cos(angle)*3+Math.random(), vy: Math.sin(angle)*3+Math.random(), life:1, color, r: Math.random()*4+2});
+    }
+}
+
+function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
 
 function draw() {
-    ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,W,H);
+    // Background gradient
+    const bgGrad = ctx.createLinearGradient(0,0,0,H);
+    bgGrad.addColorStop(0,'#030712'); bgGrad.addColorStop(0.5,'#0f172a'); bgGrad.addColorStop(1,'#030712');
+    ctx.fillStyle = bgGrad; ctx.fillRect(0,0,W,H);
+
+    // Twinkling stars
+    for (const s of starsBg) {
+        s.y += s.speed; if (s.y > H) { s.y = 0; s.x = Math.random()*W; }
+        const twinkle = 0.4 + Math.sin(Date.now()*0.003 + s.x)*0.4;
+        ctx.fillStyle = `rgba(148,163,184,${twinkle})`;
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Draw cards
     for (let i=0; i<16; i++) {
         let r = Math.floor(i/4), c = i%4;
         let x = c*(cell+gap), y = r*(cell+gap);
         let card = cards[i];
-        
-        if (card.up) {
-            ctx.fillStyle = '#f8fafc';
-            ctx.fillRect(x,y,cell,cell);
-            ctx.fillStyle = cols[card.val];
-            ctx.beginPath(); ctx.arc(x+cell/2, y+cell/2, cell/3, 0, Math.PI*2); ctx.fill();
-        } else {
-            ctx.fillStyle = '#334155';
-            ctx.fillRect(x,y,cell,cell);
+        const flipProgress = card.flipAnim || 0;
+
+        ctx.save();
+        ctx.translate(x+cell/2, y+cell/2);
+
+        if (card.matched) {
+            // Matched cards have a subtle glow
+            ctx.save();
+            const glow = ctx.createRadialGradient(0,0,cell*0.2,0,0,cell*0.7);
+            glow.addColorStop(0, glowCols[card.val]); glow.addColorStop(1,'transparent');
+            ctx.fillStyle = glow; ctx.fillRect(-cell/2,-cell/2,cell,cell);
+            ctx.restore();
         }
+
+        if (card.up || card.matched) {
+            // Face up - white card with symbol
+            ctx.save();
+            ctx.shadowBlur = 12; ctx.shadowColor = cols[card.val];
+            roundRect(-cell/2,-cell/2,cell,cell,8);
+            const cardGrad = ctx.createLinearGradient(-cell/2,-cell/2,cell/2,cell/2);
+            cardGrad.addColorStop(0,'#f8fafc'); cardGrad.addColorStop(1,'#e2e8f0');
+            ctx.fillStyle = cardGrad; ctx.fill();
+            ctx.strokeStyle = cols[card.val]; ctx.lineWidth = 2; ctx.stroke();
+            ctx.restore();
+
+            // Symbol glow
+            ctx.save();
+            const symGlow = ctx.createRadialGradient(0,0,0,0,0,cell*0.35);
+            symGlow.addColorStop(0, glowCols[card.val]); symGlow.addColorStop(1,'transparent');
+            ctx.fillStyle = symGlow;
+            ctx.beginPath(); ctx.arc(0,0,cell*0.35,0,Math.PI*2); ctx.fill();
+            ctx.restore();
+
+            // Symbol
+            ctx.fillStyle = cols[card.val];
+            ctx.font = 'bold 32px "Orbitron", sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.shadowBlur = 8; ctx.shadowColor = cols[card.val];
+            ctx.fillText(symbols[card.val], 0, 2);
+            ctx.shadowBlur = 0;
+        } else {
+            // Face down - dark card with pattern
+            ctx.save();
+            ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(59,130,246,0.3)';
+            roundRect(-cell/2,-cell/2,cell,cell,8);
+            const backGrad = ctx.createLinearGradient(-cell/2,-cell/2,cell/2,cell/2);
+            backGrad.addColorStop(0,'#1e293b'); backGrad.addColorStop(1,'#334155');
+            ctx.fillStyle = backGrad; ctx.fill();
+            ctx.strokeStyle = 'rgba(100,116,139,0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.restore();
+
+            // Card back pattern - diamond
+            ctx.save();
+            ctx.strokeStyle = 'rgba(100,116,139,0.25)'; ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(0,-cell*0.25); ctx.lineTo(cell*0.25,0);
+            ctx.lineTo(0,cell*0.25); ctx.lineTo(-cell*0.25,0);
+            ctx.closePath(); ctx.stroke();
+            // Inner dot
+            ctx.fillStyle = 'rgba(100,116,139,0.3)';
+            ctx.beginPath(); ctx.arc(0,0,4,0,Math.PI*2); ctx.fill();
+            ctx.restore();
+
+            // Bevel highlight
+            ctx.save();
+            ctx.globalAlpha = 0.08;
+            ctx.fillStyle = '#fff';
+            roundRect(-cell/2,-cell/2,cell,cell*0.3,8);
+            ctx.fill();
+            ctx.restore();
+        }
+        ctx.restore();
+    }
+
+    // Particles
+    for (let i=matchParticles.length-1; i>=0; i--) {
+        const p = matchParticles[i];
+        p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.life -= 0.025;
+        if (p.life <= 0) { matchParticles.splice(i,1); continue; }
+        ctx.save();
+        ctx.globalAlpha = p.life;
+        ctx.shadowBlur = 6; ctx.shadowColor = p.color;
+        ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r*p.life, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
     }
 }
 

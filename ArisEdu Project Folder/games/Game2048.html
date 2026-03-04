@@ -548,6 +548,19 @@
             if (arr[i] === arr[i + 1]) {
                 arr[i] *= 2;
                 score += arr[i];
+                
+                // Track max tile for badges
+                try {
+                const currentMax = parseInt(localStorage.getItem('2048_max_tile') || '0');
+                if (arr[i] > currentMax) {
+                    localStorage.setItem('2048_max_tile', arr[i]);
+                    if (window.BadgeSystem && window.BadgeSystem.checkAll) {
+                       window.BadgeSystem.checkAll(); 
+                    }
+                }
+                } catch(e) {}
+                
+                // Add a small delay for badges to trigger properly if needed
                 if (arr[i] === 2048 && !won2048) { won2048 = true; }
                 arr.splice(i + 1, 1);
                 mergedIndices.push(i);

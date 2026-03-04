@@ -313,7 +313,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // Inject MS mode badge on video page
         const mainTitle = document.querySelector('.page-title');
-        if (mainTitle && !document.querySelector('.ms-video-badge')) {
+        const videosPanel = document.querySelector('.videos-panel');
+        if (mainTitle && videosPanel && !document.querySelector('.ms-video-badge')) {
             const badge = document.createElement('div');
             badge.className = 'ms-video-badge';
             badge.style.cssText = 'background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:0.4rem 0.8rem;border-radius:0.5rem;font-size:0.8rem;font-weight:700;display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.5rem;';
