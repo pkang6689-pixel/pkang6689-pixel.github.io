@@ -1,0 +1,139 @@
+
+  // Course configuration
+  const courseConfig = {
+    name: "AP Physics C: Mechanics",
+    folder: "AP Physics C - Mechanics",
+    coursePrefix: "ap_phys_mech",
+    units: {
+      1: 4,
+      2: 4,
+      3: 4,
+      4: 4,
+      5: 4,
+      6: 4,
+      7: 4
+    },
+    numUnits: 7,
+    lessonNames: {
+      1: { 1: "Kinematics: One Dimension", 2: "Kinematics: Vector Form", 3: "Kinematics: 2D Motion", 4: "Kinematics: Projectile Motion" },
+      2: { 1: "Forces & Newton's Laws", 2: "Friction & Normal Forces", 3: "Applications of Newton's Laws", 4: "Systems & Free Body Diagrams" },
+      3: { 1: "Work: Definitions", 2: "Work-Energy Theorem", 3: "Energy: Conservative Forces", 4: "Energy Conservation" },
+      4: { 1: "Impulse & Momentum", 2: "Conservation of Momentum", 3: "Collisions: 1D", 4: "Collisions: 2D" },
+      5: { 1: "Rotational Kinematics", 2: "Rotational Dynamics: Torque", 3: "Moment of Inertia", 4: "Rotational Energy" },
+      6: { 1: "Angular Momentum", 2: "Conservation of Angular Momentum", 3: "Rotational Collisions", 4: "Rolling Without Slipping" },
+      7: { 1: "Simple Harmonic Motion", 2: "Oscillations: Damping", 3: "Oscillations: Forced", 4: "Resonance" }
+    }
+  };
+
+  // Generate unit SVG with adaptive spacing
+  function generateUnitSVG(unitNum, lessonCount) {
+    let segments = '';
+    const actualLessonCount = lessonCount + 1; // +1 for unit test
+    
+    // Calculate height based on total available space (30 units) divided by lesson count
+    const totalSpace = 30; // Available SVG space from y=3 to y=33
+    const rectHeight = (totalSpace / actualLessonCount).toFixed(3);
+    
+    for (let lessonNum = 1; lessonNum <= lessonCount; lessonNum++) {
+      // Y position: lessons positioned from bottom (high lesson #) to top (lesson 1)
+      const yPos = (3 + totalSpace - (lessonNum * rectHeight)).toFixed(3);
+      const folderPath = courseConfig.folder.replace(/\s+/g, '%20').replace(/\-/g, '%2D');
+      const unitText = `Unit ${unitNum}`.replace(/\s+/g, '%20');
+      const lessonText = `Lesson${unitNum}.${lessonNum}_Video.html`;
+      const topicName = courseConfig.lessonNames?.[unitNum]?.[lessonNum];
+      const lessonName = topicName ? `⭐ Lesson ${unitNum}.${lessonNum}: ${topicName}` : `Lesson ${unitNum}.${lessonNum}`;
+      
+      const href = `APLessons/${folderPath}/${unitText}/${lessonText}`;
+      segments += `<g onclick="markLessonStarted(${unitNum}, ${lessonNum}); window.location.href='${href}';" style="cursor: pointer;">
+    <rect id="u${unitNum}-l${lessonNum}" stroke="none" x="3" y="${yPos}" width="18" height="${rectHeight}" fill="white" fill-opacity="0.25" pointer-events="auto" onmouseenter="showLessonPopup(event, '${lessonName}', ${unitNum}, ${lessonNum})" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect></g>
+  <line x1="3" y1="${yPos}" x2="21" y2="${yPos}" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />`;
+    }
+    
+    // Unit Test
+    const testYPos = (3 + totalSpace - ((lessonCount + 1) * rectHeight)).toFixed(3);
+    const testHref = `AP_Unit_Tests/${courseConfig.folder}/Unit${unitNum}/unit_tests.html`;
+    const testName = `Unit ${unitNum} Test`;
+    segments += `<g onclick="markLessonStarted(${unitNum}, 99); window.location.href='${testHref}';" style="cursor: pointer;">
+    <rect id="u${unitNum}-l99" stroke="none" x="3" y="${testYPos}" width="18" height="${rectHeight}" fill="white" fill-opacity="0.25" pointer-events="auto" onmouseenter="showLessonPopup(event, '${testName}', ${unitNum}, 99)" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect></g>
+  <line x1="3" y1="${testYPos}" x2="21" y2="${testYPos}" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />`;
+    
+    return `<div style="position: relative; display: flex; align-items: flex-start; justify-content: center; height: 100%;"><svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;"><rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" /><rect id="fill-unit-${unitNum}" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" /><g id="segments-unit-${unitNum}">
+${segments}</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit ${unitNum}</text></svg></div>`;
+  }
+
+  // Populate the grid
+  function populateGrid() {
+    const container = document.getElementById('courses-container');
+    for (const [unitNum, lessonCount] of Object.entries(courseConfig.units)) {
+      container.innerHTML += generateUnitSVG(parseInt(unitNum), lessonCount);
+    }
+  }
+
+  // Initialize on load
+  document.addEventListener('DOMContentLoaded', () => {
+    populateGrid();
+    applyProgressColors();
+  });
+
+  let tooltipEl = null;
+  function getOrCreateTooltip() { if (!tooltipEl) { tooltipEl = document.createElement('div'); tooltipEl.id = 'lesson-tooltip'; document.body.appendChild(tooltipEl); } return tooltipEl; }
+  function showLessonPopup(event, lessonTitle, unitNum, lessonNum) { 
+    const tooltip = getOrCreateTooltip();
+    let status = '';
+    const isCompleted = localStorage.getItem(`${courseConfig.coursePrefix}_u${unitNum}_l${lessonNum}_completed`) === 'true';
+    const isStarted = localStorage.getItem(`${courseConfig.coursePrefix}_u${unitNum}_l${lessonNum}_started`) === 'true';
+    if (isCompleted) {
+      status = '✅ COMPLETED\n';
+    } else if (isStarted) {
+      status = '⏳ IN PROGRESS\n';
+    }
+    tooltip.textContent = status + lessonTitle;
+    tooltip.setAttribute('data-visible', 'true');
+  }
+  function moveLessonPopup(event) { const tooltip = getOrCreateTooltip(); tooltip.style.left = (event.pageX + 12) + 'px'; tooltip.style.top = (event.pageY + 12) + 'px'; }
+  function hideLessonPopup() { const tooltip = getOrCreateTooltip(); tooltip.setAttribute('data-visible', 'false'); }
+  function markLessonStarted(unit, lesson) { 
+    localStorage.setItem(`${courseConfig.coursePrefix}_u${unit}_l${lesson}_started`, 'true');
+    if (window.courseProgress) { window.courseProgress.markStarted(courseConfig.coursePrefix, unit, lesson); }
+    applyProgressColors();
+  }
+  function markLessonComplete(unit, lesson) { 
+    localStorage.setItem(`${courseConfig.coursePrefix}_u${unit}_l${lesson}_completed`, 'true');
+    if (window.courseProgress) { window.courseProgress.markComplete(courseConfig.coursePrefix, unit, lesson); }
+    applyProgressColors();
+  }
+  function applyProgressColors() { 
+    for (let u = 1; u <= courseConfig.numUnits; u++) { 
+      const maxLessons = courseConfig.units[u] || 0;
+      for (let l = 1; l <= maxLessons; l++) { 
+        const segment = document.getElementById(`u${u}-l${l}`); 
+        if (segment) { 
+          const isCompleted = localStorage.getItem(`${courseConfig.coursePrefix}_u${u}_l${l}_completed`) === 'true'; 
+          const isStarted = localStorage.getItem(`${courseConfig.coursePrefix}_u${u}_l${l}_started`) === 'true'; 
+          if (isCompleted) { 
+            segment.setAttribute('fill', '#16a34a'); 
+            segment.setAttribute('fill-opacity', '0.7'); 
+          } else if (isStarted) { 
+            segment.setAttribute('fill', '#f97316'); 
+            segment.setAttribute('fill-opacity', '0.6'); } 
+        } 
+      }
+      // Apply colors to unit test
+      const testSegment = document.getElementById(`u${u}-l99`);
+      if (testSegment) {
+        const isTestCompleted = localStorage.getItem(`${courseConfig.coursePrefix}_u${u}_l99_completed`) === 'true';
+        const isTestStarted = localStorage.getItem(`${courseConfig.coursePrefix}_u${u}_l99_started`) === 'true';
+        if (isTestCompleted) {
+          testSegment.setAttribute('fill', '#16a34a');
+          testSegment.setAttribute('fill-opacity', '0.7');
+        } else if (isTestStarted) {
+          testSegment.setAttribute('fill', '#f97316');
+          testSegment.setAttribute('fill-opacity', '0.6');
+        }
+      }
+    } 
+  }
+  // Listen for storage changes from other tabs/quiz completion
+  window.addEventListener('storage', function(e) {
+    if (e.key && e.key.match(/ap_phys_mech_u\d+_l\d+_(completed|started)/)) { applyProgressColors(); }
+  });
