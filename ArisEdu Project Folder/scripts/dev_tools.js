@@ -81,146 +81,6 @@
   // Render Body
   var body = panel.querySelector('#dev-tools-body');
   
-  // ─── Create Archived Buttons Dropdown ───
-  var archivedDropdownBtn = document.createElement('button');
-  archivedDropdownBtn.className = 'dev-btn';
-  archivedDropdownBtn.textContent = '➕ Archived Buttons';
-  archivedDropdownBtn.style.marginBottom = '0.5rem';
-  archivedDropdownBtn.style.width = '100%';
-  body.appendChild(archivedDropdownBtn);
-  
-  // Container for archived sections (hidden by default)
-  var archivedContainer = document.createElement('div');
-  archivedContainer.id = 'archived-buttons-container';
-  archivedContainer.style.cssText = 'display:none; border-top:1px solid #475569; padding-top:0.5rem; margin-bottom:0.5rem;';
-  body.appendChild(archivedContainer);
-  
-  // Toggle archived container visibility
-  archivedDropdownBtn.onclick = function() {
-    var isVisible = archivedContainer.style.display !== 'none';
-    archivedContainer.style.display = isVisible ? 'none' : 'block';
-    archivedDropdownBtn.textContent = isVisible ? '➕ Archived Buttons' : '➖ Archived Buttons';
-  };
-  
-  // ─── Define helper function to add items to archived container ───
-  function addArchivedSection(title) {
-      var div = document.createElement('div');
-      div.className = 'dev-section-title';
-      div.textContent = title;
-      div.style.marginTop = '0.5rem';
-      archivedContainer.appendChild(div);
-  }
-  
-  function addArchivedButton(text, action, cls) {
-      var btn = document.createElement('button');
-      btn.className = 'dev-btn' + (cls ? ' ' + cls : '');
-      btn.textContent = text;
-      btn.addEventListener('click', action);
-      archivedContainer.appendChild(btn);
-  }
-  
-  // Section: Badges (moved to archived)
-  (function() {
-      addArchivedSection('BADGES');
-
-      var select = document.createElement('select');
-      select.style.cssText = 'width:100%; padding:0.3rem; background:#334155; color:white; border:none; border-radius:0.3rem; margin-bottom:0.3rem;';
-      
-      var badgeKeys = window.BadgeSystem ? Object.keys(window.BadgeSystem.badges) : [
-          'polyglot', '2048_tile'
-      ];
-      
-      badgeKeys.forEach(function(key) {
-          var opt = document.createElement('option');
-          opt.value = key;
-          opt.textContent = key.replace(/_/g, ' ').toUpperCase();
-          select.appendChild(opt);
-      });
-
-      var btn = document.createElement('button');
-      btn.className = 'dev-btn green';
-      btn.textContent = 'Award Selected Badge';
-      btn.onclick = function() {
-          if (window.BadgeSystem) {
-              window.BadgeSystem.award(select.value);
-              console.log('Awarded:', select.value);
-          } else {
-              alert('BadgeSystem not loaded on this page.');
-          }
-      };
-
-      var awardAllBtn = document.createElement('button');
-      awardAllBtn.className = 'dev-btn';
-      awardAllBtn.style.background = '#8b5cf6';
-      awardAllBtn.textContent = 'Award All Badges';
-      awardAllBtn.style.marginTop = '0.5rem';
-      awardAllBtn.onclick = function() {
-          if (window.BadgeSystem) {
-              const allKeys = Object.keys(window.BadgeSystem.badges);
-              // Add a few hardcoded ones that may be in AccountInfo but not Badge_DEFS
-              if (!allKeys.includes('first_visit')) allKeys.push('first_visit');
-              localStorage.setItem('arisEdu_badges', JSON.stringify(allKeys));
-              alert('Awarded all badges! Refreshing page...');
-              location.reload();
-          } else {
-              alert('BadgeSystem not loaded on this page.');
-          }
-      };
-
-      var resetBtn = document.createElement('button');
-      resetBtn.className = 'dev-btn red';
-      resetBtn.textContent = 'Reset All Badges';
-      resetBtn.style.marginTop = '0.5rem';
-      resetBtn.onclick = function() {
-          localStorage.removeItem('arisEdu_badges');
-          alert('Badges reset.');
-      };
-      
-      archivedContainer.appendChild(select);
-      archivedContainer.appendChild(btn);
-      archivedContainer.appendChild(awardAllBtn);
-      archivedContainer.appendChild(resetBtn);
-
-      // Section: Role Switching (moved to archived)
-      addArchivedSection('ROLE SWITCHER');
-
-      var teacherBtn = document.createElement('button');
-      teacherBtn.className = 'dev-btn';
-      teacherBtn.textContent = 'Set Role: Teacher';
-      teacherBtn.onclick = function() {
-          try {
-              let user = JSON.parse(localStorage.getItem('user') || '{}');
-              user.role = 'teacher';
-              if(!user.classInfo) {
-                  user.classInfo = { name: "AP Physics 1", code: "PHYS-AP-001" };
-              }
-              localStorage.setItem('user', JSON.stringify(user));
-              alert('Role set to Teacher. Reloading...');
-              location.reload();
-          } catch(e) { console.error(e); }
-      };
-
-      var studentBtn = document.createElement('button');
-      studentBtn.className = 'dev-btn';
-      studentBtn.textContent = 'Set Role: Student';
-      studentBtn.onclick = function() {
-          try {
-              let user = JSON.parse(localStorage.getItem('user') || '{}');
-              user.role = 'student';
-              if(!user.classInfo) {
-                  user.classInfo = { name: "AP Physics 1" };
-              }
-              localStorage.setItem('user', JSON.stringify(user));
-              alert('Role set to Student. Reloading...');
-              location.reload();
-          } catch(e) { console.error(e); }
-      };
-
-      archivedContainer.appendChild(teacherBtn);
-      archivedContainer.appendChild(studentBtn);
-
-  })();
-
   // Section: Navigation logic (existing tools would go here if any)
   
   // Make draggable
@@ -284,51 +144,6 @@
       var day = String(now.getDate()).padStart(2, '0');
       return year + '-' + month + '-' + day;
     }
-  
-  // --- Update Log (moved to archived) ---
-  addArchivedSection('Updates');
-  addArchivedButton('📋 View Latest Update', function() {
-      if (typeof window.showArisEduUpdate === 'function') {
-          window.showArisEduUpdate();
-      } else {
-          alert('Update notifier not loaded yet.');
-      }
-  });
-  
-  // --- Language Switcher (moved to archived) ---
-  addArchivedSection('Language Shortcut');
-  var langs = [
-      { code: 'english', label: 'English' },
-      { code: 'chinese', label: '中文' },
-      { code: 'traditional', label: '繁體中文' }
-  ];
-  
-  var langContainer = document.createElement('div');
-  langContainer.style.display = 'grid';
-  langContainer.style.gridTemplateColumns = '1fr 1fr 1fr';
-  langContainer.style.gap = '0.5rem';
-  langContainer.style.marginTop = '0.4rem';
-  
-  langs.forEach(function(l) {
-      var btn = document.createElement('button');
-      btn.className = 'dev-btn';
-      btn.textContent = l.label;
-      
-      // Check if this is the current language
-      var currentLang = localStorage.getItem('selectedLanguage') || 'english';
-      if (l.code === currentLang) {
-          btn.style.background = '#3b82f6';
-      }
-      
-      btn.onclick = function() {
-          localStorage.setItem('selectedLanguage', l.code);
-          location.reload();
-      };
-      
-      langContainer.appendChild(btn);
-  });
-  
-  archivedContainer.appendChild(langContainer);
   
   // --- Arcade Tokens ---
   addSection('Arcade Tokens');
@@ -725,56 +540,6 @@
     }, 'green');
   }
 
-  // --- Misc: Time Tracking (moved to archived) ---
-  addArchivedSection('Time Tracking');
-  
-  function addTimeMinutes(minutes) {
-    var today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-    var storageKey = 'arisEdu_time_' + today;
-    var existing = parseInt(localStorage.getItem(storageKey)) || 0;
-    localStorage.setItem(storageKey, existing + minutes);
-    alert('Added ' + minutes + ' minutes.\nTotal today: ' + (existing + minutes) + ' minutes.');
-  }
-  
-  var timeContainer = document.createElement('div');
-  timeContainer.style.display = 'grid';
-  timeContainer.style.gridTemplateColumns = '1fr 1fr 1fr';
-  timeContainer.style.gap = '0.5rem';
-  timeContainer.style.marginTop = '0.4rem';
-  
-  var timeAmounts = [
-    { label: '+5m', minutes: 5 },
-    { label: '+30m', minutes: 30 },
-    { label: '+1h', minutes: 60 }
-  ];
-  
-  timeAmounts.forEach(function(t) {
-    var btn = document.createElement('button');
-    btn.textContent = t.label;
-    btn.style.background = '#16a34a';
-    btn.style.border = 'none';
-    btn.style.color = '#fff';
-    btn.style.borderRadius = '0.25rem';
-    btn.style.cursor = 'pointer';
-    btn.style.fontSize = '0.75rem';
-    btn.style.padding = '0.3rem';
-    btn.onmouseover = function() { btn.style.background = '#15803d'; };
-    btn.onmouseout = function() { btn.style.background = '#16a34a'; };
-    btn.onclick = function() { addTimeMinutes(t.minutes); };
-    timeContainer.appendChild(btn);
-  });
-  archivedContainer.appendChild(timeContainer);
-  
-  addArchivedButton('\u274C Clear Time Data', function() {
-    if(!confirm('Clear all time tracking data?')) return;
-    var toRemove = [];
-    for(var i=0; i<localStorage.length; i++) {
-      var k = localStorage.key(i);
-      if(k && k.startsWith('arisEdu_time_')) toRemove.push(k);
-    }
-    toRemove.forEach(k => localStorage.removeItem(k));
-    alert('Cleared ' + toRemove.length + ' time entries.');
-  }, 'red');
   
   // --- Homepage-only: Tutorial replay ---
   if (path.indexOf('index.html') !== -1 || path === '/' || path === '') {
@@ -1058,19 +823,6 @@
   addSection('Course Tools');
   addButton('✓ Complete This Course', function() { window.completeCurrentCourse(); }, 'green');
   addButton('✓ Complete All Courses', function() { window.completeAllCourses(); }, 'green');
-
-  addSection('Badge Options');
-  addButton('🏆 Award All Badges', function() { 
-      if (window.BadgeSystem) {
-          const allKeys = Object.keys(window.BadgeSystem.badges);
-          if (!allKeys.includes('first_visit')) allKeys.push('first_visit');
-          localStorage.setItem('arisEdu_badges', JSON.stringify(allKeys));
-          alert('Awarded all badges! Refreshing page...');
-          location.reload();
-      } else {
-          alert('BadgeSystem not loaded on this page.');
-      }
-  }, 'green');
 
   // Add panel to DOM after page loads
   function mount() {
