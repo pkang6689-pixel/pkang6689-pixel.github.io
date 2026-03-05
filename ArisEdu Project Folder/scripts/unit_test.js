@@ -388,8 +388,8 @@
       var endTime = Date.now();
       var timeSpent = endTime - quizStartTime;
 
-      // Mark unit test as completed in localStorage if all correct
-      if (correctCount === totalQuestions) {
+      // Mark unit test as completed in localStorage when all questions answered
+      {
         var testPath = decodeURIComponent(window.location.pathname);
         var unitMatch = testPath.match(/Unit(\w+)_Test/);
         

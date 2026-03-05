@@ -272,6 +272,61 @@ async function clearAllProgress() {
   return keysToRemove.length;
 }
 
+/**
+ * Clear progress matching a prefix (e.g. 'chem_u') from both sources
+ */
+async function clearProgressByPrefix(prefix) {
+  if (!prefix) return 0;
+
+  // Clear localStorage
+  const keysToRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith(prefix)) {
+      keysToRemove.push(key);
+    }
+  }
+  
+  keysToRemove.forEach(key => localStorage.removeItem(key));
+  
+  // Clear from Firebase if available
+  if (useFirebase && currentUser) {
+    try {
+      const { doc, updateDoc, deleteField } = await import('../firebase-config.js');
+      
+      const userId = currentUser.uid;
+      const progressDocRef = doc(db, 'userProgress', userId);
+      
+      // We need to know which keys to delete from Firebase.
+      // Since we don't store a separate list, we must read the document first.
+      const firebaseData = await loadProgressFromFirebase();
+      
+      if (firebaseData) {
+        const updates = {};
+        for (const [key, value] of Object.entries(firebaseData)) {
+          if (key.startsWith(prefix)) {
+            updates[key] = deleteField();
+            // Also try to delete associated timestamp if it exists
+            if (firebaseData[`${key}_timestamp`]) {
+                updates[`${key}_timestamp`] = deleteField();
+            }
+          }
+        }
+        
+        if (Object.keys(updates).length > 0) {
+            await updateDoc(progressDocRef, updates);
+            console.log(`[Course Progress] Cleared ${Object.keys(updates).length} Firebase entries for prefix ${prefix}`);
+        }
+      }
+    } catch (error) {
+      console.warn('[Course Progress] Failed to clear Firebase progress by prefix:', error.message);
+    }
+  }
+  
+  console.log(`[Course Progress] Cleared ${keysToRemove.length} local progress entries for prefix ${prefix}`);
+  return keysToRemove.length;
+}
+
 // Initialize Firebase on script load
 initializeProgressFirebase().then(success => {
   if (success) {
@@ -288,6 +343,7 @@ window.courseProgress = {
   syncToLocalStorage: syncFirebaseToLocalStorage,
   getCourseProgress: getCourseProgress,
   clearAllProgress: clearAllProgress,
+  clearProgressByPrefix: clearProgressByPrefix,
   isFirebaseEnabled: () => useFirebase && currentUser
 };
 
@@ -299,5 +355,6 @@ export {
   loadProgressFromFirebase,
   syncFirebaseToLocalStorage,
   getCourseProgress,
-  clearAllProgress
+  clearAllProgress,
+  clearProgressByPrefix
 };

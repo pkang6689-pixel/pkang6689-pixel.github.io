@@ -321,9 +321,31 @@ class QuizLoader {
               const userAnswer = this.userAnswers[this.currentQuestionIndex];
               const isCorrect = userAnswer === correctAnswer;
               const hasAttemptsLeft = attempts < 2;
-              
+              const isLastQuestion = this.currentQuestionIndex === totalQuestions - 1;
+
+              // Check if all questions have been attempted (submitted at least once)
+              const allQuestionsAttempted = Object.keys(this.submittedAnswers).length >= totalQuestions;
+
               // If out of attempts and got it wrong, show "Get another question" button
+              // But if all questions have been attempted OR this is the last question, also show View Results
               if (attempts >= 2 && wasSubmitted && !isCorrect) {
+                if (allQuestionsAttempted || isLastQuestion) {
+                  return `
+                    <button 
+                      class="nav-button another-button" 
+                      onclick="quizLoader.getAnotherQuestion()"
+                    >
+                      Get Another Question
+                    </button>
+                    <button 
+                      class="nav-button results-button" 
+                      onclick="quizLoader.completeQuiz()"
+                      style="background: #16a34a; font-weight: bold;"
+                    >
+                      View Results
+                    </button>
+                  `;
+                }
                 return `
                   <button 
                     class="nav-button another-button" 
@@ -348,12 +370,11 @@ class QuizLoader {
                   </button>
                 `;
               } else {
-                // Check if on last question and it's been answered
-                const isLastQuestion = this.currentQuestionIndex === totalQuestions - 1;
+                // If all questions answered or on last question, show View Results
                 const lastQuestionAnswered = this.submittedAnswers[this.currentQuestionIndex];
                 
-                if (isLastQuestion && lastQuestionAnswered) {
-                  // Show "View Results" button on last question after answering
+                if (allQuestionsAttempted || (isLastQuestion && lastQuestionAnswered)) {
+                  // Show "View Results" button
                   return `
                     <button 
                       class="nav-button results-button" 
@@ -495,6 +516,15 @@ class QuizLoader {
     const tokensReward = 300;
     this.awardTokens(tokensReward);
 
+    // Mark lesson as completed
+    this.markLessonComplete();
+
+    // Show arcade intro tour on first-ever lesson completion
+    const isFirstCompletion = !localStorage.getItem('arisEdu_arcadeTourShown');
+    if (isFirstCompletion) {
+      setTimeout(() => this.showArcadeTour(), 1200);
+    }
+
     let html = `
       <div class="quiz-results">
         <style>
@@ -607,6 +637,82 @@ class QuizLoader {
     }
   }
 
+  // Determine relevant key for completion
+  markLessonComplete() {
+    try {
+      if (!this.quizData) return;
+      
+      const { unit, lesson, course } = this.quizData; // course is loose name
+      
+      let prefix = '';
+      const path = window.location.pathname;
+      
+      // Course-specific prefix logic
+      if (path.includes('APLessons')) {
+        if (path.includes('Biology')) prefix = 'ap_bio';
+        else if (path.includes('Chemistry')) prefix = 'ap_chem'; 
+        else if (path.includes('Environmental')) prefix = 'ap_env_sci';
+        else if (path.includes('Human')) prefix = 'ap_hug';
+        else if (path.includes('Calculus')) prefix = 'ap_calc_ab';
+        else if (path.includes('Statistics')) prefix = 'ap_stats';
+        else if (path.includes('hysics_2')) prefix = 'ap_phys2';
+        else if (path.includes('echanics')) prefix = 'ap_phys_mech';
+        else if (path.includes('hysics_1')) prefix = 'ap_phys1';
+      } else if (path.includes('MS_')) {
+        // Middle School Logic
+        if (path.includes('Algebra1') || path.includes('Pre-Algebra')) prefix = 'alg1_ms';
+        else if (path.includes('Algebra2')) prefix = 'alg2_ms';
+        else if (path.includes('Biology') || path.includes('Life')) prefix = 'bio_ms';
+        else if (path.includes('Chemistry')) {
+           // Special case: check if ms_chem.html uses chem_u or chem_ms_u
+           // Based on inspection, ms_chem.html currently uses chem_u (shared with HS)
+           // But intended might be chem_ms. 
+           // For safety, we will write BOTH to ensure it works regardless of the bug in ms_chem.html
+           prefix = 'chem_ms'; 
+        }
+        else if (path.includes('Geometry')) prefix = 'ms_geom';
+        else if (path.includes('Physics')) prefix = 'ms_phys';
+      } else {
+        // High School Logic
+        if (path.includes('Algebra1')) prefix = 'alg1';
+        else if (path.includes('Algebra2')) prefix = 'alg2';
+        else if (path.includes('Biology')) prefix = 'bio';
+        else if (path.includes('Chemistry')) prefix = 'chem';
+        else if (path.includes('Geometry')) prefix = 'geometry';
+        else if (path.includes('Physics')) prefix = 'physics';
+      }
+
+      if (prefix) {
+        // Parse lesson number (e.g. "1.2" -> "2")
+        // NOTE: Some files might be "Lesson 5.html" -> "5"
+        let lessonNum = lesson;
+        if (lesson.toString().includes('.')) {
+            lessonNum = lesson.toString().split('.')[1];
+        }
+        
+        // Write primary key
+        const key = `${prefix}_u${unit}_l${lessonNum}_completed`;
+        localStorage.setItem(key, 'true');
+        
+        // Also write started key
+        localStorage.setItem(`${prefix}_u${unit}_l${lessonNum}_started`, 'true');
+        
+        // Hack for MS Chemistry: write to HS prefix too if it's MS Chemistry
+        if (prefix === 'chem_ms') {
+            localStorage.setItem(`chem_u${unit}_l${lessonNum}_completed`, 'true');
+            localStorage.setItem(`chem_u${unit}_l${lessonNum}_started`, 'true');
+        }
+
+        console.log(`Marked lesson complete: ${key}`);
+        
+        // Notify any listeners
+        if (window.checkQuizCompletion) window.checkQuizCompletion();
+      }
+    } catch (e) {
+      console.error('Error marking completion:', e);
+    }
+  }
+
   // Retake quiz
   retakeQuiz() {
     // Reshuffle and select 7 new questions from the 20
@@ -620,6 +726,219 @@ class QuizLoader {
     this.askedQuestionIndices = new Set();
     this.startTime = Date.now(); // Reset timer for new attempt
     this.renderQuiz();
+  }
+
+  // Arcade intro tour — shown once on first-ever quiz completion
+  showArcadeTour() {
+    localStorage.setItem('arisEdu_arcadeTourShown', 'true');
+
+    // Inject CSS
+    const style = document.createElement('style');
+    style.textContent = `
+      .arcade-tour-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 99999; pointer-events: none; opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      .arcade-tour-overlay.active { opacity: 1; pointer-events: auto; }
+      .arcade-tour-backdrop {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.65); z-index: 99998;
+      }
+      .arcade-tour-card {
+        position: fixed; background: white; border-radius: 1rem; padding: 2rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 100000;
+        max-width: 440px; width: 90%;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0;
+        transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+      }
+      .arcade-tour-card.visible {
+        transform: translate(-50%, -50%) scale(1); opacity: 1;
+      }
+      body.dark-mode .arcade-tour-card {
+        background: #1e293b; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      }
+      .arcade-tour-card .at-icon { font-size: 3rem; margin-bottom: 0.75rem; text-align: center; }
+      .arcade-tour-card h2 {
+        font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;
+        color: #1e293b; text-align: center;
+      }
+      body.dark-mode .arcade-tour-card h2 { color: #f1f5f9; }
+      .arcade-tour-card p {
+        font-size: 1rem; line-height: 1.6; color: #475569;
+        text-align: center; margin-bottom: 0.25rem;
+      }
+      body.dark-mode .arcade-tour-card p { color: #94a3b8; }
+      .arcade-tour-card .at-flow {
+        display: flex; align-items: center; justify-content: center;
+        gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap;
+      }
+      .arcade-tour-card .at-flow-step {
+        display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+        padding: 0.5rem 0.75rem; border-radius: 0.5rem;
+        background: #f1f5f9; font-size: 0.85rem; font-weight: 600; color: #334155;
+      }
+      body.dark-mode .arcade-tour-card .at-flow-step { background: #334155; color: #e2e8f0; }
+      .arcade-tour-card .at-flow-step .fi { font-size: 1.4rem; }
+      .arcade-tour-card .at-flow-arrow { font-size: 1.2rem; color: #94a3b8; }
+      .arcade-tour-nav {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-top: 1.5rem; gap: 0.75rem;
+      }
+      .arcade-tour-dots { display: flex; gap: 6px; }
+      .arcade-tour-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        background: #cbd5e1; transition: all 0.3s ease;
+      }
+      .arcade-tour-dot.active { background: #f59e0b; width: 24px; border-radius: 4px; }
+      body.dark-mode .arcade-tour-dot { background: #475569; }
+      body.dark-mode .arcade-tour-dot.active { background: #f59e0b; }
+      .at-btn {
+        padding: 0.5rem 1.25rem; border-radius: 0.5rem; font-weight: 600;
+        font-size: 0.9rem; cursor: pointer; border: none; transition: all 0.2s ease;
+      }
+      .at-btn-primary {
+        background: linear-gradient(135deg, #f59e0b, #d97706); color: white;
+      }
+      .at-btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+      .at-btn-secondary { background: #f1f5f9; color: #475569; }
+      body.dark-mode .at-btn-secondary { background: #334155; color: #cbd5e1; }
+      .at-btn-secondary:hover { background: #e2e8f0; }
+      body.dark-mode .at-btn-secondary:hover { background: #475569; }
+      .at-btn-skip {
+        background: none; color: #94a3b8; font-size: 0.85rem; padding: 0.5rem 0.75rem;
+      }
+      .at-btn-skip:hover { color: #64748b; }
+      .at-btn-arcade {
+        display: inline-block; margin-top: 0.75rem;
+        background: linear-gradient(135deg, #f59e0b, #d97706); color: white;
+        padding: 0.6rem 1.5rem; border-radius: 0.5rem; font-weight: 700;
+        font-size: 1rem; text-decoration: none; border: none; cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .at-btn-arcade:hover { opacity: 0.9; transform: translateY(-1px); }
+    `;
+    document.head.appendChild(style);
+
+    // Tour steps
+    const steps = [
+      {
+        icon: '🎉',
+        title: 'You Earned Arcade Tokens!',
+        body: 'Every time you complete a lesson quiz, you earn <b>💎 300 Arcade Tokens</b>. These tokens unlock fun games!',
+        btnText: 'Tell Me More'
+      },
+      {
+        icon: '🎮',
+        title: 'Welcome to the Arcade',
+        body: 'The Arcade is packed with games you can play using your tokens. Spend tokens to start a gaming session and have fun between study breaks!',
+        flow: [
+          { icon: '✅', label: 'Complete Quiz' },
+          { icon: '💎', label: 'Earn Tokens' },
+          { icon: '🎮', label: 'Play Games' }
+        ]
+      },
+      {
+        icon: '🏆',
+        title: 'How It Works',
+        body: 'Each game session costs tokens. The more lessons you complete, the more you can play! Balance learning and fun.'
+      },
+      {
+        icon: '🚀',
+        title: 'Ready to Play?',
+        body: 'Head to the <b>Arcade</b> from the main menu to browse games and start playing. Keep completing lessons to stock up on tokens!',
+        btnText: 'Got It!',
+        showArcadeLink: true
+      }
+    ];
+
+    let currentStep = 0;
+
+    // Build overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'arcade-tour-overlay';
+    overlay.innerHTML = `
+      <div class="arcade-tour-backdrop"></div>
+      <div class="arcade-tour-card" id="arcade-tour-card"></div>
+    `;
+    document.body.appendChild(overlay);
+
+    const card = overlay.querySelector('#arcade-tour-card');
+
+    function buildCard(step, index) {
+      let html = '';
+      if (step.icon) html += `<div class="at-icon">${step.icon}</div>`;
+      html += `<h2>${step.title}</h2>`;
+      html += `<p>${step.body}</p>`;
+
+      if (step.flow) {
+        html += '<div class="at-flow">';
+        step.flow.forEach((f, i) => {
+          html += `<div class="at-flow-step"><span class="fi">${f.icon}</span>${f.label}</div>`;
+          if (i < step.flow.length - 1) html += '<span class="at-flow-arrow">→</span>';
+        });
+        html += '</div>';
+      }
+
+      if (step.showArcadeLink) {
+        // Build arcade link relative to current page
+        const path = window.location.pathname;
+        let arcadeHref = '/ArisEdu%20Project%20Folder/arcade.html';
+        // If we can detect the project folder base, adjust
+        const folderMatch = path.match(/(.*ArisEdu(?:%20|\s)Project(?:%20|\s)Folder)/i);
+        if (folderMatch) {
+          arcadeHref = folderMatch[1].replace(/ /g, '%20') + '/arcade.html';
+        }
+        html += `<div style="text-align:center;"><a class="at-btn-arcade" href="${arcadeHref}">🎮 Visit Arcade</a></div>`;
+      }
+
+      // Navigation
+      html += '<div class="arcade-tour-nav">';
+      if (index > 0) {
+        html += `<button class="at-btn at-btn-secondary" onclick="window._arcadeTourPrev()">← Back</button>`;
+      } else {
+        html += `<button class="at-btn at-btn-skip" onclick="window._arcadeTourFinish()">Skip</button>`;
+      }
+      html += '<div class="arcade-tour-dots">';
+      for (let i = 0; i < steps.length; i++) {
+        html += `<div class="arcade-tour-dot${i === index ? ' active' : ''}"></div>`;
+      }
+      html += '</div>';
+      const isLast = index === steps.length - 1;
+      const nextLabel = step.btnText || (isLast ? 'Finish' : 'Next →');
+      html += `<button class="at-btn at-btn-primary" onclick="${isLast ? 'window._arcadeTourFinish()' : 'window._arcadeTourNext()'}">${nextLabel}</button>`;
+      html += '</div>';
+      return html;
+    }
+
+    function showStep(index) {
+      currentStep = index;
+      card.classList.remove('visible');
+      setTimeout(() => {
+        card.innerHTML = buildCard(steps[index], index);
+        requestAnimationFrame(() => card.classList.add('visible'));
+      }, 200);
+    }
+
+    window._arcadeTourNext = () => {
+      if (currentStep < steps.length - 1) showStep(currentStep + 1);
+    };
+    window._arcadeTourPrev = () => {
+      if (currentStep > 0) showStep(currentStep - 1);
+    };
+    window._arcadeTourFinish = () => {
+      card.classList.remove('visible');
+      overlay.classList.remove('active');
+      setTimeout(() => overlay.remove(), 400);
+    };
+
+    // Activate
+    requestAnimationFrame(() => {
+      overlay.classList.add('active');
+      showStep(0);
+    });
   }
 
   // Initialize on page load

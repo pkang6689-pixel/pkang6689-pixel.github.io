@@ -290,19 +290,28 @@
   }
 
   // Common Clear
-  addButton('\u274C Reset Local Progress', function() {
-      if(!confirm('Clear progress for the current context?')) return;
+  addButton('\u274C Reset Local Progress', async function() {
+      if(!confirm('Clear progress for the current context (Local + Firebase)?')) return;
       
       // If on a specific lesson page, maybe only clear that unit?
       // Or just clear all keys matching prefix
       if (contextKeyPrefix) {
-          var toRemove = [];
-          for(var i=0; i<localStorage.length; i++) {
-              var k = localStorage.key(i);
-              if(k.startsWith(contextKeyPrefix)) toRemove.push(k);
+          if (window.courseProgress && window.courseProgress.clearProgressByPrefix) {
+              try {
+                  const count = await window.courseProgress.clearProgressByPrefix(contextKeyPrefix);
+                  alert('Cleared ' + count + ' keys from Local Storage and attempted Firebase sync.');
+              } catch (e) {
+                  alert('Error clearing progress: ' + e.message);
+              }
+          } else {
+              var toRemove = [];
+              for(var i=0; i<localStorage.length; i++) {
+                  var k = localStorage.key(i);
+                  if(k.startsWith(contextKeyPrefix)) toRemove.push(k);
+              }
+              toRemove.forEach(k => localStorage.removeItem(k));
+              alert('Cleared ' + toRemove.length + ' keys (Local Only).');
           }
-          toRemove.forEach(k => localStorage.removeItem(k));
-          alert('Cleared ' + toRemove.length + ' keys.');
           location.reload();
       } else {
           alert('Not in a known course context.');
@@ -554,6 +563,39 @@
     });
   }
 
+  // --- Arcade Tour replay (available on any page) ---
+  addSection('Arcade Tour');
+  addButton('\uD83C\uDFAE Test Arcade Tour', function() {
+    localStorage.removeItem('arisEdu_arcadeTourShown');
+    // If quizLoader is already on the page, just call it
+    if (typeof quizLoader !== 'undefined' && quizLoader.showArcadeTour) {
+      quizLoader.showArcadeTour();
+    } else if (typeof QuizLoader !== 'undefined') {
+      // Class exists but no global instance — create one for the tour
+      var temp = new QuizLoader();
+      temp.showArcadeTour();
+    } else {
+      // Non-quiz page: fetch the source as text and eval only the method we need
+      fetch('/scripts/quiz_loader.js')
+        .then(function(r) { return r.text(); })
+        .then(function(src) {
+          // Extract showArcadeTour method body and run it stand-alone
+          var match = src.match(/showArcadeTour\s*\(\)\s*\{/);
+          if (!match) { alert('Could not find showArcadeTour in quiz_loader.js'); return; }
+          var start = src.indexOf(match[0]);
+          // Find the matching closing brace
+          var depth = 0, i = start + match[0].length - 1;
+          for (; i < src.length; i++) {
+            if (src[i] === '{') depth++;
+            else if (src[i] === '}') { depth--; if (depth === 0) break; }
+          }
+          var fnBody = src.substring(start + match[0].length, i);
+          (new Function(fnBody))();
+        })
+        .catch(function() { alert('Could not load quiz_loader.js'); });
+    }
+  });
+
   addSection('Debug Stats');
   addButton('\uD83D\uDCCB Show Storage Keys', function () {
       var keys = [];
@@ -678,7 +720,7 @@
       'ap_phys2': { name: 'AP Physics 2', units: { 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5 } },
       'ap_phys_mech': { name: 'AP Physics C: Mechanics', units: { 1: 4, 2: 4, 3: 4, 4: 4, 5: 4, 6: 4, 7: 4 } },
       // High School Courses
-      'alg1': { name: 'High School: Algebra 1', units: { 1: 8, 2: 10, 3: 6, 4: 9, 5: 13, 6: 16, 7: 11, 8: 10, 9: 12, 10: 11, 11: 8, 12: 5 } },
+      'alg1': { name: 'High School: Algebra 1', units: { 1: 8, 2: 10, 3: 8, 4: 9, 5: 11, 6: 7, 7: 9, 8: 5, 9: 5, 10: 5, 11: 4, 12: 5 } },
       'alg2': { name: 'High School: Algebra 2', units: { 1: 10, 2: 8, 3: 8, 4: 7, 5: 8, 6: 6, 7: 8, 8: 7, 9: 5 } },
       'bio': { name: 'High School: Biology', units: { 1: 8, 2: 8, 3: 6, 4: 7, 5: 7, 6: 7, 7: 7, 8: 6, 9: 6, 10: 7, 11: 7, 12: 7 } },
       'chem': { name: 'High School: Chemistry', units: { 1: 9, 2: 6, 3: 9, 4: 10, '5A': 9, '5B': 6, 6: 8, 7: 9, 8: 10, 9: 9, 10: 11, 11: 7, 12: 6 } },
@@ -752,7 +794,7 @@
       'ap_phys1': { name: 'AP Physics 1', units: { 1: 7, 2: 7, 3: 7, 4: 7, 5: 7, 6: 7, 7: 7, 8: 7 } },
 
       // High School Courses
-      'alg1': { name: 'High School: Algebra 1', units: { 1: 8, 2: 10, 3: 6, 4: 9, 5: 13, 6: 16, 7: 11, 8: 10, 9: 12, 10: 11, 11: 8, 12: 5 } },
+      'alg1': { name: 'High School: Algebra 1', units: { 1: 8, 2: 10, 3: 8, 4: 9, 5: 11, 6: 7, 7: 9, 8: 5, 9: 5, 10: 5, 11: 4, 12: 5 } },
       'alg2': { name: 'High School: Algebra 2', units: { 1: 10, 2: 8, 3: 8, 4: 7, 5: 8, 6: 6, 7: 8, 8: 7, 9: 5 } },
       'bio': { name: 'High School: Biology', units: { 1: 8, 2: 8, 3: 6, 4: 7, 5: 7, 6: 7, 7: 7, 8: 6, 9: 6, 10: 7, 11: 7, 12: 7 } },
       'chem': { name: 'High School: Chemistry', units: { 1: 9, 2: 6, 3: 9, 4: 10, '5A': 9, '5B': 6, 6: 8, 7: 9, 8: 10, 9: 9, 10: 11, 11: 7, 12: 6 } },

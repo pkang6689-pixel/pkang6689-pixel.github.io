@@ -756,47 +756,84 @@ function renderDashboard(visited, badges, flags = {}, streak = 0) {
         }
     }
 
-    // Courses List
-    const courses = [
-        { id: 'algebra1', name: 'Algebra 1', prefix: 'alg1', icon: '📐', path: 'algebra1.html' },
-        { id: 'algebra2', name: 'Algebra 2', prefix: 'alg2', icon: '📈', path: 'algebra2.html' },
-        { id: 'geometry', name: 'Geometry', prefix: 'geo', icon: '🛑', path: 'geometry.html' },
-        { id: 'bio', name: 'Biology', prefix: 'bio', icon: '🧬', path: 'bio.html' },
-        { id: 'chem', name: 'Chemistry', prefix: 'chem', icon: '⚗️', path: 'chem.html' },
-        { id: 'physics', name: 'Physics', prefix: 'phys', icon: '⚛️', path: 'physics.html' }
+    // Courses List — organized by category
+    const courseSections = [
+        {
+            label: 'High School',
+            courses: [
+                { id: 'algebra1', name: 'Algebra 1', prefix: 'alg1', icon: '📐', path: 'algebra1.html' },
+                { id: 'algebra2', name: 'Algebra 2', prefix: 'alg2', icon: '📈', path: 'algebra2.html' },
+                { id: 'geometry', name: 'Geometry', prefix: 'geo', icon: '🛑', path: 'geometry.html' },
+                { id: 'bio', name: 'Biology', prefix: 'bio', icon: '🧬', path: 'bio.html' },
+                { id: 'chem', name: 'Chemistry', prefix: 'chem', icon: '⚗️', path: 'chem.html' },
+                { id: 'physics', name: 'Physics', prefix: 'phys', icon: '⚛️', path: 'physics.html' }
+            ]
+        },
+        {
+            label: 'Middle School',
+            courses: [
+                { id: 'ms_algebra1', name: 'MS: Pre-Algebra', prefix: 'ms_alg1', icon: '📐', path: 'ms_algebra1.html' },
+                { id: 'ms_algebra2', name: 'MS: Algebra', prefix: 'ms_alg2', icon: '📈', path: 'ms_algebra2.html' },
+                { id: 'ms_geometry', name: 'MS: Geometry', prefix: 'ms_geo', icon: '📏', path: 'ms_geometry.html' },
+                { id: 'ms_physics', name: 'MS: Physical Science', prefix: 'ms_phys', icon: '💡', path: 'ms_physics.html' },
+                { id: 'ms_chem', name: 'MS: Chemistry Foundations', prefix: 'ms_chem', icon: '🧪', path: 'ms_chem.html' },
+                { id: 'ms_bio', name: 'MS: Life Science', prefix: 'ms_bio', icon: '🌿', path: 'ms_bio.html' }
+            ]
+        },
+        {
+            label: 'AP (Advanced Placement)',
+            courses: [
+                { id: 'ap_calculus', name: 'AP Calculus', prefix: 'ap_calc', icon: '∫', path: 'ap_calculus.html' },
+                { id: 'ap_statistics', name: 'AP Statistics', prefix: 'ap_stat', icon: '📊', path: 'ap_statistics.html' },
+                { id: 'ap_biology', name: 'AP Biology', prefix: 'ap_bio', icon: '🧬', path: 'ap_biology.html' },
+                { id: 'ap_chemistry', name: 'AP Chemistry', prefix: 'ap_chem', icon: '⚗️', path: 'ap_chemistry.html' },
+                { id: 'ap_physics2', name: 'AP Physics 2', prefix: 'ap_phys2', icon: '⚛️', path: 'ap_physics2.html' },
+                { id: 'ap_physics_mechanics', name: 'AP Physics C: Mechanics', prefix: 'ap_mech', icon: '🔧', path: 'ap_physics_mechanics.html' },
+                { id: 'ap_environmental_science', name: 'AP Environmental Science', prefix: 'ap_env', icon: '🌍', path: 'ap_environmental_science.html' },
+                { id: 'ap_hug', name: 'AP Human Geography', prefix: 'ap_hug', icon: '🌐', path: 'ap_hug.html' }
+            ]
+        }
     ];
 
     const courseList = document.getElementById('course-list');
     courseList.innerHTML = '';
 
-    courses.forEach(c => {
-        // 1. Count from visited URLs
-        let count = visited.filter(url => url.toLowerCase().includes(c.id)).length;
-        
-        // 2. Count from Flags (e.g. 'chem_u*_l*')
-        const flagCount = Object.keys(flags).filter(k => k.toLowerCase().startsWith(c.prefix || 'xxx')).length;
-        
-        // Take the max to be safe
-        count = Math.max(count, flagCount);
+    courseSections.forEach(section => {
+        // Section header
+        const header = document.createElement('div');
+        header.style.cssText = 'font-weight:700; font-size:0.95rem; margin: 1.25rem 0 0.5rem; opacity:0.65; text-transform:uppercase; letter-spacing:0.05em;';
+        header.textContent = section.label;
+        courseList.appendChild(header);
 
-        // Cap at 100% just for visual (assuming ~20 lessons per course)
-        const percent = Math.min(100, Math.round((count / 20) * 100));
+        section.courses.forEach(c => {
+            // 1. Count from visited URLs
+            let count = visited.filter(url => url.toLowerCase().includes(c.id)).length;
+            
+            // 2. Count from Flags (e.g. 'chem_u*_l*')
+            const flagCount = Object.keys(flags).filter(k => k.toLowerCase().startsWith(c.prefix || 'xxx')).length;
+            
+            // Take the max to be safe
+            count = Math.max(count, flagCount);
 
-        const item = document.createElement('a');
-        item.href = `/ArisEdu Project Folder/${c.path}`;
-        item.className = 'course-item';
-        item.innerHTML = `
-            <div class="course-icon">${c.icon}</div>
-            <div class="course-info">
-                <span class="course-name">${c.name}</span>
-                <div class="course-progress-bg">
-                    <div class="course-progress-fill" style="width: ${percent}%"></div>
+            // Cap at 100% just for visual (assuming ~20 lessons per course)
+            const percent = Math.min(100, Math.round((count / 20) * 100));
+
+            const item = document.createElement('a');
+            item.href = `/ArisEdu Project Folder/${c.path}`;
+            item.className = 'course-item';
+            item.innerHTML = `
+                <div class="course-icon">${c.icon}</div>
+                <div class="course-info">
+                    <span class="course-name">${c.name}</span>
+                    <div class="course-progress-bg">
+                        <div class="course-progress-fill" style="width: ${percent}%"></div>
+                    </div>
+                    <div style="font-size:0.75rem; opacity:0.7; margin-top:4px;">${percent}% Complete</div>
                 </div>
-                <div style="font-size:0.75rem; opacity:0.7; margin-top:4px;">${percent}% Complete</div>
-            </div>
-            <div style="opacity:0.5;">➜</div>
-        `;
-        courseList.appendChild(item);
+                <div style="opacity:0.5;">➜</div>
+            `;
+            courseList.appendChild(item);
+        });
     });
 
     // Badges Display
