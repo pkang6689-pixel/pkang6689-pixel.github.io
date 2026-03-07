@@ -29,7 +29,17 @@ class QuizLoader {
       'Biology': 'biology',
       'Chemistry': 'chemistry',
       'Geometry': 'geometry',
-      'Physics': 'physics'
+      'Physics': 'physics',
+      'Precalculus': 'precalculus',
+      'Trigonometry': 'trigonometry',
+      'Statistics & Probability': 'statistics',
+      'Linear Algebra': 'linear_algebra',
+      'Financial Math': 'financial_math',
+      'Earth Science': 'earth_science',
+      'Environmental Science': 'environmental_science',
+      'Astronomy': 'astronomy',
+      'Human Anatomy & Physiology': 'anatomy',
+      'Marine Science': 'marine_science'
     };
   }
 
@@ -62,6 +72,16 @@ class QuizLoader {
         'Chemistry': 'Chemistry',
         'Geometry': 'Geometry',
         'Physics': 'Physics',
+        'Precalculus': 'Precalculus',
+        'Trigonometry': 'Trigonometry',
+        'Statistics': 'Statistics & Probability',
+        'LinearAlgebra': 'Linear Algebra',
+        'FinancialMath': 'Financial Math',
+        'EarthScience': 'Earth Science',
+        'EnvironmentalScience': 'Environmental Science',
+        'Astronomy': 'Astronomy',
+        'Anatomy': 'Human Anatomy & Physiology',
+        'MarineScience': 'Marine Science',
         'MS_Algebra1': 'Algebra 1',
         'MS_Algebra2': 'Algebra 2',
         'MS_Biology': 'Biology',

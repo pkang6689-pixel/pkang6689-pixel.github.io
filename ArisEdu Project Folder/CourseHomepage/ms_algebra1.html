@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Middle School: Pre-Algebra</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="../theme_manager.js"></script>
+  <script charset="UTF-8" src="../scripts/global_translations.js?v=7.4"></script>
+  <script src="../scripts/spanish_translations.js?v=1.4"></script>
+  <script src="../scripts/hindi_translations.js?v=1.4"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../scripts/taskbar.js"></script>
+  <main class="main-container">
+    <div class="logo-title-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+      <div style="display: flex; align-items: center; gap: 1.5rem;"><div style="color: currentColor; flex-shrink: 0;"><svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><text x="20" y="26" font-size="24" font-weight="bold" text-anchor="middle" fill="currentColor">π</text></svg></div><h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0;">Middle School: Pre-Algebra</h1></div>
+    </div>
+    <div id="courses-container" class="courses-container" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1rem; min-height: 60rem;"></div>
+  </main>
+
+  <script src="../../search_data.js"></script>
+  <script src="../../search_logic.js"></script>
+
+<style>
+  rect[id^="u"], path[id^="u"] { transform-box: fill-box; transform-origin: center; transition: transform 0.2s ease; }
+  #lesson-tooltip { position: fixed; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px); color: white; padding: 0.75rem 1rem; border-radius: 0.75rem; font-size: 0.95rem; font-weight: 600; pointer-events: none; z-index: 10000; opacity: 0; transition: opacity 0.15s ease; display: none; max-width: 250px; }
+  #lesson-tooltip[data-visible="true"] { opacity: 1; display: block; }
+</style>
+
+<script>
+  // Course configuration
+  const courseConfig = {
+    name: "Middle School: Pre-Algebra",
+    folder: "MS Algebra 1",
+    units: {
+      1: 23,
+      2: 18,
+      3: 18
+    },
+    numUnits: 3
+  };
+
+  // Generate unit SVG with adaptive spacing
+  function generateUnitSVG(unitNum, lessonCount) {
+    let segments = '';
+    const maxLessons = 8;
+    const actualLessonCount = Math.min(lessonCount, maxLessons);
+    
+    // Smart lesson fitting: distribute lessons evenly across 30 units of SVG height
+    const totalSpace = 30;
+    const rectHeight = (totalSpace / actualLessonCount).toFixed(3);
+    
+    for (let lessonNum = 1; lessonNum <= actualLessonCount; lessonNum++) {
+      const yPos = (3 + totalSpace - (lessonNum * rectHeight)).toFixed(3);
+      segments += `<a href="../CourseFiles/MS_Algebra1Lessons/Unit${unitNum}/Lesson${unitNum}.${lessonNum}_Video.html" onclick="markLessonStarted('${unitNum}', ${lessonNum})">
+    <rect id="u${unitNum}-l${lessonNum}" stroke="none" x="3" y="${yPos}" width="18" height="${rectHeight}" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, 'Lesson ${unitNum}.${lessonNum}', ${unitNum}, ${lessonNum})" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect></a>
+  <line x1="3" y1="${yPos}" x2="21" y2="${yPos}" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />`;
+    }
+    
+    return `<div style="position: relative; display: flex; align-items: flex-start; justify-content: center; height: 100%;"><svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;"><rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" /><rect id="fill-unit-${unitNum}" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" /><g id="segments-unit-${unitNum}">
+${segments}</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit ${unitNum}</text></svg></div>`;
+  }
+
+  // Populate the grid
+  function populateGrid() {
+    const container = document.getElementById('courses-container');
+    for (const [unitNum, lessonCount] of Object.entries(courseConfig.units)) {
+      container.innerHTML += generateUnitSVG(parseInt(unitNum), lessonCount);
+    }
+  }
+
+  // Initialize on load
+  document.addEventListener('DOMContentLoaded', () => {
+    populateGrid();
+    applyProgressColors();
+  });
+
+  let tooltipEl = null;
+  function getOrCreateTooltip() { if (!tooltipEl) { tooltipEl = document.createElement('div'); tooltipEl.id = 'lesson-tooltip'; document.body.appendChild(tooltipEl); } return tooltipEl; }
+  const lessonNames = {
+    '1.1': 'Measures of Center', '1.2': 'Measures of Spread', '1.3': 'Data Distributions', '1.4': 'Describing Distributions', '1.5': 'Box Plots & Dot Plots', '1.6': 'Two-Way Tables', '1.7': 'Outliers & Their Effects',
+    '2.1': 'One-Step & Two-Step Equations', '2.2': 'Multi-Step Equations', '2.3': 'Equations with Variables on Both Sides', '2.4': 'Literal Equations', '2.5': 'One-Step & Two-Step Inequalities', '2.6': 'Compound Inequalities', '2.7': 'Absolute Value Equations & Inequalities', '2.8': 'Systems of Equations — Substitution & Elimination', '2.9': 'Systems of Inequalities',
+    '3.1': 'Scatter Plots & Correlation', '3.2': 'Line of Best Fit', '3.3': 'Residuals & Residual Plots', '3.4': 'Correlation vs. Causation', '3.5': 'Two-Way Frequency Tables', '3.6': 'Relative Frequency', '3.7': 'Association in Categorical Data',
+    '4.1': 'Relations & Functions', '4.2': 'Function Notation', '4.3': 'Domain & Range', '4.4': 'Evaluating & Interpreting Functions', '4.5': 'Rate of Change & Slope', '4.6': 'Arithmetic Sequences as Functions', '4.7': 'Piecewise & Step Functions', '4.8': 'Function Transformations',
+    '5.1': 'Exponential Growth', '5.2': 'Exponential Decay', '5.3': 'Exponential vs. Linear Models', '5.4': 'Geometric Sequences', '5.5': 'Compound Interest', '5.6': 'Exponential Equations from Tables & Graphs', '5.7': 'Transformations of Exponential Functions', '5.8': 'Solving Exponential Equations', '5.9': 'Interpreting Exponential Models', '5.10': 'Exponential Regression',
+    '6.1': 'Key Features of Parabolas', '6.2': 'Graphing in Standard Form', '6.3': 'Graphing in Vertex Form', '6.4': 'Transformations of Quadratic Functions', '6.5': 'Comparing Linear, Exponential, & Quadratic Models', '6.6': 'Quadratic Regression',
+    '7.1': 'Solving by Factoring — GCF & Grouping', '7.2': 'Solving by Factoring — Trinomials', '7.3': 'Special Products & Factoring Patterns', '7.4': 'Completing the Square', '7.5': 'The Quadratic Formula', '7.6': 'The Discriminant', '7.7': 'Systems with Quadratics', '7.8': 'Quadratic Inequalities',
+    '8.1': 'Adding & Subtracting Polynomials', '8.2': 'Multiplying Polynomials', '8.3': 'Dividing Polynomials', '8.4': 'Polynomial Identities'
+  };
+
+  function showLessonPopup(event, lessonTitle, unitNum, lessonNum) {
+    const tooltip = getOrCreateTooltip();
+    tooltip.setAttribute('data-visible', 'true');
+    
+    let status = '';
+    const isCompleted = localStorage.getItem(`alg1_u${unitNum}_l${lessonNum}_completed`) === 'true';
+    const isStarted = localStorage.getItem(`alg1_u${unitNum}_l${lessonNum}_started`) === 'true';
+    if (isCompleted) {
+      status = '✅ COMPLETED\n';
+    } else if (isStarted) {
+      status = '⏳ IN PROGRESS\n';
+    }
+    
+    const lessonKey = `${unitNum}.${lessonNum}`;
+    const lessonName = lessonNames[lessonKey] || lessonTitle;
+    tooltip.textContent = status + `Lesson ${unitNum}.${lessonNum}: ${lessonName}`;
+  }
+  function moveLessonPopup(event) { const tooltip = getOrCreateTooltip(); tooltip.style.left = (event.pageX + 12) + 'px'; tooltip.style.top = (event.pageY + 12) + 'px'; }
+  function hideLessonPopup() { const tooltip = getOrCreateTooltip(); tooltip.setAttribute('data-visible', 'false'); }
+  function markLessonStarted(unit, lesson) { localStorage.setItem(`alg1_u${unit}_l${lesson}_started`, 'true'); applyProgressColors(); }
+  function applyProgressColors() { 
+    for (let u = 1; u <= courseConfig.numUnits; u++) { 
+      for (let l = 1; l <= 12; l++) { 
+        const segment = document.getElementById(`u${u}-l${l}`); 
+        if (segment) { 
+          const isCompleted = localStorage.getItem(`alg1_u${u}_l${l}_completed`) === 'true'; 
+          const isStarted = localStorage.getItem(`alg1_u${u}_l${l}_started`) === 'true'; 
+          if (isCompleted) { 
+            segment.setAttribute('fill', '#16a34a'); 
+            segment.setAttribute('fill-opacity', '0.7'); 
+          } else if (isStarted) { 
+            segment.setAttribute('fill', '#f97316'); 
+            segment.setAttribute('fill-opacity', '0.6'); } 
+        } 
+      } 
+    } 
+  }
+</script>
+<script src="../scripts/dev_tools.js"></script>
+<script>
+  if (window._isDevUser && window._isDevUser()) {
+    var dcb = document.getElementById('dev-clear-btn');
+    if (dcb) dcb.style.display = '';
+  }
+</script>
+</body>
+</html>

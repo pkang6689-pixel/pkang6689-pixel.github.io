@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AP Biology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="../theme_manager.js"></script>
+  <script charset="UTF-8" src="../scripts/global_translations.js?v=7.4"></script>
+  <script src="../scripts/spanish_translations.js?v=1.4"></script>
+  <script src="../scripts/hindi_translations.js?v=1.4"></script>
+  <script type="module" src="../scripts/course-progress-firebase.js"></script>
+</head>
+<body class="dark-mode h-full">
+<script src="../scripts/taskbar.js"></script>
+  <main class="main-container">
+    <div class="logo-title-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+      <div style="display: flex; align-items: center; gap: 1.5rem;"><div style="color: currentColor; flex-shrink: 0;"><svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 10C14 12 16 14 18 16M12 30C14 28 16 26 18 24M28 10C26 12 24 14 22 16M28 30C26 28 24 26 22 24M14 14L26 26M14 26L26 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="10" r="2" fill="currentColor"/><circle cx="12" cy="30" r="2" fill="currentColor"/><circle cx="28" cy="10" r="2" fill="currentColor"/><circle cx="28" cy="30" r="2" fill="currentColor"/></svg></div><h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0;">AP Biology</h1></div>
+    </div>
+    <div id="courses-container" class="courses-container" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1rem; min-height: 60rem;"></div>
+    <div style="display: flex; justify-content: center; padding: 2rem; margin-top: 2rem;">
+      <button onclick="window.location.href='../CourseFiles/APLessons/AP Biology/practice_exam.html'" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 3rem; border: none; border-radius: 0.5rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'">Take Practice Exam</button>
+    </div>
+  </main>
+
+  <script src="../../search_data.js"></script>
+  <script src="../../search_logic.js"></script>
+
+<style>
+  rect[id^="u"], path[id^="u"] { transform-box: fill-box; transform-origin: center; transition: transform 0.2s ease; }
+  #lesson-tooltip { position: fixed; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px); color: white; padding: 0.75rem 1rem; border-radius: 0.75rem; font-size: 0.95rem; font-weight: 600; pointer-events: none; z-index: 10000; opacity: 0; transition: opacity 0.15s ease; display: none; max-width: 250px; }
+  #lesson-tooltip[data-visible="true"] { opacity: 1; display: block; }
+</style>
+
+<script>
+  // Course configuration
+  const courseConfig = {
+    name: "AP Biology",
+    folder: "AP Biology",
+    coursePrefix: "ap_bio",
+    units: {
+      1: 6,
+      2: 5,
+      3: 4,
+      4: 5,
+      5: 4,
+      6: 5,
+      7: 5,
+      8: 6
+    },
+    numUnits: 8,
+    lessonNames: {
+      1: { 1: "Chemistry of Life: Atoms & Bonds", 2: "Chemistry of Life: Molecular Structure", 3: "Biological Macromolecules: Proteins", 4: "Biological Macromolecules: Nucleic Acids", 5: "Enzyme Function", 6: "Energy Storage & Release" },
+      2: { 1: "Cell Structures: Prokaryotic Cells", 2: "Cell Structures: Eukaryotic Cells", 3: "Organelle Functions", 4: "Cell Membranes & Transport", 5: "Cell Signaling" },
+      3: { 1: "Photosynthesis: Processes", 2: "Cellular Respiration: Glycolysis", 3: "Cellular Respiration: Krebs Cycle", 4: "Cellular Respiration: Electron Chain" },
+      4: { 1: "Cell Division: Mitosis", 2: "Cell Division: Meiosis", 3: "Cell Growth & Regulation", 4: "Cell Communication", 5: "Apoptosis" },
+      5: { 1: "Inheritance Patterns", 2: "Mendelian Genetics", 3: "Non-Mendelian Inheritance", 4: "Genetic Linkage" },
+      6: { 1: "Gene Expression: Transcription", 2: "Gene Expression: Translation", 3: "Gene Regulation in Prokaryotes", 4: "Gene Regulation in Eukaryotes", 5: "Epigenetics" },
+      7: { 1: "Evolution: Natural Selection", 2: "Evolution: Mechanisms of Change", 3: "Population Genetics", 4: "Speciation", 5: "Phylogenetic Trees" },
+      8: { 1: "Ecosystems: Energy Flow", 2: "Nutrient Cycles", 3: "Community Interactions", 4: "Population Dynamics", 5: "Biodiversity", 6: "Conservation" }
+    }
+  };
+
+  // Generate unit SVG with adaptive spacing
+  function generateUnitSVG(unitNum, lessonCount) {
+    let segments = '';
+    const actualLessonCount = lessonCount + 1; // +1 for unit test
+    
+    // Calculate height based on total available space (30 units) divided by lesson count
+    const totalSpace = 30; // Available SVG space from y=3 to y=33
+    const rectHeight = (totalSpace / actualLessonCount).toFixed(3);
+    
+    for (let lessonNum = 1; lessonNum <= lessonCount; lessonNum++) {
+      // Y position: lessons positioned from bottom (high lesson #) to top (lesson 1)
+      const yPos = (3 + totalSpace - (lessonNum * rectHeight)).toFixed(3);
+      const folderPath = courseConfig.folder.replace(/\s+/g, '%20');
+      const unitText = `Unit ${unitNum}`.replace(/\s+/g, '%20');
+      const lessonText = `Lesson${unitNum}.${lessonNum}_Video.html`;
+      const topicName = courseConfig.lessonNames?.[unitNum]?.[lessonNum];
+      const lessonName = topicName ? `⭐ Lesson ${unitNum}.${lessonNum}: ${topicName}` : `Lesson ${unitNum}.${lessonNum}`;
+      
+      const href = `../CourseFiles/APLessons/${folderPath}/${unitText}/${lessonText}`;
+      segments += `<g onclick="markLessonStarted(${unitNum}, ${lessonNum}); window.location.href='${href}';" style="cursor: pointer;">
+    <rect id="u${unitNum}-l${lessonNum}" stroke="none" x="3" y="${yPos}" width="18" height="${rectHeight}" fill="white" fill-opacity="0.25" pointer-events="auto" onmouseenter="showLessonPopup(event, '${lessonName}', ${unitNum}, ${lessonNum})" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect></g>
+  <line x1="3" y1="${yPos}" x2="21" y2="${yPos}" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />`;
+    }
+    
+    // Unit Test
+    const testYPos = (3 + totalSpace - ((lessonCount + 1) * rectHeight)).toFixed(3);
+    const testHref = `AP_Unit_Tests/${courseConfig.folder}/Unit${unitNum}/unit_tests.html`;
+    const testName = `Unit ${unitNum} Test`;
+    segments += `<g onclick="markLessonStarted(${unitNum}, 99); window.location.href='${testHref}';" style="cursor: pointer;">
+    <rect id="u${unitNum}-l99" stroke="none" x="3" y="${testYPos}" width="18" height="${rectHeight}" fill="white" fill-opacity="0.25" pointer-events="auto" onmouseenter="showLessonPopup(event, '${testName}', ${unitNum}, 99)" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect></g>
+  <line x1="3" y1="${testYPos}" x2="21" y2="${testYPos}" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />`;
+    
+    return `<div style="position: relative; display: flex; align-items: flex-start; justify-content: center; height: 100%;"><svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;"><rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" /><rect id="fill-unit-${unitNum}" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" /><g id="segments-unit-${unitNum}">
+${segments}</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit ${unitNum}</text></svg></div>`;
+  }
+
+  // Populate the grid
+  function populateGrid() {
+    const container = document.getElementById('courses-container');
+    for (const [unitNum, lessonCount] of Object.entries(courseConfig.units)) {
+      container.innerHTML += generateUnitSVG(parseInt(unitNum), lessonCount);
+    }
+  }
+
+  // Initialize on load
+  document.addEventListener('DOMContentLoaded', () => {
+    populateGrid();
+    applyProgressColors();
+  });
+
+  let tooltipEl = null;
+  function getOrCreateTooltip() { if (!tooltipEl) { tooltipEl = document.createElement('div'); tooltipEl.id = 'lesson-tooltip'; document.body.appendChild(tooltipEl); } return tooltipEl; }
+  function showLessonPopup(event, lessonTitle, unitNum, lessonNum) { 
+    const tooltip = getOrCreateTooltip();
+    let status = '';
+    const isCompleted = localStorage.getItem(`${courseConfig.coursePrefix}_u${unitNum}_l${lessonNum}_completed`) === 'true';
+    const isStarted = localStorage.getItem(`${courseConfig.coursePrefix}_u${unitNum}_l${lessonNum}_started`) === 'true';
+    if (isCompleted) {
+      status = '✅ COMPLETED\n';
+    } else if (isStarted) {
+      status = '⏳ IN PROGRESS\n';
+    }
+    tooltip.textContent = status + lessonTitle;
+    tooltip.setAttribute('data-visible', 'true');
+  }
+  function moveLessonPopup(event) { const tooltip = getOrCreateTooltip(); tooltip.style.left = (event.pageX + 12) + 'px'; tooltip.style.top = (event.pageY + 12) + 'px'; }
+  function hideLessonPopup() { const tooltip = getOrCreateTooltip(); tooltip.setAttribute('data-visible', 'false'); }
+  function markLessonStarted(unit, lesson) { 
+    localStorage.setItem(`${courseConfig.coursePrefix}_u${unit}_l${lesson}_started`, 'true');
+    if (window.courseProgress) { window.courseProgress.markStarted(courseConfig.coursePrefix, unit, lesson); }
+    applyProgressColors();
+  }
+  function markLessonComplete(unit, lesson) { 
+    localStorage.setItem(`${courseConfig.coursePrefix}_u${unit}_l${lesson}_completed`, 'true');
+    if (window.courseProgress) { window.courseProgress.markComplete(courseConfig.coursePrefix, unit, lesson); }
+    applyProgressColors();
+  }
+  function applyProgressColors() { 
+    for (let u = 1; u <= courseConfig.numUnits; u++) { 
+      const maxLessons = courseConfig.units[u] || 0;
+      for (let l = 1; l <= maxLessons; l++) { 
+        const segment = document.getElementById(`u${u}-l${l}`); 
+        if (segment) { 
+          const isCompleted = localStorage.getItem(`${courseConfig.coursePrefix}_u${u}_l${l}_completed`) === 'true'; 
+          const isStarted = localStorage.getItem(`${courseConfig.coursePrefix}_u${u}_l${l}_started`) === 'true'; 
+          if (isCompleted) { 
+            segment.setAttribute('fill', '#16a34a'); 
+            segment.setAttribute('fill-opacity', '0.7'); 
+          } else if (isStarted) { 
+            segment.setAttribute('fill', '#f97316'); 
+            segment.setAttribute('fill-opacity', '0.6'); } 
+        } 
+      }
+      // Apply colors to unit test
+      const testSegment = document.getElementById(`u${u}-l99`);
+      if (testSegment) {
+        const isTestCompleted = localStorage.getItem(`${courseConfig.coursePrefix}_u${u}_l99_completed`) === 'true';
+        const isTestStarted = localStorage.getItem(`${courseConfig.coursePrefix}_u${u}_l99_started`) === 'true';
+        if (isTestCompleted) {
+          testSegment.setAttribute('fill', '#16a34a');
+          testSegment.setAttribute('fill-opacity', '0.7');
+        } else if (isTestStarted) {
+          testSegment.setAttribute('fill', '#f97316');
+          testSegment.setAttribute('fill-opacity', '0.6');
+        }
+      }
+    } 
+  }
+  // Listen for storage changes from other tabs/quiz completion
+  window.addEventListener('storage', function(e) {
+    if (e.key && e.key.match(/ap_bio_u\d+_l\d+_(completed|started)/)) { applyProgressColors(); }
+  });
+</script>
+<script src="../scripts/dev_tools.js"></script>
+<script>
+  if (window._isDevUser && window._isDevUser()) {
+    var dcb = document.getElementById('dev-clear-btn');
+    if (dcb) dcb.style.display = '';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>High School: Linear Algebra</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="../theme_manager.js"></script>
+  <script charset="UTF-8" src="../scripts/global_translations.js?v=7.4"></script>
+  <script src="../scripts/spanish_translations.js?v=1.4"></script>
+  <script src="../scripts/hindi_translations.js?v=1.4"></script>
+</head>
+ <body class="dark-mode h-full">
+<script src="../scripts/taskbar.js"></script>
+  <main class="main-container">
+    <div class="logo-title-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+      <h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0;">High School: Linear Algebra</h1>
+    </div>
+    <div class="courses-container">
+      <div style="position: relative; transform: translateY(0); display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1rem; min-height: 60rem;" id="grid-container"></div>
+    </div>
+  </main>
+
+  <style>
+    #lesson-tooltip {
+        position: fixed;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(12px);
+        color: #f1f5f9;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        pointer-events: none;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        white-space: nowrap;
+        display: none;
+    }
+    #lesson-tooltip[data-visible="true"] {
+        opacity: 1;
+        display: block;
+    }
+
+    rect[id^="u"], path[id^="u"] {
+        transform-box: fill-box;
+        transform-origin: center;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, stroke-width 0.2s ease;
+    }
+    .segment-hover {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+        fill-opacity: 0.15;
+    }
+
+    @keyframes star-pulse {
+      0%, 100% { stroke-opacity: 0.8; stroke-width: 0.12; filter: drop-shadow(0 0 2px #a78bfa); }
+      50% { stroke-opacity: 1; stroke-width: 0.25; filter: drop-shadow(0 0 6px #a78bfa); }
+    }
+    .starred-lesson-glow {
+      stroke: #a78bfa !important;
+      stroke-dasharray: 0.3, 0.1;
+      animation: star-pulse 1.5s infinite ease-in-out;
+    }
+    @keyframes star-twinkle {
+        0%, 100% { opacity: 0.4; transform: scale(0.8); }
+        50% { opacity: 1; transform: scale(1.3); }
+    }
+    .star-icon {
+        animation: star-twinkle 2s infinite ease-in-out;
+        font-family: inherit;
+        pointer-events: none;
+        transform-box: fill-box;
+        transform-origin: center;
+        font-size: 0.6px;
+        user-select: none;
+    }
+  </style>
+
+  <div id="lesson-tooltip"></div>
+
+  <script>
+  const courseConfig = {
+    units: {
+      1: 8,
+      2: 8,
+      3: 8,
+      4: 8,
+      5: 8,
+      6: 8,
+      7: 8,
+      8: 8,
+      9: 8,
+      10: 8,
+    },
+    numUnits: 10,
+    coursePrefix: 'linalg'
+  };
+
+  const lessonMappings = {
+      1: [{num: 1, name: 'Scalars, Vectors, and Matrices'}, {num: 2, name: 'Matrix Notation & Dimensions'}, {num: 3, name: 'Vector Operations (addition, scalar multiplication)'}, {num: 4, name: 'Matrix Operations (addition, multiplication)'}, {num: 5, name: 'Identity & Zero Matrices'}, {num: 6, name: 'Transpose of a Matrix'}, {num: 7, name: 'Applications in Geometry'}, {num: 8, name: 'Applications in Physics'}],
+      2: [{num: 1, name: 'Solving Systems by Substitution & Elimination'}, {num: 2, name: 'Matrix Representation of Systems'}, {num: 3, name: '⭐ Gaussian Elimination'}, {num: 4, name: '⭐ Gauss-Jordan Elimination'}, {num: 5, name: 'Row Echelon Form'}, {num: 6, name: 'Consistent vs. Inconsistent Systems'}, {num: 7, name: 'Applications in Economics'}, {num: 8, name: 'Applications in Engineering'}],
+      3: [{num: 1, name: 'Definition of Determinants'}, {num: 2, name: 'Properties of Determinants'}, {num: 3, name: 'Cofactor Expansion'}, {num: 4, name: 'Determinants of Larger Matrices'}, {num: 5, name: '⭐ Cramer\'s Rule'}, {num: 6, name: 'Determinants & Area/Volume'}, {num: 7, name: 'Applications in Geometry'}, {num: 8, name: 'Applications in Physics'}],
+      4: [{num: 1, name: 'Invertible Matrices'}, {num: 2, name: 'Finding Inverses (row reduction method)'}, {num: 3, name: 'Adjoint Method'}, {num: 4, name: 'Singular vs. Non-Singular Matrices'}, {num: 5, name: 'Applications of Inverse Matrices'}, {num: 6, name: '⭐ Using Inverses in Cryptography'}, {num: 7, name: 'Applications in Computer Science'}, {num: 8, name: 'Applications in Economics'}],
+      5: [{num: 1, name: 'Definition of Vector Spaces'}, {num: 2, name: 'Subspaces'}, {num: 3, name: 'Linear Independence'}, {num: 4, name: '⭐ Basis & Dimension'}, {num: 5, name: 'Span of a Set'}, {num: 6, name: 'Null Space & Column Space'}, {num: 7, name: 'Applications in Computer Graphics'}, {num: 8, name: 'Applications in Data Science'}],
+      6: [{num: 1, name: 'Definition of Linear Transformations'}, {num: 2, name: 'Kernel & Image'}, {num: 3, name: 'Matrix Representation of Transformations'}, {num: 4, name: 'Composition of Transformations'}, {num: 5, name: '⭐ Rotations & Reflections'}, {num: 6, name: 'Scaling & Shearing'}, {num: 7, name: 'Applications in Physics'}, {num: 8, name: 'Applications in Engineering'}],
+      7: [{num: 1, name: 'Characteristic Polynomial'}, {num: 2, name: 'Finding Eigenvalues'}, {num: 3, name: 'Finding Eigenvectors'}, {num: 4, name: '⭐ Diagonalization'}, {num: 5, name: 'Applications in Differential Equations'}, {num: 6, name: 'Applications in Physics'}, {num: 7, name: 'Applications in Computer Science'}, {num: 8, name: 'Applications in Economics'}],
+      8: [{num: 1, name: 'Dot Product & Orthogonality'}, {num: 2, name: 'Orthogonal Projections'}, {num: 3, name: '⭐ Gram-Schmidt Process'}, {num: 4, name: 'Orthogonal Matrices'}, {num: 5, name: 'Inner Product Spaces'}, {num: 6, name: '⭐ Applications in Data Compression (PCA)'}, {num: 7, name: 'Applications in Machine Learning'}, {num: 8, name: 'Applications in Quantum Mechanics'}],
+      9: [{num: 1, name: 'Complex Vector Spaces'}, {num: 2, name: '⭐ Jordan Canonical Form'}, {num: 3, name: '⭐ Singular Value Decomposition (SVD)'}, {num: 4, name: 'Applications in Machine Learning'}, {num: 5, name: 'Applications in Quantum Mechanics'}, {num: 6, name: 'Applications in Image Processing'}, {num: 7, name: 'Applications in Signal Processing'}, {num: 8, name: 'Applications in Statistics'}],
+      10: [{num: 1, name: '⭐ Proofs in Linear Algebra'}, {num: 2, name: '⭐ AP-Style Practice Problems'}, {num: 3, name: 'Applications in Computer Science (networks, algorithms)'}, {num: 4, name: 'Applications in Engineering (structural analysis)'}, {num: 5, name: 'Applications in Physics (quantum states)'}, {num: 6, name: 'Applications in Economics (input-output models)'}, {num: 7, name: '⭐ Capstone Project: Real-World Linear Algebra Model'}, {num: 8, name: '⭐ Comprehensive Review & AP Exam Practice'}],
+    };
+
+  function generateUnitSVG(unitNum, lessonCount) {
+    let segments = '';
+    const lessons = lessonMappings[unitNum] || [];
+    const totalSpace = 30;
+    const rectHeight = (totalSpace / lessons.length).toFixed(3);
+
+    for (let i = 0; i < lessons.length; i++) {
+      const lesson = lessons[i];
+      const yPos = (3 + totalSpace - ((i + 1) * rectHeight)).toFixed(3);
+      segments += '<a href="../CourseFiles/LinearAlgebraLessons/Unit' + unitNum + '/Lesson ' + unitNum + '.' + lesson.num + '_Video.html" onclick="markLessonStarted(\'' + unitNum + '\', ' + (i+1) + ')">\n' +
+        '    <rect id="u' + unitNum + '-l' + (i+1) + '" stroke="none" x="3" y="' + yPos + '" width="18" height="' + rectHeight + '" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, \'Lesson ' + unitNum + '.' + lesson.num + ': ' + lesson.name.replace(/'/g, "\\'") + '\')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>\n' +
+        '</a>\n' +
+        '  <line x1="3" y1="' + yPos + '" x2="21" y2="' + yPos + '" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />\n';
+    }
+
+    return '<div style="position: relative; display: flex; align-items: flex-start; justify-content: center; height: 100%;"><svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;"><rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" /><rect id="fill-unit-' + unitNum + '" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" /><g id="segments-unit-' + unitNum + '">\n' + segments + '</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit ' + unitNum + '</text></svg></div>';
+  }
+
+  function populateGrid() {
+    const container = document.getElementById('grid-container');
+    container.innerHTML = '';
+    for (const [unitNum, lessonCount] of Object.entries(courseConfig.units)) {
+      container.innerHTML += generateUnitSVG(parseInt(unitNum), lessonCount);
+    }
+  }
+
+  function markLessonStarted(unit, lesson) {
+    const startedKey = courseConfig.coursePrefix + '_u' + unit + '_l' + lesson + '_started';
+    const completedKey = courseConfig.coursePrefix + '_u' + unit + '_l' + lesson + '_completed';
+    if (localStorage.getItem(completedKey) !== 'true') {
+      localStorage.setItem(startedKey, 'true');
+    }
+  }
+
+  function applyProgressColors() {
+    for (let u = 1; u <= courseConfig.numUnits; u++) {
+      const lessonCount = courseConfig.units[u] || 0;
+      for (let l = 1; l <= lessonCount; l++) {
+        const element = document.getElementById('u' + u + '-l' + l);
+        if(element) {
+          const completed = localStorage.getItem(courseConfig.coursePrefix + '_u' + u + '_l' + l + '_completed') === 'true';
+          const started = localStorage.getItem(courseConfig.coursePrefix + '_u' + u + '_l' + l + '_started') === 'true';
+          if (completed) {
+            element.setAttribute('fill', '#16a34a');
+            element.setAttribute('fill-opacity', '0.7');
+          } else if (started) {
+            element.setAttribute('fill', '#f97316');
+            element.setAttribute('fill-opacity', '0.6');
+          }
+        }
+      }
+    }
+  }
+
+  let tooltipEl = null;
+  function getOrCreateTooltip() {
+    if (!tooltipEl) {
+      tooltipEl = document.createElement('div');
+      tooltipEl.id = 'lesson-tooltip';
+      document.body.appendChild(tooltipEl);
+    }
+    return tooltipEl;
+  }
+  function showLessonPopup(event, title) {
+    const tooltip = getOrCreateTooltip();
+    const target = event.target;
+    if (target && target.id && target.id.match(/^u\d+-l\d+$/)) {
+      target.classList.add('segment-hover');
+    }
+    let status = '';
+    const match = target.id ? target.id.match(/u(\d+)-l(\d+)/) : null;
+    if (match) {
+      const u = match[1], l = match[2];
+      const isCompleted = localStorage.getItem(courseConfig.coursePrefix + '_u' + u + '_l' + l + '_completed') === 'true';
+      const isStarted = localStorage.getItem(courseConfig.coursePrefix + '_u' + u + '_l' + l + '_started') === 'true';
+      if (isCompleted) status = 'COMPLETED \u2714 ';
+      else if (isStarted) status = 'IN PROGRESS ';
+    }
+    tooltip.textContent = status + title;
+    tooltip.setAttribute('data-visible', 'true');
+  }
+  function moveLessonPopup(e) {
+    const tooltip = getOrCreateTooltip();
+    if (tooltip.getAttribute('data-visible') !== 'true') return;
+    const offset = 15;
+    let x = e.clientX + offset, y = e.clientY + offset;
+    const rect = tooltip.getBoundingClientRect();
+    if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - offset;
+    if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - offset;
+    tooltip.style.left = x + 'px';
+    tooltip.style.top = y + 'px';
+  }
+  function hideLessonPopup() {
+    const tooltip = getOrCreateTooltip();
+    tooltip.setAttribute('data-visible', 'false');
+    document.querySelectorAll('.segment-hover').forEach(function(el) { el.classList.remove('segment-hover'); });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    populateGrid();
+    applyProgressColors();
+  });
+
+  window.addEventListener('storage', function(e) {
+    if (e.key && e.key.indexOf(courseConfig.coursePrefix + '_u') === 0) {
+      applyProgressColors();
+    }
+  });
+  </script>
+
+  <script src="../../search_data.js"></script>
+  <script src="../../search_logic.js"></script>
+  <script src="../scripts/dev_tools.js"></script>
+</body>
+</html>

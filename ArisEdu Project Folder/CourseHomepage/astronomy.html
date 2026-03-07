@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>High School: Astronomy / Space Science</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="../theme_manager.js"></script>
+  <script charset="UTF-8" src="../scripts/global_translations.js?v=7.4"></script>
+  <script src="../scripts/spanish_translations.js?v=1.4"></script>
+  <script src="../scripts/hindi_translations.js?v=1.4"></script>
+</head>
+ <body class="dark-mode h-full">
+<script src="../scripts/taskbar.js"></script>
+  <main class="main-container">
+    <div class="logo-title-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+      <h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0;">High School: Astronomy / Space Science</h1>
+    </div>
+    <div class="courses-container">
+      <div style="position: relative; transform: translateY(0); display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1rem; min-height: 60rem;" id="grid-container"></div>
+    </div>
+  </main>
+
+  <style>
+    #lesson-tooltip {
+        position: fixed;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(12px);
+        color: #f1f5f9;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        pointer-events: none;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        white-space: nowrap;
+        display: none;
+    }
+    #lesson-tooltip[data-visible="true"] {
+        opacity: 1;
+        display: block;
+    }
+
+    rect[id^="u"], path[id^="u"] {
+        transform-box: fill-box;
+        transform-origin: center;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, stroke-width 0.2s ease;
+    }
+    .segment-hover {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+        fill-opacity: 0.15;
+    }
+
+    @keyframes star-pulse {
+      0%, 100% { stroke-opacity: 0.8; stroke-width: 0.12; filter: drop-shadow(0 0 2px #fbbf24); }
+      50% { stroke-opacity: 1; stroke-width: 0.25; filter: drop-shadow(0 0 6px #fbbf24); }
+    }
+    .starred-lesson-glow {
+      stroke: #fbbf24 !important;
+      stroke-dasharray: 0.3, 0.1;
+      animation: star-pulse 1.5s infinite ease-in-out;
+    }
+    @keyframes star-twinkle {
+        0%, 100% { opacity: 0.4; transform: scale(0.8); }
+        50% { opacity: 1; transform: scale(1.3); }
+    }
+    .star-icon {
+        animation: star-twinkle 2s infinite ease-in-out;
+        font-family: inherit;
+        pointer-events: none;
+        transform-box: fill-box;
+        transform-origin: center;
+        font-size: 0.6px;
+        user-select: none;
+    }
+  </style>
+
+  <div id="lesson-tooltip"></div>
+
+  <script>
+  const courseConfig = {
+    units: {
+      1: 6,
+      2: 6,
+      3: 5,
+      4: 5,
+      5: 5,
+      6: 5,
+    },
+    numUnits: 6,
+    coursePrefix: 'astro'
+  };
+
+  const lessonMappings = {
+      1: [{num: 1, name: 'The Celestial Sphere & Coordinates'}, {num: 2, name: 'Constellations & Star Patterns'}, {num: 3, name: 'Apparent Motion of the Sun'}, {num: 4, name: 'The Moon\'s Phases & Orbit'}, {num: 5, name: 'Eclipses (Solar & Lunar)'}, {num: 6, name: 'Telescopes & Observational Tools'}],
+      2: [{num: 1, name: 'Formation of the Solar System'}, {num: 2, name: 'The Terrestrial Planets'}, {num: 3, name: 'The Gas & Ice Giants'}, {num: 4, name: 'Dwarf Planets & Asteroids'}, {num: 5, name: 'Comets & Meteoroids'}, {num: 6, name: 'Moons of the Solar System'}],
+      3: [{num: 1, name: 'Properties of Stars (Luminosity, Temperature, Size)'}, {num: 2, name: 'The Hertzsprung-Russell Diagram'}, {num: 3, name: 'Nuclear Fusion in Stars'}, {num: 4, name: 'Stellar Life Cycles'}, {num: 5, name: 'Supernovae, Neutron Stars & Black Holes'}],
+      4: [{num: 1, name: 'Types of Galaxies'}, {num: 2, name: 'The Milky Way'}, {num: 3, name: 'Galaxy Clusters & Large-Scale Structure'}, {num: 4, name: 'The Expanding Universe & Hubble\'s Law'}, {num: 5, name: 'Dark Matter & Dark Energy'}],
+      5: [{num: 1, name: 'The Big Bang Theory'}, {num: 2, name: 'Cosmic Microwave Background'}, {num: 3, name: 'The Fate of the Universe'}, {num: 4, name: 'Exoplanets & Habitable Zones'}, {num: 5, name: 'The Search for Extraterrestrial Life'}],
+      6: [{num: 1, name: 'History of Space Exploration'}, {num: 2, name: 'Rockets & Orbital Mechanics'}, {num: 3, name: 'Space Agencies & Missions'}, {num: 4, name: 'The International Space Station'}, {num: 5, name: 'Future of Space Travel'}],
+    };
+
+  function generateUnitSVG(unitNum, lessonCount) {
+    let segments = '';
+    const lessons = lessonMappings[unitNum] || [];
+    const totalSpace = 30;
+    const rectHeight = (totalSpace / lessons.length).toFixed(3);
+
+    for (let i = 0; i < lessons.length; i++) {
+      const lesson = lessons[i];
+      const yPos = (3 + totalSpace - ((i + 1) * rectHeight)).toFixed(3);
+      segments += '<a href="../CourseFiles/AstronomyLessons/Unit' + unitNum + '/Lesson ' + unitNum + '.' + lesson.num + '_Video.html" onclick="markLessonStarted(\'' + unitNum + '\', ' + (i+1) + ')">\n' +
+        '    <rect id="u' + unitNum + '-l' + (i+1) + '" stroke="none" x="3" y="' + yPos + '" width="18" height="' + rectHeight + '" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, \'Lesson ' + unitNum + '.' + lesson.num + ': ' + lesson.name.replace(/'/g, "\\'") + '\')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>\n' +
+        '</a>\n' +
+        '  <line x1="3" y1="' + yPos + '" x2="21" y2="' + yPos + '" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />\n';
+    }
+
+    return '<div style="position: relative; display: flex; align-items: flex-start; justify-content: center; height: 100%;"><svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;"><rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" /><rect id="fill-unit-' + unitNum + '" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" /><g id="segments-unit-' + unitNum + '">\n' + segments + '</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit ' + unitNum + '</text></svg></div>';
+  }
+
+  function populateGrid() {
+    const container = document.getElementById('grid-container');
+    container.innerHTML = '';
+    for (const [unitNum, lessonCount] of Object.entries(courseConfig.units)) {
+      container.innerHTML += generateUnitSVG(parseInt(unitNum), lessonCount);
+    }
+  }
+
+  function markLessonStarted(unit, lesson) {
+    const startedKey = courseConfig.coursePrefix + '_u' + unit + '_l' + lesson + '_started';
+    const completedKey = courseConfig.coursePrefix + '_u' + unit + '_l' + lesson + '_completed';
+    if (localStorage.getItem(completedKey) !== 'true') {
+      localStorage.setItem(startedKey, 'true');
+    }
+  }
+
+  function applyProgressColors() {
+    for (let u = 1; u <= courseConfig.numUnits; u++) {
+      const lessonCount = courseConfig.units[u] || 0;
+      for (let l = 1; l <= lessonCount; l++) {
+        const element = document.getElementById('u' + u + '-l' + l);
+        if(element) {
+          const completed = localStorage.getItem(courseConfig.coursePrefix + '_u' + u + '_l' + l + '_completed') === 'true';
+          const started = localStorage.getItem(courseConfig.coursePrefix + '_u' + u + '_l' + l + '_started') === 'true';
+          if (completed) {
+            element.setAttribute('fill', '#16a34a');
+            element.setAttribute('fill-opacity', '0.7');
+          } else if (started) {
+            element.setAttribute('fill', '#f97316');
+            element.setAttribute('fill-opacity', '0.6');
+          }
+        }
+      }
+    }
+  }
+
+  let tooltipEl = null;
+  function getOrCreateTooltip() {
+    if (!tooltipEl) {
+      tooltipEl = document.createElement('div');
+      tooltipEl.id = 'lesson-tooltip';
+      document.body.appendChild(tooltipEl);
+    }
+    return tooltipEl;
+  }
+  function showLessonPopup(event, title) {
+    const tooltip = getOrCreateTooltip();
+    const target = event.target;
+    if (target && target.id && target.id.match(/^u\d+-l\d+$/)) {
+      target.classList.add('segment-hover');
+    }
+    let status = '';
+    const match = target.id ? target.id.match(/u(\d+)-l(\d+)/) : null;
+    if (match) {
+      const u = match[1], l = match[2];
+      const isCompleted = localStorage.getItem(courseConfig.coursePrefix + '_u' + u + '_l' + l + '_completed') === 'true';
+      const isStarted = localStorage.getItem(courseConfig.coursePrefix + '_u' + u + '_l' + l + '_started') === 'true';
+      if (isCompleted) status = 'COMPLETED \u2714 ';
+      else if (isStarted) status = 'IN PROGRESS ';
+    }
+    tooltip.textContent = status + title;
+    tooltip.setAttribute('data-visible', 'true');
+  }
+  function moveLessonPopup(e) {
+    const tooltip = getOrCreateTooltip();
+    if (tooltip.getAttribute('data-visible') !== 'true') return;
+    const offset = 15;
+    let x = e.clientX + offset, y = e.clientY + offset;
+    const rect = tooltip.getBoundingClientRect();
+    if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - offset;
+    if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - offset;
+    tooltip.style.left = x + 'px';
+    tooltip.style.top = y + 'px';
+  }
+  function hideLessonPopup() {
+    const tooltip = getOrCreateTooltip();
+    tooltip.setAttribute('data-visible', 'false');
+    document.querySelectorAll('.segment-hover').forEach(function(el) { el.classList.remove('segment-hover'); });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    populateGrid();
+    applyProgressColors();
+  });
+
+  window.addEventListener('storage', function(e) {
+    if (e.key && e.key.indexOf(courseConfig.coursePrefix + '_u') === 0) {
+      applyProgressColors();
+    }
+  });
+  </script>
+
+  <script src="../../search_data.js"></script>
+  <script src="../../search_logic.js"></script>
+  <script src="../scripts/dev_tools.js"></script>
+</body>
+</html>
