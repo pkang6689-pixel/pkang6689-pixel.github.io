@@ -3,6 +3,91 @@
 var _msOriginPG = (sessionStorage.getItem('courseOrigin') || '');
 var _isMSPractice = _msOriginPG.indexOf('ms_') === 0;
 
+// ========== LOAD QUIZ QUESTIONS FOR PRACTICE GAMES ==========
+// Replaces hand-written flashcards with curated quiz questions from content_data JSON
+(function loadQuizQuestionsForPractice() {
+    function parsePracticeLocation() {
+        var path = window.location.pathname;
+        // AP pattern
+        var m = path.match(/ArisEdu(?:%20|\s)Project(?:%20|\s)Folder.*?APLessons[\/\\]([^\/\\]+)[\/\\]Unit(?:%20|\s)?(\d+)[\/\\]Lesson(?:%20|\s)?(\d+\.\d+)_Practice/i);
+        if (m) {
+            return { courseFolder: m[1].replace(/%20/g, ' '), unit: parseInt(m[2]), lesson: m[3], isAP: true };
+        }
+        // Regular + MS pattern
+        m = path.match(/ArisEdu(?:%20|\s)Project(?:%20|\s)Folder.*?(\w+)Lessons[\/\\]Unit(?:%20|\s)?(\d+)[\/\\]Lesson(?:%20|\s)?(\d+\.\d+)_Practice/i);
+        if (m) {
+            return { coursePrefix: m[1], unit: parseInt(m[2]), lesson: m[3], isAP: false };
+        }
+        return null;
+    }
+
+    var courseSlugMap = {
+        'Algebra1': 'algebra_1', 'Algebra2': 'algebra_2', 'Biology': 'biology',
+        'Chemistry': 'chemistry', 'Geometry': 'geometry', 'Physics': 'physics',
+        'Precalculus': 'precalculus', 'Trigonometry': 'trigonometry',
+        'Statistics': 'statistics', 'LinearAlgebra': 'linear_algebra',
+        'FinancialMath': 'financial_math', 'EarthScience': 'earth_science',
+        'EnvironmentalScience': 'environmental_science', 'Astronomy': 'astronomy',
+        'Anatomy': 'anatomy', 'MarineScience': 'marine_science',
+        'MS_Algebra1': 'algebra_1', 'MS_Algebra2': 'algebra_2',
+        'MS_Biology': 'biology', 'MS_Chemistry': 'chemistry',
+        'MS_Geometry': 'geometry', 'MS_Physics': 'physics'
+    };
+    var apSlugMap = {
+        'AP Biology': 'ap_biology', 'AP Chemistry': 'ap_chemistry',
+        'AP Environmental Science': 'ap_environmental_science',
+        'AP Human Geography': 'ap_human_geography',
+        'AP Calculus AB': 'ap_calculus_ab', 'AP Statistics': 'ap_statistics',
+        'AP Physics 2': 'ap_physics_2', 'AP Physics C': 'ap_physics_c_-_mechanics',
+        'AP Physics C - Mechanics': 'ap_physics_c_-_mechanics'
+    };
+
+    var loc = parsePracticeLocation();
+    if (!loc) return;
+
+    var slug, jsonPath;
+    if (loc.isAP) {
+        slug = apSlugMap[loc.courseFolder] || loc.courseFolder.toLowerCase().replace(/\s+/g, '_');
+        jsonPath = '../../../../../content_data/AP_Courses/' + slug + '_lessons.json';
+    } else {
+        slug = courseSlugMap[loc.coursePrefix] || loc.coursePrefix.toLowerCase().replace(/\s+/g, '_');
+        jsonPath = '../../../../content_data/' + slug + '_lessons.json';
+    }
+
+    var lessonKey = 'u' + loc.unit + '_l' + loc.lesson;
+
+    fetch(jsonPath).then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    }).then(function(allLessons) {
+        var lesson = allLessons[lessonKey];
+        if (!lesson || !lesson.quiz_questions || lesson.quiz_questions.length === 0) return;
+
+        var converted = lesson.quiz_questions.map(function(q) {
+            var opts = q.options || q.question_options || [];
+            var correctOpt = opts.find(function(o) { return o.is_correct; });
+            var answer = correctOpt ? (correctOpt.text || correctOpt) : '';
+            var allOptionTexts = opts.map(function(o) { return o.text || o; });
+            return {
+                question: q.question_text || q.question || '',
+                answer: answer,
+                options: allOptionTexts
+            };
+        }).filter(function(fc) { return fc.question && fc.answer; });
+
+        if (converted.length > 0) {
+            window.lessonFlashcards = converted;
+            // Re-init flashcards if already initialized with old data
+            if (window.flashcardsInitialized) {
+                window.flashcardsInitialized = false;
+                if (typeof window.initFlashcards === 'function') window.initFlashcards();
+            }
+        }
+    }).catch(function(err) {
+        console.warn('Could not load quiz questions for practice games:', err.message);
+    });
+})();
+
 // Toggle Practices Panel
 function _t(key, fallback) {
     var langMode = null;
@@ -675,23 +760,29 @@ window.exitClimbGame = function() {
         
         document.getElementById('climb-question-text').innerText = _tr(currentQuestion.question);
         
-        const options = [currentQuestion.answer];
-        const uniqueOptions = new Set([currentQuestion.answer]);
-        
-        const allAnswers = window.lessonFlashcards.map(f => f.answer);
-        for (let i = allAnswers.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [allAnswers[i], allAnswers[j]] = [allAnswers[j], allAnswers[i]];
-        }
-        
-        for(let ans of allAnswers) {
-            if(!uniqueOptions.has(ans)) {
-                options.push(ans);
-                uniqueOptions.add(ans);
-                if(options.length >= 3) break; 
+        let options;
+        if (currentQuestion.options && currentQuestion.options.length >= 3) {
+            // Use curated quiz options (already includes correct + distractors)
+            options = currentQuestion.options.slice();
+        } else {
+            // Fallback: build options from other flashcard answers
+            options = [currentQuestion.answer];
+            const uniqueOptions = new Set([currentQuestion.answer]);
+            const allAnswers = window.lessonFlashcards.map(f => f.answer);
+            for (let i = allAnswers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allAnswers[i], allAnswers[j]] = [allAnswers[j], allAnswers[i]];
+            }
+            for (let ans of allAnswers) {
+                if (!uniqueOptions.has(ans)) {
+                    options.push(ans);
+                    uniqueOptions.add(ans);
+                    if (options.length >= 3) break;
+                }
             }
         }
         
+        // Shuffle options
         for (let i = options.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [options[i], options[j]] = [options[j], options[i]];

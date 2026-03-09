@@ -389,6 +389,8 @@
       background: white;
       border-radius: 1rem;
       padding: 2rem;
+      /* relative for close button positioning */
+
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
       z-index: 10000;
       max-width: 440px;
@@ -411,6 +413,36 @@
     body.dark-mode .tutorial-card {
       background: #1e293b;
       box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .tutorial-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      line-height: 1;
+    }
+    .tutorial-close:hover {
+      background: #e2e8f0;
+      color: #334155;
+    }
+    body.dark-mode .tutorial-close {
+      background: #334155;
+      color: #94a3b8;
+    }
+    body.dark-mode .tutorial-close:hover {
+      background: #475569;
+      color: #f1f5f9;
     }
     .tutorial-icon {
       font-size: 3rem;
@@ -1108,7 +1140,7 @@
   const card = document.getElementById('tutorial-card');
 
   function buildCard(step, index) {
-    let html = '';
+    let html = '<button class="tutorial-close" onclick="tutorialFinish()" aria-label="Close" title="Close">✕</button>';
     if (step.icon) html += '<div class="tutorial-icon">' + step.icon + '</div>';
     html += '<h2>' + step.title + '</h2>';
     html += '<p>' + step.body + '</p>';

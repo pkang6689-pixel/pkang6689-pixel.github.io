@@ -3,6 +3,7 @@ generate_hs_translations.py
 ============================
 Fills in missing translations for the 6 partially-translated high school courses.
 Uses deep-translator (Google Translate, no API key needed) with chunking for speed.
+Saves progress after every chunk so crashes don't lose work.
 
 Courses: algebra_1, algebra_2, biology, chemistry, geometry, physics
 """
@@ -18,7 +19,6 @@ REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.join(REPO_ROOT, "content_data")
 OUT_DIR = os.path.join(REPO_ROOT, "ArisEdu Project Folder", "translations")
 
-# Map content_data filenames to translation section slugs
 HS_FILE_MAP = {
     "algebra_1_lessons.json":   "algebra1",
     "algebra_2_lessons.json":   "algebra2",
@@ -34,14 +34,8 @@ LANGUAGES = {
     "hi": "hi",
 }
 
-LANG_NAMES = {
-    "zh": "Chinese",
-    "es": "Spanish",
-    "hi": "Hindi",
-}
-
 SEPARATOR = " ||| "
-MAX_CHUNK_CHARS = 4500  # Google Translate limit is ~5000 chars per request
+MAX_CHUNK_CHARS = 4500
 
 
 def strip_html(html_str):
@@ -82,35 +76,42 @@ def extract_strings(data):
 
 
 def translate_chunk(texts, lang_code):
-    """Translate a list of strings by joining with separator, translating, and splitting."""
     joined = SEPARATOR.join(texts)
-    try:
-        result = GoogleTranslator(source='en', target=lang_code).translate(joined)
-        parts = result.split("|||")
-        parts = [p.strip() for p in parts]
-        if len(parts) == len(texts):
-            return parts
-        return None
-    except Exception:
-        return None
+    for attempt in range(3):
+        try:
+            result = GoogleTranslator(source='en', target=lang_code).translate(joined)
+            parts = result.split("|||")
+            parts = [p.strip() for p in parts]
+            if len(parts) == len(texts):
+                return parts
+            return None
+        except Exception:
+            if attempt < 2:
+                time.sleep(3 * (attempt + 1))
+    return None
 
 
 def translate_one(text, lang_code):
-    """Translate a single string."""
-    for attempt in range(3):
+    for attempt in range(5):
         try:
             return GoogleTranslator(source='en', target=lang_code).translate(text)
-        except Exception as e:
-            if attempt < 2:
-                time.sleep(2)
+        except Exception:
+            if attempt < 4:
+                time.sleep(3 * (attempt + 1))
             else:
-                return text  # return original on failure
+                return text
 
 
-def translate_strings(missing, lang_code):
-    """Translate all missing strings using chunked approach."""
-    translations = {}
+def save_json(path, data):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def translate_and_save(missing, lang_code, out_path, existing):
+    """Translate missing strings, saving to disk after every chunk."""
+    merged = dict(existing)
     total = len(missing)
+    done = 0
     start_time = time.time()
 
     # Build character-aware chunks
@@ -129,27 +130,31 @@ def translate_strings(missing, lang_code):
     if current_chunk:
         chunks.append(current_chunk)
 
-    for chunk in chunks:
+    for ci, chunk in enumerate(chunks):
         result = translate_chunk(chunk, lang_code)
 
         if result:
             for orig, trans in zip(chunk, result):
-                translations[orig] = trans
+                merged[orig] = trans
+                done += 1
         else:
-            # Chunk failed, translate one-by-one
             for s in chunk:
-                translations[s] = translate_one(s, lang_code)
+                merged[s] = translate_one(s, lang_code)
+                done += 1
+
+        # Save after every chunk
+        save_json(out_path, merged)
 
         elapsed = time.time() - start_time
-        rate = len(translations) / elapsed if elapsed > 0 else 0
+        rate = done / elapsed if elapsed > 0 else 0
         sys.stdout.write("\r    {}/{} translated ({:.0f} str/min)  ".format(
-            len(translations), total, rate * 60))
+            done, total, rate * 60))
         sys.stdout.flush()
 
         time.sleep(0.2)
 
     print()
-    return translations
+    return len(missing)
 
 
 def main():
@@ -164,6 +169,8 @@ def main():
     log_print("=" * 60)
     log_print("High School Course Translation Gap-Fill")
     log_print("=" * 60)
+
+    grand_total = 0
 
     for filename, section_slug in HS_FILE_MAP.items():
         filepath = os.path.join(CONTENT_DIR, filename)
@@ -201,17 +208,17 @@ def main():
             log_print("  {}: {} existing, {} missing -> translating...".format(
                 lang_key, len(existing), len(missing)))
 
-            new_translations = translate_strings(missing, lang_code)
+            added = translate_and_save(missing, lang_code, out_path, existing)
+            grand_total += added
 
-            merged = {**existing, **new_translations}
-            with open(out_path, "w", encoding="utf-8") as f:
-                json.dump(merged, f, ensure_ascii=False, indent=2)
-
+            # Re-read to report accurate count
+            with open(out_path, "r", encoding="utf-8") as f:
+                final = json.load(f)
             log_print("  {}: Wrote {} total keys to {}.json (+{} new)".format(
-                lang_key, len(merged), section_slug, len(new_translations)))
+                lang_key, len(final), section_slug, added))
 
     log_print("\n" + "=" * 60)
-    log_print("Done!")
+    log_print("Done! Translated {} new strings total.".format(grand_total))
     log_print("=" * 60)
     log.close()
 

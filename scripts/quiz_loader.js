@@ -780,6 +780,17 @@ class QuizLoader {
       body.dark-mode .arcade-tour-card {
         background: #1e293b; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
       }
+      .arcade-tour-close {
+        position: absolute; top: 0.75rem; right: 0.75rem;
+        width: 2rem; height: 2rem; border-radius: 50%;
+        background: #f1f5f9; border: none; cursor: pointer;
+        font-size: 1.1rem; color: #64748b; display: flex;
+        align-items: center; justify-content: center;
+        transition: all 0.2s ease; line-height: 1;
+      }
+      .arcade-tour-close:hover { background: #e2e8f0; color: #334155; }
+      body.dark-mode .arcade-tour-close { background: #334155; color: #94a3b8; }
+      body.dark-mode .arcade-tour-close:hover { background: #475569; color: #f1f5f9; }
       .arcade-tour-card .at-icon { font-size: 3rem; margin-bottom: 0.75rem; text-align: center; }
       .arcade-tour-card h2 {
         font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;
@@ -802,6 +813,7 @@ class QuizLoader {
       }
       body.dark-mode .arcade-tour-card .at-flow-step { background: #334155; color: #e2e8f0; }
       .arcade-tour-card .at-flow-step .fi { font-size: 1.4rem; }
+      .arcade-tour-card { position: relative; }
       .arcade-tour-card .at-flow-arrow { font-size: 1.2rem; color: #94a3b8; }
       .arcade-tour-nav {
         display: flex; align-items: center; justify-content: space-between;
@@ -888,7 +900,7 @@ class QuizLoader {
     const card = overlay.querySelector('#arcade-tour-card');
 
     function buildCard(step, index) {
-      let html = '';
+      let html = '<button class="arcade-tour-close" onclick="window._arcadeTourFinish()" aria-label="Close" title="Close">✕</button>';
       if (step.icon) html += `<div class="at-icon">${step.icon}</div>`;
       html += `<h2>${step.title}</h2>`;
       html += `<p>${step.body}</p>`;

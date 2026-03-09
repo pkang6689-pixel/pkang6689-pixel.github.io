@@ -204,21 +204,25 @@
         
         textEl.textContent = card.question;
         
-        // Generate unique distractors
-        let answers = new Set([card.answer]);
-        const otherAnswers = [...new Set(
-            window.lessonFlashcards
-                .filter((_, i) => i !== qIndex)
-                .map(c => c.answer)
-                .filter(a => a !== card.answer)
-        )];
+        // Use curated quiz options if available, otherwise generate distractors
+        let answers;
+        if (card.options && card.options.length >= 3) {
+            answers = card.options.slice();
+        } else {
+            let answerSet = new Set([card.answer]);
+            const otherAnswers = [...new Set(
+                window.lessonFlashcards
+                    .filter((_, i) => i !== qIndex)
+                    .map(c => c.answer)
+                    .filter(a => a !== card.answer)
+            )];
+            otherAnswers.sort(() => 0.5 - Math.random());
+            otherAnswers.slice(0, 3).forEach(a => answerSet.add(a));
+            answers = [...answerSet];
+        }
         
-        // Shuffle and pick up to 3 unique distractors
-        otherAnswers.sort(() => 0.5 - Math.random());
-        otherAnswers.slice(0, 3).forEach(a => answers.add(a));
-        
-        // Convert to array and shuffle
-        answers = [...answers].sort(() => 0.5 - Math.random());
+        // Shuffle options
+        answers = answers.sort(() => 0.5 - Math.random());
         
         let answered = false;
         answers.forEach(ans => {
