@@ -136,13 +136,13 @@ class QuizLoader {
     // Construct the path to the JSON file
     let jsonPath;
     if (isAP) {
-      // AP courses: from ArisEdu Project Folder/APLessons/{Course}/Unit X/ to root = 4 levels up
-      // Unit X -> {Course} -> APLessons -> ArisEdu Project Folder -> root
-      jsonPath = `../../../../content_data/AP_Courses/${courseSlug}_lessons.json`;
+      // AP courses: from ArisEdu Project Folder/CourseFiles/APLessons/{Course}/Unit X/ to root = 5 levels up
+      // Unit X -> {Course} -> APLessons -> CourseFiles -> ArisEdu Project Folder -> root
+      jsonPath = `../../../../../content_data/AP_Courses/${courseSlug}_lessons.json`;
     } else {
-      // Regular courses: from ArisEdu Project Folder/{Course}Lessons/Unit X/ to root = 3 levels up
-      // Unit X -> {Course}Lessons -> ArisEdu Project Folder -> root
-      jsonPath = `../../../content_data/${courseSlug}_lessons.json`;
+      // Regular courses: from ArisEdu Project Folder/CourseFiles/{Course}Lessons/Unit X/ to root = 4 levels up
+      // Unit X -> {Course}Lessons -> CourseFiles -> ArisEdu Project Folder -> root
+      jsonPath = `../../../../content_data/${courseSlug}_lessons.json`;
     }
 
     try {
