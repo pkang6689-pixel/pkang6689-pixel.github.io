@@ -148,30 +148,58 @@
 
   // Map lesson folders → course pages (default: high school)
   var courseMap = {
-    ChemistryLessons: '/ArisEdu Project Folder/chem.html',
-    PhysicsLessons:   '/ArisEdu Project Folder/physics.html',
-    BiologyLessons:   '/ArisEdu Project Folder/bio.html',
-    Algebra1Lessons:  '/ArisEdu Project Folder/algebra1.html',
-    Algebra2Lessons:  '/ArisEdu Project Folder/algebra2.html',
-    GeometryLessons:  '/ArisEdu Project Folder/geometry.html'
+    ChemistryLessons: '/ArisEdu Project Folder/CourseHomepage/chem.html',
+    PhysicsLessons:   '/ArisEdu Project Folder/CourseHomepage/physics.html',
+    BiologyLessons:   '/ArisEdu Project Folder/CourseHomepage/bio.html',
+    Algebra1Lessons:  '/ArisEdu Project Folder/CourseHomepage/algebra1.html',
+    Algebra2Lessons:  '/ArisEdu Project Folder/CourseHomepage/algebra2.html',
+    GeometryLessons:  '/ArisEdu Project Folder/CourseHomepage/geometry.html',
+    AnatomyLessons:   '/ArisEdu Project Folder/CourseHomepage/anatomy.html',
+    AstronomyLessons: '/ArisEdu Project Folder/CourseHomepage/astronomy.html',
+    EarthScienceLessons: '/ArisEdu Project Folder/CourseHomepage/earth_science.html',
+    EnvironmentalScienceLessons: '/ArisEdu Project Folder/CourseHomepage/environmental_science.html',
+    FinancialMathLessons: '/ArisEdu Project Folder/CourseHomepage/financial_math.html',
+    IntegratedScienceLessons: '/ArisEdu Project Folder/CourseHomepage/integrated_science.html',
+    LinearAlgebraLessons: '/ArisEdu Project Folder/CourseHomepage/linear_algebra.html',
+    MarineScienceLessons: '/ArisEdu Project Folder/CourseHomepage/marine_science.html',
+    PrecalculusLessons: '/ArisEdu Project Folder/CourseHomepage/precalculus.html',
+    StatisticsLessons: '/ArisEdu Project Folder/CourseHomepage/statistics.html',
+    TrigonometryLessons: '/ArisEdu Project Folder/CourseHomepage/trigonometry.html',
+    MS_Algebra1Lessons: '/ArisEdu Project Folder/CourseHomepage/ms_algebra1.html',
+    MS_Algebra2Lessons: '/ArisEdu Project Folder/CourseHomepage/ms_algebra2.html',
+    MS_BiologyLessons: '/ArisEdu Project Folder/CourseHomepage/ms_bio.html',
+    MS_ChemistryLessons: '/ArisEdu Project Folder/CourseHomepage/ms_chem.html',
+    MS_GeometryLessons: '/ArisEdu Project Folder/CourseHomepage/ms_geometry.html',
+    MS_PhysicsLessons: '/ArisEdu Project Folder/CourseHomepage/ms_physics.html'
   };
 
   // --- Course origin tracking (middle school / high school) ---
   // Map course page filenames to their lesson folder
   var fileToLessonFolder = {
-    'chem.html': 'ChemistryLessons', 'ms_chem.html': 'ChemistryLessons',
-    'physics.html': 'PhysicsLessons', 'ms_physics.html': 'PhysicsLessons',
-    'bio.html': 'BiologyLessons', 'ms_bio.html': 'BiologyLessons',
-    'algebra1.html': 'Algebra1Lessons', 'ms_algebra1.html': 'Algebra1Lessons',
-    'algebra2.html': 'Algebra2Lessons',
-    'geometry.html': 'GeometryLessons', 'ms_geometry.html': 'GeometryLessons'
+    'chem.html': 'ChemistryLessons', 'ms_chem.html': 'MS_ChemistryLessons',
+    'physics.html': 'PhysicsLessons', 'ms_physics.html': 'MS_PhysicsLessons',
+    'bio.html': 'BiologyLessons', 'ms_bio.html': 'MS_BiologyLessons',
+    'algebra1.html': 'Algebra1Lessons', 'ms_algebra1.html': 'MS_Algebra1Lessons',
+    'algebra2.html': 'Algebra2Lessons', 'ms_algebra2.html': 'MS_Algebra2Lessons',
+    'geometry.html': 'GeometryLessons', 'ms_geometry.html': 'MS_GeometryLessons',
+    'anatomy.html': 'AnatomyLessons',
+    'astronomy.html': 'AstronomyLessons',
+    'earth_science.html': 'EarthScienceLessons',
+    'environmental_science.html': 'EnvironmentalScienceLessons',
+    'financial_math.html': 'FinancialMathLessons',
+    'integrated_science.html': 'IntegratedScienceLessons',
+    'linear_algebra.html': 'LinearAlgebraLessons',
+    'marine_science.html': 'MarineScienceLessons',
+    'precalculus.html': 'PrecalculusLessons',
+    'statistics.html': 'StatisticsLessons',
+    'trigonometry.html': 'TrigonometryLessons'
   };
 
   // If we're on a course page (HS or MS), store origin for lesson back-navigation
   var folderForCurrent = fileToLessonFolder[filename];
   if (folderForCurrent) {
     try {
-      sessionStorage.setItem('courseOrigin_' + folderForCurrent, '/ArisEdu Project Folder/' + filename);
+      sessionStorage.setItem('courseOrigin_' + folderForCurrent, '/ArisEdu Project Folder/CourseHomepage/' + filename);
       // Also set simple courseOrigin for MS-mode detection in other scripts
       sessionStorage.setItem('courseOrigin', filename);
     } catch(e) {}
@@ -232,7 +260,7 @@
     backUrl = courseMap[lessonFolder] || '/ArisEdu Project Folder/Courses.html';
   }
   // --- Course pages (chem.html, ms_chem.html, physics.html, etc.) —→ back to Courses ---
-  else if (/^(ms_)?(chem|physics|bio|algebra1|algebra2|geometry)\.html$/.test(filename)) {
+  else if (/^(ms_)?(chem|physics|bio|algebra1|algebra2|geometry|anatomy|astronomy|earth_science|environmental_science|financial_math|integrated_science|linear_algebra|marine_science|precalculus|statistics|trigonometry|ap_biology|ap_chemistry|ap_calculus|ap_environmental_science|ap_hug|ap_physics1|ap_physics2|ap_physics_mechanics|ap_statistics)\.html$/.test(filename)) {
     backText = '\u2190 Back to Courses';
     backUrl = '/ArisEdu Project Folder/Courses.html';
   }

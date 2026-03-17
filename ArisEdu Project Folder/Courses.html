@@ -196,6 +196,8 @@
       border-radius: 2rem;
       padding: 2rem;
       margin-bottom: 2rem;
+      min-height: unset !important;
+      transition: padding 0.3s ease;
     }
 
     .courses-section {
@@ -206,11 +208,50 @@
       margin-bottom: 0;
     }
 
+    .courses-section.collapsed {
+      margin-bottom: 0;
+    }
+
+    .courses-section.collapsed .courses-section-title {
+      margin-bottom: 0;
+    }
+
     .courses-section-title {
       font-size: 1.5rem;
       font-weight: 700;
       color: #1e293b;
       margin-bottom: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      user-select: none;
+    }
+
+    .courses-section-title:hover {
+      opacity: 0.8;
+    }
+
+    .courses-section-title .chevron {
+      display: inline-block;
+      transition: transform 0.3s ease;
+      font-size: 0.8em;
+    }
+
+    .courses-section.collapsed .chevron {
+      transform: rotate(-90deg);
+    }
+
+    .courses-section .courses-grid {
+      max-height: 2000px;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+      opacity: 1;
+    }
+
+    .courses-section.collapsed .courses-grid {
+      max-height: 0;
+      opacity: 0;
     }
 
     .courses-grid {
@@ -556,8 +597,8 @@
     <div class="content-wrapper">
       <div class="courses-container">
         <!-- Mathematics Section -->
-        <div class="courses-section">
-          <h2 class="courses-section-title">Mathematics</h2>
+        <div class="courses-section collapsed">
+          <h2 class="courses-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> Mathematics</h2>
           <div class="courses-grid">
             <div class="course-box math">
               <a id="algebra1-link" href="CourseHomepage/algebra1.html">
@@ -642,8 +683,8 @@
           </div>
         </div>
         <!-- Science Section -->
-        <div class="courses-section">
-          <h2 class="courses-section-title" data-i18n="Science">Science</h2>
+        <div class="courses-section collapsed">
+          <h2 class="courses-section-title" data-i18n="Science" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> Science</h2>
           <div class="courses-grid">
             <div class="course-box physics">
               <a id="physics-link" href="CourseHomepage/physics.html">
@@ -691,7 +732,18 @@
                   <path d="M8 16 L10 14" fill="none" stroke="#3b82f6" stroke-width="0.3"/>
                   <path d="M16 16 L14 14" fill="none" stroke="#3b82f6" stroke-width="0.3"/>
                 </svg>
-                <span class="course-title">Earth Science/Integrated Science</span>
+                <span class="course-title">Earth Science</span>
+              </a>
+            </div>
+            <div class="course-box chemistry">
+              <a id="intsci-link" href="CourseHomepage/integrated_science.html">
+                <svg class="course-icon" viewBox="0 0 24 36" fill="none" stroke="#3b82f6" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="14" r="5" fill="none" stroke="#3b82f6"/>
+                  <path d="M7 14 L17 14" fill="none" stroke="#3b82f6" stroke-width="0.3"/>
+                  <path d="M12 9 L12 19" fill="none" stroke="#3b82f6" stroke-width="0.3"/>
+                  <circle cx="12" cy="14" r="8" fill="none" stroke="#3b82f6" stroke-width="0.3" stroke-dasharray="1,0.5"/>
+                </svg>
+                <span class="course-title">Integrated Science</span>
               </a>
             </div>
             <div class="course-box chemistry">
@@ -751,8 +803,8 @@
       <!-- Middle School Courses -->
       <div class="courses-container" style="margin-top: 2rem;">
         <!-- MS Mathematics Section -->
-        <div class="courses-section">
-          <h2 class="courses-section-title">Middle School Mathematics</h2>
+        <div class="courses-section collapsed">
+          <h2 class="courses-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> Middle School Mathematics</h2>
           <div class="courses-grid">
             <div class="course-box math">
               <a id="ms-algebra1-link" href="CourseHomepage/ms_algebra1.html">
@@ -787,8 +839,8 @@
           </div>
         </div>
         <!-- MS Science Section -->
-        <div class="courses-section">
-          <h2 class="courses-section-title">Middle School Science</h2>
+        <div class="courses-section collapsed">
+          <h2 class="courses-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> Middle School Science</h2>
           <div class="courses-grid">
             <div class="course-box physics">
               <a id="ms-physics-link" href="CourseHomepage/ms_physics.html">
@@ -874,8 +926,8 @@
       <!-- AP/Advanced Placement Courses -->
       <div class="courses-container" style="margin-top: 2rem;">
         <!-- AP Mathematics Section -->
-        <div class="courses-section">
-          <h2 class="courses-section-title">AP (Advanced Placement)</h2>
+        <div class="courses-section collapsed">
+          <h2 class="courses-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> AP (Advanced Placement)</h2>
           <div class="courses-grid">
             <div class="course-box math">
               <a id="ap-calc-link" href="CourseHomepage/ap_calculus.html">
@@ -968,8 +1020,8 @@
 
       <!-- Olympiad Training Courses -->
       <div class="courses-container" style="margin-top: 2rem;">
-        <div class="courses-section">
-          <h2 class="courses-section-title">Olympiad Training</h2>
+        <div class="courses-section collapsed">
+          <h2 class="courses-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> Olympiad Training</h2>
           <div class="courses-grid">
             <div class="course-box math">
               <a id="math-olympiad-link" href="#">
@@ -1004,8 +1056,8 @@
 
       <!-- Other Courses -->
       <div class="courses-container" style="margin-top: 2rem;">
-        <div class="courses-section">
-          <h2 class="courses-section-title">Other Courses</h2>
+        <div class="courses-section collapsed">
+          <h2 class="courses-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> Other Courses</h2>
           <div class="courses-grid">
             <div class="course-box chemistry">
               <a id="ap-hug-link" href="CourseHomepage/ap_hug.html">

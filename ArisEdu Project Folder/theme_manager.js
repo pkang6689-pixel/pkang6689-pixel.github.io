@@ -157,7 +157,7 @@
                 this.activeNodes.push(noise, filter, gain, lfo, lfoGain);
             };
 
-            switch (soundProfile) {
+            switch (theme) {
                 case 'blue-green': // Aurora
                 case 'aurora':
                     playDrone([110, 164.8, 196, 220], 'sine', 10); // A Major ish pad

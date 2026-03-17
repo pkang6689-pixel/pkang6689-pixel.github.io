@@ -632,40 +632,91 @@ COURSES = [
         "color": "#3b82f6",
         "units": {
             1: {"name": "Introduction to Environmental Science", "lessons": [
-                "What Is Environmental Science?", "The Scientific Method in Env. Science",
-                "Sustainability & Stewardship", "Major Environmental Issues Overview",
-                "Ethics & Environmental Decision-Making"
-            ]},
-            2: {"name": "Ecology & Ecosystems", "lessons": [
-                "Levels of Ecological Organization", "Energy Flow & Trophic Levels",
+                "What is Environmental Science?",
+                "Interdisciplinary Nature of the Field",
+                "Ecosystem Basics (Producers, Consumers, Decomposers)",
                 "Biogeochemical Cycles (Carbon, Nitrogen, Water)",
-                "Population Ecology & Growth Models",
-                "Community Interactions (Predation, Competition, Symbiosis)"
+                "Sustainability Concepts",
+                "Case Studies in Environmental Issues",
+                "⭐ AP Prep: Systems Thinking"
             ]},
-            3: {"name": "Biodiversity & Conservation", "lessons": [
-                "What Is Biodiversity?", "Threats to Biodiversity",
-                "Endangered & Invasive Species", "Habitat Loss & Fragmentation",
-                "Conservation Strategies & Protected Areas"
+            2: {"name": "Ecology and Ecosystems", "lessons": [
+                "Energy Flow in Ecosystems",
+                "Food Chains & Food Webs",
+                "Population Dynamics",
+                "Community Interactions (Competition, Symbiosis)",
+                "Succession (Primary & Secondary)",
+                "Biodiversity & Conservation",
+                "Case Studies in Ecology",
+                "⭐ AP Prep: Population Models"
             ]},
-            4: {"name": "Land & Water Resources", "lessons": [
-                "Soil Degradation & Agriculture", "Deforestation & Land Use",
-                "Freshwater Resources", "Water Pollution Types & Sources",
-                "Water Treatment & Conservation"
+            3: {"name": "Human Population and Demographics", "lessons": [
+                "Human Population Growth",
+                "Demographic Transition Model",
+                "Age Structure Diagrams",
+                "Carrying Capacity",
+                "Urbanization & Land Use",
+                "Case Studies in Population Policy",
+                "⭐ AP Prep: Demographic Calculations"
             ]},
-            5: {"name": "Air Quality & Pollution", "lessons": [
-                "Major Air Pollutants & Sources", "Smog & Acid Rain",
-                "Indoor Air Quality", "Ozone Layer Depletion",
-                "Reducing Air Pollution"
+            4: {"name": "Natural Resources", "lessons": [
+                "Renewable vs. Nonrenewable Resources",
+                "Water Resources & Management",
+                "Soil & Agriculture",
+                "Forests & Deforestation",
+                "Fisheries & Ocean Resources",
+                "Case Studies in Resource Use",
+                "⭐ AP Prep: Resource Management Models"
             ]},
-            6: {"name": "Energy Resources", "lessons": [
-                "Fossil Fuels (Coal, Oil, Natural Gas)", "Nuclear Energy",
-                "Renewable Energy (Solar, Wind, Hydro)",
-                "Biomass & Geothermal Energy", "Energy Efficiency & Conservation"
+            5: {"name": "Energy Resources", "lessons": [
+                "Fossil Fuels (Coal, Oil, Natural Gas)",
+                "Nuclear Energy",
+                "Renewable Energy (Solar, Wind, Hydro, Geothermal)",
+                "Energy Efficiency & Conservation",
+                "Case Studies in Energy Policy",
+                "⭐ AP Prep: Energy Calculations"
             ]},
-            7: {"name": "Global Change & Sustainability", "lessons": [
-                "Climate Change Science", "Effects of Global Warming",
-                "Waste Management & Recycling", "Sustainable Development",
-                "Environmental Policy & Legislation"
+            6: {"name": "Pollution and Waste Management", "lessons": [
+                "Air Pollution (Sources, Effects, Control)",
+                "Water Pollution (Sources, Effects, Control)",
+                "Soil Pollution & Land Degradation",
+                "Solid Waste Management",
+                "Hazardous Waste & Recycling",
+                "Case Studies in Pollution Control",
+                "⭐ AP Prep: Pollution Models"
+            ]},
+            7: {"name": "Climate Change and Global Issues", "lessons": [
+                "Greenhouse Effect & Global Warming",
+                "Evidence of Climate Change",
+                "Impacts on Ecosystems & Humans",
+                "Mitigation & Adaptation Strategies",
+                "International Agreements (Kyoto, Paris)",
+                "Case Studies in Climate Policy",
+                "⭐ AP Prep: Climate Models"
+            ]},
+            8: {"name": "Environmental Policy and Ethics", "lessons": [
+                "History of Environmental Movements",
+                "Environmental Laws & Regulations",
+                "International Environmental Policy",
+                "Environmental Justice",
+                "Case Studies in Policy Implementation",
+                "⭐ AP Prep: Policy Analysis"
+            ]},
+            9: {"name": "Sustainable Development", "lessons": [
+                "Principles of Sustainability",
+                "Sustainable Agriculture",
+                "Sustainable Energy",
+                "Green Building & Urban Planning",
+                "Case Studies in Sustainable Practices",
+                "⭐ AP Prep: Sustainability Metrics"
+            ]},
+            10: {"name": "AP Prep & Capstone", "lessons": [
+                "⭐ Review of Key Environmental Science Concepts",
+                "⭐ AP-Style Practice Problems",
+                "⭐ Case Studies in AP Environmental Science",
+                "Real-World Applications (Policy, Conservation, Engineering)",
+                "⭐ Capstone Project: Environmental Impact Study",
+                "⭐ Comprehensive Review & AP Exam Prep"
             ]},
         }
     },
@@ -681,36 +732,96 @@ COURSES = [
         "category": "science",
         "color": "#fbbf24",
         "units": {
-            1: {"name": "Observing the Sky", "lessons": [
-                "The Celestial Sphere & Coordinates", "Constellations & Star Patterns",
-                "Apparent Motion of the Sun", "The Moon's Phases & Orbit",
-                "Eclipses (Solar & Lunar)", "Telescopes & Observational Tools"
+            1: {"name": "Introduction to Astronomy", "lessons": [
+                "History of Astronomy",
+                "Tools of Astronomy (Telescopes, Satellites)",
+                "Scales of the Universe",
+                "Scientific Method in Astronomy",
+                "Observational Techniques",
+                "Case Studies in Ancient Astronomy",
+                "⭐ AP Prep: Measurement & Units"
             ]},
-            2: {"name": "The Solar System", "lessons": [
-                "Formation of the Solar System", "The Terrestrial Planets",
-                "The Gas & Ice Giants", "Dwarf Planets & Asteroids",
-                "Comets & Meteoroids", "Moons of the Solar System"
+            2: {"name": "Earth, Moon, and Sun System", "lessons": [
+                "Earth's Rotation & Revolution",
+                "Seasons & Tilt of Axis",
+                "Lunar Phases",
+                "Solar & Lunar Eclipses",
+                "Tides & Gravitational Effects",
+                "Case Studies in Earth-Moon-Sun Interactions",
+                "⭐ AP Prep: Orbital Calculations"
             ]},
-            3: {"name": "Stars & Stellar Evolution", "lessons": [
-                "Properties of Stars (Luminosity, Temperature, Size)",
-                "The Hertzsprung-Russell Diagram", "Nuclear Fusion in Stars",
-                "Stellar Life Cycles", "Supernovae, Neutron Stars & Black Holes"
+            3: {"name": "The Solar System", "lessons": [
+                "Formation of the Solar System",
+                "Terrestrial Planets",
+                "Gas Giants",
+                "Dwarf Planets & Asteroids",
+                "Comets & Meteoroids",
+                "Planetary Atmospheres",
+                "Case Studies in Space Exploration",
+                "⭐ AP Prep: Kepler's Laws"
             ]},
-            4: {"name": "Galaxies & the Universe", "lessons": [
-                "Types of Galaxies", "The Milky Way",
-                "Galaxy Clusters & Large-Scale Structure",
-                "The Expanding Universe & Hubble's Law",
-                "Dark Matter & Dark Energy"
+            4: {"name": "The Sun", "lessons": [
+                "Structure of the Sun",
+                "Nuclear Fusion",
+                "Solar Activity (Sunspots, Flares, Prominences)",
+                "Solar Wind & Magnetic Fields",
+                "Impact on Earth's Climate & Technology",
+                "Case Studies in Solar Observation",
+                "⭐ AP Prep: Energy Calculations"
             ]},
-            5: {"name": "Cosmology", "lessons": [
-                "The Big Bang Theory", "Cosmic Microwave Background",
-                "The Fate of the Universe", "Exoplanets & Habitable Zones",
-                "The Search for Extraterrestrial Life"
+            5: {"name": "Stars and Stellar Evolution", "lessons": [
+                "Properties of Stars (Temperature, Luminosity, Size)",
+                "⭐ Hertzsprung-Russell Diagram",
+                "Star Formation (Nebulae)",
+                "Main Sequence Stars",
+                "Red Giants & White Dwarfs",
+                "Supernovae & Neutron Stars",
+                "Black Holes",
+                "Case Studies in Stellar Observation"
             ]},
-            6: {"name": "Space Exploration", "lessons": [
-                "History of Space Exploration", "Rockets & Orbital Mechanics",
-                "Space Agencies & Missions", "The International Space Station",
-                "Future of Space Travel"
+            6: {"name": "Galaxies and the Universe", "lessons": [
+                "Types of Galaxies (Spiral, Elliptical, Irregular)",
+                "Milky Way Structure",
+                "Galaxy Clusters",
+                "⭐ Dark Matter & Dark Energy",
+                "Expansion of the Universe",
+                "Case Studies in Cosmology",
+                "⭐ AP Prep: Hubble's Law"
+            ]},
+            7: {"name": "Space Exploration", "lessons": [
+                "History of Space Missions",
+                "Satellites & Space Probes",
+                "Human Spaceflight",
+                "International Space Station",
+                "Future of Space Travel (Mars, Beyond)",
+                "Case Studies in Space Technology",
+                "⭐ AP Prep: Rocket Science Basics"
+            ]},
+            8: {"name": "Astrobiology", "lessons": [
+                "Conditions for Life",
+                "Extremophiles on Earth",
+                "Search for Extraterrestrial Life",
+                "SETI & Radio Astronomy",
+                "⭐ Exoplanets & Habitable Zones",
+                "Case Studies in Astrobiology",
+                "⭐ AP Prep: Probability Models"
+            ]},
+            9: {"name": "Modern Astronomy Tools", "lessons": [
+                "Ground-Based Telescopes",
+                "Space Telescopes (Hubble, James Webb)",
+                "Radio Astronomy",
+                "⭐ Spectroscopy",
+                "Computer Modeling in Astronomy",
+                "Case Studies in Modern Discoveries",
+                "⭐ AP Prep: Data Analysis"
+            ]},
+            10: {"name": "AP Prep & Capstone", "lessons": [
+                "⭐ Review of Key Astronomy Concepts",
+                "⭐ AP-Style Practice Problems",
+                "⭐ Case Studies in AP Astronomy",
+                "Real-World Applications (Satellites, Navigation, Climate Science)",
+                "⭐ Capstone Project: Space Science Research",
+                "⭐ Comprehensive Review & AP Exam Prep"
             ]},
         }
     },
@@ -726,43 +837,101 @@ COURSES = [
         "category": "science",
         "color": "#22c55e",
         "units": {
-            1: {"name": "Body Organization", "lessons": [
-                "Levels of Organization (Cells → Organism)",
-                "Anatomical Terminology & Body Planes",
-                "Homeostasis & Feedback Mechanisms",
-                "Cell Structure & Function Review",
-                "Tissue Types (Epithelial, Connective, Muscle, Nervous)"
+            1: {"name": "Introduction to Anatomy & Physiology", "lessons": [
+                "Levels of Organization (Cells → Tissues → Organs → Systems)",
+                "Anatomical Terminology (Planes, Directions, Cavities)",
+                "⭐ Homeostasis & Feedback Mechanisms",
+                "Basic Histology (Tissue Types)",
+                "Medical Imaging Techniques",
+                "Case Studies in Homeostasis",
+                "⭐ AP Prep: Anatomical Terminology"
             ]},
-            2: {"name": "Skeletal & Muscular Systems", "lessons": [
-                "Bone Structure & Classification", "The Axial Skeleton",
-                "The Appendicular Skeleton", "Joints & Movement",
-                "Muscle Types & Contraction", "Major Muscle Groups"
+            2: {"name": "The Skeletal System", "lessons": [
+                "Bone Structure & Function",
+                "Types of Bones (Long, Short, Flat, Irregular)",
+                "Axial Skeleton",
+                "Appendicular Skeleton",
+                "Joints & Movement",
+                "Bone Growth & Remodeling",
+                "Disorders of the Skeletal System",
+                "⭐ AP Prep: Bone Identification"
             ]},
-            3: {"name": "Nervous System", "lessons": [
-                "Neuron Structure & Function", "Nerve Impulse Transmission",
+            3: {"name": "The Muscular System", "lessons": [
+                "Muscle Tissue Types (Skeletal, Cardiac, Smooth)",
+                "Muscle Anatomy & Physiology",
+                "⭐ Sliding Filament Theory",
+                "Muscle Contraction & Energy Use",
+                "Major Muscle Groups",
+                "Disorders of the Muscular System",
+                "Case Studies in Sports Medicine",
+                "⭐ AP Prep: Muscle Physiology"
+            ]},
+            4: {"name": "The Nervous System", "lessons": [
+                "Neurons & Neuroglia",
+                "⭐ Action Potentials & Synaptic Transmission",
                 "Central Nervous System (Brain & Spinal Cord)",
-                "Peripheral Nervous System", "The Senses (Vision, Hearing, Touch)",
-                "Disorders of the Nervous System"
+                "Peripheral Nervous System",
+                "Autonomic Nervous System",
+                "Reflex Arcs",
+                "Disorders of the Nervous System",
+                "⭐ AP Prep: Neurophysiology"
             ]},
-            4: {"name": "Cardiovascular & Respiratory Systems", "lessons": [
-                "Heart Anatomy & the Cardiac Cycle", "Blood Vessels & Circulation",
-                "Blood Components & Typing", "Respiratory Anatomy",
-                "Gas Exchange & Breathing Mechanics", "Common Cardiovascular Diseases"
+            5: {"name": "The Endocrine System", "lessons": [
+                "Hormones & Chemical Signaling",
+                "Major Endocrine Glands",
+                "⭐ Hormonal Regulation of Homeostasis",
+                "Feedback Loops in Endocrine Control",
+                "Disorders of the Endocrine System",
+                "Case Studies in Endocrinology",
+                "⭐ AP Prep: Hormone Pathways"
             ]},
-            5: {"name": "Digestive & Excretory Systems", "lessons": [
-                "Organs of the Digestive Tract", "Chemical & Mechanical Digestion",
-                "Nutrient Absorption", "The Liver, Pancreas & Gallbladder",
-                "Urinary System & Kidney Function"
+            6: {"name": "The Circulatory System", "lessons": [
+                "Structure of the Heart",
+                "Blood Vessels & Circulation",
+                "Blood Composition & Function",
+                "⭐ Cardiac Cycle & Heartbeat Regulation",
+                "Blood Pressure & Homeostasis",
+                "Disorders of the Circulatory System",
+                "Case Studies in Cardiovascular Health",
+                "⭐ AP Prep: ECG Interpretation"
             ]},
-            6: {"name": "Endocrine & Reproductive Systems", "lessons": [
-                "Endocrine Glands & Hormones", "Hormone Regulation & Feedback",
-                "Male Reproductive System", "Female Reproductive System",
-                "Embryonic Development Overview"
+            7: {"name": "The Respiratory System", "lessons": [
+                "Anatomy of the Respiratory System",
+                "Mechanics of Breathing",
+                "⭐ Gas Exchange in Alveoli",
+                "Transport of Oxygen & Carbon Dioxide",
+                "Regulation of Breathing",
+                "Disorders of the Respiratory System",
+                "Case Studies in Pulmonology",
+                "⭐ AP Prep: Respiratory Physiology"
             ]},
-            7: {"name": "Immune & Lymphatic Systems", "lessons": [
-                "Innate vs. Adaptive Immunity", "Lymphatic System Overview",
-                "Antigens, Antibodies & B Cells", "T Cells & Cell-Mediated Immunity",
-                "Vaccines & Immunization", "Immune Disorders"
+            8: {"name": "The Digestive System", "lessons": [
+                "Anatomy of Digestive Organs",
+                "Mechanical & Chemical Digestion",
+                "Absorption of Nutrients",
+                "Accessory Organs (Liver, Pancreas, Gallbladder)",
+                "Disorders of the Digestive System",
+                "Case Studies in Nutrition",
+                "⭐ AP Prep: Digestive Physiology"
+            ]},
+            9: {"name": "The Urinary & Reproductive Systems", "lessons": [
+                "Anatomy of the Urinary System",
+                "⭐ Kidney Function & Filtration",
+                "Fluid & Electrolyte Balance",
+                "Male Reproductive System",
+                "Female Reproductive System",
+                "Hormonal Regulation of Reproduction",
+                "Disorders of Urinary & Reproductive Systems",
+                "⭐ AP Prep: Renal Physiology"
+            ]},
+            10: {"name": "Integration & AP Prep", "lessons": [
+                "Immune System Overview",
+                "Interactions Between Organ Systems",
+                "Case Studies in Pathophysiology",
+                "⭐ Review of Key Anatomy & Physiology Concepts",
+                "⭐ AP-Style Practice Problems",
+                "⭐ Capstone Project: Human Body Systems Integration",
+                "⭐ Comprehensive Review & AP Exam Prep"
             ]},
         }
     },
@@ -779,34 +948,202 @@ COURSES = [
         "color": "#22c55e",
         "units": {
             1: {"name": "Introduction to Marine Science", "lessons": [
-                "History of Ocean Exploration", "Branches of Marine Science",
-                "Mapping the Ocean Floor", "Marine Science Careers",
-                "Tools & Technology in Marine Research"
+                "What is Marine Science?",
+                "History of Ocean Exploration",
+                "Tools of Marine Science (Submersibles, Sonar, Satellites)",
+                "Oceanographic Disciplines (Biology, Chemistry, Geology, Physics)",
+                "Careers in Marine Science",
+                "Case Studies in Ocean Research",
+                "⭐ AP Prep: Scientific Method in Marine Biology"
             ]},
-            2: {"name": "Ocean Structure & Properties", "lessons": [
-                "Ocean Basins & Seafloor Features", "Seawater Chemistry (Salinity, pH)",
-                "Ocean Temperature & Density", "Ocean Zones (Photic, Aphotic, Benthic)",
-                "Hydrothermal Vents & Deep-Sea Environments"
+            2: {"name": "Physical Oceanography", "lessons": [
+                "Properties of Seawater (Salinity, Density, Temperature)",
+                "Ocean Currents (Surface, Deep, Thermohaline)",
+                "Waves & Tides",
+                "Coastal Processes (Erosion, Deposition)",
+                "Ocean-Atmosphere Interactions",
+                "Case Studies in Climate-Ocean Systems",
+                "⭐ AP Prep: Ocean Circulation Models"
             ]},
-            3: {"name": "Ocean Circulation", "lessons": [
-                "Surface Currents & Gyres", "Thermohaline Circulation",
-                "Upwelling & Downwelling", "El Niño & La Niña",
-                "Tides & Tidal Patterns"
+            3: {"name": "Marine Geology", "lessons": [
+                "Structure of the Ocean Floor",
+                "Plate Tectonics & Seafloor Spreading",
+                "Mid-Ocean Ridges & Trenches",
+                "Marine Sediments",
+                "Hydrothermal Vents",
+                "Case Studies in Marine Geology",
+                "⭐ AP Prep: Plate Tectonics Calculations"
             ]},
-            4: {"name": "Marine Organisms", "lessons": [
-                "Marine Bacteria & Phytoplankton", "Seaweeds & Marine Plants",
-                "Marine Invertebrates", "Fish Diversity",
-                "Marine Mammals, Reptiles & Birds"
+            4: {"name": "Marine Chemistry", "lessons": [
+                "Chemical Composition of Seawater",
+                "Gas Exchange (Oxygen, Carbon Dioxide)",
+                "⭐ Ocean Acidification",
+                "Nutrient Cycles (Nitrogen, Phosphorus)",
+                "Case Studies in Marine Chemistry",
+                "⭐ AP Prep: Chemical Equilibria in Oceans"
             ]},
-            5: {"name": "Marine Ecosystems", "lessons": [
-                "Coral Reefs", "Estuaries & Salt Marshes",
-                "Kelp Forests", "The Open Ocean (Pelagic Zone)",
-                "Deep-Sea Ecosystems"
+            5: {"name": "Marine Ecology", "lessons": [
+                "Marine Ecosystems (Estuaries, Coral Reefs, Open Ocean, Deep Sea)",
+                "Food Chains & Food Webs",
+                "Energy Flow in Marine Systems",
+                "Symbiotic Relationships",
+                "Biodiversity & Conservation",
+                "Case Studies in Marine Ecology",
+                "⭐ AP Prep: Population Models"
             ]},
-            6: {"name": "Human Impact on the Ocean", "lessons": [
-                "Overfishing & Fisheries Management", "Ocean Pollution (Plastics, Oil, Chemicals)",
-                "Ocean Acidification", "Coral Bleaching & Habitat Loss",
-                "Marine Protected Areas & Conservation"
+            6: {"name": "Marine Invertebrates", "lessons": [
+                "Sponges & Cnidarians",
+                "Mollusks (Clams, Squid, Octopus)",
+                "Crustaceans (Crabs, Lobsters, Shrimp)",
+                "Echinoderms (Starfish, Sea Urchins)",
+                "Case Studies in Invertebrate Biology",
+                "⭐ AP Prep: Comparative Anatomy"
+            ]},
+            7: {"name": "Marine Vertebrates", "lessons": [
+                "Fish (Cartilaginous vs. Bony)",
+                "Amphibians (Limited Marine Species)",
+                "Marine Reptiles (Sea Turtles, Sea Snakes)",
+                "Marine Birds (Penguins, Albatross)",
+                "Marine Mammals (Whales, Dolphins, Seals)",
+                "Case Studies in Vertebrate Biology",
+                "⭐ AP Prep: Evolutionary Adaptations"
+            ]},
+            8: {"name": "Human Impact on Oceans", "lessons": [
+                "Overfishing & Fisheries Management",
+                "Pollution (Plastic, Oil Spills, Chemical Runoff)",
+                "⭐ Climate Change & Coral Bleaching",
+                "Marine Protected Areas",
+                "Case Studies in Conservation Policy",
+                "⭐ AP Prep: Environmental Models"
+            ]},
+            9: {"name": "Marine Technology and Exploration", "lessons": [
+                "Submersibles & ROVs",
+                "Satellites & Remote Sensing",
+                "Deep-Sea Exploration",
+                "Marine Biotechnology",
+                "Case Studies in Ocean Technology",
+                "⭐ AP Prep: Data Analysis in Marine Science"
+            ]},
+            10: {"name": "AP Prep & Capstone", "lessons": [
+                "⭐ Review of Key Marine Science Concepts",
+                "⭐ AP-Style Practice Problems",
+                "⭐ Case Studies in AP Marine Biology",
+                "Real-World Applications (Conservation, Fisheries, Climate Science)",
+                "⭐ Capstone Project: Marine Ecosystem Study",
+                "⭐ Comprehensive Review & AP Exam Prep"
+            ]},
+        }
+    },
+    {
+        "id": "integrated_science",
+        "title": "Integrated Science",
+        "page_title": "High School: Integrated Science",
+        "html_file": "integrated_science.html",
+        "lessons_folder": "IntegratedScienceLessons",
+        "json_slug": "integrated_science",
+        "course_prefix": "intsci",
+        "link_id": "intsci-link",
+        "category": "science",
+        "color": "#3b82f6",
+        "units": {
+            1: {"name": "Earth's Structure and Composition", "lessons": [
+                "Layers of the Earth (Crust, Mantle, Core)",
+                "Minerals (Classification, Identification Tests)",
+                "Rock Cycle (Igneous, Sedimentary, Metamorphic)",
+                "Plate Tectonics (Continental Drift, Seafloor Spreading)",
+                "Earthquakes (Seismic Waves, Measurement, Prediction)",
+                "Volcanoes (Types, Eruptions, Hazards)",
+                "Mountain Building & Geological Structures",
+                "Geological Resources (Ores, Fossil Fuels)",
+                "Case Studies in Natural Hazards"
+            ]},
+            2: {"name": "Atmosphere and Weather", "lessons": [
+                "Composition & Layers of the Atmosphere",
+                "Energy Transfer (Radiation, Conduction, Convection)",
+                "Weather Systems (Fronts, Pressure Systems)",
+                "Clouds & Precipitation Types",
+                "Climate Zones & Global Circulation",
+                "Severe Weather (Hurricanes, Tornadoes, Blizzards)",
+                "Human Impact on Atmosphere (Pollution, Greenhouse Gases)",
+                "⭐ Weather Prediction Models",
+                "Case Studies in Climate Events"
+            ]},
+            3: {"name": "Hydrosphere and Water Systems", "lessons": [
+                "Hydrologic Cycle (Evaporation, Condensation, Precipitation)",
+                "Oceans (Currents, Salinity, Temperature Layers)",
+                "Waves & Tides (Causes, Effects)",
+                "Freshwater Systems (Rivers, Lakes, Aquifers)",
+                "Glaciers & Ice Caps (Formation, Melting Impacts)",
+                "Water Resources & Human Use",
+                "Water Pollution & Conservation",
+                "Case Studies in Hydrology",
+                "⭐ AP Prep: Ocean Circulation Models"
+            ]},
+            4: {"name": "Earth's History and Geologic Time", "lessons": [
+                "Fossils & Fossil Formation",
+                "Relative Dating (Stratigraphy, Index Fossils)",
+                "⭐ Radiometric Dating & Half-Life",
+                "Geologic Time Scale (Eras, Periods, Epochs)",
+                "Mass Extinctions & Evolutionary Events",
+                "Origin of Earth & Early Atmosphere",
+                "Plate Movements Through Time (Supercontinents)",
+                "Case Studies in Paleontology",
+                "⭐ AP Prep: Geologic Time Calculations"
+            ]},
+            5: {"name": "Natural Resources and Energy", "lessons": [
+                "Renewable Resources (Solar, Wind, Hydro)",
+                "Nonrenewable Resources (Coal, Oil, Natural Gas)",
+                "Nuclear Energy (Fission, Fusion Potential)",
+                "Resource Extraction Methods (Mining, Drilling)",
+                "Environmental Impacts of Resource Use",
+                "Sustainability & Conservation Strategies",
+                "Case Studies in Energy Policy",
+                "⭐ AP Prep: Energy Calculations"
+            ]},
+            6: {"name": "Human Impact on Earth Systems", "lessons": [
+                "Deforestation & Land Use Changes",
+                "Urbanization & Soil Degradation",
+                "Pollution (Air, Water, Soil)",
+                "⭐ Climate Change & Global Warming",
+                "Conservation & Restoration Strategies",
+                "Future Challenges (Population Growth, Resource Scarcity)",
+                "Case Studies in Environmental Policy",
+                "⭐ AP Prep: Climate Models"
+            ]},
+            7: {"name": "Integrated Science Connections", "lessons": [
+                "Earth Science & Biology (Ecosystems, Biogeochemical Cycles)",
+                "Earth Science & Chemistry (Atmospheric Composition, Reactions)",
+                "Earth Science & Physics (Energy Transfer, Waves, Forces)",
+                "Earth Science & Technology (Satellites, Climate Modeling)",
+                "Careers in Earth & Environmental Sciences",
+                "Case Studies in Interdisciplinary Science",
+                "⭐ AP Prep: Cross-Disciplinary Applications"
+            ]},
+            8: {"name": "Astronomy Connections", "lessons": [
+                "Earth's Place in the Universe",
+                "Seasons & Earth's Tilt",
+                "Lunar Phases & Eclipses",
+                "Solar Energy & Earth Systems",
+                "Gravity & Orbital Motion",
+                "Case Studies in Space-Earth Interactions",
+                "⭐ AP Prep: Orbital Calculations"
+            ]},
+            9: {"name": "Earth Systems Modeling", "lessons": [
+                "Systems Thinking in Earth Science",
+                "Feedback Loops (Positive & Negative)",
+                "Modeling Climate Systems",
+                "Modeling Geological Processes",
+                "Case Studies in Predictive Modeling",
+                "⭐ AP Prep: Earth System Simulations",
+                "Applications in Environmental Engineering"
+            ]},
+            10: {"name": "AP Prep & Capstone", "lessons": [
+                "⭐ Review of Key Earth Science Concepts",
+                "⭐ AP-Style Practice Problems",
+                "⭐ Case Studies in AP Earth Science",
+                "Real-World Applications (Policy, Conservation, Engineering)",
+                "⭐ Capstone Project: Earth Systems Analysis",
+                "⭐ Comprehensive Review & AP Exam Prep"
             ]},
         }
     },

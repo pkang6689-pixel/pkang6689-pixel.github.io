@@ -192,14 +192,25 @@
     // Detect course from URL for 'Back to Course' button
     var coursePath = decodeURIComponent(window.location.pathname).toLowerCase();
     var courseMap = {
-      'algebra1lessons': { url: '../../algebra1.html', label: 'Back to Algebra 1' },
-      'algebra2lessons': { url: '../../algebra2.html', label: 'Back to Algebra 2' },
-      'geometrylessons': { url: '../../geometry.html', label: 'Back to Geometry' },
-      'physicslessons':  { url: '../../physics.html',  label: 'Back to Physics' },
-      'chemistrylessons': { url: '../../chem.html',    label: 'Back to Chemistry' },
-      'biologylessons':  { url: '../../bio.html',      label: 'Back to Biology' }
+      'algebra1lessons': { url: '../../../CourseHomepage/algebra1.html', label: 'Back to Algebra 1' },
+      'algebra2lessons': { url: '../../../CourseHomepage/algebra2.html', label: 'Back to Algebra 2' },
+      'geometrylessons': { url: '../../../CourseHomepage/geometry.html', label: 'Back to Geometry' },
+      'physicslessons':  { url: '../../../CourseHomepage/physics.html',  label: 'Back to Physics' },
+      'chemistrylessons': { url: '../../../CourseHomepage/chem.html',    label: 'Back to Chemistry' },
+      'biologylessons':  { url: '../../../CourseHomepage/bio.html',      label: 'Back to Biology' },
+      'anatomylessons':  { url: '../../../CourseHomepage/anatomy.html',  label: 'Back to Anatomy' },
+      'astronomylessons': { url: '../../../CourseHomepage/astronomy.html', label: 'Back to Astronomy' },
+      'earthsciencelessons': { url: '../../../CourseHomepage/earth_science.html', label: 'Back to Earth Science' },
+      'environmentalsciencelessons': { url: '../../../CourseHomepage/environmental_science.html', label: 'Back to Environmental Science' },
+      'financialmathlessons': { url: '../../../CourseHomepage/financial_math.html', label: 'Back to Financial Math' },
+      'integratedsciencelessons': { url: '../../../CourseHomepage/integrated_science.html', label: 'Back to Integrated Science' },
+      'linearalgebralessons': { url: '../../../CourseHomepage/linear_algebra.html', label: 'Back to Linear Algebra' },
+      'marinesciencelessons': { url: '../../../CourseHomepage/marine_science.html', label: 'Back to Marine Science' },
+      'precalculuslessons': { url: '../../../CourseHomepage/precalculus.html', label: 'Back to Precalculus' },
+      'statisticslessons': { url: '../../../CourseHomepage/statistics.html', label: 'Back to Statistics' },
+      'trigonometrylessons': { url: '../../../CourseHomepage/trigonometry.html', label: 'Back to Trigonometry' }
     };
-    var backUrl = '../../Courses.html';
+    var backUrl = '../../../Courses.html';
     var backLabel = 'Back to Course';
     Object.keys(courseMap).forEach(function(key) {
       if (coursePath.includes(key)) {
@@ -216,7 +227,18 @@
         'geometrylessons': 'GeometryLessons',
         'physicslessons': 'PhysicsLessons',
         'chemistrylessons': 'ChemistryLessons',
-        'biologylessons': 'BiologyLessons'
+        'biologylessons': 'BiologyLessons',
+        'anatomylessons': 'AnatomyLessons',
+        'astronomylessons': 'AstronomyLessons',
+        'earthsciencelessons': 'EarthScienceLessons',
+        'environmentalsciencelessons': 'EnvironmentalScienceLessons',
+        'financialmathlessons': 'FinancialMathLessons',
+        'integratedsciencelessons': 'IntegratedScienceLessons',
+        'linearalgebralessons': 'LinearAlgebraLessons',
+        'marinesciencelessons': 'MarineScienceLessons',
+        'precalculuslessons': 'PrecalculusLessons',
+        'statisticslessons': 'StatisticsLessons',
+        'trigonometrylessons': 'TrigonometryLessons'
       };
       Object.keys(folderKeyMap).forEach(function(key) {
         if (coursePath.includes(key)) {
