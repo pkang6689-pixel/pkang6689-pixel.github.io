@@ -11,6 +11,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="../theme_manager.js"></script>
 <script src="../scripts/translation_loader.js" data-section="ap_physics1" data-base="../translations"></script>
+  <script type="module">
+    // Import Firebase config and make auth + db available to analytics
+    import { auth, db } from '../firebase-config.js';
+    window.auth = auth;
+    window.db = db;
+  </script>
+<script src="../scripts/analytics-helper.js"></script>
 </head>
  <body class="dark-mode h-full">
 <script src="../scripts/taskbar.js"></script>
@@ -67,6 +74,18 @@
   // Listen for storage changes from other tabs/quiz completion
   window.addEventListener('storage', function(e) { if (e.key && e.key.match(/apphys1_u\d+_l\d+_(completed|started)/)) { applyProgressColors(); } });
   document.addEventListener('DOMContentLoaded', applyProgressColors);
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize analytics and track course visit
+    if (typeof StudentAnalytics !== 'undefined') {
+      try {
+        const analytics = new StudentAnalytics();
+        analytics.trackLessonView('ap_physics_2', 0, 0); // Track course visit
+        analytics.updateLearningStreak(); // Update daily streak
+      } catch (e) {
+        console.warn('Analytics initialization failed:', e);
+      }
+    }
+  });
 </script>
 <script src="../scripts/dev_tools.js"></script>
 <script> if (window._isDevUser && window._isDevUser()) { var dcb = document.getElementById('dev-clear-btn'); if (dcb) dcb.style.display = ''; } </script>

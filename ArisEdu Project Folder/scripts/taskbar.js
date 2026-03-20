@@ -87,7 +87,7 @@
         style.innerHTML = `
             .settings-menu {
                 position: fixed;
-                z-index: 10005; /* Higher than modal */
+                z-index: var(--z-settings); /* Higher than modal */
                 background-color: #ffffff;
                 color: #0f172a;
                 padding: 0.5rem;
@@ -280,128 +280,688 @@
       : '';
     var nav = document.createElement('nav');
     nav.className = 'taskbar';
-    
-    // Categorized Taskbar Logic
-    if(tbSettings['categorized'] !== false) {
-        var style = document.createElement('style');
-        style.innerHTML = `
-            .taskbar-category {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                padding: 0 0.5rem;
-                position: relative;
-            }
-            .taskbar-category:not(:last-child)::after {
-                content: '';
-                position: absolute;
-                right: 0;
-                top: 20%;
-                height: 60%;
-                width: 1px;
-                background: rgba(255,255,255,0.3);
-            }
-        `;
-        document.head.appendChild(style);
 
-        nav.innerHTML = 
-        '<div class="taskbar-container">' +
-            // Dev Tools
-            '<button id="dev-icon-toggle" style="position:absolute; left:0; top:0; z-index:2000; background:none; border:none; color:rgba(255,255,255,0.3); font-size:1.2rem; cursor:pointer; padding:0.5rem;" title="Dev Tools">🛠️</button>' +
-            
-            // Navigation
-            '<div class="taskbar-category" title="Navigation">' +
-                backBtnHtml +
-                '<a class="taskbar-button" href="/index.html" id="homepage-button"'+getDisp('homepage')+'>\uD83C\uDFE0 Home</a>' +
-                '<a class="taskbar-button" href="/ArisEdu Project Folder/Dashboard.html" id="dashboard-button"'+getDisp('dashboard')+'>\uD83D\uDCCA Dashboard</a>' +
-                '<a class="taskbar-button" href="/ArisEdu Project Folder/Courses.html" id="course-button"'+getDisp('courses')+'>\uD83D\uDCDA Courses</a>' +
-            '</div>' +
+    // ========== BUILD BREADCRUMBS ==========
+    var breadcrumbs = [];
+    breadcrumbs.push({label: '\uD83C\uDFE0 Home', url: '/index.html'});
 
-            // Misc
-            '<div class="taskbar-category" title="Misc">' +
-                '<a class="taskbar-button" href="/ArisEdu Project Folder/arcade.html" id="arcade-button"'+getDisp('arcade')+'>\uD83D\uDC7E Arcade</a>' +
-                '<button class="taskbar-button" id="forums-button" onclick="window.location.href=\'/ArisEdu Project Folder/forums.html\'"'+getDisp('forums')+'>\uD83D\uDCAC Forums</button>' +
-                '<button class="taskbar-button" onclick="if(window.showArisEduUpdate) window.showArisEduUpdate()" title="View Update Log">🔔</button>' +
-            '</div>' +
+    // Determine breadcrumb chain from URL context
+    if (lessonFolder) {
+      breadcrumbs.push({label: 'Courses', url: '/ArisEdu Project Folder/Courses.html'});
+      // Friendly course name from folder
+      var courseFriendly = {
+        ChemistryLessons: 'Chemistry', PhysicsLessons: 'Physics', BiologyLessons: 'Biology',
+        Algebra1Lessons: 'Algebra 1', Algebra2Lessons: 'Algebra 2', GeometryLessons: 'Geometry',
+        AnatomyLessons: 'Anatomy', AstronomyLessons: 'Astronomy',
+        EarthScienceLessons: 'Earth Science', EnvironmentalScienceLessons: 'Environmental Science',
+        FinancialMathLessons: 'Financial Math', IntegratedScienceLessons: 'Integrated Science',
+        LinearAlgebraLessons: 'Linear Algebra', MarineScienceLessons: 'Marine Science',
+        PrecalculusLessons: 'Precalculus', StatisticsLessons: 'Statistics',
+        TrigonometryLessons: 'Trigonometry',
+        MS_Algebra1Lessons: 'MS Algebra 1', MS_Algebra2Lessons: 'MS Algebra 2',
+        MS_BiologyLessons: 'MS Biology', MS_ChemistryLessons: 'MS Chemistry',
+        MS_GeometryLessons: 'MS Geometry', MS_PhysicsLessons: 'MS Physics'
+      };
+      var courseLabel = courseFriendly[lessonFolder] || lessonFolder.replace('Lessons','');
+      breadcrumbs.push({label: courseLabel, url: courseMap[lessonFolder] || '/ArisEdu Project Folder/Courses.html'});
 
-            // Tools
-            '<div class="taskbar-category" title="Tools">' +
-                '<button class="taskbar-button" id="search-button"'+getDisp('search')+'>\uD83D\uDD0D Search</button>' +
-                '<button class="taskbar-button" id="ai-assistant-button"'+getDisp('ai')+'>\uD83E\uDD16 AI</button>' +
-            '</div>' +
-            
-            // Account & Settings
-            '<div class="taskbar-category" title="Account & Settings">' +
-                '<button class="taskbar-button" id="settings-button">\u2699\uFE0F Settings</button>' +
-                '<a class="taskbar-button" href="/ArisEdu Project Folder/Login.html" id="login-signup-button"'+getDisp('login')+'>\uD83D\uDD10 Login</a>' +
-                '<button class="taskbar-button" id="streak-button" title="Current Login Streak" style="display:none; color: #fbbf24;">🔥 0</button>' +
-            '</div>' +
+      // Parse unit from path (e.g., "Unit3")
+      var unitMatch = path.match(/Unit\s*(\w+)/i);
+      if (unitMatch) {
+        breadcrumbs.push({label: 'Unit ' + unitMatch[1], url: null});
+      }
 
-            // Language Toggle
-            '<button id="language-toggle-button" title="Switch Language" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:2000;background:none;border:none;color:rgba(255,255,255,0.85);cursor:pointer;padding:0.3rem 0.5rem;display:inline-flex;align-items:center;font-size:2.5rem;line-height:1;">🌍</button>' +
-            '<div id="language-dropdown" style="display:none;position:fixed;z-index:10000;min-width:160px;background:var(--card-bg,#ffffff);border:1px solid var(--border-color,#e2e8f0);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.15);overflow:hidden;">' +
-              '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">English</button>' +
-              '<button class="lang-option" data-lang="spanish" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">Español</button>' +
-              '<button class="lang-option" data-lang="hindi" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">हिन्दी</button>' +
-              '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">中文</button>' +
-              '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
-              '<div style="border-top:1px solid var(--border-color,#e2e8f0);padding:0.5rem 1rem;font-size:0.8rem;color:var(--text-muted,#64748b);text-align:center;">💡 Reload to apply</div>' +
-            '</div>' +
-        '</div>' +
-        '<div aria-hidden="true" class="settings-menu" id="settings-menu">' +
-            '<div class="settings-item">' +
-            '<label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">' +
-                '<input checked id="dark-mode-checkbox" type="checkbox"/>' +
-                '<span>Dark Mode</span>' +
-            '</label>' +
-            '</div>' +
-            '<a class="settings-item" href="/ArisEdu Project Folder/Preferences.html" data-i18n="Preferences">Preferences</a>' +
-            '<a class="settings-item" href="/ArisEdu Project Folder/FAQ.html" data-i18n="Help">Help</a>' +
-        '</div>';
-    } else {
-    
-    // Standard Layout
-    nav.innerHTML =
-      '<div class="taskbar-container">' +
-        // Dev Tools Button (Left aligned, absolute)
-        '<button id="dev-icon-toggle" style="position:absolute; left:0; top:0; z-index:2000; background:none; border:none; color:rgba(255,255,255,0.3); font-size:1.2rem; cursor:pointer; padding:0.5rem;" title="Dev Tools">🛠️</button>' +
-        backBtnHtml +
-        '<button class="taskbar-button" id="search-button"'+getDisp('search')+'>\uD83D\uDD0D Search</button>' +
-        '<a class="taskbar-button" href="/index.html" id="homepage-button"'+getDisp('homepage')+'>\uD83C\uDFE0 Homepage</a>' +
-        '<a class="taskbar-button" href="/ArisEdu Project Folder/Dashboard.html" id="dashboard-button"'+getDisp('dashboard')+'>\uD83D\uDCCA Dashboard</a>' +
-        '<a class="taskbar-button" href="/ArisEdu Project Folder/Courses.html" id="course-button"'+getDisp('courses')+'>\uD83D\uDCDA Courses</a>' +
-        '<button class="taskbar-button" id="streak-button" title="Current Login Streak" style="display:none; color: #fbbf24;">🔥 0</button>' +
-        '<button class="taskbar-button" onclick="if(window.showArisEduUpdate) window.showArisEduUpdate()" title="View Update Log">🔔</button>' +
-        '<button class="taskbar-button" id="ai-assistant-button"'+getDisp('ai')+'>\uD83E\uDD16 AI</button>' +
-        '<button class="taskbar-button" id="forums-button" onclick="window.location.href=\'/ArisEdu Project Folder/forums.html\'"'+getDisp('forums')+'>\uD83D\uDCAC Forums</button>' +
-        '<button class="taskbar-button" id="settings-button">\u2699\uFE0F Settings</button>' +
-        '<a class="taskbar-button" href="/ArisEdu Project Folder/arcade.html" id="arcade-button"'+getDisp('arcade')+'>\uD83D\uDC7E Arcade</a>' +
-        '<a class="taskbar-button" href="/ArisEdu Project Folder/Login.html" id="login-signup-button"'+getDisp('login')+'>\uD83D\uDD10 Login/Signup</a>' +
-        '<button id="language-toggle-button" title="Switch Language" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:2000;background:none;border:none;color:rgba(255,255,255,0.85);cursor:pointer;padding:0.3rem 0.5rem;display:inline-flex;align-items:center;font-size:2.5rem;line-height:1;">🌍</button>' +
-        '<div id="language-dropdown" style="display:none;position:fixed;z-index:10000;min-width:160px;background:var(--card-bg,#ffffff);border:1px solid var(--border-color,#e2e8f0);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.15);overflow:hidden;">' +
-          '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;" data-i18n="English">English</button>' +
-          '<button class="lang-option" data-lang="spanish" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">Español</button>' +
-          '<button class="lang-option" data-lang="hindi" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">हिन्दी</button>' +
-          '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">中文</button>' +
-          '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
-          '<div style="border-top:1px solid var(--border-color,#e2e8f0);padding:0.5rem 1rem;font-size:0.8rem;color:var(--text-muted,#64748b);text-align:center;">💡 Reload to apply</div>' +
-        '</div>' +
-      '</div>' +
-      '<div aria-hidden="true" class="settings-menu" id="settings-menu">' +
-        '<div class="settings-item">' +
+      // Parse lesson from filename
+      var lessonFileMatch = filename.match(/Lesson\s*(\w+\.\d+)/);
+      if (lessonFileMatch) {
+        var pageType = '';
+        if (filename.indexOf('_Video') !== -1) pageType = 'Video';
+        else if (filename.indexOf('_Summary') !== -1) pageType = 'Summary';
+        else if (filename.indexOf('_Practice') !== -1) pageType = 'Practice';
+        else if (filename.indexOf('_Quiz') !== -1) pageType = 'Quiz';
+        var lessonLabel = 'Lesson ' + lessonFileMatch[1];
+        if (pageType) lessonLabel += ' \u2014 ' + pageType;
+        breadcrumbs.push({label: lessonLabel, url: null});
+      } else if (filename.indexOf('Test') !== -1) {
+        breadcrumbs.push({label: 'Unit Test', url: null});
+      }
+    } else if (/^(ms_)?(chem|physics|bio|algebra1|algebra2|geometry|anatomy|astronomy|earth_science|environmental_science|financial_math|integrated_science|linear_algebra|marine_science|precalculus|statistics|trigonometry|ap_biology|ap_chemistry|ap_calculus|ap_environmental_science|ap_hug|ap_physics1|ap_physics2|ap_physics_mechanics|ap_statistics)\.html$/.test(filename)) {
+      breadcrumbs.push({label: 'Courses', url: '/ArisEdu Project Folder/Courses.html'});
+      // Derive friendly name from filename
+      var subjectName = filename.replace('.html','').replace(/_/g,' ').replace(/\bms\b/i,'MS').replace(/\bap\b/i,'AP');
+      subjectName = subjectName.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+      breadcrumbs.push({label: subjectName, url: null});
+    } else if (filename === 'Courses.html') {
+      breadcrumbs.push({label: 'Courses', url: null});
+    } else if (filename === 'Dashboard.html') {
+      breadcrumbs.push({label: 'Dashboard', url: null});
+    } else if (filename === 'arcade.html') {
+      breadcrumbs.push({label: 'Arcade', url: null});
+    } else if (filename === 'forums.html') {
+      breadcrumbs.push({label: 'Forums', url: null});
+    } else if (filename === 'Preferences.html') {
+      breadcrumbs.push({label: 'Preferences', url: null});
+    } else if (filename === 'FAQ.html') {
+      breadcrumbs.push({label: 'Help', url: null});
+    } else if (filename === 'Login.html' || filename === 'Signup.html' || filename === 'LoginSignup.html') {
+      breadcrumbs.push({label: 'Login', url: null});
+    } else if (filename === 'AccountInfo.html') {
+      breadcrumbs.push({label: 'Account', url: null});
+    }
+
+    var bcHtml = '';
+    if (breadcrumbs.length > 1) {
+      bcHtml = '<div class="breadcrumb-bar">';
+      for (var bi = 0; bi < breadcrumbs.length; bi++) {
+        if (bi > 0) bcHtml += '<span class="breadcrumb-sep">\u203A</span>';
+        var isLast = (bi === breadcrumbs.length - 1);
+        if (isLast || !breadcrumbs[bi].url) {
+          bcHtml += '<span class="' + (isLast ? 'bc-current' : '') + '">' + breadcrumbs[bi].label + '</span>';
+        } else {
+          bcHtml += '<a href="' + breadcrumbs[bi].url + '">' + breadcrumbs[bi].label + '</a>';
+        }
+      }
+      bcHtml += '</div>';
+    }
+
+    // ========== LANGUAGE DROPDOWN HTML (shared) ==========
+    var langDropdownHtml =
+      '<div id="language-dropdown" style="display:none;position:fixed;z-index:var(--z-dropdown);min-width:160px;background:var(--card-bg,#ffffff);border:1px solid var(--border-color,#e2e8f0);border-radius:0.5rem;box-shadow:0 8px 24px rgba(0,0,0,0.15);overflow:hidden;">' +
+        '<button class="lang-option" data-lang="english" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">English</button>' +
+        '<button class="lang-option" data-lang="spanish" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">Español</button>' +
+        '<button class="lang-option" data-lang="hindi" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">हिन्दी</button>' +
+        '<button class="lang-option" data-lang="chinese" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">中文</button>' +
+        '<button class="lang-option" data-lang="traditional" style="display:block;width:100%;text-align:left;padding:0.6rem 1rem;background:none;border:none;color:var(--text-color,#0f172a);cursor:pointer;font-size:0.95rem;">繁體中文</button>' +
+        '<div style="border-top:1px solid var(--border-color,#e2e8f0);padding:0.5rem 1rem;font-size:0.8rem;color:var(--text-muted,#64748b);text-align:center;">💡 Reload to apply</div>' +
+      '</div>';
+
+    // ========== SETTINGS MENU HTML (shared) ==========
+    var settingsMenuHtml =
+      '<div aria-hidden="true" class="settings-menu" id="settings-menu" role="menu" aria-label="Settings">' +
+        '<div class="settings-item" role="menuitem">' +
           '<label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">' +
-            '<input checked id="dark-mode-checkbox" type="checkbox"/>' +
+            '<input checked id="dark-mode-checkbox" type="checkbox" aria-label="Toggle dark mode"/>' +
             '<span>Dark Mode</span>' +
           '</label>' +
         '</div>' +
-        // Audio Toggle Removed
-
-        '<a class="settings-item" href="/ArisEdu Project Folder/Preferences.html">Preferences</a>' +
-        '<a class="settings-item" href="/ArisEdu Project Folder/FAQ.html">Help</a>' +
+        '<a class="settings-item" href="/ArisEdu Project Folder/Preferences.html" data-i18n="Preferences" role="menuitem">Preferences</a>' +
+        '<a class="settings-item" href="/ArisEdu Project Folder/FAQ.html" data-i18n="Help" role="menuitem">Help</a>' +
       '</div>';
+
+    // ========== MOBILE DRAWER HTML ==========
+    var mobileDrawerHtml =
+      '<div class="mobile-drawer-overlay" id="mobile-drawer-overlay"></div>' +
+      '<div class="mobile-drawer" id="mobile-drawer" role="dialog" aria-modal="true" aria-label="Navigation menu">' +
+        '<div class="mobile-drawer-header">' +
+          '<span class="drawer-title">Menu</span>' +
+          '<button class="mobile-drawer-close" id="mobile-drawer-close" aria-label="Close menu">&times;</button>' +
+        '</div>' +
+        '<nav class="mobile-drawer-section" aria-label="Main pages">' +
+          '<div class="mobile-drawer-section-title">Navigation</div>' +
+          '<a class="drawer-item" href="/index.html">\uD83C\uDFE0 Home</a>' +
+          '<a class="drawer-item" href="/ArisEdu Project Folder/Dashboard.html">\uD83D\uDCCA Dashboard</a>' +
+          '<a class="drawer-item" href="/ArisEdu Project Folder/Courses.html">\uD83D\uDCDA Courses</a>' +
+        '</nav>' +
+        '<div class="drawer-divider"></div>' +
+        '<nav class="mobile-drawer-section" aria-label="Discover">' +
+          '<div class="mobile-drawer-section-title">Discover</div>' +
+          '<a class="drawer-item" href="/ArisEdu Project Folder/arcade.html">\uD83D\uDC7E Arcade</a>' +
+          '<button class="drawer-item" id="drawer-forums-btn">\uD83D\uDCAC Forums</button>' +
+        '</nav>' +
+        '<div class="drawer-divider"></div>' +
+        '<div class="mobile-drawer-section" role="group" aria-label="Tools">' +
+          '<div class="mobile-drawer-section-title">Tools</div>' +
+          '<button class="drawer-item" id="drawer-search-btn">\uD83D\uDD0D Search</button>' +
+          '<button class="drawer-item" id="drawer-ai-btn">\uD83E\uDD16 AI Assistant</button>' +
+          '<button class="drawer-item" id="drawer-update-btn">\uD83D\uDD14 Updates</button>' +
+        '</div>' +
+        '<div class="drawer-divider"></div>' +
+        '<div class="mobile-drawer-section" role="group" aria-label="Account">' +
+          '<div class="mobile-drawer-section-title">Account</div>' +
+          '<button class="drawer-item" id="drawer-settings-btn">\u2699\uFE0F Settings</button>' +
+          '<a class="drawer-item" href="/ArisEdu Project Folder/Login.html" id="drawer-login-btn">\uD83D\uDD10 Login</a>' +
+          '<button class="drawer-item" id="drawer-lang-btn">\uD83C\uDF0D Language</button>' +
+        '</div>' +
+      '</div>';
+
+    // ========== CONSOLIDATED TASKBAR LAYOUT ==========
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-label', 'Main navigation');
+  // --- Build lesson-nav center section (only on lesson pages) ---
+  // Uses the same circle + connector stepper as the page progress bar
+  var lessonNavHtml = '';
+  if (lessonFolder && /^Lesson/.test(filename)) {
+    var lessonBase = '';
+    var m = filename.match(/^(Lesson\s*\d+\.\d+)/);
+    if (m) lessonBase = m[1];
+    if (lessonBase) {
+      var usesUnderscore = filename.indexOf('_Video') !== -1 || filename.indexOf('_Summary') !== -1 || filename.indexOf('_Practice') !== -1 || filename.indexOf('_Quiz') !== -1;
+      var sep = usesUnderscore ? '_' : ' ';
+      var tbSteps = [
+        { key: 'Video',    label: 'Video',    icon: '\u25B6',        suffix: sep + 'Video.html' },
+        { key: 'Summary',  label: 'Summary',  icon: '\uD83D\uDCCB', suffix: sep + 'Summary.html' },
+        { key: 'Practice', label: 'Practice', icon: '\uD83C\uDFAF', suffix: sep + 'Practice.html' },
+        { key: 'Quiz',     label: 'Quiz',     icon: '\u2714',        suffix: sep + 'Quiz.html' }
+      ];
+      var tbStepOrder = { Video: 0, Summary: 1, Practice: 2, Quiz: 3 };
+      var curType = '';
+      if (filename.indexOf('Video') !== -1) curType = 'Video';
+      else if (filename.indexOf('Summary') !== -1) curType = 'Summary';
+      else if (filename.indexOf('Practice') !== -1) curType = 'Practice';
+      else if (filename.indexOf('Quiz') !== -1) curType = 'Quiz';
+      var curIdx = tbStepOrder[curType] || 0;
+
+      lessonNavHtml = '<div class="taskbar-center" role="navigation" aria-label="Lesson steps">' +
+        '<div class="tb-progress-bar">';
+      for (var si = 0; si < tbSteps.length; si++) {
+        var s = tbSteps[si];
+        var state = si < curIdx ? 'completed' : si === curIdx ? 'current' : 'upcoming';
+        var stepUrl = lessonBase + s.suffix;
+        lessonNavHtml += '<div class="tb-lp-step tb-lp-' + state + '"' + (state === 'current' ? ' aria-current="step"' : '') + '>';
+        if (si > 0) {
+          lessonNavHtml += '<div class="tb-lp-connector tb-lp-connector-' + (si <= curIdx ? 'done' : 'pending') + '"></div>';
+        }
+        if (si !== curIdx) {
+          lessonNavHtml += '<a href="' + stepUrl + '" class="tb-lp-dot-link" aria-label="' + s.label + '">';
+        }
+        lessonNavHtml += '<div class="tb-lp-dot">' + s.icon + '</div>';
+        lessonNavHtml += '<span class="tb-lp-label">' + s.label + '</span>';
+        if (si !== curIdx) {
+          lessonNavHtml += '</a>';
+        }
+        lessonNavHtml += '</div>';
+      }
+      lessonNavHtml += '</div></div>';
     }
-    document.body.insertBefore(nav, document.body.firstChild);
   }
+
+    nav.innerHTML =
+      '<a class="skip-to-content" href="#main-content">Skip to content</a>' +
+      '<div class="taskbar-container">' +
+        // Dev Tools
+        '<button id="dev-icon-toggle" style="position:absolute; left:0; top:0; z-index:var(--z-hamburger); background:none; border:none; color:rgba(255,255,255,0.3); font-size:1.2rem; cursor:pointer; padding:0.5rem;" title="Dev Tools" aria-label="Developer tools">🛠️</button>' +
+
+        // LEFT: Primary Navigation
+        '<div class="taskbar-left" role="group" aria-label="Site navigation">' +
+          backBtnHtml +
+          '<a class="taskbar-button" href="/index.html" id="homepage-button"'+getDisp('homepage')+' aria-label="Home">\uD83C\uDFE0 Home</a>' +
+          '<a class="taskbar-button" href="/ArisEdu Project Folder/Dashboard.html" id="dashboard-button"'+getDisp('dashboard')+' aria-label="Dashboard">\uD83D\uDCCA Dashboard</a>' +
+          '<a class="taskbar-button" href="/ArisEdu Project Folder/Courses.html" id="course-button"'+getDisp('courses')+' aria-label="Courses">\uD83D\uDCDA Courses</a>' +
+        '</div>' +
+
+        // CENTER: Lesson navigation (only on lesson pages)
+        lessonNavHtml +
+
+        // RIGHT: Utilities + More menu
+        '<div class="taskbar-right" role="group" aria-label="Tools and settings">' +
+          '<button class="taskbar-button" id="search-button"'+getDisp('search')+' aria-label="Search">\uD83D\uDD0D Search</button>' +
+          '<button class="taskbar-button" id="ai-assistant-button"'+getDisp('ai')+' aria-label="AI Assistant">\uD83E\uDD16 AI</button>' +
+          '<button class="taskbar-button" id="streak-button" title="Current Login Streak" style="display:none; color: #fbbf24;" aria-label="Login streak">🔥 0</button>' +
+
+          // "More" overflow menu
+          '<div class="taskbar-more-wrap">' +
+            '<button class="taskbar-more-btn" id="more-menu-btn" title="More" aria-haspopup="true" aria-expanded="false">\u22EF More</button>' +
+            '<div class="taskbar-more-panel" id="more-menu-panel" role="menu" aria-label="More options">' +
+              '<a class="more-item" href="/ArisEdu Project Folder/TeacherAnalytics.html" role="menuitem">📊 Teacher Analytics</a>' +
+              '<a class="more-item" href="/ArisEdu Project Folder/arcade.html"'+getDisp('arcade')+' role="menuitem">\uD83D\uDC7E Arcade</a>' +
+              '<button class="more-item" id="more-forums-btn"'+getDisp('forums')+' role="menuitem">\uD83D\uDCAC Forums</button>' +
+              '<button class="more-item" id="more-update-btn" role="menuitem">\uD83D\uDD14 Updates</button>' +
+            '</div>' +
+          '</div>' +
+
+          '<button class="taskbar-button taskbar-icon-btn" id="settings-button" aria-haspopup="true" aria-expanded="false" aria-label="Settings"><span class="tb-icon">\u2699\uFE0F</span><span class="tb-label">Settings</span></button>' +
+          '<a class="taskbar-button taskbar-icon-btn" href="/ArisEdu Project Folder/Login.html" id="login-signup-button"'+getDisp('login')+' aria-label="Login or sign up"><span class="tb-icon">\uD83D\uDD10</span><span class="tb-label">Login</span></a>' +
+          '<button id="language-toggle-button" class="taskbar-button taskbar-icon-btn" title="Switch Language" style="background:none;border:none;color:rgba(255,255,255,0.85);cursor:pointer;" aria-haspopup="true" aria-expanded="false" aria-label="Switch language"><span class="tb-icon">🌍</span><span class="tb-label">Lang</span></button>' +
+        '</div>' +
+
+        // Hamburger for mobile
+        '<button class="hamburger-btn" id="hamburger-btn" aria-label="Open menu" aria-expanded="false">&#9776;</button>' +
+      '</div>' +
+      bcHtml +
+      langDropdownHtml +
+      settingsMenuHtml;
+
+    document.body.insertBefore(nav, document.body.firstChild);
+
+    // Add skip-to-content target on main content area
+    var mainEl = document.querySelector('.main-container');
+    if (mainEl && !mainEl.id) mainEl.id = 'main-content';
+
+    // Inject mobile drawer (outside the nav, appended to body)
+    var drawerContainer = document.createElement('div');
+    drawerContainer.innerHTML = mobileDrawerHtml;
+    while (drawerContainer.firstChild) {
+      document.body.appendChild(drawerContainer.firstChild);
+    }
+
+    // ========== MORE MENU LOGIC ==========
+    var moreBtn = document.getElementById('more-menu-btn');
+    var morePanel = document.getElementById('more-menu-panel');
+    function closeMoreMenu() {
+      if (morePanel) morePanel.classList.remove('is-open');
+      if (moreBtn) moreBtn.setAttribute('aria-expanded', 'false');
+    }
+    function openMoreMenu() {
+      if (!morePanel || !moreBtn) return;
+      morePanel.classList.add('is-open');
+      moreBtn.setAttribute('aria-expanded', 'true');
+      var rect = moreBtn.getBoundingClientRect();
+      morePanel.style.top = rect.bottom + 4 + 'px';
+      morePanel.style.left = Math.max(0, rect.right - morePanel.offsetWidth) + 'px';
+      // Focus first item
+      var firstItem = morePanel.querySelector('.more-item');
+      if (firstItem) firstItem.focus();
+    }
+    if (moreBtn && morePanel) {
+      moreBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        morePanel.classList.contains('is-open') ? closeMoreMenu() : openMoreMenu();
+      });
+      // Arrow keys and Escape within More menu
+      morePanel.addEventListener('keydown', function(e) {
+        var items = morePanel.querySelectorAll('.more-item');
+        var idx = Array.prototype.indexOf.call(items, document.activeElement);
+        if (e.key === 'ArrowDown') { e.preventDefault(); if (idx < items.length - 1) items[idx + 1].focus(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); if (idx > 0) items[idx - 1].focus(); }
+        else if (e.key === 'Escape') { closeMoreMenu(); moreBtn.focus(); }
+      });
+      document.addEventListener('click', function(e) {
+        if (!morePanel.contains(e.target) && e.target !== moreBtn) {
+          closeMoreMenu();
+        }
+      });
+      // Wire up More menu buttons
+      var moreForumsBtn = document.getElementById('more-forums-btn');
+      if (moreForumsBtn) moreForumsBtn.addEventListener('click', function(){ window.location.href = '/ArisEdu Project Folder/forums.html'; });
+      var moreUpdateBtn = document.getElementById('more-update-btn');
+      if (moreUpdateBtn) moreUpdateBtn.addEventListener('click', function(){ if(window.showArisEduUpdate) window.showArisEduUpdate(); });
+      
+      // Hide Teacher Analytics button for non-teachers
+      (async function() {
+        try {
+          // Wait for Firebase to be available
+          let attempts = 0;
+          while ((!window.db || !window.auth) && attempts < 20) {
+            await new Promise(r => setTimeout(r, 100));
+            attempts++;
+          }
+          
+          if (window.auth && window.auth.currentUser) {
+            const { getDoc, doc } = await import('../firebase-config.js');
+            const userRef = doc(window.db, 'users', window.auth.currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            
+            if (!userSnap.exists() || userSnap.data().role !== 'teacher') {
+              // Hide Teacher Analytics button for students
+              const teacherAnalyticsLink = document.querySelector('a[href*="TeacherAnalytics"]');
+              if (teacherAnalyticsLink) {
+                teacherAnalyticsLink.style.display = 'none';
+              }
+            }
+          }
+        } catch (error) {
+          // If error, hide the button to be safe (don't expose teacher tools)
+          const teacherAnalyticsLink = document.querySelector('a[href*="TeacherAnalytics"]');
+          if (teacherAnalyticsLink) {
+            teacherAnalyticsLink.style.display = 'none';
+          }
+        }
+      })();
+    }
+
+    // ========== HAMBURGER DRAWER LOGIC ==========
+    var hamburgerBtn = document.getElementById('hamburger-btn');
+    var drawerOverlay = document.getElementById('mobile-drawer-overlay');
+    var drawer = document.getElementById('mobile-drawer');
+    var drawerClose = document.getElementById('mobile-drawer-close');
+
+    function openDrawer() {
+      if (drawerOverlay) drawerOverlay.classList.add('is-open');
+      if (drawer) drawer.classList.add('is-open');
+      if (hamburgerBtn) hamburgerBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      // Focus first focusable element in drawer
+      if (drawerClose) drawerClose.focus();
+    }
+    function closeDrawer() {
+      if (drawerOverlay) drawerOverlay.classList.remove('is-open');
+      if (drawer) drawer.classList.remove('is-open');
+      if (hamburgerBtn) hamburgerBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      if (hamburgerBtn) hamburgerBtn.focus();
+    }
+    // Focus trap inside drawer when open
+    if (drawer) {
+      drawer.addEventListener('keydown', function(e) {
+        if (e.key !== 'Tab') return;
+        var focusable = drawer.querySelectorAll('a[href], button, input, [tabindex]:not([tabindex="-1"])');
+        if (!focusable.length) return;
+        var first = focusable[0], last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      });
+    }
+
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', openDrawer);
+    if (drawerOverlay) drawerOverlay.addEventListener('click', closeDrawer);
+    if (drawerClose) drawerClose.addEventListener('click', closeDrawer);
+
+    // Wire up drawer buttons
+    var drawerForums = document.getElementById('drawer-forums-btn');
+    if (drawerForums) drawerForums.addEventListener('click', function(){ closeDrawer(); window.location.href = '/ArisEdu Project Folder/forums.html'; });
+    var drawerSearch = document.getElementById('drawer-search-btn');
+    if (drawerSearch) drawerSearch.addEventListener('click', function(){ closeDrawer(); var sb = document.getElementById('search-button'); if(sb) sb.click(); });
+    var drawerAI = document.getElementById('drawer-ai-btn');
+    if (drawerAI) drawerAI.addEventListener('click', function(){ closeDrawer(); var ab = document.getElementById('ai-assistant-button'); if(ab) ab.click(); });
+    var drawerUpdate = document.getElementById('drawer-update-btn');
+    if (drawerUpdate) drawerUpdate.addEventListener('click', function(){ closeDrawer(); if(window.showArisEduUpdate) window.showArisEduUpdate(); });
+    var drawerSettings = document.getElementById('drawer-settings-btn');
+    if (drawerSettings) drawerSettings.addEventListener('click', function(){ closeDrawer(); var sb = document.getElementById('settings-button'); if(sb) sb.click(); });
+    var drawerLang = document.getElementById('drawer-lang-btn');
+    if (drawerLang) drawerLang.addEventListener('click', function(){ closeDrawer(); var lb = document.getElementById('language-toggle-button'); if(lb) lb.click(); });
+
+    // Close drawer & More menu on Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeDrawer();
+        closeMoreMenu();
+      }
+    });
+  }
+
+  // ========== LESSON PROGRESSION INDICATOR ==========
+  // Shows a step bar (Video → Summary → Practice → Quiz) on lesson pages
+  (function() {
+    // Only show on lesson pages (inside a Lessons folder, not unit tests)
+    if (!lessonFolder) return;
+    var lessonMatch = filename.match(/Lesson\s*(\w+\.\d+)/);
+    if (!lessonMatch) return; // Skip unit tests and non-lesson pages
+
+    var lessonId = lessonMatch[1]; // e.g. "3.1"
+    var baseName = filename.replace(/_Video\.html|_Summary\.html|_Practice\.html|_Quiz\.html/, '');
+
+    // Determine current step
+    var currentStep = '';
+    if (filename.indexOf('_Video') !== -1) currentStep = 'video';
+    else if (filename.indexOf('_Summary') !== -1) currentStep = 'summary';
+    else if (filename.indexOf('_Practice') !== -1) currentStep = 'practice';
+    else if (filename.indexOf('_Quiz') !== -1) currentStep = 'quiz';
+    if (!currentStep) return;
+
+    var steps = [
+      { key: 'video',    label: 'Video',    icon: '\u25B6', suffix: '_Video.html' },
+      { key: 'summary',  label: 'Summary',  icon: '\uD83D\uDCCB', suffix: '_Summary.html' },
+      { key: 'practice', label: 'Practice', icon: '\uD83C\uDFAF', suffix: '_Practice.html' },
+      { key: 'quiz',     label: 'Quiz',     icon: '\u2714', suffix: '_Quiz.html' }
+    ];
+
+    var stepOrder = { video: 0, summary: 1, practice: 2, quiz: 3 };
+    var currentIdx = stepOrder[currentStep];
+
+    // Build the step bar HTML with ARIA progress indicators
+    var progressHtml = '<div class="lesson-progress-bar" id="lesson-progress-bar" role="navigation" aria-label="Lesson steps">';
+    for (var si = 0; si < steps.length; si++) {
+      var s = steps[si];
+      var state = 'upcoming';
+      if (si < currentIdx) state = 'completed';
+      else if (si === currentIdx) state = 'current';
+
+      var stepUrl = baseName + s.suffix;
+      var isClickable = (si !== currentIdx);
+
+      var stepAriaLabel = s.label + ' — ' + (state === 'completed' ? 'completed' : state === 'current' ? 'current step' : 'upcoming');
+      progressHtml += '<div class="lp-step lp-' + state + '"' + (state === 'current' ? ' aria-current="step"' : '') + '>';
+      if (si > 0) {
+        progressHtml += '<div class="lp-connector lp-connector-' + (si <= currentIdx ? 'done' : 'pending') + '"></div>';
+      }
+      if (isClickable) {
+        progressHtml += '<a href="' + stepUrl + '" class="lp-dot-link" aria-label="' + stepAriaLabel + '">';
+      }
+      progressHtml += '<div class="lp-dot">' + s.icon + '</div>';
+      progressHtml += '<span class="lp-label">' + s.label + '</span>';
+      if (isClickable) {
+        progressHtml += '</a>';
+      }
+      progressHtml += '</div>';
+    }
+    progressHtml += '</div>';
+
+    // Inject into the main-container, at the very bottom
+    function injectProgressBar() {
+      var mainContainer = document.querySelector('.main-container');
+      if (!mainContainer) return;
+      if (document.getElementById('lesson-progress-bar')) return;
+      var div = document.createElement('div');
+      div.innerHTML = progressHtml;
+      mainContainer.appendChild(div.firstChild);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', injectProgressBar);
+    } else {
+      injectProgressBar();
+    }
+  })();
+
+  // ========== COURSE SIDEBAR NAVIGATION ==========
+  // Auto-generates a collapsible sidebar on course homepage pages
+  (function() {
+    // Only show on course homepage pages
+    var isCourseHomepage = path.indexOf('CourseHomepage') !== -1 && filename.endsWith('.html');
+    if (!isCourseHomepage) return;
+
+    function buildSidebar() {
+      var mainContainer = document.querySelector('.main-container');
+      if (!mainContainer || document.getElementById('course-sidebar')) return;
+
+      // Parse all segment groups to extract units and lessons
+      // Match standard, and bio.html's top/bottom patterns
+      var segmentGroups = document.querySelectorAll('[id^="segments-unit-"], [id^="segments-top-unit-"], [id^="segments-bottom-unit-"]');
+      if (!segmentGroups.length) return;
+
+      // Determine the localStorage prefix for progress
+      // AP courses expose courseConfig.coursePrefix; regular courses use filename stem
+      var progressPrefix = '';
+      if (typeof courseConfig !== 'undefined' && courseConfig && courseConfig.coursePrefix) {
+        progressPrefix = courseConfig.coursePrefix;
+      } else {
+        progressPrefix = filename.replace('.html', '');
+      }
+
+      var unitMap = {}; // deduplicate units (bio.html has top + bottom for same unit)
+      segmentGroups.forEach(function(group) {
+        var unitId = group.id.replace('segments-unit-', '').replace('segments-top-unit-', '').replace('segments-bottom-unit-', '');
+        if (!unitMap[unitId]) unitMap[unitId] = [];
+        var lessons = unitMap[unitId];
+
+        // Pattern 1: Regular courses — <a href> wrapping rect/path
+        var links = group.querySelectorAll('a[href]');
+        if (links.length > 0) {
+          links.forEach(function(a) {
+            var href = a.getAttribute('href') || '';
+            var el = a.querySelector('rect, path');
+            var nameMatch = (el ? el.getAttribute('onmouseenter') : '') || '';
+            var labelMatch = nameMatch.match(/showLessonPopup\(event,\s*'([^']+)'/);
+            var lessonName = labelMatch ? labelMatch[1] : 'Lesson';
+            lessons.push({ href: href, name: lessonName });
+          });
+        } else {
+          // Pattern 2: AP/dynamic courses — <g onclick> wrapping rect
+          var gElements = group.querySelectorAll('g[onclick]');
+          gElements.forEach(function(g) {
+            var onclick = g.getAttribute('onclick') || '';
+            var hrefMatch = onclick.match(/window\.location\.href='([^']+)'/);
+            var href = hrefMatch ? hrefMatch[1] : '#';
+            var rect = g.querySelector('rect');
+            var nameAttr = (rect ? rect.getAttribute('onmouseenter') : '') || '';
+            var labelMatch = nameAttr.match(/showLessonPopup\(event,\s*'([^']+)'/);
+            var lessonName = labelMatch ? labelMatch[1] : 'Lesson';
+            var isUnitTest = onclick.indexOf(', 99)') !== -1;
+            if (!isUnitTest) {
+              lessons.push({ href: href, name: lessonName });
+            }
+          });
+        }
+      });
+
+      // Convert map to array
+      var units = [];
+      var unitIds = Object.keys(unitMap);
+      // Sort unit IDs numerically where possible
+      unitIds.sort(function(a, b) {
+        var na = parseFloat(a), nb = parseFloat(b);
+        if (!isNaN(na) && !isNaN(nb)) return na - nb;
+        return a.localeCompare(b);
+      });
+      unitIds.forEach(function(id) {
+        if (unitMap[id].length > 0) {
+          units.push({ id: id, lessons: unitMap[id] });
+        }
+      });
+
+      if (!units.length) return;
+
+      // Build sidebar HTML
+      var sidebarHtml = '<aside class="course-sidebar" id="course-sidebar" role="complementary" aria-label="Course units">';
+      sidebarHtml += '<div class="cs-header">';
+      sidebarHtml += '<span class="cs-title">Units</span>';
+      sidebarHtml += '<button class="cs-collapse-btn" id="cs-collapse-btn" title="Collapse sidebar" aria-label="Collapse sidebar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>';
+      sidebarHtml += '</div>';
+
+      units.forEach(function(unit, idx) {
+        var completedCount = 0;
+        var totalLessons = unit.lessons.length;
+        unit.lessons.forEach(function(lesson, li) {
+          var completedKey = progressPrefix + '_u' + unit.id + '_l' + (li + 1) + '_completed';
+          if (localStorage.getItem(completedKey) === 'true') completedCount++;
+        });
+
+        var isExpanded = idx === 0; // First unit expanded by default
+        var allDone = completedCount === totalLessons;
+        var unitProgressLabel = completedCount + ' of ' + totalLessons + ' lessons completed';
+        sidebarHtml += '<div class="cs-unit' + (isExpanded ? ' is-expanded' : '') + '" data-unit="' + unit.id + '">';
+        sidebarHtml += '<button class="cs-unit-header" aria-expanded="' + isExpanded + '">';
+        sidebarHtml += '<span class="cs-unit-name">Unit ' + unit.id + '</span>';
+        sidebarHtml += '<span class="cs-unit-progress' + (allDone ? ' cs-unit-done' : '') + '" aria-label="' + unitProgressLabel + '">' + completedCount + '/' + totalLessons + (allDone ? ' \u2713' : '') + '</span>';
+        sidebarHtml += '<span class="cs-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span>';
+        sidebarHtml += '</button>';
+        sidebarHtml += '<div class="cs-lessons"><div class="cs-lessons-inner">';
+
+        unit.lessons.forEach(function(lesson, li) {
+          var startedKey = progressPrefix + '_u' + unit.id + '_l' + (li + 1) + '_started';
+          var completedKey = progressPrefix + '_u' + unit.id + '_l' + (li + 1) + '_completed';
+          var isCompleted = localStorage.getItem(completedKey) === 'true';
+          var isStarted = localStorage.getItem(startedKey) === 'true';
+          var statusClass = isCompleted ? 'cs-completed' : (isStarted ? 'cs-started' : '');
+          var statusIcon = isCompleted ? '\u2713 ' : (isStarted ? '\u25CB ' : '');
+          var statusLabel = isCompleted ? ' (completed)' : (isStarted ? ' (in progress)' : '');
+
+          sidebarHtml += '<a class="cs-lesson ' + statusClass + '" href="' + lesson.href + '" aria-label="' + lesson.name + statusLabel + '">';
+          sidebarHtml += '<span class="cs-lesson-status" aria-hidden="true">' + statusIcon + '</span>';
+          sidebarHtml += '<span class="cs-lesson-name">' + lesson.name + '</span>';
+          sidebarHtml += '</a>';
+        });
+
+        sidebarHtml += '</div></div></div>';
+      });
+
+      sidebarHtml += '</aside>';
+
+      // Find the courses-container and wrap it + sidebar in a flex row
+      var coursesContainer = mainContainer.querySelector('.courses-container') || mainContainer.querySelector('#courses-container');
+      var sidebarTmp = document.createElement('div');
+      sidebarTmp.innerHTML = sidebarHtml;
+      var sidebarNode = sidebarTmp.firstChild;
+
+      if (coursesContainer) {
+        // Create a flex wrapper around sidebar + courses-container
+        var flexWrapper = document.createElement('div');
+        flexWrapper.className = 'cs-layout-wrapper';
+        flexWrapper.style.display = 'flex';
+        flexWrapper.style.gap = '0';
+        flexWrapper.style.alignItems = 'flex-start';
+        flexWrapper.style.width = '100%';
+        // Insert wrapper where courses-container was
+        coursesContainer.parentNode.insertBefore(flexWrapper, coursesContainer);
+        flexWrapper.appendChild(sidebarNode);
+        flexWrapper.appendChild(coursesContainer);
+        // Make courses-container fill remaining space
+        coursesContainer.style.flex = '1';
+        coursesContainer.style.minWidth = '0';
+      } else {
+        // Fallback: prepend sidebar to main-container
+        mainContainer.insertBefore(sidebarNode, mainContainer.firstChild);
+        mainContainer.style.display = 'flex';
+        mainContainer.style.gap = '0';
+        mainContainer.style.alignItems = 'flex-start';
+      }
+
+      // Sidebar toggle logic
+      var sidebarEl = document.getElementById('course-sidebar');
+      var collapseBtn = document.getElementById('cs-collapse-btn');
+
+      if (collapseBtn && sidebarEl) {
+        collapseBtn.addEventListener('click', function() {
+          sidebarEl.classList.toggle('is-collapsed');
+          var isCollapsed = sidebarEl.classList.contains('is-collapsed');
+          collapseBtn.setAttribute('aria-label', isCollapsed ? 'Expand sidebar' : 'Collapse sidebar');
+          var svg = collapseBtn.querySelector('svg');
+          if (svg) {
+            svg.style.transform = isCollapsed ? 'rotate(180deg)' : '';
+          }
+        });
+      }
+
+      // Unit expand/collapse with aria-expanded
+      var unitHeaders = sidebarEl.querySelectorAll('.cs-unit-header');
+      unitHeaders.forEach(function(header) {
+        header.addEventListener('click', function() {
+          var unitDiv = header.closest('.cs-unit');
+          if (unitDiv) {
+            unitDiv.classList.toggle('is-expanded');
+            header.setAttribute('aria-expanded', unitDiv.classList.contains('is-expanded'));
+          }
+        });
+      });
+
+      // Scroll to current unit if possible (highlight the unit matching the page scroll)
+      // On click, also trigger the corresponding markLessonStarted if available
+
+      // Mobile sidebar toggle button (appears at 768px and below)
+      var mobileToggle = document.createElement('button');
+      mobileToggle.className = 'cs-mobile-toggle';
+      mobileToggle.innerHTML = '\u2630 Units';
+      mobileToggle.title = 'Toggle unit sidebar';
+      mobileToggle.setAttribute('aria-label', 'Toggle unit sidebar');
+      mainContainer.appendChild(mobileToggle);
+
+      var sidebarOverlay = document.createElement('div');
+      sidebarOverlay.className = 'cs-mobile-overlay';
+      mainContainer.appendChild(sidebarOverlay);
+
+      function openMobileSidebar() {
+        sidebarEl.classList.add('is-mobile-open');
+        sidebarOverlay.classList.add('is-open');
+      }
+      function closeMobileSidebar() {
+        sidebarEl.classList.remove('is-mobile-open');
+        sidebarOverlay.classList.remove('is-open');
+      }
+
+      mobileToggle.addEventListener('click', openMobileSidebar);
+      sidebarOverlay.addEventListener('click', closeMobileSidebar);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        // Delay slightly to let dynamic course scripts populate the grid
+        setTimeout(buildSidebar, 150);
+      });
+    } else {
+      // Small delay to ensure course page scripts have run
+      setTimeout(buildSidebar, 150);
+    }
+  })();
 
   // --- Translate Taskbar Buttons ---
   (function() {
@@ -582,6 +1142,7 @@
       if (!menu) return;
       var isHidden = menu.getAttribute('aria-hidden') === 'true';
       menu.setAttribute('aria-hidden', String(!isHidden));
+      settingsBtn.setAttribute('aria-expanded', String(isHidden));
       if (isHidden) {
         var rect = settingsBtn.getBoundingClientRect();
         menu.style.top = rect.bottom + 4 + 'px';
@@ -602,6 +1163,7 @@
       if (!menu) return;
       if (!menu.contains(e.target) && e.target !== settingsBtn) {
         menu.setAttribute('aria-hidden', 'true');
+        settingsBtn.setAttribute('aria-expanded', 'false');
         menu.style.visibility = 'hidden';
         menu.style.opacity = '0';
         menu.style.transform = 'translateY(-6px)';
@@ -729,7 +1291,17 @@
       localStorage.removeItem('user');
       menu.style.display = 'none';
       loginButton.setAttribute('aria-expanded', 'false');
-      window.location.href = '/ArisEdu Project Folder/Login.html';
+
+      // Sign out from Firebase auth to fully clear session
+      import('/ArisEdu Project Folder/firebase-config.js').then(function(mod) {
+        if (mod.auth && mod.signOut) {
+          return mod.signOut(mod.auth);
+        }
+      }).catch(function(e) {
+        console.error('Firebase signOut error:', e);
+      }).finally(function() {
+        window.location.href = '/ArisEdu Project Folder/Login.html';
+      });
     });
 
     // Account Information link
@@ -1103,4 +1675,76 @@
 
     } catch(e) { /* fail silently */ }
   });
+})();
+
+// ========== FONT PRECONNECT OPTIMIZATION ==========
+(function() {
+  var origins = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
+  origins.forEach(function(origin) {
+    if (!document.querySelector('link[rel="preconnect"][href="' + origin + '"]')) {
+      var link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = origin;
+      if (origin.indexOf('gstatic') !== -1) link.crossOrigin = 'anonymous';
+      document.head.appendChild(link);
+    }
+  });
+})();
+
+// ========== SCROLL REVEAL ANIMATIONS ==========
+(function() {
+  if (!('IntersectionObserver' in window)) return;
+
+  // Content selectors to auto-reveal on scroll
+  var REVEAL_SELECTORS = [
+    '.lesson-notes',
+    '.diagram-card',
+    '.flashcard-box',
+    '.course-box',
+    '.rubric-card',
+    '.video-embed',
+    '.courses-section',
+    '.summary-actions'
+  ];
+  // Parent containers that get stagger treatment on their children
+  var STAGGER_SELECTORS = [
+    '.courses-section'
+  ];
+
+  function tagElements() {
+    REVEAL_SELECTORS.forEach(function(sel) {
+      document.querySelectorAll(sel).forEach(function(el) {
+        if (!el.classList.contains('aris-reveal')) {
+          el.classList.add('aris-reveal');
+        }
+      });
+    });
+    STAGGER_SELECTORS.forEach(function(sel) {
+      document.querySelectorAll(sel).forEach(function(el) {
+        el.classList.add('aris-reveal-stagger');
+      });
+    });
+  }
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('aris-revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+  function init() {
+    tagElements();
+    document.querySelectorAll('.aris-reveal').forEach(function(el) {
+      observer.observe(el);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(init, 200); });
+  } else {
+    setTimeout(init, 200);
+  }
 })();

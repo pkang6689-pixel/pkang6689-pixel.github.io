@@ -539,6 +539,25 @@ class QuizLoader {
     // Mark lesson as completed
     this.markLessonComplete();
 
+    // Track quiz completion with StudentAnalytics
+    if (typeof StudentAnalytics !== 'undefined') {
+      try {
+        const analytics = new StudentAnalytics();
+        // Get course info from quiz data
+        const courseId = this.quizData.courseSlug || this.getCourseSlug(this.quizData.course);
+        const unitNum = parseInt(this.quizData.unit) || 1;
+        const lessonNum = parseFloat(this.quizData.lesson) || 1;
+        
+        // Track the quiz completion with the calculated score
+        analytics.trackQuizCompletion(courseId, unitNum, lessonNum, Math.round(percentage), 100);
+        
+        // Update streak
+        analytics.updateLearningStreak();
+      } catch (e) {
+        console.warn('Analytics tracking failed:', e);
+      }
+    }
+
     // Show arcade intro tour on first-ever lesson completion
     const isFirstCompletion = !localStorage.getItem('arisEdu_arcadeTourShown');
     if (isFirstCompletion) {

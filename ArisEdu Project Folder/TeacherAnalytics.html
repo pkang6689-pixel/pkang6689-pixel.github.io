@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Analytics - ArisEdu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <script src="theme_manager.js?v=2.1"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      transition: background 0.3s;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+    }
+    
+    body.dark-mode {
+      background: #0f172a;
+    }
+
+    .analytics-container {
+      max-width: 1400px;
+      margin: 100px auto 40px;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    .analytics-header {
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .analytics-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .header-info {
+      text-align: right;
+      opacity: 0.9;
+    }
+
+    .header-info div {
+      font-size: 0.9rem;
+      margin: 0.25rem 0;
+    }
+
+    /* Navigation Tabs */
+    .analytics-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid rgba(99,102,241,0.1);
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 1rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #94a3b8;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    body.dark-mode .tab-btn {
+      color: #94a3b8;
+    }
+
+    .tab-btn.active {
+      color: #6366f1;
+      border-bottom-color: #6366f1;
+    }
+
+    body.dark-mode .tab-btn.active {
+      color: #818cf8;
+      border-bottom-color: #818cf8;
+    }
+
+    /* Card Styles */
+    .analytics-card {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    body.dark-mode .analytics-card {
+      background: rgba(30,41,59,0.95);
+      color: #e2e8f0;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #334155;
+    }
+
+    body.dark-mode .card-title {
+      color: #e2e8f0;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: rgba(99,102,241,0.1);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(99,102,241,0.2);
+      text-align: center;
+    }
+
+    body.dark-mode .stat-card {
+      background: rgba(99,102,241,0.05);
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #6366f1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Charts */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-container {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      position: relative;
+      height: 350px;
+    }
+
+    body.dark-mode .chart-container {
+      background: rgba(30,41,59,0.95);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    .chart-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #334155;
+    }
+
+    body.dark-mode .chart-title {
+      color: #e2e8f0;
+    }
+
+    /* Table Styles */
+    .analytics-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 1.5rem;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    body.dark-mode .analytics-table {
+      background: rgba(30,41,59,0.95);
+    }
+
+    .analytics-table th {
+      background: rgba(99,102,241,0.1);
+      padding: 1rem;
+      text-align: left;
+      font-weight: 700;
+      color: #334155;
+      border-bottom: 2px solid rgba(99,102,241,0.2);
+    }
+
+    body.dark-mode .analytics-table th {
+      background: rgba(99,102,241,0.05);
+      color: #e2e8f0;
+      border-bottom-color: rgba(99,102,241,0.1);
+    }
+
+    .analytics-table td {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    body.dark-mode .analytics-table td {
+      border-bottom-color: rgba(255,255,255,0.05);
+    }
+
+    .analytics-table tr:hover {
+      background: rgba(99,102,241,0.05);
+      cursor: pointer;
+    }
+
+    body.dark-mode .analytics-table tr:hover {
+      background: rgba(99,102,241,0.02);
+    }
+
+    /* Student List */
+    .student-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.95);
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    body.dark-mode .student-row {
+      background: rgba(30,41,59,0.95);
+    }
+
+    .student-row:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .student-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .student-info {
+      flex: 1;
+    }
+
+    .student-name {
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: #334155;
+    }
+
+    body.dark-mode .student-name {
+      color: #e2e8f0;
+    }
+
+    .student-email {
+      font-size: 0.85rem;
+      opacity: 0.6;
+    }
+
+    .student-metrics {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .metric {
+      text-align: right;
+    }
+
+    .metric-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #6366f1;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      text-transform: uppercase;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    body.dark-mode .modal-content {
+      background: rgba(30,41,59,0.95);
+      color: #e2e8f0;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+
+    .modal-close:hover {
+      opacity: 1;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 99px;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+
+    body.dark-mode .progress-bar {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      border-radius: 99px;
+      transition: width 0.3s;
+    }
+
+    /* Engagement Heatmap */
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .heatmap-cell {
+      aspect-ratio: 1;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+      border: 1px solid rgba(99,102,241,0.2);
+    }
+
+    .heatmap-cell:hover {
+      transform: scale(1.1);
+    }
+
+    .heatmap-cell.empty {
+      background: rgba(0,0,0,0.05);
+    }
+
+    body.dark-mode .heatmap-cell.empty {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .heatmap-cell.low {
+      background: rgba(99,102,241,0.2);
+    }
+
+    .heatmap-cell.medium {
+      background: rgba(99,102,241,0.5);
+    }
+
+    .heatmap-cell.high {
+      background: rgba(99,102,241,0.9);
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Badge Display */
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .badge {
+      background: rgba(99,102,241,0.1);
+      border-radius: 1rem;
+      padding: 1rem;
+      text-align: center;
+      border: 1px solid rgba(99,102,241,0.2);
+    }
+
+    body.dark-mode .badge {
+      background: rgba(99,102,241,0.05);
+    }
+
+    .badge-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .badge-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    /* Back Button */
+    .back-btn {
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      color: #6366f1;
+      transition: all 0.3s;
+      margin-bottom: 1rem;
+      display: inline-block;
+    }
+
+    body.dark-mode .back-btn {
+      color: #818cf8;
+    }
+
+    .back-btn:hover {
+      background: rgba(99,102,241,0.2);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      opacity: 0.6;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body class="dark-mode">
+  <script src="scripts/taskbar.js"></script>
+
+  <div class="analytics-container">
+    <!-- Header -->
+    <div class="analytics-header">
+      <div>
+        <h1>📊 Teacher Analytics Dashboard</h1>
+      </div>
+      <div class="header-info">
+        <div>Class: <strong id="class-name">Loading...</strong></div>
+        <div>Code: <strong id="class-code" style="font-family: monospace;">--</strong></div>
+        <div id="class-students">Students: <strong>0</strong></div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="analytics-tabs">
+      <button class="tab-btn active" data-tab="overview">📈 Overview</button>
+      <button class="tab-btn" data-tab="students">👥 Students</button>
+      <button class="tab-btn" data-tab="performance">🎯 Performance</button>
+      <button class="tab-btn" data-tab="engagement">🔥 Engagement</button>
+      <button id="refresh-btn" style="margin-left: auto; padding: 0.5rem 1rem; background: rgba(59,130,246,0.2); border: 1px solid #3b82f6; border-radius: 0.5rem; color: #3b82f6; cursor: pointer; font-weight: 600; transition: all 0.3s;" title="Refresh student data">🔄 Refresh</button>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <div id="overview" class="tab-content active">
+      <!-- Class Statistics -->
+      <div class="analytics-card">
+        <div class="card-title">📊 Class Overview</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="total-students">0</div>
+            <div class="stat-label">Total Students</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="avg-quiz-score">0%</div>
+            <div class="stat-label">Avg Quiz Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="avg-completion">0%</div>
+            <div class="stat-label">Avg Completion</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="total-lessons-completed">0</div>
+            <div class="stat-label">Total Lessons Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="avg-learning-time">0h</div>
+            <div class="stat-label">Avg Learning Time</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="active-today">0</div>
+            <div class="stat-label">Active Today</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-container">
+          <div class="chart-title">📚 Course Progress Distribution</div>
+          <canvas id="courseProgressChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <div class="chart-title">📊 Quiz Score Distribution</div>
+          <canvas id="quizScoreChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <div class="chart-title">⏱️ Learning Time Distribution</div>
+          <canvas id="learningTimeChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <div class="chart-title">📈 Class Activity Over Time</div>
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDENTS TAB -->
+    <div id="students" class="tab-content">
+      <div class="analytics-card">
+        <div class="card-title">👥 Student List</div>
+        <div style="margin-bottom: 1rem;">
+          <input type="text" id="search-students" placeholder="Search by name or email..." 
+                 style="width:100%; padding:0.75rem; border: 1px solid rgba(99,102,241,0.2); border-radius:0.75rem; font-size:0.95rem;">
+        </div>
+        <div id="student-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <p>No students in this class yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERFORMANCE TAB -->
+    <div id="performance" class="tab-content">
+      <div class="analytics-card">
+        <div class="card-title">🎯 Performance Breakdown</div>
+        <table class="analytics-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Courses Completed</th>
+              <th>Avg Quiz Score</th>
+              <th>Flashcards Mastered</th>
+              <th>Learning Streak</th>
+              <th>Last Active</th>
+            </tr>
+          </thead>
+          <tbody id="performance-table-body">
+            <tr>
+              <td colspan="6" style="text-align:center; padding:2rem; opacity:0.6;">
+                Loading performance data...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ENGAGEMENT TAB -->
+    <div id="engagement" class="tab-content">
+      <div class="analytics-card">
+        <div class="card-title">🔥 Student Engagement Heatmap</div>
+        <p style="opacity:0.7; margin-bottom:1.5rem;">Activity over the last 30 days (higher intensity = more active)</p>
+        <div id="heatmap-container">
+          <div class="empty-state">
+            <p>Loading engagement data...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-card">
+        <div class="card-title">📊 Engagement Statistics</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="avg-daily-active">0</div>
+            <div class="stat-label">Avg Daily Active Students</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="weekly-active">0</div>
+            <div class="stat-label">Weekly Active (All)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="inactive-students">0</div>
+            <div class="stat-label">Inactive (7+ days)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="streak-leaders">0</div>
+            <div class="stat-label">Streak Leaders (7+)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student Detail Modal -->
+  <div id="studentDetailModal" class="modal hidden">
+    <div class="modal-content" style="position:relative;">
+      <button class="modal-close" onclick="closeStudentDetail()">&times;</button>
+      <div id="studentDetailContent">
+        <!-- Content injected here -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { 
+      auth, 
+      db, 
+      onAuthStateChanged,
+      doc,
+      getDoc,
+      collection,
+      query,
+      where,
+      getDocs,
+      orderBy,
+      limit
+    } from "./firebase-config.js";
+
+    let currentTeacherId = null;
+    let classInfo = null;
+    let classStudents = [];
+    let chartsInitialized = false;
+    let chartInstances = {};
+
+    // Initialize
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentTeacherId = user.uid;
+        
+        // Check if user is a teacher before allowing access
+        try {
+          const userRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userRef);
+          
+          if (!userSnap.exists() || userSnap.data().role !== 'teacher') {
+            // User is not a teacher - redirect to dashboard
+            console.warn('⚠️ Access Denied: Only teachers can access this page');
+            alert('Access Denied: This page is only for teachers. Redirecting to your dashboard...');
+            window.location.href = 'Dashboard.html';
+            return;
+          }
+        } catch (error) {
+          console.error('Error checking teacher access:', error);
+          window.location.href = 'Dashboard.html';
+          return;
+        }
+        
+        await loadTeacherData();
+        setupTabNavigation();
+        setupRefreshButton();
+        await loadStudents();
+        // Auto-refresh student data every 30 seconds
+        setInterval(loadStudents, 30000);
+      } else {
+        window.location.href = 'Login.html';
+      }
+    });
+
+    async function loadTeacherData() {
+      try {
+        const teacherRef = doc(db, "users", currentTeacherId);
+        const teacherSnap = await getDoc(teacherRef);
+        
+        if (teacherSnap.exists()) {
+          const teacherData = teacherSnap.data();
+          classInfo = teacherData.classInfo;
+          
+          if (!classInfo) {
+            alert("You don't have a class assigned. Please create one first on your dashboard.");
+            window.location.href = 'Dashboard.html';
+            return;
+          }
+          
+          // Check if this is the special developer test class (can see all students)
+          const isDeveloperClass = classInfo.code === 'IJKC0Q';
+          
+          document.getElementById('class-name').textContent = classInfo.name + (isDeveloperClass ? ' (Developer - All Students)' : '');
+          document.getElementById('class-code').textContent = classInfo.code;
+        }
+      } catch (error) {
+        console.error("Error loading teacher data:", error);
+      }
+    }
+
+    async function loadStudents() {
+      try {
+        if (!classInfo) return;
+        
+        // Query all students and teachers (teachers in the class are included too)
+        const studentQuery = query(collection(db, "users"), where("role", "==", "student"));
+        const teacherQuery = query(collection(db, "users"), where("role", "==", "teacher"));
+        const [studentSnap, teacherSnap] = await Promise.all([getDocs(studentQuery), getDocs(teacherQuery)]);
+        const querySnapshot = [...studentSnap.docs, ...teacherSnap.docs];
+        
+        classStudents = [];
+        const isDeveloperClass = classInfo.code === 'IJKC0Q';
+        
+        querySnapshot.forEach((docSnap) => {
+          let student = { id: docSnap.id, ...docSnap.data() };
+          
+          // Filter: only include if they belong to this teacher's class
+          // Teachers belong if their classInfo.code matches, students if their classCode matches
+          // EXCEPTION: Developer test class (IJKC0Q) can see ALL users
+          if (!isDeveloperClass) {
+            // Regular class: only show members of this class
+            const studentClassCode = student.classCode;
+            const teacherClassCode = student.classInfo && student.classInfo.code;
+            if (studentClassCode !== classInfo.code && teacherClassCode !== classInfo.code) {
+              return;
+            }
+          }
+          
+          // Parse Firebase-synced analytics data
+          student = parseStudentAnalyticsData(student);
+          
+          // Debug: show what progressFlags look like from Firebase
+          const flagsInFirebase = Object.keys(student.progressFlags || {}).length;
+          console.log(`🔍 Firebase user ${student.displayName || student.id}: progressFlags=${flagsInFirebase} items, classCode=${student.classCode || 'none'}`);
+          
+          classStudents.push(student);
+        });
+
+        document.getElementById('class-students').innerHTML = 
+          `Students: <strong>${classStudents.length}</strong>`;
+
+        renderStudentList();
+        updatePerformanceTable();
+        updateEngagementHeatmap();
+        initializeCharts();
+      } catch (error) {
+        console.error("Error loading students:", error);
+      }
+    }
+
+    /**
+     * Parse student analytics data from Firebase format
+     * Converts stringified JSON fields back to objects
+     */
+    function parseStudentAnalyticsData(student) {
+      // Parse quizScores (stored as JSON string)
+      if (typeof student.quizScores === 'string') {
+        try {
+          student.quizScores = JSON.parse(student.quizScores);
+        } catch (e) {
+          console.warn('Could not parse quizScores for student:', student.id);
+          student.quizScores = {};
+        }
+      } else if (!student.quizScores) {
+        student.quizScores = {};
+      }
+
+      // Parse progressFlags - handle both object and array formats
+      if (typeof student.progressFlags === 'string') {
+        try {
+          student.progressFlags = JSON.parse(student.progressFlags);
+        } catch (e) {
+          console.warn('Could not parse progressFlags for student:', student.id);
+          student.progressFlags = {};
+        }
+      } else if (!student.progressFlags) {
+        student.progressFlags = {};
+      }
+      
+      // Convert array format [[key, val], [key, val]] to object format {key: val, key: val}
+      if (Array.isArray(student.progressFlags)) {
+        const flagsArray = student.progressFlags;
+        const flagsObject = {};
+        flagsArray.forEach(entry => {
+          if (Array.isArray(entry) && entry.length === 2) {
+            flagsObject[entry[0]] = entry[1];
+          }
+        });
+        student.progressFlags = flagsObject;
+        console.log(`🔄 Converted progressFlags from array to object for ${student.displayName || student.id}:`, Object.keys(flagsObject).length, 'items');
+      }
+
+      // Debug: Show sample of progressFlags data to understand structure
+      const flagsArray = Object.entries(student.progressFlags || {});
+      if (flagsArray.length > 0) {
+        console.log(`📋 Sample progressFlags for ${student.displayName || student.id}:`, flagsArray.slice(0, 3));
+      }
+
+      // Ensure displayName is set (fall back to name, then email)
+      if (!student.displayName) {
+        student.displayName = student.name || student.email || student.id;
+      }
+
+      // Parse visitedPages (should be array)
+      if (!Array.isArray(student.visitedPages)) {
+        student.visitedPages = [];
+      }
+
+      // Map streak to streakCount for compatibility
+      if (typeof student.streak === 'number' || typeof student.streak === 'string') {
+        student.streakCount = parseInt(student.streak) || 0;
+      } else if (!student.streakCount) {
+        student.streakCount = 0;
+      }
+
+      // Ensure badges is an array
+      if (!Array.isArray(student.badges)) {
+        student.badges = [];
+      }
+
+      return student;
+    }
+
+    function renderStudentList() {
+      const container = document.getElementById('student-list');
+      
+      if (classStudents.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <p>No students in this class yet</p>
+            <p style="font-size:0.9rem; margin-top:0.5rem;">Students can join using your class code: <strong>${classInfo.code}</strong></p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      classStudents.forEach((student, index) => {
+        const completion = calculateStudentCompletion(student);
+        const avgScore = calculateStudentAvgScore(student);
+        
+        // Debug log - count all lesson progress keys (including _started, _completed, _viewed, etc.)
+        const quizScores = student.quizScores || {};
+        const flags = student.progressFlags || {};
+        
+        // Count all lesson progress keys in progressFlags
+        const completedFromFlags = Object.keys(flags).filter(key => {
+          return /^[a-zA-Z0-9_]+_u\d+_l\d+_/.test(key) && flags[key];
+        }).length;
+        
+        // Count all lesson progress keys in individual fields
+        const completedFromIndividualFields = Object.keys(student).filter(key => {
+          return key !== 'progressFlags' && /^[a-zA-Z0-9_]+_u\d+_l\d+_/.test(key) && student[key];
+        }).length;
+        
+        console.log(`📊 ${student.displayName || 'Student'}: Completion=${completion}% | QuizScores=${Object.keys(quizScores).length} | ProgressFlags=${completedFromFlags} (of ${Object.keys(flags).length} total) | IndividualFields=${completedFromIndividualFields}`);
+        
+        // Show sample of progressFlags data
+        if (Object.keys(flags).length > 0) {
+          const samples = Object.entries(flags).slice(0, 2).map(([k,v]) => `${k}=${v}`);
+          console.log(`   Sample: ${samples.join(', ')}`);
+        }
+        
+        const row = document.createElement('div');
+        row.className = 'student-row';
+        row.onclick = () => showStudentDetail(student);
+        
+        const initials = (student.displayName || "S").substring(0, 2).toUpperCase();
+        
+        row.innerHTML = `
+          <div class="student-avatar" style="background: linear-gradient(135deg, #${Math.floor(Math.random()*16777215).toString(16)}, #${Math.floor(Math.random()*16777215).toString(16)});">
+            ${initials}
+          </div>
+          <div class="student-info">
+            <div class="student-name">${student.displayName || 'Student'}</div>
+            <div class="student-email">${student.email}</div>
+          </div>
+          <div class="student-metrics">
+            <div class="metric">
+              <div class="metric-value">${completion}%</div>
+              <div class="metric-label">Completion</div>
+            </div>
+            <div class="metric">
+              <div class="metric-value">${avgScore}%</div>
+              <div class="metric-label">Avg Score</div>
+            </div>
+            <div class="metric">
+              <div class="metric-value">${student.streakCount || 0}</div>
+              <div class="metric-label">Streak</div>
+            </div>
+            <div class="metric">
+              <div class="metric-value">${calculateStudentLessonsCompleted(student)}</div>
+              <div class="metric-label">Lessons</div>
+            </div>
+          </div>
+        `;
+        
+        container.appendChild(row);
+      });
+    }
+
+    function updatePerformanceTable() {
+      const tbody = document.getElementById('performance-table-body');
+      
+      if (classStudents.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align:center; padding:2rem; opacity:0.6;">
+              No students to display
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      
+      // Sort by completion percentage
+      const sortedStudents = [...classStudents].sort((a, b) => 
+        calculateStudentCompletion(b) - calculateStudentCompletion(a)
+      );
+
+      sortedStudents.slice(0, 20).forEach((student) => {
+        const row = document.createElement('tr');
+        row.style.cursor = 'pointer';
+        row.onclick = () => showStudentDetail(student);
+        
+        const completion = calculateStudentCompletion(student);
+        const avgScore = calculateStudentAvgScore(student);
+        const lessonsCompleted = calculateStudentLessonsCompleted(student);
+        const streak = student.streakCount || 0;
+        
+        const lastLogin = student.lastLogin ? new Date(student.lastLogin) : null;
+        const lastActiveText = lastLogin ? formatDate(lastLogin) : 'Never';
+        
+        row.innerHTML = `
+          <td style="font-weight:600;">${student.displayName || 'Student'}</td>
+          <td>${completion}%</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              ${avgScore}%
+              <div class="progress-bar" style="width:100px;">
+                <div class="progress-fill" style="width:${avgScore}%"></div>
+              </div>
+            </td>
+          <td>${lessonsCompleted}</td>
+          <td><span style="color:#10b981; font-weight:600;">🔥 ${streak}</span></td>
+          <td>${lastActiveText}</td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateEngagementHeatmap() {
+      const container = document.getElementById('heatmap-container');
+      
+      if (classStudents.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p>No engagement data available</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Create a simple heatmap showing daily activity
+      let html = '';
+      const days = 30;
+      
+      // Group activity by day
+      const activityByDay = {};
+      classStudents.forEach(student => {
+        // Simulate daily activity based on lastLogin
+        if (student.lastLogin) {
+          const date = new Date(student.lastLogin).toDateString();
+          activityByDay[date] = (activityByDay[date] || 0) + 1;
+        }
+      });
+
+      const maxActivity = Math.max(...Object.values(activityByDay), 1);
+
+      for (let i = days - 1; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toDateString();
+        
+        const activity = activityByDay[dateStr] || 0;
+        let intensity = 'empty';
+        
+        if (activity > 0) intensity = 'low';
+        if (activity > maxActivity / 3) intensity = 'medium';
+        if (activity > maxActivity * 2 / 3) intensity = 'high';
+        
+        html += `<div class="heatmap-cell ${intensity}" title="${dateStr}: ${activity} active"></div>`;
+      }
+
+      container.innerHTML = `<div class="heatmap-grid">${html}</div>`;
+
+      // Update engagement stats
+      const dailyActiveAvg = Object.values(activityByDay).reduce((a, b) => a + b, 0) / days;
+      const weeklyActive = classStudents.filter(s => {
+        if (!s.lastLogin) return false;
+        const daysSinceLogin = (Date.now() - new Date(s.lastLogin)) / (1000 * 60 * 60 * 24);
+        return daysSinceLogin <= 7;
+      }).length;
+      
+      const inactiveStudents = classStudents.filter(s => {
+        if (!s.lastLogin) return true;
+        const daysSinceLogin = (Date.now() - new Date(s.lastLogin)) / (1000 * 60 * 60 * 24);
+        return daysSinceLogin > 7;
+      }).length;
+
+      const streakLeaders = classStudents.filter(s => (s.streakCount || 0) >= 7).length;
+
+      document.getElementById('avg-daily-active').textContent = Math.round(dailyActiveAvg);
+      document.getElementById('weekly-active').textContent = weeklyActive;
+      document.getElementById('inactive-students').textContent = inactiveStudents;
+      document.getElementById('streak-leaders').textContent = streakLeaders;
+    }
+
+    function initializeCharts() {
+      if (chartsInitialized) return;
+
+      // Destroy existing charts if any
+      Object.values(chartInstances).forEach(chart => {
+        if (chart) chart.destroy();
+      });
+      chartInstances = {};
+
+      // Course Progress Chart
+      const courseProgressCtx = document.getElementById('courseProgressChart');
+      if (courseProgressCtx) {
+        const courseData = collectCourseProgressData();
+        chartInstances.courseProgress = new Chart(courseProgressCtx, {
+          type: 'doughnut',
+          data: {
+            labels: courseData.labels,
+            datasets: [{
+              data: courseData.data,
+              backgroundColor: [
+                '#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308',
+                '#84cc16', '#22c55e', '#10b981', '#14b8a6'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom' },
+              tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + ' lessons' } }
+            }
+          }
+        });
+      }
+
+      // Quiz Score Distribution Chart
+      const quizScoreCtx = document.getElementById('quizScoreChart');
+      if (quizScoreCtx) {
+        const scoreData = collectQuizScoreData();
+        chartInstances.quizScore = new Chart(quizScoreCtx, {
+          type: 'bar',
+          data: {
+            labels: scoreData.labels,
+            datasets: [{
+              label: 'Number of Students',
+              data: scoreData.data,
+              backgroundColor: '#6366f1'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+
+      // Learning Time Distribution Chart
+      const learningTimeCtx = document.getElementById('learningTimeChart');
+      if (learningTimeCtx) {
+        const timeData = collectLearningTimeData();
+        chartInstances.learningTime = new Chart(learningTimeCtx, {
+          type: 'bar',
+          data: {
+            labels: timeData.labels,
+            datasets: [{
+              label: 'Hours',
+              data: timeData.data,
+              backgroundColor: '#8b5cf6'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+
+      // Activity Over Time Chart
+      const activityCtx = document.getElementById('activityChart');
+      if (activityCtx) {
+        const activityData = collectActivityOverTimeData();
+        chartInstances.activity = new Chart(activityCtx, {
+          type: 'line',
+          data: {
+            labels: activityData.labels,
+            datasets: [{
+              label: 'Active Students',
+              data: activityData.data,
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99, 102, 241, 0.1)',
+              tension: 0.4,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, max: classStudents.length } }
+          }
+        });
+      }
+
+      chartsInitialized = true;
+    }
+
+    function collectCourseProgressData() {
+      const courses = {
+        'Algebra 1': 0, 'Algebra 2': 0, 'Geometry': 0, 'Biology': 0,
+        'Chemistry': 0, 'Physics': 0
+      };
+
+      classStudents.forEach(student => {
+        const visited = student.visitedPages || [];
+        visited.forEach(url => {
+          if (url.includes('algebra1')) courses['Algebra 1']++;
+          if (url.includes('algebra2')) courses['Algebra 2']++;
+          if (url.includes('geometry')) courses['Geometry']++;
+          if (url.includes('bio')) courses['Biology']++;
+          if (url.includes('chem')) courses['Chemistry']++;
+          if (url.includes('physics')) courses['Physics']++;
+        });
+      });
+
+      return {
+        labels: Object.keys(courses),
+        data: Object.values(courses)
+      };
+    }
+
+    function collectQuizScoreData() {
+      const scoreRanges = {
+        '0-20%': 0, '21-40%': 0, '41-60%': 0, '61-80%': 0, '81-100%': 0
+      };
+
+      classStudents.forEach(student => {
+        const score = calculateStudentAvgScore(student);
+        if (score <= 20) scoreRanges['0-20%']++;
+        else if (score <= 40) scoreRanges['21-40%']++;
+        else if (score <= 60) scoreRanges['41-60%']++;
+        else if (score <= 80) scoreRanges['61-80%']++;
+        else scoreRanges['81-100%']++;
+      });
+
+      return {
+        labels: Object.keys(scoreRanges),
+        data: Object.values(scoreRanges)
+      };
+    }
+
+    function collectLearningTimeData() {
+      const topStudents = [...classStudents]
+        .sort((a, b) => calculateStudentCompletion(b) - calculateStudentCompletion(a))
+        .slice(0, 10);
+
+      return {
+        labels: topStudents.map(s => (s.displayName || 'Student').substring(0, 10)),
+        data: topStudents.map(s => Math.random() * 50 + 10) // Simulated data
+      };
+    }
+
+    function collectActivityOverTimeData() {
+      const days = 14;
+      const labels = [];
+      const data = [];
+
+      for (let i = days - 1; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        data.push(Math.floor(Math.random() * classStudents.length));
+      }
+
+      return { labels, data };
+    }
+
+    function calculateStudentCompletion(student) {
+      const visited = student.visitedPages || [];
+      const flags = student.progressFlags || {};
+      const quizScores = student.quizScores || {};
+      
+      // Count completed lessons from quizScores (new format)
+      const completedFromQuizzes = Object.keys(quizScores).length;
+      
+      // Count lesson progress from progressFlags object (any {course}_u{unit}_l{lesson}_{action})
+      // This includes _completed, _started, _viewed, etc.
+      const completedFromProgressFlags = Object.keys(flags).filter(key => {
+        // Match pattern: {course}_u{num}_l{num}_{action}
+        return /^[a-z_]+_u\d+_l\d+_/.test(key) && flags[key];
+      }).length;
+      
+      // ALSO count individual lesson progress fields directly in student document
+      const completedFromIndividualFields = Object.keys(student).filter(key => {
+        // Match pattern: {course}_u{num}_l{num}_{action} and is not progressFlags object
+        return key !== 'progressFlags' && /^[a-z_]+_u\d+_l\d+_/.test(key) && student[key];
+      }).length;
+      
+      const completedLessons = completedFromQuizzes + completedFromProgressFlags + completedFromIndividualFields;
+      
+      // Count unique courses visited
+      const courseVisits = new Set();
+      (visited || []).forEach(url => {
+        if (url && typeof url === 'string') {
+          courseVisits.add(url.split('/')[3] || url);
+        }
+      });
+      
+      // Extract courses from lesson keys (alg1_u2_l7_completed → alg1)
+      Object.keys(flags).forEach(flagKey => {
+        const match = flagKey.match(/^([a-z_]+)_u\d+_l\d+_/);
+        if (match) courseVisits.add(match[1]);
+      });
+      
+      // Also extract from individual fields
+      Object.keys(student).forEach(fieldKey => {
+        if (fieldKey !== 'progressFlags') {
+          const match = fieldKey.match(/^([a-z_]+)_u\d+_l\d+_/);
+          if (match) courseVisits.add(match[1]);
+        }
+      });
+      
+      const coursesStarted = courseVisits.size;
+      const estimatedTotal = 200;
+      const completion = Math.round((coursesStarted * 10 + completedLessons * 3) / estimatedTotal * 100);
+      
+      return Math.min(100, Math.max(0, completion));
+    }
+
+    function calculateStudentAvgScore(student) {
+      const quizScores = student.quizScores || {};
+      const flags = student.progressFlags || {};
+      
+      let totalScore = 0;
+      let scoreCount = 0;
+      
+      // Debug: Show what we're trying to extract
+      const studentName = student.displayName || student.name || student.email || student.id || 'Unknown';
+      console.log(`🎯 Calculating avg score for ${studentName}:`);
+      console.log(`   quizScores object keys:`, Object.keys(quizScores));
+      console.log(`   quizScores data:`, quizScores);
+      
+      // Get scores from quizScores object (new format)
+      Object.keys(quizScores).forEach(quizId => {
+        const quizData = quizScores[quizId];
+        if (Array.isArray(quizData)) {
+          quizData.forEach(attempt => {
+            if (attempt && typeof attempt.score !== 'undefined') {
+              console.log(`   ✓ Found score from quizScores[${quizId}]: ${attempt.score}%`);
+              totalScore += parseInt(attempt.score) || 0;
+              scoreCount++;
+            }
+          });
+        } else if (quizData && typeof quizData.score !== 'undefined') {
+          console.log(`   ✓ Found score from quizScores[${quizId}]: ${quizData.score}%`);
+          totalScore += parseInt(quizData.score) || 0;
+          scoreCount++;
+        }
+      });
+      
+      // Extract numeric scores from progressFlags if stored as numbers (not applicable to pre-existing data)
+      // Pre-existing progress uses boolean values (true/false), not numeric scores
+      // New quiz attempts will store numeric scores via StudentAnalytics.trackQuizCompletion()
+      Object.entries(flags).forEach(([key, value]) => {
+        if (/^[a-zA-Z0-9_]+_u\d+_l\d+_completed/.test(key)) {
+          const score = parseInt(value);
+          if (!isNaN(score) && score > 0 && score <= 100) {
+            console.log(`   ✓ Found numeric score in progressFlags[${key}]: ${score}%`);
+            totalScore += score;
+            scoreCount++;
+          }
+        }
+      });
+      
+      // Extract numeric scores from individual fields in student document
+      Object.entries(student).forEach(([key, value]) => {
+        if (key !== 'progressFlags' && /^[a-zA-Z0-9_]+_u\d+_l\d+_completed/.test(key)) {
+          const score = parseInt(value);
+          if (!isNaN(score) && score > 0 && score <= 100) {
+            console.log(`   ✓ Found numeric score in document[${key}]: ${score}%`);
+            totalScore += score;
+            scoreCount++;
+          }
+        }
+      });
+      
+      const avgScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
+      console.log(`   Final: ${scoreCount} scores found, Average = ${avgScore}%`);
+      return avgScore;
+    }
+
+    function calculateStudentLessonsCompleted(student) {
+      const quizScores = student.quizScores || {};
+      const flags = student.progressFlags || {};
+      
+      // Count from quizScores
+      let lessonCount = 0;
+      Object.keys(quizScores).forEach(quizId => {
+        const quizData = quizScores[quizId];
+        if (Array.isArray(quizData)) {
+          lessonCount += quizData.length;
+        } else if (quizData) {
+          lessonCount += 1;
+        }
+      });
+      
+      // Count lesson progress from progressFlags object (any {course}_u{unit}_l{lesson}_{action})
+      const completedFromFlags = Object.keys(flags).filter(key => {
+        return /^[a-zA-Z0-9_]+_u\d+_l\d+_/.test(key) && flags[key];
+      }).length;
+      
+      // Count individual lesson progress fields directly in student document
+      const completedFromIndividualFields = Object.keys(student).filter(key => {
+        return key !== 'progressFlags' && /^[a-zA-Z0-9_]+_u\d+_l\d+_/.test(key) && student[key];
+      }).length;
+      
+      return lessonCount + completedFromFlags + completedFromIndividualFields;
+    }
+
+    function showStudentDetail(student) {
+      const modal = document.getElementById('studentDetailModal');
+      const content = document.getElementById('studentDetailContent');
+
+      const completion = calculateStudentCompletion(student);
+      const avgScore = calculateStudentAvgScore(student);
+      const lessonsCompleted = calculateStudentLessonsCompleted(student);
+      const badges = student.badges || [];
+      const streak = student.streakCount || 0;
+
+      content.innerHTML = `
+        <div class="back-btn" onclick="closeStudentDetail()">← Back to Students</div>
+        
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:2rem;">
+          <div class="student-avatar" style="width:80px; height:80px; font-size:2rem;">
+            ${(student.displayName || "S").substring(0, 2).toUpperCase()}
+          </div>
+          <div>
+            <h2 style="font-size:1.5rem; font-weight:700; margin-bottom:0.25rem;">${student.displayName || 'Student'}</h2>
+            <p style="opacity:0.7;">${student.email}</p>
+            <p style="opacity:0.6; font-size:0.9rem; margin-top:0.25rem;">Joined: ${student.createdAt ? formatDate(new Date(student.createdAt)) : 'Unknown'}</p>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="margin-bottom:2rem;">
+          <div class="stat-card">
+            <div class="stat-value">${completion}%</div>
+            <div class="stat-label">Course Completion</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${avgScore}%</div>
+            <div class="stat-label">Avg Quiz Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${lessonsCompleted}</div>
+            <div class="stat-label">Lessons Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">🔥 ${streak}</div>
+            <div class="stat-label">Learning Streak</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:2rem;">
+          <h3 style="font-weight:700; margin-bottom:1rem;">📚 Course Progress</h3>
+          <div style="display:flex; flex-direction:column; gap:1rem;">
+            ${renderCourseProgressBars(student)}
+          </div>
+        </div>
+
+        <div style="margin-bottom:2rem;">
+          <h3 style="font-weight:700; margin-bottom:1rem;">🏆 Badges (${badges.length})</h3>
+          ${badges.length > 0 
+            ? `<div class="badge-grid">${badges.slice(0, 20).map(b => `
+              <div class="badge">
+                <div class="badge-icon">🏅</div>
+                <div class="badge-name">${b.replace(/_/g, ' ')}</div>
+              </div>
+            `).join('')}</div>`
+            : '<p style="opacity:0.6;">No badges earned yet</p>'
+          }
+        </div>
+
+        <div style="margin-bottom:2rem;">
+          <h3 style="font-weight:700; margin-bottom:1rem;">📅 Activity</h3>
+          <p style="opacity:0.7; margin-bottom:0.5rem;">Last Login: ${student.lastLogin ? formatDate(new Date(student.lastLogin)) : 'Never'}</p>
+          <p style="opacity:0.7;">First Visit: ${student.createdAt ? formatDate(new Date(student.createdAt)) : 'Unknown'}</p>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+    }
+
+    function renderCourseProgressBars(student) {
+      // Complete list of all courses with correct progress flag prefixes and lesson totals
+      // IDs match the coursePrefix used in each course homepage (e.g., alg1_u1_l1_completed)
+      // Totals from courseConfig.units (includes lessons + unit tests per unit)
+      const courses = [
+        // High School Math
+        { name: 'Algebra 1', id: 'alg1', totalLessons: 86, color: '#6366f1' },
+        { name: 'Algebra 2', id: 'alg2', totalLessons: 67, color: '#8b5cf6' },
+        { name: 'Geometry', id: 'geometry', totalLessons: 111, color: '#ec4899' },
+        { name: 'Precalculus', id: 'precalc', totalLessons: 85, color: '#a855f7' },
+        { name: 'Trigonometry', id: 'trig', totalLessons: 68, color: '#d946ef' },
+        { name: 'Statistics', id: 'stats', totalLessons: 72, color: '#f43f5e' },
+        { name: 'Linear Algebra', id: 'linalg', totalLessons: 80, color: '#f97316' },
+        { name: 'Financial Math', id: 'finmath', totalLessons: 79, color: '#eab308' },
+        // High School Science
+        { name: 'Biology', id: 'bio', totalLessons: 83, color: '#10b981' },
+        { name: 'Chemistry', id: 'chem', totalLessons: 94, color: '#14b8a6' },
+        { name: 'Physics', id: 'physics', totalLessons: 84, color: '#0ea5e9' },
+        { name: 'Anatomy', id: 'anat', totalLessons: 76, color: '#06b6d4' },
+        { name: 'Astronomy', id: 'astro', totalLessons: 71, color: '#3b82f6' },
+        { name: 'Earth Science', id: 'earthsci', totalLessons: 36, color: '#8b5cf6' },
+        { name: 'Environmental Science', id: 'envsci', totalLessons: 67, color: '#22c55e' },
+        { name: 'Integrated Science', id: 'intsci', totalLessons: 79, color: '#84cc16' },
+        { name: 'Marine Science', id: 'marine', totalLessons: 65, color: '#06b6d4' },
+        // Middle School (unique prefixes)
+        { name: 'MS Geometry', id: 'ms_geom', totalLessons: 60, color: '#f472b6' },
+        { name: 'MS Physics', id: 'ms_phys', totalLessons: 52, color: '#38bdf8' },
+        // AP Courses
+        { name: 'AP Biology', id: 'ap_bio', totalLessons: 40, color: '#059669' },
+        { name: 'AP Calculus AB', id: 'ap_calc_ab', totalLessons: 76, color: '#7c3aed' },
+        { name: 'AP Chemistry', id: 'ap_chem', totalLessons: 41, color: '#0d9488' },
+        { name: 'AP Environmental Science', id: 'ap_env_sci', totalLessons: 45, color: '#16a34a' },
+        { name: 'AP Human Geography', id: 'ap_hug', totalLessons: 41, color: '#ca8a04' },
+        { name: 'AP Physics 1', id: 'apphys1', totalLessons: 36, color: '#2563eb' },
+        { name: 'AP Physics 2', id: 'ap_phys2', totalLessons: 35, color: '#4f46e5' },
+        { name: 'AP Physics C: Mechanics', id: 'ap_phys_mech', totalLessons: 28, color: '#6d28d9' },
+        { name: 'AP Statistics', id: 'ap_stats', totalLessons: 45, color: '#dc2626' }
+      ];
+
+      return courses.map(course => {
+        let lessonsCompleted = 0;
+        let quizzesCompleted = 0;
+        
+        // Count COMPLETED lessons only (filter to entries ending with "_completed" and value is true)
+        const progressFlags = student.progressFlags || {};
+        Object.entries(progressFlags).forEach(([key, value]) => {
+          if (key.startsWith(course.id + '_u') && key.endsWith('_completed') && value) {
+            lessonsCompleted++;
+          }
+        });
+        
+        // Count quiz completions for reference (not used in progress calculation)
+        const quizScores = student.quizScores || {};
+        if (typeof quizScores === 'object') {
+          Object.entries(quizScores).forEach(([quizId, quizData]) => {
+            if (quizId.startsWith(course.id + '_u')) {
+              if (Array.isArray(quizData)) {
+                quizzesCompleted += quizData.length;
+              } else if (quizData) {
+                quizzesCompleted++;
+              }
+            }
+          });
+        }
+        
+        // Cap completed at total (old flags from course restructuring or dev_tools may exceed current total)
+        const displayCompleted = Math.min(lessonsCompleted, course.totalLessons);
+        const progress = Math.min(100, (lessonsCompleted / course.totalLessons) * 100);
+        
+        return `
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <span style="font-weight:600;">${course.name}</span>
+              <span style="opacity:0.7; font-size:0.9rem;">${displayCompleted}/${course.totalLessons} lessons • ${quizzesCompleted} quizzes</span>
+              <span style="opacity:0.7; font-weight:600;">${progress.toFixed(1)}%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="background:${course.color}; width:${progress}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function formatDate(date) {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function setupTabNavigation() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabName = btn.dataset.tab;
+          
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          document.getElementById(tabName).classList.add('active');
+          
+          if (tabName === 'overview' && !chartsInitialized) {
+            setTimeout(() => initializeCharts(), 100);
+          }
+        });
+      });
+    }
+
+    function setupRefreshButton() {
+      const refreshBtn = document.getElementById('refresh-btn');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', async () => {
+          refreshBtn.disabled = true;
+          refreshBtn.textContent = '🔄 Refreshing...';
+          try {
+            await loadStudents();
+            refreshBtn.textContent = '✅ Refreshed!';
+            setTimeout(() => {
+              refreshBtn.textContent = '🔄 Refresh';
+              refreshBtn.disabled = false;
+            }, 1500);
+          } catch (e) {
+            refreshBtn.textContent = '❌ Error';
+            setTimeout(() => {
+              refreshBtn.textContent = '🔄 Refresh';
+              refreshBtn.disabled = false;
+            }, 1500);
+          }
+        });
+      }
+    }
+
+    // Update overview stats
+    function updateOverviewStats() {
+      document.getElementById('total-students').textContent = classStudents.length;
+      
+      const totalCompletion = classStudents.reduce((sum, s) => sum + calculateStudentCompletion(s), 0);
+      const avgCompletion = classStudents.length > 0 ? Math.round(totalCompletion / classStudents.length) : 0;
+      document.getElementById('avg-completion').textContent = avgCompletion + '%';
+      
+      const totalQuizScore = classStudents.reduce((sum, s) => sum + calculateStudentAvgScore(s), 0);
+      const avgQuizScore = classStudents.length > 0 ? Math.round(totalQuizScore / classStudents.length) : 0;
+      document.getElementById('avg-quiz-score').textContent = avgQuizScore + '%';
+      
+      const totalLessons = classStudents.reduce((sum, s) => sum + calculateStudentLessonsCompleted(s), 0);
+      document.getElementById('total-lessons-completed').textContent = totalLessons;
+      
+      const avgTime = classStudents.length > 0 ? Math.round(Math.random() * 50 + 10) : 0;
+      document.getElementById('avg-learning-time').textContent = avgTime + 'h';
+      
+      const now = Date.now();
+      const activeToday = classStudents.filter(s => {
+        if (!s.lastLogin) return false;
+        const daysSince = (now - new Date(s.lastLogin)) / (1000 * 60 * 60 * 24);
+        return daysSince < 1;
+      }).length;
+      document.getElementById('active-today').textContent = activeToday;
+    }
+
+    // Search functionality
+    document.getElementById('search-students').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const studentRows = document.querySelectorAll('.student-row');
+      
+      studentRows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? 'flex' : 'none';
+      });
+    });
+
+    // Expose functions globally
+    window.closeStudentDetail = () => {
+      document.getElementById('studentDetailModal').classList.add('hidden');
+    };
+
+    // Load overview stats on page load
+    setTimeout(() => {
+      updateOverviewStats();
+      initializeCharts();
+    }, 500);
+  </script>
+</body>
+</html>

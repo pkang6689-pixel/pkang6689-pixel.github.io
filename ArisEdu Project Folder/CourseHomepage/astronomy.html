@@ -10,6 +10,13 @@
   <link rel="stylesheet" href="/ArisEdu Project Folder/styles/main.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="../theme_manager.js"></script>
+  <script type="module">
+    // Import Firebase config and make auth + db available to analytics
+    import { auth, db } from '../firebase-config.js';
+    window.auth = auth;
+    window.db = db;
+  </script>
+<script src="../scripts/analytics-helper.js"></script>
   <script charset="UTF-8" src="../scripts/global_translations.js?v=7.4"></script>
   <script src="../scripts/spanish_translations.js?v=1.4"></script>
   <script src="../scripts/hindi_translations.js?v=1.4"></script>
@@ -216,6 +223,18 @@
   }
 
   document.addEventListener('DOMContentLoaded', function() {
+    
+    // Initialize analytics and track course visit
+    if (typeof StudentAnalytics !== 'undefined') {
+      try {
+        const analytics = new StudentAnalytics();
+        analytics.trackLessonView('astronomy', 0, 0); // Track course visit
+        analytics.updateLearningStreak(); // Update daily streak
+      } catch (e) {
+        console.warn('Analytics initialization failed:', e);
+      }
+    }
+
     populateGrid();
     applyProgressColors();
   });

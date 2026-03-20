@@ -747,6 +747,60 @@
             mirrorHSToMSCompletion();
             
             localStorage.setItem(dailyRewardKey, today);
+            
+            // Track quiz completion for analytics (sync to Firebase for teacher dashboard)
+            if (typeof window.StudentAnalytics !== 'undefined' || typeof analytics !== 'undefined') {
+              try {
+                console.log('📊 Analytics tracking available');
+                const analytics = new (typeof window.StudentAnalytics !== 'undefined' ? window.StudentAnalytics : window.analytics)();
+                const path = decodeURIComponent(window.location.pathname);
+                console.log('📍 Current path:', path);
+                
+                // Extract unit and lesson from URL
+                const lessonMatch = path.match(/Lesson\s*(\w+)\.(\d+)_Quiz/);
+                console.log('🔍 Lesson match:', lessonMatch);
+                
+                if (lessonMatch) {
+                  let unit = lessonMatch[1];
+                  const lesson = lessonMatch[2];
+                  let courseId = 'unknown';
+                  
+                  // Determine course ID
+                  if (path.includes('Algebra1')) courseId = 'algebra_1';
+                  else if (path.includes('Algebra2')) courseId = 'algebra_2';
+                  else if (path.includes('Geometry')) courseId = 'geometry';
+                  else if (path.includes('Physics')) courseId = 'physics';
+                  else if (path.includes('Chemistry')) courseId = 'chemistry';
+                  else if (path.includes('Biology')) courseId = 'biology';
+                  else if (path.includes('ms_alg1')) courseId = 'ms_algebra_1';
+                  else if (path.includes('ms_alg2')) courseId = 'ms_algebra_2';
+                  else if (path.includes('ms_geom')) courseId = 'ms_geometry';
+                  else if (path.includes('ms_phys')) courseId = 'ms_physics';
+                  else if (path.includes('ms_chem')) courseId = 'ms_chemistry';
+                  else if (path.includes('ms_bio')) courseId = 'ms_biology';
+                  
+                  console.log(`📚 Detected: courseId=${courseId}, unit=${unit}, lesson=${lesson}`);
+                  
+                  // Calculate accuracy/score from quiz analytics
+                  const totalQuestions = quizAnalytics.totalQuestions || 1;
+                  const wrongAnswers = Object.values(quizAnalytics.questions || {})
+                    .reduce((sum, q) => sum + (q.wrongAttempts || 0), 0);
+                  const accuracy = Math.round(((totalQuestions - wrongAnswers) / totalQuestions) * 100);
+                  
+                  console.log(`📈 Quiz Stats: ${totalQuestions} questions, ${wrongAnswers} wrong, accuracy=${accuracy}%`);
+                  
+                  // Track the quiz completion
+                  analytics.trackQuizCompletion(courseId, parseInt(unit), parseInt(lesson), accuracy, 100);
+                } else {
+                  console.warn('⚠️ Could not parse lesson info from URL');
+                }
+              } catch (err) {
+                // Silently fail - don't break quiz flow if analytics fails
+                console.warn('Analytics tracking error:', err.message);
+              }
+            } else {
+              console.warn('⚠️ StudentAnalytics not available on window');
+            }
         } catch (e) {
             // If storage fails, just skip without breaking quiz flow
         }

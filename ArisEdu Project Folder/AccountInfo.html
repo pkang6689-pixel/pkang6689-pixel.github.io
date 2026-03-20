@@ -501,6 +501,9 @@
   // --- Badge Logic ---
   const badgesGrid = document.getElementById('badges-grid');
   
+  console.log('=== BADGE DEBUG START ===');
+  console.log('badgesGrid element:', badgesGrid);
+  
   // Calculate total minutes all time for badge
   let totalMinutesAllTime = 0;
   for (let i = 0; i < localStorage.length; i++) {
@@ -757,6 +760,35 @@ const BADGE_DEFS = {
     `;
     document.head.appendChild(tooltipStyle);
 
+    // Function to extract tier from badge name and return appropriate color
+    function getTierColor(badgeName) {
+        // Extract tier from format "Badge Name (Tier Name)"
+        const tierMatch = badgeName.match(/\((\w+)\)$/);
+        if (!tierMatch) return null;
+        
+        const tierName = tierMatch[1].toLowerCase();
+        const isDark = document.body.classList.contains('dark-mode');
+        
+        // Use more vibrant colors for dark mode for better contrast
+        const tierColors = isDark ? {
+            'bronze': '#D4795F',    // Bright bronze/copper
+            'silver': '#E0E0E0',    // Bright silver
+            'gold': '#FFD700',      // Vibrant gold
+            'diamond': '#00FFFF',   // Bright cyan
+            'amethyst': '#DA70D6'   // Bright magenta/purple
+        } : {
+            'bronze': '#A0522D',    // Sienna/bronze
+            'silver': '#A8A9AD',    // Silver-grey
+            'gold': '#FFB800',      // Bright gold
+            'diamond': '#00BFFF',   // Deep sky blue
+            'amethyst': '#B565CC'   // Amethyst purple
+        };
+        
+        const color = tierColors[tierName];
+        console.log('Badge:', badgeName, 'Tier:', tierName, 'Color:', color, 'isDark:', isDark);
+        return color;
+    }
+
     allBadges.forEach(badge => {
         const earned = badge.condition();
         const isDark = document.body.classList.contains('dark-mode');
@@ -767,7 +799,9 @@ const BADGE_DEFS = {
         
         div.style.cssText = `position: relative; display: flex; flex-direction: row; align-items: center; width: 100%; opacity: ${earned ? 1 : 0.4}; filter: grayscale(${earned ? 0 : 1}); transition: all 0.3s; padding: 1.5rem; border-radius: 12px; background: ${earned ? earnedBg : 'transparent'}; box-shadow: ${earned ? earnedShadow : 'none'}; cursor: default; margin-bottom: 1rem;`;
 
-        const labelColor = isDark ? '#94a3b8' : '#64748b';
+        // Try to get tier-specific color, fallback to default grey
+        const tierColor = getTierColor(badge.name);
+        const labelColor = tierColor || (isDark ? '#94a3b8' : '#64748b');
         
         // Progress Logic
         let progressHTML = '';
@@ -825,8 +859,8 @@ const BADGE_DEFS = {
         div.innerHTML = `
           <div style="display:flex; flex-direction:column; align-items:center; min-width:120px; width:120px;">
               <div style="font-size: 3rem; margin-bottom: 0.5rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">${badge.icon}</div>
-              <div style="font-size: 0.85rem; color: ${labelColor}; font-weight: 700; text-align: center; line-height:1.2;">
-                ${badge.name.replace(/\s\((.+)\)/, '<br><span style="font-weight:400; font-size:0.75rem; opacity:0.8;">$1</span>')}
+              <div style="font-size: 0.85rem; color: ${labelColor}; font-weight: 700; text-align: center; line-height:1.2; text-shadow: ${tierColor ? (isDark ? '0 2px 4px rgba(0,0,0,0.5)' : '0 1px 1px rgba(255,255,255,0.5)') : 'none'};">
+                ${badge.name.replace(/\s\((.+)\)/, `<br><span style="font-weight:800; font-size:0.8rem; opacity:1; letter-spacing:0.5px; color:${labelColor};">$1</span>`)}
               </div>
           </div>
           
@@ -946,7 +980,17 @@ const BADGE_DEFS = {
   // Logout button handler
   document.getElementById('logout-btn').addEventListener('click', function() {
     localStorage.removeItem('user');
-    window.location.href = 'Login.html';
+
+    // Sign out from Firebase auth to fully clear session
+    import('./firebase-config.js').then(function(mod) {
+      if (mod.auth && mod.signOut) {
+        return mod.signOut(mod.auth);
+      }
+    }).catch(function(e) {
+      console.error('Firebase signOut error:', e);
+    }).finally(function() {
+      window.location.href = 'Login.html';
+    });
   });
 
   // Switch Account button handler

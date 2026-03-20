@@ -335,6 +335,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         async function initHelpSection() {
+            // Only show Discussion & Help on video pages, not practice games
+            const pagePath = window.location.pathname.toLowerCase();
+            if (pagePath.includes('_practice') || pagePath.includes('_game')) return;
+
             // Target the lesson-layout or main-container
             const layout = document.querySelector('.lesson-layout') || document.querySelector('.main-container');
             if (!layout) return;

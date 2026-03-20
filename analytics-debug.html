@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics Debug - ArisEdu</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #1a1a1a;
+      color: #0f0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #0a0a0a;
+      border: 1px solid #0f0;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    h1 {
+      color: #0f0;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #0f0;
+      padding-bottom: 10px;
+    }
+    .section {
+      margin: 20px 0;
+      padding: 15px;
+      background: #111;
+      border-left: 3px solid #0f0;
+    }
+    .section h2 {
+      color: #0f0;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+    .log-entry {
+      margin: 8px 0;
+      padding: 8px;
+      background: #000;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    .log-entry.success { color: #00ff00; }
+    .log-entry.error { color: #ff4444; }
+    .log-entry.warning { color: #ffaa00; }
+    .log-entry.info { color: #4488ff; }
+    button {
+      padding: 10px 20px;
+      background: #0f0;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 5px;
+      font-family: 'Courier New', monospace;
+    }
+    button:hover {
+      background: #0c0;
+    }
+    .data-box {
+      background: #000;
+      border: 1px solid #0f0;
+      padding: 10px;
+      margin: 10px 0;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Analytics Debug Console</h1>
+
+    <div class="section">
+      <h2>🔑 User & Auth Info</h2>
+      <div id="auth-info"></div>
+    </div>
+
+    <div class="section">
+      <h2>💾 LocalStorage Data</h2>
+      <div id="storage-info"></div>
+    </div>
+
+    <div class="section">
+      <h2>📤 Sync Status</h2>
+      <div id="sync-status"></div>
+    </div>
+
+    <div class="section">
+      <h2>🔍 Console Output</h2>
+      <button onclick="clearLogs()">Clear Logs</button>
+      <button onclick="testSync()">🚀 Test Sync Now</button>
+      <div id="console-output" class="data-box"></div>
+    </div>
+
+    <div class="section">
+      <h2>📋 Full Analytics Data</h2>
+      <div id="full-data" class="data-box"></div>
+    </div>
+  </div>
+
+  <script>
+    const logs = [];
+    let originalLog = console.log;
+    let originalWarn = console.warn;
+    let originalError = console.error;
+
+    // Intercept console logs
+    console.log = function(...args) {
+      originalLog.apply(console, args);
+      addLog('info', args.join(' '));
+    };
+    console.warn = function(...args) {
+      originalWarn.apply(console, args);
+      addLog('warning', args.join(' '));
+    };
+    console.error = function(...args) {
+      originalError.apply(console, args);
+      addLog('error', args.join(' '));
+    };
+
+    function addLog(type, message) {
+      logs.push({ type, message, time: new Date().toLocaleTimeString() });
+      updateConsoleOutput();
+    }
+
+    function updateConsoleOutput() {
+      const output = document.getElementById('console-output');
+      output.innerHTML = logs.slice(-50).map(log => {
+        return `<div class="log-entry ${log.type}">
+          [${log.time}] ${log.message}
+        </div>`;
+      }).join('');
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function clearLogs() {
+      logs.length = 0;
+      updateConsoleOutput();
+    }
+
+    function updateAuthInfo() {
+      const info = document.getElementById('auth-info');
+      const userId = sessionStorage.getItem('userId') || 'NOT SET';
+      
+      info.innerHTML = `
+        <div class="log-entry">Session User ID: <strong>${userId}</strong></div>
+      `;
+    }
+
+    function updateStorageInfo() {
+      const info = document.getElementById('storage-info');
+      const quizScores = JSON.parse(localStorage.getItem('arisEdu_quizScores') || '{}');
+      const streak = localStorage.getItem('arisEdu_streak') || '0';
+      const badges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
+      const visited = JSON.parse(localStorage.getItem('arisEdu_visitedPages') || '[]');
+
+      info.innerHTML = `
+        <div class="log-entry">Quiz Scores: <strong>${Object.keys(quizScores).length} quizzes</strong></div>
+        <div class="log-entry">Streak: <strong>${streak}</strong></div>
+        <div class="log-entry">Badges: <strong>${badges.length}</strong></div>
+        <div class="log-entry">Visited Pages: <strong>${visited.length}</strong></div>
+      `;
+    }
+
+    function updateSyncStatus() {
+      const status = document.getElementById('sync-status');
+      const lastSync = localStorage.getItem('arisEdu_lastSyncTime') || 'Never';
+      
+      status.innerHTML = `
+        <div class="log-entry">Last Sync: <strong>${lastSync}</strong></div>
+        <div class="log-entry">Sync API Key: ${FIREBASE_REST_CONFIG.apiKey.substring(0, 20)}...</div>
+        <div class="log-entry">Project ID: ${FIREBASE_REST_CONFIG.projectId}</div>
+      `;
+    }
+
+    function updateFullData() {
+      const data = document.getElementById('full-data');
+      const userId = sessionStorage.getItem('userId');
+      const quizScores = JSON.parse(localStorage.getItem('arisEdu_quizScores') || '{}');
+      
+      data.innerHTML = `<pre>${JSON.stringify({
+        userId,
+        quizScores,
+        localStorageKeys: Object.keys(localStorage).filter(k => k.includes('arisEdu'))
+      }, null, 2)}</pre>`;
+    }
+
+    async function testSync() {
+      console.log('🚀 Testing Firebase sync...');
+      try {
+        // Create a test analytics instance
+        const analytics = new StudentAnalytics();
+        console.log('Analytics instance created with userId:', analytics.userId);
+        
+        // Force a sync
+        analytics.lastSyncTime = 0; // Reset throttle
+        await analytics.syncToFirebase();
+      } catch (e) {
+        console.error('Test sync error:', e.message);
+      }
+    }
+
+    // Update UI every 2 seconds
+    setInterval(() => {
+      updateAuthInfo();
+      updateStorageInfo();
+      updateSyncStatus();
+      updateFullData();
+    }, 2000);
+
+    // Initial update
+    updateAuthInfo();
+    updateStorageInfo();
+    updateSyncStatus();
+    updateFullData();
+
+    console.log('✅ Analytics Debug Console Ready');
+    console.log('📍 Watching localStorage and sync status...');
+  </script>
+
+  <!-- Load analytics helper -->
+  <script src="ArisEdu Project Folder/scripts/analytics-helper.js"></script>
+</body>
+</html>

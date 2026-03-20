@@ -182,6 +182,23 @@
   // --- Progress Controls ---
   addSection('Progress Controls');
   
+  // Helper: sync progress to Firebase then reload
+  async function syncAndReload() {
+    try {
+      if (typeof window.StudentAnalytics !== 'undefined') {
+        const analytics = new window.StudentAnalytics();
+        await analytics.initialize();
+        analytics.lastSyncTime = 0; // Reset throttle
+        analytics.syncInProgress = false;
+        await analytics.syncToFirebase();
+        console.log('✅ Dev tools: synced progress to Firebase');
+      }
+    } catch (e) {
+      console.warn('⚠️ Dev tools: Firebase sync failed, progress saved locally only:', e.message);
+    }
+    location.reload();
+  }
+
   // generic clear current page
   // Determine context
   var contextKeyPrefix = '';
@@ -191,14 +208,15 @@
       
       addButton('\u2714 Finish All Chemistry', function() {
         if(!confirm('Complete ALL Chemistry lessons?')) return;
-        var allLessons = { '1': 9, '2': 6, '3': 9, '4': 10, '5A': 9, '5B': 6, '6': 8, '7': 9, '8': 10, '9': 9, '10': 11, '11': 7, '12': 6 };
+        // Totals from chem.html courseConfig.units (lessons per unit including unit test)
+        var allLessons = { '1': 9, '2': 6, '3': 9, '4': 10, '6': 8, '7': 9, '8': 10, '9': 9, '10': 11, '11': 7, '12': 6 };
         for (var u in allLessons) {
           for (var l = 1; l <= allLessons[u]; l++) {
             localStorage.setItem('chem_u' + u + '_l' + l + '_started', 'true');
             localStorage.setItem('chem_u' + u + '_l' + l + '_completed', 'true');
           }
         }
-        location.reload();
+        syncAndReload();
       }, 'green');
       
   } else if (path.indexOf('physics.html') !== -1 || path.indexOf('PhysicsLessons') !== -1) {
@@ -206,36 +224,22 @@
       
       addButton('\u2714 Finish All Physics', function() {
         if(!confirm('Complete ALL Physics lessons?')) return;
-        // Mock data for Physics (Units 1-11)
-        // assuming standard structure or grab from page if possible.
-        // Let's assume 6 lessons per unit for now as safe default based on U11.
-         for (var u=1; u<=11; u++) {
-            for (var l=1; l<=10; l++) {
-                 // blind write
-                localStorage.setItem('physics_u' + u + '_l' + l + '_started', 'true');
-                localStorage.setItem('physics_u' + u + '_l' + l + '_completed', 'true');
-            }
-         }
-        location.reload();
+        // Totals from physics.html segment IDs (84 total)
+        var allLessons = { '1': 7, '2': 8, '3': 6, '4': 7, '5': 7, '6': 7, '7': 7, '8': 6, '9': 6, '10': 7, '11': 7, '12': 7 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('physics_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('physics_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
       }, 'green');
   } else if (path.indexOf('bio.html') !== -1 || path.indexOf('BiologyLessons') !== -1) {
       contextKeyPrefix = 'bio_u';
       
       addButton('\u2714 Finish All Biology', function() {
         if(!confirm('Complete ALL Biology lessons?')) return;
-        // Biology units from bio.html (max lesson number per unit including test)
-        // Unit 1: 7 lessons + test (l8) = 8
-        // Unit 2: 7 lessons + test (l8) = 8
-        // Unit 3: 5 lessons + test (l6) = 6
-        // Unit 4: 6 lessons + test (l7) = 7
-        // Unit 5: 6 lessons + test (l7) = 7
-        // Unit 6: 6 lessons + test (l7) = 7
-        // Unit 7: 6 lessons + test (l7) = 7
-        // Unit 8: 5 lessons + test (l6) = 6
-        // Unit 9: 5 lessons + test (l6) = 6
-        // Unit 10: 6 lessons + test (l7) = 7
-        // Unit 11: 6 lessons + test (l7) = 7
-        // Unit 12: 6 lessons + test (l7) = 7
+        // Totals from bio.html segment IDs (83 total)
         var allLessons = { '1': 8, '2': 8, '3': 6, '4': 7, '5': 7, '6': 7, '7': 7, '8': 6, '9': 6, '10': 7, '11': 7, '12': 7 };
         for (var u in allLessons) {
           for (var l = 1; l <= allLessons[u]; l++) {
@@ -243,13 +247,14 @@
             localStorage.setItem('bio_u' + u + '_l' + l + '_completed', 'true');
           }
         }
-        location.reload();
+        syncAndReload();
       }, 'green');
   } else if (path.indexOf('geometry.html') !== -1 || path.indexOf('GeometryLessons') !== -1) {
       contextKeyPrefix = 'geometry_u';
 
       addButton('\u2714 Finish All Geometry', function() {
         if(!confirm('Complete ALL Geometry lessons?')) return;
+        // Totals from geometry.html courseConfig.units (111 total)
         var allLessons = { '1': 8, '2': 10, '3': 8, '4': 9, '5': 7, '6': 8, '7': 9, '8': 9, '9': 8, '10': 10, '11': 7, '12': 10, '13': 8 };
         for (var u in allLessons) {
           for (var l = 1; l <= allLessons[u]; l++) {
@@ -257,21 +262,22 @@
             localStorage.setItem('geometry_u' + u + '_l' + l + '_completed', 'true');
           }
         }
-        location.reload();
+        syncAndReload();
       }, 'green');
   } else if (path.indexOf('algebra1.html') !== -1 || path.indexOf('Algebra1Lessons') !== -1) {
       contextKeyPrefix = 'alg1_u';
 
       addButton('\u2714 Finish All Algebra 1', function() {
         if(!confirm('Complete ALL Algebra 1 lessons?')) return;
-        var allLessons = { '1': 8, '2': 10, '3': 6, '4': 9, '5': 13, '6': 16, '7': 11, '8': 10, '9': 12, '10': 11, '11': 8, '12': 5 };
+        // Totals from algebra1.html courseConfig.units (86 total)
+        var allLessons = { '1': 8, '2': 10, '3': 8, '4': 9, '5': 11, '6': 7, '7': 9, '8': 5, '9': 5, '10': 5, '11': 4, '12': 5 };
         for (var u in allLessons) {
           for (var l = 1; l <= allLessons[u]; l++) {
             localStorage.setItem('alg1_u' + u + '_l' + l + '_started', 'true');
             localStorage.setItem('alg1_u' + u + '_l' + l + '_completed', 'true');
           }
         }
-        location.reload();
+        syncAndReload();
       }, 'green');
   } else if (path.indexOf('algebra2.html') !== -1 || path.indexOf('Algebra2Lessons') !== -1) {
       contextKeyPrefix = 'alg2_u';
@@ -285,7 +291,314 @@
             localStorage.setItem('alg2_u' + u + '_l' + l + '_completed', 'true');
           }
         }
-        location.reload();
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('precalculus.html') !== -1 || path.indexOf('PrecalculusLessons') !== -1) {
+      contextKeyPrefix = 'precalc_u';
+
+      addButton('\u2714 Finish All Precalculus', function() {
+        if(!confirm('Complete ALL Precalculus lessons?')) return;
+        var allLessons = { '1': 10, '2': 9, '3': 9, '4': 8, '5': 9, '6': 9, '7': 8, '8': 7, '9': 8, '10': 8 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('precalc_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('precalc_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('trigonometry.html') !== -1 || path.indexOf('TrigonometryLessons') !== -1) {
+      contextKeyPrefix = 'trig_u';
+
+      addButton('\u2714 Finish All Trigonometry', function() {
+        if(!confirm('Complete ALL Trigonometry lessons?')) return;
+        var allLessons = { '1': 7, '2': 7, '3': 6, '4': 7, '5': 7, '6': 7, '7': 7, '8': 7, '9': 7, '10': 6 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('trig_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('trig_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('statistics.html') !== -1 || path.indexOf('StatisticsLessons') !== -1) {
+      contextKeyPrefix = 'stats_u';
+
+      addButton('\u2714 Finish All Statistics', function() {
+        if(!confirm('Complete ALL Statistics lessons?')) return;
+        var allLessons = { '1': 7, '2': 8, '3': 7, '4': 8, '5': 8, '6': 7, '7': 7, '8': 7, '9': 7, '10': 6 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('stats_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('stats_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('linear_algebra.html') !== -1 || path.indexOf('LinearAlgebraLessons') !== -1) {
+      contextKeyPrefix = 'linalg_u';
+
+      addButton('\u2714 Finish All Linear Algebra', function() {
+        if(!confirm('Complete ALL Linear Algebra lessons?')) return;
+        var allLessons = { '1': 8, '2': 8, '3': 8, '4': 8, '5': 8, '6': 8, '7': 8, '8': 8, '9': 8, '10': 8 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('linalg_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('linalg_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('financial_math.html') !== -1 || path.indexOf('FinancialMathLessons') !== -1) {
+      contextKeyPrefix = 'finmath_u';
+
+      addButton('\u2714 Finish All Financial Math', function() {
+        if(!confirm('Complete ALL Financial Math lessons?')) return;
+        var allLessons = { '1': 8, '2': 8, '3': 8, '4': 8, '5': 8, '6': 8, '7': 8, '8': 8, '9': 8, '10': 7 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('finmath_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('finmath_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('anatomy.html') !== -1 || path.indexOf('AnatomyLessons') !== -1) {
+      contextKeyPrefix = 'anat_u';
+
+      addButton('\u2714 Finish All Anatomy', function() {
+        if(!confirm('Complete ALL Anatomy lessons?')) return;
+        var allLessons = { '1': 7, '2': 8, '3': 8, '4': 8, '5': 7, '6': 8, '7': 8, '8': 7, '9': 8, '10': 7 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('anat_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('anat_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('astronomy.html') !== -1 || path.indexOf('AstronomyLessons') !== -1) {
+      contextKeyPrefix = 'astro_u';
+
+      addButton('\u2714 Finish All Astronomy', function() {
+        if(!confirm('Complete ALL Astronomy lessons?')) return;
+        var allLessons = { '1': 7, '2': 7, '3': 8, '4': 7, '5': 8, '6': 7, '7': 7, '8': 7, '9': 7, '10': 6 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('astro_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('astro_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('earth_science.html') !== -1 || path.indexOf('EarthScienceLessons') !== -1) {
+      contextKeyPrefix = 'earthsci_u';
+
+      addButton('\u2714 Finish All Earth Science', function() {
+        if(!confirm('Complete ALL Earth Science lessons?')) return;
+        var allLessons = { '1': 5, '2': 5, '3': 5, '4': 5, '5': 5, '6': 6, '7': 5 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('earthsci_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('earthsci_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('environmental_science.html') !== -1 || path.indexOf('EnvironmentalScienceLessons') !== -1) {
+      contextKeyPrefix = 'envsci_u';
+
+      addButton('\u2714 Finish All Environmental Science', function() {
+        if(!confirm('Complete ALL Environmental Science lessons?')) return;
+        var allLessons = { '1': 7, '2': 8, '3': 7, '4': 7, '5': 6, '6': 7, '7': 7, '8': 6, '9': 6, '10': 6 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('envsci_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('envsci_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('integrated_science.html') !== -1 || path.indexOf('IntegratedScienceLessons') !== -1) {
+      contextKeyPrefix = 'intsci_u';
+
+      addButton('\u2714 Finish All Integrated Science', function() {
+        if(!confirm('Complete ALL Integrated Science lessons?')) return;
+        var allLessons = { '1': 9, '2': 9, '3': 9, '4': 9, '5': 8, '6': 8, '7': 7, '8': 7, '9': 7, '10': 6 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('intsci_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('intsci_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('marine_science.html') !== -1 || path.indexOf('MarineScienceLessons') !== -1) {
+      contextKeyPrefix = 'marine_u';
+
+      addButton('\u2714 Finish All Marine Science', function() {
+        if(!confirm('Complete ALL Marine Science lessons?')) return;
+        var allLessons = { '1': 7, '2': 7, '3': 7, '4': 6, '5': 7, '6': 6, '7': 7, '8': 6, '9': 6, '10': 6 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('marine_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('marine_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('ms_geometry.html') !== -1 || path.indexOf('MS_GeometryLessons') !== -1) {
+      contextKeyPrefix = 'ms_geom_u';
+
+      addButton('\u2714 Finish All MS Geometry', function() {
+        if(!confirm('Complete ALL MS Geometry lessons?')) return;
+        var allLessons = { '1': 23, '2': 14, '3': 23 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('ms_geom_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('ms_geom_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('ms_physics.html') !== -1 || path.indexOf('MS_PhysicsLessons') !== -1) {
+      contextKeyPrefix = 'ms_phys_u';
+
+      addButton('\u2714 Finish All MS Physics', function() {
+        if(!confirm('Complete ALL MS Physics lessons?')) return;
+        var allLessons = { '1': 20, '2': 12, '3': 20 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('ms_phys_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('ms_phys_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('ap_biology.html') !== -1 || path.indexOf('APLessons') !== -1 && path.indexOf('Biology') !== -1) {
+      contextKeyPrefix = 'ap_bio_u';
+
+      addButton('\u2714 Finish All AP Biology', function() {
+        if(!confirm('Complete ALL AP Biology lessons?')) return;
+        var allLessons = { '1': 6, '2': 5, '3': 4, '4': 5, '5': 4, '6': 5, '7': 5, '8': 6 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('ap_bio_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('ap_bio_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('ap_calculus.html') !== -1 || path.indexOf('APLessons') !== -1 && path.indexOf('Calculus') !== -1) {
+      contextKeyPrefix = 'ap_calc_ab_u';
+
+      addButton('\u2714 Finish All AP Calculus AB', function() {
+        if(!confirm('Complete ALL AP Calculus AB lessons?')) return;
+        var allLessons = { '1': 11, '2': 9, '3': 6, '4': 7, '5': 12, '6': 12, '7': 7, '8': 12 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('ap_calc_ab_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('ap_calc_ab_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('ap_chemistry.html') !== -1 || path.indexOf('APLessons') !== -1 && path.indexOf('Chemistry') !== -1) {
+      contextKeyPrefix = 'ap_chem_u';
+
+      addButton('\u2714 Finish All AP Chemistry', function() {
+        if(!confirm('Complete ALL AP Chemistry lessons?')) return;
+        var allLessons = { '1': 5, '2': 5, '3': 4, '4': 4, '5': 5, '6': 4, '7': 4, '8': 5, '9': 5 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('ap_chem_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('ap_chem_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('ap_environmental_science.html') !== -1 || path.indexOf('APLessons') !== -1 && path.indexOf('Environmental') !== -1) {
+      contextKeyPrefix = 'ap_env_sci_u';
+
+      addButton('\u2714 Finish All AP Env Science', function() {
+        if(!confirm('Complete ALL AP Environmental Science lessons?')) return;
+        var allLessons = { '1': 5, '2': 5, '3': 5, '4': 5, '5': 5, '6': 5, '7': 5, '8': 5, '9': 5 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('ap_env_sci_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('ap_env_sci_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('ap_hug.html') !== -1 || path.indexOf('APLessons') !== -1 && path.indexOf('HumanGeo') !== -1) {
+      contextKeyPrefix = 'ap_hug_u';
+
+      addButton('\u2714 Finish All AP Human Geo', function() {
+        if(!confirm('Complete ALL AP Human Geography lessons?')) return;
+        var allLessons = { '1': 5, '2': 6, '3': 6, '4': 6, '5': 6, '6': 6, '7': 6 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('ap_hug_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('ap_hug_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('ap_physics1.html') !== -1) {
+      contextKeyPrefix = 'apphys1_u';
+
+      addButton('\u2714 Finish All AP Physics 1', function() {
+        if(!confirm('Complete ALL AP Physics 1 lessons?')) return;
+        for (var u = 1; u <= 8; u++) {
+          for (var l = 1; l <= 8; l++) {
+            localStorage.setItem('apphys1_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('apphys1_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('ap_physics2.html') !== -1) {
+      contextKeyPrefix = 'ap_phys2_u';
+
+      addButton('\u2714 Finish All AP Physics 2', function() {
+        if(!confirm('Complete ALL AP Physics 2 lessons?')) return;
+        var allLessons = { '1': 5, '2': 5, '3': 5, '4': 5, '5': 5, '6': 5, '7': 5 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('ap_phys2_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('ap_phys2_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('ap_physics_mechanics.html') !== -1) {
+      contextKeyPrefix = 'ap_phys_mech_u';
+
+      addButton('\u2714 Finish All AP Physics C: Mech', function() {
+        if(!confirm('Complete ALL AP Physics C: Mechanics lessons?')) return;
+        var allLessons = { '1': 4, '2': 4, '3': 4, '4': 4, '5': 4, '6': 4, '7': 4 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('ap_phys_mech_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('ap_phys_mech_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
+      }, 'green');
+  } else if (path.indexOf('ap_statistics.html') !== -1) {
+      contextKeyPrefix = 'ap_stats_u';
+
+      addButton('\u2714 Finish All AP Statistics', function() {
+        if(!confirm('Complete ALL AP Statistics lessons?')) return;
+        var allLessons = { '1': 5, '2': 5, '3': 6, '4': 5, '5': 5, '6': 5, '7': 5, '8': 4, '9': 5 };
+        for (var u in allLessons) {
+          for (var l = 1; l <= allLessons[u]; l++) {
+            localStorage.setItem('ap_stats_u' + u + '_l' + l + '_started', 'true');
+            localStorage.setItem('ap_stats_u' + u + '_l' + l + '_completed', 'true');
+          }
+        }
+        syncAndReload();
       }, 'green');
   }
 
@@ -363,8 +676,47 @@
         
         function processQuestion() {
           if (index >= totalQuestions) {
-            // Quiz complete
+            // Quiz complete - trigger analytics
             console.log('Quiz auto-pass complete!');
+            
+            // Manually trigger analytics since dev tools bypassed normal completion
+            if (typeof window.StudentAnalytics !== 'undefined') {
+              try {
+                const analytics = new window.StudentAnalytics();
+                const path = decodeURIComponent(window.location.pathname);
+                
+                // Extract unit and lesson from URL
+                const lessonMatch = path.match(/Lesson\s*(\w+)\.(\d+)_Quiz/);
+                if (lessonMatch) {
+                  let unit = lessonMatch[1];
+                  const lesson = lessonMatch[2];
+                  let courseId = 'unknown';
+                  
+                  // Determine course ID
+                  if (path.includes('Algebra1')) courseId = 'algebra_1';
+                  else if (path.includes('Algebra2')) courseId = 'algebra_2';
+                  else if (path.includes('Geometry')) courseId = 'geometry';
+                  else if (path.includes('Physics')) courseId = 'physics';
+                  else if (path.includes('Chemistry')) courseId = 'chemistry';
+                  else if (path.includes('Biology')) courseId = 'biology';
+                  else if (path.includes('ms_alg1')) courseId = 'ms_algebra_1';
+                  else if (path.includes('ms_alg2')) courseId = 'ms_algebra_2';
+                  else if (path.includes('ms_geom')) courseId = 'ms_geometry';
+                  else if (path.includes('ms_phys')) courseId = 'ms_physics';
+                  else if (path.includes('ms_chem')) courseId = 'ms_chemistry';
+                  else if (path.includes('ms_bio')) courseId = 'ms_biology';
+                  
+                  // For auto-pass, mark as 100% (perfect score)
+                  const accuracy = 100;
+                  console.log(`📊 [Dev Tools] Recording auto-pass as perfect score: ${courseId}_u${unit}_l${lesson} = ${accuracy}%`);
+                  analytics.trackQuizCompletion(courseId, parseInt(unit), parseInt(lesson), accuracy, 100);
+                }
+              } catch (err) {
+                console.warn('Failed to track auto-pass quiz completion:', err.message);
+              }
+            } else {
+              console.warn('StudentAnalytics not available');
+            }
             return;
           }
           
@@ -395,7 +747,7 @@
                   quizLoader.nextQuestion();
                   setTimeout(processQuestion, 100);
                 } else {
-                  console.log('All questions completed!');
+                  setTimeout(processQuestion, 50);
                 }
               }, 300);
             }, 50);
@@ -682,15 +1034,28 @@
       'ap_hug.html': 'ap_hug',
       'ap_calculus.html': 'ap_calc_ab',
       'ap_statistics.html': 'ap_stats',
+      'ap_physics1.html': 'apphys1',
       'ap_physics2.html': 'ap_phys2',
       'ap_physics_mechanics.html': 'ap_phys_mech',
-      // High School Courses
+      // High School Math
       'algebra1.html': 'alg1',
       'algebra2.html': 'alg2',
+      'geometry.html': 'geometry',
+      'precalculus.html': 'precalc',
+      'trigonometry.html': 'trig',
+      'statistics.html': 'stats',
+      'linear_algebra.html': 'linalg',
+      'financial_math.html': 'finmath',
+      // High School Science
       'bio.html': 'bio',
       'chem.html': 'chem',
-      'geometry.html': 'geometry',
       'physics.html': 'physics',
+      'anatomy.html': 'anat',
+      'astronomy.html': 'astro',
+      'earth_science.html': 'earthsci',
+      'environmental_science.html': 'envsci',
+      'integrated_science.html': 'intsci',
+      'marine_science.html': 'marine',
       // Middle School Courses
       'ms_algebra1.html': 'alg1_ms',
       'ms_algebra2.html': 'alg2_ms',
@@ -865,6 +1230,63 @@
   addSection('Course Tools');
   addButton('✓ Complete This Course', function() { window.completeCurrentCourse(); }, 'green');
   addButton('✓ Complete All Courses', function() { window.completeAllCourses(); }, 'green');
+
+  // --- Badges Section ---
+  addSection('Badges');
+  addButton('🎖️ Award All Badges (Silent)', function() {
+    if (!confirm('Award ALL badges to this account?\n\n(No popups will be shown)')) return;
+    
+    try {
+      // All badge definitions
+      const TIERS = ['bronze', 'silver', 'gold', 'diamond', 'amethyst'];
+      const BADGE_IDS = [
+        // Stats
+        'night_owl', 'early_bird', 'quiz_master', 'streak', 'game_2048',
+        
+        // High School
+        'algebra', 'hs_alg1', 'hs_alg2', 'geometry', 'physics', 'chemistry', 'biology',
+        
+        // Middle School
+        'ms_pre_alg', 'ms_alg_found', 'ms_geom', 'ms_phys', 'ms_chem', 'ms_life_sci',
+        
+        // AP
+        'ap_bio', 'ap_chem', 'ap_env_sci', 'ap_hug', 'ap_calc_ab', 'ap_stats', 
+        'ap_phys1', 'ap_phys2', 'ap_phys_mech',
+        
+        // Aggregates
+        'master_hs', 'master_ms', 'master_ap',
+        
+        // Special
+        'first_visit', 'polyglot'
+      ];
+      
+      const awardedBadges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
+      let newBadges = 0;
+      
+      // Award all tiered badges at highest tier (Amethyst)
+      BADGE_IDS.forEach(function(id) {
+        // For single-tier badges (first_visit, polyglot), just award them once
+        if (id === 'first_visit' || id === 'polyglot') {
+          if (!awardedBadges.includes(id)) {
+            awardedBadges.push(id);
+            newBadges++;
+          }
+        } else {
+          // For tiered badges, award at Amethyst (highest) tier
+          const badgeId = id + '_amethyst';
+          if (!awardedBadges.includes(badgeId)) {
+            awardedBadges.push(badgeId);
+            newBadges++;
+          }
+        }
+      });
+      
+      localStorage.setItem('arisEdu_badges', JSON.stringify(awardedBadges));
+      alert('✅ SUCCESS!\n\nAwarded ' + newBadges + ' new badges (silent mode)\nTotal badges: ' + awardedBadges.length + '\n\nRefresh any open Account Info pages to see updates.');
+    } catch(e) {
+      alert('❌ Error awarding badges:\n' + (e.message || e));
+    }
+  }, 'green');
 
   // Add panel to DOM after page loads
   function mount() {

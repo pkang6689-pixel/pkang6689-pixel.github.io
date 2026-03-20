@@ -11,6 +11,8 @@ PORT = 8082
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    timeout = 30  # Increase timeout
+    
     def log_message(self, format, *args):
         print(f"[{self.log_date_time_string()}] {format % args}", flush=True)
     
@@ -25,6 +27,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Pragma', 'no-cache')
             self.send_header('Expires', '0')
             self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Connection', 'keep-alive')
             super().end_headers()
         except Exception as e:
             print(f"Error sending headers: {e}", flush=True)
@@ -43,7 +46,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         return "Server/1.0"
 
 class ThreadedTCPServer(socketserver.ThreadingTCPServer):
-    daemon_threads = True
+    daemon_threads = False  # Changed to keep threads alive
     allow_reuse_address = True
     
     def handle_error(self, request, client_address):
@@ -53,7 +56,7 @@ try:
     httpd = ThreadedTCPServer(("", PORT), MyHTTPRequestHandler)
     print(f"Server running at http://localhost:{PORT}/")
     print(f"Serving from: {os.getcwd()}")
-    print("Using threaded server for stability")
+    print("Using threaded server with keep-alive", flush=True)
     print("Press Ctrl+C to stop", flush=True)
     httpd.serve_forever()
 except KeyboardInterrupt:

@@ -453,87 +453,27 @@ document.addEventListener('DOMContentLoaded', () => {
                              // Bind Analytics Button
                              const analyticsBtn = teacherSection.querySelector('#view-analytics-btn');
                              if(analyticsBtn) {
-                                 analyticsBtn.onclick = async () => {
-                                     // Show loading state
-                                     const originalText = analyticsBtn.innerHTML;
-                                     analyticsBtn.style.opacity = '0.7';
-                                     analyticsBtn.innerText = "Loading Data...";
-                                     
-                                     let studentCount = 0;
-                                     try {
-                                        const q = query(collection(db, "users"), where("role", "==", "student"));
-                                        const querySnapshot = await getDocs(q);
-                                        studentCount = querySnapshot.size;
-                                     } catch(e) {
-                                         console.error("Analytics Error:", e);
-                                         studentCount = "N/A";
-                                     }
-
-                                     analyticsBtn.style.opacity = '1';
-                                     analyticsBtn.innerHTML = originalText;
-
-                                     // Create Modal
-                                     const modal = document.createElement('div');
-                                     modal.className = 'analytics-modal';
-                                     modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:9999;backdrop-filter:blur(5px);";
-                                     
-                                     // Ensure styles exist
-                                     if(!document.getElementById('analytics-styles')) {
-                                         const s = document.createElement('style');
-                                         s.id = 'analytics-styles';
-                                         s.innerHTML = `
-                                            .analytics-content { background: #fff; color: #333; }
-                                            body.dark-mode .analytics-content { background: #1e293b; color: #f1f5f9; border: 1px solid #334155; }
-                                            .analytics-close { color: #64748b; }
-                                            body.dark-mode .analytics-close { color: #cbd5e1; }
-                                            .analytics-close:hover { color: #000; }
-                                            body.dark-mode .analytics-close:hover { color: #fff; }
-                                         `;
-                                         document.head.appendChild(s);
-                                     }
-
-                                     modal.innerHTML = `
-                                        <div class="analytics-content" style="padding:2rem; border-radius:1rem; width:90%; max-width:600px; box-shadow:0 10px 25px rgba(0,0,0,0.2); position:relative;">
-                                            <button class="analytics-close" onclick="this.closest('.analytics-modal').remove()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
-                                            <h2 style="font-size:1.5rem; font-weight:700; margin-bottom:1.5rem; color:#6366f1;">📊 Student Analytics</h2>
-                                            
-                                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem;">
-                                                <div style="background:rgba(99,102,241,0.1); padding:1rem; border-radius:0.5rem; text-align:center;">
-                                                    <div style="font-size:2rem; font-weight:700; color:#6366f1;">${studentCount}</div>
-                                                    <div style="font-size:0.9rem; opacity:0.8;">Active Students</div>
-                                                </div>
-                                                <div style="background:rgba(16,185,129,0.1); padding:1rem; border-radius:0.5rem; text-align:center;">
-                                                    <div style="font-size:2rem; font-weight:700; color:#10b981;">--%</div>
-                                                    <div style="font-size:0.9rem; opacity:0.8;">Avg. Quiz Score</div>
-                                                </div>
-                                            </div>
-
-                                            <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1rem;">Top Performers</h3>
-                                            <div style="text-align:center; padding:1rem; opacity:0.6; background:rgba(0,0,0,0.05); border-radius:0.5rem;">
-                                                Detailed student breakdown coming soon.
-                                            </div>
-                                            
-                                            <div style="margin-top:1.5rem; text-align:center; opacity:0.6; font-size:0.85rem;">
-                                                Real-time count of students registered in the system.
-                                            </div>
-                                        </div>
-                                     `;
-                                     document.body.appendChild(modal);
+                                 analyticsBtn.onclick = () => {
+                                     // Redirect to comprehensive teacher analytics page
+                                     window.location.href = '/ArisEdu Project Folder/TeacherAnalytics.html';
                                  };
                              }
                         }
 
                         schoolWidget.style.display = 'none'; // Hide old widget
                     } else {
-                        // Student
-                         if (userClass && userClass.name) {
+                        // Student - Check if they've joined a class via classCode
+                        const studentClassCode = userData.classCode;
+                        
+                        if (studentClassCode) {
+                            // Student has joined a class
                             schoolWidget.innerHTML = `
                                  <div style="background: rgba(255,255,255,0.2); backdrop-filter:blur(8px); padding: 1rem; border-radius: 1rem; margin-top:1rem; display:inline-block; border: 1px solid rgba(255,255,255,0.3);">
                                     <div style="display:flex; align-items:center; gap:0.5rem;">
                                         <span style="font-size:1.25rem;">🎓</span>
                                         <div>
-                                            <div style="font-size:0.85rem; opacity:0.9;">Enrolled Class</div>
-                                            <div style="font-weight:700;">${userClass.name}</div>
+                                            <div style="font-size:0.85rem; opacity:0.9;">Joined Class</div>
+                                            <div style="font-weight:700; font-family:monospace; letter-spacing:1px;">${studentClassCode}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -569,17 +509,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                         joinBtn.textContent = "...";
                                         
                                         try {
-                                            // Search for class with this code
-                                            // Note: In a real app this would query a 'classes' collection.
-                                            // Here we might have to assume users doc contains it? 
-                                            // Since the structure is weird (teachers have classInfo in their user doc), 
-                                            // we would need to query users where classInfo.code == code.
+                                            // For students: set classCode to match the teacher's class code
+                                            // This allows the teacher's dashboard to find this student in loadStudents()
+                                            // The filter checks: if student.classCode === teacher.classInfo.code
                                             
-                                            // Permission: The user might not have read access to all users.
-                                            // Assuming we can just 'simulate' joining for now or user updates their own doc if valid.
-                                            // For this demo, let's just save it.
-                                            
-                                            await updateDoc(userDocRef, { classInfo: { code: code, name: "Class " + code } });
+                                            await updateDoc(userDocRef, { classCode: code });
+                                            console.log('✅ [Dashboard] Student joined class with code: ' + code);
                                             alert("Joined Class: " + code);
                                             location.reload();
                                         } catch(e) { console.error(e); alert("Error joining class: " + e.message); }

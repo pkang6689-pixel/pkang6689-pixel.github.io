@@ -1367,6 +1367,7 @@ def quiz_html(unit_num, lesson_num, lesson_title, page_type="Quiz"):
     </main>
     <script src="/search_data.js"></script>
     <script src="/search_logic.js"></script>
+    <script src="/ArisEdu Project Folder/scripts/analytics-helper.js"></script>
     <script src="/scripts/quiz_loader.js"></script>
 </body>
 </html>'''

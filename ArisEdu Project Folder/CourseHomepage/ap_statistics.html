@@ -9,6 +9,13 @@
   <link rel="stylesheet" href="../styles/main.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="../theme_manager.js"></script>
+  <script type="module">
+    // Import Firebase config and make auth + db available to analytics
+    import { auth, db } from '../firebase-config.js';
+    window.auth = auth;
+    window.db = db;
+  </script>
+<script src="../scripts/analytics-helper.js"></script>
 <script src="../scripts/translation_loader.js" data-section="ap_statistics" data-base="../translations"></script>
 <script type="module" src="../scripts/course-progress-firebase.js"></script>
 </head>
@@ -110,6 +117,17 @@ ${segments}</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stro
 
   // Initialize on load
   document.addEventListener('DOMContentLoaded', () => {
+    // Initialize analytics and track course visit
+    if (typeof StudentAnalytics !== 'undefined') {
+      try {
+        const analytics = new StudentAnalytics();
+        analytics.trackLessonView('ap_statistics', 0, 0); // Track course visit
+        analytics.updateLearningStreak(); // Update daily streak
+      } catch (e) {
+        console.warn('Analytics initialization failed:', e);
+      }
+    }
+
     populateGrid();
     applyProgressColors();
   });
