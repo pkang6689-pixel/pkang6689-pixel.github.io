@@ -1,0 +1,267 @@
+#!/usr/bin/env python3
+"""Expand Physics U10-U11 quizzes from 7 to 20 questions each (15 lessons)."""
+import json, os
+
+PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "content_data", "physics_lessons.json")
+
+NEW_QS = {
+# ── Unit 10: Electricity & Magnetism ──
+"u10_l10.1": [  # Electric Charge & Coulomb's Law
+    ("The two types of electric charge are:", ["North and south","*Positive and negative","Up and down","Strong and weak"], "Positive and negative charges."),
+    ("Like charges _____ and opposite charges _____.", ["Attract, repel","*Repel, attract","Both attract","Both repel"], "Like repel; opposite attract."),
+    ("Coulomb's Law: F = kq₁q₂/r². If the distance doubles, the force:", ["Doubles","Halves","*Decreases to 1/4","Quadruples"], "Inverse-square: F ∝ 1/r²."),
+    ("The constant k in Coulomb's Law is approximately:", ["6.67 × 10⁻¹¹","*8.99 × 10⁹ N·m²/C²","3 × 10⁸","9.81"], "k ≈ 8.99 × 10⁹ N·m²/C²."),
+    ("The elementary charge (charge of one proton/electron) is:", ["1 C","*1.6 × 10⁻¹⁹ C","6.02 × 10²³ C","9.11 × 10⁻³¹ C"], "e ≈ 1.6 × 10⁻¹⁹ C."),
+    ("Charge is conserved, meaning:", ["Charge can be created","Charge can be destroyed","*Total charge in an isolated system remains constant","Charge disappears"], "Conservation of charge."),
+    ("Conductors allow charge to:", ["Stay fixed","*Flow freely through the material","Be destroyed","Increase"], "Free electron movement in conductors."),
+    ("Insulators:", ["Conduct electricity well","*Resist the flow of charge (electrons are tightly bound)","Have no electrons","Are always metals"], "Insulators restrict charge flow."),
+    ("Charging by induction involves:", ["Direct contact","Rubbing","*Bringing a charged object near (but not touching) and grounding","Heating"], "No contact required for induction."),
+    ("If q₁ = 2μC and q₂ = 3μC are 0.1 m apart, F =:", ["5.4 N","*5.39 N (8.99×10⁹ × 2×10⁻⁶ × 3×10⁻⁶ / 0.01)","0.54 N","54 N"], "F = kq₁q₂/r²."),
+    ("Grounding a charged object causes:", ["More charge","*Charge to flow to/from Earth, neutralizing the object","Nothing","Charge to double"], "Earth acts as infinite charge reservoir."),
+    ("An electroscope detects charge by:", ["Color change","*Deflection of metal leaves (leaves repel when charged)","Sound","Temperature change"], "Charged leaves repel each other."),
+    ("Triboelectric charging occurs through:", ["Induction","Conduction","*Friction (rubbing two different materials transfers electrons)","Grounding"], "Friction transfers electrons between materials."),
+],
+"u10_l10.2": [  # Electric Field & Potential
+    ("Electric field E points in the direction a _____ charge would move.", ["Negative","*Positive (by convention)","Neutral","Any"], "E-field direction: force on +q."),
+    ("Electric field due to a point charge: E = kq/r². If distance triples, E:", ["Triples","*Decreases to 1/9","Decreases to 1/3","Stays same"], "E ∝ 1/r²."),
+    ("Electric field lines point _____ from positive and _____ negative charges.", ["Toward, away from","*Away from, toward","Both away","Both toward"], "Lines: + outward, − inward."),
+    ("Electric potential (voltage) is:", ["Force","*Energy per unit charge (V = U/q, in volts = J/C)","Charge per area","Field per meter"], "V = energy per charge."),
+    ("The potential difference between two points determines:", ["The charge","*The work done per unit charge moving between those points","The mass","The field direction"], "ΔV = W/q."),
+    ("Equipotential surfaces are _____ to electric field lines.", ["Parallel","*Perpendicular","At 45°","Random"], "E-field is always ⊥ to equipotentials."),
+    ("A uniform electric field between parallel plates: E =", ["V × d","*V/d (voltage divided by plate separation)","V + d","V²/d"], "E = V/d for parallel plates."),
+    ("An electron (charge −e) in an electric field feels a force _____ to the field direction.", ["Parallel","*Opposite (negative charge → force opposite to E)","Perpendicular","At 45°"], "F = qE; q is negative → opposite direction."),
+    ("1 electron-volt (eV) is the energy gained by an electron through 1 V potential difference:", ["1 J","*1.6 × 10⁻¹⁹ J","1.6 × 10⁻¹² J","9.11 × 10⁻³¹ J"], "1 eV = 1.6 × 10⁻¹⁹ J."),
+    ("Electric potential energy of two point charges: U = kq₁q₂/r. For same-sign charges, U is:", ["Negative","Zero","*Positive (repulsive system stores positive PE)","Undefined"], "Same signs → positive PE."),
+    ("The electric field inside a hollow conductor in electrostatic equilibrium is:", ["Maximum","*Zero","Equal to external field","Infinite"], "Faraday cage: E = 0 inside."),
+    ("Electric flux through a closed surface equals:", ["Zero always","*Q_enclosed/ε₀ (Gauss's Law)","E × A always","Infinite"], "Gauss's Law: Φ = Q/ε₀."),
+    ("Voltage is a _____ quantity (no direction).", ["Vector","*Scalar","Neither","Both"], "Voltage is scalar; E-field is vector."),
+],
+"u10_l10.3": [  # Capacitance
+    ("A capacitor stores:", ["Current","Resistance","*Electric charge and energy in an electric field","Magnetic field"], "Stores charge → stores energy."),
+    ("Capacitance is defined as:", ["Q × V","*C = Q/V (charge stored per unit voltage)","V/Q","Q²/V"], "C = Q/V in farads."),
+    ("The unit of capacitance is:", ["Ohm","Volt","*Farad (F = C/V)","Ampere"], "Farads."),
+    ("A parallel-plate capacitor: C = ε₀A/d. Increasing plate area _____ capacitance.", ["Decreases","*Increases","Doesn't change","Eliminates"], "C ∝ A."),
+    ("Increasing plate separation d _____ capacitance.", ["Increases","*Decreases","Doesn't change","Doubles"], "C ∝ 1/d."),
+    ("A dielectric (insulator) between the plates _____ capacitance.", ["Decreases","*Increases (by factor κ, the dielectric constant)","Doesn't change","Eliminates"], "C = κε₀A/d."),
+    ("Energy stored in a capacitor: U =", ["QV","*½QV = ½CV² = Q²/(2C)","2QV","Q/V"], "U = ½CV²."),
+    ("Capacitors in parallel: C_total =", ["1/C₁ + 1/C₂","*C₁ + C₂ (add directly)","C₁ × C₂","C₁ − C₂"], "Parallel: add capacitances."),
+    ("Capacitors in series: 1/C_total =", ["C₁ + C₂","*1/C₁ + 1/C₂","C₁ × C₂","C₁ − C₂"], "Series: add reciprocals."),
+    ("Two 10 μF capacitors in parallel have total capacitance of:", ["5 μF","*20 μF","10 μF","100 μF"], "10 + 10 = 20 μF."),
+    ("Two 10 μF capacitors in series have total capacitance of:", ["20 μF","10 μF","*5 μF","1 μF"], "1/C = 1/10 + 1/10; C = 5 μF."),
+    ("The time constant τ of an RC circuit is:", ["R + C","R/C","*RC (resistance × capacitance)","C/R"], "τ = RC."),
+    ("Capacitors are used in electronics for:", ["Only energy storage","*Energy storage, filtering, timing circuits, and smoothing AC to DC","Only blocking DC","Only making noise"], "Many applications."),
+],
+"u10_l10.4": [  # Current, Resistance, & Ohm's Law
+    ("Electric current is:", ["Voltage","*Flow of charge per unit time (I = Q/t, in amperes)","Resistance","Power"], "I = Q/t."),
+    ("1 ampere =", ["1 volt/ohm","1 watt","*1 coulomb per second","1 joule/second"], "1 A = 1 C/s."),
+    ("Ohm's Law states:", ["V = IR²","*V = IR (voltage = current × resistance)","V = I/R","V = I + R"], "V = IR."),
+    ("Resistance is measured in:", ["Volts","Amperes","*Ohms (Ω)","Watts"], "Ohms."),
+    ("Increasing resistance in a circuit (constant V) _____ the current.", ["Increases","*Decreases (I = V/R)","Doesn't change","Doubles"], "Higher R → lower I."),
+    ("Resistivity depends on:", ["Only length","Only area","*Material properties and temperature","Only voltage"], "ρ is a material property."),
+    ("Resistance of a wire: R = ρL/A. Doubling the length _____ resistance.", ["Halves","*Doubles","Doesn't change","Quadruples"], "R ∝ L."),
+    ("Doubling the cross-sectional area of a wire _____ resistance.", ["Doubles","*Halves","Doesn't change","Quadruples"], "R ∝ 1/A."),
+    ("Conventional current flows from _____ to _____ (opposite to electron flow).", ["Negative to positive","*Positive to negative","Random","It doesn't flow"], "Convention: + to −."),
+    ("Electrical power P =", ["V + I","V − I","*VI = I²R = V²/R","V/I"], "P = VI."),
+    ("A 100 W bulb at 120 V draws _____ current.", ["12 A","1.2 A","*0.83 A (100/120)","120 A"], "I = P/V = 100/120."),
+    ("The resistance of the 100 W bulb is:", ["12 Ω","120 Ω","*144 Ω (V²/P = 14400/100)","1.44 Ω"], "R = V²/P = 144 Ω."),
+    ("Superconductors have _____ resistance below their critical temperature.", ["High","Normal","*Zero","Infinite"], "Superconductors: R = 0."),
+],
+"u10_l10.5": [  # DC Circuits & Kirchhoff's Laws
+    ("Kirchhoff's Junction Rule (KCL) states:", ["Voltages add to zero","*Currents into a junction = currents out (conservation of charge)","Resistance adds","Power is constant"], "ΣI_in = ΣI_out."),
+    ("Kirchhoff's Loop Rule (KVL) states:", ["Currents add to zero","*Sum of voltage changes around any closed loop = 0 (conservation of energy)","Resistance is zero","Charge is created"], "ΣV = 0 around any loop."),
+    ("Resistors in series: R_total =", ["*R₁ + R₂ + R₃","1/(1/R₁ + 1/R₂)","R₁ × R₂","R₁ − R₂"], "Series: add resistances."),
+    ("Resistors in parallel: 1/R_total =", ["R₁ + R₂","*1/R₁ + 1/R₂","R₁ × R₂","R₁/R₂"], "Parallel: add reciprocals."),
+    ("Two 100 Ω resistors in series: R_total =", ["50 Ω","100 Ω","*200 Ω","10000 Ω"], "100 + 100 = 200 Ω."),
+    ("Two 100 Ω resistors in parallel: R_total =", ["200 Ω","100 Ω","*50 Ω","25 Ω"], "1/R = 1/100 + 1/100; R = 50 Ω."),
+    ("In a series circuit, the same _____ flows through each component.", ["Voltage","*Current","Resistance","Power"], "Series: same current everywhere."),
+    ("In a parallel circuit, the same _____ appears across each branch.", ["Current","*Voltage","Resistance","Power"], "Parallel: same voltage across all branches."),
+    ("An ammeter is connected in _____ with the component being measured.", ["Parallel","*Series (so all current flows through it)","Neither","Both"], "Ammeter in series."),
+    ("A voltmeter is connected in _____ with the component being measured.", ["Series","*Parallel (to measure potential difference across it)","Neither","Both"], "Voltmeter in parallel."),
+    ("EMF (electromotive force) of a battery is:", ["A force","*The voltage the battery provides when no current flows (open circuit voltage)","Current","Resistance"], "EMF = ideal battery voltage."),
+    ("Internal resistance of a battery causes the terminal voltage to be:", ["Higher than EMF","Equal to EMF always","*Lower than EMF when current flows (V = EMF − Ir)","Zero"], "Internal resistance drops voltage."),
+    ("A short circuit has _____ resistance and _____ current.", ["High, low","*Very low (near zero), very high (dangerous)","Zero, zero","High, high"], "Short circuit: R ≈ 0, I → very large."),
+],
+"u10_l10.6": [  # Magnetic Fields & Forces
+    ("Moving charges create:", ["Electric fields only","*Magnetic fields (in addition to electric fields)","No fields","Gravitational fields"], "Moving charges → magnetic field."),
+    ("The force on a charged particle moving in a magnetic field: F =", ["qE","*qvB sin θ","mv²/r","kq₁q₂/r²"], "Lorentz force: F = qvB sin θ."),
+    ("A charged particle moving parallel to a magnetic field experiences:", ["Maximum force","*Zero magnetic force (sin 0° = 0)","Normal force","Infinite force"], "F = qvB sin θ; θ = 0 → F = 0."),
+    ("The right-hand rule gives the direction of:", ["Current only","*Magnetic force on a positive charge (point fingers along v, curl toward B, thumb = F)","Electric field","Gravity"], "Right-hand rule for magnetic force."),
+    ("A charged particle in a uniform magnetic field (v ⊥ B) moves in:", ["A straight line","*A circle (magnetic force provides centripetal force)","A parabola","Random path"], "Circular motion: qvB = mv²/r."),
+    ("The radius of circular motion: r = mv/(qB). Increasing B _____ the radius.", ["Increases","*Decreases","Doesn't change","Doubles"], "r ∝ 1/B."),
+    ("Earth's magnetic field protects us from:", ["Sound","Light","*Charged particles from the solar wind (deflected to poles → auroras)","Gravity"], "Magnetosphere deflects solar wind."),
+    ("A current-carrying wire in a magnetic field experiences:", ["No force","*A force (F = BIL sin θ)","Only heat","Only resistance"], "Force on current in B-field."),
+    ("Two parallel wires carrying current in the same direction:", ["Repel each other","*Attract each other","Have no interaction","Cancel each other"], "Same-direction currents attract."),
+    ("Two parallel wires carrying current in opposite directions:", ["Attract each other","*Repel each other","Have no interaction","Cancel each other"], "Opposite-direction currents repel."),
+    ("The magnetic field around a long straight wire: B = μ₀I/(2πr). Doubling the distance _____ B.", ["Doubles","*Halves","Quadruples","Doesn't change"], "B ∝ 1/r."),
+    ("A solenoid produces a _____ magnetic field inside.", ["Circular","Radial","*Nearly uniform (straight and parallel field lines)","Zero"], "Uniform B inside solenoid."),
+    ("The unit of magnetic field strength is:", ["Ampere","Volt","*Tesla (T)","Ohm"], "B measured in tesla."),
+],
+"u10_l10.7": [  # Electromagnetic Induction
+    ("Faraday's Law states that a changing _____ induces an EMF.", ["Electric field","Current","*Magnetic flux (through a loop)","Temperature"], "Changing Φ_B → induced EMF."),
+    ("Magnetic flux Φ = B·A·cos θ. Maximum flux occurs when B is _____ to the area.", ["Parallel to surface","*Perpendicular to the surface (θ = 0, cos 0 = 1)","At 45°","At 90° to normal"], "Max flux when B ⊥ surface."),
+    ("Lenz's Law states the induced current opposes:", ["All current","*The change in magnetic flux that caused it (conservation of energy)","The battery","The resistance"], "Induced current opposes the change."),
+    ("A generator converts:", ["Electrical energy to mechanical","*Mechanical energy to electrical energy (rotating coil in magnetic field)","Heat to light","Chemical to electrical"], "Generator: mechanical → electrical."),
+    ("A transformer changes:", ["Current only","*AC voltage levels (step up or step down)","DC voltage","Frequency"], "Transformers work with AC only."),
+    ("Transformer equation: V_s/V_p = N_s/N_p. A step-up transformer has:", ["Fewer secondary turns","*More secondary turns than primary (N_s > N_p)","Equal turns","No secondary coil"], "Step-up: more turns on secondary."),
+    ("If V_p = 120 V, N_p = 100 turns, N_s = 500 turns: V_s =", ["120 V","240 V","*600 V","1200 V"], "V_s = 120 × 500/100 = 600 V."),
+    ("An ideal transformer conserves:", ["Voltage","Current","*Power (P_in = P_out; V_p I_p = V_s I_s)","All three"], "Power conservation: V₁I₁ = V₂I₂."),
+    ("Eddy currents are:", ["Direct currents","*Swirling induced currents in bulk conductors (caused by changing magnetic fields)","Radio waves","Sound waves"], "Induced currents in solid conductors."),
+    ("Eddy currents cause _____ in transformers and motors.", ["Cooling","*Energy losses as heat (minimized by using laminated cores)","Increased efficiency","More current"], "Eddy currents → heat losses."),
+    ("Self-inductance opposes changes in:", ["Voltage","*Current through the inductor (back-EMF)","Resistance","Capacitance"], "Inductor resists current changes."),
+    ("The unit of inductance is:", ["Farad","Ohm","*Henry (H)","Tesla"], "Inductance measured in henries."),
+    ("Wireless charging uses:", ["Direct contact","*Electromagnetic induction (changing magnetic field induces current in receiving coil)","Light","Sound"], "Inductive coupling for wireless charging."),
+],
+"u10_l10.8": [  # Alternating Current (AC) Circuits
+    ("AC voltage varies as: V(t) =", ["V₀","V₀t","*V₀ sin(ωt) or V₀ cos(ωt)","V₀/t"], "Sinusoidal variation."),
+    ("The frequency of AC power in the US is:", ["50 Hz","*60 Hz","100 Hz","120 Hz"], "60 Hz in North America."),
+    ("RMS voltage relates to peak voltage by:", ["V_rms = V₀","*V_rms = V₀/√2 ≈ 0.707 V₀","V_rms = 2V₀","V_rms = V₀²"], "V_rms = V₀/√2."),
+    ("US household outlets provide ~120 V RMS, so the peak voltage is:", ["120 V","*~170 V (120 × √2)","240 V","85 V"], "V₀ = 120√2 ≈ 170 V."),
+    ("In a purely resistive AC circuit, current and voltage are:", ["90° out of phase","*In phase (peaks and zeros align)","180° out of phase","45° out of phase"], "Resistor: V and I in phase."),
+    ("In a capacitive AC circuit, current _____ voltage by 90°.", ["Lags","*Leads","Is in phase with","Is 180° from"], "Capacitor: I leads V by 90°."),
+    ("In an inductive AC circuit, current _____ voltage by 90°.", ["Leads","*Lags","Is in phase with","Is 180° from"], "Inductor: I lags V by 90°."),
+    ("Impedance Z in an RLC circuit is analogous to _____ in DC circuits.", ["Current","Voltage","*Resistance","Power"], "Z is the AC version of resistance."),
+    ("Resonance in an RLC circuit occurs when:", ["R is maximum","*X_L = X_C (inductive and capacitive reactances cancel)","Z is maximum","Current is minimum"], "Resonance: X_L = X_C → Z = R (minimum)."),
+    ("At resonance, impedance is _____ and current is _____.", ["Maximum, minimum","*Minimum (Z = R), maximum","Zero, zero","Infinite, infinite"], "Minimum Z → maximum current."),
+    ("Power in AC: P_avg = V_rms × I_rms × cos φ. The factor cos φ is called:", ["Impedance","Reactance","*Power factor","Phase factor"], "Power factor = cos φ."),
+    ("A power factor of 1 means:", ["No power delivered","*All power is real/useful (V and I are in phase, purely resistive)","Maximum reactive power","50% efficiency"], "cos 0° = 1 → purely resistive."),
+    ("AC is preferred over DC for power transmission because:", ["It's simpler","*Transformers can efficiently step voltage up/down, reducing I²R transmission losses","It's cheaper to generate","It's safer"], "High V, low I → less loss."),
+],
+"u10_l10.9": [  # Maxwell's Equations (introductory)
+    ("Maxwell's equations unify:", ["Gravity and electricity","*Electricity and magnetism into a single theory of electromagnetism","Only electric fields","Only magnetic fields"], "EM unification."),
+    ("The four Maxwell's equations describe:", ["Only static fields","*All electromagnetic phenomena: electric fields from charges, magnetic fields from currents, and how changing fields create each other","Only moving charges","Only light"], "Complete EM theory."),
+    ("Gauss's Law for electricity: electric flux through a closed surface =", ["Zero always","*Q_enclosed/ε₀","B × A","μ₀I"], "Electric flux ∝ enclosed charge."),
+    ("Gauss's Law for magnetism states there are _____ magnetic monopoles.", ["Many","*No (magnetic field lines always form closed loops — every magnet has N and S poles)","Two","Infinite"], "No magnetic monopoles (as far as we know)."),
+    ("Faraday's Law (Maxwell form): a changing _____ creates an electric field.", ["Electric field","Charge","*Magnetic field","Temperature"], "∂B/∂t → E."),
+    ("Ampère-Maxwell Law: a changing _____ creates a magnetic field (in addition to currents).", ["Magnetic field","Charge","*Electric field (displacement current)","Mass"], "∂E/∂t → B (displacement current)."),
+    ("Maxwell predicted _____ from his equations.", ["Gravity waves","*Electromagnetic waves (light, radio, etc.) traveling at speed c = 1/√(μ₀ε₀)","Sound waves","Water waves"], "EM waves predicted theoretically."),
+    ("The speed of electromagnetic waves: c = 1/√(μ₀ε₀) ≈", ["3 × 10⁶ m/s","*3 × 10⁸ m/s","3 × 10¹⁰ m/s","1 m/s"], "c ≈ 3 × 10⁸ m/s."),
+    ("Electromagnetic waves consist of oscillating _____ and _____ fields.", ["Gravitational, electric","*Electric and magnetic (perpendicular to each other and to propagation)","Sound and light","Temperature and pressure"], "E ⊥ B ⊥ direction of travel."),
+    ("The electromagnetic spectrum (low to high frequency) is:", ["Gamma, X-ray, UV, visible, IR, microwave, radio","*Radio, microwave, IR, visible, UV, X-ray, gamma","Visible, IR, UV, radio, X-ray","Random order"], "Lowest f → highest f."),
+    ("All electromagnetic waves travel at _____ in vacuum.", ["Different speeds","*The same speed c ≈ 3 × 10⁸ m/s","The speed of sound","Half the speed of light"], "All EM waves: v = c in vacuum."),
+    ("Maxwell's equations are considered one of the greatest achievements because they:", ["Are simple","*Unified electricity, magnetism, and optics; predicted EM waves; led to modern technology (radio, TV, internet)","Only describe static fields","Are purely mathematical"], "Foundation of all EM technology."),
+    ("Hertz experimentally confirmed Maxwell's prediction of EM waves in:", ["1800","1860","*1887","1905"], "Hertz's experiments ~1887."),
+],
+
+# ── Unit 11: Modern Physics ──
+"u11_l11.1": [  # Photoelectric Effect
+    ("The photoelectric effect is the emission of _____ when light shines on a metal.", ["Protons","*Electrons","Neutrons","Photons"], "Light → electron emission from metal."),
+    ("Einstein explained the photoelectric effect using:", ["Wave theory alone","*Quantized photon energy (E = hf)","Classical mechanics","Thermodynamics"], "Photon model: E = hf."),
+    ("The work function (φ) is:", ["The energy of emitted electrons","*The minimum energy needed to free an electron from the metal surface","Light frequency","Photon wavelength"], "Threshold energy for emission."),
+    ("The kinetic energy of emitted electrons: KE_max =", ["hf","φ","*hf − φ (photon energy minus work function)","hf + φ"], "KE = hf − φ."),
+    ("Below the threshold frequency, increasing light intensity:", ["Causes emission","*Does NOT cause emission (individual photons lack the energy, regardless of quantity)","Increases KE","Decreases φ"], "Below threshold: no emission at any intensity."),
+    ("Above the threshold frequency, increasing intensity:", ["Increases KE","Decreases KE","*Increases the number of emitted electrons (more photons = more electrons freed)","No effect"], "More photons → more electrons."),
+    ("Increasing frequency above threshold _____ the KE of emitted electrons.", ["Decreases","*Increases (higher f → more energy per photon → more KE)","Doesn't change","Halves"], "KE = hf − φ; higher f → higher KE."),
+    ("The photoelectric effect could NOT be explained by:", ["Quantum theory","*Classical wave theory (which predicted gradual emission and intensity dependence, contradicting observations)","Photon model","Einstein's equation"], "Wave theory fails here."),
+    ("The stopping potential V₀ relates to KE_max by:", ["V₀ = KE","*eV₀ = KE_max","V₀ = hf","V₀ = φ"], "eV₀ = KE_max."),
+    ("The photoelectric effect provided evidence for the _____ nature of light.", ["Wave","*Particle (quantized photon energy)","Continuous","Neither"], "Light as discrete quanta."),
+    ("Einstein received the Nobel Prize in Physics (1921) for:", ["Relativity","*His explanation of the photoelectric effect","Gravitational waves","Brownian motion"], "Nobel for photoelectric explanation."),
+    ("Solar cells work on the principle of:", ["Thermoelectricity","*The photovoltaic effect (related to the photoelectric effect — photon → electron-hole pair)","Nuclear energy","Magnetism"], "Photovoltaic = solar cell basis."),
+    ("A photon with energy exactly equal to the work function produces electrons with:", ["Maximum KE","High KE","*Zero KE (just barely freed, no leftover energy)","Negative KE"], "KE = hf − φ = 0 when hf = φ."),
+],
+"u11_l11.2": [  # Atomic Models
+    ("Rutherford's gold foil experiment showed that the atom has:", ["No nucleus","*A small, dense, positively charged nucleus","Uniform charge distribution","Only electrons"], "Most mass/charge concentrated in tiny nucleus."),
+    ("Bohr's model introduced:", ["Continuous orbits","*Quantized energy levels (electrons only in specific orbits)","Random electron paths","No nucleus"], "Quantized orbits."),
+    ("In Bohr's model, when an electron drops to a lower energy level, it:", ["Absorbs a photon","*Emits a photon with energy = difference between levels","Gains kinetic energy","Loses mass"], "ΔE = hf → photon emitted."),
+    ("The hydrogen emission spectrum consists of:", ["Continuous colors","*Discrete spectral lines (specific wavelengths only)","White light","No light"], "Discrete lines = quantized energy."),
+    ("The Balmer series of hydrogen corresponds to transitions ending at:", ["n = 1","*n = 2 (visible light wavelengths)","n = 3","n = 4"], "Balmer: transitions to n = 2."),
+    ("The quantum mechanical model describes electrons as:", ["Tiny orbiting planets","*Probability clouds (wavefunctions showing where electrons are likely to be found)","Stationary particles","Waves only"], "Electron probability clouds."),
+    ("Quantum numbers (n, l, m_l, m_s) describe:", ["Only energy","*The complete quantum state of an electron (energy, shape, orientation, spin)","Only position","Only velocity"], "Four quantum numbers fully specify the state."),
+    ("The principal quantum number n determines:", ["Shape","Orientation","*Energy level (and approximate size of the orbital)","Spin"], "n → energy and size."),
+    ("Electron shells are labeled:", ["a, b, c, d","*K, L, M, N... (or n = 1, 2, 3, 4...)","α, β, γ, δ","I, II, III, IV"], "Shell labels."),
+    ("The Pauli exclusion principle states:", ["Electrons can share all quantum numbers","*No two electrons in an atom can have the same set of four quantum numbers","Electrons repel","Protons attract electrons"], "Exclusion principle."),
+    ("Each orbital can hold a maximum of _____ electrons.", ["1","*2 (with opposite spins)","3","4"], "2 electrons per orbital (↑↓)."),
+    ("The wave nature of the electron in an atom means its exact _____ cannot be known simultaneously.", ["Energy","*Position and momentum (Heisenberg uncertainty)","Charge","Mass"], "Uncertainty principle applies."),
+    ("Fluorescence occurs when atoms:", ["Absorb photons","*Absorb high-energy photons and emit lower-energy (longer wavelength) photons","Emit electrons","Undergo fission"], "Absorb then re-emit at lower energy."),
+],
+"u11_l11.3": [  # Nuclear Physics
+    ("The strong nuclear force:", ["Repels protons","*Holds protons and neutrons together in the nucleus (overcoming proton-proton repulsion)","Is weaker than EM","Acts at long range"], "Strong force binds the nucleus."),
+    ("Alpha decay releases:", ["An electron","A photon","*A helium-4 nucleus (2 protons + 2 neutrons)","A neutron"], "α particle = ⁴₂He."),
+    ("Beta decay (β⁻) releases:", ["A helium nucleus","*An electron and an antineutrino (neutron → proton + e⁻ + ν̄)","A positron","A photon only"], "β⁻: n → p + e⁻ + ν̄."),
+    ("Gamma decay releases:", ["Particles","Electrons","*High-energy photons (electromagnetic radiation, no change in A or Z)","Neutrons"], "γ rays = high-energy EM radiation."),
+    ("Half-life is the time for _____ of radioactive nuclei to decay.", ["All","1/4","*Half","3/4"], "After one half-life: N = N₀/2."),
+    ("After 3 half-lives, the fraction remaining is:", ["1/2","1/4","*1/8","1/16"], "(1/2)³ = 1/8."),
+    ("Nuclear fission:", ["Combines small nuclei","*Splits a heavy nucleus into lighter nuclei (releasing energy)","Creates new elements","Absorbs energy"], "Fission = splitting heavy nucleus."),
+    ("Nuclear fusion:", ["Splits heavy nuclei","*Combines light nuclei into heavier ones (releasing enormous energy)","Only occurs on Earth","Absorbs energy"], "Fusion = combining light nuclei."),
+    ("The Sun's energy comes primarily from:", ["Fission","Chemical reactions","*Fusion (hydrogen → helium in the core)","Gravitational potential energy only"], "Stellar fusion: H → He."),
+    ("E = mc² relates mass and energy, meaning:", ["Mass is unrelated to energy","*A small amount of mass can produce enormous energy (binding energy in nuclear reactions)","Energy has no mass","Only applies to light"], "Mass-energy equivalence."),
+    ("Nuclear power plants use _____ to generate electricity.", ["Fusion","*Fission (controlled chain reaction of uranium-235 or plutonium-239)","Chemical combustion","Solar energy"], "Fission-based power generation."),
+    ("Carbon-14 dating measures the age of organic material using:", ["α decay","γ radiation","*β decay of ¹⁴C (half-life ≈ 5,730 years)","Nuclear fusion"], "¹⁴C dating for organic samples."),
+    ("Binding energy per nucleon is highest for:", ["Hydrogen","Uranium","*Iron-56 (most stable nucleus; fusion releases energy for lighter elements, fission for heavier)","Helium"], "Fe-56: peak of binding energy curve."),
+],
+"u11_l11.4": [  # Relativity
+    ("Einstein's first postulate of special relativity:", ["Light speed varies","*The laws of physics are the same in all inertial reference frames","Time is absolute","Mass is constant"], "Same laws in all inertial frames."),
+    ("Einstein's second postulate:", ["Nothing has a constant speed","*The speed of light c is the same for all observers (regardless of their motion)","Time doesn't dilate","Length doesn't contract"], "c is constant for all observers."),
+    ("Time dilation means:", ["Time speeds up","*Moving clocks tick slower relative to a stationary observer","Time is absolute","All clocks are the same"], "Δt = γΔt₀; moving clocks run slow."),
+    ("Length contraction means:", ["Objects get longer","*Objects appear shorter in the direction of motion to a stationary observer","Length is absolute","Nothing changes"], "L = L₀/γ; objects contract along v."),
+    ("The Lorentz factor γ = 1/√(1 − v²/c²). At v = 0.6c, γ ≈:", ["1.0","*1.25","1.5","2.0"], "1/√(1−0.36) = 1/√0.64 = 1/0.8 = 1.25."),
+    ("At v = 0.87c, γ ≈:", ["1.25","*2.0","3.0","1.5"], "1/√(1−0.756) ≈ 1/√0.244 ≈ 2."),
+    ("As v approaches c, γ approaches:", ["1","0","*Infinity","c"], "γ → ∞ as v → c."),
+    ("No object with mass can reach the speed of light because:", ["It's too fast","*Its relativistic mass/energy would become infinite (requiring infinite energy to accelerate)","Physics forbids it without reason","It would stop time completely"], "Infinite energy required as v → c."),
+    ("E = mc² gives the rest energy of 1 kg as:", ["3 × 10⁸ J","*9 × 10¹⁶ J","1 J","9 × 10⁸ J"], "E = 1 × (3×10⁸)² = 9×10¹⁶ J."),
+    ("The total relativistic energy: E = γmc². This means kinetic energy =", ["mc²","γmc²","*E − mc² = (γ − 1)mc²","½mv²"], "KE = (γ−1)mc² (reduces to ½mv² at low speeds)."),
+    ("GPS satellites must account for:", ["No relativity","*Both special and general relativistic time corrections (clocks run faster in weaker gravity, slower due to orbital speed)","Only general relativity","Only special relativity"], "Both effects matter for GPS accuracy."),
+    ("Simultaneity is _____ in special relativity.", ["Absolute","*Relative (events simultaneous in one frame may not be in another)","Impossible","Always preserved"], "Relativity of simultaneity."),
+    ("Muons created in the upper atmosphere reach Earth's surface because:", ["They're fast","*Time dilation extends their lifespan (in our frame) or length contraction shortens their travel distance (in their frame)","They're massless","They don't decay"], "Relativistic effects allow detection at ground level."),
+],
+"u11_l11.5": [  # Quantum Mechanics
+    ("A wavefunction ψ describes:", ["Exact position","*The probability amplitude for finding a particle at a given location (|ψ|² = probability density)","Energy only","Spin only"], "|ψ|² gives probability density."),
+    ("The Schrödinger equation is to quantum mechanics as Newton's laws are to:", ["Thermodynamics","*Classical mechanics (it's the fundamental equation of motion in QM)","Optics","Electromagnetism"], "Schrödinger equation = QM foundation."),
+    ("Quantum tunneling allows a particle to:", ["Jump to higher energy","*Pass through a potential energy barrier it classically cannot overcome","Teleport anywhere","Move faster than light"], "Non-zero probability of penetrating barriers."),
+    ("Tunneling is exploited in:", ["Only theory","*Scanning tunneling microscopes, nuclear fusion in stars, flash memory, and tunnel diodes","No applications","Only chemistry"], "Many real applications."),
+    ("The Heisenberg Uncertainty Principle: Δx·Δp ≥ ℏ/2 means:", ["Both can be exactly known","*Greater precision in position means less precision in momentum (and vice versa)","Neither can be known","Only momentum matters"], "Fundamental limit on simultaneous knowledge."),
+    ("ΔE·Δt ≥ ℏ/2 is the energy-time uncertainty relation, meaning:", ["Energy is always exact","*Energy can fluctuate by ΔE for a brief time Δt (virtual particles)","Time is absolute","Energy has no uncertainty"], "Temporary energy fluctuations allowed."),
+    ("Superposition in quantum mechanics means:", ["Objects are always in one state","*A particle can be in multiple states simultaneously until measured (like Schrödinger's cat)","Nothing is uncertain","States don't exist"], "QM superposition."),
+    ("Measurement (observation) in QM causes:", ["Nothing","*Wavefunction collapse (the system 'chooses' one definite state from the superposition)","More superposition","Time reversal"], "Measurement → collapse."),
+    ("Quantum entanglement means:", ["Particles are stuck together","*Measuring one particle instantly determines the state of its entangled partner (regardless of distance)","Particles communicate","Teleportation"], "Spooky action at a distance."),
+    ("The Pauli Exclusion Principle (from QM) explains:", ["Only nuclear physics","*Electron shell structure, the periodic table, and why matter has volume","Only spectral lines","Nothing macroscopic"], "Foundation of chemistry and solid-state physics."),
+    ("Quantum computing uses _____ instead of classical bits.", ["Analog signals","*Qubits (which can be in superpositions of 0 and 1 simultaneously)","Larger bits","Photons only"], "Qubits exploit superposition."),
+    ("Zero-point energy is:", ["Zero energy","*The minimum energy a quantum system has even at absolute zero (due to uncertainty principle)","Infinite energy","Classical ground state"], "QM systems never have exactly zero energy."),
+    ("The double-slit experiment with detectors at the slits produces:", ["An interference pattern","*No interference pattern (detection determines which slit → particle behavior)","Brighter fringes","The same pattern as without detectors"], "Observation destroys interference."),
+],
+"u11_l11.6": [  # Particle Physics & Standard Model
+    ("The Standard Model classifies:", ["Only atoms","Only molecules","*All known fundamental particles and three of the four fundamental forces","Everything in the universe"], "Fundamental particles + forces (except gravity)."),
+    ("Quarks come in _____ flavors.", ["2","4","*6 (up, down, charm, strange, top, bottom)","8"], "6 quark flavors."),
+    ("A proton is made of:", ["3 electrons","*2 up quarks and 1 down quark (uud)","3 neutrons","6 quarks"], "Proton = uud."),
+    ("A neutron is made of:", ["3 up quarks","*1 up quark and 2 down quarks (udd)","2 neutrons","3 electrons"], "Neutron = udd."),
+    ("Leptons include:", ["Quarks","*Electrons, muons, taus, and their neutrinos","Protons","Neutrons"], "6 leptons total."),
+    ("The four fundamental forces are:", ["Only gravity and EM","*Gravitational, electromagnetic, strong nuclear, and weak nuclear","Only 2 forces","Only 3 forces"], "Four fundamental forces."),
+    ("Force carrier for electromagnetic force:", ["Gluon","W/Z bosons","Graviton","*Photon"], "EM → photon."),
+    ("Force carrier for strong nuclear force:", ["Photon","*Gluon","W/Z bosons","Graviton"], "Strong → gluon."),
+    ("The Higgs boson was discovered in:", ["1900","1964","*2012 (at CERN's Large Hadron Collider)","2020"], "Higgs discovered at LHC, 2012."),
+    ("The Higgs field gives particles their:", ["Charge","Spin","*Mass (particles interact with the Higgs field to acquire mass)","Color"], "Higgs mechanism → mass."),
+    ("Antimatter particles have the same mass but _____ charge as their matter counterparts.", ["Same","*Opposite","No","Double"], "Antimatter = opposite charge."),
+    ("When a particle meets its antiparticle, they:", ["Combine","Repel","*Annihilate (converting mass entirely to energy as photons)","Do nothing"], "Matter-antimatter annihilation → E = mc²."),
+    ("The Standard Model does NOT include:", ["Quarks","Leptons","Force carriers","*Gravity (graviton is hypothetical; general relativity describes gravity separately)"], "Gravity not yet unified with Standard Model."),
+],
+}
+
+# ── Write ──
+with open(PATH, "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+count = 0
+for key, questions in NEW_QS.items():
+    if key not in data:
+        print(f"Warning: Key {key} not found, skipping")
+        continue
+    existing = data[key].get("quiz_questions", [])
+    start_num = len(existing) + 1
+    for i, (qt, opts, exp) in enumerate(questions):
+        options = []
+        for o in opts:
+            correct = o.startswith("*")
+            options.append({"text": o.lstrip("*"), "is_correct": correct, "data_i18n": None})
+        existing.append({
+            "question_number": start_num + i,
+            "question_text": qt,
+            "attempted": 2,
+            "data_i18n": None,
+            "options": options,
+            "explanation": exp
+        })
+    data[key]["quiz_questions"] = existing
+    count += 1
+
+with open(PATH, "w", encoding="utf-8") as f:
+    json.dump(data, f, indent=2, ensure_ascii=False)
+print(f"✅ Physics U10-U11: expanded {count} lessons to 20 questions each")
