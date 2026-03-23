@@ -48,20 +48,20 @@ class QuizLoader {
     const path = window.location.pathname;
     
     // URL-encoded spaces are %20, so handle both encoded and decoded versions
-    // Match AP pattern: /ArisEdu%20Project%20Folder/APLessons/{Course}/Unit {Number}/Lesson{number}_(Quiz|Practice).html
-    let match = path.match(/ArisEdu(?:%20|\s)Project(?:%20|\s)Folder.*?APLessons[\/\\]([^\/\\]+)[\/\\]Unit(?:%20|\s)?(\d+)[\/\\]Lesson(?:%20|\s)?(\d+\.\d+)_(Quiz|Practice)/i);
+    // Match AP pattern: /ArisEdu%20Project%20Folder/CourseFiles/APLessons/{Course}/Unit{X}/Lesson{number}_(Quiz|Practice).html
+    let match = path.match(/ArisEdu(?:%20|\s)Project(?:%20|\s)Folder.*?APLessons[\/\\]([^\/\\]+)[\/\\]Unit(?:%20|\s)?(\w+)[\/\\]Lesson(?:%20|\s)?(\w+\.\d+)_(Quiz|Practice)/i);
     if (match) {
       const courseFolder = match[1].replace(/%20/g, ' ');
-      const unit = parseInt(match[2]);
+      const unit = match[2];
       const lesson = match[3];
       return { courseFolder, unit, lesson, isAP: true };
     }
     
-    // Match regular pattern: /ArisEdu%20Project%20Folder/{CourseName}Lessons/Unit {Number}/Lesson{number}_(Quiz|Practice).html
-    match = path.match(/ArisEdu(?:%20|\s)Project(?:%20|\s)Folder.*?(\w+)Lessons[\/\\]Unit(?:%20|\s)?(\d+)[\/\\]Lesson(?:%20|\s)?(\d+\.\d+)_(Quiz|Practice)/i);
+    // Match regular pattern: /ArisEdu%20Project%20Folder/CourseFiles/{CourseName}Lessons/Unit{X}/Lesson{number}_(Quiz|Practice).html
+    match = path.match(/ArisEdu(?:%20|\s)Project(?:%20|\s)Folder.*?(\w+)Lessons[\/\\]Unit(?:%20|\s)?(\w+)[\/\\]Lesson(?:%20|\s)?(\w+\.\d+)_(Quiz|Practice)/i);
     if (match) {
-      const coursePrefix = match[1];  // e.g., "Algebra1", "Biology", "Chemistry"
-      const unit = parseInt(match[2]);
+      const coursePrefix = match[1];  // e.g., "Algebra1", "Biology", "Chemistry", "MS_Biology"
+      const unit = match[2];
       const lesson = match[3];
       
       // Map course prefixes to display names
@@ -82,16 +82,16 @@ class QuizLoader {
         'Astronomy': 'Astronomy',
         'Anatomy': 'Human Anatomy & Physiology',
         'MarineScience': 'Marine Science',
-        'MS_Algebra1': 'Algebra 1',
-        'MS_Algebra2': 'Algebra 2',
-        'MS_Biology': 'Biology',
-        'MS_Chemistry': 'Chemistry',
-        'MS_Geometry': 'Geometry',
-        'MS_Physics': 'Physics'
+        'MS_Algebra1': 'MS Algebra 1',
+        'MS_Algebra2': 'MS Algebra 2',
+        'MS_Biology': 'MS Biology',
+        'MS_Chemistry': 'MS Chemistry',
+        'MS_Geometry': 'MS Geometry',
+        'MS_Physics': 'MS Physics'
       };
       
       const courseFolder = courseNameMap[coursePrefix] || coursePrefix;
-      return { courseFolder, unit, lesson, isAP: false };
+      return { courseFolder, unit, lesson, isAP: false, coursePrefix };
     }
     
     return null;
@@ -130,19 +130,29 @@ class QuizLoader {
       return false;
     }
 
-    const { courseFolder, unit, lesson, isAP } = locationInfo;
-    const courseSlug = this.getCourseSlug(courseFolder, isAP);
+    const { courseFolder, unit, lesson, isAP, coursePrefix } = locationInfo;
     
-    // Construct the path to the JSON file
+    // Construct the path to the per-lesson JSON file
+    // Parse the URL to extract path after CourseFiles/
+    const decodedPath = decodeURIComponent(window.location.pathname);
+    const cfMatch = decodedPath.match(/CourseFiles\/(.+?)\/([^\/]+)$/);
+    
     let jsonPath;
-    if (isAP) {
-      // AP courses: from ArisEdu Project Folder/CourseFiles/APLessons/{Course}/Unit X/ to root = 5 levels up
-      // Unit X -> {Course} -> APLessons -> CourseFiles -> ArisEdu Project Folder -> root
-      jsonPath = `../../../../../content_data/AP_Courses/${courseSlug}_lessons.json`;
+    if (cfMatch) {
+      const dirPath = cfMatch[1]; // e.g., "BiologyLessons/Unit2" or "APLessons/AP Biology/Unit 1"
+      const filename = cfMatch[2]; // e.g., "Lesson 2.1_Quiz.html" or "Lesson2.1_Quiz.html"
+      
+      // Normalize: "Unit 1" → "Unit1" (HTML dirs have space, JSON dirs don't)
+      const normalizedDir = dirPath.replace(/\/Unit\s+(\w)/g, '/Unit$1');
+      // Normalize filename: remove space after "Lesson", change .html to .json
+      const jsonFilename = filename
+        .replace(/^Lesson\s+/, 'Lesson')
+        .replace(/\.html$/, '.json');
+      
+      jsonPath = `/content_data/${normalizedDir}/${jsonFilename}`;
     } else {
-      // Regular courses: from ArisEdu Project Folder/CourseFiles/{Course}Lessons/Unit X/ to root = 4 levels up
-      // Unit X -> {Course}Lessons -> CourseFiles -> ArisEdu Project Folder -> root
-      jsonPath = `../../../../content_data/${courseSlug}_lessons.json`;
+      console.error('Could not parse CourseFiles path from URL');
+      return false;
     }
 
     try {
@@ -152,30 +162,18 @@ class QuizLoader {
         return false;
       }
       
-      const allLessons = await response.json();
-      
-      // Construct the lesson key (e.g., "u1_l1.1")
-      const lessonParts = lesson.split('.');
-      const lessonKey = `u${unit}_l${lesson}`;
-      
-      // Find the lesson in the JSON object
-      let foundLesson = allLessons[lessonKey];
-      
-      if (!foundLesson) {
-        console.error(`Lesson key not found: ${lessonKey}`);
-        console.error('Available keys sample:', Object.keys(allLessons).slice(0, 10));
-        return false;
-      }
+      // Per-lesson JSON has quiz_questions at the top level
+      const foundLesson = await response.json();
       
       if (!foundLesson.quiz_questions || foundLesson.quiz_questions.length === 0) {
-        console.error(`No quiz questions found for lesson ${lessonKey}`);
+        console.error(`No quiz questions found in ${jsonPath}`);
         return false;
       }
       
       this.lessonInfo = {
         course: courseFolder,
-        unit: unit,
-        lesson: lesson,
+        unit: unit || foundLesson.unit,
+        lesson: lesson || foundLesson.lesson_number,
         title: foundLesson.title
       };
       

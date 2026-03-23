@@ -6,64 +6,28 @@ var _isMSPractice = _msOriginPG.indexOf('ms_') === 0;
 // ========== LOAD QUIZ QUESTIONS FOR PRACTICE GAMES ==========
 // Replaces hand-written flashcards with curated quiz questions from content_data JSON
 (function loadQuizQuestionsForPractice() {
-    function parsePracticeLocation() {
-        var path = window.location.pathname;
-        // AP pattern
-        var m = path.match(/ArisEdu(?:%20|\s)Project(?:%20|\s)Folder.*?APLessons[\/\\]([^\/\\]+)[\/\\]Unit(?:%20|\s)?(\d+)[\/\\]Lesson(?:%20|\s)?(\d+\.\d+)_Practice/i);
-        if (m) {
-            return { courseFolder: m[1].replace(/%20/g, ' '), unit: parseInt(m[2]), lesson: m[3], isAP: true };
-        }
-        // Regular + MS pattern
-        m = path.match(/ArisEdu(?:%20|\s)Project(?:%20|\s)Folder.*?(\w+)Lessons[\/\\]Unit(?:%20|\s)?(\d+)[\/\\]Lesson(?:%20|\s)?(\d+\.\d+)_Practice/i);
-        if (m) {
-            return { coursePrefix: m[1], unit: parseInt(m[2]), lesson: m[3], isAP: false };
-        }
-        return null;
-    }
+    // Construct the per-lesson JSON path directly from the URL
+    var decodedPath = decodeURIComponent(window.location.pathname);
+    var cfMatch = decodedPath.match(/CourseFiles\/(.+?)\/([^\/]+)$/);
+    if (!cfMatch) return;
 
-    var courseSlugMap = {
-        'Algebra1': 'algebra_1', 'Algebra2': 'algebra_2', 'Biology': 'biology',
-        'Chemistry': 'chemistry', 'Geometry': 'geometry', 'Physics': 'physics',
-        'Precalculus': 'precalculus', 'Trigonometry': 'trigonometry',
-        'Statistics': 'statistics', 'LinearAlgebra': 'linear_algebra',
-        'FinancialMath': 'financial_math', 'EarthScience': 'earth_science',
-        'EnvironmentalScience': 'environmental_science', 'Astronomy': 'astronomy',
-        'Anatomy': 'anatomy', 'MarineScience': 'marine_science',
-        'MS_Algebra1': 'algebra_1', 'MS_Algebra2': 'algebra_2',
-        'MS_Biology': 'biology', 'MS_Chemistry': 'chemistry',
-        'MS_Geometry': 'geometry', 'MS_Physics': 'physics'
-    };
-    var apSlugMap = {
-        'AP Biology': 'ap_biology', 'AP Chemistry': 'ap_chemistry',
-        'AP Environmental Science': 'ap_environmental_science',
-        'AP Human Geography': 'ap_human_geography',
-        'AP Calculus AB': 'ap_calculus_ab', 'AP Statistics': 'ap_statistics',
-        'AP Physics 2': 'ap_physics_2', 'AP Physics C': 'ap_physics_c_-_mechanics',
-        'AP Physics C - Mechanics': 'ap_physics_c_-_mechanics'
-    };
-
-    var loc = parsePracticeLocation();
-    if (!loc) return;
-
-    var slug, jsonPath;
-    if (loc.isAP) {
-        slug = apSlugMap[loc.courseFolder] || loc.courseFolder.toLowerCase().replace(/\s+/g, '_');
-        jsonPath = '../../../../../content_data/AP_Courses/' + slug + '_lessons.json';
-    } else {
-        slug = courseSlugMap[loc.coursePrefix] || loc.coursePrefix.toLowerCase().replace(/\s+/g, '_');
-        jsonPath = '../../../../content_data/' + slug + '_lessons.json';
-    }
-
-    var lessonKey = 'u' + loc.unit + '_l' + loc.lesson;
+    var dirPath = cfMatch[1];
+    var filename = cfMatch[2];
+    // Normalize: "Unit 1" → "Unit1" (HTML dirs have space, JSON dirs don't)
+    var normalizedDir = dirPath.replace(/\/Unit\s+(\w)/g, '/Unit$1');
+    // Normalize: remove space after "Lesson", change _Practice.html to _Quiz.json (quiz data is in Quiz JSON)
+    var jsonFilename = filename
+        .replace(/^Lesson\s+/, 'Lesson')
+        .replace(/_Practice\.html$/, '_Quiz.json');
+    var jsonPath = '/content_data/' + normalizedDir + '/' + jsonFilename;
 
     fetch(jsonPath).then(function(r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
-    }).then(function(allLessons) {
-        var lesson = allLessons[lessonKey];
-        if (!lesson || !lesson.quiz_questions || lesson.quiz_questions.length === 0) return;
+    }).then(function(lessonData) {
+        if (!lessonData || !lessonData.quiz_questions || lessonData.quiz_questions.length === 0) return;
 
-        var converted = lesson.quiz_questions.map(function(q) {
+        var converted = lessonData.quiz_questions.map(function(q) {
             var opts = q.options || q.question_options || [];
             var correctOpt = opts.find(function(o) { return o.is_correct; });
             var answer = correctOpt ? (correctOpt.text || correctOpt) : '';
