@@ -102,6 +102,17 @@ class UnitTestLoader {
       }
       this.testData = await response.json();
       this.allQuestions = [...this.testData.questions];
+      
+      // Shuffle options within each question so correct answer isn't always in same position
+      for (const q of this.allQuestions) {
+        if (q.options && q.options.length > 1) {
+          for (let i = q.options.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
+          }
+        }
+      }
+      
       this.currentUnit = unitNum;
       this.currentQuestionIndex = 0;
       this.userAnswers = {};
