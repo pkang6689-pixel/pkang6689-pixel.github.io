@@ -4,35 +4,875 @@
   "title": "Capstone Project: Real-World Linear Algebra Model",
   "course": "Linear Algebra",
   "quiz_questions": [
-    {"question_number":1,"question_text":"When building a real-world linear algebra model, what is typically the first step?","attempted":2,"data_i18n":null,"options":[{"text":"Identify the problem and determine which quantities are the unknowns","is_correct":true,"data_i18n":null},{"text":"Choose the fastest algorithm for matrix inversion","is_correct":false,"data_i18n":null},{"text":"Compute eigenvalues of a random matrix","is_correct":false,"data_i18n":null},{"text":"Convert all data to diagonal matrices","is_correct":false,"data_i18n":null}],"explanation":"The first step in any modeling project is to clearly define the problem and identify which real-world quantities correspond to the unknowns (variables) in the mathematical model."},
-    {"question_number":2,"question_text":"A student's capstone project involves predicting traffic flow. They set up the system Ax = b where x represents traffic volumes on 5 road segments. If A is 4x5 and rank(A) = 4, how many free variables exist?","attempted":2,"data_i18n":null,"options":[{"text":"1","is_correct":true,"data_i18n":null},{"text":"0","is_correct":false,"data_i18n":null},{"text":"4","is_correct":false,"data_i18n":null},{"text":"5","is_correct":false,"data_i18n":null}],"explanation":"By the rank-nullity theorem, the number of free variables equals n - rank(A) = 5 - 4 = 1. The system has infinitely many solutions parameterized by 1 free variable."},
-    {"question_number":3,"question_text":"For a capstone project using least squares regression, the normal equations are A^T A x = A^T b. If A is 10x3 (10 data points, 3 parameters), what are the dimensions of A^T A?","attempted":2,"data_i18n":null,"options":[{"text":"3x3","is_correct":true,"data_i18n":null},{"text":"10x10","is_correct":false,"data_i18n":null},{"text":"10x3","is_correct":false,"data_i18n":null},{"text":"3x10","is_correct":false,"data_i18n":null}],"explanation":"A is 10x3, so A^T is 3x10. A^T A is 3x10 times 10x3 = 3x3. This small system is much easier to solve than the original overdetermined 10x3 system."},
-    {"question_number":4,"question_text":"A modeling project uses SVD to compress a 100x100 image matrix. If only the top 10 singular values are kept, how many values need to be stored (including the corresponding left and right singular vectors)?","attempted":2,"data_i18n":null,"options":[{"text":"2010","is_correct":true,"data_i18n":null},{"text":"10000","is_correct":false,"data_i18n":null},{"text":"100","is_correct":false,"data_i18n":null},{"text":"1000","is_correct":false,"data_i18n":null}],"explanation":"For rank-10 SVD approximation: 10 singular values + 10 left singular vectors of size 100 + 10 right singular vectors of size 100 = 10 + 10*100 + 10*100 = 10 + 1000 + 1000 = 2010, compared to 10000 for the full matrix."},
-    {"question_number":5,"question_text":"In a capstone project on population dynamics, a Leslie matrix L = [[0, 2, 1],[0.5, 0, 0],[0, 0.8, 0]] models age-structured growth. What does the entry L[1][2] = 2 represent?","attempted":2,"data_i18n":null,"options":[{"text":"Each individual in age group 2 produces on average 2 offspring","is_correct":true,"data_i18n":null},{"text":"There are 2 individuals in age group 2","is_correct":false,"data_i18n":null},{"text":"Age group 2 has a 200% survival rate","is_correct":false,"data_i18n":null},{"text":"The population doubles every 2 periods","is_correct":false,"data_i18n":null}],"explanation":"In a Leslie matrix, the first row contains fecundity rates. L[1][2] = 2 means that on average, each individual in age group 2 produces 2 offspring per time period."},
-    {"question_number":6,"question_text":"A capstone project on image recognition uses PCA. If the original data has 1000 features and PCA retains 50 principal components, what is the compression ratio?","attempted":2,"data_i18n":null,"options":[{"text":"20:1","is_correct":true,"data_i18n":null},{"text":"50:1","is_correct":false,"data_i18n":null},{"text":"2:1","is_correct":false,"data_i18n":null},{"text":"1000:1","is_correct":false,"data_i18n":null}],"explanation":"The compression ratio is original features / retained components = 1000/50 = 20:1. The data is represented using 50 dimensions instead of 1000, retaining the directions of maximum variance."},
-    {"question_number":7,"question_text":"A student models a chemical reaction network using a stoichiometry matrix S. If S is 4x6 (4 species, 6 reactions) with rank 3, how many independent conservation laws exist?","attempted":2,"data_i18n":null,"options":[{"text":"1","is_correct":true,"data_i18n":null},{"text":"3","is_correct":false,"data_i18n":null},{"text":"4","is_correct":false,"data_i18n":null},{"text":"2","is_correct":false,"data_i18n":null}],"explanation":"Conservation laws correspond to the left null space of S. The dimension of the left null space = rows - rank = 4 - 3 = 1. This one conservation law represents a quantity (like total mass) that remains constant during the reactions."},
-    {"question_number":8,"question_text":"In a capstone project on Google's PageRank, the damping factor is typically set to 0.85. The modified transition matrix becomes M = 0.85*H + 0.15*(1/n)*ee^T where n is the number of pages. What does the (1/n)*ee^T term represent?","attempted":2,"data_i18n":null,"options":[{"text":"A random surfer who, with probability 0.15, jumps to any page uniformly at random","is_correct":true,"data_i18n":null},{"text":"The probability of staying on the current page","is_correct":false,"data_i18n":null},{"text":"A correction for pages with no outgoing links only","is_correct":false,"data_i18n":null},{"text":"The initial probability distribution","is_correct":false,"data_i18n":null}],"explanation":"The term (1/n)*ee^T is a matrix where every entry is 1/n, representing equal probability of jumping to any page. This models a random surfer who, with probability 0.15, ignores the link structure and teleports to a random page."},
-    {"question_number":9,"question_text":"A capstone project requires fitting a quadratic y = a + bx + cx^2 to 20 data points. The design matrix A has dimensions 20x3. What is the minimum number of data points needed for a unique least-squares solution?","attempted":2,"data_i18n":null,"options":[{"text":"3","is_correct":true,"data_i18n":null},{"text":"2","is_correct":false,"data_i18n":null},{"text":"20","is_correct":false,"data_i18n":null},{"text":"1","is_correct":false,"data_i18n":null}],"explanation":"For A^T A to be invertible, A must have rank 3, which requires at least 3 rows (data points) with distinct x-values. With fewer than 3 points, A^T A is singular and the least-squares solution is not unique."},
-    {"question_number":10,"question_text":"A student validates their linear algebra model by checking that the residual r = b - Ax_hat is orthogonal to the column space of A. What equation should they verify?","attempted":2,"data_i18n":null,"options":[{"text":"A^T r = 0 (i.e., A^T(b - Ax_hat) = 0)","is_correct":true,"data_i18n":null},{"text":"r^T r = 0","is_correct":false,"data_i18n":null},{"text":"A r = 0","is_correct":false,"data_i18n":null},{"text":"det(A^T A) = 0","is_correct":false,"data_i18n":null}],"explanation":"The residual r = b - Ax_hat is orthogonal to the column space of A if and only if A^T r = 0, which is A^T(b - Ax_hat) = 0. This is equivalent to the normal equations A^T A x_hat = A^T b."},
-    {"question_number":11,"question_text":"What is a 'mathematical model' in the context of applied linear algebra?","attempted":2,"data_i18n":null,"options":[{"text":"A system of equations, matrices, or transformations that represents a real-world phenomenon using mathematical relationships","is_correct":true,"data_i18n":null},{"text":"A computer program that generates random matrices","is_correct":false,"data_i18n":null},{"text":"A physical scale model of a structure","is_correct":false,"data_i18n":null},{"text":"Any calculation involving numbers","is_correct":false,"data_i18n":null}],"explanation":"A mathematical model translates real-world quantities and relationships into mathematical objects (vectors, matrices, equations) that can be analyzed and solved using linear algebra techniques."},
-    {"question_number":12,"question_text":"What does 'model validation' mean in applied linear algebra?","attempted":2,"data_i18n":null,"options":[{"text":"The process of checking that the model's predictions match real-world observations and that its mathematical assumptions are justified","is_correct":true,"data_i18n":null},{"text":"Proving that the coefficient matrix is invertible","is_correct":false,"data_i18n":null},{"text":"Checking that all matrix entries are positive","is_correct":false,"data_i18n":null},{"text":"Computing the determinant of the model matrix","is_correct":false,"data_i18n":null}],"explanation":"Model validation involves comparing model outputs with actual data, checking the sensitivity of results to assumptions, testing edge cases, and ensuring the mathematical structure faithfully represents the real system."},
-    {"question_number":13,"question_text":"What is 'sensitivity analysis' in the context of a linear algebra model?","attempted":2,"data_i18n":null,"options":[{"text":"Studying how small changes in input parameters or data affect the model's output, often related to the condition number","is_correct":true,"data_i18n":null},{"text":"Testing whether the model works with different matrix sizes","is_correct":false,"data_i18n":null},{"text":"Measuring how fast the model runs on different computers","is_correct":false,"data_i18n":null},{"text":"Checking if the model is sensitive to the programming language used","is_correct":false,"data_i18n":null}],"explanation":"Sensitivity analysis examines how perturbations in input data propagate through the model to affect outputs. The condition number of the coefficient matrix quantifies this sensitivity: a high condition number means small input changes cause large output changes."},
-    {"question_number":14,"question_text":"What does 'dimensionality reduction' mean in a data science capstone project?","attempted":2,"data_i18n":null,"options":[{"text":"The process of reducing the number of features in a dataset while preserving important patterns, typically using techniques like PCA or SVD","is_correct":true,"data_i18n":null},{"text":"Reducing the physical dimensions (length, width, height) of a dataset","is_correct":false,"data_i18n":null},{"text":"Deleting rows from a data matrix to make it smaller","is_correct":false,"data_i18n":null},{"text":"Converting 3D data into 2D data by dropping one coordinate","is_correct":false,"data_i18n":null}],"explanation":"Dimensionality reduction projects high-dimensional data onto a lower-dimensional subspace that captures the most variance. PCA finds orthogonal directions of maximum variance, and SVD provides the optimal low-rank approximation."},
-    {"question_number":15,"question_text":"What is a 'Leslie matrix' in population modeling?","attempted":2,"data_i18n":null,"options":[{"text":"A non-negative matrix used in age-structured population models, with fecundity rates in the first row and survival probabilities on the subdiagonal","is_correct":true,"data_i18n":null},{"text":"A matrix used to sort population members by name","is_correct":false,"data_i18n":null},{"text":"A symmetric matrix of population correlations","is_correct":false,"data_i18n":null},{"text":"A diagonal matrix of growth rates for each age group","is_correct":false,"data_i18n":null}],"explanation":"A Leslie matrix models discrete-time, age-structured population dynamics. The first row contains fecundity rates (offspring per individual in each age class), and the subdiagonal contains survival probabilities (fraction surviving to the next age class)."},
-    {"question_number":16,"question_text":"What does 'over-determined system' mean in regression modeling?","attempted":2,"data_i18n":null,"options":[{"text":"A system Ax = b with more equations than unknowns, typically having no exact solution but solvable via least squares","is_correct":true,"data_i18n":null},{"text":"A system with too many unknowns","is_correct":false,"data_i18n":null},{"text":"A system with a unique solution","is_correct":false,"data_i18n":null},{"text":"A system where all equations are identical","is_correct":false,"data_i18n":null}],"explanation":"An over-determined system has m > n (more equations than unknowns). Generally no exact solution exists, but the least-squares solution x_hat minimizes ||Ax - b||^2, giving the best approximate solution."},
-    {"question_number":17,"question_text":"What is 'cross-validation' in the context of model evaluation?","attempted":2,"data_i18n":null,"options":[{"text":"A technique that tests model performance by training on a subset of data and evaluating on the held-out remainder, repeated across different splits","is_correct":true,"data_i18n":null},{"text":"Multiplying the model matrix by its transpose","is_correct":false,"data_i18n":null},{"text":"Checking the model against a different type of matrix decomposition","is_correct":false,"data_i18n":null},{"text":"Validating that two different models give the same eigenvalues","is_correct":false,"data_i18n":null}],"explanation":"Cross-validation partitions data into training and validation sets, fits the model on training data, and evaluates prediction accuracy on validation data. This prevents overfitting and gives an honest estimate of model performance."},
-    {"question_number":18,"question_text":"What does 'regularization' mean in the context of linear regression models?","attempted":2,"data_i18n":null,"options":[{"text":"Adding a penalty term to the least-squares objective to prevent overfitting, such as minimizing ||Ax-b||^2 + lambda*||x||^2","is_correct":true,"data_i18n":null},{"text":"Making the coefficient matrix regular (square and invertible)","is_correct":false,"data_i18n":null},{"text":"Normalizing all data to have mean zero","is_correct":false,"data_i18n":null},{"text":"Removing outliers from the dataset","is_correct":false,"data_i18n":null}],"explanation":"Regularization adds a penalty (like lambda*||x||^2 in ridge regression) to prevent large coefficient values. The solution becomes x = (A^T A + lambda*I)^{-1} A^T b, which is always well-defined even when A^T A is singular."},
-    {"question_number":19,"question_text":"What is 'feature engineering' in the context of building a linear algebra model?","attempted":2,"data_i18n":null,"options":[{"text":"The process of selecting, transforming, and creating input variables (columns of the design matrix) to improve model performance","is_correct":true,"data_i18n":null},{"text":"Computing the eigenvalues of the feature matrix","is_correct":false,"data_i18n":null},{"text":"Reducing all features to a single scalar value","is_correct":false,"data_i18n":null},{"text":"Removing all features except the most important one","is_correct":false,"data_i18n":null}],"explanation":"Feature engineering involves designing the columns of the design matrix A, which might include polynomial terms (x^2, x^3), interaction terms (x1*x2), logarithmic transforms, or indicator variables to capture non-linear relationships within a linear model framework."},
-    {"question_number":20,"question_text":"What does 'residual analysis' mean after fitting a linear model?","attempted":2,"data_i18n":null,"options":[{"text":"Examining the difference vector r = b - Ax_hat to check model adequacy, looking for patterns or systematic errors","is_correct":true,"data_i18n":null},{"text":"Computing the eigenvalues of the residual matrix","is_correct":false,"data_i18n":null},{"text":"Analyzing the inverse of the design matrix","is_correct":false,"data_i18n":null},{"text":"Checking if the residual equals the zero vector","is_correct":false,"data_i18n":null}],"explanation":"Residual analysis examines the residual vector r = b - Ax_hat for patterns. If the model is adequate, residuals should appear random. Systematic patterns (trends, clusters) suggest the model is missing important features or relationships."},
-    {"question_number":21,"question_text":"A student's capstone project models predator-prey populations using x_{n+1} = Ax_n with A = [[1.1, -0.2],[0.1, 0.8]] and initial population x_0 = [100, 50]^T. What is x_1?","attempted":2,"data_i18n":null,"options":[{"text":"[100, 50]^T","is_correct":true,"data_i18n":null},{"text":"[110, 40]^T","is_correct":false,"data_i18n":null},{"text":"[120, 30]^T","is_correct":false,"data_i18n":null},{"text":"[90, 60]^T","is_correct":false,"data_i18n":null}],"explanation":"x_1 = Ax_0 = [[1.1,-0.2],[0.1,0.8]]*[100,50]^T = [1.1*100+(-0.2)*50, 0.1*100+0.8*50]^T = [110-10, 10+40]^T = [100, 50]^T. The populations remain unchanged at this point."},
-    {"question_number":22,"question_text":"A group project uses SVD for a recommendation system. They have a user-item rating matrix R (500 users x 200 items) and compute R = U*Sigma*V^T. They approximate with rank-20 SVD. How much storage does the approximation need compared to the full matrix?","attempted":2,"data_i18n":null,"options":[{"text":"About 14% of the original storage","is_correct":true,"data_i18n":null},{"text":"About 50% of the original storage","is_correct":false,"data_i18n":null},{"text":"About 1% of the original storage","is_correct":false,"data_i18n":null},{"text":"About 90% of the original storage","is_correct":false,"data_i18n":null}],"explanation":"Full matrix: 500*200 = 100,000 values. Rank-20 SVD: 500*20 + 20 + 200*20 = 10,000 + 20 + 4,000 = 14,020 values. Ratio: 14,020/100,000 = 14.02%, approximately 14%."},
-    {"question_number":23,"question_text":"A capstone team models a city's water network with 6 junctions. Flow conservation at each junction gives 6 equations. The system has 8 unknown pipe flows. How many degrees of freedom exist in the solution?","attempted":2,"data_i18n":null,"options":[{"text":"2","is_correct":true,"data_i18n":null},{"text":"6","is_correct":false,"data_i18n":null},{"text":"8","is_correct":false,"data_i18n":null},{"text":"0","is_correct":false,"data_i18n":null}],"explanation":"Assuming the 6 equations are independent (rank 6), the rank-nullity theorem gives: free variables = unknowns - rank = 8 - 6 = 2. The solution has 2 degrees of freedom, meaning 2 pipe flows can be freely chosen."},
-    {"question_number":24,"question_text":"A data science capstone uses PCA on a dataset of 500 samples with 20 features. After computing eigenvalues of the covariance matrix, the first 5 eigenvalues account for 92% of the total variance. If the student retains these 5 components, what percentage of variance is lost?","attempted":2,"data_i18n":null,"options":[{"text":"8%","is_correct":true,"data_i18n":null},{"text":"92%","is_correct":false,"data_i18n":null},{"text":"15%","is_correct":false,"data_i18n":null},{"text":"0%","is_correct":false,"data_i18n":null}],"explanation":"If the first 5 principal components capture 92% of the total variance, then the remaining 15 components account for 100% - 92% = 8% of the variance, which is lost in the dimensionality reduction."},
-    {"question_number":25,"question_text":"A climate modeling project fits a linear model temperature = a + b*CO2 + c*year to 50 years of data. The design matrix A is 50x3. After solving the normal equations, x_hat = [15.0, 0.03, -0.01]^T. What is the predicted temperature when CO2 = 400 ppm and year = 2020?","attempted":2,"data_i18n":null,"options":[{"text":"6.8","is_correct":true,"data_i18n":null},{"text":"15.0","is_correct":false,"data_i18n":null},{"text":"27.0","is_correct":false,"data_i18n":null},{"text":"12.0","is_correct":false,"data_i18n":null}],"explanation":"Predicted temperature = 15.0 + 0.03*400 + (-0.01)*2020 = 15.0 + 12.0 - 20.2 = 6.8."},
-    {"question_number":26,"question_text":"A robotics capstone project uses the Jacobian matrix J (3x3) to relate joint velocities to end-effector velocities: v = J*q_dot. If det(J) = 0 at a certain configuration, what does this mean?","attempted":2,"data_i18n":null,"options":[{"text":"The robot is at a singular configuration where it loses the ability to move in certain directions","is_correct":true,"data_i18n":null},{"text":"The robot is at its home position","is_correct":false,"data_i18n":null},{"text":"All joint velocities are zero","is_correct":false,"data_i18n":null},{"text":"The robot is moving at maximum speed","is_correct":false,"data_i18n":null}],"explanation":"When det(J) = 0, the Jacobian is not invertible, meaning the mapping from joint space to task space loses rank. The robot cannot generate velocities in certain task-space directions regardless of joint velocities. This is called a kinematic singularity."},
-    {"question_number":27,"question_text":"A power grid capstone uses the admittance matrix Y (5x5) for load flow analysis. The matrix Y is symmetric with all row sums equal to zero. What is the smallest eigenvalue of Y?","attempted":2,"data_i18n":null,"options":[{"text":"0","is_correct":true,"data_i18n":null},{"text":"1","is_correct":false,"data_i18n":null},{"text":"It depends on the specific entries","is_correct":false,"data_i18n":null},{"text":"-1","is_correct":false,"data_i18n":null}],"explanation":"If all row sums are zero, then Y * [1,1,...,1]^T = [0,0,...,0]^T, meaning the all-ones vector is an eigenvector with eigenvalue 0. For a graph Laplacian-type matrix, 0 is the smallest eigenvalue."},
-    {"question_number":28,"question_text":"A biology capstone models gene regulatory networks using a matrix A where A[i][j] represents gene j's effect on gene i. If A has 10 genes and the system dx/dt = Ax, stability requires all eigenvalues of A to have what property?","attempted":2,"data_i18n":null,"options":[{"text":"Negative real parts","is_correct":true,"data_i18n":null},{"text":"Positive real parts","is_correct":false,"data_i18n":null},{"text":"Magnitude less than 1","is_correct":false,"data_i18n":null},{"text":"All eigenvalues must be real","is_correct":false,"data_i18n":null}],"explanation":"For the continuous-time system dx/dt = Ax, the equilibrium x = 0 is stable if and only if all eigenvalues of A have negative real parts. This ensures that all perturbations decay exponentially over time."},
-    {"question_number":29,"question_text":"A machine learning capstone builds a spam classifier using logistic regression. The feature matrix X is 10000x100. The team uses PCA to reduce to 20 features before training. What fraction of the original features are retained?","attempted":2,"data_i18n":null,"options":[{"text":"20%","is_correct":true,"data_i18n":null},{"text":"80%","is_correct":false,"data_i18n":null},{"text":"10%","is_correct":false,"data_i18n":null},{"text":"50%","is_correct":false,"data_i18n":null}],"explanation":"PCA reduces from 100 features to 20 principal components. The fraction retained is 20/100 = 0.20 = 20%. The 20 principal components are chosen to capture the maximum variance in the data."},
-    {"question_number":30,"question_text":"A structural engineering capstone analyzes a bridge using finite element method. After assembly, the global stiffness matrix K is 500x500 with bandwidth 20. The team must solve Kx = f for 100 different load cases. Which approach is most efficient?","attempted":2,"data_i18n":null,"options":[{"text":"Compute the Cholesky factorization K = LL^T once, then use forward/back substitution for each load case","is_correct":true,"data_i18n":null},{"text":"Compute K^{-1} and multiply by each load vector","is_correct":false,"data_i18n":null},{"text":"Use Cramer's rule for each system","is_correct":false,"data_i18n":null},{"text":"Solve each system independently using Gaussian elimination","is_correct":false,"data_i18n":null}],"explanation":"Since K is symmetric positive definite (stiffness matrix), Cholesky factorization K = LL^T is optimal. Factoring once costs O(n*b^2) for a banded matrix (b=20), then each of the 100 systems is solved in O(n*b) via forward/back substitution, far more efficient than repeated full solves."}
+    {
+      "question_number": 1,
+      "question_text": "When building a real-world linear algebra model, what is typically the first step?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Convert all data to diagonal matrices",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Choose the fastest algorithm for matrix inversion",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Identify the problem and determine which quantities are the unknowns",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "Compute eigenvalues of a random matrix",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "The first step in any modeling project is to clearly define the problem and identify which real-world quantities correspond to the unknowns (variables) in the mathematical model."
+    },
+    {
+      "question_number": 2,
+      "question_text": "A student's capstone project involves predicting traffic flow. They set up the system Ax = b where x represents traffic volumes on 5 road segments. If A is 4x5 and rank(A) = 4, how many free variables exist?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "5",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "1",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "4",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "0",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "By the rank-nullity theorem, the number of free variables equals n - rank(A) = 5 - 4 = 1. The system has infinitely many solutions parameterized by 1 free variable."
+    },
+    {
+      "question_number": 3,
+      "question_text": "For a capstone project using least squares regression, the normal equations are A^T A x = A^T b. If A is 10x3 (10 data points, 3 parameters), what are the dimensions of A^T A?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "3x10",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "10x3",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "3x3",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "10x10",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "A is 10x3, so A^T is 3x10. A^T A is 3x10 times 10x3 = 3x3. This small system is much easier to solve than the original overdetermined 10x3 system."
+    },
+    {
+      "question_number": 4,
+      "question_text": "A modeling project uses SVD to compress a 100x100 image matrix. If only the top 10 singular values are kept, how many values need to be stored (including the corresponding left and right singular vectors)?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "10000",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "100",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "1000",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "2010",
+          "is_correct": true,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "For rank-10 SVD approximation: 10 singular values + 10 left singular vectors of size 100 + 10 right singular vectors of size 100 = 10 + 10*100 + 10*100 = 10 + 1000 + 1000 = 2010, compared to 10000 for the full matrix."
+    },
+    {
+      "question_number": 5,
+      "question_text": "In a capstone project on population dynamics, a Leslie matrix L = [[0, 2, 1],[0.5, 0, 0],[0, 0.8, 0]] models age-structured growth. What does the entry L[1][2] = 2 represent?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Age group 2 has a 200% survival rate",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The population doubles every 2 periods",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Each individual in age group 2 produces on average 2 offspring",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "There are 2 individuals in age group 2",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "In a Leslie matrix, the first row contains fecundity rates. L[1][2] = 2 means that on average, each individual in age group 2 produces 2 offspring per time period."
+    },
+    {
+      "question_number": 6,
+      "question_text": "A capstone project on image recognition uses PCA. If the original data has 1000 features and PCA retains 50 principal components, what is the compression ratio?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "50:1",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "20:1",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "2:1",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "1000:1",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "The compression ratio is original features / retained components = 1000/50 = 20:1. The data is represented using 50 dimensions instead of 1000, retaining the directions of maximum variance."
+    },
+    {
+      "question_number": 7,
+      "question_text": "A student models a chemical reaction network using a stoichiometry matrix S. If S is 4x6 (4 species, 6 reactions) with rank 3, how many independent conservation laws exist?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "3",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "2",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "4",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "1",
+          "is_correct": true,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Conservation laws correspond to the left null space of S. The dimension of the left null space = rows - rank = 4 - 3 = 1. This one conservation law represents a quantity (like total mass) that remains constant during the reactions."
+    },
+    {
+      "question_number": 8,
+      "question_text": "In a capstone project on Google's PageRank, the damping factor is typically set to 0.85. The modified transition matrix becomes M = 0.85*H + 0.15*(1/n)*ee^T where n is the number of pages. What does the (1/n)*ee^T term represent?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "A random surfer who, with probability 0.15, jumps to any page uniformly at random",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "The initial probability distribution",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The probability of staying on the current page",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A correction for pages with no outgoing links only",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "The term (1/n)*ee^T is a matrix where every entry is 1/n, representing equal probability of jumping to any page. This models a random surfer who, with probability 0.15, ignores the link structure and teleports to a random page."
+    },
+    {
+      "question_number": 9,
+      "question_text": "A capstone project requires fitting a quadratic y = a + bx + cx^2 to 20 data points. The design matrix A has dimensions 20x3. What is the minimum number of data points needed for a unique least-squares solution?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "2",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "3",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "20",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "1",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "For A^T A to be invertible, A must have rank 3, which requires at least 3 rows (data points) with distinct x-values. With fewer than 3 points, A^T A is singular and the least-squares solution is not unique."
+    },
+    {
+      "question_number": 10,
+      "question_text": "A student validates their linear algebra model by checking that the residual r = b - Ax_hat is orthogonal to the column space of A. What equation should they verify?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "A r = 0",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A^T r = 0 (i.e., A^T(b - Ax_hat) = 0)",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "det(A^T A) = 0",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "r^T r = 0",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "The residual r = b - Ax_hat is orthogonal to the column space of A if and only if A^T r = 0, which is A^T(b - Ax_hat) = 0. This is equivalent to the normal equations A^T A x_hat = A^T b."
+    },
+    {
+      "question_number": 11,
+      "question_text": "What is a 'mathematical model' in the context of applied linear algebra?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Any calculation involving numbers",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A physical scale model of a structure",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A computer program that generates random matrices",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A system of equations, matrices, or transformations that represents a real-world phenomenon using mathematical relationships",
+          "is_correct": true,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "A mathematical model translates real-world quantities and relationships into mathematical objects (vectors, matrices, equations) that can be analyzed and solved using linear algebra techniques."
+    },
+    {
+      "question_number": 12,
+      "question_text": "What does 'model validation' mean in applied linear algebra?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Proving that the coefficient matrix is invertible",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The process of checking that the model's predictions match real-world observations and that its mathematical assumptions are justified",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "Checking that all matrix entries are positive",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Computing the determinant of the model matrix",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Model validation involves comparing model outputs with actual data, checking the sensitivity of results to assumptions, testing edge cases, and ensuring the mathematical structure faithfully represents the real system."
+    },
+    {
+      "question_number": 13,
+      "question_text": "What is 'sensitivity analysis' in the context of a linear algebra model?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Checking if the model is sensitive to the programming language used",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Studying how small changes in input parameters or data affect the model's output, often related to the condition number",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "Measuring how fast the model runs on different computers",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Testing whether the model works with different matrix sizes",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Sensitivity analysis examines how perturbations in input data propagate through the model to affect outputs. The condition number of the coefficient matrix quantifies this sensitivity: a high condition number means small input changes cause large output changes."
+    },
+    {
+      "question_number": 14,
+      "question_text": "What does 'dimensionality reduction' mean in a data science capstone project?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Converting 3D data into 2D data by dropping one coordinate",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Reducing the physical dimensions (length, width, height) of a dataset",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Deleting rows from a data matrix to make it smaller",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The process of reducing the number of features in a dataset while preserving important patterns, typically using techniques like PCA or SVD",
+          "is_correct": true,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Dimensionality reduction projects high-dimensional data onto a lower-dimensional subspace that captures the most variance. PCA finds orthogonal directions of maximum variance, and SVD provides the optimal low-rank approximation."
+    },
+    {
+      "question_number": 15,
+      "question_text": "What is a 'Leslie matrix' in population modeling?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "A non-negative matrix used in age-structured population models, with fecundity rates in the first row and survival probabilities on the subdiagonal",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "A symmetric matrix of population correlations",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A diagonal matrix of growth rates for each age group",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A matrix used to sort population members by name",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "A Leslie matrix models discrete-time, age-structured population dynamics. The first row contains fecundity rates (offspring per individual in each age class), and the subdiagonal contains survival probabilities (fraction surviving to the next age class)."
+    },
+    {
+      "question_number": 16,
+      "question_text": "What does 'over-determined system' mean in regression modeling?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "A system with too many unknowns",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A system with a unique solution",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A system Ax = b with more equations than unknowns, typically having no exact solution but solvable via least squares",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "A system where all equations are identical",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "An over-determined system has m > n (more equations than unknowns). Generally no exact solution exists, but the least-squares solution x_hat minimizes ||Ax - b||^2, giving the best approximate solution."
+    },
+    {
+      "question_number": 17,
+      "question_text": "What is 'cross-validation' in the context of model evaluation?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Checking the model against a different type of matrix decomposition",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Multiplying the model matrix by its transpose",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A technique that tests model performance by training on a subset of data and evaluating on the held-out remainder, repeated across different splits",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "Validating that two different models give the same eigenvalues",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Cross-validation partitions data into training and validation sets, fits the model on training data, and evaluates prediction accuracy on validation data. This prevents overfitting and gives an honest estimate of model performance."
+    },
+    {
+      "question_number": 18,
+      "question_text": "What does 'regularization' mean in the context of linear regression models?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Normalizing all data to have mean zero",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Adding a penalty term to the least-squares objective to prevent overfitting, such as minimizing ||Ax-b||^2 + lambda*||x||^2",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "Removing outliers from the dataset",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Making the coefficient matrix regular (square and invertible)",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Regularization adds a penalty (like lambda*||x||^2 in ridge regression) to prevent large coefficient values. The solution becomes x = (A^T A + lambda*I)^{-1} A^T b, which is always well-defined even when A^T A is singular."
+    },
+    {
+      "question_number": 19,
+      "question_text": "What is 'feature engineering' in the context of building a linear algebra model?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Reducing all features to a single scalar value",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The process of selecting, transforming, and creating input variables (columns of the design matrix) to improve model performance",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "Removing all features except the most important one",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Computing the eigenvalues of the feature matrix",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Feature engineering involves designing the columns of the design matrix A, which might include polynomial terms (x^2, x^3), interaction terms (x1*x2), logarithmic transforms, or indicator variables to capture non-linear relationships within a linear model framework."
+    },
+    {
+      "question_number": 20,
+      "question_text": "What does 'residual analysis' mean after fitting a linear model?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Computing the eigenvalues of the residual matrix",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Examining the difference vector r = b - Ax_hat to check model adequacy, looking for patterns or systematic errors",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "Analyzing the inverse of the design matrix",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Checking if the residual equals the zero vector",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Residual analysis examines the residual vector r = b - Ax_hat for patterns. If the model is adequate, residuals should appear random. Systematic patterns (trends, clusters) suggest the model is missing important features or relationships."
+    },
+    {
+      "question_number": 21,
+      "question_text": "A student's capstone project models predator-prey populations using x_{n+1} = Ax_n with A = [[1.1, -0.2],[0.1, 0.8]] and initial population x_0 = [100, 50]^T. What is x_1?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "[90, 60]^T",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "[110, 40]^T",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "[100, 50]^T",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "[120, 30]^T",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "x_1 = Ax_0 = [[1.1,-0.2],[0.1,0.8]]*[100,50]^T = [1.1*100+(-0.2)*50, 0.1*100+0.8*50]^T = [110-10, 10+40]^T = [100, 50]^T. The populations remain unchanged at this point."
+    },
+    {
+      "question_number": 22,
+      "question_text": "A group project uses SVD for a recommendation system. They have a user-item rating matrix R (500 users x 200 items) and compute R = U*Sigma*V^T. They approximate with rank-20 SVD. How much storage does the approximation need compared to the full matrix?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "About 90% of the original storage",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "About 1% of the original storage",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "About 14% of the original storage",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "About 50% of the original storage",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Full matrix: 500*200 = 100,000 values. Rank-20 SVD: 500*20 + 20 + 200*20 = 10,000 + 20 + 4,000 = 14,020 values. Ratio: 14,020/100,000 = 14.02%, approximately 14%."
+    },
+    {
+      "question_number": 23,
+      "question_text": "A capstone team models a city's water network with 6 junctions. Flow conservation at each junction gives 6 equations. The system has 8 unknown pipe flows. How many degrees of freedom exist in the solution?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "2",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "0",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "8",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "6",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Assuming the 6 equations are independent (rank 6), the rank-nullity theorem gives: free variables = unknowns - rank = 8 - 6 = 2. The solution has 2 degrees of freedom, meaning 2 pipe flows can be freely chosen."
+    },
+    {
+      "question_number": 24,
+      "question_text": "A data science capstone uses PCA on a dataset of 500 samples with 20 features. After computing eigenvalues of the covariance matrix, the first 5 eigenvalues account for 92% of the total variance. If the student retains these 5 components, what percentage of variance is lost?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "15%",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "8%",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "92%",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "0%",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "If the first 5 principal components capture 92% of the total variance, then the remaining 15 components account for 100% - 92% = 8% of the variance, which is lost in the dimensionality reduction."
+    },
+    {
+      "question_number": 25,
+      "question_text": "A climate modeling project fits a linear model temperature = a + b*CO2 + c*year to 50 years of data. The design matrix A is 50x3. After solving the normal equations, x_hat = [15.0, 0.03, -0.01]^T. What is the predicted temperature when CO2 = 400 ppm and year = 2020?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "12.0",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "6.8",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "15.0",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "27.0",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Predicted temperature = 15.0 + 0.03*400 + (-0.01)*2020 = 15.0 + 12.0 - 20.2 = 6.8."
+    },
+    {
+      "question_number": 26,
+      "question_text": "A robotics capstone project uses the Jacobian matrix J (3x3) to relate joint velocities to end-effector velocities: v = J*q_dot. If det(J) = 0 at a certain configuration, what does this mean?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "The robot is at a singular configuration where it loses the ability to move in certain directions",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "All joint velocities are zero",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The robot is moving at maximum speed",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The robot is at its home position",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "When det(J) = 0, the Jacobian is not invertible, meaning the mapping from joint space to task space loses rank. The robot cannot generate velocities in certain task-space directions regardless of joint velocities. This is called a kinematic singularity."
+    },
+    {
+      "question_number": 27,
+      "question_text": "A power grid capstone uses the admittance matrix Y (5x5) for load flow analysis. The matrix Y is symmetric with all row sums equal to zero. What is the smallest eigenvalue of Y?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "1",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "-1",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "It depends on the specific entries",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "0",
+          "is_correct": true,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "If all row sums are zero, then Y * [1,1,...,1]^T = [0,0,...,0]^T, meaning the all-ones vector is an eigenvector with eigenvalue 0. For a graph Laplacian-type matrix, 0 is the smallest eigenvalue."
+    },
+    {
+      "question_number": 28,
+      "question_text": "A biology capstone models gene regulatory networks using a matrix A where A[i][j] represents gene j's effect on gene i. If A has 10 genes and the system dx/dt = Ax, stability requires all eigenvalues of A to have what property?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Negative real parts",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "All eigenvalues must be real",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Magnitude less than 1",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Positive real parts",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "For the continuous-time system dx/dt = Ax, the equilibrium x = 0 is stable if and only if all eigenvalues of A have negative real parts. This ensures that all perturbations decay exponentially over time."
+    },
+    {
+      "question_number": 29,
+      "question_text": "A machine learning capstone builds a spam classifier using logistic regression. The feature matrix X is 10000x100. The team uses PCA to reduce to 20 features before training. What fraction of the original features are retained?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "10%",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "20%",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "80%",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "50%",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "PCA reduces from 100 features to 20 principal components. The fraction retained is 20/100 = 0.20 = 20%. The 20 principal components are chosen to capture the maximum variance in the data."
+    },
+    {
+      "question_number": 30,
+      "question_text": "A structural engineering capstone analyzes a bridge using finite element method. After assembly, the global stiffness matrix K is 500x500 with bandwidth 20. The team must solve Kx = f for 100 different load cases. Which approach is most efficient?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Compute the Cholesky factorization K = LL^T once, then use forward/back substitution for each load case",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "Use Cramer's rule for each system",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Compute K^{-1} and multiply by each load vector",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Solve each system independently using Gaussian elimination",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Since K is symmetric positive definite (stiffness matrix), Cholesky factorization K = LL^T is optimal. Factoring once costs O(n*b^2) for a banded matrix (b=20), then each of the 100 systems is solved in O(n*b) via forward/back substitution, far more efficient than repeated full solves."
+    }
   ]
 }

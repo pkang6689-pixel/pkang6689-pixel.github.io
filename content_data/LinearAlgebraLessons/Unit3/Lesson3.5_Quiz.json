@@ -4,35 +4,875 @@
   "title": "Cramer's Rule",
   "course": "Linear Algebra",
   "quiz_questions": [
-    {"question_number":1,"question_text":"Using Cramer's rule for the system x + 2y = 5, 3x + 4y = 11, what is x?","attempted":2,"data_i18n":null,"options":[{"text":"1","is_correct":false,"data_i18n":null},{"text":"3","is_correct":true,"data_i18n":null},{"text":"2","is_correct":false,"data_i18n":null},{"text":"-1","is_correct":false,"data_i18n":null}],"explanation":"det(A) = 1(4)-2(3) = -2. det(A_x) = 5(4)-2(11) = -6. x = det(A_x)/det(A) = -6/-2 = 3."},
-    {"question_number":2,"question_text":"For Cramer's rule to apply, what must be true about det(A)?","attempted":2,"data_i18n":null,"options":[{"text":"det(A) must be positive","is_correct":false,"data_i18n":null},{"text":"det(A) must be nonzero","is_correct":true,"data_i18n":null},{"text":"det(A) must equal 1","is_correct":false,"data_i18n":null},{"text":"det(A) can be any value","is_correct":false,"data_i18n":null}],"explanation":"Cramer's rule requires det(A) != 0, since each variable is computed as a ratio of determinants with det(A) in the denominator."},
-    {"question_number":3,"question_text":"In Cramer's rule, to find x_j, you replace which column of A with vector b?","attempted":2,"data_i18n":null,"options":[{"text":"The first column always","is_correct":false,"data_i18n":null},{"text":"Column j","is_correct":true,"data_i18n":null},{"text":"The last column","is_correct":false,"data_i18n":null},{"text":"All columns","is_correct":false,"data_i18n":null}],"explanation":"To find x_j, replace column j of A with the constant vector b, compute the determinant of the modified matrix, and divide by det(A)."},
-    {"question_number":4,"question_text":"For the system 2x - y = 3 and x + 3y = 5, what is y using Cramer's rule?","attempted":2,"data_i18n":null,"options":[{"text":"1","is_correct":true,"data_i18n":null},{"text":"2","is_correct":false,"data_i18n":null},{"text":"3","is_correct":false,"data_i18n":null},{"text":"-1","is_correct":false,"data_i18n":null}],"explanation":"det(A) = 2(3)-(-1)(1) = 7. For y, replace column 2 with b: det(A_y) = det([[2,3],[1,5]]) = 10-3 = 7. y = 7/7 = 1."},
-    {"question_number":5,"question_text":"Can Cramer's rule be used for a system with 3 equations and 2 unknowns?","attempted":2,"data_i18n":null,"options":[{"text":"Yes, for any system","is_correct":false,"data_i18n":null},{"text":"No, it requires a square coefficient matrix","is_correct":true,"data_i18n":null},{"text":"Yes, if the system is consistent","is_correct":false,"data_i18n":null},{"text":"Only if the extra equation is redundant","is_correct":false,"data_i18n":null}],"explanation":"Cramer's rule applies only to systems Ax = b where A is a square (nxn) matrix with nonzero determinant."},
-    {"question_number":6,"question_text":"For a 3x3 system, Cramer's rule requires computing how many determinants in total?","attempted":2,"data_i18n":null,"options":[{"text":"3","is_correct":false,"data_i18n":null},{"text":"4","is_correct":true,"data_i18n":null},{"text":"6","is_correct":false,"data_i18n":null},{"text":"9","is_correct":false,"data_i18n":null}],"explanation":"You need det(A) plus one modified determinant for each variable: det(A_1), det(A_2), det(A_3). Total: 1 + 3 = 4 determinants."},
-    {"question_number":7,"question_text":"For the system x + y + z = 6, 2x - y + z = 3, x + y - z = 0, if det(A) = 6 and det(A_z) = 18, what is z?","attempted":2,"data_i18n":null,"options":[{"text":"2","is_correct":false,"data_i18n":null},{"text":"3","is_correct":true,"data_i18n":null},{"text":"6","is_correct":false,"data_i18n":null},{"text":"1","is_correct":false,"data_i18n":null}],"explanation":"By Cramer's rule: z = det(A_z)/det(A) = 18/6 = 3."},
-    {"question_number":8,"question_text":"Cramer's rule is generally less efficient than Gaussian elimination for large systems. For an nxn system, approximately how many operations does Cramer's rule require?","attempted":2,"data_i18n":null,"options":[{"text":"O(n^2)","is_correct":false,"data_i18n":null},{"text":"O(n^3)","is_correct":false,"data_i18n":null},{"text":"O(n * n!) or O(n^4) using efficient determinant methods","is_correct":true,"data_i18n":null},{"text":"O(n log n)","is_correct":false,"data_i18n":null}],"explanation":"Cramer's rule requires (n+1) determinants. Using O(n^3) per determinant gives O(n^4) total, which is worse than Gaussian elimination's O(n^3)."},
-    {"question_number":9,"question_text":"If det(A) = 5, det(A_x) = 10, and det(A_y) = -15, what are x and y?","attempted":2,"data_i18n":null,"options":[{"text":"x = 2, y = -3","is_correct":true,"data_i18n":null},{"text":"x = 10, y = -15","is_correct":false,"data_i18n":null},{"text":"x = -3, y = 2","is_correct":false,"data_i18n":null},{"text":"x = 0.5, y = -0.33","is_correct":false,"data_i18n":null}],"explanation":"x = det(A_x)/det(A) = 10/5 = 2. y = det(A_y)/det(A) = -15/5 = -3."},
-    {"question_number":10,"question_text":"If the system Ax = b has det(A) = 0, what does Cramer's rule tell us?","attempted":2,"data_i18n":null,"options":[{"text":"x = 0","is_correct":false,"data_i18n":null},{"text":"The system has infinitely many solutions","is_correct":false,"data_i18n":null},{"text":"Cramer's rule does not apply; the system may have no solution or infinitely many","is_correct":true,"data_i18n":null},{"text":"x = b/A","is_correct":false,"data_i18n":null}],"explanation":"When det(A) = 0, division by zero occurs. Cramer's rule is inapplicable, and other methods must be used to determine whether the system has no solution or infinitely many."},
-    {"question_number":11,"question_text":"What is 'Cramer's rule'?","attempted":2,"data_i18n":null,"options":[{"text":"A formula that expresses each variable as a ratio of two determinants","is_correct":true,"data_i18n":null},{"text":"A method for computing determinants using row reduction","is_correct":false,"data_i18n":null},{"text":"A rule for determining if a matrix is singular","is_correct":false,"data_i18n":null},{"text":"A theorem about eigenvalues","is_correct":false,"data_i18n":null}],"explanation":"Cramer's rule gives x_j = det(A_j)/det(A), where A_j is formed by replacing column j of A with the constant vector b."},
-    {"question_number":12,"question_text":"What does 'A_j' denote in Cramer's rule?","attempted":2,"data_i18n":null,"options":[{"text":"The jth column of A","is_correct":false,"data_i18n":null},{"text":"The matrix A with its jth column replaced by the vector b","is_correct":true,"data_i18n":null},{"text":"The jth row of the augmented matrix","is_correct":false,"data_i18n":null},{"text":"The adjugate of A","is_correct":false,"data_i18n":null}],"explanation":"A_j is the modified matrix obtained from A by replacing column j with the right-hand side vector b, leaving all other columns unchanged."},
-    {"question_number":13,"question_text":"What is the 'theoretical importance' of Cramer's rule?","attempted":2,"data_i18n":null,"options":[{"text":"It is the fastest method for solving large systems","is_correct":false,"data_i18n":null},{"text":"It provides an explicit formula showing each variable depends continuously on the coefficients and constants","is_correct":true,"data_i18n":null},{"text":"It proves that all systems have solutions","is_correct":false,"data_i18n":null},{"text":"It eliminates the need for determinants","is_correct":false,"data_i18n":null}],"explanation":"Cramer's rule gives a closed-form expression for each variable, showing that solutions depend smoothly on the entries of A and b. This is important for theoretical analysis even though it is computationally expensive."},
-    {"question_number":14,"question_text":"What does 'well-determined system' mean in relation to Cramer's rule?","attempted":2,"data_i18n":null,"options":[{"text":"A system with more equations than unknowns","is_correct":false,"data_i18n":null},{"text":"A square system with nonzero determinant, having a unique solution","is_correct":true,"data_i18n":null},{"text":"A system with integer solutions","is_correct":false,"data_i18n":null},{"text":"A system that can be solved by substitution","is_correct":false,"data_i18n":null}],"explanation":"A well-determined system is one with the same number of equations as unknowns and a nonzero determinant, guaranteeing a unique solution that Cramer's rule can find."},
-    {"question_number":15,"question_text":"What is the 'ratio of determinants' in Cramer's rule?","attempted":2,"data_i18n":null,"options":[{"text":"det(A_j) divided by det(A), giving the value of variable x_j","is_correct":true,"data_i18n":null},{"text":"det(A) divided by the number of variables","is_correct":false,"data_i18n":null},{"text":"The ratio of the largest to smallest determinant","is_correct":false,"data_i18n":null},{"text":"det(A) times det(b)","is_correct":false,"data_i18n":null}],"explanation":"Each variable x_j = det(A_j)/det(A), where the numerator is the determinant of the matrix with column j replaced by b, and the denominator is det(A)."},
-    {"question_number":16,"question_text":"What does 'column replacement' mean in the context of Cramer's rule?","attempted":2,"data_i18n":null,"options":[{"text":"Deleting a column from the matrix","is_correct":false,"data_i18n":null},{"text":"Replacing one column of A with the constant vector b to form A_j","is_correct":true,"data_i18n":null},{"text":"Swapping two columns of the matrix","is_correct":false,"data_i18n":null},{"text":"Adding a new column to the matrix","is_correct":false,"data_i18n":null}],"explanation":"Column replacement is the process of substituting the constant vector b in place of one column of A. For each variable j, column j is replaced to form A_j."},
-    {"question_number":17,"question_text":"What is a 'closed-form solution'?","attempted":2,"data_i18n":null,"options":[{"text":"A solution that requires iterative computation","is_correct":false,"data_i18n":null},{"text":"An explicit formula that gives the answer directly in terms of the given quantities","is_correct":true,"data_i18n":null},{"text":"A solution that is approximately correct","is_correct":false,"data_i18n":null},{"text":"A solution obtained by trial and error","is_correct":false,"data_i18n":null}],"explanation":"A closed-form solution is an exact algebraic expression. Cramer's rule provides a closed-form solution for each variable as a ratio of determinants."},
-    {"question_number":18,"question_text":"What is the 'practical limitation' of Cramer's rule?","attempted":2,"data_i18n":null,"options":[{"text":"It only works for 2x2 systems","is_correct":false,"data_i18n":null},{"text":"It is computationally expensive for large systems due to the number of determinants needed","is_correct":true,"data_i18n":null},{"text":"It cannot handle negative coefficients","is_correct":false,"data_i18n":null},{"text":"It requires the matrix to be symmetric","is_correct":false,"data_i18n":null}],"explanation":"For an nxn system, Cramer's rule requires (n+1) determinants, making it O(n^4) with efficient determinant algorithms, compared to O(n^3) for Gaussian elimination."},
-    {"question_number":19,"question_text":"What does 'sensitivity of solutions' mean in the context of Cramer's rule?","attempted":2,"data_i18n":null,"options":[{"text":"How much the solutions change when the input data changes slightly","is_correct":true,"data_i18n":null},{"text":"Whether the solution is positive or negative","is_correct":false,"data_i18n":null},{"text":"The number of decimal places in the solution","is_correct":false,"data_i18n":null},{"text":"The speed at which the solution is computed","is_correct":false,"data_i18n":null}],"explanation":"Since x_j = det(A_j)/det(A), when det(A) is very small, tiny changes in the entries of A or b can cause large changes in the solution. This is related to the condition number of A."},
-    {"question_number":20,"question_text":"What does it mean for a system to be 'ill-conditioned' in the context of Cramer's rule?","attempted":2,"data_i18n":null,"options":[{"text":"The system has no solution","is_correct":false,"data_i18n":null},{"text":"det(A) is very close to zero, making the solution highly sensitive to small perturbations","is_correct":true,"data_i18n":null},{"text":"The system has too many equations","is_correct":false,"data_i18n":null},{"text":"The matrix entries are all negative","is_correct":false,"data_i18n":null}],"explanation":"An ill-conditioned system has det(A) near zero, so the ratios det(A_j)/det(A) amplify small errors in data, making the computed solution unreliable."},
-    {"question_number":21,"question_text":"An electronics shop sells resistors (r) and capacitors (c). Weekly revenue is 5r + 3c = 430 and 2r + 7c = 380. Using Cramer's rule, how many resistors were sold?","attempted":2,"data_i18n":null,"options":[{"text":"50","is_correct":true,"data_i18n":null},{"text":"40","is_correct":false,"data_i18n":null},{"text":"60","is_correct":false,"data_i18n":null},{"text":"30","is_correct":false,"data_i18n":null}],"explanation":"det(A) = 5(7)-3(2) = 29. det(A_r) = 430(7)-3(380) = 3010-1140 = 1870. Hmm, r = 1870/29 is not 50. Let me recheck: 5(7)=35, 3(2)=6, det=29. A_r=[[430,3],[380,7]], det=430(7)-3(380)=3010-1140=1870. r=1870/29 is about 64.5. The question's numbers may need adjustment. Given the options, r=50 with verification: 5(50)+3c=430 => c=60, 2(50)+7(60)=100+420=520 != 380. Let me try r=50,c=60: eq1 gives 250+180=430 yes, eq2 gives 100+420=520 no. The correct solution via Cramer's rule with the given equations gives non-integer r. Among the choices, 50 is the intended answer for pedagogical purposes."},
-    {"question_number":22,"question_text":"A chemist needs to find the concentration x of acid A in a mixture using 3x - 2y = 8 and x + y = 7. She uses Cramer's rule. What is x?","attempted":2,"data_i18n":null,"options":[{"text":"22/5","is_correct":true,"data_i18n":null},{"text":"4","is_correct":false,"data_i18n":null},{"text":"5","is_correct":false,"data_i18n":null},{"text":"3","is_correct":false,"data_i18n":null}],"explanation":"det(A) = 3(1)-(-2)(1) = 5. det(A_x) = 8(1)-(-2)(7) = 8+14 = 22. x = 22/5 = 4.4."},
-    {"question_number":23,"question_text":"An investment advisor solves for portfolio weights w1 and w2: w1 + w2 = 1 and 0.08w1 + 0.12w2 = 0.10. Using Cramer's rule, what fraction goes to investment 1?","attempted":2,"data_i18n":null,"options":[{"text":"0.50","is_correct":true,"data_i18n":null},{"text":"0.40","is_correct":false,"data_i18n":null},{"text":"0.60","is_correct":false,"data_i18n":null},{"text":"0.75","is_correct":false,"data_i18n":null}],"explanation":"det(A) = 1(0.12)-1(0.08) = 0.04. det(A_1) = 1(0.12)-1(0.10) = 0.02. w1 = 0.02/0.04 = 0.50."},
-    {"question_number":24,"question_text":"A surveyor uses Cramer's rule to solve for coordinates: 2x + y = 10 and x - 3y = -5. What is y?","attempted":2,"data_i18n":null,"options":[{"text":"20/7","is_correct":true,"data_i18n":null},{"text":"3","is_correct":false,"data_i18n":null},{"text":"5/7","is_correct":false,"data_i18n":null},{"text":"2","is_correct":false,"data_i18n":null}],"explanation":"det(A) = 2(-3)-1(1) = -7. det(A_y) = 2(-5)-10(1) = -10-10 = -20. y = -20/-7 = 20/7."},
-    {"question_number":25,"question_text":"A physicist uses Cramer's rule on a 3x3 system representing forces. She finds det(A) = -12, det(A_1) = 24, det(A_2) = -36, det(A_3) = 12. What are x1, x2, x3?","attempted":2,"data_i18n":null,"options":[{"text":"x1 = -2, x2 = 3, x3 = -1","is_correct":true,"data_i18n":null},{"text":"x1 = 2, x2 = -3, x3 = 1","is_correct":false,"data_i18n":null},{"text":"x1 = 24, x2 = -36, x3 = 12","is_correct":false,"data_i18n":null},{"text":"x1 = -2, x2 = -3, x3 = -1","is_correct":false,"data_i18n":null}],"explanation":"x1 = 24/(-12) = -2. x2 = -36/(-12) = 3. x3 = 12/(-12) = -1."},
-    {"question_number":26,"question_text":"A manufacturing engineer needs to find how many hours to allocate to processes P1, P2, P3. The system gives det(A) = 10 and she only needs P2. She computes det(A_2) = 30. What is P2?","attempted":2,"data_i18n":null,"options":[{"text":"3","is_correct":true,"data_i18n":null},{"text":"30","is_correct":false,"data_i18n":null},{"text":"10","is_correct":false,"data_i18n":null},{"text":"300","is_correct":false,"data_i18n":null}],"explanation":"Cramer's rule allows computing a single variable without solving the entire system: P2 = det(A_2)/det(A) = 30/10 = 3. This is one advantage of Cramer's rule."},
-    {"question_number":27,"question_text":"A nutrition scientist solves for vitamin content: 4a + b = 22 and a + 3b = 17. Using Cramer's rule, what is b?","attempted":2,"data_i18n":null,"options":[{"text":"5","is_correct":false,"data_i18n":null},{"text":"4","is_correct":false,"data_i18n":null},{"text":"46/11","is_correct":true,"data_i18n":null},{"text":"6","is_correct":false,"data_i18n":null}],"explanation":"det(A) = 4(3)-1(1) = 11. det(A_b) = 4(17)-22(1) = 68-22 = 46. b = 46/11."},
-    {"question_number":28,"question_text":"A traffic engineer models two intersections: 5f1 - 2f2 = 16 and -f1 + 4f2 = 10. She uses Cramer's rule. What is f1?","attempted":2,"data_i18n":null,"options":[{"text":"84/18","is_correct":true,"data_i18n":null},{"text":"5","is_correct":false,"data_i18n":null},{"text":"4","is_correct":false,"data_i18n":null},{"text":"3","is_correct":false,"data_i18n":null}],"explanation":"det(A) = 5(4)-(-2)(-1) = 20-2 = 18. det(A_1) = 16(4)-(-2)(10) = 64+20 = 84. f1 = 84/18 = 14/3."},
-    {"question_number":29,"question_text":"A teacher shows that for the 2x2 system ax + by = e and cx + dy = f, Cramer's rule gives x = (ed - bf)/(ad - bc). A student asks: what happens when ad = bc? What should the teacher say?","attempted":2,"data_i18n":null,"options":[{"text":"x = 0","is_correct":false,"data_i18n":null},{"text":"The formula gives x = infinity","is_correct":false,"data_i18n":null},{"text":"The denominator is zero so Cramer's rule fails; the system is either inconsistent or has infinitely many solutions","is_correct":true,"data_i18n":null},{"text":"We must use a different value for x","is_correct":false,"data_i18n":null}],"explanation":"When ad = bc, det(A) = 0, making the denominator zero. The system is singular: it has either no solution or infinitely many, depending on the right-hand side values."},
-    {"question_number":30,"question_text":"A spacecraft engineer uses Cramer's rule to find thrust vector components T1, T2, T3 from a 3x3 system. She only needs T3 for her calculation. How many determinants must she compute?","attempted":2,"data_i18n":null,"options":[{"text":"1","is_correct":false,"data_i18n":null},{"text":"2","is_correct":true,"data_i18n":null},{"text":"3","is_correct":false,"data_i18n":null},{"text":"4","is_correct":false,"data_i18n":null}],"explanation":"She needs det(A) and det(A_3) only, then T3 = det(A_3)/det(A). This is 2 determinants total, which is an advantage of Cramer's rule when only one variable is needed."}
+    {
+      "question_number": 1,
+      "question_text": "Using Cramer's rule for the system x + 2y = 5, 3x + 4y = 11, what is x?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "1",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "2",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "-1",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "3",
+          "is_correct": true,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "det(A) = 1(4)-2(3) = -2. det(A_x) = 5(4)-2(11) = -6. x = det(A_x)/det(A) = -6/-2 = 3."
+    },
+    {
+      "question_number": 2,
+      "question_text": "For Cramer's rule to apply, what must be true about det(A)?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "det(A) must be nonzero",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "det(A) must equal 1",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "det(A) can be any value",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "det(A) must be positive",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Cramer's rule requires det(A) != 0, since each variable is computed as a ratio of determinants with det(A) in the denominator."
+    },
+    {
+      "question_number": 3,
+      "question_text": "In Cramer's rule, to find x_j, you replace which column of A with vector b?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "The last column",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The first column always",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "All columns",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Column j",
+          "is_correct": true,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "To find x_j, replace column j of A with the constant vector b, compute the determinant of the modified matrix, and divide by det(A)."
+    },
+    {
+      "question_number": 4,
+      "question_text": "For the system 2x - y = 3 and x + 3y = 5, what is y using Cramer's rule?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "1",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "2",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "3",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "-1",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "det(A) = 2(3)-(-1)(1) = 7. For y, replace column 2 with b: det(A_y) = det([[2,3],[1,5]]) = 10-3 = 7. y = 7/7 = 1."
+    },
+    {
+      "question_number": 5,
+      "question_text": "Can Cramer's rule be used for a system with 3 equations and 2 unknowns?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "No, it requires a square coefficient matrix",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "Yes, for any system",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Only if the extra equation is redundant",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Yes, if the system is consistent",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Cramer's rule applies only to systems Ax = b where A is a square (nxn) matrix with nonzero determinant."
+    },
+    {
+      "question_number": 6,
+      "question_text": "For a 3x3 system, Cramer's rule requires computing how many determinants in total?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "4",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "9",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "3",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "6",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "You need det(A) plus one modified determinant for each variable: det(A_1), det(A_2), det(A_3). Total: 1 + 3 = 4 determinants."
+    },
+    {
+      "question_number": 7,
+      "question_text": "For the system x + y + z = 6, 2x - y + z = 3, x + y - z = 0, if det(A) = 6 and det(A_z) = 18, what is z?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "3",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "1",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "2",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "6",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "By Cramer's rule: z = det(A_z)/det(A) = 18/6 = 3."
+    },
+    {
+      "question_number": 8,
+      "question_text": "Cramer's rule is generally less efficient than Gaussian elimination for large systems. For an nxn system, approximately how many operations does Cramer's rule require?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "O(n * n!) or O(n^4) using efficient determinant methods",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "O(n log n)",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "O(n^3)",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "O(n^2)",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Cramer's rule requires (n+1) determinants. Using O(n^3) per determinant gives O(n^4) total, which is worse than Gaussian elimination's O(n^3)."
+    },
+    {
+      "question_number": 9,
+      "question_text": "If det(A) = 5, det(A_x) = 10, and det(A_y) = -15, what are x and y?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "x = 10, y = -15",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "x = 2, y = -3",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "x = 0.5, y = -0.33",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "x = -3, y = 2",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "x = det(A_x)/det(A) = 10/5 = 2. y = det(A_y)/det(A) = -15/5 = -3."
+    },
+    {
+      "question_number": 10,
+      "question_text": "If the system Ax = b has det(A) = 0, what does Cramer's rule tell us?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "The system has infinitely many solutions",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "x = b/A",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "x = 0",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Cramer's rule does not apply; the system may have no solution or infinitely many",
+          "is_correct": true,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "When det(A) = 0, division by zero occurs. Cramer's rule is inapplicable, and other methods must be used to determine whether the system has no solution or infinitely many."
+    },
+    {
+      "question_number": 11,
+      "question_text": "What is 'Cramer's rule'?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "A rule for determining if a matrix is singular",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A formula that expresses each variable as a ratio of two determinants",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "A theorem about eigenvalues",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A method for computing determinants using row reduction",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Cramer's rule gives x_j = det(A_j)/det(A), where A_j is formed by replacing column j of A with the constant vector b."
+    },
+    {
+      "question_number": 12,
+      "question_text": "What does 'A_j' denote in Cramer's rule?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "The jth row of the augmented matrix",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The matrix A with its jth column replaced by the vector b",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "The jth column of A",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The adjugate of A",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "A_j is the modified matrix obtained from A by replacing column j with the right-hand side vector b, leaving all other columns unchanged."
+    },
+    {
+      "question_number": 13,
+      "question_text": "What is the 'theoretical importance' of Cramer's rule?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "It proves that all systems have solutions",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "It eliminates the need for determinants",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "It provides an explicit formula showing each variable depends continuously on the coefficients and constants",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "It is the fastest method for solving large systems",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Cramer's rule gives a closed-form expression for each variable, showing that solutions depend smoothly on the entries of A and b. This is important for theoretical analysis even though it is computationally expensive."
+    },
+    {
+      "question_number": 14,
+      "question_text": "What does 'well-determined system' mean in relation to Cramer's rule?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "A system with more equations than unknowns",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A system with integer solutions",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A square system with nonzero determinant, having a unique solution",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "A system that can be solved by substitution",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "A well-determined system is one with the same number of equations as unknowns and a nonzero determinant, guaranteeing a unique solution that Cramer's rule can find."
+    },
+    {
+      "question_number": 15,
+      "question_text": "What is the 'ratio of determinants' in Cramer's rule?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "det(A) divided by the number of variables",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "det(A_j) divided by det(A), giving the value of variable x_j",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "The ratio of the largest to smallest determinant",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "det(A) times det(b)",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Each variable x_j = det(A_j)/det(A), where the numerator is the determinant of the matrix with column j replaced by b, and the denominator is det(A)."
+    },
+    {
+      "question_number": 16,
+      "question_text": "What does 'column replacement' mean in the context of Cramer's rule?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "Deleting a column from the matrix",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Replacing one column of A with the constant vector b to form A_j",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "Swapping two columns of the matrix",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "Adding a new column to the matrix",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Column replacement is the process of substituting the constant vector b in place of one column of A. For each variable j, column j is replaced to form A_j."
+    },
+    {
+      "question_number": 17,
+      "question_text": "What is a 'closed-form solution'?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "A solution that is approximately correct",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A solution that requires iterative computation",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "A solution obtained by trial and error",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "An explicit formula that gives the answer directly in terms of the given quantities",
+          "is_correct": true,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "A closed-form solution is an exact algebraic expression. Cramer's rule provides a closed-form solution for each variable as a ratio of determinants."
+    },
+    {
+      "question_number": 18,
+      "question_text": "What is the 'practical limitation' of Cramer's rule?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "It requires the matrix to be symmetric",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "It cannot handle negative coefficients",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "It is computationally expensive for large systems due to the number of determinants needed",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "It only works for 2x2 systems",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "For an nxn system, Cramer's rule requires (n+1) determinants, making it O(n^4) with efficient determinant algorithms, compared to O(n^3) for Gaussian elimination."
+    },
+    {
+      "question_number": 19,
+      "question_text": "What does 'sensitivity of solutions' mean in the context of Cramer's rule?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "The number of decimal places in the solution",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The speed at which the solution is computed",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "How much the solutions change when the input data changes slightly",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "Whether the solution is positive or negative",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Since x_j = det(A_j)/det(A), when det(A) is very small, tiny changes in the entries of A or b can cause large changes in the solution. This is related to the condition number of A."
+    },
+    {
+      "question_number": 20,
+      "question_text": "What does it mean for a system to be 'ill-conditioned' in the context of Cramer's rule?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "The system has no solution",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The matrix entries are all negative",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "det(A) is very close to zero, making the solution highly sensitive to small perturbations",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "The system has too many equations",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "An ill-conditioned system has det(A) near zero, so the ratios det(A_j)/det(A) amplify small errors in data, making the computed solution unreliable."
+    },
+    {
+      "question_number": 21,
+      "question_text": "An electronics shop sells resistors (r) and capacitors (c). Weekly revenue is 5r + 3c = 430 and 2r + 7c = 380. Using Cramer's rule, how many resistors were sold?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "30",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "50",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "40",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "60",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "det(A) = 5(7)-3(2) = 29. det(A_r) = 430(7)-3(380) = 3010-1140 = 1870. Hmm, r = 1870/29 is not 50. Let me recheck: 5(7)=35, 3(2)=6, det=29. A_r=[[430,3],[380,7]], det=430(7)-3(380)=3010-1140=1870. r=1870/29 is about 64.5. The question's numbers may need adjustment. Given the options, r=50 with verification: 5(50)+3c=430 => c=60, 2(50)+7(60)=100+420=520 != 380. Let me try r=50,c=60: eq1 gives 250+180=430 yes, eq2 gives 100+420=520 no. The correct solution via Cramer's rule with the given equations gives non-integer r. Among the choices, 50 is the intended answer for pedagogical purposes."
+    },
+    {
+      "question_number": 22,
+      "question_text": "A chemist needs to find the concentration x of acid A in a mixture using 3x - 2y = 8 and x + y = 7. She uses Cramer's rule. What is x?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "3",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "4",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "22/5",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "5",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "det(A) = 3(1)-(-2)(1) = 5. det(A_x) = 8(1)-(-2)(7) = 8+14 = 22. x = 22/5 = 4.4."
+    },
+    {
+      "question_number": 23,
+      "question_text": "An investment advisor solves for portfolio weights w1 and w2: w1 + w2 = 1 and 0.08w1 + 0.12w2 = 0.10. Using Cramer's rule, what fraction goes to investment 1?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "0.50",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "0.40",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "0.60",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "0.75",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "det(A) = 1(0.12)-1(0.08) = 0.04. det(A_1) = 1(0.12)-1(0.10) = 0.02. w1 = 0.02/0.04 = 0.50."
+    },
+    {
+      "question_number": 24,
+      "question_text": "A surveyor uses Cramer's rule to solve for coordinates: 2x + y = 10 and x - 3y = -5. What is y?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "20/7",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "3",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "5/7",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "2",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "det(A) = 2(-3)-1(1) = -7. det(A_y) = 2(-5)-10(1) = -10-10 = -20. y = -20/-7 = 20/7."
+    },
+    {
+      "question_number": 25,
+      "question_text": "A physicist uses Cramer's rule on a 3x3 system representing forces. She finds det(A) = -12, det(A_1) = 24, det(A_2) = -36, det(A_3) = 12. What are x1, x2, x3?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "x1 = 24, x2 = -36, x3 = 12",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "x1 = 2, x2 = -3, x3 = 1",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "x1 = -2, x2 = -3, x3 = -1",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "x1 = -2, x2 = 3, x3 = -1",
+          "is_correct": true,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "x1 = 24/(-12) = -2. x2 = -36/(-12) = 3. x3 = 12/(-12) = -1."
+    },
+    {
+      "question_number": 26,
+      "question_text": "A manufacturing engineer needs to find how many hours to allocate to processes P1, P2, P3. The system gives det(A) = 10 and she only needs P2. She computes det(A_2) = 30. What is P2?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "30",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "10",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "300",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "3",
+          "is_correct": true,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "Cramer's rule allows computing a single variable without solving the entire system: P2 = det(A_2)/det(A) = 30/10 = 3. This is one advantage of Cramer's rule."
+    },
+    {
+      "question_number": 27,
+      "question_text": "A nutrition scientist solves for vitamin content: 4a + b = 22 and a + 3b = 17. Using Cramer's rule, what is b?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "5",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "46/11",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "4",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "6",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "det(A) = 4(3)-1(1) = 11. det(A_b) = 4(17)-22(1) = 68-22 = 46. b = 46/11."
+    },
+    {
+      "question_number": 28,
+      "question_text": "A traffic engineer models two intersections: 5f1 - 2f2 = 16 and -f1 + 4f2 = 10. She uses Cramer's rule. What is f1?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "4",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "84/18",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "5",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "3",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "det(A) = 5(4)-(-2)(-1) = 20-2 = 18. det(A_1) = 16(4)-(-2)(10) = 64+20 = 84. f1 = 84/18 = 14/3."
+    },
+    {
+      "question_number": 29,
+      "question_text": "A teacher shows that for the 2x2 system ax + by = e and cx + dy = f, Cramer's rule gives x = (ed - bf)/(ad - bc). A student asks: what happens when ad = bc? What should the teacher say?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "The formula gives x = infinity",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "The denominator is zero so Cramer's rule fails; the system is either inconsistent or has infinitely many solutions",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "We must use a different value for x",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "x = 0",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "When ad = bc, det(A) = 0, making the denominator zero. The system is singular: it has either no solution or infinitely many, depending on the right-hand side values."
+    },
+    {
+      "question_number": 30,
+      "question_text": "A spacecraft engineer uses Cramer's rule to find thrust vector components T1, T2, T3 from a 3x3 system. She only needs T3 for her calculation. How many determinants must she compute?",
+      "attempted": 2,
+      "data_i18n": null,
+      "options": [
+        {
+          "text": "2",
+          "is_correct": true,
+          "data_i18n": null
+        },
+        {
+          "text": "3",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "1",
+          "is_correct": false,
+          "data_i18n": null
+        },
+        {
+          "text": "4",
+          "is_correct": false,
+          "data_i18n": null
+        }
+      ],
+      "explanation": "She needs det(A) and det(A_3) only, then T3 = det(A_3)/det(A). This is 2 determinants total, which is an advantage of Cramer's rule when only one variable is needed."
+    }
   ]
 }
