@@ -3,31 +3,27 @@ import http.server
 import socketserver
 import sys
 import os
-import traceback
-import threading
 import urllib.parse
-import signal
-import time
 import socket
+import threading
+import time
+import gc
 
 PORT = 8082
+MAX_CONNECTIONS = 100
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
-    timeout = 10  # Reduced timeout for quicker disconnects
+class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    timeout = 5
     
     def log_message(self, format, *args):
-        try:
-            print(f"[{self.log_date_time_string()}] {format % args}", flush=True)
-        except:
-            pass
+        pass  # Silent logging to reduce output
     
     def translate_path(self, path):
         try:
             path = urllib.parse.unquote(path)
             return super().translate_path(path)
-        except Exception as e:
-            print(f"Path error: {e}", flush=True)
+        except:
             return super().translate_path(path)
     
     def end_headers(self):
@@ -35,45 +31,50 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             self.send_header('Pragma', 'no-cache')
             self.send_header('Expires', '0')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Connection', 'close')  # Force connection close
+            self.send_header('Connection', 'close')
             super().end_headers()
-        except Exception as e:
-            print(f"Headers error: {e}", flush=True)
+        except:
+            pass
     
     def do_GET(self):
         try:
             super().do_GET()
-        except (ConnectionResetError, BrokenPipeError):
+        except:
             pass
-        except Exception as e:
-            try:
-                self.send_error(500)
-            except:
-                pass
+        finally:
+            self.close_connection = True
     
     def version_string(self):
         return "Server/1.0"
 
-class ResilientTCPServer(socketserver.ThreadingTCPServer):
-    daemon_threads = False
+class CleanupTCPServer(socketserver.ThreadingTCPServer):
     allow_reuse_address = True
+    daemon_threads = True
+    max_connections = 0
     
     def __init__(self, *args, **kwargs):
         socketserver.TCPServer.__init__(self, *args, **kwargs)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-def run_server():
-    try:
-        with ResilientTCPServer(("127.0.0.1", PORT), MyHTTPRequestHandler) as httpd:
-            print(f"✓ Server ready at http://localhost:{PORT}/", flush=True)
-            httpd.serve_forever()
-    except KeyboardInterrupt:
-        print("\n✓ Server stopped", flush=True)
-        sys.exit(0)
-    except Exception as e:
-        print(f"✗ Error: {e}", flush=True)
-        time.sleep(1)
+def monitor_resources():
+    """Monitor and clean up resources periodically"""
+    while True:
+        try:
+            time.sleep(30)
+            gc.collect()  # Force garbage collection
+        except:
+            pass
 
-if __name__ == "__main__":
-    run_server()
+try:
+    server = CleanupTCPServer(("127.0.0.1", PORT), CleanupHTTPRequestHandler)
+    print(f"Server running: http://localhost:{PORT}/", flush=True)
+    
+    # Start resource monitor thread
+    monitor_thread = threading.Thread(target=monitor_resources, daemon=True)
+    monitor_thread.start()
+    
+    server.serve_forever()
+except KeyboardInterrupt:
+    print("Stopped", flush=True)
+except Exception as e:
+    print(f"Error: {e}", flush=True)
