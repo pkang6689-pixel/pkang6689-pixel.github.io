@@ -1061,19 +1061,11 @@
     },
     {
       type: 'highlight',
-      target: '#ai-assistant-button',
-      icon: '🤖',
-      title: 'AI Assistant',
-      body: 'Stuck on a problem? Ask our AI tutor for hints, explanations, or practice quizzes at any time!',
-      position: 'below'
-    },
-    {
-      type: 'highlight',
-      target: '#arcade-button',
-      icon: '🎮',
-      title: 'Arcade Mode',
-      body: 'Unlock games by spending arcade tokens you earn from completing lessons. Learning has never been this fun!',
-      position: 'below'
+      target: '#more-menu-btn',
+      icon: '⋯',
+      title: 'More Options',
+      body: 'Tap <b>⋯ More</b> for extra features: Arcade, Teacher Analytics, Forums, Updates, and our AI Assistant.',
+      position: 'auto'
     },
     {
       type: 'center',
@@ -1090,7 +1082,20 @@
     },
     {
       type: 'center',
-      icon: '🚀',
+      icon: '�️',
+      title: 'Arcade Tokens',
+      body: 'Earn tokens by completing lesson quizzes, then spend them in the Arcade!',
+      flow: [
+        { icon: '✅', label: 'Pass Quiz' },
+        { icon: '💎', label: 'Earn Tokens' },
+        { icon: '👾', label: 'Visit Arcade' },
+        { icon: '🎮', label: 'Play Games' }
+      ],
+      flowCaption: 'Complete more lessons to stock up on tokens!'
+    },
+    {
+      type: 'center',
+      icon: '�🚀',
       title: "You're Ready!",
       body: 'Sign in to track streaks & earn badges. Customize your experience in Settings. Your journey starts now!',
       btnText: 'Get Started!'
@@ -1176,7 +1181,8 @@
           card.style.left = cardLeft + 'px';
           card.style.width = cardWidth + 'px';
 
-          if (step.position === 'below') {
+          var placeBelow = step.position === 'below' || (step.position === 'auto' && rect.bottom + 240 < window.innerHeight);
+          if (placeBelow) {
             card.style.top = (rect.bottom + 20) + 'px';
             card.style.bottom = 'auto';
           } else {
