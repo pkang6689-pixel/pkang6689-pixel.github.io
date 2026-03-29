@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Glacier Simulator</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#3b82f6}
+    .ctrl-group .val{font-size:.8rem;color:#60a5fa;font-weight:600}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#60a5fa}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#60a5fa;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🏔️ Glacier Simulator</h1>
+  <p class="subtitle">Watch glaciers advance and retreat based on temperature and snowfall.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Temperature (°C)</label>
+      <input type="range" id="temp" min="-20" max="10" value="-5" oninput="upd()"><span class="val" id="t-val">-5°C</span></div>
+    <div class="ctrl-group"><label>Snowfall (cm/yr)</label>
+      <input type="range" id="snow" min="50" max="500" value="200" step="10" oninput="upd()"><span class="val" id="s-val">200</span></div>
+    <div class="ctrl-group"><label>Slope Angle (°)</label>
+      <input type="range" id="slope" min="5" max="45" value="15" oninput="upd()"><span class="val" id="sl-val">15°</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Glacier Length: <strong id="glen">500 m</strong></div>
+    <div class="datum">Flow Speed: <strong id="fspeed">10 m/yr</strong></div>
+    <div class="datum">Status: <strong id="status">Stable</strong></div>
+    <div class="datum">Mass Balance: <strong id="balance">0</strong></div>
+  </div>
+  <div class="info-box"><h3>Glacial Processes</h3><p>Glaciers form when snow accumulates faster than it melts (positive mass balance). They flow downhill under gravity, eroding bedrock through <strong>plucking</strong> and <strong>abrasion</strong>. Glaciers carve U-shaped valleys, create moraines, and transport massive boulders. When temperature rises or snowfall decreases, glaciers <strong>retreat</strong>, leaving behind characteristic landforms like cirques and fjords.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0;
+  var glacierLen=0.5,snowParts=[];
+  function resize(){cv.width=cv.parentElement.clientWidth;}
+  window.addEventListener('resize',resize);resize();
+  window.upd=function(){
+    document.getElementById('t-val').textContent=document.getElementById('temp').value+'°C';
+    document.getElementById('s-val').textContent=document.getElementById('snow').value;
+    document.getElementById('sl-val').textContent=document.getElementById('slope').value+'°';
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    t+=0.016;
+    var temp2=parseInt(document.getElementById('temp').value);
+    var snow2=parseInt(document.getElementById('snow').value);
+    var slope2=parseInt(document.getElementById('slope').value);
+    // Mass balance
+    var accumulation=snow2/500*(temp2<0?1:0.3);
+    var ablation=(temp2+20)/30*0.8;
+    var balance2=accumulation-ablation;
+    glacierLen+=balance2*0.0002;
+    glacierLen=Math.max(0.1,Math.min(0.85,glacierLen));
+    // Sky gradient (deeper)
+    var skyGrad=ctx.createLinearGradient(0,0,0,h*0.4);
+    skyGrad.addColorStop(0,'#0f172a');skyGrad.addColorStop(0.5,'#1e293b');skyGrad.addColorStop(1,'#334155');
+    ctx.fillStyle=skyGrad;ctx.fillRect(0,0,w,h*0.4);
+    // Twinkling stars
+    for(var st=0;st<12;st++){
+      var sx=(st*97+37)%w,sy=(st*53+11)%(h*0.25);
+      var sa=0.3+Math.sin(t*2+st)*0.2;
+      ctx.fillStyle='rgba(255,255,255,'+sa+')';ctx.beginPath();ctx.arc(sx,sy,1,0,Math.PI*2);ctx.fill();
+    }
+    // Mountain slope with rock gradient
+    var mtTop={x:w*0.05,y:h*0.15};
+    var mtBot={x:w*0.95,y:h*0.85};
+    var rockGrad=ctx.createLinearGradient(mtTop.x,mtTop.y,mtBot.x,mtBot.y);
+    rockGrad.addColorStop(0,'#78350f');rockGrad.addColorStop(0.3,'#4a3520');rockGrad.addColorStop(0.7,'#3d2914');rockGrad.addColorStop(1,'#2d1f0e');
+    ctx.fillStyle=rockGrad;ctx.beginPath();
+    ctx.moveTo(mtTop.x,mtTop.y);
+    ctx.lineTo(mtBot.x,mtBot.y);ctx.lineTo(mtBot.x,h);ctx.lineTo(0,h);ctx.lineTo(0,mtTop.y+50);ctx.fill();
+    // Rock texture lines
+    ctx.strokeStyle='rgba(120,53,15,0.2)';ctx.lineWidth=1;
+    for(var rl=0;rl<8;rl++){
+      var rlx=w*0.1+rl*w*0.1,rly=h*0.3+rl*h*0.06;
+      ctx.beginPath();ctx.moveTo(rlx,rly);ctx.lineTo(rlx+w*0.15,rly+h*0.08);ctx.stroke();
+    }
+    // Snow cap on mountain peak
+    ctx.fillStyle='rgba(255,255,255,0.15)';ctx.beginPath();
+    ctx.moveTo(mtTop.x,mtTop.y);ctx.lineTo(mtTop.x+40,mtTop.y+20);ctx.lineTo(0,mtTop.y+50);ctx.fill();
+    // Glacier ice on slope
+    var gx1=mtTop.x,gy1=mtTop.y+5;
+    var gx2=mtTop.x+(mtBot.x-mtTop.x)*glacierLen;
+    var gy2=mtTop.y+(mtBot.y-mtTop.y)*glacierLen;
+    // Ice shadow
+    ctx.fillStyle='rgba(30,64,175,0.15)';ctx.beginPath();
+    ctx.moveTo(gx1,gy1+12);
+    for(var si2=0;si2<=20;si2++){
+      var frac=si2/20*glacierLen;
+      ctx.lineTo(mtTop.x+(mtBot.x-mtTop.x)*frac,mtTop.y+(mtBot.y-mtTop.y)*frac-8);
+    }
+    ctx.lineTo(gx2+2,gy2+14);ctx.lineTo(gx1,gy1+14);ctx.fill();
+    // Glacier ice with richer gradient
+    var iceGrad=ctx.createLinearGradient(gx1,gy1,gx2,gy2);
+    iceGrad.addColorStop(0,'#bfdbfe');iceGrad.addColorStop(0.2,'#93c5fd');iceGrad.addColorStop(0.5,'#60a5fa');iceGrad.addColorStop(0.8,'#3b82f6');iceGrad.addColorStop(1,'#2563eb');
+    ctx.fillStyle=iceGrad;ctx.beginPath();
+    ctx.moveTo(gx1,gy1);
+    for(var gi=0;gi<=20;gi++){
+      var frac2=gi/20*glacierLen;
+      var gxi=mtTop.x+(mtBot.x-mtTop.x)*frac2;
+      var gyi=mtTop.y+(mtBot.y-mtTop.y)*frac2-22-Math.sin(gi)*5;
+      ctx.lineTo(gxi,gyi);
+    }
+    ctx.lineTo(gx2,gy2+10);ctx.lineTo(gx1,gy1+10);ctx.closePath();ctx.fill();
+    // Ice surface shine
+    ctx.strokeStyle='rgba(191,219,254,0.25)';ctx.lineWidth=1;
+    for(var sh=0;sh<3;sh++){
+      ctx.beginPath();
+      for(var si3=0;si3<=15;si3++){
+        var frac3=si3/15*glacierLen*0.8;
+        var shx=mtTop.x+(mtBot.x-mtTop.x)*(frac3+0.05);
+        var shy=mtTop.y+(mtBot.y-mtTop.y)*(frac3+0.05)-18-sh*4+Math.sin(si3+sh)*2;
+        si3===0?ctx.moveTo(shx,shy):ctx.lineTo(shx,shy);
+      }
+      ctx.stroke();
+    }
+    // Crevasses with depth shading
+    ctx.lineWidth=1.5;
+    for(var cr=0;cr<6;cr++){
+      var cfrac=(cr+1)/7*glacierLen;
+      var cx2=mtTop.x+(mtBot.x-mtTop.x)*cfrac;
+      var cy2=mtTop.y+(mtBot.y-mtTop.y)*cfrac-15;
+      ctx.strokeStyle='rgba(30,58,138,0.5)';
+      ctx.beginPath();ctx.moveTo(cx2-7,cy2-7);ctx.lineTo(cx2+3,cy2+3);ctx.stroke();
+      ctx.strokeStyle='rgba(30,58,138,0.25)';
+      ctx.beginPath();ctx.moveTo(cx2-5,cy2-5);ctx.lineTo(cx2+5,cy2+5);ctx.stroke();
+    }
+    // Equilibrium line (dashed)
+    var eqFrac=glacierLen*0.5;
+    var eqX=mtTop.x+(mtBot.x-mtTop.x)*eqFrac;
+    var eqY=mtTop.y+(mtBot.y-mtTop.y)*eqFrac;
+    ctx.strokeStyle='rgba(251,191,36,0.4)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(eqX-30,eqY-40);ctx.lineTo(eqX+30,eqY+10);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#fbbf24';ctx.font='9px Poppins';ctx.textAlign='center';
+    ctx.fillText('ELA',eqX+35,eqY-10);
+    // Moraine at terminus with individual boulders
+    ctx.fillStyle='#78716c';ctx.beginPath();ctx.arc(gx2,gy2+5,15,0,Math.PI);ctx.fill();
+    var boulderColors=['#a8a29e','#78716c','#d6d3d1','#8c8580'];
+    for(var mr=0;mr<10;mr++){
+      ctx.fillStyle=boulderColors[mr%boulderColors.length];
+      var mbx=gx2-18+mr*4,mby=gy2+4+(mr%3)*3;
+      ctx.beginPath();ctx.arc(mbx,mby,2+mr%3,0,Math.PI*2);ctx.fill();
+    }
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.fillText('Terminal Moraine',gx2,gy2+22);
+    // Meltwater stream with gradient
+    if(temp2>-5){
+      var mwAlpha=Math.min(1,(temp2+5)/10);
+      ctx.lineWidth=2+mwAlpha*2;
+      for(var ml=0;ml<2;ml++){
+        ctx.strokeStyle='rgba(59,130,246,'+(0.3+ml*0.2)+')';ctx.lineWidth=3-ml;
+        ctx.beginPath();ctx.moveTo(gx2+5,gy2+10);
+        for(var ms=0;ms<12;ms++){
+          ctx.lineTo(gx2+10+ms*18,gy2+15+ms*5+Math.sin(t*3+ms)*4);
+        }
+        ctx.stroke();
+      }
+      ctx.fillStyle='rgba(59,130,246,0.3)';ctx.font='8px Poppins';
+      ctx.fillText('Meltwater',gx2+80,gy2+35);
+    }
+    // Snowfall with star shapes
+    if(snow2>100){
+      for(var sf=0;sf<snow2/50;sf++){
+        snowParts.push({x:Math.random()*w*0.6,y:0,vy:0.8+Math.random()*0.8,sz:1+Math.random()});
+      }
+    }
+    for(var si4=snowParts.length-1;si4>=0;si4--){
+      var sp=snowParts[si4];sp.y+=sp.vy;sp.x+=Math.sin(t+si4)*0.4;
+      if(sp.y>h){snowParts.splice(si4,1);continue;}
+      ctx.fillStyle='rgba(255,255,255,'+(0.3+sp.sz*0.15)+')';
+      ctx.beginPath();ctx.arc(sp.x,sp.y,sp.sz,0,Math.PI*2);ctx.fill();
+      // Cross sparkle
+      ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=0.5;
+      ctx.beginPath();ctx.moveTo(sp.x-sp.sz,sp.y);ctx.lineTo(sp.x+sp.sz,sp.y);ctx.moveTo(sp.x,sp.y-sp.sz);ctx.lineTo(sp.x,sp.y+sp.sz);ctx.stroke();
+    }
+    if(snowParts.length>250)snowParts.splice(0,60);
+    // Zone labels with background
+    ctx.fillStyle='rgba(15,23,42,0.5)';ctx.beginPath();ctx.roundRect(w*0.1,mtTop.y-20,120,18,4);ctx.fill();
+    ctx.fillStyle='#93c5fd';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Accumulation Zone',w*0.2,mtTop.y-8);
+    ctx.fillStyle='rgba(15,23,42,0.5)';ctx.beginPath();ctx.roundRect(gx2-80,gy2-42,100,18,4);ctx.fill();
+    ctx.fillStyle='#f87171';ctx.font='bold 10px Poppins';
+    ctx.fillText('Ablation Zone',gx2-30,gy2-30);
+    // Terminus arrow
+    ctx.fillStyle='#3b82f6';ctx.font='bold 10px Poppins';
+    ctx.fillText('Terminus \u2192',gx2+35,gy2+2);
+    // Flow direction arrows on ice
+    ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1.5;
+    for(var fa=0;fa<4;fa++){
+      var faFrac=(fa+1)/5*glacierLen*0.7;
+      var fax=mtTop.x+(mtBot.x-mtTop.x)*(faFrac+0.05);
+      var fay=mtTop.y+(mtBot.y-mtTop.y)*(faFrac+0.05)-15;
+      var faAng=Math.atan2(mtBot.y-mtTop.y,mtBot.x-mtTop.x);
+      ctx.beginPath();ctx.moveTo(fax-Math.cos(faAng)*10,fay-Math.sin(faAng)*10);ctx.lineTo(fax,fay);ctx.stroke();
+      ctx.fillStyle='rgba(255,255,255,0.2)';ctx.beginPath();
+      ctx.moveTo(fax,fay);
+      ctx.lineTo(fax-6*Math.cos(faAng-0.4),fay-6*Math.sin(faAng-0.4));
+      ctx.lineTo(fax-6*Math.cos(faAng+0.4),fay-6*Math.sin(faAng+0.4));ctx.fill();
+    }
+    // Mass balance bar indicator
+    var barX=w-60,barY=h*0.2,barH=h*0.5;
+    ctx.fillStyle='rgba(15,23,42,0.5)';ctx.beginPath();ctx.roundRect(barX-12,barY-20,45,barH+40,6);ctx.fill();
+    ctx.fillStyle='#94a3b8';ctx.font='bold 9px Poppins';ctx.textAlign='center';
+    ctx.fillText('Mass',barX+10,barY-8);ctx.fillText('Balance',barX+10,barY+2);
+    ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.strokeRect(barX,barY+10,20,barH);
+    var mid=barY+10+barH/2;
+    ctx.strokeStyle='#64748b';ctx.setLineDash([2,2]);ctx.beginPath();ctx.moveTo(barX,mid);ctx.lineTo(barX+20,mid);ctx.stroke();ctx.setLineDash([]);
+    var bClamp=Math.max(-0.5,Math.min(0.5,balance2));
+    var bFill=bClamp/0.5*(barH/2);
+    if(bClamp>0){
+      ctx.fillStyle='#22c55e40';ctx.fillRect(barX,mid-bFill,20,bFill);
+    }else{
+      ctx.fillStyle='#ef444440';ctx.fillRect(barX,mid,20,-bFill);
+    }
+    // Stats
+    document.getElementById('glen').textContent=Math.round(glacierLen*1000)+' m';
+    document.getElementById('fspeed').textContent=Math.round(slope2*Math.max(0,glacierLen)*2)+' m/yr';
+    var st2=balance2>0.05?'Advancing':balance2<-0.05?'Retreating':'Stable';
+    document.getElementById('status').textContent=st2;
+    document.getElementById('status').style.color=balance2>0.05?'#22c55e':balance2<-0.05?'#ef4444':'#fbbf24';
+    document.getElementById('balance').textContent=(balance2>0?'+':'')+balance2.toFixed(2);
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

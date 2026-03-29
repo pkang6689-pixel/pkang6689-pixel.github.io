@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Geometric Transformations</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#a855f7}
+    .ctrl-group .val{font-size:.8rem;color:#a855f7;font-weight:600;font-family:monospace}
+    .tab-btn{padding:.45rem 1rem;border-radius:.5rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.82rem;transition:all .2s}
+    .tab-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.12)}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#a855f7,#7c3aed);color:white}
+    .toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+    .toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+    .readout .datum strong{color:#a855f7}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🔄 Geometric Transformations</h1>
+  <p class="subtitle">Apply translations, rotations, reflections &amp; dilations to shapes</p>
+  <div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+  <div class="controls">
+    <button class="tab-btn active" id="tab-translate" onclick="setMode('translate')">Translate</button>
+    <button class="tab-btn" id="tab-rotate" onclick="setMode('rotate')">Rotate</button>
+    <button class="tab-btn" id="tab-reflect" onclick="setMode('reflect')">Reflect</button>
+    <button class="tab-btn" id="tab-dilate" onclick="setMode('dilate')">Dilate</button>
+    <button class="tab-btn" id="tab-compose" onclick="setMode('compose')">Compose</button>
+  </div>
+  <div class="controls" id="translate-ctrls">
+    <div class="ctrl-group"><label>Δx</label>
+      <input type="range" id="tx" min="-200" max="200" value="80" oninput="upd()"><span class="val" id="vtx">80</span></div>
+    <div class="ctrl-group"><label>Δy</label>
+      <input type="range" id="ty" min="-200" max="200" value="-60" oninput="upd()"><span class="val" id="vty">-60</span></div>
+  </div>
+  <div class="controls" id="rotate-ctrls" style="display:none">
+    <div class="ctrl-group"><label>Angle (°)</label>
+      <input type="range" id="ra" min="-180" max="180" value="45" oninput="upd()"><span class="val" id="vra">45°</span></div>
+  </div>
+  <div class="controls" id="reflect-ctrls" style="display:none">
+    <button class="toggle-btn active" id="ref-x" onclick="setRef('x')">x-axis</button>
+    <button class="toggle-btn" id="ref-y" onclick="setRef('y')">y-axis</button>
+    <button class="toggle-btn" id="ref-yx" onclick="setRef('yx')">y = x</button>
+    <button class="toggle-btn" id="ref-origin" onclick="setRef('origin')">Origin</button>
+  </div>
+  <div class="controls" id="dilate-ctrls" style="display:none">
+    <div class="ctrl-group"><label>Scale Factor k</label>
+      <input type="range" id="dk" min="10" max="300" value="150" oninput="upd()"><span class="val" id="vdk">1.50</span></div>
+  </div>
+  <div class="controls" id="compose-ctrls" style="display:none">
+    <div class="ctrl-group"><label>Rotate (°)</label>
+      <input type="range" id="cra" min="-180" max="180" value="30" oninput="upd()"><span class="val" id="vcra">30°</span></div>
+    <div class="ctrl-group"><label>Scale k</label>
+      <input type="range" id="cdk" min="20" max="300" value="120" oninput="upd()"><span class="val" id="vcdk">1.20</span></div>
+    <div class="ctrl-group"><label>Δx</label>
+      <input type="range" id="ctx2" min="-200" max="200" value="60" oninput="upd()"><span class="val" id="vctx">60</span></div>
+    <div class="ctrl-group"><label>Δy</label>
+      <input type="range" id="cty" min="-200" max="200" value="-40" oninput="upd()"><span class="val" id="vcty">-40</span></div>
+  </div>
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-top:.5rem">
+    <button class="action-btn" onclick="resetParams()">Reset</button>
+    <button class="toggle-btn active" id="btn-labels" onclick="togLabels()">Labels</button>
+    <button class="toggle-btn active" id="btn-grid" onclick="togGrid()">Grid</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Transform: <strong id="r-transform">T(80, -60)</strong></div>
+    <div class="datum">Matrix: <strong id="r-matrix">—</strong></div>
+  </div>
+  <div class="info-box"><h3>Geometric Transformations</h3><p>A <strong>translation</strong> slides every point by (Δx, Δy). A <strong>rotation</strong> turns the figure about the origin by angle θ. A <strong>reflection</strong> mirrors across a line. A <strong>dilation</strong> scales distances from the origin by factor k. The <strong>compose</strong> mode chains multiple transformations — order matters!</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var W,H;
+  function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+  window.addEventListener('resize',resize);resize();
+
+  var mode='translate',refAxis='x',showLabels=true,showGridB=true;
+
+  /* original shape: a pentagon in math coords */
+  var origShape=[{x:-40,y:-50},{x:40,y:-50},{x:60,y:10},{x:0,y:50},{x:-60,y:10}];
+
+  window.setMode=function(m){
+    mode=m;
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+    document.getElementById('tab-'+m).classList.add('active');
+    ['translate','rotate','reflect','dilate','compose'].forEach(function(k){
+      document.getElementById(k+'-ctrls').style.display=(k===m)?'flex':'none';
+    });
+    upd();
+  };
+  window.setRef=function(r){
+    refAxis=r;
+    ['x','y','yx','origin'].forEach(function(k){
+      document.getElementById('ref-'+k).classList.toggle('active',k===r);
+    });
+  };
+  window.togLabels=function(){showLabels=!showLabels;document.getElementById('btn-labels').classList.toggle('active');};
+  window.togGrid=function(){showGridB=!showGridB;document.getElementById('btn-grid').classList.toggle('active');};
+
+  window.upd=function(){
+    document.getElementById('vtx').textContent=document.getElementById('tx').value;
+    document.getElementById('vty').textContent=document.getElementById('ty').value;
+    document.getElementById('vra').textContent=document.getElementById('ra').value+'°';
+    document.getElementById('vdk').textContent=(+document.getElementById('dk').value/100).toFixed(2);
+    document.getElementById('vcra').textContent=document.getElementById('cra').value+'°';
+    document.getElementById('vcdk').textContent=(+document.getElementById('cdk').value/100).toFixed(2);
+    document.getElementById('vctx').textContent=document.getElementById('ctx2').value;
+    document.getElementById('vcty').textContent=document.getElementById('cty').value;
+  };
+  window.resetParams=function(){
+    document.getElementById('tx').value=80;document.getElementById('ty').value=-60;
+    document.getElementById('ra').value=45;document.getElementById('dk').value=150;
+    document.getElementById('cra').value=30;document.getElementById('cdk').value=120;
+    document.getElementById('ctx2').value=60;document.getElementById('cty').value=-40;
+    upd();
+  };
+
+  function toScreen(mx,my){return{x:W/2+mx,y:H/2-my};}
+
+  function transform(pts){
+    if(mode==='translate'){
+      var dx=+document.getElementById('tx').value,dy=+document.getElementById('ty').value;
+      document.getElementById('r-transform').textContent='T('+dx+', '+dy+')';
+      document.getElementById('r-matrix').textContent='x\' = x+'+dx+', y\' = y+'+dy;
+      return pts.map(function(p){return{x:p.x+dx,y:p.y+dy};});
+    }else if(mode==='rotate'){
+      var deg=+document.getElementById('ra').value;
+      var rad=deg*Math.PI/180;
+      document.getElementById('r-transform').textContent='R('+deg+'°)';
+      document.getElementById('r-matrix').textContent='[cos'+deg+'° -sin'+deg+'° ; sin'+deg+'° cos'+deg+'°]';
+      return pts.map(function(p){
+        return{x:p.x*Math.cos(rad)-p.y*Math.sin(rad),y:p.x*Math.sin(rad)+p.y*Math.cos(rad)};
+      });
+    }else if(mode==='reflect'){
+      document.getElementById('r-transform').textContent='Reflect over '+(refAxis==='yx'?'y=x':refAxis==='origin'?'origin':refAxis+'-axis');
+      if(refAxis==='x'){document.getElementById('r-matrix').textContent='[1 0 ; 0 -1]';return pts.map(function(p){return{x:p.x,y:-p.y};});}
+      if(refAxis==='y'){document.getElementById('r-matrix').textContent='[-1 0 ; 0 1]';return pts.map(function(p){return{x:-p.x,y:p.y};});}
+      if(refAxis==='yx'){document.getElementById('r-matrix').textContent='[0 1 ; 1 0]';return pts.map(function(p){return{x:p.y,y:p.x};});}
+      document.getElementById('r-matrix').textContent='[-1 0 ; 0 -1]';return pts.map(function(p){return{x:-p.x,y:-p.y};});
+    }else if(mode==='dilate'){
+      var k=+document.getElementById('dk').value/100;
+      document.getElementById('r-transform').textContent='D('+k.toFixed(2)+')';
+      document.getElementById('r-matrix').textContent='['+k.toFixed(2)+' 0 ; 0 '+k.toFixed(2)+']';
+      return pts.map(function(p){return{x:p.x*k,y:p.y*k};});
+    }else{/* compose: scale → rotate → translate */
+      var ck=+document.getElementById('cdk').value/100;
+      var cdeg=+document.getElementById('cra').value;
+      var crad=cdeg*Math.PI/180;
+      var cdx=+document.getElementById('ctx2').value,cdy=+document.getElementById('cty').value;
+      document.getElementById('r-transform').textContent='T('+cdx+','+cdy+') ∘ R('+cdeg+'°) ∘ D('+ck.toFixed(2)+')';
+      document.getElementById('r-matrix').textContent='Scale→Rotate→Translate';
+      return pts.map(function(p){
+        var sx=p.x*ck,sy=p.y*ck;
+        var rx=sx*Math.cos(crad)-sy*Math.sin(crad),ry=sx*Math.sin(crad)+sy*Math.cos(crad);
+        return{x:rx+cdx,y:ry+cdy};
+      });
+    }
+  }
+
+  function drawPoly(pts,color,label,alpha){
+    if(!pts.length)return;
+    ctx.globalAlpha=alpha||1;
+    ctx.fillStyle=color+'22';ctx.strokeStyle=color;ctx.lineWidth=2;
+    ctx.beginPath();
+    pts.forEach(function(p,i){var s=toScreen(p.x,p.y);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});
+    ctx.closePath();ctx.fill();ctx.stroke();
+    /* vertices */
+    var vLabels='ABCDE';
+    pts.forEach(function(p,i){
+      var s=toScreen(p.x,p.y);
+      ctx.fillStyle=color;ctx.beginPath();ctx.arc(s.x,s.y,4,0,Math.PI*2);ctx.fill();
+      if(showLabels){
+        ctx.fillStyle=color;ctx.font='bold 10px Poppins';ctx.textAlign='left';
+        ctx.fillText(label+vLabels[i]+' ('+Math.round(p.x)+','+Math.round(p.y)+')',s.x+6,s.y-6);
+      }
+    });
+    ctx.globalAlpha=1;
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+
+    /* grid */
+    if(showGridB){
+      ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+      for(var g=-400;g<=400;g+=50){
+        var p=toScreen(g,0);ctx.beginPath();ctx.moveTo(p.x,0);ctx.lineTo(p.x,H);ctx.stroke();
+        var p2=toScreen(0,g);ctx.beginPath();ctx.moveTo(0,p2.y);ctx.lineTo(W,p2.y);ctx.stroke();
+      }
+    }
+
+    /* axes */
+    var o=toScreen(0,0);
+    ctx.strokeStyle='#475569';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(o.x,0);ctx.lineTo(o.x,H);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,o.y);ctx.lineTo(W,o.y);ctx.stroke();
+
+    /* reflection line */
+    if(mode==='reflect'){
+      ctx.strokeStyle='rgba(56,189,248,0.5)';ctx.lineWidth=2;ctx.setLineDash([8,4]);
+      if(refAxis==='x'){ctx.beginPath();ctx.moveTo(0,o.y);ctx.lineTo(W,o.y);ctx.stroke();}
+      else if(refAxis==='y'){ctx.beginPath();ctx.moveTo(o.x,0);ctx.lineTo(o.x,H);ctx.stroke();}
+      else if(refAxis==='yx'){ctx.beginPath();ctx.moveTo(o.x-300,o.y+300);ctx.lineTo(o.x+300,o.y-300);ctx.stroke();}
+      else{ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(o.x,o.y,6,0,Math.PI*2);ctx.fill();}
+      ctx.setLineDash([]);
+    }
+
+    /* original shape */
+    drawPoly(origShape,'#64748b','',0.5);
+
+    /* transformed shape */
+    var tPts=transform(origShape);
+    drawPoly(tPts,'#a855f7','\'',1);
+
+    /* motion arrows (translate, compose) */
+    if(mode==='translate'||mode==='compose'){
+      ctx.strokeStyle='rgba(168,85,247,0.3)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+      origShape.forEach(function(p,i){
+        var s1=toScreen(p.x,p.y),s2=toScreen(tPts[i].x,tPts[i].y);
+        ctx.beginPath();ctx.moveTo(s1.x,s1.y);ctx.lineTo(s2.x,s2.y);ctx.stroke();
+      });
+      ctx.setLineDash([]);
+    }
+
+    /* origin dot */
+    ctx.fillStyle='#f472b6';ctx.beginPath();ctx.arc(o.x,o.y,4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#64748b';ctx.font='10px Poppins';ctx.textAlign='left';ctx.fillText('O',o.x+6,o.y+14);
+
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+</body>
+</html>

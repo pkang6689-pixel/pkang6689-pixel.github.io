@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Astronomy Observatory</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: #020617; color: #f1f5f9; overflow-x: hidden; }
+    .sim-container { max-width: 1100px; margin: 5rem auto 2rem; padding: 1rem 2rem; }
+    h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.25rem; }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 1rem; }
+    .sky-wrap { position: relative; width: 100%; height: 520px; background: radial-gradient(ellipse at 50% 120%, #0f172a 0%, #020617 60%); border-radius: 1rem; overflow: hidden; border: 1px solid #1e293b; cursor: crosshair; }
+    canvas { display: block; width: 100%; height: 100%; }
+    .info-panel { position: absolute; top: 12px; right: 12px; width: 260px; background: rgba(15,23,42,0.92); border: 1px solid #334155; border-radius: 0.75rem; padding: 1rem; font-size: 0.85rem; backdrop-filter: blur(8px); display: none; }
+    .info-panel h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+    .info-panel .close-info { position: absolute; top: 8px; right: 10px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1rem; }
+    .info-panel .star-type { color: #fbbf24; font-weight: 600; }
+    .info-panel .stat { color: #94a3b8; }
+    .controls-row { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
+    .ctrl-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #334155; background: #1e293b; color: #f1f5f9; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; }
+    .ctrl-btn:hover { background: #334155; }
+    .ctrl-btn.active { background: #3b82f6; border-color: #3b82f6; }
+    .legend { display: flex; gap: 1rem; justify-content: center; margin-top: 0.75rem; flex-wrap: wrap; font-size: 0.8rem; color: #94a3b8; }
+    .legend span { display: flex; align-items: center; gap: 4px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .constellation-line { stroke: rgba(100, 180, 255, 0.25); stroke-width: 1; }
+    .time-label { position: absolute; bottom: 12px; left: 12px; background: rgba(15,23,42,0.8); padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; color: #94a3b8; }
+  </style>
+</head>
+<body class="dark-mode">
+  <script src="../scripts/taskbar.js"></script>
+  <div class="sim-container">
+    <h1>🔭 Astronomy Observatory</h1>
+    <p class="subtitle">Explore the night sky. Click on stars and planets to learn about them.</p>
+
+    <div class="sky-wrap" id="sky-wrap">
+      <canvas id="sky-canvas"></canvas>
+      <div class="info-panel" id="info-panel">
+        <button class="close-info" onclick="closeInfo()">✕</button>
+        <h3 id="info-name"></h3>
+        <div id="info-body"></div>
+      </div>
+      <div class="time-label" id="time-label">Local time: --:--</div>
+    </div>
+
+    <div class="controls-row">
+      <button class="ctrl-btn" onclick="toggleConstellations(this)">✨ Constellations</button>
+      <button class="ctrl-btn" onclick="toggleLabels(this)">🏷️ Labels</button>
+      <button class="ctrl-btn" onclick="togglePlanets(this)">🪐 Planets</button>
+      <button class="ctrl-btn" onclick="rotateView()">🔄 Rotate Sky</button>
+    </div>
+    <div class="legend">
+      <span><span class="legend-dot" style="background:#fef3c7;"></span> Star</span>
+      <span><span class="legend-dot" style="background:#fbbf24;"></span> Bright Star</span>
+      <span><span class="legend-dot" style="background:#f97316;"></span> Red Giant</span>
+      <span><span class="legend-dot" style="background:#60a5fa;"></span> Blue Star</span>
+      <span><span class="legend-dot" style="background:#a78bfa;"></span> Planet</span>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    var canvas = document.getElementById('sky-canvas');
+    var ctx = canvas.getContext('2d');
+    var wrap = document.getElementById('sky-wrap');
+    var showConstellations = false, showLabels = false, showPlanets = true;
+    var rotation = 0;
+
+    function resize() {
+      canvas.width = wrap.clientWidth;
+      canvas.height = wrap.clientHeight;
+      draw();
+    }
+    window.addEventListener('resize', resize);
+
+    // Star database
+    var stars = [
+      { name: 'Sirius', ra: 101.3, dec: -16.7, mag: -1.46, type: 'A1V', color: '#f0f8ff', radius: 5, info: 'The brightest star in the night sky, 8.6 light-years away. A white main-sequence star about twice as massive as the Sun.' },
+      { name: 'Betelgeuse', ra: 88.8, dec: 7.4, mag: 0.42, type: 'Red Supergiant', color: '#f97316', radius: 4.5, info: 'A red supergiant in Orion, ~700 light-years away. It is about 1,000 times the Sun\'s radius and may explode as a supernova.' },
+      { name: 'Rigel', ra: 78.6, dec: -8.2, mag: 0.13, type: 'Blue Supergiant', color: '#60a5fa', radius: 4.5, info: 'A blue supergiant in Orion, ~860 light-years away. About 120,000 times more luminous than the Sun.' },
+      { name: 'Vega', ra: 279.2, dec: 38.8, mag: 0.03, type: 'A0V', color: '#e0f2fe', radius: 4.5, info: 'The 5th brightest star, 25 light-years away. Once the North Star ~12,000 years ago and will be again in ~13,700 years.' },
+      { name: 'Polaris', ra: 37.9, dec: 89.3, mag: 1.98, type: 'F7Ib', color: '#fef3c7', radius: 3.5, info: 'The current North Star, marking nearly true north. A yellow supergiant about 433 light-years away.' },
+      { name: 'Aldebaran', ra: 68.9, dec: 16.5, mag: 0.87, type: 'K5III', color: '#fb923c', radius: 4, info: 'An orange giant in Taurus, ~65 light-years away. About 44 times the Sun\'s diameter.' },
+      { name: 'Antares', ra: 247.4, dec: -26.4, mag: 1.09, type: 'Red Supergiant', color: '#ef4444', radius: 4, info: 'The heart of Scorpius. A red supergiant ~550 light-years away with a radius ~680 times the Sun.' },
+      { name: 'Spica', ra: 201.3, dec: -11.2, mag: 1.04, type: 'B1III', color: '#93c5fd', radius: 3.8, info: 'The brightest star in Virgo. A blue giant binary system about 250 light-years away.' },
+      { name: 'Procyon', ra: 114.8, dec: 5.2, mag: 0.34, type: 'F5IV', color: '#fef9c3', radius: 4, info: 'A white-yellow star 11.5 light-years away in Canis Minor. Part of the Winter Triangle asterism.' },
+      { name: 'Deneb', ra: 310.4, dec: 45.3, mag: 1.25, type: 'A2Ia', color: '#e0f2fe', radius: 3.8, info: 'A blue-white supergiant in Cygnus, ~2,600 light-years away. About 200,000 times the Sun\'s luminosity.' },
+      { name: 'Altair', ra: 297.7, dec: 8.9, mag: 0.77, type: 'A7V', color: '#f1f5f9', radius: 3.8, info: 'Part of the Summer Triangle, only 16.7 light-years away. Rotates very rapidly, completing a rotation in ~9 hours.' },
+      { name: 'Capella', ra: 79.2, dec: 46.0, mag: 0.08, type: 'G8III', color: '#fbbf24', radius: 4.2, info: 'A quadruple star system in Auriga, 42.9 light-years away. The 6th brightest star in the sky.' },
+      { name: 'Arcturus', ra: 213.9, dec: 19.2, mag: -0.05, type: 'K1.5III', color: '#fb923c', radius: 4.5, info: 'An orange giant in Boötes, 36.7 light-years away. About 25 times the Sun\'s diameter and 170 times its luminosity.' },
+      { name: 'Regulus', ra: 152.1, dec: 12.0, mag: 1.4, type: 'B8IVn', color: '#bfdbfe', radius: 3.5, info: 'The heart of Leo, ~79 light-years away. Spins so fast it\'s significantly flattened at its poles.' },
+      { name: 'Fomalhaut', ra: 344.4, dec: -29.6, mag: 1.16, type: 'A3V', color: '#f0f8ff', radius: 3.5, info: 'One of the brightest stars, 25 light-years away. Has a famous debris disk and a candidate exoplanet.' },
+    ];
+
+    var planets = [
+      { name: 'Mars', ra: 120, dec: 15, color: '#ef4444', radius: 5, info: 'The Red Planet, 4th from the Sun. Currently visible in the evening sky. Has the largest volcano in the solar system: Olympus Mons.' },
+      { name: 'Jupiter', ra: 210, dec: -5, color: '#fbbf24', radius: 7, info: 'The largest planet, 5th from the Sun. Has 95 known moons and the Great Red Spot — a storm larger than Earth.' },
+      { name: 'Saturn', ra: 270, dec: -18, color: '#d4a030', radius: 6, info: 'The ringed planet, 6th from the Sun. Its rings are made of ice and rock. Has 146 known moons, including Titan.' },
+      { name: 'Venus', ra: 45, dec: 20, color: '#fef3c7', radius: 5, info: 'The Morning/Evening Star, 2nd planet from the Sun. The hottest planet at 460°C. Its thick atmosphere traps heat.' },
+    ];
+
+    // Constellation data (Orion as example)
+    var constellations = [
+      { name: 'Orion', lines: [['Betelgeuse','Rigel'],['Betelgeuse','Procyon']], starNames: ['Betelgeuse','Rigel'] },
+      { name: 'Summer Triangle', lines: [['Vega','Deneb'],['Deneb','Altair'],['Altair','Vega']], starNames: ['Vega','Deneb','Altair'] },
+    ];
+
+    // Background stars (random faint)
+    var bgStars = [];
+    for (var i = 0; i < 400; i++) {
+      bgStars.push({ x: Math.random(), y: Math.random(), r: Math.random() * 1.5 + 0.3, bright: Math.random() });
+    }
+
+    function raDecToXY(ra, dec) {
+      var adjRa = ((ra + rotation) % 360 + 360) % 360;
+      var x = (adjRa / 360) * canvas.width;
+      var y = ((90 - dec) / 180) * canvas.height;
+      return { x: x, y: y };
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Milky Way glow
+      var grd = ctx.createRadialGradient(canvas.width * 0.5, canvas.height * 0.4, 0, canvas.width * 0.5, canvas.height * 0.4, canvas.width * 0.5);
+      grd.addColorStop(0, 'rgba(100, 120, 180, 0.06)');
+      grd.addColorStop(1, 'transparent');
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Background stars
+      for (var i = 0; i < bgStars.length; i++) {
+        var s = bgStars[i];
+        var sx = ((s.x * canvas.width + rotation * 2) % canvas.width + canvas.width) % canvas.width;
+        ctx.beginPath();
+        ctx.arc(sx, s.y * canvas.height, s.r, 0, Math.PI * 2);
+        var alpha = 0.3 + s.bright * 0.5 + Math.sin(Date.now() / 1000 + i) * 0.1;
+        ctx.fillStyle = 'rgba(255,255,255,' + alpha + ')';
+        ctx.fill();
+      }
+
+      // Constellation lines
+      if (showConstellations) {
+        ctx.strokeStyle = 'rgba(100, 180, 255, 0.3)';
+        ctx.lineWidth = 1;
+        constellations.forEach(function(c) {
+          c.lines.forEach(function(pair) {
+            var s1 = stars.find(function(s) { return s.name === pair[0]; });
+            var s2 = stars.find(function(s) { return s.name === pair[1]; });
+            if (s1 && s2) {
+              var p1 = raDecToXY(s1.ra, s1.dec);
+              var p2 = raDecToXY(s2.ra, s2.dec);
+              ctx.beginPath();
+              ctx.moveTo(p1.x, p1.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.stroke();
+            }
+          });
+        });
+      }
+
+      // Named stars
+      stars.forEach(function(s) {
+        var p = raDecToXY(s.ra, s.dec);
+        // Glow
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, s.radius * 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = s.color.replace(')', ',0.15)').replace('rgb', 'rgba');
+        ctx.fill();
+        // Star
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, s.radius, 0, Math.PI * 2);
+        ctx.fillStyle = s.color;
+        ctx.fill();
+        // Label
+        if (showLabels) {
+          ctx.font = '11px Poppins, sans-serif';
+          ctx.fillStyle = 'rgba(241,245,249,0.7)';
+          ctx.fillText(s.name, p.x + s.radius + 4, p.y + 3);
+        }
+      });
+
+      // Planets
+      if (showPlanets) {
+        planets.forEach(function(pl) {
+          var p = raDecToXY(pl.ra, pl.dec);
+          // Glow
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, pl.radius * 3, 0, Math.PI * 2);
+          ctx.fillStyle = pl.color.replace(')', ',0.12)').replace('#', '');
+          var r = parseInt(pl.color.slice(1,3),16), g = parseInt(pl.color.slice(3,5),16), b = parseInt(pl.color.slice(5,7),16);
+          ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',0.12)';
+          ctx.fill();
+          // Planet body
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, pl.radius, 0, Math.PI * 2);
+          ctx.fillStyle = pl.color;
+          ctx.fill();
+          if (showLabels) {
+            ctx.font = '11px Poppins, sans-serif';
+            ctx.fillStyle = 'rgba(167,139,250,0.8)';
+            ctx.fillText(pl.name, p.x + pl.radius + 4, p.y + 3);
+          }
+        });
+      }
+    }
+
+    // Twinkling animation
+    function animate() {
+      draw();
+      requestAnimationFrame(animate);
+    }
+
+    // Click detection
+    canvas.addEventListener('click', function(e) {
+      var rect = canvas.getBoundingClientRect();
+      var mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+      var my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+      var found = null;
+      var allBodies = stars.concat(showPlanets ? planets : []);
+      for (var i = 0; i < allBodies.length; i++) {
+        var b = allBodies[i];
+        var p = raDecToXY(b.ra, b.dec);
+        var dx = mx - p.x, dy = my - p.y;
+        if (Math.sqrt(dx * dx + dy * dy) < (b.radius + 8)) { found = b; break; }
+      }
+
+      if (found) showInfo(found);
+      else closeInfo();
+    });
+
+    function showInfo(obj) {
+      var panel = document.getElementById('info-panel');
+      document.getElementById('info-name').textContent = (obj.radius > 5 ? '🪐 ' : '⭐ ') + obj.name;
+      var html = '';
+      if (obj.type) html += '<p><span class="star-type">' + obj.type + '</span></p>';
+      if (obj.mag !== undefined) html += '<p class="stat">Apparent magnitude: ' + obj.mag + '</p>';
+      html += '<p>' + obj.info + '</p>';
+      document.getElementById('info-body').innerHTML = html;
+      panel.style.display = 'block';
+    }
+
+    window.closeInfo = function() { document.getElementById('info-panel').style.display = 'none'; };
+
+    window.toggleConstellations = function(btn) {
+      showConstellations = !showConstellations;
+      btn.classList.toggle('active');
+    };
+    window.toggleLabels = function(btn) {
+      showLabels = !showLabels;
+      btn.classList.toggle('active');
+    };
+    window.togglePlanets = function(btn) {
+      showPlanets = !showPlanets;
+      btn.classList.toggle('active');
+    };
+    window.rotateView = function() {
+      rotation = (rotation + 45) % 360;
+    };
+
+    // Time label
+    function updateTime() {
+      var now = new Date();
+      document.getElementById('time-label').textContent = 'Local time: ' + now.toLocaleTimeString();
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    resize();
+    animate();
+  })();
+  </script>
+  <script src="../scripts/translation_loader.js" data-base="translations"></script>
+  <script src="../../search_data.js"></script>
+  <script src="../../search_logic.js"></script>
+</body>
+</html>

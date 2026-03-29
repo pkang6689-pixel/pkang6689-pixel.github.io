@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Triangle Centers</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden;cursor:grab}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .toggle-btn{padding:.45rem 1rem;border-radius:.5rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.8rem;transition:all .2s}
+    .toggle-btn.active{border-color:var(--c);color:var(--c);background:rgba(168,85,247,.1)}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#a855f7,#7c3aed);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#a855f7}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+    .legend{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:.5rem}
+    .legend-item{display:flex;align-items:center;gap:.3rem;font-size:.75rem;color:#94a3b8}
+    .legend-dot{width:10px;height:10px;border-radius:50%}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>📐 Triangle Centers</h1>
+  <p class="subtitle">Drag vertices to explore incenter, circumcenter, centroid &amp; orthocenter</p>
+  <div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+  <div class="controls">
+    <button class="toggle-btn active" style="--c:#f472b6" id="btn-incenter" onclick="tog('incenter')">Incenter</button>
+    <button class="toggle-btn active" style="--c:#38bdf8" id="btn-circumcenter" onclick="tog('circumcenter')">Circumcenter</button>
+    <button class="toggle-btn active" style="--c:#facc15" id="btn-centroid" onclick="tog('centroid')">Centroid</button>
+    <button class="toggle-btn active" style="--c:#4ade80" id="btn-orthocenter" onclick="tog('orthocenter')">Orthocenter</button>
+    <button class="toggle-btn" style="--c:#a855f7" id="btn-euler" onclick="tog('euler')">Euler Line</button>
+    <button class="action-btn" onclick="resetTri()">Reset Triangle</button>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div>Incenter (angle bisectors)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div>Circumcenter (⊥ bisectors)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#facc15"></div>Centroid (medians)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div>Orthocenter (altitudes)</div>
+  </div>
+  <div class="readout">
+    <div class="datum">Area: <strong id="area">0</strong></div>
+    <div class="datum">Perimeter: <strong id="peri">0</strong></div>
+    <div class="datum">Angles: <strong id="angles">0°, 0°, 0°</strong></div>
+  </div>
+  <div class="info-box"><h3>Triangle Centers</h3><p>Every triangle has four classical centres. The <strong>incenter</strong> (intersection of angle bisectors) is the centre of the inscribed circle. The <strong>circumcenter</strong> (perpendicular bisectors) is the centre of the circumscribed circle. The <strong>centroid</strong> (medians) is the centre of mass. The <strong>orthocenter</strong> (altitudes) completes the set. Remarkably, the circumcenter, centroid, and orthocenter always lie on a single line — the <strong>Euler line</strong>.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var W,H;
+  function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+  window.addEventListener('resize',resize);resize();
+
+  var verts=[{x:W*0.2,y:H*0.8},{x:W*0.8,y:H*0.75},{x:W*0.45,y:H*0.15}];
+  var show={incenter:true,circumcenter:true,centroid:true,orthocenter:true,euler:false};
+  var dragging=-1;
+
+  window.tog=function(k){
+    show[k]=!show[k];
+    document.getElementById('btn-'+k).classList.toggle('active');
+  };
+  window.resetTri=function(){
+    verts=[{x:W*0.2,y:H*0.8},{x:W*0.8,y:H*0.75},{x:W*0.45,y:H*0.15}];
+  };
+
+  cv.addEventListener('mousedown',function(e){
+    var r=cv.getBoundingClientRect();
+    var mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+    for(var i=0;i<3;i++){
+      var dx=verts[i].x-mx,dy=verts[i].y-my;
+      if(dx*dx+dy*dy<400){dragging=i;cv.style.cursor='grabbing';break;}
+    }
+  });
+  cv.addEventListener('mousemove',function(e){
+    if(dragging<0)return;
+    var r=cv.getBoundingClientRect();
+    verts[dragging].x=(e.clientX-r.left)*(W/r.width);
+    verts[dragging].y=(e.clientY-r.top)*(H/r.height);
+  });
+  cv.addEventListener('mouseup',function(){dragging=-1;cv.style.cursor='grab';});
+  cv.addEventListener('mouseleave',function(){dragging=-1;cv.style.cursor='grab';});
+
+  /* touch support */
+  cv.addEventListener('touchstart',function(e){
+    e.preventDefault();var t=e.touches[0];
+    var r=cv.getBoundingClientRect();
+    var mx=(t.clientX-r.left)*(W/r.width),my=(t.clientY-r.top)*(H/r.height);
+    for(var i=0;i<3;i++){var dx=verts[i].x-mx,dy=verts[i].y-my;if(dx*dx+dy*dy<600){dragging=i;break;}}
+  },{passive:false});
+  cv.addEventListener('touchmove',function(e){
+    e.preventDefault();if(dragging<0)return;var t=e.touches[0];
+    var r=cv.getBoundingClientRect();
+    verts[dragging].x=(t.clientX-r.left)*(W/r.width);
+    verts[dragging].y=(t.clientY-r.top)*(H/r.height);
+  },{passive:false});
+  cv.addEventListener('touchend',function(){dragging=-1;});
+
+  function dist(a,b){return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2);}
+  function mid(a,b){return{x:(a.x+b.x)/2,y:(a.y+b.y)/2};}
+
+  function incenter(A,B,C){
+    var a=dist(B,C),b=dist(A,C),c=dist(A,B),s=a+b+c;
+    return{x:(a*A.x+b*B.x+c*C.x)/s,y:(a*A.y+b*B.y+c*C.y)/s,r:null};
+  }
+  function inradius(A,B,C){
+    var a=dist(B,C),b=dist(A,C),c=dist(A,B),s=(a+b+c)/2;
+    return Math.sqrt(s*(s-a)*(s-b)*(s-c))/s;
+  }
+
+  function circumcenter(A,B,C){
+    var D=2*(A.x*(B.y-C.y)+B.x*(C.y-A.y)+C.x*(A.y-B.y));
+    if(Math.abs(D)<1e-10)return null;
+    var ux=((A.x*A.x+A.y*A.y)*(B.y-C.y)+(B.x*B.x+B.y*B.y)*(C.y-A.y)+(C.x*C.x+C.y*C.y)*(A.y-B.y))/D;
+    var uy=((A.x*A.x+A.y*A.y)*(C.x-B.x)+(B.x*B.x+B.y*B.y)*(A.x-C.x)+(C.x*C.x+C.y*C.y)*(B.x-A.x))/D;
+    return{x:ux,y:uy};
+  }
+
+  function centroid(A,B,C){return{x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};}
+
+  function orthocenter(A,B,C){
+    var cc=circumcenter(A,B,C);if(!cc)return null;
+    var ce=centroid(A,B,C);
+    /* O = 3G - 2Cc */
+    return{x:3*ce.x-2*cc.x,y:3*ce.y-2*cc.y};
+  }
+
+  function angle(A,B,C){/* angle at B */
+    var ba={x:A.x-B.x,y:A.y-B.y},bc={x:C.x-B.x,y:C.y-B.y};
+    var dot=ba.x*bc.x+ba.y*bc.y;
+    var la=Math.sqrt(ba.x*ba.x+ba.y*ba.y),lb=Math.sqrt(bc.x*bc.x+bc.y*bc.y);
+    return Math.acos(Math.max(-1,Math.min(1,dot/(la*lb))));
+  }
+
+  function drawDashedLine(x1,y1,x2,y2,color,lw){
+    ctx.strokeStyle=color;ctx.lineWidth=lw||1;ctx.setLineDash([6,4]);
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+    var A=verts[0],B=verts[1],C=verts[2];
+
+    /* triangle fill */
+    ctx.fillStyle='rgba(168,85,247,0.06)';
+    ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.lineTo(C.x,C.y);ctx.closePath();ctx.fill();
+
+    /* triangle edges */
+    ctx.strokeStyle='#e2e8f0';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.lineTo(C.x,C.y);ctx.closePath();ctx.stroke();
+
+    /* edge lengths */
+    ctx.font='bold 11px Poppins';ctx.fillStyle='#64748b';ctx.textAlign='center';
+    var mAB=mid(A,B),mBC=mid(B,C),mCA=mid(C,A);
+    ctx.fillText(dist(A,B).toFixed(0)+'px',mAB.x,mAB.y-8);
+    ctx.fillText(dist(B,C).toFixed(0)+'px',mBC.x+15,mBC.y);
+    ctx.fillText(dist(C,A).toFixed(0)+'px',mCA.x-15,mCA.y);
+
+    /* incenter + incircle */
+    if(show.incenter){
+      var ic=incenter(A,B,C);var ir=inradius(A,B,C);
+      /* angle bisectors */
+      drawDashedLine(A.x,A.y,ic.x,ic.y,'rgba(244,114,182,0.3)',1);
+      drawDashedLine(B.x,B.y,ic.x,ic.y,'rgba(244,114,182,0.3)',1);
+      drawDashedLine(C.x,C.y,ic.x,ic.y,'rgba(244,114,182,0.3)',1);
+      /* incircle */
+      ctx.strokeStyle='#f472b6';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(ic.x,ic.y,ir,0,Math.PI*2);ctx.stroke();
+      /* center dot */
+      ctx.fillStyle='#f472b6';ctx.beginPath();ctx.arc(ic.x,ic.y,5,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#f472b6';ctx.font='bold 10px Poppins';ctx.textAlign='left';
+      ctx.fillText('I',ic.x+8,ic.y-6);
+    }
+
+    /* circumcenter + circumcircle */
+    if(show.circumcenter){
+      var cc=circumcenter(A,B,C);
+      if(cc){
+        var cr=dist(cc,A);
+        /* perpendicular bisectors */
+        drawDashedLine(mAB.x,mAB.y,cc.x,cc.y,'rgba(56,189,248,0.3)',1);
+        drawDashedLine(mBC.x,mBC.y,cc.x,cc.y,'rgba(56,189,248,0.3)',1);
+        drawDashedLine(mCA.x,mCA.y,cc.x,cc.y,'rgba(56,189,248,0.3)',1);
+        ctx.strokeStyle='#38bdf8';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.arc(cc.x,cc.y,cr,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(cc.x,cc.y,5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#38bdf8';ctx.font='bold 10px Poppins';ctx.textAlign='left';
+        ctx.fillText('O',cc.x+8,cc.y-6);
+      }
+    }
+
+    /* centroid + medians */
+    if(show.centroid){
+      var ce=centroid(A,B,C);
+      drawDashedLine(A.x,A.y,mBC.x,mBC.y,'rgba(250,204,21,0.3)',1);
+      drawDashedLine(B.x,B.y,mCA.x,mCA.y,'rgba(250,204,21,0.3)',1);
+      drawDashedLine(C.x,C.y,mAB.x,mAB.y,'rgba(250,204,21,0.3)',1);
+      ctx.fillStyle='#facc15';ctx.beginPath();ctx.arc(ce.x,ce.y,5,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#facc15';ctx.font='bold 10px Poppins';ctx.textAlign='left';
+      ctx.fillText('G',ce.x+8,ce.y-6);
+    }
+
+    /* orthocenter + altitudes */
+    if(show.orthocenter){
+      var oc=orthocenter(A,B,C);
+      if(oc){
+        /* altitudes: foot from each vertex perpendicular to opposite side */
+        function footPerp(P,L1,L2){
+          var dx=L2.x-L1.x,dy=L2.y-L1.y,t=((P.x-L1.x)*dx+(P.y-L1.y)*dy)/(dx*dx+dy*dy);
+          return{x:L1.x+t*dx,y:L1.y+t*dy};
+        }
+        var fA=footPerp(A,B,C),fB=footPerp(B,A,C),fC=footPerp(C,A,B);
+        drawDashedLine(A.x,A.y,fA.x,fA.y,'rgba(74,222,128,0.4)',1);
+        drawDashedLine(B.x,B.y,fB.x,fB.y,'rgba(74,222,128,0.4)',1);
+        drawDashedLine(C.x,C.y,fC.x,fC.y,'rgba(74,222,128,0.4)',1);
+        /* right angle markers */
+        function drawRightAngle(foot,from,base1,base2){
+          var dx1=from.x-foot.x,dy1=from.y-foot.y;
+          var len1=Math.sqrt(dx1*dx1+dy1*dy1);if(len1<1)return;
+          dx1/=len1;dy1/=len1;
+          var dx2=base2.x-base1.x,dy2=base2.y-base1.y;
+          var len2=Math.sqrt(dx2*dx2+dy2*dy2);if(len2<1)return;
+          dx2/=len2;dy2/=len2;
+          var sz=10;
+          ctx.strokeStyle='rgba(74,222,128,0.6)';ctx.lineWidth=1;
+          ctx.beginPath();
+          ctx.moveTo(foot.x+dx1*sz,foot.y+dy1*sz);
+          ctx.lineTo(foot.x+dx1*sz+dx2*sz,foot.y+dy1*sz+dy2*sz);
+          ctx.lineTo(foot.x+dx2*sz,foot.y+dy2*sz);
+          ctx.stroke();
+        }
+        drawRightAngle(fA,A,B,C);drawRightAngle(fB,B,A,C);drawRightAngle(fC,C,A,B);
+        ctx.fillStyle='#4ade80';ctx.beginPath();ctx.arc(oc.x,oc.y,5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#4ade80';ctx.font='bold 10px Poppins';ctx.textAlign='left';
+        ctx.fillText('H',oc.x+8,oc.y-6);
+      }
+    }
+
+    /* Euler line */
+    if(show.euler){
+      var cc2=circumcenter(A,B,C),ce2=centroid(A,B,C),oc2=orthocenter(A,B,C);
+      if(cc2&&oc2){
+        var dx=oc2.x-cc2.x,dy=oc2.y-cc2.y;
+        ctx.strokeStyle='#a855f7';ctx.lineWidth=2;ctx.setLineDash([8,4]);ctx.globalAlpha=0.6;
+        ctx.beginPath();ctx.moveTo(cc2.x-dx*2,cc2.y-dy*2);ctx.lineTo(oc2.x+dx*2,oc2.y+dy*2);ctx.stroke();
+        ctx.setLineDash([]);ctx.globalAlpha=1;
+        ctx.fillStyle='#a855f7';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+        ctx.fillText('Euler Line',ce2.x,ce2.y-14);
+      }
+    }
+
+    /* vertex labels */
+    var labels=['A','B','C'];
+    for(var i=0;i<3;i++){
+      var v=verts[i];
+      /* glow */
+      var grd=ctx.createRadialGradient(v.x,v.y,0,v.x,v.y,18);
+      grd.addColorStop(0,'rgba(168,85,247,0.4)');grd.addColorStop(1,'transparent');
+      ctx.fillStyle=grd;ctx.beginPath();ctx.arc(v.x,v.y,18,0,Math.PI*2);ctx.fill();
+      /* dot */
+      ctx.fillStyle='#e2e8f0';ctx.beginPath();ctx.arc(v.x,v.y,7,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#0f172a';ctx.font='bold 10px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(labels[i],v.x,v.y);
+      ctx.textBaseline='alphabetic';
+    }
+
+    /* readouts */
+    var a1=angle(C,A,B)*180/Math.PI,a2=angle(A,B,C)*180/Math.PI,a3=angle(B,C,A)*180/Math.PI;
+    document.getElementById('angles').textContent=a1.toFixed(1)+'°, '+a2.toFixed(1)+'°, '+a3.toFixed(1)+'°';
+    var ab=dist(A,B),bc=dist(B,C),ca=dist(C,A);
+    document.getElementById('peri').textContent=(ab+bc+ca).toFixed(0)+' px';
+    var s=(ab+bc+ca)/2;
+    document.getElementById('area').textContent=Math.sqrt(Math.max(0,s*(s-ab)*(s-bc)*(s-ca))).toFixed(0)+' px²';
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

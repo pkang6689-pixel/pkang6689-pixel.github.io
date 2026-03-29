@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Springs &amp; SHM</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#f59e0b}
+    .ctrl-group .val{font-size:.8rem;color:#fbbf24;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#22c55e,#10b981);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#fbbf24}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#fbbf24;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🔩 Springs & Simple Harmonic Motion</h1>
+  <p class="subtitle">Explore Hooke's Law, oscillation period, and energy exchange.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Spring Constant k (N/m)</label>
+      <input type="range" id="k" min="5" max="100" value="30" oninput="calc()"><span class="val" id="k-val">30 N/m</span></div>
+    <div class="ctrl-group"><label>Mass (kg)</label>
+      <input type="range" id="mass" min="1" max="10" value="3" oninput="calc()"><span class="val" id="m-val">3 kg</span></div>
+    <div class="ctrl-group"><label>Amplitude (cm)</label>
+      <input type="range" id="amp" min="5" max="50" value="25" oninput="calc()"><span class="val" id="a-val">25 cm</span></div>
+    <div class="ctrl-group"><label>Damping</label>
+      <input type="range" id="damp" min="0" max="10" value="0" oninput="calc()"><span class="val" id="d-val">0</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Period: <strong id="period">1.99 s</strong></div>
+    <div class="datum">Frequency: <strong id="freq">0.50 Hz</strong></div>
+    <div class="datum">F<sub>spring</sub>: <strong id="fspring">0 N</strong></div>
+    <div class="datum">KE: <strong id="ke">0 J</strong></div>
+    <div class="datum">PE: <strong id="pe">0 J</strong></div>
+  </div>
+  <div class="info-box"><h3>Hooke's Law & SHM</h3><p>Hooke's Law: F = −kx. A mass on a spring oscillates with period T = 2π√(m/k). Energy constantly converts between kinetic (½mv²) and potential (½kx²). Total energy E = ½kA² where A is amplitude. Damping reduces amplitude over time.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),time=0,trail=[];
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.calc=function(){
+    var k=parseInt(document.getElementById('k').value);
+    var m=parseInt(document.getElementById('mass').value);
+    var A=parseInt(document.getElementById('amp').value);
+    var d=parseInt(document.getElementById('damp').value);
+    document.getElementById('k-val').textContent=k+' N/m';
+    document.getElementById('m-val').textContent=m+' kg';
+    document.getElementById('a-val').textContent=A+' cm';
+    document.getElementById('d-val').textContent=d;
+    var T=2*Math.PI*Math.sqrt(m/k);
+    document.getElementById('period').textContent=T.toFixed(2)+' s';
+    document.getElementById('freq').textContent=(1/T).toFixed(2)+' Hz';
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    var k=parseInt(document.getElementById('k').value);
+    var m=parseInt(document.getElementById('mass').value);
+    var A=parseInt(document.getElementById('amp').value)/100;
+    var damp=parseInt(document.getElementById('damp').value)/100;
+    time+=0.016;
+    var omega=Math.sqrt(k/m);
+    var decay=Math.exp(-damp*time);
+    var x=A*decay*Math.cos(omega*time);
+    var v=-A*decay*omega*Math.sin(omega*time);
+    var F=-k*x;
+    var KE=0.5*m*v*v;
+    var PE=0.5*k*x*x;
+    var totalE=0.5*k*A*A*decay*decay;
+    document.getElementById('fspring').textContent=F.toFixed(2)+' N';
+    document.getElementById('ke').textContent=KE.toFixed(3)+' J';
+    document.getElementById('pe').textContent=PE.toFixed(3)+' J';
+    var cx=w/2,cy=h*0.38;
+    var eqX=cx,displace=x*w*0.35;
+    var massX=eqX+displace;
+    // Wall with 3D effect
+    var wallGrad=ctx.createLinearGradient(w*0.08-8,0,w*0.08+5,0);
+    wallGrad.addColorStop(0,'#1e293b');wallGrad.addColorStop(0.5,'#64748b');wallGrad.addColorStop(1,'#475569');
+    ctx.fillStyle=wallGrad;ctx.fillRect(w*0.08-8,cy-45,13,90);
+    // Hatch marks on wall
+    ctx.strokeStyle='rgba(100,116,139,0.4)';ctx.lineWidth=1;
+    for(var hi=0;hi<6;hi++){
+      var hy=cy-40+hi*16;
+      ctx.beginPath();ctx.moveTo(w*0.08-8,hy);ctx.lineTo(w*0.08-1,hy+8);ctx.stroke();
+    }
+    // Spring with 3D coil rendering
+    var springStart=w*0.08+5,springEnd=massX-22;
+    var coils=14,sdx=(springEnd-springStart)/coils;
+    // Spring shadow
+    ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=5;ctx.beginPath();
+    ctx.moveTo(springStart,cy+2);
+    for(var i=0;i<coils;i++){
+      var sx=springStart+i*sdx;
+      ctx.lineTo(sx+sdx*0.25,cy-16);ctx.lineTo(sx+sdx*0.75,cy+18);
+    }
+    ctx.lineTo(springEnd,cy+2);ctx.stroke();
+    // Spring body - color changes with stretch/compression
+    var springStrain=Math.abs(x)/A;
+    var springR=150+Math.floor(springStrain*100);
+    var springG=Math.floor(163-springStrain*80);
+    var springB=Math.floor(184-springStrain*80);
+    ctx.strokeStyle='rgb('+springR+','+springG+','+springB+')';ctx.lineWidth=3;ctx.beginPath();
+    ctx.moveTo(springStart,cy);
+    for(var i=0;i<coils;i++){
+      var sx=springStart+i*sdx;
+      ctx.lineTo(sx+sdx*0.25,cy-15);ctx.lineTo(sx+sdx*0.75,cy+15);
+    }
+    ctx.lineTo(springEnd,cy);ctx.stroke();
+    // Spring highlight
+    ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;ctx.beginPath();
+    ctx.moveTo(springStart,cy-1);
+    for(var i=0;i<coils;i++){
+      var sx=springStart+i*sdx;
+      ctx.lineTo(sx+sdx*0.25,cy-16);ctx.lineTo(sx+sdx*0.75,cy+14);
+    }
+    ctx.lineTo(springEnd,cy-1);ctx.stroke();
+    // Equilibrium line with marker
+    ctx.strokeStyle='rgba(148,163,184,0.15)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(eqX,cy-55);ctx.lineTo(eqX,cy+55);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#64748b';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('x = 0',eqX,cy+70);
+    // Displacement bracket
+    if(Math.abs(displace)>5){
+      ctx.strokeStyle='rgba(251,191,36,0.3)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(eqX,cy+48);ctx.lineTo(massX,cy+48);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(eqX,cy+44);ctx.lineTo(eqX,cy+52);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(massX,cy+44);ctx.lineTo(massX,cy+52);ctx.stroke();
+      ctx.fillStyle='#fbbf24';ctx.font='9px Poppins';
+      ctx.fillText('x='+(x*100).toFixed(1)+'cm',(eqX+massX)/2,cy+60);
+    }
+    // Mass block with gradient
+    var blkGrad=ctx.createLinearGradient(massX-22,cy-22,massX+22,cy+22);
+    blkGrad.addColorStop(0,'#fbbf24');blkGrad.addColorStop(0.5,'#f59e0b');blkGrad.addColorStop(1,'#d97706');
+    ctx.fillStyle=blkGrad;ctx.fillRect(massX-22,cy-22,44,44);
+    ctx.strokeStyle='rgba(217,119,6,0.5)';ctx.lineWidth=1;ctx.strokeRect(massX-22,cy-22,44,44);
+    ctx.fillStyle='#0f172a';ctx.font='bold 12px Poppins';ctx.textAlign='center';
+    ctx.fillText(m+'kg',massX,cy+5);
+    // Velocity indicator on block
+    if(Math.abs(v)>0.01){
+      var vDir=v>0?1:-1;
+      ctx.strokeStyle='rgba(34,197,94,0.6)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(massX+vDir*25,cy);ctx.lineTo(massX+vDir*(25+Math.abs(v)*30),cy);ctx.stroke();
+      ctx.fillStyle='rgba(34,197,94,0.6)';
+      var tipX=massX+vDir*(25+Math.abs(v)*30);
+      ctx.beginPath();ctx.moveTo(tipX,cy);
+      ctx.lineTo(tipX-vDir*6,cy-5);ctx.lineTo(tipX-vDir*6,cy+5);ctx.fill();
+    }
+    // Force arrow
+    if(Math.abs(F)>0.1){
+      var fDir=F>0?1:-1;
+      ctx.strokeStyle='#ef4444';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(massX,cy+30);ctx.lineTo(massX+F*4,cy+30);ctx.stroke();
+      ctx.fillStyle='#ef4444';
+      var ftX=massX+F*4;
+      ctx.beginPath();ctx.moveTo(ftX,cy+30);
+      ctx.lineTo(ftX-fDir*7,cy+25);ctx.lineTo(ftX-fDir*7,cy+35);ctx.fill();
+      ctx.font='9px Poppins';ctx.textAlign='center';
+      ctx.fillText('F='+F.toFixed(1)+'N',massX+F*2,cy+43);
+    }
+    // Displacement trail graph (bottom)
+    var gy=h*0.78,gw=w*0.7,gx=w*0.1;
+    // Graph background
+    ctx.fillStyle='rgba(2,6,23,0.5)';ctx.fillRect(gx-5,gy-h*0.18,gw+10,h*0.36);
+    ctx.strokeStyle='rgba(51,65,85,0.3)';ctx.lineWidth=0.5;
+    for(var gi=-2;gi<=2;gi++){
+      var gly=gy+gi*h*0.08;
+      ctx.beginPath();ctx.moveTo(gx,gly);ctx.lineTo(gx+gw,gly);ctx.stroke();
+    }
+    // Axis
+    ctx.strokeStyle='#334155';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx+gw,gy);ctx.stroke();
+    ctx.fillStyle='#64748b';ctx.font='8px Poppins';ctx.textAlign='right';
+    ctx.fillText('+A',gx-5,gy-h*0.15);ctx.fillText('0',gx-5,gy+3);ctx.fillText('−A',gx-5,gy+h*0.17);
+    trail.push(x);if(trail.length>Math.floor(gw))trail.shift();
+    // Draw trail with color gradient (green=positive, red=negative displacement)
+    ctx.lineWidth=2;
+    for(var i=1;i<trail.length;i++){
+      var frac=trail[i]/A;
+      if(frac>0)ctx.strokeStyle='rgba(34,197,94,'+(0.3+Math.abs(frac)*0.5)+')';
+      else ctx.strokeStyle='rgba(239,68,68,'+(0.3+Math.abs(frac)*0.5)+')';
+      var tx=gx+gw-trail.length+i;
+      var ty=gy-trail[i]*h*0.2;
+      var tx0=gx+gw-trail.length+i-1;
+      var ty0=gy-trail[i-1]*h*0.2;
+      ctx.beginPath();ctx.moveTo(tx0,ty0);ctx.lineTo(tx,ty);ctx.stroke();
+    }
+    // Current point on graph
+    if(trail.length>0){
+      var lastTx=gx+gw-1,lastTy=gy-trail[trail.length-1]*h*0.2;
+      ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(lastTx,lastTy,4,0,Math.PI*2);ctx.fill();
+    }
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';
+    ctx.fillText('x(t) displacement',gx+gw/2,gy+h*0.2);
+    // Energy bars with labels and values
+    var barX=w*0.85,barW=28,maxBarH=h*0.18;
+    // Background
+    ctx.fillStyle='rgba(30,41,59,0.5)';ctx.fillRect(barX-10,gy-maxBarH-10,barW*2+25,maxBarH+25);
+    // KE bar
+    var keH=totalE>0?maxBarH*(KE/totalE):0;
+    var keGrad=ctx.createLinearGradient(0,gy-keH,0,gy);
+    keGrad.addColorStop(0,'#4ade80');keGrad.addColorStop(1,'#16a34a');
+    ctx.fillStyle=keGrad;ctx.fillRect(barX,gy-keH,barW,keH);
+    ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;ctx.strokeRect(barX,gy-keH,barW,keH);
+    // PE bar
+    var peH=totalE>0?maxBarH*(PE/totalE):0;
+    var peGrad=ctx.createLinearGradient(0,gy-peH,0,gy);
+    peGrad.addColorStop(0,'#60a5fa');peGrad.addColorStop(1,'#2563eb');
+    ctx.fillStyle=peGrad;ctx.fillRect(barX+barW+5,gy-peH,barW,peH);
+    ctx.strokeStyle='rgba(59,130,246,0.3)';ctx.lineWidth=1;ctx.strokeRect(barX+barW+5,gy-peH,barW,peH);
+    // Bar labels
+    ctx.fillStyle='#22c55e';ctx.font='bold 8px Poppins';ctx.textAlign='center';
+    ctx.fillText('KE',barX+barW/2,gy+12);
+    if(keH>10)ctx.fillText(KE.toFixed(2)+'J',barX+barW/2,gy-keH-3);
+    ctx.fillStyle='#3b82f6';
+    ctx.fillText('PE',barX+barW+5+barW/2,gy+12);
+    if(peH>10)ctx.fillText(PE.toFixed(2)+'J',barX+barW+5+barW/2,gy-peH-3);
+    // Formula on canvas
+    ctx.fillStyle='rgba(251,191,36,0.4)';ctx.font='bold 10px Poppins';ctx.textAlign='left';
+    ctx.fillText('F = −kx     T = 2π√(m/k)',15,25);
+    ctx.fillText('E = ½kA² = '+(0.5*k*A*A).toFixed(3)+' J',15,40);
+    // Phase indicator
+    var phase=(omega*time%(2*Math.PI))/(2*Math.PI);
+    ctx.fillStyle='rgba(251,191,36,0.3)';ctx.font='9px Poppins';ctx.textAlign='right';
+    ctx.fillText('ωt = '+(omega*time%(2*Math.PI)).toFixed(1)+' rad',w-15,25);
+    requestAnimationFrame(draw);
+  }
+  calc();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

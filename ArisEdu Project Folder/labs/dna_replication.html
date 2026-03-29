@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>DNA Replication</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#22c55e}
+    .ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#22c55e,#10b981);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#22c55e}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🧬 DNA Replication</h1>
+  <p class="subtitle">Watch helicase unwind and DNA polymerase build new strands.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Speed</label>
+      <input type="range" id="speed" min="1" max="10" value="5" oninput="calc()"><span class="val" id="sp-val">5×</span></div>
+    <button class="action-btn" onclick="togglePlay()">▶ Play / Pause</button>
+    <button class="action-btn" style="background:#64748b" onclick="resetAnim()">Reset</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Bases Replicated: <strong id="bases">0</strong></div>
+    <div class="datum">Fork Position: <strong id="forkpos">0%</strong></div>
+    <div class="datum">Stage: <strong id="stage">Waiting</strong></div>
+  </div>
+  <div class="info-box"><h3>DNA Replication</h3><p><strong>Helicase</strong> unwinds the double helix by breaking hydrogen bonds. <strong>DNA Polymerase III</strong> adds complementary nucleotides (A↔T, C↔G) to each template strand. The leading strand is synthesized continuously (3'→5'), while the lagging strand forms Okazaki fragments. <strong>Primase</strong> adds RNA primers; <strong>Ligase</strong> seals the fragments.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var playing=false,forkPos=0,t=0;
+  var bases='ATCGGCTATAGCGATTACGCATGCTAGCGATCGATGCATCG';
+  var complement={A:'T',T:'A',C:'G',G:'C'};
+  var baseColors={A:'#ef4444',T:'#3b82f6',C:'#22c55e',G:'#f59e0b'};
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.calc=function(){document.getElementById('sp-val').textContent=document.getElementById('speed').value+'×'};
+  window.togglePlay=function(){playing=!playing};
+  window.resetAnim=function(){forkPos=0;playing=false};
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    var speed=parseInt(document.getElementById('speed').value);
+    if(playing){forkPos+=speed*0.0008;if(forkPos>1)forkPos=1;}
+    t+=0.016;
+    var replicated=Math.floor(forkPos*bases.length);
+    document.getElementById('bases').textContent=replicated;
+    document.getElementById('forkpos').textContent=(forkPos*100).toFixed(0)+'%';
+    document.getElementById('stage').textContent=forkPos===0?'Waiting':forkPos<1?'Replicating':'Complete';
+    var bpW=w/(bases.length+4);
+    var cy1=h*0.35,cy2=h*0.65;
+    var forkX=w*0.08+forkPos*(w*0.84);
+    // Backbone glow (unreplicated double helix)
+    for(var i=replicated;i<bases.length;i++){
+      var x=w*0.08+(i+2)*bpW;
+      if(x<forkX)continue;
+      // Backbone lines
+      if(i<bases.length-1){
+        var nx=w*0.08+(i+3)*bpW;
+        ctx.strokeStyle='rgba(168,85,247,0.15)';ctx.lineWidth=4;
+        ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy1);ctx.lineTo(nx+bpW*0.35,cy1);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy2);ctx.lineTo(nx+bpW*0.35,cy2);ctx.stroke();
+      }
+      // Top strand base with rounded rect
+      ctx.fillStyle=baseColors[bases[i]];
+      ctx.beginPath();ctx.roundRect(x,cy1-9,bpW*0.75,18,3);ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=0.5;ctx.stroke();
+      // Bottom strand (complement)
+      ctx.fillStyle=baseColors[complement[bases[i]]];
+      ctx.beginPath();ctx.roundRect(x,cy2-9,bpW*0.75,18,3);ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.stroke();
+      // H-bond (dashed)
+      ctx.strokeStyle='rgba(148,163,184,0.2)';ctx.lineWidth=1;ctx.setLineDash([2,3]);
+      ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy1+9);ctx.lineTo(x+bpW*0.35,cy2-9);ctx.stroke();
+      ctx.setLineDash([]);
+      // Base letters
+      ctx.fillStyle='#fff';ctx.font='bold 9px Poppins';ctx.textAlign='center';
+      ctx.fillText(bases[i],x+bpW*0.37,cy1+4);
+      ctx.fillText(complement[bases[i]],x+bpW*0.37,cy2+4);
+    }
+    // Replicated strands (separated, left of fork)
+    for(var i=0;i<replicated;i++){
+      var x=w*0.08+(i+2)*bpW;
+      var sep=35;
+      // Top daughter: template (up) + new complement (below it)
+      ctx.fillStyle=baseColors[bases[i]];
+      ctx.beginPath();ctx.roundRect(x,cy1-sep-9,bpW*0.75,18,3);ctx.fill();
+      // New strand glow
+      var newGlow=ctx.createRadialGradient(x+bpW*0.37,cy1-sep+16,2,x+bpW*0.37,cy1-sep+16,12);
+      newGlow.addColorStop(0,'rgba(34,197,94,0.2)');newGlow.addColorStop(1,'rgba(34,197,94,0)');
+      ctx.fillStyle=newGlow;ctx.beginPath();ctx.arc(x+bpW*0.37,cy1-sep+16,12,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=baseColors[complement[bases[i]]];
+      ctx.beginPath();ctx.roundRect(x,cy1-sep+7,bpW*0.75,18,3);ctx.fill();
+      // New strand border highlight
+      ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;ctx.stroke();
+      // Bond
+      ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy1-sep+9);ctx.lineTo(x+bpW*0.35,cy1-sep+7);ctx.stroke();
+      // Bottom daughter
+      ctx.fillStyle=baseColors[complement[bases[i]]];
+      ctx.beginPath();ctx.roundRect(x,cy2+sep-9,bpW*0.75,18,3);ctx.fill();
+      ctx.fillStyle=baseColors[bases[i]];
+      ctx.beginPath();ctx.roundRect(x,cy2+sep-25,bpW*0.75,18,3);ctx.fill();
+      ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy2+sep-9);ctx.lineTo(x+bpW*0.35,cy2+sep-7);ctx.stroke();
+      // Labels
+      ctx.fillStyle='#fff';ctx.font='bold 8px Poppins';ctx.textAlign='center';
+      ctx.fillText(bases[i],x+bpW*0.37,cy1-sep+4);
+      ctx.fillText(complement[bases[i]],x+bpW*0.37,cy1-sep+20);
+      ctx.fillText(complement[bases[i]],x+bpW*0.37,cy2+sep+4);
+      ctx.fillText(bases[i],x+bpW*0.37,cy2+sep-12);
+    }
+    // Replication fork Y-shape with glow
+    if(forkPos>0&&forkPos<1){
+      // Fork lines
+      ctx.strokeStyle='#f59e0b';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(forkX,cy1);ctx.lineTo(forkX-25,cy1-35);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(forkX,cy2);ctx.lineTo(forkX-25,cy2+35);ctx.stroke();
+      // Helicase with glow halo
+      var helGlow=ctx.createRadialGradient(forkX,h/2,5,forkX,h/2,22);
+      helGlow.addColorStop(0,'rgba(245,158,11,0.3)');helGlow.addColorStop(1,'rgba(245,158,11,0)');
+      ctx.fillStyle=helGlow;ctx.beginPath();ctx.arc(forkX,h/2,22,0,Math.PI*2);ctx.fill();
+      // Helicase spinning effect
+      ctx.strokeStyle='rgba(245,158,11,0.4)';ctx.lineWidth=2;
+      for(var si=0;si<4;si++){
+        var sa=si*Math.PI/2+t*3;
+        ctx.beginPath();ctx.arc(forkX,h/2,14,sa,sa+0.5);ctx.stroke();
+      }
+      var helGrad=ctx.createRadialGradient(forkX-2,h/2-2,2,forkX,h/2,13);
+      helGrad.addColorStop(0,'#fbbf24');helGrad.addColorStop(1,'#d97706');
+      ctx.fillStyle=helGrad;ctx.beginPath();ctx.arc(forkX,h/2,13,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#0f172a';ctx.font='bold 7px Poppins';ctx.textAlign='center';
+      ctx.fillText('HEL',forkX,h/2+3);
+      // Polymerase on leading strand with glow
+      var polGlow=ctx.createRadialGradient(forkX-35,cy1-28,3,forkX-35,cy1-28,16);
+      polGlow.addColorStop(0,'rgba(168,85,247,0.3)');polGlow.addColorStop(1,'rgba(168,85,247,0)');
+      ctx.fillStyle=polGlow;ctx.beginPath();ctx.arc(forkX-35,cy1-28,16,0,Math.PI*2);ctx.fill();
+      var polGrad=ctx.createRadialGradient(forkX-37,cy1-30,2,forkX-35,cy1-28,11);
+      polGrad.addColorStop(0,'#c084fc');polGrad.addColorStop(1,'#7c3aed');
+      ctx.fillStyle=polGrad;ctx.beginPath();ctx.arc(forkX-35,cy1-28,11,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fff';ctx.font='bold 6px Poppins';
+      ctx.fillText('POL III',forkX-35,cy1-26);
+      // Polymerase on lagging strand
+      ctx.fillStyle=polGlow;ctx.beginPath();ctx.arc(forkX-35,cy2+28,16,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=polGrad;ctx.beginPath();ctx.arc(forkX-35,cy2+28,11,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fff';ctx.fillText('POL III',forkX-35,cy2+30);
+      // Direction labels
+      ctx.fillStyle='rgba(34,197,94,0.5)';ctx.font='bold 9px Poppins';
+      ctx.fillText("5' → 3' (leading)",forkX-80,cy1-50);
+      ctx.fillStyle='rgba(239,68,68,0.5)';
+      ctx.fillText("3' → 5' (lagging)",forkX-80,cy2+55);
+    }
+    // Legend with colored boxes
+    ctx.font='10px Poppins';ctx.textAlign='left';
+    var ly=h-22;
+    ['A','T','C','G'].forEach(function(b,i){
+      ctx.fillStyle=baseColors[b];
+      ctx.beginPath();ctx.roundRect(12+i*55,ly-9,14,14,2);ctx.fill();
+      ctx.fillStyle='#94a3b8';ctx.fillText(b==='A'?'Adenine':b==='T'?'Thymine':b==='C'?'Cytosine':'Guanine',30+i*55,ly+2);
+    });
+    // Pairing rule on canvas
+    ctx.fillStyle='rgba(34,197,94,0.3)';ctx.font='bold 9px Poppins';ctx.textAlign='right';
+    ctx.fillText('A↔T  C↔G',w-15,h-12);
+    requestAnimationFrame(draw);
+  }
+  calc();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

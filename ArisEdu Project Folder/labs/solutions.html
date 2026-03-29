@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Solutions &amp; Molarity</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group select,.ctrl-group input[type=range]{accent-color:#f59e0b;background:#1e293b;color:#f1f5f9;border:1px solid #334155;border-radius:.4rem;padding:.3rem;font-size:.8rem}
+    .ctrl-group input[type=range]{width:140px}
+    .ctrl-group .val{font-size:.8rem;color:#fbbf24;font-weight:600}
+    .readout{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#fbbf24}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#fbbf24;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🧪 Solutions &amp; Molarity</h1>
+  <p class="subtitle">Mix solutes into solvents. Observe concentration, dilution, and solubility.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Solute</label>
+      <select id="solute" onchange="calc()"><option value="NaCl">NaCl (table salt)</option><option value="CuSO4">CuSO₄ (copper sulfate)</option><option value="KMnO4">KMnO₄ (potassium permanganate)</option></select></div>
+    <div class="ctrl-group"><label>Solute Mass (g)</label>
+      <input type="range" id="mass" min="1" max="100" value="20" oninput="calc()"><span class="val" id="mass-val">20 g</span></div>
+    <div class="ctrl-group"><label>Solution Volume (mL)</label>
+      <input type="range" id="vol" min="100" max="1000" value="500" step="50" oninput="calc()"><span class="val" id="vol-val">500 mL</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Molarity: <strong id="molarity">0.68 M</strong></div>
+    <div class="datum">Moles Solute: <strong id="moles">0.34</strong></div>
+    <div class="datum">Concentration: <strong id="conc-g">40 g/L</strong></div>
+    <div class="datum">Saturated: <strong id="sat-status">No</strong></div>
+  </div>
+  <div class="info-box"><h3>Solutions &amp; Molarity</h3><p>Molarity (M) = moles of solute / liters of solution. Moles = mass / molar mass. As you add more solute or decrease volume, concentration increases. If you exceed the solubility limit, the solution becomes saturated and excess solute precipitates out.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0;
+  var solutes={
+    NaCl:{mw:58.44,color:'rgba(255,255,255,',solubility:360,name:'NaCl'},
+    CuSO4:{mw:159.61,color:'rgba(59,130,246,',solubility:210,name:'CuSO₄'},
+    KMnO4:{mw:158.03,color:'rgba(168,85,247,',solubility:76,name:'KMnO₄'}
+  };
+  var particles=[],t=0,stirAngle=0;
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.calc=function(){
+    var sol=document.getElementById('solute').value;
+    var mass=parseInt(document.getElementById('mass').value);
+    var vol=parseInt(document.getElementById('vol').value);
+    document.getElementById('mass-val').textContent=mass+' g';
+    document.getElementById('vol-val').textContent=vol+' mL';
+    var s=solutes[sol];
+    var moles=mass/s.mw;
+    var molarity=moles/(vol/1000);
+    var concGL=mass/(vol/1000);
+    var saturated=concGL>(s.solubility);
+    document.getElementById('molarity').textContent=molarity.toFixed(2)+' M';
+    document.getElementById('moles').textContent=moles.toFixed(3);
+    document.getElementById('conc-g').textContent=Math.round(concGL)+' g/L';
+    document.getElementById('sat-status').textContent=saturated?'Yes ⚠️':'No';
+    var needed=Math.min(Math.round(mass/2),50);
+    while(particles.length<needed)particles.push({x:Math.random(),y:0.2+Math.random()*0.6,vx:(Math.random()-0.5)*0.002,vy:(Math.random()-0.5)*0.002,size:2+Math.random()*2,dissolving:1});
+    while(particles.length>needed)particles.pop();
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    var sol=document.getElementById('solute').value;
+    var mass=parseInt(document.getElementById('mass').value);
+    var vol=parseInt(document.getElementById('vol').value);
+    var s=solutes[sol];
+    var concGL=mass/(vol/1000);
+    var sat=concGL>s.solubility;
+    var alpha=Math.min(concGL/s.solubility,1)*0.5;
+    // Flask (Erlenmeyer shape)
+    var fx=w*0.25,fy=h*0.08,fw=w*0.4,fh=h*0.7;
+    var neckW=fw*0.3,neckH=fh*0.2;
+    var neckLeft=fx+fw*0.35,neckRight=fx+fw*0.65;
+    var bodyTop=fy+neckH;
+    // Flask outline
+    ctx.strokeStyle='#64748b';ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(neckLeft,fy);ctx.lineTo(neckLeft,bodyTop);
+    ctx.lineTo(fx,fy+fh*0.5);ctx.lineTo(fx,fy+fh);ctx.lineTo(fx+fw,fy+fh);
+    ctx.lineTo(fx+fw,fy+fh*0.5);ctx.lineTo(neckRight,bodyTop);ctx.lineTo(neckRight,fy);
+    ctx.stroke();
+    // Flask rim
+    ctx.strokeStyle='#94a3b8';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(neckLeft-5,fy);ctx.lineTo(neckRight+5,fy);ctx.stroke();
+    // Liquid (fill the flask body area)
+    var liqLevel=0.3+0.4*(vol/1000);
+    var liqY=fy+fh*(1-liqLevel);
+    // Calculate flask width at liquid level for proper fill
+    ctx.save();ctx.beginPath();
+    ctx.moveTo(neckLeft,bodyTop);ctx.lineTo(fx,fy+fh*0.5);ctx.lineTo(fx,fy+fh);
+    ctx.lineTo(fx+fw,fy+fh);ctx.lineTo(fx+fw,fy+fh*0.5);ctx.lineTo(neckRight,bodyTop);ctx.closePath();
+    ctx.clip();
+    // Liquid gradient
+    var liqGrad=ctx.createLinearGradient(0,liqY,0,fy+fh);
+    liqGrad.addColorStop(0,s.color+Math.max(alpha*0.6,0.05)+')');
+    liqGrad.addColorStop(1,s.color+Math.min(alpha+0.15,0.6)+')');
+    ctx.fillStyle=liqGrad;ctx.fillRect(fx-5,liqY,fw+10,fy+fh-liqY+5);
+    // Liquid surface shine
+    ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+    ctx.beginPath();
+    for(var lx=fx;lx<fx+fw;lx+=6){
+      var surfY=liqY+Math.sin(t*2+lx*0.04)*1.5;
+      if(lx===fx)ctx.moveTo(lx,surfY);else ctx.lineTo(lx,surfY);
+    }
+    ctx.stroke();
+    // Dissolved particles with Brownian motion
+    for(var i=0;i<particles.length;i++){
+      var p=particles[i];
+      p.vx+=(Math.random()-0.5)*0.0008;p.vy+=(Math.random()-0.5)*0.0008;
+      p.vx*=0.995;p.vy*=0.995;
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0.1||p.x>0.9){p.vx*=-1}
+      if(p.y<0.35||p.y>0.95){p.vy*=-1}
+      if(sat&&i>particles.length*0.6){p.y+=(0.95-p.y)*0.01;}
+      var px=fx+10+p.x*(fw-20);
+      var py=Math.max(liqY+5,fy+fh*0.45)+p.y*(fy+fh-Math.max(liqY,fy+fh*0.45))*0.4;
+      // Particle with glow
+      ctx.fillStyle=s.color+'0.15)';ctx.beginPath();ctx.arc(px,py,p.size+3,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=s.color+'0.7)';ctx.beginPath();ctx.arc(px,py,p.size,0,Math.PI*2);ctx.fill();
+    }
+    ctx.restore();
+    // Precipitate at bottom if saturated
+    if(sat){
+      ctx.fillStyle=s.color+'0.85)';
+      var precipN=Math.round((concGL-s.solubility)/s.solubility*10)+3;
+      for(var i=0;i<Math.min(precipN,15);i++){
+        var px3=fx+fw*0.2+i*(fw*0.6/15);
+        var py3=fy+fh-6-Math.random()*8;
+        ctx.beginPath();ctx.arc(px3,py3,3+Math.random()*2,0,Math.PI*2);ctx.fill();
+      }
+      ctx.fillStyle='#f59e0b';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+      ctx.fillText('⚠ SATURATED — Excess precipitate',fx+fw/2,fy+fh+20);
+    }
+    // Stirring rod
+    stirAngle+=0.03;
+    var rodCX=fx+fw*0.55,rodCY=liqY+20;
+    ctx.save();ctx.translate(rodCX,rodCY);ctx.rotate(Math.sin(stirAngle)*0.15);
+    ctx.fillStyle='rgba(148,163,184,0.6)';ctx.fillRect(-2,0,4,liqY>bodyTop?-30:-50);
+    ctx.restore();
+    // Flask label
+    ctx.fillStyle='rgba(148,163,184,0.5)';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText(s.name+' solution',fx+fw/2,fy-12);
+    // Molarity formula display on canvas (right side)
+    var infoX=fx+fw+30,infoY=h*0.15;
+    ctx.fillStyle='rgba(251,191,36,0.7)';ctx.font='bold 13px Poppins';ctx.textAlign='left';
+    ctx.fillText('M = mol / L',infoX,infoY);
+    ctx.font='10px Poppins';ctx.fillStyle='rgba(148,163,184,0.6)';
+    var moles2=(mass/s.mw);
+    var liters=(vol/1000);
+    ctx.fillText('moles = mass / MW',infoX,infoY+22);
+    ctx.fillText('= '+mass+'g / '+s.mw.toFixed(1)+' g/mol',infoX,infoY+36);
+    ctx.fillStyle='#fbbf24';ctx.font='bold 10px Poppins';
+    ctx.fillText('= '+moles2.toFixed(3)+' mol',infoX,infoY+52);
+    ctx.fillStyle='rgba(148,163,184,0.6)';ctx.font='10px Poppins';
+    ctx.fillText('Volume = '+vol+' mL = '+liters.toFixed(2)+' L',infoX,infoY+74);
+    ctx.fillStyle='#fbbf24';ctx.font='bold 12px Poppins';
+    ctx.fillText('M = '+(moles2/liters).toFixed(2)+' mol/L',infoX,infoY+96);
+    // Concentration bar (visual meter)
+    var barX2=infoX,barY2=infoY+115,barW2=w-infoX-20,barH2=14;
+    ctx.fillStyle='#1e293b';ctx.fillRect(barX2,barY2,barW2,barH2);
+    ctx.strokeStyle='#334155';ctx.strokeRect(barX2,barY2,barW2,barH2);
+    var fillFrac=Math.min(concGL/s.solubility,1.3);
+    var barGrad=ctx.createLinearGradient(barX2,0,barX2+barW2*fillFrac,0);
+    barGrad.addColorStop(0,s.color+'0.5)');barGrad.addColorStop(1,fillFrac>=1?'rgba(239,68,68,0.7)':s.color+'0.8)');
+    ctx.fillStyle=barGrad;ctx.fillRect(barX2+1,barY2+1,Math.min(barW2-2,barW2*fillFrac),barH2-2);
+    // Saturation mark
+    var satMark=barX2+barW2*(1/1.3);
+    ctx.strokeStyle='#ef4444';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(satMark,barY2-3);ctx.lineTo(satMark,barY2+barH2+3);ctx.stroke();
+    ctx.fillStyle='#ef4444';ctx.font='7px Poppins';ctx.textAlign='center';
+    ctx.fillText('sat.',satMark,barY2+barH2+12);
+    t+=0.03;requestAnimationFrame(draw);
+  }
+  calc();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

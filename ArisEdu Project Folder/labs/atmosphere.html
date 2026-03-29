@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Atmosphere Layers</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden;cursor:pointer}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:200px;accent-color:#3b82f6}
+    .ctrl-group .val{font-size:.8rem;color:#60a5fa;font-weight:600}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#60a5fa}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#60a5fa;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🌤️ Atmosphere Layers</h1>
+  <p class="subtitle">Explore Earth's atmospheric layers from troposphere to exosphere.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Altitude (km) — Drag to explore</label>
+      <input type="range" id="alt" min="0" max="600" value="0" oninput="upd()"><span class="val" id="alt-val">0 km</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Layer: <strong id="layer">Troposphere</strong></div>
+    <div class="datum">Temperature: <strong id="temp">15°C</strong></div>
+    <div class="datum">Pressure: <strong id="press">1013 hPa</strong></div>
+    <div class="datum">Key Feature: <strong id="feature">Weather occurs here</strong></div>
+  </div>
+  <div class="info-box"><h3>Earth's Atmosphere</h3><p><strong>Troposphere</strong> (0–12 km): Weather, 75% of atmospheric mass. <strong>Stratosphere</strong> (12–50 km): Ozone layer, jets fly here. <strong>Mesosphere</strong> (50–80 km): Meteors burn up. <strong>Thermosphere</strong> (80–700 km): Aurora, ISS orbits, very hot but sparse. <strong>Exosphere</strong> (700+ km): Fades into space. Temperature and pressure vary dramatically with altitude.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0;
+  var layers=[
+    {name:'Troposphere',minAlt:0,maxAlt:12,color:'rgba(59,130,246,0.3)',features:['☁️ Clouds','🌧 Rain','✈️ Planes (10km)'],tempRange:[15,-56],feature:'Weather occurs here'},
+    {name:'Stratosphere',minAlt:12,maxAlt:50,color:'rgba(99,102,241,0.25)',features:['🛡 Ozone Layer (25km)','🛫 High-altitude jets'],tempRange:[-56,-2],feature:'Ozone layer absorbs UV'},
+    {name:'Mesosphere',minAlt:50,maxAlt:80,color:'rgba(139,92,246,0.2)',features:['☄️ Meteors burn up','Noctilucent clouds'],tempRange:[-2,-90],feature:'Coldest layer (-90°C)'},
+    {name:'Thermosphere',minAlt:80,maxAlt:700,color:'rgba(168,85,247,0.15)',features:['🛸 ISS (408km)','🌌 Aurora (100-300km)'],tempRange:[-90,1500],feature:'Aurora & ISS orbit'},
+    {name:'Exosphere',minAlt:700,maxAlt:10000,color:'rgba(30,30,50,0.1)',features:['🛰 Satellites','→ Outer Space'],tempRange:[1500,2500],feature:'Fades into space'}
+  ];
+  function resize(){cv.width=cv.parentElement.clientWidth;}
+  window.addEventListener('resize',resize);resize();
+  window.upd=function(){
+    var alt=parseInt(document.getElementById('alt').value);
+    document.getElementById('alt-val').textContent=alt+' km';
+    var layer=layers[0];
+    for(var i=layers.length-1;i>=0;i--){if(alt>=layers[i].minAlt){layer=layers[i];break;}}
+    document.getElementById('layer').textContent=layer.name;
+    document.getElementById('feature').textContent=layer.feature;
+    // Temperature profile (simplified)
+    var tempFrac=(alt-layer.minAlt)/Math.max(1,layer.maxAlt-layer.minAlt);
+    var temp2=layer.tempRange[0]+(layer.tempRange[1]-layer.tempRange[0])*tempFrac;
+    document.getElementById('temp').textContent=Math.round(temp2)+'°C';
+    // Pressure (exponential decay)
+    var press=1013*Math.exp(-alt/8.5);
+    document.getElementById('press').textContent=press>1?Math.round(press)+' hPa':press.toExponential(1)+' hPa';
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    t+=0.016;
+    var alt2=parseInt(document.getElementById('alt').value);
+    var totalH=h-40;
+    var altScale=600;
+    // Draw layers with gradient fills
+    var layerColors=[
+      ['rgba(59,130,246,0.35)','rgba(59,130,246,0.15)'],
+      ['rgba(99,102,241,0.3)','rgba(99,102,241,0.1)'],
+      ['rgba(139,92,246,0.25)','rgba(139,92,246,0.08)'],
+      ['rgba(168,85,247,0.18)','rgba(168,85,247,0.05)'],
+      ['rgba(30,30,50,0.12)','rgba(10,10,20,0.05)']
+    ];
+    layers.forEach(function(l,li){
+      var y1=h-l.minAlt/altScale*totalH;
+      var y2=h-Math.min(l.maxAlt,altScale)/altScale*totalH;
+      var lGrad=ctx.createLinearGradient(0,y2,0,y1);
+      lGrad.addColorStop(0,layerColors[li][1]);lGrad.addColorStop(1,layerColors[li][0]);
+      ctx.fillStyle=lGrad;ctx.fillRect(0,y2,w,y1-y2);
+      // Glowing border line
+      ctx.strokeStyle='rgba(148,163,184,0.15)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,y2);ctx.lineTo(w,y2);ctx.stroke();
+      // Border glow
+      var bGlow=ctx.createLinearGradient(0,y2-3,0,y2+3);
+      bGlow.addColorStop(0,'rgba(148,163,184,0)');bGlow.addColorStop(0.5,'rgba(148,163,184,0.08)');bGlow.addColorStop(1,'rgba(148,163,184,0)');
+      ctx.fillStyle=bGlow;ctx.fillRect(0,y2-3,w,6);
+      // Layer label with background
+      var lblW=ctx.measureText(l.name+' ('+l.minAlt+'-'+Math.min(l.maxAlt,700)+' km)').width+16;
+      ctx.fillStyle='rgba(15,23,42,0.5)';ctx.beginPath();ctx.roundRect(6,y2+4,lblW,18,4);ctx.fill();
+      ctx.fillStyle='#cbd5e1';ctx.font='bold 11px Poppins';ctx.textAlign='left';
+      ctx.fillText(l.name+' ('+l.minAlt+'-'+Math.min(l.maxAlt,700)+' km)',14,y2+17);
+      // Features
+      ctx.font='10px Poppins';ctx.fillStyle='#94a3b8';
+      l.features.forEach(function(f,fi){
+        ctx.fillText(f,20,(y1+y2)/2+fi*14);
+      });
+    });
+    // Ground with grass gradient
+    var groundGrad=ctx.createLinearGradient(0,h-20,0,h);
+    groundGrad.addColorStop(0,'#22c55e30');groundGrad.addColorStop(1,'#16a34a40');
+    ctx.fillStyle=groundGrad;ctx.fillRect(0,h-20,w,20);
+    ctx.fillStyle='#22c55e';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText('\ud83c\udf0d Ground Level',w/2,h-5);
+    // Grass blades
+    ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;
+    for(var gb=0;gb<15;gb++){
+      var gbx=gb*w/15+10;
+      ctx.beginPath();ctx.moveTo(gbx,h-20);ctx.lineTo(gbx+Math.sin(t+gb)*2,h-25-Math.random()*3);ctx.stroke();
+    }
+    // Animated clouds in troposphere (with gradient bodies)
+    for(var cl=0;cl<4;cl++){
+      var cx=(cl*250+t*15*(1+cl*0.2))%(w+60)-30;
+      var cy=h-8/altScale*totalH+cl*12;
+      var cGrad=ctx.createRadialGradient(cx,cy,0,cx,cy,22);
+      cGrad.addColorStop(0,'rgba(255,255,255,0.2)');cGrad.addColorStop(1,'rgba(255,255,255,0.02)');
+      ctx.fillStyle=cGrad;
+      ctx.beginPath();ctx.arc(cx,cy,22,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(cx+18,cy-4,15,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(cx-12,cy+2,13,0,Math.PI*2);ctx.fill();
+    }
+    // Rain drops below clouds
+    ctx.fillStyle='rgba(96,165,250,0.25)';
+    for(var rd=0;rd<6;rd++){
+      var rdx=(rd*130+37)%w;
+      var rdy=h-5/altScale*totalH+((t*60+rd*40)%40);
+      ctx.beginPath();ctx.arc(rdx,rdy,1,0,Math.PI*2);ctx.fill();
+    }
+    // Ozone layer glow in stratosphere
+    var ozoneY=h-25/altScale*totalH;
+    var ozGlow=ctx.createLinearGradient(0,ozoneY-12,0,ozoneY+12);
+    ozGlow.addColorStop(0,'rgba(59,130,246,0)');ozGlow.addColorStop(0.5,'rgba(59,130,246,0.12)');ozGlow.addColorStop(1,'rgba(59,130,246,0)');
+    ctx.fillStyle=ozGlow;ctx.fillRect(0,ozoneY-12,w,24);
+    ctx.strokeStyle='rgba(59,130,246,0.3)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(0,ozoneY);ctx.lineTo(w,ozoneY);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#60a5fa';ctx.font='9px Poppins';ctx.textAlign='right';
+    ctx.fillText('O\u2083 Ozone Layer',w-15,ozoneY+3);
+    // Meteor in mesosphere with trail
+    var metY=h-65/altScale*totalH;
+    var metX=(t*70)%w;
+    // Trail
+    ctx.lineWidth=2;
+    var trailGrad=ctx.createLinearGradient(metX+40,metY-20,metX,metY);
+    trailGrad.addColorStop(0,'rgba(245,158,11,0)');trailGrad.addColorStop(1,'rgba(245,158,11,0.6)');
+    ctx.strokeStyle=trailGrad;
+    ctx.beginPath();ctx.moveTo(metX,metY);ctx.lineTo(metX+40,metY-20);ctx.stroke();
+    // Sparks
+    for(var sp=0;sp<3;sp++){
+      ctx.fillStyle='rgba(251,191,36,'+(0.3-sp*0.1)+')';
+      ctx.beginPath();ctx.arc(metX+sp*8+Math.random()*4,metY-sp*4+Math.random()*4,1,0,Math.PI*2);ctx.fill();
+    }
+    // Meteor head with glow
+    var mGlow=ctx.createRadialGradient(metX,metY,0,metX,metY,8);
+    mGlow.addColorStop(0,'#fbbf24');mGlow.addColorStop(0.5,'#f59e0b');mGlow.addColorStop(1,'rgba(245,158,11,0)');
+    ctx.fillStyle=mGlow;ctx.beginPath();ctx.arc(metX,metY,8,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fef3c7';ctx.beginPath();ctx.arc(metX,metY,2.5,0,Math.PI*2);ctx.fill();
+    // Aurora in thermosphere with multi-color ribbons
+    var auroraY=h-150/altScale*totalH;
+    var auroraColors=['rgba(34,197,94,0.2)','rgba(59,130,246,0.15)','rgba(168,85,247,0.1)'];
+    auroraColors.forEach(function(ac,ai){
+      ctx.strokeStyle=ac;ctx.lineWidth=4-ai;
+      ctx.beginPath();
+      for(var ax=0;ax<w;ax+=4){
+        var ay=auroraY+ai*8+Math.sin(ax*0.015+t+ai*0.5)*12+Math.sin(ax*0.03+t*1.5)*5;
+        if(ax===0)ctx.moveTo(ax,ay);else ctx.lineTo(ax,ay);
+      }
+      ctx.stroke();
+    });
+    // Aurora vertical curtain effect
+    for(var ac2=0;ac2<8;ac2++){
+      var acx=w*0.15+ac2*w*0.09;
+      var acy=auroraY+Math.sin(t+ac2)*5;
+      ctx.strokeStyle='rgba(34,197,94,'+(0.05+Math.sin(t*2+ac2)*0.03)+')';ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(acx,acy-15);ctx.lineTo(acx+Math.sin(t+ac2)*3,acy+20);ctx.stroke();
+    }
+    // ISS as drawn shape (not emoji)
+    var issY=h-408/altScale*totalH;
+    var issX=(t*25)%(w+40)-20;
+    // Solar panels
+    ctx.fillStyle='#60a5fa';
+    ctx.fillRect(issX-12,issY-2,8,4);ctx.fillRect(issX+4,issY-2,8,4);
+    // Body
+    ctx.fillStyle='#e2e8f0';ctx.fillRect(issX-3,issY-3,6,6);
+    // Glow
+    var issGlow=ctx.createRadialGradient(issX,issY,0,issX,issY,15);
+    issGlow.addColorStop(0,'rgba(241,245,249,0.15)');issGlow.addColorStop(1,'rgba(241,245,249,0)');
+    ctx.fillStyle=issGlow;ctx.beginPath();ctx.arc(issX,issY,15,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.textAlign='center';
+    ctx.fillText('ISS',issX,issY-8);
+    // Stars in upper region
+    for(var st=0;st<15;st++){
+      var stx=(st*67+23)%w,sty=(st*41+7)%(h*0.2);
+      var stAlpha=0.2+Math.sin(t*3+st)*0.15;
+      ctx.fillStyle='rgba(255,255,255,'+stAlpha+')';ctx.beginPath();ctx.arc(stx,sty,0.8,0,Math.PI*2);ctx.fill();
+    }
+    // Altitude indicator with glow
+    var indicatorY=h-alt2/altScale*totalH;
+    // Glow band
+    var indGlow=ctx.createLinearGradient(0,indicatorY-6,0,indicatorY+6);
+    indGlow.addColorStop(0,'rgba(239,68,68,0)');indGlow.addColorStop(0.5,'rgba(239,68,68,0.15)');indGlow.addColorStop(1,'rgba(239,68,68,0)');
+    ctx.fillStyle=indGlow;ctx.fillRect(0,indicatorY-6,w,12);
+    ctx.strokeStyle='#ef4444';ctx.lineWidth=1.5;ctx.setLineDash([6,3]);
+    ctx.beginPath();ctx.moveTo(0,indicatorY);ctx.lineTo(w,indicatorY);ctx.stroke();ctx.setLineDash([]);
+    // Altitude badge
+    ctx.fillStyle='rgba(239,68,68,0.85)';ctx.beginPath();ctx.roundRect(w-90,indicatorY-12,80,20,4);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('\u2190 '+alt2+' km',w-50,indicatorY+2);
+    // Temperature profile on right with filled area
+    ctx.beginPath();ctx.moveTo(w-50,0);
+    for(var ty=0;ty<h;ty+=3){
+      var tAlt=(h-ty)/totalH*altScale;
+      var tLayer=layers[0];
+      for(var li=layers.length-1;li>=0;li--){if(tAlt>=layers[li].minAlt){tLayer=layers[li];break;}}
+      var tFrac=(tAlt-tLayer.minAlt)/Math.max(1,tLayer.maxAlt-tLayer.minAlt);
+      var tVal=tLayer.tempRange[0]+(tLayer.tempRange[1]-tLayer.tempRange[0])*tFrac;
+      var tx=w-50+(tVal/1500)*40;
+      ctx.lineTo(tx,ty);
+    }
+    ctx.lineTo(w-50,h);ctx.closePath();
+    ctx.fillStyle='rgba(239,68,68,0.06)';ctx.fill();
+    ctx.strokeStyle='rgba(239,68,68,0.5)';ctx.lineWidth=1.5;
+    ctx.beginPath();
+    for(var ty2=0;ty2<h;ty2+=3){
+      var tAlt2=(h-ty2)/totalH*altScale;
+      var tLayer2=layers[0];
+      for(var li2=layers.length-1;li2>=0;li2--){if(tAlt2>=layers[li2].minAlt){tLayer2=layers[li2];break;}}
+      var tFrac2=(tAlt2-tLayer2.minAlt)/Math.max(1,tLayer2.maxAlt-tLayer2.minAlt);
+      var tVal2=tLayer2.tempRange[0]+(tLayer2.tempRange[1]-tLayer2.tempRange[0])*tFrac2;
+      var tx2=w-50+(tVal2/1500)*40;
+      if(ty2===0)ctx.moveTo(tx2,ty2);else ctx.lineTo(tx2,ty2);
+    }
+    ctx.stroke();
+    // Temp axis label
+    ctx.fillStyle='rgba(15,23,42,0.6)';ctx.beginPath();ctx.roundRect(w-65,2,55,16,3);ctx.fill();
+    ctx.fillStyle='#ef4444';ctx.font='bold 8px Poppins';ctx.textAlign='center';
+    ctx.fillText('Temp \u2192',w-38,12);
+    // Altitude scale on left
+    ctx.fillStyle='#475569';ctx.font='8px Poppins';ctx.textAlign='left';
+    [0,50,100,200,400,600].forEach(function(a){
+      var ay=h-a/altScale*totalH;
+      ctx.fillText(a+'km',3,ay+3);
+      ctx.strokeStyle='rgba(71,85,105,0.15)';ctx.lineWidth=0.5;
+      ctx.beginPath();ctx.moveTo(30,ay);ctx.lineTo(40,ay);ctx.stroke();
+    });
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

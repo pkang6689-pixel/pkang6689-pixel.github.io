@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>H-R Diagram</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden;cursor:crosshair}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:160px;accent-color:#f59e0b}
+    .ctrl-group .val{font-size:.8rem;color:#f59e0b;font-weight:600}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#f59e0b}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>⭐ Hertzsprung-Russell Diagram</h1>
+  <p class="subtitle">Explore star classification by temperature and luminosity.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="480"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Star Mass (M☉)</label>
+      <input type="range" id="mass" min="0.1" max="50" step="0.1" value="1" oninput="upd()"><span class="val" id="m-val">1.0</span></div>
+    <div class="ctrl-group"><label>Evolution Stage</label>
+      <input type="range" id="stage" min="0" max="4" value="0" oninput="upd()"><span class="val" id="st-val">Main Sequence</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Temperature: <strong id="temp">5778 K</strong></div>
+    <div class="datum">Luminosity: <strong id="lum">1.0 L☉</strong></div>
+    <div class="datum">Spectral: <strong id="spec">G2</strong></div>
+    <div class="datum">Lifetime: <strong id="life">10 Gyr</strong></div>
+  </div>
+  <div class="info-box"><h3>The H-R Diagram</h3><p>The <strong>Hertzsprung-Russell diagram</strong> plots stars by surface temperature (x, decreasing right) vs luminosity (y, increasing up). The <strong>main sequence</strong> runs diagonally — hot, luminous blue stars (top-left) to cool, dim red dwarfs (bottom-right). Giants and supergiants sit above; white dwarfs below. A star's position changes as it evolves through its lifecycle.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0;
+  var stars=[];
+  var stages=['Main Sequence','Subgiant','Red Giant','Planetary Nebula/Supernova','White Dwarf/Neutron Star'];
+  // Generate sample stars
+  function genStars(){
+    stars=[];
+    // Main sequence
+    for(var i=0;i<80;i++){
+      var m=0.1+Math.random()*30;
+      var temp2=3000+m*1200+Math.random()*500;
+      var lum2=Math.pow(m,3.5);
+      stars.push({temp:Math.min(40000,temp2),lum:lum2,type:'ms'});
+    }
+    // Red giants
+    for(var j=0;j<15;j++){
+      stars.push({temp:3000+Math.random()*1500,lum:100+Math.random()*5000,type:'giant'});
+    }
+    // Supergiants
+    for(var k=0;k<5;k++){
+      stars.push({temp:3500+Math.random()*25000,lum:10000+Math.random()*90000,type:'supergiant'});
+    }
+    // White dwarfs
+    for(var l=0;l<12;l++){
+      stars.push({temp:8000+Math.random()*20000,lum:0.001+Math.random()*0.01,type:'wd'});
+    }
+  }
+  genStars();
+  function resize(){cv.width=cv.parentElement.clientWidth;}
+  window.addEventListener('resize',resize);resize();
+  window.upd=function(){
+    var mass2=parseFloat(document.getElementById('mass').value);
+    var stage2=parseInt(document.getElementById('stage').value);
+    document.getElementById('m-val').textContent=mass2.toFixed(1)+' M☉';
+    document.getElementById('st-val').textContent=stages[stage2];
+    // Calculate properties based on mass and stage
+    var temp3,lum3,spec,life2;
+    if(stage2===0){// Main sequence
+      temp3=3000+mass2*1200;lum3=Math.pow(mass2,3.5);
+    }else if(stage2===1){// Subgiant
+      temp3=4000+mass2*200;lum3=Math.pow(mass2,3.5)*5;
+    }else if(stage2===2){// Red giant
+      temp3=3200+Math.random()*500;lum3=Math.pow(mass2,3.5)*50;
+    }else if(stage2===3){// Nebula/supernova
+      temp3=30000;lum3=Math.pow(mass2,3.5)*100;
+    }else{// White dwarf / neutron star
+      temp3=mass2>8?10000000:15000+mass2*1000;lum3=mass2>8?1:0.005;
+    }
+    temp3=Math.min(50000,Math.max(2500,temp3));
+    var specTypes=[{t:30000,s:'O'},{t:10000,s:'B'},{t:7500,s:'A'},{t:6000,s:'F'},{t:5200,s:'G'},{t:3700,s:'K'},{t:2400,s:'M'}];
+    spec='M';for(var si=0;si<specTypes.length;si++){if(temp3>=specTypes[si].t){spec=specTypes[si].s;break;}}
+    life2=10/Math.pow(mass2,2.5);
+    document.getElementById('temp').textContent=Math.round(temp3)+' K';
+    document.getElementById('lum').textContent=lum3>1000?(lum3/1000).toFixed(0)+'k L☉':lum3>1?lum3.toFixed(1)+' L☉':lum3.toFixed(4)+' L☉';
+    document.getElementById('spec').textContent=spec;
+    document.getElementById('life').textContent=life2>1?life2.toFixed(1)+' Gyr':life2>0.001?(life2*1000).toFixed(0)+' Myr':(life2*1e6).toFixed(0)+' yr';
+  };
+  function tempToColor(temp4){
+    if(temp4>25000)return'#9db4ff';if(temp4>10000)return'#aabfff';if(temp4>7500)return'#cad7ff';
+    if(temp4>6000)return'#f8f7ff';if(temp4>5200)return'#fff4e8';if(temp4>3700)return'#ffd2a1';
+    return'#ffaa6e';
+  }
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    t+=0.016;
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);
+    var pad=60,gw=w-pad*2,gh=h-pad*2;
+    // Subtle grid
+    ctx.strokeStyle='#0f172a';ctx.lineWidth=0.5;
+    for(var gx=pad;gx<=w-pad;gx+=gw/10){ctx.beginPath();ctx.moveTo(gx,pad);ctx.lineTo(gx,h-pad);ctx.stroke();}
+    for(var gy=pad;gy<=h-pad;gy+=gh/8){ctx.beginPath();ctx.moveTo(pad,gy);ctx.lineTo(w-pad,gy);ctx.stroke();}
+    // Region shading
+    // Main sequence band
+    ctx.save();ctx.globalAlpha=0.04;
+    ctx.fillStyle='#f59e0b';
+    ctx.beginPath();ctx.moveTo(pad+gw*0.05,pad+gh*0.02);ctx.lineTo(pad+gw*0.15,pad+gh*0.1);
+    ctx.lineTo(pad+gw*0.85,pad+gh*0.85);ctx.lineTo(pad+gw*0.95,pad+gh*0.98);
+    ctx.lineTo(pad+gw*0.75,pad+gh*0.98);ctx.lineTo(pad+gw*0.05,pad+gh*0.15);ctx.closePath();ctx.fill();
+    ctx.restore();
+    // Giant region
+    ctx.save();ctx.globalAlpha=0.03;ctx.fillStyle='#ef4444';
+    ctx.beginPath();ctx.arc(pad+gw*0.72,pad+gh*0.2,gw*0.15,0,Math.PI*2);ctx.fill();ctx.restore();
+    // White dwarf region
+    ctx.save();ctx.globalAlpha=0.03;ctx.fillStyle='#60a5fa';
+    ctx.beginPath();ctx.arc(pad+gw*0.3,pad+gh*0.88,gw*0.12,0,Math.PI*2);ctx.fill();ctx.restore();
+    // Axes with gradient
+    var axGrad=ctx.createLinearGradient(pad,pad,pad,h-pad);
+    axGrad.addColorStop(0,'#475569');axGrad.addColorStop(1,'#334155');
+    ctx.strokeStyle=axGrad;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(pad,pad);ctx.lineTo(pad,h-pad);ctx.lineTo(w-pad,h-pad);ctx.stroke();
+    // X axis labels (Temperature, reversed!)
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';
+    var tempTicks=[40000,25000,10000,7500,6000,5000,3500,2500];
+    tempTicks.forEach(function(tt){
+      var x=pad+(1-Math.log10(tt/2500)/Math.log10(40000/2500))*gw;
+      ctx.fillStyle='#475569';ctx.fillText(tt>999?(tt/1000)+'k':tt,x,h-pad+15);
+      ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+      ctx.beginPath();ctx.moveTo(x,h-pad);ctx.lineTo(x,h-pad+4);ctx.stroke();
+    });
+    ctx.fillStyle='#94a3b8';ctx.font='bold 10px Poppins';
+    ctx.fillText('\u2190 Hotter    Temperature (K)    Cooler \u2192',w/2,h-8);
+    // Spectral class colors at top with color bar
+    var specColors=[{s:'O',c:'#9db4ff',t:35000},{s:'B',c:'#aabfff',t:20000},{s:'A',c:'#cad7ff',t:8000},{s:'F',c:'#f8f7ff',t:6500},{s:'G',c:'#fff4e8',t:5500},{s:'K',c:'#ffd2a1',t:4500},{s:'M',c:'#ffaa6e',t:3000}];
+    // Color bar
+    for(var cb=0;cb<specColors.length-1;cb++){
+      var x1=pad+(1-Math.log10(specColors[cb].t/2500)/Math.log10(40000/2500))*gw;
+      var x2=pad+(1-Math.log10(specColors[cb+1].t/2500)/Math.log10(40000/2500))*gw;
+      var cbGrad=ctx.createLinearGradient(x1,0,x2,0);
+      cbGrad.addColorStop(0,specColors[cb].c+'40');cbGrad.addColorStop(1,specColors[cb+1].c+'40');
+      ctx.fillStyle=cbGrad;ctx.fillRect(x1,pad-4,x2-x1,4);
+    }
+    specColors.forEach(function(sc){
+      var x=pad+(1-Math.log10(sc.t/2500)/Math.log10(40000/2500))*gw;
+      ctx.fillStyle=sc.c;ctx.font='bold 12px Poppins';ctx.textAlign='center';ctx.fillText(sc.s,x,pad-10);
+    });
+    // Y axis labels (Luminosity)
+    ctx.textAlign='right';ctx.font='9px Poppins';
+    var lumTicks=[0.0001,0.01,1,100,10000,1000000];
+    lumTicks.forEach(function(lt){
+      var y=h-pad-(Math.log10(lt/0.0001)/Math.log10(1000000/0.0001))*gh;
+      ctx.fillStyle='#475569';
+      ctx.fillText(lt>=1?lt.toLocaleString():lt,pad-5,y+3);
+      ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke();
+    });
+    ctx.save();ctx.translate(15,h/2);ctx.rotate(-Math.PI/2);
+    ctx.fillStyle='#94a3b8';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Luminosity (L\u2609) \u2192',0,0);ctx.restore();
+    // Region labels
+    ctx.fillStyle='rgba(148,163,184,0.12)';ctx.font='italic 12px Poppins';ctx.textAlign='center';
+    ctx.fillText('MAIN SEQUENCE',w/2,h/2+20);
+    ctx.fillText('RED GIANTS',w*0.72,pad+60);
+    ctx.fillText('SUPERGIANTS',w/2,pad+30);
+    ctx.fillText('WHITE DWARFS',w*0.3,h-pad-30);
+    // Plot stars with glow
+    stars.forEach(function(s){
+      var x=pad+(1-Math.log10(s.temp/2500)/Math.log10(40000/2500))*gw;
+      var y=h-pad-(Math.log10(Math.max(0.0001,s.lum)/0.0001)/Math.log10(1000000/0.0001))*gh;
+      x=Math.max(pad,Math.min(w-pad,x));
+      y=Math.max(pad,Math.min(h-pad,y));
+      var size=s.type==='supergiant'?5:s.type==='giant'?4:s.type==='wd'?2:3;
+      var sc=tempToColor(s.temp);
+      // Subtle glow for larger stars
+      if(size>=4){
+        var sGlow=ctx.createRadialGradient(x,y,0,x,y,size*3);
+        sGlow.addColorStop(0,sc+'30');sGlow.addColorStop(1,sc+'00');
+        ctx.fillStyle=sGlow;ctx.beginPath();ctx.arc(x,y,size*3,0,Math.PI*2);ctx.fill();
+      }
+      ctx.globalAlpha=0.55+Math.sin(t*1.5+x*0.01)*0.12;
+      ctx.fillStyle=sc;ctx.beginPath();ctx.arc(x,y,size,0,Math.PI*2);ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    // User's star
+    var mass2=parseFloat(document.getElementById('mass').value);
+    var stage2=parseInt(document.getElementById('stage').value);
+    var ut,ul;
+    if(stage2===0){ut=3000+mass2*1200;ul=Math.pow(mass2,3.5);}
+    else if(stage2===1){ut=4000+mass2*200;ul=Math.pow(mass2,3.5)*5;}
+    else if(stage2===2){ut=3500;ul=Math.pow(mass2,3.5)*50;}
+    else if(stage2===3){ut=30000;ul=Math.pow(mass2,3.5)*100;}
+    else{ut=mass2>8?50000:15000;ul=mass2>8?1:0.005;}
+    ut=Math.min(50000,Math.max(2500,ut));
+    var ux=pad+(1-Math.log10(ut/2500)/Math.log10(40000/2500))*gw;
+    var uy=h-pad-(Math.log10(Math.max(0.0001,ul)/0.0001)/Math.log10(1000000/0.0001))*gh;
+    ux=Math.max(pad,Math.min(w-pad,ux));
+    uy=Math.max(pad,Math.min(h-pad,uy));
+    // Pulsing glow ring
+    var pulse=8+Math.sin(t*3)*3;
+    var ringGlow=ctx.createRadialGradient(ux,uy,pulse-2,ux,uy,pulse+8);
+    ringGlow.addColorStop(0,'rgba(245,158,11,0.2)');ringGlow.addColorStop(1,'rgba(245,158,11,0)');
+    ctx.fillStyle=ringGlow;ctx.beginPath();ctx.arc(ux,uy,pulse+8,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(ux,uy,pulse,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle=tempToColor(ut);ctx.beginPath();ctx.arc(ux,uy,5,0,Math.PI*2);ctx.fill();
+    // Label with background
+    var lbl='Your Star ('+mass2.toFixed(1)+' M\u2609)';
+    var lblW=ctx.measureText(lbl).width+10;
+    ctx.fillStyle='rgba(15,23,42,0.7)';ctx.beginPath();ctx.roundRect(ux+12,uy-10,lblW,20,4);ctx.fill();
+    ctx.fillStyle='#f59e0b';ctx.font='bold 10px Poppins';ctx.textAlign='left';
+    ctx.fillText(lbl,ux+17,uy+4);
+    // Sun reference with glow
+    var sunX=pad+(1-Math.log10(5778/2500)/Math.log10(40000/2500))*gw;
+    var sunY=h-pad-(Math.log10(1/0.0001)/Math.log10(1000000/0.0001))*gh;
+    var sunGlow=ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,12);
+    sunGlow.addColorStop(0,'rgba(251,191,36,0.2)');sunGlow.addColorStop(1,'rgba(251,191,36,0)');
+    ctx.fillStyle=sunGlow;ctx.beginPath();ctx.arc(sunX,sunY,12,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(sunX,sunY,3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fbbf24';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('\u2609 Sun',sunX,sunY-8);
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

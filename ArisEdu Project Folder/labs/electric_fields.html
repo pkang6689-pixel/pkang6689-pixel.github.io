@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Electric Fields</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden;cursor:crosshair}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-btn{padding:.5rem 1rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;font-weight:600;font-size:.85rem;transition:all .2s}
+    .ctrl-btn.active{background:#f59e0b;border-color:#f59e0b;color:#0f172a}
+    .ctrl-btn:hover{background:#334155}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#f59e0b}
+    .ctrl-group .val{font-size:.8rem;color:#fbbf24;font-weight:600}
+    .readout{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#fbbf24}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#fbbf24;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>⚡ Electric Fields</h1>
+  <p class="subtitle">Place charges and visualize field lines and equipotential surfaces.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
+  <div class="controls">
+    <button class="ctrl-btn active" id="btn-pos" onclick="setPlace(1,this)">+ Charge</button>
+    <button class="ctrl-btn" id="btn-neg" onclick="setPlace(-1,this)">− Charge</button>
+    <button class="ctrl-btn" onclick="clearCharges()">Clear All</button>
+    <div class="ctrl-group"><label>Show</label>
+      <div style="display:flex;gap:.5rem"><button class="ctrl-btn active" id="btn-lines" onclick="toggleShow('lines',this)">Field Lines</button>
+      <button class="ctrl-btn" id="btn-pot" onclick="toggleShow('potential',this)">Potential</button></div></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Charges placed: <strong id="ncharges">0</strong></div>
+    <div class="datum">Click canvas to place charges</div>
+  </div>
+  <div class="info-box"><h3>Coulomb's Law & Electric Fields</h3><p>Electric field E = kQ/r². Positive charges create outward field lines; negative charges pull field lines inward. The superposition principle: at any point, the net field is the vector sum of all individual fields. k ≈ 8.99 × 10⁹ N·m²/C².</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var charges=[],placeSign=1,showLines=true,showPot=false,t=0;
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  cv.addEventListener('click',function(e){
+    var r=cv.getBoundingClientRect();
+    var x=(e.clientX-r.left)*(cv.width/r.width);
+    var y=(e.clientY-r.top)*(cv.height/r.height);
+    charges.push({x:x,y:y,q:placeSign});
+    document.getElementById('ncharges').textContent=charges.length;
+  });
+  window.setPlace=function(s,btn){
+    placeSign=s;
+    document.getElementById('btn-pos').classList.toggle('active',s===1);
+    document.getElementById('btn-neg').classList.toggle('active',s===-1);
+  };
+  window.clearCharges=function(){charges=[];document.getElementById('ncharges').textContent='0'};
+  window.toggleShow=function(what,btn){
+    if(what==='lines'){showLines=!showLines;btn.classList.toggle('active',showLines);}
+    if(what==='potential'){showPot=!showPot;btn.classList.toggle('active',showPot);}
+  };
+  function fieldAt(px,py){
+    var ex=0,ey=0;
+    for(var i=0;i<charges.length;i++){
+      var dx=px-charges[i].x,dy=py-charges[i].y;
+      var r2=dx*dx+dy*dy;if(r2<100)r2=100;
+      var r=Math.sqrt(r2);
+      var E=charges[i].q*5000/r2;
+      ex+=E*dx/r;ey+=E*dy/r;
+    }
+    return{x:ex,y:ey};
+  }
+  function potAt(px,py){
+    var v=0;
+    for(var i=0;i<charges.length;i++){
+      var dx=px-charges[i].x,dy=py-charges[i].y;
+      var r=Math.sqrt(dx*dx+dy*dy);if(r<5)r=5;
+      v+=charges[i].q*500/r;
+    }
+    return v;
+  }
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    t+=0.016;
+    // Subtle grid
+    ctx.strokeStyle='rgba(51,65,85,0.2)';ctx.lineWidth=0.5;
+    for(var gx=0;gx<w;gx+=40){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,h);ctx.stroke();}
+    for(var gy=0;gy<h;gy+=40){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(w,gy);ctx.stroke();}
+    // Potential heatmap
+    if(showPot&&charges.length>0){
+      var step=8;
+      for(var px=0;px<w;px+=step){
+        for(var py=0;py<h;py+=step){
+          var v=potAt(px,py);
+          var norm=Math.tanh(v*0.01);
+          if(norm>0){ctx.fillStyle='rgba(239,68,68,'+Math.min(norm*0.4,0.4)+')';}
+          else{ctx.fillStyle='rgba(59,130,246,'+Math.min(-norm*0.4,0.4)+')';}
+          ctx.fillRect(px,py,step,step);
+        }
+      }
+    }
+    // Field lines with arrowheads and animated flow
+    if(showLines&&charges.length>0){
+      for(var i=0;i<charges.length;i++){
+        if(charges[i].q<0) continue;
+        for(var a=0;a<16;a++){
+          var ang=a*Math.PI*2/16;
+          var px=charges[i].x+Math.cos(ang)*14;
+          var py=charges[i].y+Math.sin(ang)*14;
+          var pts=[];pts.push({x:px,y:py});
+          for(var s=0;s<200;s++){
+            var f=fieldAt(px,py);
+            var mag=Math.sqrt(f.x*f.x+f.y*f.y);
+            if(mag<0.01)break;
+            px+=f.x/mag*3;py+=f.y/mag*3;
+            if(px<0||px>w||py<0||py>h)break;
+            pts.push({x:px,y:py});
+            var hitNeg=false;
+            for(var j=0;j<charges.length;j++){
+              if(charges[j].q<0){
+                var dx2=px-charges[j].x,dy2=py-charges[j].y;
+                if(dx2*dx2+dy2*dy2<150)hitNeg=true;
+              }
+            }
+            if(hitNeg)break;
+          }
+          // Draw line with gradient fade
+          if(pts.length>2){
+            ctx.lineWidth=1.5;
+            for(var pi=0;pi<pts.length-1;pi++){
+              var alpha=0.15+0.25*(1-pi/pts.length);
+              ctx.strokeStyle='rgba(251,191,36,'+alpha+')';
+              ctx.beginPath();ctx.moveTo(pts[pi].x,pts[pi].y);ctx.lineTo(pts[pi+1].x,pts[pi+1].y);ctx.stroke();
+            }
+            // Animated arrows along field line
+            var arrowInterval=30;
+            for(var ai=0;ai<pts.length;ai+=arrowInterval){
+              var idx2=Math.floor((ai+t*60)%pts.length);
+              if(idx2<pts.length-2){
+                var p0=pts[idx2],p1=pts[idx2+1];
+                var adx=p1.x-p0.x,ady=p1.y-p0.y;
+                var aMag=Math.sqrt(adx*adx+ady*ady);if(aMag<0.1)continue;
+                var aAngle=Math.atan2(ady,adx);
+                ctx.fillStyle='rgba(251,191,36,0.5)';
+                ctx.beginPath();ctx.moveTo(p0.x+adx,p0.y+ady);
+                ctx.lineTo(p0.x+adx-6*Math.cos(aAngle-0.4),p0.y+ady-6*Math.sin(aAngle-0.4));
+                ctx.lineTo(p0.x+adx-6*Math.cos(aAngle+0.4),p0.y+ady-6*Math.sin(aAngle+0.4));
+                ctx.fill();
+              }
+            }
+          }
+        }
+      }
+      // Field lines from negative charges (reversed for single neg)
+      for(var i=0;i<charges.length;i++){
+        var hasPos=false;
+        for(var k=0;k<charges.length;k++){if(charges[k].q>0)hasPos=true;}
+        if(charges[i].q>0||hasPos) continue;
+        for(var a=0;a<16;a++){
+          var ang=a*Math.PI*2/16;
+          var px=charges[i].x+Math.cos(ang)*14;
+          var py=charges[i].y+Math.sin(ang)*14;
+          ctx.strokeStyle='rgba(96,165,250,0.2)';ctx.lineWidth=1;
+          ctx.beginPath();ctx.moveTo(px,py);
+          for(var s=0;s<100;s++){
+            var f=fieldAt(px,py);
+            var mag=Math.sqrt(f.x*f.x+f.y*f.y);
+            if(mag<0.01)break;
+            px-=f.x/mag*3;py-=f.y/mag*3;
+            if(px<0||px>w||py<0||py>h)break;
+            ctx.lineTo(px,py);
+          }
+          ctx.stroke();
+        }
+      }
+    }
+    // Draw charges with glow halos
+    for(var i=0;i<charges.length;i++){
+      var c=charges[i];
+      // Pulsing glow
+      var pulse=1+Math.sin(t*3+i)*0.2;
+      var glowR=20*pulse;
+      var glow=ctx.createRadialGradient(c.x,c.y,5,c.x,c.y,glowR);
+      if(c.q>0){glow.addColorStop(0,'rgba(239,68,68,0.4)');glow.addColorStop(1,'rgba(239,68,68,0)');}
+      else{glow.addColorStop(0,'rgba(59,130,246,0.4)');glow.addColorStop(1,'rgba(59,130,246,0)');}
+      ctx.fillStyle=glow;ctx.beginPath();ctx.arc(c.x,c.y,glowR,0,Math.PI*2);ctx.fill();
+      // Charge circle with gradient
+      var cGrad=ctx.createRadialGradient(c.x-3,c.y-3,2,c.x,c.y,14);
+      if(c.q>0){cGrad.addColorStop(0,'#f87171');cGrad.addColorStop(1,'#dc2626');}
+      else{cGrad.addColorStop(0,'#60a5fa');cGrad.addColorStop(1,'#2563eb');}
+      ctx.fillStyle=cGrad;ctx.beginPath();ctx.arc(c.x,c.y,13,0,Math.PI*2);ctx.fill();
+      // Border
+      ctx.strokeStyle=c.q>0?'rgba(248,113,113,0.3)':'rgba(96,165,250,0.3)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(c.x,c.y,13,0,Math.PI*2);ctx.stroke();
+      // Symbol
+      ctx.fillStyle='#fff';ctx.font='bold 15px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(c.q>0?'+':'−',c.x,c.y);
+    }
+    ctx.textBaseline='alphabetic';
+    // Formula on canvas
+    ctx.fillStyle='rgba(251,191,36,0.4)';ctx.font='bold 10px Poppins';ctx.textAlign='right';
+    ctx.fillText('E = kQ/r²     k ≈ 8.99×10⁹ N·m²/C²',w-15,h-15);
+    // Instruction when empty
+    if(charges.length===0){
+      ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='14px Poppins';ctx.textAlign='center';
+      ctx.fillText('Click anywhere to place a charge',w/2,h/2);
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

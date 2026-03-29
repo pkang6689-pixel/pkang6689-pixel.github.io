@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photosynthesis Simulation</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin:0; font-family:'Poppins',sans-serif; background:#0f172a; color:#f1f5f9; }
+    .sim-container { max-width:1000px; margin:5rem auto 2rem; padding:1rem 2rem; }
+    h1 { text-align:center; font-size:1.8rem; margin-bottom:0.25rem; }
+    .subtitle { text-align:center; color:#94a3b8; margin-bottom:1.5rem; }
+    .canvas-wrap { background:#020617; border:1px solid #334155; border-radius:1rem; overflow:hidden; }
+    canvas { display:block; width:100%; }
+    .controls { display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem; align-items:center; }
+    .ctrl-group { display:flex; flex-direction:column; gap:0.25rem; }
+    .ctrl-group label { font-size:0.75rem; color:#94a3b8; }
+    .ctrl-group input[type=range] { width:160px; accent-color:#22c55e; }
+    .ctrl-group .val { font-size:0.8rem; color:#4ade80; font-weight:600; }
+    .readout { display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.75rem; }
+    .readout .datum { background:#1e293b; padding:0.4rem 0.8rem; border-radius:0.5rem; border:1px solid #334155; font-size:0.8rem; color:#94a3b8; }
+    .readout .datum strong { color:#4ade80; }
+    .info-box { margin-top:1rem; background:#1e293b; border:1px solid #334155; border-radius:0.75rem; padding:1rem; font-size:0.85rem; color:#cbd5e1; line-height:1.7; }
+    .info-box h3 { color:#4ade80; margin:0 0 0.5rem; font-size:0.95rem; }
+    .equation { text-align:center; font-size:1.1rem; margin:0.75rem 0; padding:0.75rem; background:#0f172a; border-radius:0.5rem; color:#4ade80; font-family:monospace; border:1px solid #334155; }
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🌿 Photosynthesis</h1>
+  <p class="subtitle">Control light and CO₂ and watch a plant produce glucose and oxygen.</p>
+
+  <div class="equation">6CO₂ + 6H₂O + Light Energy → C₆H₁₂O₆ + 6O₂</div>
+
+  <div class="canvas-wrap"><canvas id="photo-canvas" height="450"></canvas></div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>Light Intensity ☀️</label>
+      <input type="range" id="light" min="0" max="100" value="50">
+      <span class="val" id="light-val">50%</span>
+    </div>
+    <div class="ctrl-group">
+      <label>CO₂ Concentration</label>
+      <input type="range" id="co2" min="0" max="100" value="40">
+      <span class="val" id="co2-val">40%</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Temperature (°C)</label>
+      <input type="range" id="temp" min="5" max="50" value="25">
+      <span class="val" id="temp-val">25°C</span>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="datum">O₂ Output: <strong id="o2-out">—</strong></div>
+    <div class="datum">Glucose Produced: <strong id="glucose-out">—</strong></div>
+    <div class="datum">Rate: <strong id="rate-out">—</strong></div>
+  </div>
+
+  <div class="info-box">
+    <h3>How Photosynthesis Works</h3>
+    <p><strong>Light Reactions</strong> (thylakoid): Water is split using light energy, producing O₂, ATP, and NADPH.<br>
+    <strong>Calvin Cycle</strong> (stroma): CO₂ is fixed into glucose using ATP and NADPH.<br>
+    The rate depends on light intensity, CO₂ concentration, and temperature. Too much heat denatures enzymes.</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  var canvas = document.getElementById('photo-canvas');
+  var ctx = canvas.getContext('2d');
+  var t = 0;
+  var bubbles = [];
+  var glucoseCount = 0;
+
+  function resize() { canvas.width = canvas.parentElement.clientWidth; }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function getRate() {
+    var light = parseInt(document.getElementById('light').value);
+    var co2 = parseInt(document.getElementById('co2').value);
+    var temp = parseInt(document.getElementById('temp').value);
+
+    // Rate limited by lowest factor (law of limiting factors)
+    var lightFactor = light / 100;
+    var co2Factor = co2 / 100;
+    // Enzyme activity peaks ~30C, drops off at extremes
+    var tempFactor = Math.max(0, 1 - Math.pow((temp - 30) / 25, 2));
+    return Math.min(lightFactor, co2Factor) * tempFactor;
+  }
+
+  function draw() {
+    var w = canvas.width, h = canvas.height;
+    var light = parseInt(document.getElementById('light').value);
+    var co2 = parseInt(document.getElementById('co2').value);
+    var temp = parseInt(document.getElementById('temp').value);
+    var rate = getRate();
+
+    document.getElementById('light-val').textContent = light + '%';
+    document.getElementById('co2-val').textContent = co2 + '%';
+    document.getElementById('temp-val').textContent = temp + '°C';
+    document.getElementById('o2-out').textContent = (rate * 6).toFixed(1) + ' units/s';
+    document.getElementById('glucose-out').textContent = (rate * 1).toFixed(2) + ' units/s';
+    document.getElementById('rate-out').textContent = (rate * 100).toFixed(0) + '%';
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Sky background (changes with light)
+    var skyBright = light / 100;
+    var r = Math.round(20 + skyBright * 100);
+    var g = Math.round(30 + skyBright * 150);
+    var b = Math.round(60 + skyBright * 180);
+    ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+    ctx.fillRect(0, 0, w, h * 0.6);
+
+    // Sun
+    if (light > 10) {
+      var sunR = 20 + light * 0.3;
+      ctx.fillStyle = 'rgba(251,191,36,' + (0.3 + skyBright * 0.7) + ')';
+      ctx.beginPath(); ctx.arc(w * 0.85, h * 0.12, sunR + 15, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath(); ctx.arc(w * 0.85, h * 0.12, sunR, 0, Math.PI * 2); ctx.fill();
+
+      // Sun rays hitting leaf
+      if (rate > 0.05) {
+        ctx.strokeStyle = 'rgba(251,191,36,0.15)';
+        ctx.lineWidth = 2;
+        for (var i = 0; i < 5; i++) {
+          var rx = w * 0.35 + Math.random() * w * 0.3;
+          ctx.beginPath();
+          ctx.moveTo(w * 0.85, h * 0.12);
+          ctx.lineTo(rx, h * 0.35 + Math.random() * 20);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Ground
+    ctx.fillStyle = '#3f2a14';
+    ctx.fillRect(0, h * 0.75, w, h * 0.25);
+    ctx.fillStyle = '#4a7c3f';
+    ctx.fillRect(0, h * 0.73, w, h * 0.04);
+
+    // Plant stem
+    ctx.strokeStyle = '#166534';
+    ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.moveTo(w * 0.5, h * 0.75); ctx.lineTo(w * 0.5, h * 0.4); ctx.stroke();
+
+    // Leaf (main)
+    ctx.fillStyle = '#22c55e';
+    ctx.beginPath();
+    ctx.ellipse(w * 0.5, h * 0.35, w * 0.15, h * 0.08, -0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#166534'; ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Leaf veins
+    ctx.strokeStyle = '#15803d'; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(w * 0.36, h * 0.36); ctx.lineTo(w * 0.64, h * 0.34); ctx.stroke();
+    for (var vi = 0; vi < 5; vi++) {
+      var vx = w * 0.4 + vi * w * 0.048;
+      ctx.beginPath(); ctx.moveTo(vx, h * 0.355 - vi * 0.003 * h); ctx.lineTo(vx + w * 0.02, h * 0.32); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(vx, h * 0.355 - vi * 0.003 * h); ctx.lineTo(vx + w * 0.02, h * 0.38); ctx.stroke();
+    }
+
+    // Second leaf
+    ctx.fillStyle = '#16a34a';
+    ctx.beginPath();
+    ctx.ellipse(w * 0.42, h * 0.48, w * 0.1, h * 0.05, 0.4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // CO₂ molecules coming in (left)
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px Poppins';
+    if (co2 > 10) {
+      for (var ci = 0; ci < Math.ceil(co2 / 25); ci++) {
+        var cx = w * 0.1 + Math.sin(t * 2 + ci * 2) * 20;
+        var cy = h * 0.3 + ci * 25;
+        ctx.fillStyle = 'rgba(148,163,184,0.6)';
+        ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('CO₂', cx + 8, cy + 4);
+        // Arrow toward leaf
+        ctx.strokeStyle = 'rgba(148,163,184,0.3)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(cx + 20, cy); ctx.lineTo(w * 0.36, h * 0.35); ctx.stroke();
+      }
+    }
+
+    // Water arrows coming up from roots
+    ctx.strokeStyle = 'rgba(56,189,248,0.4)'; ctx.lineWidth = 1.5;
+    for (var wi = 0; wi < 3; wi++) {
+      var wx = w * 0.48 + wi * 8;
+      ctx.beginPath(); ctx.moveTo(wx, h * 0.85); ctx.lineTo(wx, h * 0.75); ctx.stroke();
+      ctx.fillStyle = 'rgba(56,189,248,0.5)';
+      ctx.beginPath(); ctx.moveTo(wx - 3, h * 0.77); ctx.lineTo(wx, h * 0.74); ctx.lineTo(wx + 3, h * 0.77); ctx.fill();
+    }
+    ctx.fillStyle = '#38bdf8'; ctx.font = '10px Poppins';
+    ctx.fillText('H₂O', w * 0.44, h * 0.9);
+
+    // O₂ bubbles rising from leaf (proportional to rate)
+    if (rate > 0.05 && Math.random() < rate * 0.3) {
+      bubbles.push({
+        x: w * 0.5 + (Math.random() - 0.5) * w * 0.25,
+        y: h * 0.32,
+        vy: -0.5 - Math.random(),
+        r: 3 + Math.random() * 4,
+        life: 1
+      });
+    }
+
+    ctx.fillStyle = 'rgba(96,165,250,0.5)';
+    for (var bi = bubbles.length - 1; bi >= 0; bi--) {
+      var bb = bubbles[bi];
+      bb.y += bb.vy;
+      bb.x += Math.sin(t * 3 + bi) * 0.3;
+      bb.life -= 0.005;
+      if (bb.life <= 0 || bb.y < 0) { bubbles.splice(bi, 1); continue; }
+      ctx.globalAlpha = bb.life;
+      ctx.beginPath(); ctx.arc(bb.x, bb.y, bb.r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // O₂ label
+    if (bubbles.length > 0) {
+      ctx.fillStyle = '#60a5fa'; ctx.font = '11px Poppins';
+      ctx.fillText('O₂ ↑', w * 0.65, h * 0.2);
+    }
+
+    // Glucose indicator
+    if (rate > 0.05) {
+      glucoseCount += rate * 0.02;
+      ctx.fillStyle = '#fbbf24'; ctx.font = '11px Poppins';
+      ctx.fillText('🍬 Glucose: ' + glucoseCount.toFixed(1), w * 0.55, h * 0.55);
+    }
+
+    // Labels
+    ctx.fillStyle = '#f1f5f9'; ctx.font = 'bold 12px Poppins';
+    ctx.fillText('Light Reactions', w * 0.05, h * 0.12);
+    ctx.fillText('(in thylakoid)', w * 0.05, h * 0.15);
+    ctx.font = '12px Poppins';
+    if (rate < 0.05) {
+      ctx.fillStyle = '#ef4444';
+      ctx.fillText('⚠ Rate too low — adjust conditions', w * 0.3, h * 0.65);
+    }
+
+    t += 0.016;
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body>
+</html>

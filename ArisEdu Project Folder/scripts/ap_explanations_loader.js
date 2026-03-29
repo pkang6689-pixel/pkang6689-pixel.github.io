@@ -44,8 +44,15 @@
         const jsonFile = getCourseJsonFile(courseName);
         if (!jsonFile) return; // Unknown course
         
-        // Load the JSON file
-        fetch(`/content_data/AP_Courses/${jsonFile}`)
+        // Load the JSON file with timeout protection
+        var timeout = new Promise(function(_, reject) {
+          setTimeout(function() { reject(new Error('Explanations fetch timeout')); }, 5000);
+        });
+        
+        Promise.race([
+          fetch(`/content_data/AP_Courses/${jsonFile}`),
+          timeout
+        ])
             .then(response => response.json())
             .then(data => {
                 // Get all quiz questions from all lessons
@@ -59,7 +66,7 @@
                 // Inject explanations
                 injectExplanationsIntoQuiz(allQuestions);
             })
-            .catch(err => console.warn('Could not load explanations:', err));
+            .catch(err => console.warn('Could not load explanations:', err.message || err));
     };
     
     // Inject explanations into quiz questions

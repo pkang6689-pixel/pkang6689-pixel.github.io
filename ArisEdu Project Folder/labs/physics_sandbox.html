@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physics Sandbox</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: #0f172a; color: #f1f5f9; }
+    .sim-container { max-width: 1100px; margin: 5rem auto 2rem; padding: 1rem 2rem; }
+    h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.25rem; }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 1rem; }
+    .tabs { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap; }
+    .tab-btn { padding: 0.5rem 1.2rem; border-radius: 0.5rem; border: 1px solid #334155; background: #1e293b; color: #f1f5f9; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; }
+    .tab-btn.active { background: #3b82f6; border-color: #3b82f6; }
+    .tab-btn:hover { background: #334155; }
+    .sim-panel { display: none; }
+    .sim-panel.active { display: block; }
+    .canvas-wrap { position: relative; background: #020617; border: 1px solid #334155; border-radius: 1rem; overflow: hidden; }
+    canvas { display: block; width: 100%; }
+    .controls { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
+    .ctrl-group { display: flex; flex-direction: column; gap: 0.25rem; }
+    .ctrl-group label { font-size: 0.75rem; color: #94a3b8; }
+    .ctrl-group input[type=range] { width: 140px; accent-color: #3b82f6; }
+    .ctrl-group .val { font-size: 0.8rem; color: #67e8f9; font-weight: 600; }
+    .action-btn { padding: 0.6rem 1.5rem; border-radius: 0.5rem; border: none; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+    .btn-launch { background: #22c55e; color: white; }
+    .btn-launch:hover { background: #16a34a; }
+    .btn-clear { background: #ef4444; color: white; }
+    .btn-clear:hover { background: #dc2626; }
+    .data-display { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 0.75rem; font-size: 0.8rem; color: #94a3b8; }
+    .data-display .datum { background: #1e293b; padding: 0.4rem 0.8rem; border-radius: 0.5rem; border: 1px solid #334155; }
+    .data-display .datum strong { color: #67e8f9; }
+  </style>
+</head>
+<body class="dark-mode">
+  <script src="../scripts/taskbar.js"></script>
+  <div class="sim-container">
+    <h1>⚡ Physics Sandbox</h1>
+    <p class="subtitle">Experiment with projectile motion, pendulums, and collisions.</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('projectile', this)">🎯 Projectile Motion</button>
+      <button class="tab-btn" onclick="switchTab('pendulum', this)">🔔 Pendulum</button>
+      <button class="tab-btn" onclick="switchTab('collision', this)">💥 Collisions</button>
+    </div>
+
+    <!-- PROJECTILE MOTION -->
+    <div class="sim-panel active" id="panel-projectile">
+      <div class="canvas-wrap"><canvas id="proj-canvas" height="380"></canvas></div>
+      <div class="controls">
+        <div class="ctrl-group">
+          <label>Angle: <span class="val" id="proj-angle-val">45°</span></label>
+          <input type="range" id="proj-angle" min="5" max="85" value="45" oninput="updateProjUI()">
+        </div>
+        <div class="ctrl-group">
+          <label>Velocity: <span class="val" id="proj-vel-val">50 m/s</span></label>
+          <input type="range" id="proj-vel" min="10" max="100" value="50" oninput="updateProjUI()">
+        </div>
+        <div class="ctrl-group">
+          <label>Gravity: <span class="val" id="proj-g-val">9.8 m/s²</span></label>
+          <input type="range" id="proj-g" min="1" max="25" value="9.8" step="0.1" oninput="updateProjUI()">
+        </div>
+        <button class="action-btn btn-launch" onclick="launchProjectile()">🚀 Launch</button>
+        <button class="action-btn btn-clear" onclick="clearProjectile()">Clear</button>
+      </div>
+      <div class="data-display" id="proj-data">
+        <div class="datum">Max Height: <strong id="proj-maxh">—</strong></div>
+        <div class="datum">Range: <strong id="proj-range">—</strong></div>
+        <div class="datum">Time of Flight: <strong id="proj-time">—</strong></div>
+      </div>
+    </div>
+
+    <!-- PENDULUM -->
+    <div class="sim-panel" id="panel-pendulum">
+      <div class="canvas-wrap"><canvas id="pend-canvas" height="380"></canvas></div>
+      <div class="controls">
+        <div class="ctrl-group">
+          <label>Length: <span class="val" id="pend-len-val">1.5 m</span></label>
+          <input type="range" id="pend-len" min="0.5" max="3" value="1.5" step="0.1" oninput="updatePendUI()">
+        </div>
+        <div class="ctrl-group">
+          <label>Initial Angle: <span class="val" id="pend-ang-val">30°</span></label>
+          <input type="range" id="pend-ang" min="5" max="80" value="30" oninput="updatePendUI()">
+        </div>
+        <div class="ctrl-group">
+          <label>Damping: <span class="val" id="pend-damp-val">0.01</span></label>
+          <input type="range" id="pend-damp" min="0" max="0.1" value="0.01" step="0.005" oninput="updatePendUI()">
+        </div>
+        <button class="action-btn btn-launch" onclick="startPendulum()">▶ Start</button>
+        <button class="action-btn btn-clear" onclick="resetPendulum()">Reset</button>
+      </div>
+      <div class="data-display">
+        <div class="datum">Period: <strong id="pend-period">—</strong></div>
+        <div class="datum">Current Angle: <strong id="pend-cur-ang">—</strong></div>
+        <div class="datum">Velocity: <strong id="pend-cur-vel">—</strong></div>
+      </div>
+    </div>
+
+    <!-- COLLISIONS -->
+    <div class="sim-panel" id="panel-collision">
+      <div class="canvas-wrap"><canvas id="coll-canvas" height="380"></canvas></div>
+      <div class="controls">
+        <div class="ctrl-group">
+          <label>Ball 1 Mass: <span class="val" id="c-m1-val">2 kg</span></label>
+          <input type="range" id="c-m1" min="1" max="10" value="2" oninput="updateCollUI()">
+        </div>
+        <div class="ctrl-group">
+          <label>Ball 1 Velocity: <span class="val" id="c-v1-val">5 m/s</span></label>
+          <input type="range" id="c-v1" min="1" max="15" value="5" oninput="updateCollUI()">
+        </div>
+        <div class="ctrl-group">
+          <label>Ball 2 Mass: <span class="val" id="c-m2-val">3 kg</span></label>
+          <input type="range" id="c-m2" min="1" max="10" value="3" oninput="updateCollUI()">
+        </div>
+        <div class="ctrl-group">
+          <label>Elasticity: <span class="val" id="c-e-val">1.0</span></label>
+          <input type="range" id="c-e" min="0" max="1" value="1" step="0.1" oninput="updateCollUI()">
+        </div>
+        <button class="action-btn btn-launch" onclick="startCollision()">💥 Collide</button>
+        <button class="action-btn btn-clear" onclick="resetCollision()">Reset</button>
+      </div>
+      <div class="data-display">
+        <div class="datum">Momentum Before: <strong id="c-mom-before">—</strong></div>
+        <div class="datum">Momentum After: <strong id="c-mom-after">—</strong></div>
+        <div class="datum">KE Before: <strong id="c-ke-before">—</strong></div>
+        <div class="datum">KE After: <strong id="c-ke-after">—</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // =================== TAB SWITCHING ===================
+  window.switchTab = function(tab, btn) {
+    document.querySelectorAll('.sim-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('panel-' + tab).classList.add('active');
+    btn.classList.add('active');
+  };
+
+  // Auto-select tab from URL hash
+  (function() {
+    var hash = location.hash.replace('#', '');
+    if (hash) {
+      var panel = document.getElementById('panel-' + hash);
+      if (panel) {
+        document.querySelectorAll('.sim-panel').forEach(function(p) { p.classList.remove('active'); });
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        panel.classList.add('active');
+        var btns = document.querySelectorAll('.tab-btn');
+        btns.forEach(function(b) { if (b.textContent.toLowerCase().indexOf(hash) !== -1 || b.getAttribute('onclick').indexOf(hash) !== -1) b.classList.add('active'); });
+      }
+    }
+  })();
+
+  // =================== PROJECTILE MOTION ===================
+  (function() {
+    var canvas = document.getElementById('proj-canvas');
+    var ctx = canvas.getContext('2d');
+    var trails = [];
+    var animId = null;
+    var ball = null;
+
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      drawStatic();
+    }
+    window.addEventListener('resize', resize);
+
+    function drawStatic() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Ground
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+      // Grid lines
+      ctx.strokeStyle = 'rgba(100,116,139,0.15)';
+      ctx.lineWidth = 1;
+      for (var i = 0; i < canvas.width; i += 50) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height - 30); ctx.stroke();
+      }
+      for (var j = 0; j < canvas.height - 30; j += 50) {
+        ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
+      }
+      // Cannon
+      var angle = parseFloat(document.getElementById('proj-angle').value);
+      var rad = angle * Math.PI / 180;
+      ctx.save();
+      ctx.translate(40, canvas.height - 35);
+      ctx.rotate(-rad);
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(0, -5, 40, 10);
+      ctx.restore();
+      ctx.beginPath();
+      ctx.arc(40, canvas.height - 35, 12, 0, Math.PI * 2);
+      ctx.fillStyle = '#475569';
+      ctx.fill();
+
+      // Trails
+      trails.forEach(function(t, idx) {
+        ctx.beginPath();
+        for (var i = 0; i < t.length; i++) {
+          i === 0 ? ctx.moveTo(t[i].x, t[i].y) : ctx.lineTo(t[i].x, t[i].y);
+        }
+        ctx.strokeStyle = 'rgba(59,130,246,' + (0.3 + (idx / trails.length) * 0.5) + ')';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+
+      // Current ball
+      if (ball) {
+        ctx.beginPath();
+        ctx.arc(ball.sx, ball.sy, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#fbbf24';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(ball.sx, ball.sy, 10, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(251,191,36,0.2)';
+        ctx.fill();
+      }
+    }
+
+    window.updateProjUI = function() {
+      document.getElementById('proj-angle-val').textContent = document.getElementById('proj-angle').value + '°';
+      document.getElementById('proj-vel-val').textContent = document.getElementById('proj-vel').value + ' m/s';
+      document.getElementById('proj-g-val').textContent = document.getElementById('proj-g').value + ' m/s²';
+      drawStatic();
+    };
+
+    window.launchProjectile = function() {
+      if (animId) cancelAnimationFrame(animId);
+      var angle = parseFloat(document.getElementById('proj-angle').value) * Math.PI / 180;
+      var v0 = parseFloat(document.getElementById('proj-vel').value);
+      var g = parseFloat(document.getElementById('proj-g').value);
+      var scale = 2.5;
+      var originX = 40, originY = canvas.height - 35;
+      var t = 0, dt = 0.03;
+      var trail = [];
+
+      // Calculate stats
+      var maxH = (v0 * Math.sin(angle)) * (v0 * Math.sin(angle)) / (2 * g);
+      var range = (v0 * v0 * Math.sin(2 * angle)) / g;
+      var tFlight = (2 * v0 * Math.sin(angle)) / g;
+      document.getElementById('proj-maxh').textContent = maxH.toFixed(1) + ' m';
+      document.getElementById('proj-range').textContent = range.toFixed(1) + ' m';
+      document.getElementById('proj-time').textContent = tFlight.toFixed(2) + ' s';
+
+      ball = {};
+      function step() {
+        t += dt;
+        var x = v0 * Math.cos(angle) * t;
+        var y = v0 * Math.sin(angle) * t - 0.5 * g * t * t;
+        ball.sx = originX + x * scale;
+        ball.sy = originY - y * scale;
+        trail.push({ x: ball.sx, y: ball.sy });
+
+        if (ball.sy >= originY) {
+          ball.sy = originY;
+          trails.push(trail);
+          ball = null;
+          drawStatic();
+          return;
+        }
+        drawStatic();
+        animId = requestAnimationFrame(step);
+      }
+      step();
+    };
+
+    window.clearProjectile = function() {
+      if (animId) cancelAnimationFrame(animId);
+      trails = [];
+      ball = null;
+      document.getElementById('proj-maxh').textContent = '—';
+      document.getElementById('proj-range').textContent = '—';
+      document.getElementById('proj-time').textContent = '—';
+      drawStatic();
+    };
+
+    resize();
+  })();
+
+  // =================== PENDULUM ===================
+  (function() {
+    var canvas = document.getElementById('pend-canvas');
+    var ctx = canvas.getContext('2d');
+    var running = false, animId = null;
+    var theta, omega, len, damping;
+
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      drawPend();
+    }
+    window.addEventListener('resize', resize);
+
+    function initPend() {
+      theta = parseFloat(document.getElementById('pend-ang').value) * Math.PI / 180;
+      omega = 0;
+      len = parseFloat(document.getElementById('pend-len').value);
+      damping = parseFloat(document.getElementById('pend-damp').value);
+    }
+
+    function drawPend() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var pivotX = canvas.width / 2, pivotY = 40;
+      var scale = 120;
+      var bobX = pivotX + Math.sin(theta) * len * scale;
+      var bobY = pivotY + Math.cos(theta) * len * scale;
+      var bobR = 18;
+
+      // Pivot
+      ctx.beginPath();
+      ctx.arc(pivotX, pivotY, 6, 0, Math.PI * 2);
+      ctx.fillStyle = '#64748b';
+      ctx.fill();
+
+      // String
+      ctx.beginPath();
+      ctx.moveTo(pivotX, pivotY);
+      ctx.lineTo(bobX, bobY);
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Trail arc
+      ctx.beginPath();
+      ctx.arc(pivotX, pivotY, len * scale, Math.PI / 2 - 0.8, Math.PI / 2 + 0.8);
+      ctx.strokeStyle = 'rgba(59,130,246,0.15)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Bob
+      ctx.beginPath();
+      ctx.arc(bobX, bobY, bobR, 0, Math.PI * 2);
+      var grd = ctx.createRadialGradient(bobX - 4, bobY - 4, 2, bobX, bobY, bobR);
+      grd.addColorStop(0, '#60a5fa');
+      grd.addColorStop(1, '#2563eb');
+      ctx.fillStyle = grd;
+      ctx.fill();
+
+      document.getElementById('pend-cur-ang').textContent = (theta * 180 / Math.PI).toFixed(1) + '°';
+      document.getElementById('pend-cur-vel').textContent = (omega * len).toFixed(2) + ' m/s';
+    }
+
+    function stepPend() {
+      var g = 9.8;
+      var dt = 0.016;
+      var alpha = -(g / (len)) * Math.sin(theta) - damping * omega;
+      omega += alpha * dt;
+      theta += omega * dt;
+      drawPend();
+      if (running) animId = requestAnimationFrame(stepPend);
+    }
+
+    window.updatePendUI = function() {
+      document.getElementById('pend-len-val').textContent = document.getElementById('pend-len').value + ' m';
+      document.getElementById('pend-ang-val').textContent = document.getElementById('pend-ang').value + '°';
+      document.getElementById('pend-damp-val').textContent = document.getElementById('pend-damp').value;
+      if (!running) { initPend(); drawPend(); }
+      var L = parseFloat(document.getElementById('pend-len').value);
+      document.getElementById('pend-period').textContent = (2 * Math.PI * Math.sqrt(L / 9.8)).toFixed(3) + ' s';
+    };
+
+    window.startPendulum = function() {
+      if (running) return;
+      initPend();
+      running = true;
+      var L = parseFloat(document.getElementById('pend-len').value);
+      document.getElementById('pend-period').textContent = (2 * Math.PI * Math.sqrt(L / 9.8)).toFixed(3) + ' s';
+      stepPend();
+    };
+
+    window.resetPendulum = function() {
+      running = false;
+      if (animId) cancelAnimationFrame(animId);
+      initPend();
+      drawPend();
+    };
+
+    initPend();
+    resize();
+    window.updatePendUI();
+  })();
+
+  // =================== COLLISIONS ===================
+  (function() {
+    var canvas = document.getElementById('coll-canvas');
+    var ctx = canvas.getContext('2d');
+    var animId = null, running = false;
+    var b1, b2;
+
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      resetCollisionState();
+      drawColl();
+    }
+    window.addEventListener('resize', resize);
+
+    function resetCollisionState() {
+      var m1 = parseFloat(document.getElementById('c-m1').value);
+      var m2 = parseFloat(document.getElementById('c-m2').value);
+      var v1 = parseFloat(document.getElementById('c-v1').value);
+      b1 = { x: canvas.width * 0.2, y: canvas.height / 2, r: 15 + m1 * 3, m: m1, vx: v1 * 2, color: '#3b82f6' };
+      b2 = { x: canvas.width * 0.75, y: canvas.height / 2, r: 15 + m2 * 3, m: m2, vx: 0, color: '#ef4444' };
+      running = false;
+    }
+
+    function drawColl() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Floor
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(0, canvas.height / 2 + 50, canvas.width, 2);
+
+      [b1, b2].forEach(function(b) {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fillStyle = b.color;
+        ctx.fill();
+        // Mass label
+        ctx.font = 'bold 12px Poppins';
+        ctx.fillStyle = '#f1f5f9';
+        ctx.textAlign = 'center';
+        ctx.fillText(b.m + 'kg', b.x, b.y + 4);
+        // Velocity arrow
+        if (Math.abs(b.vx) > 0.1) {
+          var arrowLen = b.vx * 5;
+          ctx.beginPath();
+          ctx.moveTo(b.x, b.y - b.r - 10);
+          ctx.lineTo(b.x + arrowLen, b.y - b.r - 10);
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          // Arrowhead
+          var dir = b.vx > 0 ? 1 : -1;
+          ctx.beginPath();
+          ctx.moveTo(b.x + arrowLen, b.y - b.r - 10);
+          ctx.lineTo(b.x + arrowLen - dir * 6, b.y - b.r - 14);
+          ctx.lineTo(b.x + arrowLen - dir * 6, b.y - b.r - 6);
+          ctx.closePath();
+          ctx.fillStyle = '#fbbf24';
+          ctx.fill();
+        }
+      });
+    }
+
+    window.updateCollUI = function() {
+      document.getElementById('c-m1-val').textContent = document.getElementById('c-m1').value + ' kg';
+      document.getElementById('c-v1-val').textContent = document.getElementById('c-v1').value + ' m/s';
+      document.getElementById('c-m2-val').textContent = document.getElementById('c-m2').value + ' kg';
+      document.getElementById('c-e-val').textContent = document.getElementById('c-e').value;
+      if (!running) { resetCollisionState(); drawColl(); }
+    };
+
+    window.startCollision = function() {
+      if (running) return;
+      resetCollisionState();
+      running = true;
+
+      var m1 = b1.m, m2 = b2.m, v1i = b1.vx / 2, v2i = 0;
+      var e = parseFloat(document.getElementById('c-e').value);
+      var momBefore = m1 * v1i + m2 * v2i;
+      var keBefore = 0.5 * m1 * v1i * v1i + 0.5 * m2 * v2i * v2i;
+      document.getElementById('c-mom-before').textContent = momBefore.toFixed(1) + ' kg·m/s';
+      document.getElementById('c-ke-before').textContent = keBefore.toFixed(1) + ' J';
+
+      // Post-collision velocities
+      var v1f = ((m1 - e * m2) * v1i + (1 + e) * m2 * v2i) / (m1 + m2);
+      var v2f = ((m2 - e * m1) * v2i + (1 + e) * m1 * v1i) / (m1 + m2);
+
+      var collided = false;
+      function step() {
+        if (!collided) {
+          b1.x += b1.vx;
+          // Check collision
+          if (b1.x + b1.r >= b2.x - b2.r) {
+            collided = true;
+            b1.vx = v1f * 2;
+            b2.vx = v2f * 2;
+            var momAfter = m1 * v1f + m2 * v2f;
+            var keAfter = 0.5 * m1 * v1f * v1f + 0.5 * m2 * v2f * v2f;
+            document.getElementById('c-mom-after').textContent = momAfter.toFixed(1) + ' kg·m/s';
+            document.getElementById('c-ke-after').textContent = keAfter.toFixed(1) + ' J';
+          }
+        } else {
+          b1.x += b1.vx;
+          b2.x += b2.vx;
+        }
+
+        drawColl();
+        if (b1.x > -50 && b1.x < canvas.width + 50 && b2.x < canvas.width + 100) {
+          animId = requestAnimationFrame(step);
+        } else {
+          running = false;
+        }
+      }
+      step();
+    };
+
+    window.resetCollision = function() {
+      running = false;
+      if (animId) cancelAnimationFrame(animId);
+      resetCollisionState();
+      document.getElementById('c-mom-before').textContent = '—';
+      document.getElementById('c-mom-after').textContent = '—';
+      document.getElementById('c-ke-before').textContent = '—';
+      document.getElementById('c-ke-after').textContent = '—';
+      drawColl();
+    };
+
+    resize();
+    window.updateCollUI();
+  })();
+  </script>
+  <script src="../scripts/translation_loader.js" data-base="translations"></script>
+  <script src="../../search_data.js"></script>
+  <script src="../../search_logic.js"></script>
+</body>
+</html>

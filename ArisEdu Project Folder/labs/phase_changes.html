@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase Changes Simulation</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin:0; font-family:'Poppins',sans-serif; background:#0f172a; color:#f1f5f9; }
+    .sim-container { max-width:1000px; margin:5rem auto 2rem; padding:1rem 2rem; }
+    h1 { text-align:center; font-size:1.8rem; margin-bottom:0.25rem; }
+    .subtitle { text-align:center; color:#94a3b8; margin-bottom:1.5rem; }
+    .canvas-wrap { background:#020617; border:1px solid #334155; border-radius:1rem; overflow:hidden; }
+    canvas { display:block; width:100%; }
+    .controls { display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem; align-items:center; }
+    .ctrl-group { display:flex; flex-direction:column; gap:0.25rem; }
+    .ctrl-group label { font-size:0.75rem; color:#94a3b8; }
+    .ctrl-group input[type=range] { width:160px; accent-color:#f59e0b; }
+    .ctrl-group .val { font-size:0.8rem; color:#fbbf24; font-weight:600; }
+    .action-btn { padding:0.6rem 1.5rem; border-radius:0.5rem; border:none; font-weight:600; cursor:pointer; font-size:0.9rem; transition:all 0.2s; }
+    .btn-heat { background:#ef4444; color:white; }
+    .btn-heat:hover { background:#dc2626; }
+    .btn-cool { background:#3b82f6; color:white; }
+    .btn-cool:hover { background:#2563eb; }
+    .btn-reset { background:#64748b; color:white; }
+    .btn-reset:hover { background:#475569; }
+    .substance-btns { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem; justify-content:center; }
+    .sub-btn { padding:0.5rem 1rem; border-radius:0.5rem; border:1px solid #334155; background:#1e293b; color:#f1f5f9; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; }
+    .sub-btn.active { background:#f59e0b; border-color:#f59e0b; color:#1e293b; }
+    .sub-btn:hover { background:#334155; }
+    .info-box { margin-top:1rem; background:#1e293b; border:1px solid #334155; border-radius:0.75rem; padding:1rem; font-size:0.85rem; color:#cbd5e1; line-height:1.7; }
+    .info-box h3 { color:#fbbf24; margin:0 0 0.5rem; font-size:0.95rem; }
+    .state-label { font-size:1rem; font-weight:700; text-align:center; margin-top:0.5rem; }
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🧊 Phase Changes</h1>
+  <p class="subtitle">Observe how substances transition between solid, liquid, and gas.</p>
+
+  <div class="substance-btns">
+    <button class="sub-btn active" onclick="selectSubstance('water')">Water (H₂O)</button>
+    <button class="sub-btn" onclick="selectSubstance('ethanol')">Ethanol</button>
+    <button class="sub-btn" onclick="selectSubstance('iron')">Iron</button>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="phase-canvas" height="400"></canvas>
+  </div>
+  <div class="state-label" id="state-label">State: Solid (Ice) — 0 °C</div>
+
+  <div class="controls">
+    <button class="action-btn btn-heat" onclick="startHeating()">🔥 Heat</button>
+    <button class="action-btn btn-cool" onclick="startCooling()">❄️ Cool</button>
+    <button class="action-btn btn-reset" onclick="resetSim()">Reset</button>
+    <div class="ctrl-group">
+      <label>Heat Rate</label>
+      <input type="range" id="rate-slider" min="1" max="10" value="3">
+      <span class="val" id="rate-val">3</span>
+    </div>
+  </div>
+
+  <div class="info-box" id="info-box">
+    <h3>Phase Diagram</h3>
+    <p>Heating a substance raises its temperature until it reaches a phase transition. During the transition (melting or boiling), the temperature stays constant as energy goes into breaking intermolecular bonds rather than raising temperature.</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  var canvas = document.getElementById('phase-canvas');
+  var ctx = canvas.getContext('2d');
+
+  var substances = {
+    water: { name:'Water', melt:0, boil:100, minT:-40, maxT:140, color:['#a5f3fc','#38bdf8','#94a3b8'], solidName:'Ice', liquidName:'Water', gasName:'Steam' },
+    ethanol: { name:'Ethanol', melt:-114, boil:78, minT:-150, maxT:120, color:['#c4b5fd','#8b5cf6','#ddd6fe'], solidName:'Solid', liquidName:'Liquid', gasName:'Vapor' },
+    iron: { name:'Iron', melt:1538, boil:2862, minT:0, maxT:3200, color:['#9ca3af','#f97316','#fbbf24'], solidName:'Solid', liquidName:'Molten', gasName:'Vapor' }
+  };
+
+  var current = 'water';
+  var temp, heating, cooling, animId;
+  var particles = [];
+
+  function init() {
+    temp = substances[current].minT;
+    heating = false; cooling = false;
+    cancelAnimationFrame(animId);
+    particles = [];
+    for (var i = 0; i < 60; i++) {
+      particles.push({ x: Math.random(), y: Math.random(), vx: 0, vy: 0 });
+    }
+    resize();
+  }
+
+  function resize() {
+    canvas.width = canvas.parentElement.clientWidth;
+    draw();
+  }
+  window.addEventListener('resize', resize);
+
+  window.selectSubstance = function(s) {
+    current = s;
+    document.querySelectorAll('.sub-btn').forEach(function(b) { b.classList.remove('active'); });
+    event.target.classList.add('active');
+    init();
+  };
+
+  window.startHeating = function() { heating = true; cooling = false; animate(); };
+  window.startCooling = function() { cooling = true; heating = false; animate(); };
+  window.resetSim = function() { init(); };
+
+  function getPhase() {
+    var sub = substances[current];
+    if (temp <= sub.melt) return 0; // solid
+    if (temp >= sub.boil) return 2; // gas
+    return 1; // liquid
+  }
+
+  function draw() {
+    var w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    var sub = substances[current];
+    var phase = getPhase();
+
+    // Background gradient by phase
+    var bg = ctx.createLinearGradient(0, 0, 0, h);
+    if (phase === 0) { bg.addColorStop(0, '#1e293b'); bg.addColorStop(1, '#0f172a'); }
+    else if (phase === 1) { bg.addColorStop(0, '#0c4a6e'); bg.addColorStop(1, '#0f172a'); }
+    else { bg.addColorStop(0, '#431407'); bg.addColorStop(1, '#0f172a'); }
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+
+    // Draw particles
+    var speed = phase === 0 ? 0.3 : phase === 1 ? 1.5 : 4;
+    var size = phase === 0 ? 8 : phase === 1 ? 6 : 4;
+    ctx.fillStyle = sub.color[phase];
+
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      if (phase === 0) {
+        // Grid-like arrangement
+        var col = i % 10;
+        var row = Math.floor(i / 10);
+        var gx = w * 0.2 + col * (w * 0.06) + Math.sin(Date.now() / 500 + i) * 1;
+        var gy = h * 0.3 + row * (h * 0.08) + Math.cos(Date.now() / 500 + i) * 1;
+        ctx.beginPath(); ctx.arc(gx, gy, size, 0, Math.PI * 2); ctx.fill();
+      } else {
+        p.vx += (Math.random() - 0.5) * speed * 0.3;
+        p.vy += (Math.random() - 0.5) * speed * 0.3;
+        if (phase === 2) p.vy -= 0.2; // gas rises
+        p.vx *= 0.95; p.vy *= 0.95;
+        p.x += p.vx / w; p.y += p.vy / h;
+        if (p.x < 0.05) { p.x = 0.05; p.vx *= -0.5; }
+        if (p.x > 0.95) { p.x = 0.95; p.vx *= -0.5; }
+        if (p.y < 0.05) { p.y = 0.05; p.vy *= -0.5; }
+        if (p.y > 0.95) { p.y = 0.95; p.vy *= -0.5; }
+        ctx.beginPath(); ctx.arc(p.x * w, p.y * h, size, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    // Heating curve (mini chart bottom-right)
+    var chartW = 200, chartH = 80;
+    var cx = w - chartW - 20, cy = h - chartH - 20;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(cx, cy, chartW, chartH);
+    ctx.strokeStyle = '#334155';
+    ctx.strokeRect(cx, cy, chartW, chartH);
+    // Axes
+    ctx.strokeStyle = '#64748b';
+    ctx.beginPath(); ctx.moveTo(cx + 10, cy + chartH - 10); ctx.lineTo(cx + chartW - 10, cy + chartH - 10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + 10, cy + chartH - 10); ctx.lineTo(cx + 10, cy + 10); ctx.stroke();
+    // Plot current temp
+    var tFrac = (temp - sub.minT) / (sub.maxT - sub.minT);
+    var dotX = cx + 10 + tFrac * (chartW - 20);
+    var dotY = cy + chartH - 10 - tFrac * (chartH - 20);
+    // Heating curve shape (plateau at melt and boil)
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    var steps = 100;
+    for (var s = 0; s <= steps; s++) {
+      var frac = s / steps;
+      var tAtFrac = sub.minT + frac * (sub.maxT - sub.minT);
+      var yFrac;
+      // Idealized: plateaus at melt and boil
+      var range = sub.maxT - sub.minT;
+      var meltFrac = (sub.melt - sub.minT) / range;
+      var boilFrac = (sub.boil - sub.minT) / range;
+      if (frac < meltFrac * 0.9) yFrac = frac / (meltFrac * 0.9) * 0.3;
+      else if (frac < meltFrac * 1.1) yFrac = 0.3;
+      else if (frac < boilFrac * 0.95) yFrac = 0.3 + (frac - meltFrac * 1.1) / (boilFrac * 0.95 - meltFrac * 1.1) * 0.3;
+      else if (frac < boilFrac * 1.05) yFrac = 0.6;
+      else yFrac = 0.6 + (frac - boilFrac * 1.05) / (1 - boilFrac * 1.05) * 0.4;
+      var px = cx + 10 + frac * (chartW - 20);
+      var py = cy + chartH - 10 - yFrac * (chartH - 20);
+      if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
+    // Current temp marker
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath(); ctx.arc(dotX, dotY, 4, 0, Math.PI * 2); ctx.fill();
+
+    // Labels
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px Poppins';
+    ctx.fillText('Energy →', cx + chartW / 2 - 20, cy + chartH - 1);
+    ctx.fillText('T', cx + 2, cy + 14);
+
+    // Update state label
+    var stateName = phase === 0 ? sub.solidName : phase === 1 ? sub.liquidName : sub.gasName;
+    document.getElementById('state-label').textContent = 'State: ' + stateName + ' — ' + Math.round(temp) + ' °C';
+  }
+
+  function animate() {
+    var rate = parseInt(document.getElementById('rate-slider').value);
+    document.getElementById('rate-val').textContent = rate;
+    var sub = substances[current];
+
+    if (heating) {
+      // Slow down at phase boundaries
+      var phase = getPhase();
+      var atMelt = Math.abs(temp - sub.melt) < 2;
+      var atBoil = Math.abs(temp - sub.boil) < 2;
+      var adjRate = (atMelt || atBoil) ? rate * 0.3 : rate;
+      temp = Math.min(temp + adjRate * 0.3, sub.maxT);
+      if (temp >= sub.maxT) heating = false;
+    }
+    if (cooling) {
+      var atMelt = Math.abs(temp - sub.melt) < 2;
+      var atBoil = Math.abs(temp - sub.boil) < 2;
+      var adjRate = (atMelt || atBoil) ? rate * 0.3 : rate;
+      temp = Math.max(temp - adjRate * 0.3, sub.minT);
+      if (temp <= sub.minT) cooling = false;
+    }
+
+    draw();
+    if (heating || cooling) animId = requestAnimationFrame(animate);
+  }
+
+  init();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body>
+</html>

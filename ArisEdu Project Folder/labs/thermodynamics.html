@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Thermodynamics</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#f59e0b}
+    .ctrl-group .val{font-size:.8rem;color:#fbbf24;font-weight:600}
+    .ctrl-btn{padding:.5rem 1rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;font-weight:600;font-size:.85rem;transition:all .2s}
+    .ctrl-btn.active{background:#f59e0b;border-color:#f59e0b;color:#0f172a}
+    .ctrl-btn:hover{background:#334155}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#fbbf24}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#fbbf24;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🔥 Thermodynamics Engine</h1>
+  <p class="subtitle">Visualize heat engines, PV diagrams, and efficiency.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+  <div class="controls">
+    <button class="ctrl-btn active" onclick="setCycle('carnot',this)">Carnot Cycle</button>
+    <button class="ctrl-btn" onclick="setCycle('otto',this)">Otto Cycle</button>
+    <div class="ctrl-group"><label>T<sub>hot</sub> (K)</label>
+      <input type="range" id="thot" min="400" max="1200" value="800" step="50" oninput="calc()"><span class="val" id="th-val">800 K</span></div>
+    <div class="ctrl-group"><label>T<sub>cold</sub> (K)</label>
+      <input type="range" id="tcold" min="200" max="500" value="300" step="10" oninput="calc()"><span class="val" id="tc-val">300 K</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Efficiency: <strong id="eff">62.5%</strong></div>
+    <div class="datum">Q<sub>in</sub>: <strong id="qin">1000 J</strong></div>
+    <div class="datum">W<sub>out</sub>: <strong id="wout">625 J</strong></div>
+    <div class="datum">Q<sub>out</sub>: <strong id="qout">375 J</strong></div>
+    <div class="datum">ΔS<sub>universe</sub>: <strong id="ds">0 J/K</strong></div>
+  </div>
+  <div class="info-box" id="info-box"><h3>Carnot Cycle</h3><p>The Carnot cycle is the most efficient possible heat engine operating between two temperatures. Efficiency η = 1 − T<sub>cold</sub>/T<sub>hot</sub>. It consists of two isothermal and two adiabatic processes. No real engine can exceed Carnot efficiency (2nd Law of Thermodynamics).</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),cycle='carnot',t=0,heatParticles=[];
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.setCycle=function(c,btn){
+    cycle=c;
+    document.querySelectorAll('.ctrl-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    var infos={
+      carnot:'<h3>Carnot Cycle</h3><p>The Carnot cycle is the most efficient possible heat engine between two temperatures. η = 1 − T<sub>cold</sub>/T<sub>hot</sub>. Consists of isothermal expansion, adiabatic expansion, isothermal compression, adiabatic compression.</p>',
+      otto:'<h3>Otto Cycle</h3><p>The Otto cycle models gasoline engines. It uses two adiabatic and two isochoric (constant volume) processes. Efficiency depends on the compression ratio: η = 1 − 1/r^(γ−1) where γ ≈ 1.4 for air.</p>'
+    };
+    document.getElementById('info-box').innerHTML=infos[c];
+    calc();
+  };
+  window.calc=function(){
+    var Th=parseInt(document.getElementById('thot').value);
+    var Tc=parseInt(document.getElementById('tcold').value);
+    if(Tc>=Th)Tc=Th-50;
+    document.getElementById('th-val').textContent=Th+' K';
+    document.getElementById('tc-val').textContent=Tc+' K';
+    var eff;
+    if(cycle==='carnot'){eff=1-Tc/Th;}else{
+      var r=Th/Tc;eff=1-Math.pow(1/r,0.4);
+    }
+    var Qin=1000;var Wout=Qin*eff;var Qout=Qin-Wout;
+    document.getElementById('eff').textContent=(eff*100).toFixed(1)+'%';
+    document.getElementById('qin').textContent=Qin.toFixed(0)+' J';
+    document.getElementById('wout').textContent=Wout.toFixed(0)+' J';
+    document.getElementById('qout').textContent=Qout.toFixed(0)+' J';
+    document.getElementById('ds').textContent='0 J/K (reversible)';
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    t+=0.016;
+    var Th=parseInt(document.getElementById('thot').value);
+    var Tc=parseInt(document.getElementById('tcold').value);
+    var eff;
+    if(cycle==='carnot'){eff=1-Tc/Th;}else{var r2=Th/Tc;eff=1-Math.pow(1/r2,0.4);}
+    // Spawn heat particles
+    if(Math.random()<0.3){
+      heatParticles.push({x:0,y:0,type:'qin',life:1,speed:0.8+Math.random()*0.5});
+      if(Math.random()<0.5)heatParticles.push({x:0,y:0,type:'qout',life:1,speed:0.6+Math.random()*0.4});
+      if(Math.random()<0.3)heatParticles.push({x:0,y:0,type:'work',life:1,speed:0.7+Math.random()*0.4});
+    }
+    // === PV Diagram (left half) ===
+    var pvX=w*0.05,pvY=h*0.08,pvW=w*0.42,pvH=h*0.8;
+    // PV background
+    ctx.fillStyle='rgba(2,6,23,0.4)';ctx.fillRect(pvX-5,pvY-20,pvW+30,pvH+45);
+    // Grid
+    ctx.strokeStyle='rgba(51,65,85,0.15)';ctx.lineWidth=0.5;
+    for(var gx=pvX;gx<=pvX+pvW;gx+=pvW/6){ctx.beginPath();ctx.moveTo(gx,pvY);ctx.lineTo(gx,pvY+pvH);ctx.stroke();}
+    for(var gy=pvY;gy<=pvY+pvH;gy+=pvH/6){ctx.beginPath();ctx.moveTo(pvX,gy);ctx.lineTo(pvX+pvW,gy);ctx.stroke();}
+    // Axes
+    ctx.strokeStyle='#475569';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(pvX,pvY);ctx.lineTo(pvX,pvY+pvH);ctx.lineTo(pvX+pvW,pvY+pvH);ctx.stroke();
+    // Axis labels
+    ctx.fillStyle='#94a3b8';ctx.font='11px Poppins';ctx.textAlign='center';
+    ctx.fillText('Volume →',pvX+pvW/2,pvY+pvH+25);
+    ctx.save();ctx.translate(pvX-22,pvY+pvH/2);ctx.rotate(-Math.PI/2);ctx.fillText('Pressure →',0,0);ctx.restore();
+    ctx.fillStyle='#f59e0b';ctx.font='bold 12px Poppins';
+    ctx.fillText('PV Diagram',pvX+pvW/2,pvY-5);
+    // Compute cycle points
+    var phase=(t*0.5)%4;
+    var pts=[];
+    if(cycle==='carnot'){
+      for(var i=0;i<=40;i++){
+        var frac=i/40;var V,P;
+        if(i<=10){V=0.2+frac*2.5*0.3;P=Th/(V*300);}
+        else if(i<=20){V=0.2+0.3*2.5+(frac*2.5-1)*0.3;P=Th*Math.pow((0.2+0.3*2.5)/V,1.4)/(300);}
+        else if(i<=30){V=0.2+0.9*2.5-(frac*2.5-2)*0.3;P=Tc/(V*300);}
+        else{V=0.2+0.6*2.5-(frac*2.5-3)*0.3;P=Tc*Math.pow((0.2+0.6*2.5)/V,1.4)/(300);}
+        pts.push({x:pvX+V*pvW/2.5,y:pvY+pvH-P*pvH*80});
+      }
+    }else{
+      var V1=2,V2=0.5;
+      for(var i=0;i<=40;i++){
+        var frac=i/40;var V,P;
+        if(i<=10){P=1+frac*10*(Th/800);V=V2;}
+        else if(i<=20){V=V2+(frac*10-1)*(V1-V2)/9;P=(1+10*(Th/800))*Math.pow(V2/V,1.4);}
+        else if(i<=30){P=(1+10*(Th/800))*Math.pow(V2/V1,1.4)-(frac*10-2)*((1+10*(Th/800))*Math.pow(V2/V1,1.4)-1)/9;V=V1;}
+        else{V=V1-(frac*10-3)*(V1-V2)/9;P=1*Math.pow(V1/V,1.4);}
+        pts.push({x:pvX+(V/2.5)*pvW,y:pvY+pvH-P*pvH*0.07});
+      }
+    }
+    // Clamp points
+    for(var i=0;i<pts.length;i++){
+      if(pts[i].y<pvY)pts[i].y=pvY;if(pts[i].y>pvY+pvH)pts[i].y=pvY+pvH;
+      if(pts[i].x<pvX)pts[i].x=pvX;if(pts[i].x>pvX+pvW)pts[i].x=pvX+pvW;
+    }
+    // Filled area under cycle
+    ctx.fillStyle='rgba(245,158,11,0.06)';
+    ctx.beginPath();
+    for(var i=0;i<pts.length;i++){if(i===0)ctx.moveTo(pts[i].x,pts[i].y);else ctx.lineTo(pts[i].x,pts[i].y);}
+    ctx.closePath();ctx.fill();
+    // Cycle outline with glow
+    ctx.strokeStyle='rgba(245,158,11,0.15)';ctx.lineWidth=5;ctx.beginPath();
+    for(var i=0;i<pts.length;i++){if(i===0)ctx.moveTo(pts[i].x,pts[i].y);else ctx.lineTo(pts[i].x,pts[i].y);}
+    ctx.closePath();ctx.stroke();
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.beginPath();
+    for(var i=0;i<pts.length;i++){if(i===0)ctx.moveTo(pts[i].x,pts[i].y);else ctx.lineTo(pts[i].x,pts[i].y);}
+    ctx.closePath();ctx.stroke();
+    // Process labels on cycle
+    if(cycle==='carnot'&&pts.length>30){
+      ctx.fillStyle='rgba(239,68,68,0.6)';ctx.font='9px Poppins';ctx.textAlign='center';
+      ctx.fillText('Isothermal',(pts[0].x+pts[10].x)/2,(pts[0].y+pts[10].y)/2-10);
+      ctx.fillStyle='rgba(168,85,247,0.6)';
+      ctx.fillText('Adiabatic',(pts[10].x+pts[20].x)/2,(pts[10].y+pts[20].y)/2+15);
+      ctx.fillStyle='rgba(59,130,246,0.6)';
+      ctx.fillText('Isothermal',(pts[20].x+pts[30].x)/2,(pts[20].y+pts[30].y)/2+15);
+      ctx.fillStyle='rgba(168,85,247,0.6)';
+      ctx.fillText('Adiabatic',(pts[30].x+pts[39].x)/2,(pts[30].y+pts[39].y)/2-10);
+    }
+    // Animated dot on cycle with glow
+    var idx=Math.floor(phase/4*pts.length)%pts.length;
+    if(pts[idx]){
+      ctx.fillStyle='rgba(251,191,36,0.2)';ctx.beginPath();ctx.arc(pts[idx].x,pts[idx].y,10,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(pts[idx].x,pts[idx].y,5,0,Math.PI*2);ctx.fill();
+    }
+    // Work = area label in center of cycle
+    var centX=0,centY=0;for(var i=0;i<pts.length;i++){centX+=pts[i].x;centY+=pts[i].y;}
+    centX/=pts.length;centY/=pts.length;
+    ctx.fillStyle='rgba(251,191,36,0.3)';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText('W='+(eff*1000).toFixed(0)+'J',centX,centY);
+    // === Engine Diagram (right half) ===
+    var engX=w*0.56,engY=h*0.08,engW=w*0.38,engH=h*0.78;
+    // Hot reservoir with gradient
+    var hotGrad=ctx.createLinearGradient(engX,engY,engX,engY+engH*0.2);
+    hotGrad.addColorStop(0,'rgba(239,68,68,0.3)');hotGrad.addColorStop(1,'rgba(239,68,68,0.08)');
+    ctx.fillStyle=hotGrad;ctx.fillRect(engX,engY,engW,engH*0.2);
+    ctx.strokeStyle='#ef4444';ctx.lineWidth=1.5;ctx.strokeRect(engX,engY,engW,engH*0.2);
+    ctx.fillStyle='#ef4444';ctx.font='bold 12px Poppins';ctx.textAlign='center';
+    ctx.fillText('Hot Reservoir',engX+engW/2,engY+engH*0.08);
+    ctx.font='11px Poppins';ctx.fillText('T_H = '+Th+' K',engX+engW/2,engY+engH*0.15);
+    // Engine with gradient
+    var eY=engY+engH*0.35;
+    var engGrad=ctx.createLinearGradient(engX+engW*0.2,eY,engX+engW*0.8,eY+engH*0.25);
+    engGrad.addColorStop(0,'rgba(251,191,36,0.1)');engGrad.addColorStop(0.5,'rgba(251,191,36,0.18)');engGrad.addColorStop(1,'rgba(251,191,36,0.1)');
+    ctx.fillStyle=engGrad;ctx.fillRect(engX+engW*0.15,eY,engW*0.7,engH*0.25);
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.strokeRect(engX+engW*0.15,eY,engW*0.7,engH*0.25);
+    // Rotating gear inside engine
+    var gearCX=engX+engW/2,gearCY=eY+engH*0.125;
+    ctx.strokeStyle='rgba(251,191,36,0.3)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(gearCX,gearCY,12,0,Math.PI*2);ctx.stroke();
+    for(var gi=0;gi<6;gi++){
+      var ga=gi*Math.PI/3+t*2;
+      ctx.beginPath();ctx.moveTo(gearCX+Math.cos(ga)*8,gearCY+Math.sin(ga)*8);
+      ctx.lineTo(gearCX+Math.cos(ga)*18,gearCY+Math.sin(ga)*18);ctx.stroke();
+    }
+    ctx.fillStyle='#f59e0b';ctx.font='bold 14px Poppins';
+    ctx.fillText('ENGINE',engX+engW/2,eY+engH*0.08);
+    ctx.font='12px Poppins';ctx.fillText('η = '+(eff*100).toFixed(1)+'%',engX+engW/2,eY+engH*0.22);
+    // Cold reservoir with gradient
+    var cY=engY+engH*0.75;
+    var coldGrad=ctx.createLinearGradient(engX,cY,engX,cY+engH*0.2);
+    coldGrad.addColorStop(0,'rgba(59,130,246,0.08)');coldGrad.addColorStop(1,'rgba(59,130,246,0.25)');
+    ctx.fillStyle=coldGrad;ctx.fillRect(engX,cY,engW,engH*0.2);
+    ctx.strokeStyle='#3b82f6';ctx.lineWidth=1.5;ctx.strokeRect(engX,cY,engW,engH*0.2);
+    ctx.fillStyle='#3b82f6';ctx.font='bold 12px Poppins';
+    ctx.fillText('Cold Reservoir',engX+engW/2,cY+engH*0.08);
+    ctx.font='11px Poppins';ctx.fillText('T_C = '+Tc+' K',engX+engW/2,cY+engH*0.15);
+    // Arrows with animated heat particles
+    var arrowMid=engX+engW/2;
+    // Qin arrow (hot → engine)
+    ctx.strokeStyle='#ef4444';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(arrowMid,engY+engH*0.2);ctx.lineTo(arrowMid,eY);ctx.stroke();
+    ctx.fillStyle='#ef4444';ctx.beginPath();
+    ctx.moveTo(arrowMid-7,eY-6);ctx.lineTo(arrowMid,eY);ctx.lineTo(arrowMid+7,eY-6);ctx.fill();
+    ctx.font='bold 10px Poppins';ctx.fillText('Q_in = 1000 J',arrowMid+55,engY+engH*0.28);
+    // Wout arrow (engine → right)
+    ctx.strokeStyle='#22c55e';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(engX+engW*0.85,eY+engH*0.125);ctx.lineTo(engX+engW+15,eY+engH*0.125);ctx.stroke();
+    ctx.fillStyle='#22c55e';ctx.beginPath();
+    ctx.moveTo(engX+engW+10,eY+engH*0.125-6);ctx.lineTo(engX+engW+16,eY+engH*0.125);ctx.lineTo(engX+engW+10,eY+engH*0.125+6);ctx.fill();
+    ctx.font='bold 10px Poppins';ctx.fillText('W = '+(eff*1000).toFixed(0)+' J',engX+engW+10,eY+engH*0.125-12);
+    // Qout arrow (engine → cold)
+    ctx.strokeStyle='#3b82f6';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(arrowMid,eY+engH*0.25);ctx.lineTo(arrowMid,cY);ctx.stroke();
+    ctx.fillStyle='#3b82f6';ctx.beginPath();
+    ctx.moveTo(arrowMid-7,cY-6);ctx.lineTo(arrowMid,cY);ctx.lineTo(arrowMid+7,cY-6);ctx.fill();
+    ctx.font='bold 10px Poppins';ctx.fillText('Q_out = '+((1-eff)*1000).toFixed(0)+' J',arrowMid+55,eY+engH*0.38);
+    // Animated heat particles along arrow paths
+    for(var pi=heatParticles.length-1;pi>=0;pi--){
+      var p=heatParticles[pi];p.life-=0.008*p.speed;
+      if(p.life<=0){heatParticles.splice(pi,1);continue;}
+      var frac=1-p.life;
+      var px,py,color;
+      if(p.type==='qin'){
+        px=arrowMid+(Math.sin(frac*8+pi)*4);
+        py=engY+engH*0.2+frac*(eY-engY-engH*0.2);
+        color='rgba(239,68,68,'+p.life+')';
+      }else if(p.type==='qout'){
+        px=arrowMid+(Math.sin(frac*8+pi)*4);
+        py=eY+engH*0.25+frac*(cY-eY-engH*0.25);
+        color='rgba(59,130,246,'+p.life+')';
+      }else{
+        px=engX+engW*0.85+frac*(engW*0.15+15);
+        py=eY+engH*0.125+(Math.sin(frac*6+pi)*3);
+        color='rgba(34,197,94,'+p.life+')';
+      }
+      ctx.fillStyle=color;ctx.beginPath();ctx.arc(px,py,3*p.life,0,Math.PI*2);ctx.fill();
+    }
+    // Efficiency formula
+    ctx.fillStyle='rgba(251,191,36,0.4)';ctx.font='bold 10px Poppins';ctx.textAlign='left';
+    if(cycle==='carnot')ctx.fillText('η_Carnot = 1 − T_C/T_H = 1 − '+Tc+'/'+Th+' = '+(eff*100).toFixed(1)+'%',15,h-10);
+    else ctx.fillText('η_Otto = 1 − (T_C/T_H)^0.4 = '+(eff*100).toFixed(1)+'%',15,h-10);
+    requestAnimationFrame(draw);
+  }
+  calc();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

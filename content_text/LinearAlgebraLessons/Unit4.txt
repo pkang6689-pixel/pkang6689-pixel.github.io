@@ -5,151 +5,240 @@ LinearAlgebraLessons — Unit4
 --- Lesson 4.1: Invertible Matrices (Summary) ---
 
   Key Concepts: Invertible Matrices
-Key Concepts: Invertible Matrices
-
-Content for Invertible Matrices is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+If A is invertible, what is A * A^(-1)?
+By definition, A * A^(-1) = A^(-1) * A = I, the identity matrix.
+What is (A^(-1))^(-1)?
+The inverse of A^(-1) is A itself, since A^(-1) * A = I.
+For a diagonal matrix D = diag(2, 5, -3), what is D^(-1)?
+The inverse of a diagonal matrix inverts each diagonal entry: D^(-1) = diag(1/2, 1/5, -1/3).
+What is the 'Invertible Matrix Theorem'?
+The Invertible Matrix Theorem lists many equivalent statements: A is invertible iff det(A)!=0 iff rank(A)=n iff columns are linearly independent iff Ax=0 has only x=0 iff A row reduces to I, etc.
+What is the relationship between invertibility and linear independence of columns?
+An nxn matrix is invertible iff its n columns are linearly independent, which is equivalent to the columns spanning all of R^n.
+A control engineer has system matrix A. She needs to solve Ax = b for multiple different b vectors. She computes A^(-1) once. What is the advantage?
+Once A^(-1) is computed, solving for any b is just x = A^(-1)b, which is an O(n^2) matrix-vector multiplication rather than O(n^3) for each Gaussian elimination.
+A computer graphics programmer uses the matrix A = [[cos t, -sin t], [sin t, cos t]]. What is A^(-1)?
+Rotation matrices are orthogonal: A^T A = I, so A^(-1) = A^T. This corresponds to rotation by angle -t.
+Real-World Applications
+Example: A control engineer has system matrix A. She needs to solve Ax = b for multiple different b vectors. She computes A^(-1) once. What is the advantage?
+Once A^(-1) is computed, solving for any b is just x = A^(-1)b, which is an O(n^2) matrix-vector multiplication rather than O(n^3) for each Gaussian elimination.
+Example: A supply chain manager models transitions with matrix P. She computes P^10 to predict long-term behavior. If P is invertible, is P^10 invertible?
+If det(P) != 0, then det(P^10) = (det P)^10 != 0, so P^10 is invertible.
 
 --- Lesson 4.1: Invertible Matrices (Quiz) ---
 
-  Q1. Sample question 1 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Invertible Matrices.
+  Q1. A matrix A is invertible if and only if:
+    [ ] A has all positive entries
+    [*] det(A) != 0
+    [ ] det(A) = 0
+    [ ] A is rectangular
+    Explanation: A square matrix A is invertible (has an inverse) if and only if its determinant is nonzero.
 
-  Q2. Sample question 2 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Invertible Matrices.
+  Q2. If A is invertible, what is A * A^(-1)?
+    [ ] A^T, particularl
+    [*] The identity matrix I
+    [ ] The zero matrix
+    [ ] A^2, particularl
+    Explanation: By definition, A * A^(-1) = A^(-1) * A = I, the identity matrix.
 
-  Q3. Sample question 3 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Invertible Matrices.
+  Q3. Is the zero matrix invertible?
+    [ ] Yes, its inverse is itself
+    [ ] Only for 1x1 zero matrices
+    [*] No, because det(0) = 0
+    [ ] Yes, its inverse is the identity
+    Explanation: The zero matrix has determinant 0, so it is not invertible. No matrix B exists such that 0*B = I.
 
-  Q4. Sample question 4 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Invertible Matrices.
+  Q4. If A and B are both invertible nxn matrices, is AB invertible?
+    [*] Yes, and (AB)^(-1) = B^(-1)A^(-1)
+    [ ] Yes, and (AB)^(-1) = A^(-1)B^(-1)
+    [ ] Only if A = B
+    [ ] No
+    Explanation: det(AB) = det(A)*det(B) != 0, so AB is invertible. The inverse is (AB)^(-1) = B^(-1)A^(-1) (note the reversed order).
 
-  Q5. Sample question 5 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Invertible Matrices.
+  Q5. What is (A^(-1))^(-1)?
+    [ ] A^T
+    [*] A
+    [ ] I
+    [ ] A^2
+    Explanation: The inverse of A^(-1) is A itself, since A^(-1) * A = I.
 
-  Q6. Sample question 6 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Invertible Matrices.
+  Q6. If A is invertible, is A^T invertible?
+    [ ] Only if A is symmetric
+    [ ] No
+    [*] Yes, and (A^T)^(-1) = (A^(-1))^T
+    [ ] Not necessarily
+    Explanation: det(A^T) = det(A) != 0, so A^T is invertible. Its inverse is the transpose of the inverse: (A^T)^(-1) = (A^(-1))^T.
 
-  Q7. Sample question 7 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Invertible Matrices.
+  Q7. Which of the following is NOT equivalent to 'A is invertible'?
+    [ ] det(A) != 0
+    [ ] Ax = 0 has only the trivial solution
+    [ ] The columns of A are linearly independent
+    [*] A has a row of zeros
+    Explanation: A row of zeros means det(A) = 0, making A singular (not invertible). All other options are equivalent to invertibility.
 
-  Q8. Sample question 8 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Invertible Matrices.
+  Q8. The 2x2 matrix [[1, 2], [3, 6]] is:
+    [ ] Invertible with det = 6
+    [ ] The identity matrix
+    [ ] Invertible with det = -1
+    [*] Not invertible because det = 0
+    Explanation: det = 1(6) - 2(3) = 0. Row 2 = 3 * Row 1, so the rows are linearly dependent and the matrix is singular.
 
-  Q9. Sample question 9 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Invertible Matrices.
+  Q9. If A^(-1) exists and Ax = b, then x = ?
+    [ ] b / A
+    [ ] A * b
+    [*] A^(-1) * b
+    [ ] b * A^(-1)
+    Explanation: Multiplying both sides by A^(-1) on the left: A^(-1)Ax = A^(-1)b, so Ix = A^(-1)b, thus x = A^(-1)b.
 
-  Q10. Sample question 10 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Invertible Matrices.
+  Q10. For a diagonal matrix D = diag(2, 5, -3), what is D^(-1)?
+    [*] diag(1/2, 1/5, -1/3)
+    [ ] diag(2, 5, -3)
+    [ ] diag(0.5, 0.2, 0.33)
+    [ ] diag(-2, -5, 3)
+    Explanation: The inverse of a diagonal matrix inverts each diagonal entry: D^(-1) = diag(1/2, 1/5, -1/3).
 
-  Q11. Sample question 11 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Invertible Matrices.
+  Q11. What does 'invertible matrix' mean?
+    [ ] A matrix that can be transposed
+    [ ] Any matrix with nonzero entries
+    [ ] A matrix with positive determinant
+    [*] A square matrix A for which there exists a matrix A^(-1) such that AA^(-1) = A^(-1)A = I
+    Explanation: An invertible (or nonsingular) matrix A has a unique inverse A^(-1) satisfying AA^(-1) = A^(-1)A = I.
 
-  Q12. Sample question 12 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Invertible Matrices.
+  Q12. What does 'singular matrix' mean?
+    [ ] A matrix with one row
+    [ ] A matrix with complex entries
+    [*] A square matrix that does not have an inverse (det = 0)
+    [ ] A matrix with determinant 1
+    Explanation: A singular matrix has det = 0 and no inverse. Its rows/columns are linearly dependent.
 
-  Q13. Sample question 13 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Invertible Matrices.
+  Q13. What is the 'Invertible Matrix Theorem'?
+    [ ] A theorem stating all square matrices are invertible when evaluated systematically
+    [ ] A formula for computing the inverse, particularly regarding invertible as predicted by standard models
+    [*] A collection of equivalent conditions for invertibility, including det != 0, full rank, linearly independent columns, etc.
+    [ ] A theorem about 2x2 matrices only, particularly regarding many in accordance with classical theory
+    Explanation: The Invertible Matrix Theorem lists many equivalent statements: A is invertible iff det(A)!=0 iff rank(A)=n iff columns are linearly independent iff Ax=0 has only x=0 iff A row reduces to I, etc.
 
-  Q14. Sample question 14 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Invertible Matrices.
+  Q14. What does 'full rank' mean for an nxn matrix?
+    [*] rank(A) = n, meaning all n rows (and columns) are linearly independent
+    [ ] The matrix is diagonal based on the prevailing evidence
+    [ ] rank(A) = 0, particularly regarding columns in the
+    [ ] The matrix has no zero entries following conventional understanding
+    Explanation: Full rank means the rank equals the number of rows (and columns) for a square matrix. This is equivalent to invertibility.
 
-  Q15. Sample question 15 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Invertible Matrices.
+  Q15. What does 'left inverse' mean?
+    [ ] A matrix B such that AB = I
+    [*] A matrix B such that BA = I
+    [ ] The left half of the matrix
+    [ ] A matrix that is always equal to the right inverse
+    Explanation: A left inverse B satisfies BA = I. For square matrices, a left inverse always equals the right inverse, so we simply say A is invertible.
 
-  Q16. Sample question 16 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Invertible Matrices.
+  Q16. What does 'uniqueness of the inverse' mean?
+    [*] If A is invertible, there is exactly one matrix A^(-1) satisfying AA^(-1) = I
+    [ ] Every matrix has a unique representation
+    [ ] The inverse is unique only for diagonal matrices
+    [ ] Two different matrices can share the same inverse
+    Explanation: The inverse of a matrix is unique: if B and C both satisfy AB = I and CA = I, then B = C.
 
-  Q17. Sample question 17 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Invertible Matrices.
+  Q17. What does 'nonsingular' mean?
+    [ ] The matrix is symmetric
+    [ ] The matrix has positive entries only
+    [ ] The matrix has no repeated eigenvalues
+    [*] The same as invertible: the matrix has a nonzero determinant and an inverse exists
+    Explanation: Nonsingular is a synonym for invertible. A nonsingular matrix has det != 0.
 
-  Q18. Sample question 18 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Invertible Matrices.
+  Q18. What is the relationship between invertibility and linear independence of columns?
+    [*] A is invertible if and only if its columns are linearly independent
+    [ ] Invertibility requires linearly dependent columns
+    [ ] Only the first column must be independent
+    [ ] Column independence is unrelated to invertibility
+    Explanation: An nxn matrix is invertible iff its n columns are linearly independent, which is equivalent to the columns spanning all of R^n.
 
-  Q19. Sample question 19 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Invertible Matrices.
+  Q19. What does 'trivial solution' have to do with invertibility?
+    [ ] The trivial solution means A is singular
+    [ ] Trivial solutions only exist for 2x2 matrices
+    [ ] The trivial solution is x = I
+    [*] If Ax = 0 has only the trivial solution x = 0, then A is invertible
+    Explanation: A is invertible iff the only solution to Ax = 0 is x = 0. If nontrivial solutions exist, the columns are dependent and A is singular.
 
-  Q20. Sample question 20 for Invertible Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Invertible Matrices.
+  Q20. What does the condition number of a matrix relate to?
+    [ ] The number of nonzero entries, particularly regarding means under normal circumstances
+    [ ] The number of eigenvalues, particularly regarding changes as observed in standard experiments
+    [ ] The trace of the matrix, particularly regarding sensitivity in the context of this analysis
+    [*] How close the matrix is to being singular, and how sensitive the solution of Ax=b is to perturbations
+    Explanation: The condition number measures sensitivity: a large condition number means the matrix is near-singular and small changes in data can cause large changes in the solution.
+
+  Q21. A control engineer has system matrix A. She needs to solve Ax = b for multiple different b vectors. She computes A^(-1) once. What is the advantage?
+    [*] Each new b requires only a matrix-vector multiplication A^(-1)b
+    [ ] The inverse automatically gives the eigenvalues
+    [ ] No advantage; she must redo Gaussian elimination each time
+    [ ] The system changes for each b
+    Explanation: Once A^(-1) is computed, solving for any b is just x = A^(-1)b, which is an O(n^2) matrix-vector multiplication rather than O(n^3) for each Gaussian elimination.
+
+  Q22. A cryptographer checks if her encoding matrix [[3, 5], [2, 7]] is invertible modulo 26 (for a Hill cipher). det = 3(7)-5(2) = 11. Is gcd(11, 26) = 1?
+    [*] Yes, so the matrix is invertible mod 26
+    [ ] No, so the matrix cannot be used
+    [ ] Modular arithmetic does not apply to matrices
+    [ ] The determinant must equal 1 for the cipher to work
+    Explanation: gcd(11, 26) = 1, so 11 has a multiplicative inverse mod 26. Therefore the matrix is invertible mod 26 and suitable for a Hill cipher.
+
+  Q23. A robotics engineer has a Jacobian matrix J that is 3x3. At a configuration where J loses rank (rank drops to 2), what happens?
+    [ ] The robot gains an extra degree of freedom
+    [ ] J becomes invertible
+    [*] J is singular and the robot is at a kinematic singularity
+    [ ] Nothing changes
+    Explanation: When rank drops below 3, det(J) = 0, J is singular, and the robot cannot move in certain directions. This is called a kinematic singularity.
+
+  Q24. A financial analyst inverts a 4x4 correlation matrix R to compute partial correlations. She finds that R is nearly singular (det close to 0). What should she be concerned about?
+    [ ] The partial correlations will all be exactly zero
+    [ ] Nothing; nearly singular matrices are fine to invert
+    [*] Numerical errors may make the computed inverse unreliable
+    [ ] The inverse will be the identity
+    Explanation: A near-singular matrix has a large condition number, meaning small rounding errors in the entries can cause large errors in the computed inverse. Regularization or alternative methods may be needed.
+
+  Q25. A data scientist knows that for large sparse matrices, computing the full inverse A^(-1) is generally:
+    [ ] Equivalent to computing the transpose under the given assumptions
+    [ ] Always necessary, particularly regarding computing as typically measured in practice
+    [*] Impractical because A^(-1) is usually dense even when A is sparse, requiring too much memory
+    [ ] The fastest approach, particularly regarding iterative based on the prevailing evidence
+    Explanation: Even if A is sparse, A^(-1) is typically dense (most entries nonzero). For large systems, iterative methods or LU factorization are preferred over explicitly computing the inverse.
+
+  Q26. A physicist needs (A^3)^(-1). If A is invertible, this equals:
+    [ ] A^3
+    [ ] 3*A^(-1)
+    [*] (A^(-1))^3
+    [ ] A^(-3) is undefined
+    Explanation: (A^3)^(-1) = (A*A*A)^(-1) = A^(-1)*A^(-1)*A^(-1) = (A^(-1))^3.
+
+  Q27. A computer graphics programmer uses the matrix A = [[cos t, -sin t], [sin t, cos t]]. What is A^(-1)?
+    [*] A^T = [[cos t, sin t], [-sin t, cos t]]
+    [ ] A itself, particularly
+    [ ] -A, particularly regarding
+    [ ] I, particularly regarding
+    Explanation: Rotation matrices are orthogonal: A^T A = I, so A^(-1) = A^T. This corresponds to rotation by angle -t.
+
+  Q28. A supply chain manager models transitions with matrix P. She computes P^10 to predict long-term behavior. If P is invertible, is P^10 invertible?
+    [ ] Cannot be determined
+    [ ] Only if P is diagonal
+    [ ] No, repeated multiplication makes it singular
+    [*] Yes, because det(P^10) = (det P)^10 != 0
+    Explanation: If det(P) != 0, then det(P^10) = (det P)^10 != 0, so P^10 is invertible.
+
+  Q29. A medical imaging researcher needs to check if a 256x256 reconstruction matrix is invertible. She should check:
+    [ ] Whether the trace is positive
+    [ ] Whether the matrix is symmetric
+    [ ] Whether all entries are positive
+    [*] Whether the matrix has 256 pivots after row reduction
+    Explanation: A 256x256 matrix is invertible iff it has full rank (256 pivots). Row reduction to check for 256 pivots or computing det are the standard approaches.
+
+  Q30. An economist models an input-output system with (I - C)x = d. She needs (I - C) to be invertible. If all column sums of C are less than 1, is (I - C) guaranteed to be invertible?
+    [ ] Only if C is diagonal, particularly regarding entries under normal circumstances
+    [ ] No, additional conditions are needed based on established principles
+    [ ] Only if d is positive, particularly regarding output in the context of this analysis
+    [*] Yes, this is the productive economy condition ensuring (I-C)^(-1) exists with nonnegative entries
+    Explanation: When all column sums of C are strictly less than 1, the spectral radius of C is less than 1, guaranteeing (I-C)^(-1) exists and has all nonnegative entries (Neumann series).
 
 --- Lesson 4.1: Invertible Matrices (Flashcards) ---
 
@@ -168,154 +257,265 @@ Content for Invertible Matrices is coming soon. Check back for detailed notes an
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 4.2: Finding Inverses (row reduction method) (Summary) ---
 
   Key Concepts: Finding Inverses (row reduction method)
-Key Concepts: Finding Inverses (row reduction method)
-
-Content for Finding Inverses (row reduction method) is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+After row reducing [A | I] to [I | B], what is B?
+When the left side becomes I, the right side is the inverse: B = A^(-1).
+Find the inverse of [[1,2],[3,7]] using row reduction. What is A^(-1)?
+det=7-6=1. A^(-1) = [[7,-2],[-3,1]]. Verify: [[1,2],[3,7]]*[[7,-2],[-3,1]] = [[1,0],[0,1]].
+Row reduce [[2,4|1,0],[1,3|0,1]]. After R1<->R2 and elimination, what is A^(-1)?
+Swap rows: [[1,3|0,1],[2,4|1,0]]. R2-2R1: [[1,3|0,1],[0,-2|1,-2]]. R2/-2: [[1,3|0,1],[0,1|-1/2,1]]. R1-3R2: [[1,0|3/2,-2],[0,1|-1/2,1]]. A^(-1)=[[3/2,-2],[-1/2,1]].
+What is the inverse of the 2x2 identity matrix?
+I*I = I, so I^(-1) = I.
+If row reduction of [A|I] yields [[1,0,0|2,-1,0],[0,1,0|-3,2,1],[0,0,1|1,0,-1]], what is A^(-1)?
+The right side after complete reduction gives A^(-1) = [[2,-1,0],[-3,2,1],[1,0,-1]].
+What is the computational cost of finding an inverse via row reduction for an nxn matrix?
+Row reducing [A|I] to [I|A^(-1)] requires roughly 2n^3/3 + n^3 = O(n^3) operations, similar to solving n systems.
+What is a 'row reduction algorithm' for finding inverses?
+The algorithm applies forward elimination and back elimination (Gauss-Jordan) to [A|I], transforming the left side to I and the right side to A^(-1).
+What is the 'Gauss-Jordan method' for inverses?
+Gauss-Jordan applies forward elimination (zeros below pivots) and backward elimination (zeros above pivots) plus pivot scaling to transform A into I.
+What is 'partial pivoting' used for in inverse computation?
+Partial pivoting selects the largest absolute value in the pivot column, reducing numerical errors during row reduction.
+What is the relationship between row reducing A to I and expressing I as a product of elementary matrices times A?
+Row reduction of A to I means E_k...E_1*A = I, so A^(-1) = E_k...E_1. The same operations applied to I give A^(-1).
+An electrical engineer row-reduces [[1,-1|1,0],[2,3|0,1]]. After R2-2R1: [[1,-1|1,0],[0,5|-2,1]]. After R2/5 and R1+R2: what is A^(-1)?
+R2/5: [[1,-1|1,0],[0,1|-2/5,1/5]]. R1+R2: [[1,0|3/5,1/5],[0,1|-2/5,1/5]]. A^(-1)=[[3/5,1/5],[-2/5,1/5]] = [[0.6,0.2],[-0.4,0.2]].
+A game developer needs to invert a 3x3 rotation matrix R. She knows R is orthogonal. What is the fastest way?
+For orthogonal matrices, R^(-1) = R^T. Simply transposing is O(n^2), much faster than row reduction.
+A climate researcher row-reduces [A|I] for a 5x5 matrix and successfully obtains [I|B]. She wants to verify B = A^(-1). What is the most reliable check?
+The definitive verification is A*B = I (and optionally B*A = I). This directly confirms B is the inverse.
 
 --- Lesson 4.2: Finding Inverses (row reduction method) (Quiz) ---
 
-  Q1. Sample question 1 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Finding Inverses (row reduction method).
+  Q1. To find the inverse of A using row reduction, you form the augmented matrix:
+    [ ] [A | A]
+    [*] [A | I]
+    [ ] [A | 0]
+    [ ] [I | A]
+    Explanation: You augment A with the identity matrix I on the right: [A | I], then row reduce until the left side becomes I.
 
-  Q2. Sample question 2 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Finding Inverses (row reduction method).
+  Q2. After row reducing [A | I] to [I | B], what is B?
+    [ ] A^T
+    [ ] det(A)*I
+    [*] A^(-1)
+    [ ] A^2
+    Explanation: When the left side becomes I, the right side is the inverse: B = A^(-1).
 
-  Q3. Sample question 3 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Finding Inverses (row reduction method).
+  Q3. Find the inverse of [[1,2],[3,7]] using row reduction. What is A^(-1)?
+    [*] [[7,-2],[-3,1]]
+    [ ] [[7,2],[3,1]]
+    [ ] [[-7,2],[3,-1]]
+    [ ] [[1,-2],[-3,7]]
+    Explanation: det=7-6=1. A^(-1) = [[7,-2],[-3,1]]. Verify: [[1,2],[3,7]]*[[7,-2],[-3,1]] = [[1,0],[0,1]].
 
-  Q4. Sample question 4 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Finding Inverses (row reduction method).
+  Q4. During row reduction of [A|I], if you encounter a row of all zeros on the left side, what does this mean?
+    [ ] Continue row reducing
+    [ ] Swap with another row
+    [*] A is singular and has no inverse
+    [ ] A is invertible
+    Explanation: A row of all zeros on the left means A cannot be reduced to I, so A is singular and has no inverse.
 
-  Q5. Sample question 5 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Finding Inverses (row reduction method).
+  Q5. Row reduce [[2,4|1,0],[1,3|0,1]]. After R1<->R2 and elimination, what is A^(-1)?
+    [ ] [[3,-4],[-1,2]]
+    [*] Both B and C
+    [ ] [[3/2,-2],[-1/2,1]]
+    [ ] [[1.5,-2],[-0.5,1]]
+    Explanation: Swap rows: [[1,3|0,1],[2,4|1,0]]. R2-2R1: [[1,3|0,1],[0,-2|1,-2]]. R2/-2: [[1,3|0,1],[0,1|-1/2,1]]. R1-3R2: [[1,0|3/2,-2],[0,1|-1/2,1]]. A^(-1)=[[3/2,-2],[-1/2,1]].
 
-  Q6. Sample question 6 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Finding Inverses (row reduction method).
+  Q6. What is the inverse of the 2x2 identity matrix?
+    [ ] [[0,1],[1,0]]
+    [ ] The zero matrix
+    [*] Itself (the identity matrix)
+    [ ] Does not exist
+    Explanation: I*I = I, so I^(-1) = I.
 
-  Q7. Sample question 7 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Finding Inverses (row reduction method).
+  Q7. For a 3x3 matrix, the augmented matrix [A|I] has dimensions:
+    [ ] 6x3
+    [ ] 6x6
+    [*] 3x6
+    [ ] 3x3
+    Explanation: A is 3x3 and I is 3x3, so [A|I] is 3x6.
 
-  Q8. Sample question 8 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Finding Inverses (row reduction method).
+  Q8. If row reduction of [A|I] yields [[1,0,0|2,-1,0],[0,1,0|-3,2,1],[0,0,1|1,0,-1]], what is A^(-1)?
+    [ ] Cannot be determined
+    [ ] The transpose of the left side
+    [ ] [[1,0,0],[0,1,0],[0,0,1]]
+    [*] [[2,-1,0],[-3,2,1],[1,0,-1]]
+    Explanation: The right side after complete reduction gives A^(-1) = [[2,-1,0],[-3,2,1],[1,0,-1]].
 
-  Q9. Sample question 9 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Finding Inverses (row reduction method).
+  Q9. Can you find the inverse of a non-square matrix using row reduction?
+    [ ] Only for tall matrices
+    [*] No, inverses only exist for square matrices
+    [ ] Only for wide matrices
+    [ ] Yes, for any matrix
+    Explanation: Matrix inverses (two-sided) are defined only for square matrices. Non-square matrices may have left or right inverses but not a full inverse.
 
-  Q10. Sample question 10 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Finding Inverses (row reduction method).
+  Q10. What is the computational cost of finding an inverse via row reduction for an nxn matrix?
+    [*] O(n^3)
+    [ ] O(n^4)
+    [ ] O(2^n)
+    [ ] O(n^2)
+    Explanation: Row reducing [A|I] to [I|A^(-1)] requires roughly 2n^3/3 + n^3 = O(n^3) operations, similar to solving n systems.
 
-  Q11. Sample question 11 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Finding Inverses (row reduction method).
+  Q11. What does 'augmenting with the identity' mean?
+    [ ] Replacing A with I as predicted by standard models
+    [ ] Adding I to A, particularly regarding what as
+    [ ] Multiplying A by I when considering all relevant factors
+    [*] Placing the identity matrix to the right of A to form [A|I]
+    Explanation: Augmenting with the identity means writing A and I side by side: [A | I]. Row operations on this matrix simultaneously transform both A and I.
 
-  Q12. Sample question 12 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Finding Inverses (row reduction method).
+  Q12. What does 'elementary row operations preserve invertibility' mean?
+    [ ] Row operations convert invertible matrices to singular ones
+    [*] Row operations cannot change whether a matrix is invertible
+    [ ] Row operations always make a matrix invertible
+    [ ] Row operations can only be applied to invertible matrices
+    Explanation: Elementary row operations are themselves invertible operations (each can be undone). They do not change whether the original matrix A is invertible or not.
 
-  Q13. Sample question 13 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Finding Inverses (row reduction method).
+  Q13. What is a 'row reduction algorithm' for finding inverses?
+    [*] A systematic process of applying row operations to [A|I] until the left side becomes I, at which point the right side is A^(-1)
+    [ ] Random row swaps until the identity appears under the given assumptions
+    [ ] Multiplying A by random matrices, particularly regarding right within the typical range of values
+    [ ] Computing the determinant first, then dividing in accordance with classical theory
+    Explanation: The algorithm applies forward elimination and back elimination (Gauss-Jordan) to [A|I], transforming the left side to I and the right side to A^(-1).
 
-  Q14. Sample question 14 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Finding Inverses (row reduction method).
+  Q14. What does 'pivot position' tell you about invertibility during row reduction?
+    [ ] If any column lacks a pivot, the matrix is invertible
+    [ ] Pivots are unrelated to invertibility
+    [ ] Only the first pivot matters
+    [*] If every column has a pivot, the matrix is invertible
+    Explanation: During row reduction, if every column of A contains a pivot (full rank), A is invertible. If any column lacks a pivot, A is singular.
 
-  Q15. Sample question 15 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Finding Inverses (row reduction method).
+  Q15. What does 'RREF of [A|I]' give?
+    [ ] The determinant, particularly regarding what based on the prevailing evidence
+    [*] [I|A^(-1)] if A is invertible, or a matrix with a zero row on the left if A is singular
+    [ ] Always [A|A], particularly regarding singular based on the prevailing evidence
+    [ ] Always the identity, particularly regarding rref based on the prevailing evidence
+    Explanation: If A is invertible, RREF of [A|I] = [I|A^(-1)]. If A is singular, a zero row appears on the left side.
 
-  Q16. Sample question 16 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Finding Inverses (row reduction method).
+  Q16. What does 'checking the inverse' mean?
+    [ ] Computing the trace of A^(-1)
+    [*] Verifying that A*A^(-1) = I and A^(-1)*A = I
+    [ ] Ensuring A^(-1) has no zeros
+    [ ] Checking that det(A^(-1)) = 1
+    Explanation: After computing A^(-1), multiply A*A^(-1) and verify it equals I. This catches arithmetic errors.
 
-  Q17. Sample question 17 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Finding Inverses (row reduction method).
+  Q17. What is the 'Gauss-Jordan method' for inverses?
+    [ ] Using only forward elimination as observed in standard experiments
+    [*] Using both forward and backward elimination on [A|I] to reach [I|A^(-1)]
+    [ ] Computing cofactors, particularly regarding jordan when
+    [ ] Finding eigenvalues, particularly regarding plus under
+    Explanation: Gauss-Jordan applies forward elimination (zeros below pivots) and backward elimination (zeros above pivots) plus pivot scaling to transform A into I.
 
-  Q18. Sample question 18 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Finding Inverses (row reduction method).
+  Q18. What does 'ill-conditioned matrix' mean for inverse computation?
+    [ ] The matrix is diagonal
+    [ ] The matrix has no inverse
+    [*] The inverse exists but is very sensitive to rounding errors
+    [ ] The matrix is rectangular
+    Explanation: An ill-conditioned matrix has a large condition number. Its inverse exists but is numerically unreliable due to amplification of rounding errors.
 
-  Q19. Sample question 19 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Finding Inverses (row reduction method).
+  Q19. What is 'partial pivoting' used for in inverse computation?
+    [ ] Making computation faster, particularly regarding pivot under the given assumptions
+    [ ] Ensuring the inverse is symmetric based on the prevailing evidence
+    [ ] Reducing memory usage, particularly regarding during as predicted by standard models
+    [*] Improving numerical stability by swapping rows to place the largest entry in the pivot position
+    Explanation: Partial pivoting selects the largest absolute value in the pivot column, reducing numerical errors during row reduction.
 
-  Q20. Sample question 20 for Finding Inverses (row reduction method)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Finding Inverses (row reduction method).
+  Q20. What is the relationship between row reducing A to I and expressing I as a product of elementary matrices times A?
+    [ ] Row reduction is division, particularly regarding expressing in the context of this analysis
+    [ ] They are unrelated, particularly regarding same under normal circumstances
+    [*] Each row operation corresponds to left-multiplication by an elementary matrix, so I = E_k...E_2*E_1*A, meaning A^(-1) = E_k...E_1
+    [ ] Elementary matrices are only theoretical based on the prevailing evidence
+    Explanation: Row reduction of A to I means E_k...E_1*A = I, so A^(-1) = E_k...E_1. The same operations applied to I give A^(-1).
+
+  Q21. A pharmacist needs to solve Ax = b1, Ax = b2, and Ax = b3 for the same 3x3 matrix A. She decides to compute A^(-1) first. Is this efficient?
+    [ ] No, she should use Gaussian elimination three separate times
+    [*] Yes, computing A^(-1) once allows quick solutions for all three right-hand sides
+    [ ] Only if all b vectors are the same
+    [ ] Only if A is diagonal
+    Explanation: Computing A^(-1) once costs O(n^3). Then each x = A^(-1)*b costs O(n^2). For multiple right-hand sides, this is more efficient than repeating full elimination.
+
+  Q22. An electrical engineer row-reduces [[1,-1|1,0],[2,3|0,1]]. After R2-2R1: [[1,-1|1,0],[0,5|-2,1]]. After R2/5 and R1+R2: what is A^(-1)?
+    [*] Both A and C
+    [ ] [[3/5,1/5],[-2/5,1/5]]
+    [ ] [[0.6,0.2],[-0.4,0.2]]
+    [ ] [[3,1],[-2,1]]
+    Explanation: R2/5: [[1,-1|1,0],[0,1|-2/5,1/5]]. R1+R2: [[1,0|3/5,1/5],[0,1|-2/5,1/5]]. A^(-1)=[[3/5,1/5],[-2/5,1/5]] = [[0.6,0.2],[-0.4,0.2]].
+
+  Q23. A data scientist row-reduces a 100x100 matrix [A|I] and finds a zero row on the left at row 73. What should she conclude?
+    [ ] The inverse is a 73x73 matrix
+    [*] A is singular and has no inverse
+    [ ] She made a computational error
+    [ ] A is invertible with a special structure
+    Explanation: A zero row on the left during reduction means A does not have full rank and is singular. No inverse exists.
+
+  Q24. A control systems engineer needs A^(-1) for a 4x4 matrix. She uses software that reports 'matrix is singular or nearly singular.' What should she do?
+    [ ] Conclude that no solution exists to Ax=b
+    [*] Check the condition number and consider regularization or an alternative formulation
+    [ ] Increase the matrix size
+    [ ] Force the computation anyway
+    Explanation: A singularity warning means either the matrix is exactly singular or very ill-conditioned. She should check the condition number and consider alternatives.
+
+  Q25. A navigation engineer has matrix A = [[1,0,1],[0,1,1],[1,1,0]]. She augments with I and row reduces. After elimination, the left side becomes I. She reads A^(-1) from the right. Verify: is det(A) nonzero?
+    [*] Yes, det = -2
+    [ ] Yes, det = 2
+    [ ] Yes, det = 1
+    [ ] No, det = 0
+    Explanation: det = 1(0-1) - 0 + 1(0-1) = -1 - 1 = -2. Since det != 0, A is invertible.
+
+  Q26. A biologist models population dynamics with P = [[0.8,0.3],[0.2,0.7]]. She computes P^(-1) to reverse-forecast past populations. Is P invertible?
+    [ ] Cannot determine
+    [ ] Yes, det = 1
+    [ ] No, population matrices are never invertible
+    [*] Yes, det = 0.56-0.06 = 0.50 != 0
+    Explanation: det = 0.8(0.7) - 0.3(0.2) = 0.56 - 0.06 = 0.50 != 0. P is invertible.
+
+  Q27. A teacher shows students that for A = [[a,b],[c,d]], A^(-1) = (1/(ad-bc))*[[d,-b],[-c,a]]. A student asks: why is this the same as the row reduction result? What should the teacher say?
+    [ ] The formula only works for integer matrices
+    [*] Both methods are mathematically equivalent; the formula is derived from row reducing [A|I]
+    [ ] Row reduction is an approximation
+    [ ] They give different results
+    Explanation: The 2x2 inverse formula can be derived by performing Gauss-Jordan elimination on [[a,b|1,0],[c,d|0,1]], yielding the same result.
+
+  Q28. A game developer needs to invert a 3x3 rotation matrix R. She knows R is orthogonal. What is the fastest way?
+    [ ] Use the adjugate formula
+    [*] Compute R^(-1) = R^T (just transpose)
+    [ ] Compute determinants
+    [ ] Row reduce [R|I]
+    Explanation: For orthogonal matrices, R^(-1) = R^T. Simply transposing is O(n^2), much faster than row reduction.
+
+  Q29. A chemical engineer has a lower triangular matrix L. To find L^(-1) by row reduction, she notices the process is simpler. Why?
+    [ ] L is already partially in echelon form, so fewer operations are needed
+    [*] Both A and C
+    [ ] L has no inverse
+    [ ] The inverse of a lower triangular matrix is upper triangular
+    Explanation: Lower triangular matrices are already in echelon form (forward elimination is done). The inverse of a lower triangular matrix is also lower triangular, simplifying computation.
+
+  Q30. A climate researcher row-reduces [A|I] for a 5x5 matrix and successfully obtains [I|B]. She wants to verify B = A^(-1). What is the most reliable check?
+    [ ] Verify B is symmetric
+    [ ] Check that det(B) = 1
+    [ ] Check that B has no negative entries
+    [*] Compute A*B and verify it equals I
+    Explanation: The definitive verification is A*B = I (and optionally B*A = I). This directly confirms B is the inverse.
 
 --- Lesson 4.2: Finding Inverses (row reduction method) (Flashcards) ---
 
@@ -334,154 +534,265 @@ Content for Finding Inverses (row reduction method) is coming soon. Check back f
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 4.3: Adjoint Method (Summary) ---
 
   Key Concepts: Adjoint Method
-Key Concepts: Adjoint Method
-
-Content for Adjoint Method is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+What is adj(I) for the nxn identity matrix?
+Since the cofactor of each entry of I gives back I's structure, adj(I) = I.
+If det(A) = 3 and adj(A) = [[6,-3],[0,3]], what is A^(-1)?
+A^(-1) = adj(A)/det(A) = (1/3)*[[6,-3],[0,3]] = [[2,-1],[0,1]].
+What is the computational complexity of the adjoint method for an nxn inverse?
+Computing n^2 cofactors, each requiring an (n-1)x(n-1) determinant, gives O(n^2 * n^2) = O(n^4) using cofactor expansion, or O(n^2 * (n-1)^3) using elimination for each.
+If A = [[2,1],[5,3]], what is adj(A)?
+For 2x2: swap diagonal (2,3)->(3,2), negate off-diagonal (1,5)->(-1,-5). adj(A) = [[3,-1],[-5,2]].
+For a singular matrix (det=0), what is adj(A)?
+A*adj(A) = det(A)*I = 0*I = 0. The adjugate itself may have nonzero entries, but the product with A is always zero.
+What is the 'adjugate' of a matrix?
+Adjugate is the modern mathematical term for the classical adjoint, to avoid confusion with the Hermitian adjoint.
+What is det(adj(A)) for an nxn matrix A?
+det(adj(A)) = det(A)^(n-1). This follows from A*adj(A) = det(A)*I and taking determinants of both sides.
+What is the adjugate of a diagonal matrix diag(a,b,c)?
+For a diagonal matrix, the cofactors give products of the other diagonal entries: adj = diag(bc, ac, ab).
+What is the use of the adjugate in differential equations?
+In systems of ODEs dx/dt = Ax, the adjugate of (sI-A) appears in the Laplace transform solution and transfer functions.
+A cryptographer needs the inverse of [[3,5],[2,7]] modulo 26. det = 11, and 11^(-1) mod 26 = 19. Using adj(A) = [[7,-5],[-2,3]], what is A^(-1) mod 26?
+A^(-1) = 19*[[7,-5],[-2,3]] mod 26 = [[133,-95],[-38,57]] mod 26 = [[3,9],[14,5]].
+A control engineer has a 2x2 transfer function matrix. She uses the adjugate to find the inverse symbolically: if A = [[s+1, 2],[3, s+4]], what is adj(A)?
+For 2x2: swap diagonal entries and negate off-diagonal: adj = [[s+4, -2],[-3, s+1]].
+A mathematician proves that for any nxn matrix A, A*adj(A) = det(A)*I. If A is 3x3 with det(A)=5, what is A*adj(A)?
+A*adj(A) = det(A)*I = 5*I = diag(5,5,5).
+A chemical engineer uses the formula adj(A)/det(A) for A = [[4,7],[2,6]]. det = 24-14 = 10. adj = [[6,-7],[-2,4]]. What is A^(-1)?
+A^(-1) = (1/10)*[[6,-7],[-2,4]] = [[0.6,-0.7],[-0.2,0.4]].
 
 --- Lesson 4.3: Adjoint Method (Quiz) ---
 
-  Q1. Sample question 1 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Adjoint Method.
+  Q1. The adjoint (classical adjoint) of a matrix A is:
+    [ ] The determinant times I
+    [ ] The conjugate transpose
+    [ ] The transpose of A
+    [*] The transpose of the cofactor matrix
+    Explanation: adj(A) = (cofactor matrix)^T. It is used in the formula A^(-1) = adj(A)/det(A).
 
-  Q2. Sample question 2 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Adjoint Method.
+  Q2. The inverse formula using the adjoint is A^(-1) = ?
+    [*] adj(A) / det(A)
+    [ ] det(A) / adj(A)
+    [ ] adj(A) * det(A)
+    [ ] adj(A) + det(A)*I
+    Explanation: A^(-1) = (1/det(A)) * adj(A), provided det(A) != 0.
 
-  Q3. Sample question 3 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Adjoint Method.
+  Q3. For A = [[a,b],[c,d]], adj(A) = ?
+    [ ] [[d,b],[c,a]]
+    [ ] [[-d,b],[c,-a]]
+    [*] [[d,-b],[-c,a]]
+    [ ] [[a,-b],[-c,d]]
+    Explanation: For 2x2: adj(A) = [[d,-b],[-c,a]]. Swap diagonal entries, negate off-diagonal entries.
 
-  Q4. Sample question 4 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Adjoint Method.
+  Q4. What is adj(I) for the nxn identity matrix?
+    [ ] The zero matrix
+    [ ] nI
+    [ ] I^T
+    [*] I itself
+    Explanation: Since the cofactor of each entry of I gives back I's structure, adj(I) = I.
 
-  Q5. Sample question 5 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Adjoint Method.
+  Q5. If det(A) = 3 and adj(A) = [[6,-3],[0,3]], what is A^(-1)?
+    [ ] [[6,-3],[0,3]]
+    [*] [[2,-1],[0,1]]
+    [ ] [[18,-9],[0,9]]
+    [ ] [[1/6,-1/3],[0,1/3]]
+    Explanation: A^(-1) = adj(A)/det(A) = (1/3)*[[6,-3],[0,3]] = [[2,-1],[0,1]].
 
-  Q6. Sample question 6 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Adjoint Method.
+  Q6. The property A * adj(A) = det(A) * I holds for:
+    [ ] Only invertible matrices
+    [ ] Only diagonal matrices
+    [*] All square matrices
+    [ ] Only 2x2 matrices
+    Explanation: A * adj(A) = det(A) * I is true for all square matrices, even singular ones (where both sides equal the zero matrix).
 
-  Q7. Sample question 7 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Adjoint Method.
+  Q7. For a 3x3 matrix, computing adj(A) requires finding how many cofactors?
+    [ ] 6
+    [*] 9
+    [ ] 27
+    [ ] 3
+    Explanation: A 3x3 matrix has 9 entries, each with a cofactor. All 9 cofactors must be computed to form the cofactor matrix.
 
-  Q8. Sample question 8 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Adjoint Method.
+  Q8. What is the computational complexity of the adjoint method for an nxn inverse?
+    [ ] O(n^2)
+    [ ] O(n log n)
+    [*] O(n^4) or higher
+    [ ] O(n^3)
+    Explanation: Computing n^2 cofactors, each requiring an (n-1)x(n-1) determinant, gives O(n^2 * n^2) = O(n^4) using cofactor expansion, or O(n^2 * (n-1)^3) using elimination for each.
 
-  Q9. Sample question 9 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Adjoint Method.
+  Q9. If A = [[2,1],[5,3]], what is adj(A)?
+    [ ] [[3,1],[5,2]]
+    [ ] [[-3,1],[5,-2]]
+    [ ] [[2,5],[1,3]]
+    [*] [[3,-1],[-5,2]]
+    Explanation: For 2x2: swap diagonal (2,3)->(3,2), negate off-diagonal (1,5)->(-1,-5). adj(A) = [[3,-1],[-5,2]].
 
-  Q10. Sample question 10 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Adjoint Method.
+  Q10. For a singular matrix (det=0), what is adj(A)?
+    [ ] Undefined
+    [ ] The identity
+    [*] May be nonzero, but A*adj(A) = 0
+    [ ] The zero matrix always
+    Explanation: A*adj(A) = det(A)*I = 0*I = 0. The adjugate itself may have nonzero entries, but the product with A is always zero.
 
-  Q11. Sample question 11 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Adjoint Method.
+  Q11. What does 'classical adjoint' mean?
+    [*] The transpose of the cofactor matrix, also called the adjugate
+    [ ] The transpose of A
+    [ ] The complex conjugate of A
+    [ ] The adjoint operator in functional analysis
+    Explanation: The classical adjoint (adjugate) is the transpose of the matrix of cofactors. It should not be confused with the conjugate transpose used in other contexts.
 
-  Q12. Sample question 12 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Adjoint Method.
+  Q12. What does 'cofactor matrix' mean?
+    [ ] The inverse of A
+    [ ] The determinant matrix
+    [*] The matrix where entry (i,j) is the cofactor C_{ij} = (-1)^(i+j) * M_{ij}
+    [ ] A matrix of all minors without signs
+    Explanation: The cofactor matrix replaces each entry a_{ij} with its cofactor C_{ij}. The adjugate is the transpose of this matrix.
 
-  Q13. Sample question 13 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Adjoint Method.
+  Q13. What is the 'adjugate' of a matrix?
+    [ ] A diagonal matrix
+    [ ] The matrix of eigenvalues
+    [*] Another name for the classical adjoint: adj(A) = (cofactor matrix)^T
+    [ ] The absolute value of the determinant
+    Explanation: Adjugate is the modern mathematical term for the classical adjoint, to avoid confusion with the Hermitian adjoint.
 
-  Q14. Sample question 14 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Adjoint Method.
+  Q14. What does 'Cramer-adjoint connection' refer to?
+    [ ] A formula for determinants using Cramer's name
+    [*] The entries of A^(-1) can be expressed as cofactors divided by det(A), connecting Cramer's rule to the adjugate
+    [ ] The relationship between adj and trace
+    [ ] A method for solving systems without determinants
+    Explanation: The (i,j) entry of A^(-1) is C_{ji}/det(A), which connects the adjugate formula to Cramer's rule for each variable.
 
-  Q15. Sample question 15 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Adjoint Method.
+  Q15. What does adj(AB) equal?
+    [ ] adj(A)+adj(B)
+    [ ] adj(A)*adj(B)
+    [*] adj(B)*adj(A)
+    [ ] (AB)^T
+    Explanation: adj(AB) = adj(B)*adj(A), similar to how (AB)^(-1) = B^(-1)A^(-1). The order reverses.
 
-  Q16. Sample question 16 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Adjoint Method.
+  Q16. What is det(adj(A)) for an nxn matrix A?
+    [ ] det(A)
+    [*] det(A)^(n-1)
+    [ ] 1
+    [ ] det(A)^n
+    Explanation: det(adj(A)) = det(A)^(n-1). This follows from A*adj(A) = det(A)*I and taking determinants of both sides.
 
-  Q17. Sample question 17 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Adjoint Method.
+  Q17. What does 'symbolic inverse' mean?
+    [ ] An approximate inverse
+    [ ] A graphical representation of the inverse
+    [ ] An inverse that does not exist
+    [*] An inverse expressed in terms of symbolic entries (like a, b, c, d) rather than numbers
+    Explanation: Using the adjugate method, A^(-1) can be written as a formula involving symbolic entries and determinants, useful for theoretical analysis.
 
-  Q18. Sample question 18 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Adjoint Method.
+  Q18. What is the adjugate of a diagonal matrix diag(a,b,c)?
+    [ ] diag(1/a, 1/b, 1/c)
+    [*] diag(bc, ac, ab)
+    [ ] diag(a,b,c)
+    [ ] The zero matrix
+    Explanation: For a diagonal matrix, the cofactors give products of the other diagonal entries: adj = diag(bc, ac, ab).
 
-  Q19. Sample question 19 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Adjoint Method.
+  Q19. What does A^(-1) = adj(A)/det(A) reveal about the structure of inverses?
+    [ ] The entries of A^(-1) are always positive
+    [*] Each entry of A^(-1) is a polynomial in the entries of A divided by det(A)
+    [ ] The inverse is always an integer matrix
+    [ ] The inverse has the same structure as A
+    Explanation: The adjugate entries are polynomials in the entries of A (sums of products of entries). Dividing by det(A) shows each entry of A^(-1) is a rational function of A's entries.
 
-  Q20. Sample question 20 for Adjoint Method
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Adjoint Method.
+  Q20. What is the use of the adjugate in differential equations?
+    [ ] It replaces the derivative operator
+    [ ] It computes eigenvalues directly
+    [ ] It is not used in differential equations
+    [*] The adjugate appears in the formula for the matrix exponential and in solving systems of ODEs
+    Explanation: In systems of ODEs dx/dt = Ax, the adjugate of (sI-A) appears in the Laplace transform solution and transfer functions.
+
+  Q21. A cryptographer needs the inverse of [[3,5],[2,7]] modulo 26. det = 11, and 11^(-1) mod 26 = 19. Using adj(A) = [[7,-5],[-2,3]], what is A^(-1) mod 26?
+    [ ] [[19,19],[19,19]]
+    [ ] Cannot be computed
+    [*] [[133,-95],[-38,57]] mod 26 = [[3,9],[14,5]]
+    [ ] [[7,-5],[-2,3]]
+    Explanation: A^(-1) = 19*[[7,-5],[-2,3]] mod 26 = [[133,-95],[-38,57]] mod 26 = [[3,9],[14,5]].
+
+  Q22. An engineer needs to find the (2,1) entry of A^(-1) for a 3x3 matrix without computing the full inverse. Using the adjugate, this entry is:
+    [ ] a_{21}/det(A), particularly regarding
+    [*] C_{12}/det(A), where C_{12} is the cofactor of a_{12}
+    [ ] C_{21}/det(A), particularly regarding
+    [ ] The minor M_{21} when evaluated systematically
+    Explanation: The (i,j) entry of A^(-1) = (1/det(A)) * adj(A)_{ij} = C_{ji}/det(A). For position (2,1): C_{12}/det(A).
+
+  Q23. A physics student computes adj(A) for A = [[1,0,2],[0,1,0],[3,0,1]]. The cofactor C_{11} = det([[1,0],[0,1]]) = 1. Is this correct?
+    [ ] No, the wrong submatrix was used
+    [ ] C_{11} = -1
+    [ ] No, C_{11} should include a sign factor
+    [*] Yes
+    Explanation: C_{11} = (-1)^(1+1) * det([[1,0],[0,1]]) = (+1)(1) = 1. The sign factor is +1 and the submatrix is correct.
+
+  Q24. A control engineer has a 2x2 transfer function matrix. She uses the adjugate to find the inverse symbolically: if A = [[s+1, 2],[3, s+4]], what is adj(A)?
+    [ ] [[s+4, 2],[3, s+1]]
+    [*] [[s+4, -2],[-3, s+1]]
+    [ ] [[s+4, 3],[2, s+1]]
+    [ ] [[s+1, -2],[-3, s+4]]
+    Explanation: For 2x2: swap diagonal entries and negate off-diagonal: adj = [[s+4, -2],[-3, s+1]].
+
+  Q25. A mathematician proves that for any nxn matrix A, A*adj(A) = det(A)*I. If A is 3x3 with det(A)=5, what is A*adj(A)?
+    [ ] 25*I, particularly
+    [*] 5*I = [[5,0,0],[0,5,0],[0,0,5]]
+    [ ] I, particularly regarding
+    [ ] adj(A), particularly
+    Explanation: A*adj(A) = det(A)*I = 5*I = diag(5,5,5).
+
+  Q26. A numerical analyst compares the adjugate method to row reduction for a 10x10 matrix. Which is more efficient?
+    [*] Row reduction (O(n^3) vs O(n^4+) for adjugate)
+    [ ] Neither can handle 10x10
+    [ ] Both are equally efficient
+    [ ] Adjugate method (fewer operations)
+    Explanation: Row reduction is O(n^3) while the adjugate method requires computing n^2 cofactors, making it O(n^4) or worse. Row reduction is far more efficient for large n.
+
+  Q27. A statistics student needs A^(-1) for a symmetric positive definite matrix. Using the adjugate, she knows adj(A) is also symmetric. Why?
+    [*] Because cofactors of a symmetric matrix form a symmetric cofactor matrix, and transposing it preserves symmetry
+    [ ] Only for 2x2 matrices, particularly regarding positive within the typical range of values
+    [ ] All adjugates are symmetric, particularly regarding needs in accordance with classical theory
+    [ ] Symmetry is unrelated to the adjugate when measured under controlled conditions
+    Explanation: For symmetric A, M_{ij} = M_{ji}, and the sign pattern (-1)^(i+j) is symmetric. So adj(A) is symmetric.
+
+  Q28. A chemical engineer uses the formula adj(A)/det(A) for A = [[4,7],[2,6]]. det = 24-14 = 10. adj = [[6,-7],[-2,4]]. What is A^(-1)?
+    [*] [[0.6,-0.7],[-0.2,0.4]]
+    [ ] [[4,7],[2,6]]
+    [ ] [[6,-7],[-2,4]]
+    [ ] [[0.4,0.7],[0.2,0.6]]
+    Explanation: A^(-1) = (1/10)*[[6,-7],[-2,4]] = [[0.6,-0.7],[-0.2,0.4]].
+
+  Q29. A professor tells students: 'The adjugate method is theoretically important but practically limited.' She means:
+    [*] The formula gives insight into the structure of inverses but is computationally expensive for large matrices
+    [ ] The method requires eigenvalues, particularly regarding large in accordance with classical theory
+    [ ] The method only works for 2x2 matrices under normal circumstances
+    [ ] The method is inaccurate, particularly regarding form when evaluated systematically
+    Explanation: The adjugate formula A^(-1) = adj(A)/det(A) provides a closed-form expression and is useful for proofs and small matrices, but it is O(n^4+) and impractical for large n.
+
+  Q30. A robotics researcher needs to compute the inverse of a parameterized 3x3 matrix symbolically (entries are functions of joint angles). Which method is most suitable?
+    [*] The adjugate method, which gives a symbolic closed-form inverse
+    [ ] LU decomposition
+    [ ] Iterative methods
+    [ ] Gaussian elimination with numerical values
+    Explanation: For symbolic computation, the adjugate method is ideal because it produces an exact formula in terms of the parameters, unlike numerical methods.
 
 --- Lesson 4.3: Adjoint Method (Flashcards) ---
 
@@ -500,154 +811,264 @@ Content for Adjoint Method is coming soon. Check back for detailed notes and key
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 4.4: Singular vs. Non-Singular Matrices (Summary) ---
 
   Key Concepts: Singular vs. Non-Singular Matrices
-Key Concepts: Singular vs. Non-Singular Matrices
-
-Content for Singular vs. Non-Singular Matrices is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+If matrix A is non-singular, what is the rank of an n x n matrix A?
+A non-singular n x n matrix has full rank n, meaning all its rows and columns are linearly independent.
+What is a singular matrix?
+A singular matrix is a square matrix with determinant zero, which means no inverse exists for it.
+What is a non-singular matrix?
+A non-singular (invertible) matrix is a square matrix whose determinant is nonzero, guaranteeing the existence of a unique inverse.
+What is the rank of a matrix?
+Rank measures the dimension of the column space (or row space), counting the maximum number of linearly independent rows or columns.
+What is linear dependence among rows of a matrix?
+Rows are linearly dependent when at least one row can be written as a combination of the others, reducing the effective rank of the matrix.
+What is the null space of a matrix?
+The null space (kernel) consists of all vectors x such that Ax = 0. For a singular matrix this space is nontrivial.
+What is full rank for a square matrix?
+An n x n matrix has full rank when its rank equals n, meaning all rows and columns are linearly independent.
+What is a rank-deficient matrix?
+A rank-deficient matrix has rank smaller than its theoretical maximum, indicating linear dependence among its rows or columns.
+What is the determinant test for invertibility?
+The determinant test states that a square matrix is invertible (non-singular) if and only if its determinant is not equal to zero.
+What is the column space of a matrix?
+The column space is the span of all column vectors and represents every vector b for which Ax = b has a solution.
+A game developer uses a 3x3 matrix to transform objects. She notices that after transformation, all objects appear flattened into a line. What is the rank of her matrix?
+Objects collapsing into a line means the image of the transformation is one-dimensional, so the matrix has rank 1 and is singular.
+Real-World Applications
+Example: An economics student multiplies two non-singular matrices A and B to form C = AB. Her professor asks: is C singular or non-singular?
+The product of two non-singular matrices is non-singular because det(AB) = det(A)*det(B), and the product of two nonzero numbers is nonzero.
 
 --- Lesson 4.4: Singular vs. Non-Singular Matrices (Quiz) ---
 
-  Q1. Sample question 1 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Singular vs. Non-Singular Matrices.
+  Q1. A matrix is singular if its determinant equals which value?
+    [ ] 1
+    [*] 0
+    [ ] Infinity
+    [ ] -1
+    Explanation: A singular matrix has a determinant of zero, which means it cannot be inverted.
 
-  Q2. Sample question 2 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Singular vs. Non-Singular Matrices.
+  Q2. Which of the following is true about a non-singular matrix?
+    [*] Its determinant is nonzero
+    [ ] It has no inverse
+    [ ] Its rows are linearly dependent
+    [ ] It maps every vector to the zero vector
+    Explanation: A non-singular matrix has a nonzero determinant, guaranteeing the existence of its inverse.
 
-  Q3. Sample question 3 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Singular vs. Non-Singular Matrices.
+  Q3. If det(A) = 5, is matrix A singular or non-singular?
+    [ ] Both singular and non-singular
+    [*] Non-singular
+    [ ] Cannot be determined
+    [ ] Singular
+    Explanation: Since det(A) = 5, which is nonzero, the matrix A is non-singular and therefore invertible.
 
-  Q4. Sample question 4 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Singular vs. Non-Singular Matrices.
+  Q4. Which matrix is always non-singular?
+    [ ] A zero matrix
+    [ ] A matrix with a row of zeros
+    [*] The identity matrix
+    [ ] A matrix with two identical columns
+    Explanation: The identity matrix always has a determinant of 1, making it non-singular regardless of its size.
 
-  Q5. Sample question 5 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Singular vs. Non-Singular Matrices.
+  Q5. If a 3x3 matrix has two identical rows, what can you conclude?
+    [ ] The determinant equals 1
+    [ ] The matrix is non-singular
+    [*] The matrix is singular
+    [ ] The matrix is diagonal
+    Explanation: Two identical rows are linearly dependent, forcing the determinant to zero and making the matrix singular.
 
-  Q6. Sample question 6 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Singular vs. Non-Singular Matrices.
+  Q6. A non-singular matrix always has which property?
+    [ ] It is diagonal
+    [ ] It is symmetric
+    [ ] It has all positive entries
+    [*] It has an inverse
+    Explanation: Every non-singular matrix is invertible, meaning a unique inverse matrix exists for it.
 
-  Q7. Sample question 7 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Singular vs. Non-Singular Matrices.
+  Q7. For a 2x2 matrix [[a, b], [c, d]], when is it singular?
+    [ ] When a + d = 0
+    [ ] When ab - cd = 0
+    [ ] When ad + bc = 0
+    [*] When ad - bc = 0
+    Explanation: The determinant of a 2x2 matrix is ad - bc, and the matrix is singular when this value equals zero.
 
-  Q8. Sample question 8 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Singular vs. Non-Singular Matrices.
+  Q8. How many solutions does the system Ax = b have when A is singular and b is not in the column space of A?
+    [ ] Exactly one
+    [*] No solution
+    [ ] Exactly two
+    [ ] Infinitely many
+    Explanation: When A is singular and b is outside the column space, the system is inconsistent and has no solution.
 
-  Q9. Sample question 9 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Singular vs. Non-Singular Matrices.
+  Q9. If matrix A is non-singular, what is the rank of an n x n matrix A?
+    [ ] n - 1
+    [*] n
+    [ ] 2n
+    [ ] 0
+    Explanation: A non-singular n x n matrix has full rank n, meaning all its rows and columns are linearly independent.
 
-  Q10. Sample question 10 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Singular vs. Non-Singular Matrices.
+  Q10. Which operation can turn a non-singular matrix into a singular one?
+    [ ] Swapping two rows
+    [ ] Multiplying a row by a nonzero scalar
+    [ ] Multiplying by the identity matrix
+    [*] Replacing a row with a copy of another row
+    Explanation: Replacing a row with a duplicate of another creates linear dependence, making the determinant zero and the matrix singular.
 
-  Q11. Sample question 11 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Singular vs. Non-Singular Matrices.
+  Q11. What is a singular matrix?
+    [ ] A matrix whose transpose equals its inverse
+    [ ] A matrix that has only one row
+    [ ] A matrix with all entries equal to one
+    [*] A square matrix whose determinant is zero and therefore has no inverse
+    Explanation: A singular matrix is a square matrix with determinant zero, which means no inverse exists for it.
 
-  Q12. Sample question 12 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Singular vs. Non-Singular Matrices.
+  Q12. What is a non-singular matrix?
+    [ ] A matrix with more rows than columns
+    [ ] A matrix that cannot be multiplied
+    [ ] A matrix with all zero entries
+    [*] A square matrix with a nonzero determinant that possesses a unique inverse
+    Explanation: A non-singular (invertible) matrix is a square matrix whose determinant is nonzero, guaranteeing the existence of a unique inverse.
 
-  Q13. Sample question 13 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Singular vs. Non-Singular Matrices.
+  Q13. What is the rank of a matrix?
+    [*] The maximum number of linearly independent rows or columns in the matrix
+    [ ] The number of rows in the matrix
+    [ ] The sum of all its diagonal entries
+    [ ] The largest absolute value among its entries
+    Explanation: Rank measures the dimension of the column space (or row space), counting the maximum number of linearly independent rows or columns.
 
-  Q14. Sample question 14 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Singular vs. Non-Singular Matrices.
+  Q14. What is linear dependence among rows of a matrix?
+    [*] When at least one row can be expressed as a linear combination of the other rows
+    [ ] When the rows are arranged in increasing order
+    [ ] When the matrix has more columns than rows
+    [ ] When every row is a unit vector
+    Explanation: Rows are linearly dependent when at least one row can be written as a combination of the others, reducing the effective rank of the matrix.
 
-  Q15. Sample question 15 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Singular vs. Non-Singular Matrices.
+  Q15. What is the null space of a matrix?
+    [ ] The set of all eigenvalues of the matrix
+    [*] The set of all vectors that the matrix maps to the zero vector
+    [ ] The set of entries that are zero in the matrix
+    [ ] The column space of the transposed matrix
+    Explanation: The null space (kernel) consists of all vectors x such that Ax = 0. For a singular matrix this space is nontrivial.
 
-  Q16. Sample question 16 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Singular vs. Non-Singular Matrices.
+  Q16. What is full rank for a square matrix?
+    [ ] When every entry of the matrix is nonzero
+    [*] When the rank equals the number of rows (and columns), making the matrix non-singular
+    [ ] When the matrix is upper triangular
+    [ ] When the rank equals half the number of rows
+    Explanation: An n x n matrix has full rank when its rank equals n, meaning all rows and columns are linearly independent.
 
-  Q17. Sample question 17 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Singular vs. Non-Singular Matrices.
+  Q17. What is a rank-deficient matrix?
+    [*] A matrix whose rank is less than the minimum of its number of rows and columns
+    [ ] A matrix that has negative eigenvalues
+    [ ] A matrix with complex entries
+    [ ] A matrix that is not square
+    Explanation: A rank-deficient matrix has rank smaller than its theoretical maximum, indicating linear dependence among its rows or columns.
 
-  Q18. Sample question 18 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Singular vs. Non-Singular Matrices.
+  Q18. What is the determinant test for invertibility?
+    [ ] A matrix is invertible only if its trace is nonzero
+    [ ] A matrix is invertible only if its determinant equals 1
+    [*] A matrix is invertible if and only if its determinant is nonzero
+    [ ] A matrix is invertible only if its determinant is positive
+    Explanation: The determinant test states that a square matrix is invertible (non-singular) if and only if its determinant is not equal to zero.
 
-  Q19. Sample question 19 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Singular vs. Non-Singular Matrices.
+  Q19. What is the column space of a matrix?
+    [ ] The diagonal entries of the matrix
+    [ ] The set of all possible products of columns
+    [*] The set of all linear combinations of the columns of the matrix
+    [ ] The set of all columns placed end to end
+    Explanation: The column space is the span of all column vectors and represents every vector b for which Ax = b has a solution.
 
-  Q20. Sample question 20 for Singular vs. Non-Singular Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Singular vs. Non-Singular Matrices.
+  Q20. What does it mean for a matrix to be invertible?
+    [ ] It can be written as the product of two diagonal matrices
+    [ ] Its transpose is the zero matrix
+    [*] There exists another matrix that, when multiplied with it, produces the identity matrix
+    [ ] It has more rows than columns
+    Explanation: A matrix is invertible if there is a matrix A^(-1) such that A * A^(-1) = A^(-1) * A = I, which requires a nonzero determinant.
+
+  Q21. A structural engineer models a bridge with the system Ax = b, where A is a 4x4 matrix. She finds that det(A) = 0. What does this imply about the bridge forces?
+    [ ] The forces are uniquely determined according to conventional analysis
+    [ ] The bridge design is guaranteed to be safe within the typical range of values
+    [*] The system has either no solution or infinitely many solutions, indicating the model is under-constrained
+    [ ] All forces equal zero, particularly regarding with as observed in standard experiments
+    Explanation: A singular coefficient matrix means the system lacks a unique solution, so the engineer cannot determine a single set of forces without additional constraints.
+
+  Q22. A data scientist builds a regression model and discovers that two predictor columns in the design matrix are identical. What happens to the matrix?
+    [ ] The matrix becomes diagonal
+    [ ] The matrix becomes orthogonal
+    [ ] The matrix doubles in size
+    [*] The matrix becomes singular due to perfect multicollinearity
+    Explanation: Identical columns create linear dependence, making the matrix singular and preventing unique coefficient estimation in regression.
+
+  Q23. An electrical engineer writes the system of equations for a circuit as Ax = b, where A is 3x3 with det(A) = -7. Can she find unique currents?
+    [ ] No, because the determinant is negative
+    [ ] Only if all entries of b are positive
+    [*] Yes, because A is non-singular and x = A^(-1)b gives the unique solution
+    [ ] No, because a 3x3 system always has infinitely many solutions
+    Explanation: Since det(A) = -7, which is nonzero, A is non-singular and the unique solution is obtained by multiplying both sides by A inverse.
+
+  Q24. A robotics team programs an arm's transformation using matrix A. During testing, the arm collapses all 3D points onto a plane. What does this reveal about A?
+    [ ] A is the identity matrix
+    [*] A is singular because it reduces the dimension of the output space
+    [ ] A has a determinant greater than 1
+    [ ] A is non-singular with full rank
+    Explanation: Mapping 3D space onto a 2D plane means the transformation loses a dimension, which only happens when the matrix is singular (rank-deficient).
+
+  Q25. A professor gives students the matrix [[2, 4], [1, 2]] and asks them to classify it. What should they conclude?
+    [ ] It is non-singular because the trace is 4
+    [*] It is singular because det = 2(2) - 4(1) = 0
+    [ ] It is non-singular because all entries are positive
+    [ ] It is singular because it has even numbers
+    Explanation: Computing the determinant: 2*2 - 4*1 = 0, so the matrix is singular and has no inverse.
+
+  Q26. A chemical plant uses a 5x5 matrix to balance reaction equations. An analyst confirms it is non-singular. What can the plant conclude?
+    [ ] Multiple different balancing solutions exist
+    [ ] The reaction cannot proceed
+    [ ] The reaction is exothermic
+    [*] There is exactly one set of balancing coefficients for the system
+    Explanation: A non-singular coefficient matrix guarantees a unique solution, so exactly one valid set of balancing coefficients exists.
+
+  Q27. A game developer uses a 3x3 matrix to transform objects. She notices that after transformation, all objects appear flattened into a line. What is the rank of her matrix?
+    [ ] 3
+    [ ] 0
+    [*] 1
+    [ ] 2
+    Explanation: Objects collapsing into a line means the image of the transformation is one-dimensional, so the matrix has rank 1 and is singular.
+
+  Q28. A student tries to compute A^(-1) for the matrix [[1, 2], [3, 6]] and gets an error. Which explanation is correct?
+    [ ] The software has a bug
+    [ ] Inverse computation only works for 3x3 or larger matrices
+    [*] The matrix is singular since det = 1(6) - 2(3) = 0, so no inverse exists
+    [ ] The matrix is too small for inversion
+    Explanation: The determinant is 1*6 - 2*3 = 0, making the matrix singular. Singular matrices do not have inverses.
+
+  Q29. A traffic network is modeled with a matrix equation Ax = b. Analysis shows A has a nontrivial null space. What does this mean for traffic flow?
+    [ ] No traffic can flow through the network
+    [ ] The network has exactly two solutions
+    [ ] There is exactly one traffic flow pattern
+    [*] A is singular and there may be infinitely many valid flow patterns or none at all
+    Explanation: A nontrivial null space means A is singular, so the system either has infinitely many solutions or is inconsistent depending on b.
+
+  Q30. An economics student multiplies two non-singular matrices A and B to form C = AB. Her professor asks: is C singular or non-singular?
+    [ ] C is non-singular only if A = B
+    [*] C is non-singular because det(C) = det(A) * det(B), which is nonzero
+    [ ] C is always singular
+    [ ] C could be either singular or non-singular
+    Explanation: The product of two non-singular matrices is non-singular because det(AB) = det(A)*det(B), and the product of two nonzero numbers is nonzero.
 
 --- Lesson 4.4: Singular vs. Non-Singular Matrices (Flashcards) ---
 
@@ -666,154 +1087,278 @@ Content for Singular vs. Non-Singular Matrices is coming soon. Check back for de
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 4.5: Applications of Inverse Matrices (Summary) ---
 
   Key Concepts: Applications of Inverse Matrices
-Key Concepts: Applications of Inverse Matrices
-
-Content for Applications of Inverse Matrices is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+If A is a 2x2 matrix with A^(-1) = [[3, -1], [0, 2]], what is A^(-1) times b = [5, 4]?
+Computing A^(-1)b: first entry = 3(5) + (-1)(4) = 11, second entry = 0(5) + 2(4) = 8, giving [11, 8].
+What is one advantage of using A^(-1) to solve multiple systems Ax = b1, Ax = b2, etc.?
+Once A^(-1) is computed, each new system only requires a matrix-vector multiplication, which is much faster than re-solving from scratch.
+For a 2x2 matrix A = [[a, b], [c, d]], what is the formula for A^(-1)?
+The inverse of a 2x2 matrix swaps the diagonal entries, negates the off-diagonal entries, and divides by the determinant ad - bc.
+If A^(-1) = B, what is the value of AB?
+By definition of the matrix inverse, A times A^(-1) equals the identity matrix I.
+What is an inverse matrix?
+The inverse of a square matrix A is a unique matrix B (denoted A^(-1)) satisfying AB = BA = I.
+What is the Leontief input-output model?
+The Leontief model describes how industries consume each other's outputs and uses (I - C)^(-1) to find total production needed for a given demand.
+What is a coordinate transformation in the context of inverse matrices?
+Coordinate transformations use invertible matrices to convert between reference frames, and the inverse matrix reverses the transformation.
+What is the adjugate (classical adjoint) of a matrix?
+The adjugate is the transpose of the matrix of cofactors, and it appears in the classical formula for computing the inverse of a matrix.
+What is a change-of-basis matrix?
+A change-of-basis matrix P converts vectors expressed in one basis to their representation in another, and P^(-1) reverses the conversion.
+What is the consumption matrix in a Leontief model?
+The consumption matrix C has entries c_ij representing how much of industry j's output is consumed by industry i per unit of production.
+What is Cramer's Rule?
+Cramer's Rule solves Ax = b by computing x_i = det(A_i)/det(A), where A_i replaces the i-th column of A with b.
+What is meant by solving a linear system via matrix inversion?
+Solving via inversion means computing the inverse of the coefficient matrix and multiplying it by b to directly obtain x.
+What is the relationship between (AB)^(-1) and the inverses of A and B?
+The inverse of a product reverses the order: (AB)^(-1) = B^(-1)A^(-1). This is sometimes called the 'socks-shoes' property.
+What is a matrix equation?
+A matrix equation writes a system of linear equations compactly as AX = B, where A is the coefficient matrix and X is the unknown matrix or vector.
+A physics student uses a rotation matrix R to rotate a vector by 30 degrees. To undo the rotation, she needs R^(-1). For a rotation matrix, what is R^(-1)?
+Rotation matrices are orthogonal, so R^(-1) = R^T. The transpose rotates by the negative angle, undoing the original rotation.
+Real-World Applications
+Example: What is one advantage of using A^(-1) to solve multiple systems Ax = b1, Ax = b2, etc.?
+Once A^(-1) is computed, each new system only requires a matrix-vector multiplication, which is much faster than re-solving from scratch.
+Example: A manufacturer has three plants, and the production system is modeled as Ax = b for five different monthly demand vectors b1 through b5. The manager computes A^(-1) once. How many full matrix inversions are needed for all five months?
+Only one inversion is needed because A^(-1) is computed once and then multiplied by each demand vector b_i to get each month's production plan.
+Example: A cryptographer encodes a message as b = Ax and decodes it using x = A^(-1)b. If an attacker intercepts b but does not know A, what protects the message?
+The encryption key is matrix A; without knowing A or A^(-1), the attacker cannot compute x = A^(-1)b to decode the original message.
+Example: A supply-chain manager solves for optimal shipping quantities using x = A^(-1)b. After a factory closes, one row and column of A change. What must the manager do?
+When the coefficient matrix A changes, its inverse must be recomputed because the old inverse no longer corresponds to the updated system.
 
 --- Lesson 4.5: Applications of Inverse Matrices (Quiz) ---
 
-  Q1. Sample question 1 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Applications of Inverse Matrices.
+  Q1. To solve the system Ax = b using the inverse of A, which expression gives x?
+    [ ] x = bA^(-1)
+    [ ] x = b - A
+    [*] x = A^(-1)b
+    [ ] x = Ab
+    Explanation: Multiplying both sides of Ax = b on the left by A^(-1) gives x = A^(-1)b, the standard formula for solving a linear system using the inverse.
 
-  Q2. Sample question 2 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Applications of Inverse Matrices.
+  Q2. If A is a 2x2 matrix with A^(-1) = [[3, -1], [0, 2]], what is A^(-1) times b = [5, 4]?
+    [*] [11, 8]
+    [ ] [7, 6]
+    [ ] [5, 8]
+    [ ] [15, 4]
+    Explanation: Computing A^(-1)b: first entry = 3(5) + (-1)(4) = 11, second entry = 0(5) + 2(4) = 8, giving [11, 8].
 
-  Q3. Sample question 3 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Applications of Inverse Matrices.
+  Q3. What is one advantage of using A^(-1) to solve multiple systems Ax = b1, Ax = b2, etc.?
+    [ ] It avoids computing any determinants
+    [ ] It works even when A is singular
+    [*] You compute A^(-1) once and reuse it for each right-hand side
+    [ ] It eliminates rounding errors entirely
+    Explanation: Once A^(-1) is computed, each new system only requires a matrix-vector multiplication, which is much faster than re-solving from scratch.
 
-  Q4. Sample question 4 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Applications of Inverse Matrices.
+  Q4. In a Leontief input-output model, the production vector x is found by which formula?
+    [*] x = (I - C)^(-1)d
+    [ ] x = C^(-1)d
+    [ ] x = (I - C)d
+    [ ] x = (I + C)d
+    Explanation: The Leontief model states x = Cx + d, which rearranges to (I - C)x = d, so x = (I - C)^(-1)d when the inverse exists.
 
-  Q5. Sample question 5 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Applications of Inverse Matrices.
+  Q5. If the inverse of a coordinate transformation matrix T maps screen coordinates back to world coordinates, what does T itself do?
+    [ ] Transposes the coordinate axes
+    [ ] Deletes the coordinate system
+    [*] Maps world coordinates to screen coordinates
+    [ ] Maps screen coordinates to screen coordinates
+    Explanation: If T^(-1) converts screen to world, then T performs the forward transformation from world coordinates to screen coordinates.
 
-  Q6. Sample question 6 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Applications of Inverse Matrices.
+  Q6. When using inverse matrices in network flow, what does the solution vector typically represent?
+    [ ] The eigenvalues of the adjacency matrix
+    [ ] The cost of building the network
+    [ ] The number of nodes in the graph
+    [*] The flow rates through each branch of the network
+    Explanation: In network flow problems, the system Ax = b models conservation at each node, and x gives the flow through each edge or branch.
 
-  Q7. Sample question 7 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Applications of Inverse Matrices.
+  Q7. For a 2x2 matrix A = [[a, b], [c, d]], what is the formula for A^(-1)?
+    [*] (1/(ad-bc)) * [[d, -b], [-c, a]]
+    [ ] (1/(ad+bc)) * [[d, b], [c, a]]
+    [ ] (1/(ad-bc)) * [[-d, b], [c, -a]]
+    [ ] (1/(ad-bc)) * [[a, -b], [-c, d]]
+    Explanation: The inverse of a 2x2 matrix swaps the diagonal entries, negates the off-diagonal entries, and divides by the determinant ad - bc.
 
-  Q8. Sample question 8 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Applications of Inverse Matrices.
+  Q8. In balancing chemical equations using matrices, the inverse helps determine what?
+    [ ] The temperature of the reaction
+    [ ] Whether the reaction is reversible
+    [ ] The activation energy
+    [*] The unique stoichiometric coefficients
+    Explanation: Setting up the atom-balance equations as Ax = b and solving x = A^(-1)b yields the unique coefficients that balance each element.
 
-  Q9. Sample question 9 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Applications of Inverse Matrices.
+  Q9. Which condition must hold for A^(-1) to exist?
+    [ ] A must have all positive entries
+    [ ] A must be diagonal
+    [*] A must be a square matrix with nonzero determinant
+    [ ] A must be symmetric
+    Explanation: A matrix inverse exists only for square matrices whose determinant is nonzero, ensuring the matrix is non-singular.
 
-  Q10. Sample question 10 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Applications of Inverse Matrices.
+  Q10. If A^(-1) = B, what is the value of AB?
+    [ ] The zero matrix
+    [ ] A + B
+    [ ] A^2
+    [*] The identity matrix I
+    Explanation: By definition of the matrix inverse, A times A^(-1) equals the identity matrix I.
 
-  Q11. Sample question 11 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Applications of Inverse Matrices.
+  Q11. What is an inverse matrix?
+    [ ] A matrix obtained by flipping all signs of the entries
+    [*] A matrix B such that AB = BA = I for a given square matrix A
+    [ ] Any matrix with determinant equal to 1
+    [ ] The transpose of a matrix
+    Explanation: The inverse of a square matrix A is a unique matrix B (denoted A^(-1)) satisfying AB = BA = I.
 
-  Q12. Sample question 12 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Applications of Inverse Matrices.
+  Q12. What is the Leontief input-output model?
+    [ ] A technique for computing determinants recursively
+    [ ] A model that uses eigenvalues to predict stock prices
+    [*] An economic model that uses matrix inverses to determine production levels needed to meet external demand
+    [ ] A method for diagonalizing symmetric matrices
+    Explanation: The Leontief model describes how industries consume each other's outputs and uses (I - C)^(-1) to find total production needed for a given demand.
 
-  Q13. Sample question 13 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Applications of Inverse Matrices.
+  Q13. What is a coordinate transformation in the context of inverse matrices?
+    [*] A process that converts coordinates from one system to another using matrix multiplication, with the inverse providing the reverse conversion
+    [ ] A method for reducing a matrix to row echelon form
+    [ ] A way to compute the trace of a matrix
+    [ ] The process of sorting coordinate values in ascending order
+    Explanation: Coordinate transformations use invertible matrices to convert between reference frames, and the inverse matrix reverses the transformation.
 
-  Q14. Sample question 14 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Applications of Inverse Matrices.
+  Q14. What is the adjugate (classical adjoint) of a matrix?
+    [ ] The negative of the original matrix
+    [ ] The sum of all row vectors
+    [ ] The matrix obtained by squaring every entry
+    [*] The transpose of the cofactor matrix, used in the formula A^(-1) = (1/det(A)) * adj(A)
+    Explanation: The adjugate is the transpose of the matrix of cofactors, and it appears in the classical formula for computing the inverse of a matrix.
 
-  Q15. Sample question 15 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Applications of Inverse Matrices.
+  Q15. What is a change-of-basis matrix?
+    [ ] The identity matrix in a new coordinate system
+    [ ] A diagonal matrix with eigenvalues on the diagonal
+    [ ] A matrix that eliminates all zero entries
+    [*] An invertible matrix that converts coordinate representations from one basis to another
+    Explanation: A change-of-basis matrix P converts vectors expressed in one basis to their representation in another, and P^(-1) reverses the conversion.
 
-  Q16. Sample question 16 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Applications of Inverse Matrices.
+  Q16. What is the consumption matrix in a Leontief model?
+    [ ] The inverse of the demand vector
+    [ ] A matrix listing consumer prices for all goods
+    [*] A matrix whose entries represent the fraction of each industry's output consumed by other industries
+    [ ] A matrix of total revenues for each industry
+    Explanation: The consumption matrix C has entries c_ij representing how much of industry j's output is consumed by industry i per unit of production.
 
-  Q17. Sample question 17 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Applications of Inverse Matrices.
+  Q17. What is Cramer's Rule?
+    [ ] A method for computing eigenvalues
+    [ ] A rule for multiplying two matrices of different sizes
+    [*] A formula that expresses each variable of a linear system as a ratio of determinants derived from the coefficient matrix
+    [ ] A technique for row-reducing augmented matrices
+    Explanation: Cramer's Rule solves Ax = b by computing x_i = det(A_i)/det(A), where A_i replaces the i-th column of A with b.
 
-  Q18. Sample question 18 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Applications of Inverse Matrices.
+  Q18. What is meant by solving a linear system via matrix inversion?
+    [*] Computing A^(-1) and then multiplying it by the right-hand side vector to obtain the solution x = A^(-1)b
+    [ ] Adding the identity matrix to both sides of the equation
+    [ ] Finding the eigenvalues of the coefficient matrix
+    [ ] Using row operations to reduce the augmented matrix
+    Explanation: Solving via inversion means computing the inverse of the coefficient matrix and multiplying it by b to directly obtain x.
 
-  Q19. Sample question 19 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Applications of Inverse Matrices.
+  Q19. What is the relationship between (AB)^(-1) and the inverses of A and B?
+    [ ] (AB)^(-1) = A^(-1)B^(-1)
+    [ ] (AB)^(-1) = A^(-1) + B^(-1)
+    [*] (AB)^(-1) = B^(-1)A^(-1)
+    [ ] (AB)^(-1) = (A + B)^(-1)
+    Explanation: The inverse of a product reverses the order: (AB)^(-1) = B^(-1)A^(-1). This is sometimes called the 'socks-shoes' property.
 
-  Q20. Sample question 20 for Applications of Inverse Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Applications of Inverse Matrices.
+  Q20. What is a matrix equation?
+    [ ] An equation that contains only scalar variables
+    [ ] Any equation with more than two variables
+    [ ] A polynomial equation with matrix-shaped graphs
+    [*] An equation in which the unknowns and coefficients are expressed as matrices, such as AX = B
+    Explanation: A matrix equation writes a system of linear equations compactly as AX = B, where A is the coefficient matrix and X is the unknown matrix or vector.
+
+  Q21. A nutritionist sets up a system Ax = b to find how much of three foods to combine to meet vitamin requirements. She computes A^(-1) and finds x = [2, 3, 1]. What do these values represent?
+    [ ] The total calories per food
+    [ ] The vitamin content of each food
+    [ ] The eigenvalues of the nutrient matrix
+    [*] The servings of each food needed: 2 of food 1, 3 of food 2, and 1 of food 3
+    Explanation: The solution vector x = A^(-1)b gives the amount of each food required, so 2, 3, and 1 servings of foods 1, 2, and 3 respectively.
+
+  Q22. An aerospace engineer uses matrix inversion to convert between inertial and body-fixed reference frames of a satellite. Why is the inverse useful here?
+    [ ] It calculates fuel consumption
+    [ ] It computes the satellite's mass
+    [ ] It determines the satellite's orbital period
+    [*] It allows converting coordinates in both directions: from inertial to body and from body to inertial
+    Explanation: The transformation matrix converts one frame to another, and its inverse reverses the conversion, enabling bidirectional coordinate changes.
+
+  Q23. A manufacturer has three plants, and the production system is modeled as Ax = b for five different monthly demand vectors b1 through b5. The manager computes A^(-1) once. How many full matrix inversions are needed for all five months?
+    [ ] Five
+    [*] One
+    [ ] Three
+    [ ] Ten
+    Explanation: Only one inversion is needed because A^(-1) is computed once and then multiplied by each demand vector b_i to get each month's production plan.
+
+  Q24. A traffic engineer uses the inverse of a flow matrix to determine how many vehicles per hour travel on each road segment. The system gives x = A^(-1)b where b changes during rush hour. What should the engineer do?
+    [*] Multiply the precomputed A^(-1) by the new rush-hour demand vector b
+    [ ] Ignore the change in b since A is the same
+    [ ] Recompute A^(-1) for each time period
+    [ ] Transpose A instead of inverting it
+    Explanation: Since A does not change, the precomputed A^(-1) is reused with the updated demand vector to efficiently find the new flow pattern.
+
+  Q25. A cryptographer encodes a message as b = Ax and decodes it using x = A^(-1)b. If an attacker intercepts b but does not know A, what protects the message?
+    [ ] The attacker can simply transpose b to get x
+    [*] Without A (or A^(-1)), the attacker cannot recover x from b
+    [ ] The determinant of A is always zero
+    [ ] The message is protected because b is a scalar
+    Explanation: The encryption key is matrix A; without knowing A or A^(-1), the attacker cannot compute x = A^(-1)b to decode the original message.
+
+  Q26. An economist models a three-sector economy with consumption matrix C and external demand d. She computes (I - C)^(-1)d = [100, 150, 80]. What do these numbers represent?
+    [*] The total production each sector must achieve to satisfy both internal consumption and external demand
+    [ ] The profit margins of each sector
+    [ ] The eigenvalues of the consumption matrix
+    [ ] The number of employees in each sector
+    Explanation: In the Leontief model, x = (I - C)^(-1)d gives total production needed so that after inter-industry consumption, the remaining output meets external demand.
+
+  Q27. A physics student uses a rotation matrix R to rotate a vector by 30 degrees. To undo the rotation, she needs R^(-1). For a rotation matrix, what is R^(-1)?
+    [ ] R squared, particularly regarding
+    [ ] The zero matrix when measured under
+    [*] The transpose R^T, which rotates by -30 degrees
+    [ ] The negative of R as determined by
+    Explanation: Rotation matrices are orthogonal, so R^(-1) = R^T. The transpose rotates by the negative angle, undoing the original rotation.
+
+  Q28. A supply-chain manager solves for optimal shipping quantities using x = A^(-1)b. After a factory closes, one row and column of A change. What must the manager do?
+    [ ] Use the transpose of the old A^(-1)
+    [ ] Set the solution to zero
+    [ ] Simply change b and reuse the old A^(-1)
+    [*] Recompute A^(-1) (or update it) because A itself has changed
+    Explanation: When the coefficient matrix A changes, its inverse must be recomputed because the old inverse no longer corresponds to the updated system.
+
+  Q29. A computer graphics engine applies transformations T1, T2, T3 in sequence. To reverse the entire sequence, which inverse product is correct?
+    [ ] (T1 + T2 + T3)^(-1)
+    [ ] T1^(-1) T2^(-1) T3^(-1)
+    [*] T3^(-1) T2^(-1) T1^(-1)
+    [ ] T1^(-1) + T2^(-1) + T3^(-1)
+    Explanation: The inverse of a product reverses the order: (T1 T2 T3)^(-1) = T3^(-1) T2^(-1) T1^(-1), undoing the last transformation first.
+
+  Q30. A financial analyst models portfolio weights with Ax = b, where A encodes risk constraints. She finds A^(-1) and obtains x = A^(-1)b = [0.4, 0.35, 0.25]. What does this tell her?
+    [ ] The determinant of the risk matrix
+    [ ] The expected returns of each asset
+    [ ] The standard deviations of each asset
+    [*] The optimal allocation: 40% in asset 1, 35% in asset 2, and 25% in asset 3
+    Explanation: The solution vector x gives the portfolio weights satisfying the risk constraints, allocating 40%, 35%, and 25% to the three assets.
 
 --- Lesson 4.5: Applications of Inverse Matrices (Flashcards) ---
 
@@ -832,154 +1377,285 @@ Content for Applications of Inverse Matrices is coming soon. Check back for deta
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 4.6: Using Inverses in Cryptography (Summary) ---
 
   Key Concepts: Using Inverses in Cryptography
-Key Concepts: Using Inverses in Cryptography
-
-Content for Using Inverses in Cryptography is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+What is the multiplicative inverse of 3 modulo 26?
+Since 3 * 9 = 27, and 27 mod 26 = 1, the multiplicative inverse of 3 modulo 26 is 9.
+What is the Hill cipher?
+The Hill cipher is a polygraphic substitution cipher that encrypts groups of letters simultaneously using matrix multiplication modulo 26.
+What is a modular multiplicative inverse?
+The modular multiplicative inverse of a modulo n is the integer b satisfying a*b mod n = 1, and it exists only when gcd(a, n) = 1.
+What is a known-plaintext attack on a Hill cipher?
+In a known-plaintext attack, the attacker uses matched plaintext-ciphertext pairs to set up equations and solve for the key matrix using its inverse.
+What is a polygraphic cipher?
+A polygraphic cipher encrypts multiple letters as a single unit, which the Hill cipher achieves by processing vectors of letters through matrix multiplication.
+What is the key space of a Hill cipher?
+The key space consists of all n x n matrices with integer entries modulo 26 whose determinant is coprime to 26, ensuring invertibility.
+What is symmetric-key encryption?
+In symmetric-key encryption, both parties share the same secret key. The Hill cipher is symmetric because the decryption key is derived directly from the encryption key.
+What is frequency analysis in the context of cryptanalysis?
+Frequency analysis exploits the fact that certain letters or n-grams appear more often in natural language, potentially revealing patterns in the ciphertext.
+What is a block cipher?
+A block cipher processes plaintext in fixed-size blocks. The Hill cipher is a block cipher where the block size equals the dimension of the key matrix.
+What is the Extended Euclidean Algorithm used for in Hill cipher cryptography?
+The Extended Euclidean Algorithm finds integers x, y such that ax + ny = gcd(a, n), which gives the modular inverse of the determinant when gcd = 1.
+What is diffusion in cryptography?
+Diffusion means each plaintext letter influences multiple ciphertext letters. The Hill cipher achieves diffusion because each ciphertext letter depends on all letters in the block.
+A university professor demonstrates the Hill cipher in class using K = [[6, 1], [1, 4]]. A student points out that det(K) = 23 and asks if the key works. What is the correct response?
+Since gcd(23, 26) = 1, the determinant has a modular inverse mod 26, making the key matrix invertible and valid for the Hill cipher.
+A cybersecurity student is told that a Hill cipher key has det(K) = 13 (mod 26). She tries to find the modular inverse of 13 mod 26. What is the result?
+Since 13 divides 26, gcd(13, 26) = 13 and not 1, so no modular inverse exists and the key is invalid for encryption.
+A student encrypts the plaintext pair 'NO' (N=13, O=14) using key K = [[2, 3], [1, 4]] mod 26. What is the ciphertext vector?
+K * [13, 14]^T = [2*13+3*14, 1*13+4*14] = [68, 69]. Reducing mod 26: 68 mod 26 = 16, 69 mod 26 = 17, giving ciphertext [16, 17].
+A museum exhibit explains how Lester Hill invented his cipher in 1929 using matrix algebra. A visitor asks: 'Could this cipher be broken today?' What is the most accurate response?
+The Hill cipher is vulnerable to known-plaintext attacks: given enough plaintext-ciphertext pairs, an attacker can set up and solve a linear system to recover the key.
+Real-World Applications
+Example: In a Hill cipher, a message is encrypted by multiplying a plaintext vector by which mathematical object?
+The Hill cipher encrypts by multiplying the plaintext vector by an invertible matrix (the key), producing a ciphertext vector.
+Example: To decrypt a Hill cipher message, which operation is performed?
+Decryption reverses the encryption by multiplying the ciphertext vector by the inverse of the key matrix to recover the plaintext.
+Example: What is the multiplicative inverse of 3 modulo 26?
+Since 3 * 9 = 27, and 27 mod 26 = 1, the multiplicative inverse of 3 modulo 26 is 9.
+Example: What is a modular multiplicative inverse?
+The modular multiplicative inverse of a modulo n is the integer b satisfying a*b mod n = 1, and it exists only when gcd(a, n) = 1.
+Example: A spy agency uses a 2x2 Hill cipher with key K = [[3, 5], [2, 7]] to encrypt messages. Before deploying the system, an analyst checks gcd(det(K), 26). What does she find, and is the key valid?
+det(K) = 3*7 - 5*2 = 11, and gcd(11, 26) = 1, so the key matrix is invertible mod 26 and valid for encryption.
+Example: An intelligence officer intercepts a Hill-cipher message and knows that the first two plaintext letters are 'HI' (H=7, I=8). The ciphertext for those two letters is [19, 14]. She sets up P * K_unknown = C. What does she need to recover the key?
+With enough known plaintext-ciphertext pairs forming an invertible plaintext matrix P, the key is recovered as K = P^(-1) * C (mod 26).
+Important Concepts
+What is frequency analysis in the context of cryptanalysis
+Frequency analysis exploits the fact that certain letters or n-grams appear more often in natural language, potentially revealing patterns in the ciphertext.
 
 --- Lesson 4.6: Using Inverses in Cryptography (Quiz) ---
 
-  Q1. Sample question 1 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Using Inverses in Cryptography.
+  Q1. In a Hill cipher, a message is encrypted by multiplying a plaintext vector by which mathematical object?
+    [*] An invertible key matrix
+    [ ] A random permutation
+    [ ] A diagonal identity matrix
+    [ ] A scalar key
+    Explanation: The Hill cipher encrypts by multiplying the plaintext vector by an invertible matrix (the key), producing a ciphertext vector.
 
-  Q2. Sample question 2 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Using Inverses in Cryptography.
+  Q2. To decrypt a Hill cipher message, which operation is performed?
+    [ ] Multiply the ciphertext by the key matrix again
+    [ ] Add the key matrix to the ciphertext
+    [ ] Transpose the ciphertext vector
+    [*] Multiply the ciphertext by the inverse of the key matrix
+    Explanation: Decryption reverses the encryption by multiplying the ciphertext vector by the inverse of the key matrix to recover the plaintext.
 
-  Q3. Sample question 3 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Using Inverses in Cryptography.
+  Q3. In modular arithmetic used by the Hill cipher, all calculations are performed modulo which number for the English alphabet?
+    [ ] 52
+    [ ] 256
+    [*] 26
+    [ ] 10
+    Explanation: The English alphabet has 26 letters, so the Hill cipher performs all arithmetic modulo 26 to keep values within the letter range.
 
-  Q4. Sample question 4 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Using Inverses in Cryptography.
+  Q4. Why must the key matrix in a Hill cipher be invertible modulo 26?
+    [*] So that decryption is possible by computing the modular inverse
+    [ ] So that the determinant is always 26
+    [ ] So the encrypted message looks random
+    [ ] So the matrix can be transposed
+    Explanation: Without a modular inverse, the ciphertext cannot be uniquely decrypted back to the original plaintext, making the cipher useless.
 
-  Q5. Sample question 5 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Using Inverses in Cryptography.
+  Q5. For a 2x2 Hill cipher key matrix, how many letters are encrypted at a time?
+    [ ] 1
+    [ ] 26
+    [*] 2
+    [ ] 4
+    Explanation: A 2x2 key matrix multiplies a 2-element plaintext vector, so letters are processed in pairs (digraphs) at a time.
 
-  Q6. Sample question 6 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Using Inverses in Cryptography.
+  Q6. What condition on the determinant ensures a Hill cipher key matrix is invertible mod 26?
+    [*] gcd(det(K), 26) must equal 1
+    [ ] det(K) must be even
+    [ ] det(K) must be divisible by 13
+    [ ] det(K) must be a prime number
+    Explanation: The determinant must be coprime to 26 (gcd = 1) so that its modular multiplicative inverse exists, enabling decryption.
 
-  Q7. Sample question 7 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Using Inverses in Cryptography.
+  Q7. If a Hill cipher key has det(K) = 4 (mod 26), is the key valid?
+    [*] No, because gcd(4, 26) = 2, which is not 1
+    [ ] Yes, because 4 is nonzero
+    [ ] Yes, because 4 is less than 26
+    [ ] No, because 4 is even and 26 is even
+    Explanation: Since gcd(4, 26) = 2, the determinant has no multiplicative inverse mod 26, making the key matrix non-invertible and therefore invalid.
 
-  Q8. Sample question 8 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Using Inverses in Cryptography.
+  Q8. What is the multiplicative inverse of 3 modulo 26?
+    [ ] 7
+    [ ] 23
+    [*] 9
+    [ ] 13
+    Explanation: Since 3 * 9 = 27, and 27 mod 26 = 1, the multiplicative inverse of 3 modulo 26 is 9.
 
-  Q9. Sample question 9 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Using Inverses in Cryptography.
+  Q9. If letters are encoded as A=0, B=1, ..., Z=25, what number represents the letter 'D'?
+    [ ] 68
+    [ ] 5
+    [*] 3
+    [ ] 4
+    Explanation: Using the encoding A=0, B=1, C=2, D=3, the letter D is represented by the number 3.
 
-  Q10. Sample question 10 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Using Inverses in Cryptography.
+  Q10. A Hill cipher with a 3x3 key matrix encrypts how many characters per block?
+    [ ] 9
+    [ ] 6
+    [*] 3
+    [ ] 2
+    Explanation: A 3x3 key matrix operates on 3-element plaintext vectors, encrypting three characters at a time in each block.
 
-  Q11. Sample question 11 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Using Inverses in Cryptography.
+  Q11. What is the Hill cipher?
+    [ ] A cipher that shifts each letter by a fixed number of positions
+    [ ] A public-key encryption algorithm using large primes
+    [ ] An encryption method based on prime factorization
+    [*] A symmetric encryption method that uses matrix multiplication and modular arithmetic to encode blocks of plaintext letters
+    Explanation: The Hill cipher is a polygraphic substitution cipher that encrypts groups of letters simultaneously using matrix multiplication modulo 26.
 
-  Q12. Sample question 12 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Using Inverses in Cryptography.
+  Q12. What is a modular multiplicative inverse?
+    [ ] The greatest common divisor of two numbers
+    [ ] The remainder when a number is divided by the modulus
+    [ ] The negative of a number in modular arithmetic
+    [*] A number b such that a * b is congruent to 1 modulo n, for a given a and modulus n
+    Explanation: The modular multiplicative inverse of a modulo n is the integer b satisfying a*b mod n = 1, and it exists only when gcd(a, n) = 1.
 
-  Q13. Sample question 13 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Using Inverses in Cryptography.
+  Q13. What is a known-plaintext attack on a Hill cipher?
+    [*] An attack where the adversary uses corresponding plaintext-ciphertext pairs to recover the key matrix
+    [ ] An attack that only works on Caesar ciphers
+    [ ] An attack where the adversary guesses the key randomly
+    [ ] An attack that requires knowing the determinant of the key
+    Explanation: In a known-plaintext attack, the attacker uses matched plaintext-ciphertext pairs to set up equations and solve for the key matrix using its inverse.
 
-  Q14. Sample question 14 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Using Inverses in Cryptography.
+  Q14. What is a polygraphic cipher?
+    [ ] A cipher that hides messages inside images
+    [*] A cipher that operates on groups of letters simultaneously rather than one letter at a time
+    [ ] A cipher that encrypts only vowels
+    [ ] A cipher that uses multiple alphabets in rotation
+    Explanation: A polygraphic cipher encrypts multiple letters as a single unit, which the Hill cipher achieves by processing vectors of letters through matrix multiplication.
 
-  Q15. Sample question 15 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Using Inverses in Cryptography.
+  Q15. What is the key space of a Hill cipher?
+    [ ] The set of all diagonal matrices
+    [ ] The set of all 26-letter permutations
+    [*] The set of all n x n matrices with entries in Z_26 that are invertible modulo 26
+    [ ] All integers from 0 to 25
+    Explanation: The key space consists of all n x n matrices with integer entries modulo 26 whose determinant is coprime to 26, ensuring invertibility.
 
-  Q16. Sample question 16 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Using Inverses in Cryptography.
+  Q16. What is symmetric-key encryption?
+    [ ] Encryption that does not require a key
+    [ ] Encryption that only works with symmetric matrices
+    [ ] Encryption where the sender and receiver use different unrelated keys
+    [*] Encryption where the same key (or a directly derived key) is used for both encryption and decryption
+    Explanation: In symmetric-key encryption, both parties share the same secret key. The Hill cipher is symmetric because the decryption key is derived directly from the encryption key.
 
-  Q17. Sample question 17 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Using Inverses in Cryptography.
+  Q17. What is frequency analysis in the context of cryptanalysis?
+    [ ] Measuring the speed of encryption algorithms
+    [ ] Counting the number of matrices in the key space
+    [*] Studying how often letters or groups of letters appear in ciphertext to deduce the key or plaintext
+    [ ] Analyzing the radio frequency used to transmit messages
+    Explanation: Frequency analysis exploits the fact that certain letters or n-grams appear more often in natural language, potentially revealing patterns in the ciphertext.
 
-  Q18. Sample question 18 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Using Inverses in Cryptography.
+  Q18. What is a block cipher?
+    [ ] A cipher that blocks unauthorized users from reading the key
+    [ ] A cipher that uses blockchain technology
+    [ ] A cipher that encrypts one bit at a time
+    [*] A cipher that divides the plaintext into fixed-size blocks and encrypts each block independently
+    Explanation: A block cipher processes plaintext in fixed-size blocks. The Hill cipher is a block cipher where the block size equals the dimension of the key matrix.
 
-  Q19. Sample question 19 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Using Inverses in Cryptography.
+  Q19. What is the Extended Euclidean Algorithm used for in Hill cipher cryptography?
+    [ ] Generating random prime numbers
+    [ ] Transposing the key matrix
+    [ ] Finding the eigenvalues of the key matrix
+    [*] Computing the modular multiplicative inverse of the determinant
+    Explanation: The Extended Euclidean Algorithm finds integers x, y such that ax + ny = gcd(a, n), which gives the modular inverse of the determinant when gcd = 1.
 
-  Q20. Sample question 20 for Using Inverses in Cryptography
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Using Inverses in Cryptography.
+  Q20. What is diffusion in cryptography?
+    [*] The process of spreading the influence of a single plaintext character across many ciphertext characters
+    [ ] The process of converting binary to decimal
+    [ ] The process of transmitting encrypted messages over a network
+    [ ] The process of making the key longer
+    Explanation: Diffusion means each plaintext letter influences multiple ciphertext letters. The Hill cipher achieves diffusion because each ciphertext letter depends on all letters in the block.
+
+  Q21. A spy agency uses a 2x2 Hill cipher with key K = [[3, 5], [2, 7]] to encrypt messages. Before deploying the system, an analyst checks gcd(det(K), 26). What does she find, and is the key valid?
+    [*] det(K) = 11, gcd(11, 26) = 1, so the key is valid
+    [ ] det(K) = 26, gcd(26, 26) = 26, so the key is invalid
+    [ ] det(K) = 11, gcd(11, 26) = 11, so the key is invalid
+    [ ] det(K) = 31, gcd(31, 26) = 1, so the key is valid
+    Explanation: det(K) = 3*7 - 5*2 = 11, and gcd(11, 26) = 1, so the key matrix is invertible mod 26 and valid for encryption.
+
+  Q22. An intelligence officer intercepts a Hill-cipher message and knows that the first two plaintext letters are 'HI' (H=7, I=8). The ciphertext for those two letters is [19, 14]. She sets up P * K_unknown = C. What does she need to recover the key?
+    [ ] She needs to find the eigenvalues of C
+    [ ] She needs only the determinant of C
+    [*] She needs to compute the inverse of the plaintext matrix P and multiply by C to get K
+    [ ] She needs to add P and C together
+    Explanation: With enough known plaintext-ciphertext pairs forming an invertible plaintext matrix P, the key is recovered as K = P^(-1) * C (mod 26).
+
+  Q23. A university professor demonstrates the Hill cipher in class using K = [[6, 1], [1, 4]]. A student points out that det(K) = 23 and asks if the key works. What is the correct response?
+    [ ] No, because 23 is too close to 26
+    [ ] Yes, but only for messages shorter than 23 characters
+    [*] Yes, because gcd(23, 26) = 1 so the modular inverse of 23 exists
+    [ ] No, because 23 is a prime number
+    Explanation: Since gcd(23, 26) = 1, the determinant has a modular inverse mod 26, making the key matrix invertible and valid for the Hill cipher.
+
+  Q24. A cybersecurity student is told that a Hill cipher key has det(K) = 13 (mod 26). She tries to find the modular inverse of 13 mod 26. What is the result?
+    [*] The inverse does not exist because gcd(13, 26) = 13, not 1
+    [ ] The inverse is 2 because 13 * 2 = 26 mod 26 = 0
+    [ ] The inverse is 1 because 13 is prime
+    [ ] The inverse is 13 because 13 * 13 = 169 mod 26 = 13
+    Explanation: Since 13 divides 26, gcd(13, 26) = 13 and not 1, so no modular inverse exists and the key is invalid for encryption.
+
+  Q25. A military communications unit wants to increase Hill cipher security by moving from a 2x2 to a 3x3 key matrix. How does this affect the cipher?
+    [*] It encrypts three letters per block, increases the key space, and improves resistance to frequency analysis
+    [ ] It makes decryption impossible
+    [ ] It has no effect on security since only the determinant matters
+    [ ] It makes the cipher weaker because larger matrices are easier to invert
+    Explanation: A larger key matrix increases the block size and the number of possible keys, making frequency analysis harder and the cipher more secure.
+
+  Q26. A student encrypts the plaintext pair 'NO' (N=13, O=14) using key K = [[2, 3], [1, 4]] mod 26. What is the ciphertext vector?
+    [ ] [68, 69] which cannot be reduced mod 26
+    [*] [16, 17] after reducing [68, 69] mod 26
+    [ ] [16, 17]
+    [ ] [0, 0]
+    Explanation: K * [13, 14]^T = [2*13+3*14, 1*13+4*14] = [68, 69]. Reducing mod 26: 68 mod 26 = 16, 69 mod 26 = 17, giving ciphertext [16, 17].
+
+  Q27. A coding competition asks participants to break a Hill cipher given that 'TH' encrypts to 'YZ'. If T=19, H=7, Y=24, Z=25, how would a participant start recovering the 2x2 key?
+    [ ] Guess random matrices until one works
+    [ ] Compute 24 - 19 and 25 - 7 to get the key directly
+    [ ] Divide the ciphertext values by the plaintext values
+    [*] Set up K * [19, 7]^T = [24, 25] mod 26 and look for another known pair to form an invertible system
+    Explanation: One known pair gives two equations but a 2x2 key has four unknowns, so a second pair is needed to form and solve the full system.
+
+  Q28. A teacher asks why the Hill cipher is considered stronger than the Caesar cipher. Which answer is best?
+    [ ] The Hill cipher only works with digital computers
+    [ ] The Hill cipher changes the alphabet size from 26 to 52
+    [*] The Hill cipher encrypts blocks of letters together, obscuring single-letter frequency patterns
+    [ ] The Hill cipher uses longer keys and therefore takes more time to encrypt
+    Explanation: By encrypting multiple letters at once, the Hill cipher destroys single-letter frequency information that makes the Caesar cipher easy to break.
+
+  Q29. A security consultant must choose between two potential Hill cipher keys: K1 with det = 8 and K2 with det = 9, both mod 26. Which is usable?
+    [ ] Both are usable since both determinants are nonzero
+    [*] Only K2 because gcd(9, 26) = 1 while gcd(8, 26) = 2
+    [ ] Only K1 because 8 is even
+    [ ] Neither is usable because both are less than 26
+    Explanation: gcd(8, 26) = 2, so K1 is not invertible mod 26. But gcd(9, 26) = 1, so K2 has a modular inverse and is a valid key.
+
+  Q30. A museum exhibit explains how Lester Hill invented his cipher in 1929 using matrix algebra. A visitor asks: 'Could this cipher be broken today?' What is the most accurate response?
+    [ ] Only by quantum computers, particularly regarding explains as determined by standard methodology
+    [ ] No, matrix-based ciphers are unbreakable when applying fundamental principles
+    [*] Yes, with enough known plaintext, the key matrix can be recovered by solving a system of linear equations mod 26
+    [ ] Only if the key matrix is 2x2 or smaller based on established principles
+    Explanation: The Hill cipher is vulnerable to known-plaintext attacks: given enough plaintext-ciphertext pairs, an attacker can set up and solve a linear system to recover the key.
 
 --- Lesson 4.6: Using Inverses in Cryptography (Flashcards) ---
 
@@ -998,154 +1674,271 @@ Content for Using Inverses in Cryptography is coming soon. Check back for detail
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 4.7: Applications in Computer Science (Summary) ---
 
   Key Concepts: Applications in Computer Science
-Key Concepts: Applications in Computer Science
-
-Content for Applications in Computer Science is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+What is a homogeneous coordinate system used for in computer graphics?
+Homogeneous coordinates add an extra dimension so that translation can be expressed as matrix multiplication, unifying all affine transformations.
+What is a transformation matrix in computer graphics?
+A transformation matrix encodes a geometric operation; multiplying it by a point's coordinates produces the transformed point.
+What is an adjacency matrix?
+An adjacency matrix is a square matrix representation of a graph, with a 1 (or weight) at position (i,j) if vertices i and j are connected.
+What is a stochastic matrix?
+A stochastic matrix has non-negative entries with rows (or columns) summing to 1, modeling transition probabilities in Markov chains and PageRank.
+What is a convolution kernel in image processing?
+A convolution kernel is a small matrix (e.g., 3x3) applied across an image via element-wise multiplication and summation to produce filtered output.
+What is a Markov chain in the context of linear algebra?
+A Markov chain transitions between states based on fixed probabilities, and the state after n steps is found by multiplying the transition matrix n times.
+What is dimensionality reduction?
+Dimensionality reduction uses techniques like PCA or SVD to project data into fewer dimensions while retaining the most informative features.
+What is a projection matrix in computer graphics?
+A projection matrix maps 3D world coordinates to 2D screen coordinates, implementing either perspective (realistic depth) or orthographic viewing.
+What is the term-document matrix in information retrieval?
+The term-document matrix encodes how frequently each term appears in each document, forming the basis for techniques like latent semantic analysis.
+What is a weight matrix in a neural network?
+Weight matrices contain the trainable parameters that define how each layer transforms its input, learned through backpropagation during training.
+What is latent semantic analysis (LSA)?
+LSA uses SVD to reduce the term-document matrix to a lower-dimensional representation, revealing latent semantic structure in the text data.
+Real-World Applications
+Example: Google's PageRank algorithm relies on which linear algebra concept?
+PageRank computes the dominant eigenvector of a modified adjacency (stochastic) matrix to rank web pages by importance.
+Example: In image processing, a digital image is often stored as which type of matrix?
+A grayscale image is represented as a matrix where each entry holds the intensity value of the corresponding pixel.
+Example: What is a convolution kernel in image processing?
+A convolution kernel is a small matrix (e.g., 3x3) applied across an image via element-wise multiplication and summation to produce filtered output.
+Important Concepts
+A cybersecurity firm models network traffic between 8 servers using a weighted adjacency matrix W. They notice that W is not symmetric. What does this indicate
+An asymmetric weight matrix indicates a directed graph where traffic from i to j is not necessarily the same as from j to i, which is common in real networks.
 
 --- Lesson 4.7: Applications in Computer Science (Quiz) ---
 
-  Q1. Sample question 1 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Applications in Computer Science.
+  Q1. In computer graphics, which matrix operation is commonly used to rotate objects on screen?
+    [ ] Matrix subtraction
+    [ ] Matrix addition
+    [ ] Scalar division of the matrix
+    [*] Matrix multiplication with a rotation matrix
+    Explanation: Rotation in computer graphics is performed by multiplying coordinate vectors by a rotation matrix, which preserves distances and angles.
 
-  Q2. Sample question 2 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Applications in Computer Science.
+  Q2. What does the adjacency matrix of a graph represent?
+    [ ] The color assigned to each vertex
+    [ ] The shortest path between all pairs of vertices
+    [*] Which vertices are connected by edges
+    [ ] The degree of each vertex only
+    Explanation: The adjacency matrix has entry (i,j) equal to 1 if there is an edge between vertex i and vertex j, and 0 otherwise.
 
-  Q3. Sample question 3 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Applications in Computer Science.
+  Q3. In machine learning, what role do matrices play in a neural network layer?
+    [ ] They define the loss function
+    [ ] They generate random noise for data augmentation
+    [*] They hold the weight parameters that transform input data
+    [ ] They store the training labels
+    Explanation: Each layer in a neural network applies a weight matrix to the input, followed by a bias and activation function, to produce the output.
 
-  Q4. Sample question 4 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Applications in Computer Science.
+  Q4. What is a homogeneous coordinate system used for in computer graphics?
+    [ ] To eliminate the need for floating-point arithmetic
+    [ ] To convert 3D objects into 2D images without projection
+    [ ] To represent colors as vectors
+    [*] To allow translation, rotation, and scaling to be combined into a single matrix multiplication
+    Explanation: Homogeneous coordinates add an extra dimension so that translation can be expressed as matrix multiplication, unifying all affine transformations.
 
-  Q5. Sample question 5 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Applications in Computer Science.
+  Q5. Google's PageRank algorithm relies on which linear algebra concept?
+    [ ] LU decomposition
+    [ ] Row reduction of an augmented matrix
+    [*] Eigenvectors of a stochastic link matrix
+    [ ] Matrix determinants
+    Explanation: PageRank computes the dominant eigenvector of a modified adjacency (stochastic) matrix to rank web pages by importance.
 
-  Q6. Sample question 6 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Applications in Computer Science.
+  Q6. In image processing, a digital image is often stored as which type of matrix?
+    [ ] A matrix of file names
+    [ ] A triangular matrix of colors
+    [ ] A diagonal matrix of coordinates
+    [*] A matrix of pixel intensity values
+    Explanation: A grayscale image is represented as a matrix where each entry holds the intensity value of the corresponding pixel.
 
-  Q7. Sample question 7 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Applications in Computer Science.
+  Q7. In 3D graphics, what does a 4x4 transformation matrix typically encode?
+    [ ] Only rotation, particularly regarding simultaneously following
+    [ ] Only translation, particularly regarding transformation as
+    [ ] The RGB color values of each vertex
+    [*] A combination of rotation, scaling, and translation in homogeneous coordinates
+    Explanation: A 4x4 matrix in homogeneous coordinates can represent rotation, scaling, and translation simultaneously in a single multiplication.
 
-  Q8. Sample question 8 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Applications in Computer Science.
+  Q8. What does the Singular Value Decomposition (SVD) of a matrix help accomplish in data compression?
+    [ ] It converts the matrix to binary
+    [ ] It sorts the data alphabetically
+    [*] It identifies the most important components so less significant ones can be discarded
+    [ ] It encrypts the data so it takes less space
+    Explanation: SVD decomposes a matrix into components ranked by importance; keeping only the top singular values provides an efficient low-rank approximation.
 
-  Q9. Sample question 9 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Applications in Computer Science.
+  Q9. In computer networking, what can a matrix representation model?
+    [ ] The color of each network cable
+    [ ] The brand of each router
+    [*] The bandwidth of each connection between nodes
+    [ ] The operating system on each server
+    Explanation: A weighted adjacency matrix can store the bandwidth or capacity of each link between network nodes for routing and optimization.
 
-  Q10. Sample question 10 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Applications in Computer Science.
+  Q10. When performing principal component analysis (PCA), which matrix is typically computed from the data?
+    [ ] The zero matrix
+    [ ] The permutation matrix
+    [*] The covariance matrix
+    [ ] The identity matrix
+    Explanation: PCA computes the covariance matrix of the data and then finds its eigenvectors to identify the directions of maximum variance.
 
-  Q11. Sample question 11 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Applications in Computer Science.
+  Q11. What is a transformation matrix in computer graphics?
+    [ ] A matrix that compresses file sizes, particularly regarding transformed as predicted by standard models
+    [ ] A matrix that stores the pixel colors of an image as typically measured in practice
+    [ ] A matrix that converts image formats, particularly regarding point when measured under controlled conditions
+    [*] A matrix that, when multiplied by a coordinate vector, applies a geometric operation such as rotation, scaling, or translation
+    Explanation: A transformation matrix encodes a geometric operation; multiplying it by a point's coordinates produces the transformed point.
 
-  Q12. Sample question 12 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Applications in Computer Science.
+  Q12. What is an adjacency matrix?
+    [ ] A matrix whose rows represent edges and columns represent weights
+    [ ] A diagonal matrix where each entry is a vertex degree
+    [*] A square matrix where entry (i,j) indicates whether there is an edge between vertex i and vertex j in a graph
+    [ ] A matrix that stores adjacency lists as strings
+    Explanation: An adjacency matrix is a square matrix representation of a graph, with a 1 (or weight) at position (i,j) if vertices i and j are connected.
 
-  Q13. Sample question 13 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Applications in Computer Science.
+  Q13. What is a stochastic matrix?
+    [ ] A matrix with random entries that change every time it is accessed
+    [ ] A matrix used exclusively in cryptography
+    [*] A square matrix with non-negative entries where each row (or column) sums to 1, representing transition probabilities
+    [ ] A matrix whose determinant is always 1
+    Explanation: A stochastic matrix has non-negative entries with rows (or columns) summing to 1, modeling transition probabilities in Markov chains and PageRank.
 
-  Q14. Sample question 14 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Applications in Computer Science.
+  Q14. What is a convolution kernel in image processing?
+    [ ] A large matrix that stores the entire image
+    [*] A small matrix that is slid over an image to apply effects like blurring, sharpening, or edge detection
+    [ ] A vector of pixel brightness values
+    [ ] The inverse of the image matrix
+    Explanation: A convolution kernel is a small matrix (e.g., 3x3) applied across an image via element-wise multiplication and summation to produce filtered output.
 
-  Q15. Sample question 15 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Applications in Computer Science.
+  Q15. What is a Markov chain in the context of linear algebra?
+    [ ] A technique for encrypting data using chained keys
+    [ ] A chain of matrices multiplied in a specific order
+    [ ] A method for linking database tables
+    [*] A system where the next state depends only on the current state, modeled by repeated multiplication of a transition (stochastic) matrix
+    Explanation: A Markov chain transitions between states based on fixed probabilities, and the state after n steps is found by multiplying the transition matrix n times.
 
-  Q16. Sample question 16 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Applications in Computer Science.
+  Q16. What is dimensionality reduction?
+    [ ] Converting a 3D model into a wireframe
+    [*] The process of projecting high-dimensional data onto a lower-dimensional subspace while preserving important structure
+    [ ] Compressing a file by removing metadata
+    [ ] Removing rows from a dataset to make it smaller
+    Explanation: Dimensionality reduction uses techniques like PCA or SVD to project data into fewer dimensions while retaining the most informative features.
 
-  Q17. Sample question 17 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Applications in Computer Science.
+  Q17. What is a projection matrix in computer graphics?
+    [ ] A matrix that projects shadows onto surfaces
+    [ ] A matrix that removes hidden surfaces
+    [ ] A matrix that stores projector hardware settings
+    [*] A matrix that converts 3D coordinates into 2D screen coordinates by simulating perspective or orthographic viewing
+    Explanation: A projection matrix maps 3D world coordinates to 2D screen coordinates, implementing either perspective (realistic depth) or orthographic viewing.
 
-  Q18. Sample question 18 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Applications in Computer Science.
+  Q18. What is the term-document matrix in information retrieval?
+    [ ] A matrix that stores document file paths
+    [ ] A matrix of document creation dates
+    [*] A matrix where rows represent terms, columns represent documents, and entries represent term frequencies or weights
+    [ ] A matrix that links documents to their authors
+    Explanation: The term-document matrix encodes how frequently each term appears in each document, forming the basis for techniques like latent semantic analysis.
 
-  Q19. Sample question 19 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Applications in Computer Science.
+  Q19. What is a weight matrix in a neural network?
+    [*] A matrix of learnable parameters that linearly transforms the input of one layer to produce the input for the next layer
+    [ ] A matrix that assigns priority to different training samples
+    [ ] A matrix that counts the number of neurons in each layer
+    [ ] A matrix that measures the physical weight of the computer running the network
+    Explanation: Weight matrices contain the trainable parameters that define how each layer transforms its input, learned through backpropagation during training.
 
-  Q20. Sample question 20 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Applications in Computer Science.
+  Q20. What is latent semantic analysis (LSA)?
+    [ ] A technique for encrypting documents using matrix inverses
+    [*] A method that applies SVD to a term-document matrix to discover hidden semantic relationships between terms and documents
+    [ ] A process for correcting grammar in text documents
+    [ ] A technique for sorting search results by date
+    Explanation: LSA uses SVD to reduce the term-document matrix to a lower-dimensional representation, revealing latent semantic structure in the text data.
+
+  Q21. A game studio needs to rotate a spaceship by 45 degrees and then scale it to twice its size. An engineer composes these as a single 3x3 matrix M in homogeneous coordinates. Why is this efficient?
+    [ ] Because the resulting matrix is always the identity
+    [ ] Because scaling and rotation cancel each other out
+    [ ] Because M can only be applied to one vertex at a time
+    [*] Because composing transformations into one matrix requires only a single matrix multiplication per vertex instead of two
+    Explanation: Composing transformations into a single matrix reduces computation: each vertex undergoes one multiplication instead of separate ones for each transformation.
+
+  Q22. A social media company builds a graph of 1 million users. The adjacency matrix A is 10^6 x 10^6. An engineer notices that A^2 entry (i,j) counts what?
+    [*] The number of paths of length 2 from user i to user j
+    [ ] The total number of posts by user i and user j
+    [ ] The number of mutual friends between user i and user j
+    [ ] The square of the friendship strength between i and j
+    Explanation: Entry (i,j) of A^2 counts the number of walks of length 2 from vertex i to vertex j, which corresponds to two-hop connections in the social graph.
+
+  Q23. A data scientist has a dataset with 500 features. She applies PCA and keeps only the top 10 principal components. What linear algebra operation underlies this?
+    [ ] Multiplying the data by a random 500x10 matrix
+    [ ] Sorting the 500 features alphabetically and taking the first 10
+    [*] Computing eigenvalues and eigenvectors of the 500x500 covariance matrix and projecting onto the top 10 eigenvectors
+    [ ] Inverting a 500x500 matrix
+    Explanation: PCA finds the eigenvectors of the covariance matrix ordered by eigenvalue magnitude, then projects data onto the top eigenvectors for dimensionality reduction.
+
+  Q24. A search engine applies SVD to a term-document matrix of 100,000 terms and 50,000 documents. After keeping only the top 300 singular values, the system responds faster. Why?
+    [ ] Because discarding singular values deletes documents from the index
+    [ ] Because SVD sorts documents by relevance automatically
+    [*] Because the low-rank approximation reduces storage and computation while preserving the most important semantic relationships
+    [ ] Because the remaining 300 terms are the most common English words
+    Explanation: Keeping only the top 300 singular values creates a compact approximation of the full matrix, dramatically reducing memory and query time.
+
+  Q25. An autonomous vehicle uses a Markov chain to predict pedestrian movement. The transition matrix T models step probabilities between zones. After 5 time steps, which matrix gives the state distribution?
+    [ ] T^(-5)
+    [ ] 5T
+    [ ] T + 5I
+    [*] T^5
+    Explanation: In a Markov chain, the state distribution after n steps is obtained by raising the transition matrix to the n-th power, so T^5 for 5 steps.
+
+  Q26. A photo-editing app applies a 3x3 kernel [[0, -1, 0], [-1, 5, -1], [0, -1, 0]] to each pixel neighborhood. What visual effect does this produce?
+    [ ] Blurring the image
+    [*] Sharpening the image by enhancing edges
+    [ ] Converting the image to grayscale
+    [ ] Flipping the image horizontally
+    Explanation: This kernel is a sharpening filter. The center weight of 5 emphasizes the current pixel while the -1 weights subtract neighboring values, enhancing edges.
+
+  Q27. A recommendation engine represents users and movies as vectors. To find similar users, the system computes the cosine similarity using dot products. What linear algebra structure organizes all user ratings?
+    [ ] A linked list of movie titles
+    [*] A user-item rating matrix where rows are users and columns are movies
+    [ ] A scalar value per user
+    [ ] A binary tree of user preferences
+    Explanation: A user-item rating matrix stores all ratings, and row vectors represent each user's preferences, enabling similarity computations via dot products.
+
+  Q28. A robotics lab programs a robot arm that performs three sequential transformations: translate, rotate, then scale. To undo all three, the engineer needs to apply the inverse transformations. In what order?
+    [ ] Any order is fine since matrix multiplication is commutative
+    [ ] Only the rotation needs to be inverted
+    [ ] Translate inverse, rotate inverse, scale inverse (same order)
+    [*] Scale inverse, rotate inverse, translate inverse (reverse order)
+    Explanation: Matrix multiplication is not commutative, so undoing a sequence of transformations requires applying the inverses in reverse order.
+
+  Q29. A streaming service wants to compress a 1000x2000 user-preference matrix. An engineer applies SVD and keeps the top 50 singular values. Approximately how many values are stored in the compressed form?
+    [*] 50 * (1000 + 2000 + 1) = 150,050
+    [ ] 2,000,000 (unchanged)
+    [ ] 1000 * 2000 * 50 = 100,000,000
+    [ ] 50
+    Explanation: The rank-50 SVD stores 50 left singular vectors (1000 each), 50 singular values, and 50 right singular vectors (2000 each), totaling about 150,050 values versus 2 million.
+
+  Q30. A cybersecurity firm models network traffic between 8 servers using a weighted adjacency matrix W. They notice that W is not symmetric. What does this indicate?
+    [ ] The network has no connections
+    [*] Some traffic flows are unidirectional, meaning traffic from server i to j differs from j to i
+    [ ] The matrix has an error and should be corrected
+    [ ] All servers have the same traffic volume
+    Explanation: An asymmetric weight matrix indicates a directed graph where traffic from i to j is not necessarily the same as from j to i, which is common in real networks.
 
 --- Lesson 4.7: Applications in Computer Science (Flashcards) ---
 
@@ -1164,154 +1957,274 @@ Content for Applications in Computer Science is coming soon. Check back for deta
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 4.8: Applications in Economics (Summary) ---
 
   Key Concepts: Applications in Economics
-Key Concepts: Applications in Economics
-
-Content for Applications in Economics is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+If the external demand vector changes from d to d', and the consumption matrix stays the same, what is the new production vector?
+The Leontief inverse (I - C)^(-1) only needs to be computed once; any new demand d' is simply multiplied by it to get the new production vector.
+For the Leontief model with C = [[0.1, 0.3], [0.2, 0.1]], what is the matrix (I - C)?
+I - C subtracts C from the identity: [[1-0.1, 0-0.3], [0-0.2, 1-0.1]] = [[0.9, -0.3], [-0.2, 0.9]].
+What is an input-output model in economics?
+An input-output model describes inter-industry flows of goods and services using a matrix, showing how each sector's production feeds into others and final demand.
+What is the consumption matrix in the Leontief model?
+The consumption matrix C has entries showing inter-industry requirements: c_ij is the units of good i consumed per unit of good j produced.
+What is an equilibrium price vector?
+The equilibrium price vector satisfies all supply-demand equations simultaneously, meaning no market has excess supply or demand.
+What is the Leontief inverse?
+The Leontief inverse (I - C)^(-1) converts external demand into total production, accounting for all rounds of inter-industry consumption.
+What is a closed Leontief model?
+In a closed model, there is no external demand (d = 0), so (I - C)x = 0, and solutions represent the relative proportions of production.
+What is a productive economy in the context of the Leontief model?
+A productive economy has a consumption matrix where (I - C)^(-1) exists and is non-negative, ensuring that positive demand yields positive production.
+What is an exchange model in economics?
+An exchange model uses a stochastic matrix to describe how each participant distributes income among others, and equilibrium prices balance all exchanges.
+What is a multiplier effect in input-output analysis?
+The multiplier effect arises because increased demand in one sector triggers additional production in supplying sectors, amplifying the original demand change.
+What is the output multiplier for a given sector?
+The output multiplier for sector j is the sum of column j of (I - C)^(-1), showing total economy-wide production generated per unit of final demand in sector j.
+What is the Hawkins-Simon condition?
+The Hawkins-Simon condition states that all leading principal minors of (I - C) must be positive, ensuring the economy can meet any non-negative demand.
+Real-World Applications
+Example: What is a multiplier effect in input-output analysis?
+The multiplier effect arises because increased demand in one sector triggers additional production in supplying sectors, amplifying the original demand change.
+Example: What is the output multiplier for a given sector?
+The output multiplier for sector j is the sum of column j of (I - C)^(-1), showing total economy-wide production generated per unit of final demand in sector j.
+Example: An economic consulting firm compares two industries' multiplier effects. Industry A has an output multiplier of 2.1 and Industry B has 1.4. A government wants to maximize economic stimulus. Which industry should receive the investment?
+A higher output multiplier means more total economic activity per dollar of final demand, making Industry A the better target for stimulus investment.
+Example: A regional planning agency uses a five-sector Leontief model. After computing (I - C)^(-1), the agency wants to know the total economic impact of building a new hospital (which increases health sector demand by $50 million). How is this computed?
+The impact is found by multiplying the Leontief inverse by the incremental demand vector, which has $50M in the health sector position and zeros elsewhere.
+Example: An economics student examines a consumption matrix C and finds that one column sums to 1.1. She concludes the economy is not productive. Why is she correct?
+A column sum greater than 1 means that sector requires more than one unit of total input to produce one unit of output, making the economy unsustainable.
 
 --- Lesson 4.8: Applications in Economics (Quiz) ---
 
-  Q1. Sample question 1 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Applications in Economics.
+  Q1. In the Leontief input-output model, the equation x = Cx + d is solved for total production x. What does d represent?
+    [ ] The total production vector
+    [ ] The consumption matrix
+    [*] The external (final) demand vector
+    [ ] The profit margin for each sector
+    Explanation: In the Leontief model, d is the external demand that must be satisfied after inter-industry consumption is accounted for.
 
-  Q2. Sample question 2 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Applications in Economics.
+  Q2. In a two-sector economy, if sector 1 uses 0.2 of its own output and 0.3 of sector 2's output per unit produced, which row of the consumption matrix contains these values?
+    [ ] Neither row; they appear in the demand vector
+    [*] The first row
+    [ ] The diagonal only
+    [ ] The second row
+    Explanation: Row 1 of the consumption matrix shows how much of each sector's output is consumed by sector 1: 0.2 from itself and 0.3 from sector 2.
 
-  Q3. Sample question 3 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Applications in Economics.
+  Q3. What must be true about the consumption matrix C for the Leontief model to have a meaningful solution?
+    [ ] C must be the identity matrix
+    [ ] All entries of C must be negative
+    [ ] C must be a diagonal matrix
+    [*] (I - C) must be invertible and the column sums of C must be less than 1
+    Explanation: For a productive economy, each sector must consume less than it produces; column sums less than 1 ensure (I - C) is invertible with a non-negative inverse.
 
-  Q4. Sample question 4 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Applications in Economics.
+  Q4. In a simple supply-demand equilibrium model with n goods, the equilibrium prices can be found by solving which type of equation?
+    [ ] A quadratic equation
+    [ ] A single polynomial of degree n
+    [ ] A differential equation
+    [*] A system of linear equations Ap = b
+    Explanation: Linear supply and demand functions for multiple goods lead to a system of linear equations whose solution gives the equilibrium price vector.
 
-  Q5. Sample question 5 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Applications in Economics.
+  Q5. The Leontief inverse (I - C)^(-1) is also called what?
+    [ ] The identity matrix
+    [*] The total requirements matrix
+    [ ] The demand matrix
+    [ ] The profit matrix
+    Explanation: The Leontief inverse is called the total requirements matrix because entry (i,j) gives the total output sector i must produce per unit of final demand in sector j.
 
-  Q6. Sample question 6 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Applications in Economics.
+  Q6. In portfolio optimization, the covariance matrix of asset returns is used to measure what?
+    [ ] The number of shares outstanding
+    [ ] The average return of each asset
+    [ ] The tax rate on capital gains
+    [*] The risk and co-movement between different assets
+    Explanation: The covariance matrix captures how asset returns vary together, which is essential for measuring and minimizing portfolio risk.
 
-  Q7. Sample question 7 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Applications in Economics.
+  Q7. If the external demand vector changes from d to d', and the consumption matrix stays the same, what is the new production vector?
+    [ ] x' = C * d'
+    [ ] x' = (I + C) * d'
+    [ ] x' = d' - C
+    [*] x' = (I - C)^(-1) * d'
+    Explanation: The Leontief inverse (I - C)^(-1) only needs to be computed once; any new demand d' is simply multiplied by it to get the new production vector.
 
-  Q8. Sample question 8 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Applications in Economics.
+  Q8. In a linear exchange model (trade model), what does the matrix of trade coefficients represent?
+    [*] The fraction of each country's income spent on goods from each other country
+    [ ] The currency exchange rates
+    [ ] The geographic distance between trading countries
+    [ ] The population of each country
+    Explanation: Trade coefficients model spending patterns: each entry shows what fraction of one country's income goes to purchasing goods from another.
 
-  Q9. Sample question 9 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Applications in Economics.
+  Q9. For the Leontief model with C = [[0.1, 0.3], [0.2, 0.1]], what is the matrix (I - C)?
+    [ ] [[0.9, 0.3], [0.2, 0.9]]
+    [ ] [[1.1, 0.3], [0.2, 1.1]]
+    [ ] [[0.1, 0.3], [0.2, 0.1]]
+    [*] [[0.9, -0.3], [-0.2, 0.9]]
+    Explanation: I - C subtracts C from the identity: [[1-0.1, 0-0.3], [0-0.2, 1-0.1]] = [[0.9, -0.3], [-0.2, 0.9]].
 
-  Q10. Sample question 10 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Applications in Economics.
+  Q10. In economics, a linear programming problem can be expressed in matrix form as maximizing c^T x subject to Ax <= b. What does x represent?
+    [ ] The resource limits
+    [ ] The objective function coefficients
+    [*] The decision variables (quantities to be optimized)
+    [ ] The constraint coefficients
+    Explanation: In linear programming, x is the vector of decision variables (e.g., production quantities) that the optimizer adjusts to maximize the objective.
 
-  Q11. Sample question 11 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Applications in Economics.
+  Q11. What is an input-output model in economics?
+    [ ] A model that measures only imports and exports
+    [ ] A model that converts physical goods into monetary values
+    [ ] A model that tracks keyboard inputs and screen outputs
+    [*] A mathematical framework using matrices to describe how the output of each industry is distributed among other industries and final consumers
+    Explanation: An input-output model describes inter-industry flows of goods and services using a matrix, showing how each sector's production feeds into others and final demand.
 
-  Q12. Sample question 12 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Applications in Economics.
+  Q12. What is the consumption matrix in the Leontief model?
+    [ ] A matrix of tax rates applied to each sector
+    [ ] The inverse of the production vector
+    [ ] A matrix that lists consumer spending habits by age group
+    [*] A non-negative matrix C where entry c_ij represents the amount of sector i's output needed to produce one unit of sector j's output
+    Explanation: The consumption matrix C has entries showing inter-industry requirements: c_ij is the units of good i consumed per unit of good j produced.
 
-  Q13. Sample question 13 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Applications in Economics.
+  Q13. What is an equilibrium price vector?
+    [ ] A vector where all prices are equal
+    [ ] A vector of the highest prices consumers are willing to pay
+    [ ] A vector of prices set by the government
+    [*] A vector of prices at which supply equals demand for every good in the market simultaneously
+    Explanation: The equilibrium price vector satisfies all supply-demand equations simultaneously, meaning no market has excess supply or demand.
 
-  Q14. Sample question 14 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Applications in Economics.
+  Q14. What is the Leontief inverse?
+    [*] The matrix (I - C)^(-1), which gives total production requirements per unit of final demand
+    [ ] The determinant of (I - C)
+    [ ] The inverse of the consumption matrix C
+    [ ] The transpose of the identity matrix minus C
+    Explanation: The Leontief inverse (I - C)^(-1) converts external demand into total production, accounting for all rounds of inter-industry consumption.
 
-  Q15. Sample question 15 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Applications in Economics.
+  Q15. What is a closed Leontief model?
+    [ ] A model where the economy is closed to international trade
+    [ ] A model where C is the zero matrix
+    [ ] A model that has been discontinued or shut down
+    [*] A model where all output is consumed internally with no external demand, leading to the equation (I - C)x = 0
+    Explanation: In a closed model, there is no external demand (d = 0), so (I - C)x = 0, and solutions represent the relative proportions of production.
 
-  Q16. Sample question 16 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Applications in Economics.
+  Q16. What is a productive economy in the context of the Leontief model?
+    [*] An economy whose consumption matrix C allows (I - C)^(-1) to exist with all non-negative entries, meaning any demand can be met
+    [ ] An economy where workers are highly efficient following conventional understanding
+    [ ] An economy with GDP growth above 5%, particularly regarding leontief when applying fundamental principles
+    [ ] An economy with no imports, particularly regarding context when evaluated systematically
+    Explanation: A productive economy has a consumption matrix where (I - C)^(-1) exists and is non-negative, ensuring that positive demand yields positive production.
 
-  Q17. Sample question 17 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Applications in Economics.
+  Q17. What is an exchange model in economics?
+    [*] A linear algebra model where groups trade goods or services, and the exchange proportions are encoded in a stochastic matrix
+    [ ] A barter system without any mathematical structure
+    [ ] A model of currency exchange rates between countries
+    [ ] A stock exchange pricing algorithm
+    Explanation: An exchange model uses a stochastic matrix to describe how each participant distributes income among others, and equilibrium prices balance all exchanges.
 
-  Q18. Sample question 18 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Applications in Economics.
+  Q18. What is a multiplier effect in input-output analysis?
+    [ ] The result of doubling the workforce in all sectors
+    [ ] The process of scaling all prices by a constant factor
+    [*] The phenomenon where a one-unit increase in final demand causes a larger-than-one-unit increase in total production due to inter-industry requirements
+    [ ] The effect of multiplying two consumption matrices
+    Explanation: The multiplier effect arises because increased demand in one sector triggers additional production in supplying sectors, amplifying the original demand change.
 
-  Q19. Sample question 19 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Applications in Economics.
+  Q19. What is the output multiplier for a given sector?
+    [ ] The ratio of exports to imports for that sector following conventional understanding
+    [*] The sum of entries in the corresponding column of the Leontief inverse, representing total production stimulated per unit of demand in that sector
+    [ ] The largest eigenvalue of the production matrix under normal circumstances
+    [ ] The determinant of the consumption matrix, particularly regarding output within the typical range of values
+    Explanation: The output multiplier for sector j is the sum of column j of (I - C)^(-1), showing total economy-wide production generated per unit of final demand in sector j.
 
-  Q20. Sample question 20 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Applications in Economics.
+  Q20. What is the Hawkins-Simon condition?
+    [ ] A requirement that the demand vector has no zero entries
+    [ ] A condition requiring all eigenvalues of C to be real
+    [ ] A condition that limits the number of sectors to 10
+    [*] A set of conditions on (I - C) ensuring all leading principal minors are positive, guaranteeing a non-negative Leontief inverse
+    Explanation: The Hawkins-Simon condition states that all leading principal minors of (I - C) must be positive, ensuring the economy can meet any non-negative demand.
+
+  Q21. A government economist models a three-sector economy (agriculture, manufacturing, services) with consumption matrix C. She increases the external demand for manufacturing by 10 million dollars. Using the Leontief inverse, she finds that total economy-wide production rises by 28 million dollars. What does this illustrate?
+    [*] The multiplier effect, where inter-industry demand amplifies the initial demand increase
+    [ ] The determinant of C equals 2.8
+    [ ] That the economy is not productive
+    [ ] An error in the model since production cannot exceed demand
+    Explanation: The 2.8x multiplier arises because manufacturing's increased production requires more inputs from agriculture and services, which in turn need more inputs themselves.
+
+  Q22. A developing nation has two sectors: mining and refining. The consumption matrix is C = [[0.2, 0.4], [0.3, 0.1]]. An advisor checks whether the economy is productive. What should she verify?
+    [ ] That the determinant of C equals zero
+    [ ] That C is symmetric
+    [ ] That all entries of C are greater than 1
+    [*] That each column sum of C is less than 1, ensuring (I - C)^(-1) has non-negative entries
+    Explanation: Column sums of 0.5 and 0.5 are both less than 1, confirming each sector consumes less than it produces and the economy is productive.
+
+  Q23. A financial analyst builds a portfolio of four assets. She sets up the system Sigma * w = mu * 1, where Sigma is the 4x4 covariance matrix, w is the weight vector, and mu is a target return. What linear algebra operation finds the weights?
+    [ ] Computing the trace of Sigma
+    [ ] Taking the transpose of Sigma
+    [*] Computing w = Sigma^(-1) * (mu * 1) using the inverse of the covariance matrix
+    [ ] Setting w equal to the eigenvalues of Sigma
+    Explanation: Inverting the covariance matrix and multiplying by the target return vector yields the optimal portfolio weights under the mean-variance framework.
+
+  Q24. Three countries trade goods, each spending fixed fractions of income on imports. The exchange matrix is stochastic. An economist finds the equilibrium price vector p satisfying Ap = p. What does this equation represent?
+    [ ] p is the inverse of A, particularly regarding this based on established principles
+    [ ] p is the zero vector, particularly regarding does when evaluated systematically
+    [ ] p is the determinant of A, particularly regarding stochastic in most
+    [*] p is an eigenvector of A corresponding to eigenvalue 1, representing balanced trade prices
+    Explanation: The equilibrium condition Ap = p means p is an eigenvector for eigenvalue 1 of the stochastic exchange matrix, ensuring balanced trade flows.
+
+  Q25. A city planner models water, electricity, and transportation as interdependent sectors. She finds the Leontief inverse and reads that entry (1,3) = 0.45. What does this mean?
+    [ ] Sector 3 consumes 0.45 units of sector 1's output directly when applying fundamental principles
+    [ ] The determinant of (I - C) is 0.45, particularly regarding that as typically measured in practice
+    [ ] 45% of sector 1's revenue comes from sector 3 under equilibrium conditions
+    [*] For every additional unit of final demand in sector 3, sector 1 must produce a total of 0.45 additional units (including indirect effects)
+    Explanation: Entry (i,j) of the Leontief inverse gives the total (direct plus indirect) output required from sector i per unit of final demand in sector j.
+
+  Q26. An economic consulting firm compares two industries' multiplier effects. Industry A has an output multiplier of 2.1 and Industry B has 1.4. A government wants to maximize economic stimulus. Which industry should receive the investment?
+    [*] Industry A, because each dollar of demand generates 2.1 dollars of total production versus 1.4 for B
+    [ ] Industry B, because smaller multipliers indicate efficiency
+    [ ] Both equally, because multipliers cancel out
+    [ ] Neither, because multipliers do not affect policy decisions
+    Explanation: A higher output multiplier means more total economic activity per dollar of final demand, making Industry A the better target for stimulus investment.
+
+  Q27. A professor assigns students a two-sector economy with C = [[0.5, 0.2], [0.4, 0.3]]. A student claims the economy is productive. Is she correct?
+    [*] Yes, because both column sums (0.9 and 0.5) are less than 1, satisfying the productivity condition
+    [ ] No, because the determinant of C is negative
+    [ ] Yes, because all entries of C are positive
+    [ ] No, because the column sums (0.9 and 0.5) must all be strictly less than 1, and while they are, we also need to verify (I - C) is invertible
+    Explanation: Column 1 sums to 0.9 and column 2 sums to 0.5, both strictly less than 1, satisfying the sufficient condition for a productive economy.
+
+  Q28. A trade economist models exports among four Pacific Rim nations using an exchange matrix E. She discovers that the system (I - E)p = 0 has a nontrivial solution. What does this tell her?
+    [ ] There is no equilibrium price vector
+    [ ] All nations must set prices to zero
+    [*] An equilibrium price vector exists (unique up to a scalar multiple), representing balanced trade among the nations
+    [ ] The exchange model is broken and should be discarded
+    Explanation: A nontrivial solution to (I - E)p = 0 means a non-zero equilibrium price vector exists, determined up to a constant multiplier, balancing all trade flows.
+
+  Q29. A regional planning agency uses a five-sector Leontief model. After computing (I - C)^(-1), the agency wants to know the total economic impact of building a new hospital (which increases health sector demand by $50 million). How is this computed?
+    [ ] Divide $50 million by the number of sectors
+    [*] Multiply (I - C)^(-1) by a demand change vector with $50 million in the health sector entry and zeros elsewhere
+    [ ] Add $50 million to every entry of the demand vector
+    [ ] Multiply $50 million by the determinant of (I - C)
+    Explanation: The impact is found by multiplying the Leontief inverse by the incremental demand vector, which has $50M in the health sector position and zeros elsewhere.
+
+  Q30. An economics student examines a consumption matrix C and finds that one column sums to 1.1. She concludes the economy is not productive. Why is she correct?
+    [ ] Because 1.1 is not an integer, particularly regarding column under normal circumstances
+    [*] Because a column sum exceeding 1 means that sector consumes more inputs than it produces, violating the productivity condition
+    [ ] Because column sums must equal exactly 1 when measured under controlled conditions
+    [ ] Because the determinant must be 1.1, particularly regarding unit when evaluated systematically
+    Explanation: A column sum greater than 1 means that sector requires more than one unit of total input to produce one unit of output, making the economy unsustainable.
 
 --- Lesson 4.8: Applications in Economics (Flashcards) ---
 
@@ -1329,3 +2242,18 @@ Content for Applications in Economics is coming soon. Check back for detailed no
 
   5. Q: 
      A: 
+
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A:

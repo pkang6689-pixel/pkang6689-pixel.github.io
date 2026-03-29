@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Calorimetry Lab</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group select,.ctrl-group input[type=range]{accent-color:#f59e0b;background:#1e293b;color:#f1f5f9;border:1px solid #334155;border-radius:.4rem;padding:.3rem;font-size:.8rem}
+    .ctrl-group input[type=range]{width:140px}
+    .ctrl-group .val{font-size:.8rem;color:#fbbf24;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#ef4444,#f97316);color:white;transition:filter .2s}
+    .action-btn:hover{filter:brightness(1.1)}
+    .readout{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#fbbf24}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#fbbf24;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🔥 Calorimetry Lab</h1>
+  <p class="subtitle">Measure heat transfer between substances using Q = mcΔT.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Substance</label>
+      <select id="substance" onchange="reset()"><option value="water">Water (c=4.18)</option><option value="iron">Iron (c=0.45)</option><option value="copper">Copper (c=0.39)</option><option value="aluminum">Aluminum (c=0.90)</option></select></div>
+    <div class="ctrl-group"><label>Mass (g)</label>
+      <input type="range" id="mass" min="50" max="500" value="200" oninput="document.getElementById('mass-val').textContent=this.value+'g'"><span class="val" id="mass-val">200g</span></div>
+    <div class="ctrl-group"><label>Initial Temp (°C)</label>
+      <input type="range" id="initT" min="5" max="50" value="20" oninput="document.getElementById('initT-val').textContent=this.value+'°C'"><span class="val" id="initT-val">20°C</span></div>
+    <div class="ctrl-group"><label>Heat Source (W)</label>
+      <input type="range" id="power" min="50" max="500" value="200" oninput="document.getElementById('power-val').textContent=this.value+'W'"><span class="val" id="power-val">200W</span></div>
+    <button class="action-btn" onclick="startHeat()">🔥 Heat</button>
+    <button class="action-btn" style="background:#3b82f6" onclick="reset()">Reset</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Temperature: <strong id="temp-now">20.0°C</strong></div>
+    <div class="datum">ΔT: <strong id="delta-t">0.0°C</strong></div>
+    <div class="datum">Q (absorbed): <strong id="q-val">0 J</strong></div>
+    <div class="datum">Time: <strong id="time-val">0.0 s</strong></div>
+  </div>
+  <div class="info-box"><h3>Calorimetry — Q = mcΔT</h3><p>Calorimetry measures heat transferred during a physical or chemical process. The heat (Q) absorbed or released equals the mass (m) × specific heat capacity (c) × change in temperature (ΔT). Different materials absorb heat at different rates — water has a very high specific heat (4.18 J/g·°C) compared to metals.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0;
+  var specs={water:4.18,iron:0.45,copper:0.39,aluminum:0.90};
+  var colors={water:'#3b82f6',iron:'#94a3b8',copper:'#f97316',aluminum:'#a1a1aa'};
+  var heating=false,currentT=20,startT=20,elapsed=0,totalQ=0;
+  var bubbles=[],steam=[],history=[];
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.reset=function(){heating=false;currentT=parseInt(document.getElementById('initT').value);startT=currentT;elapsed=0;totalQ=0;bubbles=[];steam=[];history=[];upReadout()};
+  window.startHeat=function(){if(!heating){startT=currentT;elapsed=0;totalQ=0;heating=true}};
+  function upReadout(){
+    document.getElementById('temp-now').textContent=currentT.toFixed(1)+'°C';
+    document.getElementById('delta-t').textContent=(currentT-parseInt(document.getElementById('initT').value)).toFixed(1)+'°C';
+    document.getElementById('q-val').textContent=Math.round(totalQ)+' J';
+    document.getElementById('time-val').textContent=elapsed.toFixed(1)+' s';
+  }
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    var sub=document.getElementById('substance').value;
+    var mass=parseInt(document.getElementById('mass').value);
+    var power=parseInt(document.getElementById('power').value);
+    var c=specs[sub];
+    if(heating&&currentT<200){
+      elapsed+=0.05;
+      var dQ=power*0.05;totalQ+=dQ;
+      currentT+=dQ/(mass*c);
+      upReadout();
+      if(Math.floor(elapsed*10)%3===0)history.push({t:elapsed,T:currentT});
+      if(history.length>300)history.shift();
+    }
+    // Beaker with gradient outline
+    var bx=w*0.25,by=h*0.12,bw=w*0.4,bh=h*0.52;
+    ctx.strokeStyle='#475569';ctx.lineWidth=3;ctx.strokeRect(bx,by,bw,bh);
+    // Pour spout
+    ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx-8,by-5);ctx.stroke();
+    // Liquid with vertical gradient (hotter at bottom)
+    var fillH=bh*0.75;var fillY=by+bh-fillH;
+    var heatFrac=Math.min((currentT-5)/195,1);
+    var liqGrad=ctx.createLinearGradient(0,fillY,0,by+bh);
+    var r1=Math.round(59+heatFrac*190),g1=Math.round(130-heatFrac*100),b1=Math.round(246-heatFrac*200);
+    liqGrad.addColorStop(0,'rgba('+r1+','+g1+','+b1+',0.25)');
+    liqGrad.addColorStop(1,'rgba('+Math.min(r1+40,255)+','+(Math.max(g1-30,0))+','+(Math.max(b1-50,20))+',0.5)');
+    ctx.fillStyle=liqGrad;ctx.fillRect(bx+3,fillY,bw-6,fillH-3);
+    // Liquid surface shimmer
+    ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(bx+3,fillY);
+    for(var sx=bx+3;sx<bx+bw-3;sx+=8){ctx.lineTo(sx,fillY+Math.sin(t*3+sx*0.05)*2);}
+    ctx.stroke();
+    // Substance label on beaker
+    ctx.fillStyle='rgba(148,163,184,0.5)';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText(sub.charAt(0).toUpperCase()+sub.slice(1)+' ('+mass+'g)',bx+bw/2,by+bh*0.15);
+    ctx.font='9px Poppins';ctx.fillText('c = '+c+' J/g·°C',bx+bw/2,by+bh*0.25);
+    // Thermometer (better styled)
+    var tx=bx+bw+50,tbot=by+bh,ttop=by,tH=tbot-ttop;
+    // Thermometer bulb
+    ctx.fillStyle='#1e293b';ctx.strokeStyle='#475569';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(tx,tbot+10,10,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(tx,tbot+10,7,0,Math.PI*2);ctx.fill();
+    // Thermometer tube
+    ctx.fillStyle='#1e293b';ctx.fillRect(tx-6,ttop,12,tH);
+    ctx.strokeStyle='#475569';ctx.strokeRect(tx-6,ttop,12,tH);
+    var mercH=tH*Math.min((currentT-5)/195,1);
+    var mercGrad=ctx.createLinearGradient(0,tbot-mercH,0,tbot);
+    mercGrad.addColorStop(0,'#ef4444');mercGrad.addColorStop(1,'#dc2626');
+    ctx.fillStyle=mercGrad;ctx.fillRect(tx-4,tbot-mercH,8,mercH);
+    // Mercury glow at top
+    if(mercH>5){
+      ctx.fillStyle='rgba(239,68,68,0.3)';ctx.beginPath();ctx.arc(tx,tbot-mercH,8,0,Math.PI*2);ctx.fill();
+    }
+    // Scale markings
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='left';
+    for(var deg=0;deg<=200;deg+=25){
+      var yy=tbot-tH*(deg/200);
+      ctx.fillRect(tx+8,yy,deg%50===0?6:3,1);
+      if(deg%50===0)ctx.fillText(deg+'°C',tx+17,yy+3);
+    }
+    // Current temp indicator
+    var curY=tbot-tH*Math.min((currentT-5)/195,1);
+    ctx.fillStyle='#fbbf24';ctx.font='bold 10px Poppins';
+    ctx.fillText('◀ '+currentT.toFixed(1)+'°',tx+17,curY+3);
+    // Bunsen burner (better flame)
+    var flameX=bx+bw/2,burnerTop=by+bh+5;
+    // Burner base
+    ctx.fillStyle='#475569';ctx.fillRect(flameX-15,burnerTop+25,30,8);
+    ctx.fillStyle='#334155';ctx.fillRect(flameX-6,burnerTop+5,12,22);
+    if(heating){
+      // Outer flame (orange/yellow)
+      for(var f=0;f<8;f++){
+        var fx=flameX+(Math.random()-0.5)*20;
+        var fy=burnerTop-5+Math.random()*15;
+        var fr=6+Math.random()*10;
+        ctx.fillStyle='rgba(251,146,60,'+(0.15+Math.random()*0.2)+')';
+        ctx.beginPath();ctx.arc(fx,fy,fr,0,Math.PI*2);ctx.fill();
+      }
+      // Inner flame (blue cone)
+      ctx.fillStyle='rgba(96,165,250,0.6)';
+      ctx.beginPath();ctx.moveTo(flameX,burnerTop-8);ctx.lineTo(flameX-8,burnerTop+8);ctx.lineTo(flameX+8,burnerTop+8);ctx.closePath();ctx.fill();
+      // Inner core (white-blue)
+      ctx.fillStyle='rgba(186,230,253,0.5)';
+      ctx.beginPath();ctx.moveTo(flameX,burnerTop-2);ctx.lineTo(flameX-4,burnerTop+6);ctx.lineTo(flameX+4,burnerTop+6);ctx.closePath();ctx.fill();
+      // Heat waves rising
+      ctx.strokeStyle='rgba(251,191,36,0.1)';ctx.lineWidth=1;
+      for(var hw=0;hw<3;hw++){
+        var hwy=by+bh-hw*15-Math.sin(t*2+hw)*5;
+        ctx.beginPath();ctx.moveTo(bx+10,hwy);ctx.quadraticCurveTo(bx+bw/2,hwy-8+Math.sin(t*3+hw)*4,bx+bw-10,hwy);ctx.stroke();
+      }
+    }
+    // Bubbles when hot
+    if(currentT>70&&heating){
+      var bRate=currentT>100?0.4:0.15;
+      if(Math.random()<bRate)bubbles.push({x:bx+20+Math.random()*(bw-40),y:by+bh-10,r:1.5+Math.random()*3,speed:0.3+Math.random()*0.8});
+      for(var i=bubbles.length-1;i>=0;i--){
+        var bb=bubbles[i];bb.y-=bb.speed;bb.x+=Math.sin(t*2+i)*0.5;
+        if(bb.y<fillY){bubbles.splice(i,1);continue;}
+        ctx.fillStyle='rgba(255,255,255,0.15)';
+        ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.arc(bb.x,bb.y,bb.r,0,Math.PI*2);ctx.fill();ctx.stroke();
+      }
+      if(bubbles.length>60)bubbles.splice(0,10);
+    }
+    // Steam when T > 95°C
+    if(currentT>95){
+      if(Math.random()<0.3)steam.push({x:bx+10+Math.random()*(bw-20),y:fillY-5,r:3+Math.random()*4,life:80,vx:(Math.random()-0.5)*0.5});
+      for(var i=steam.length-1;i>=0;i--){
+        var s2=steam[i];s2.y-=0.6;s2.x+=s2.vx+Math.sin(t+i)*0.3;s2.r+=0.03;s2.life--;
+        if(s2.life<0){steam.splice(i,1);continue;}
+        var sa=Math.min(s2.life/80,1)*0.2;
+        ctx.fillStyle='rgba(226,232,240,'+sa+')';
+        ctx.beginPath();ctx.arc(s2.x,s2.y,s2.r,0,Math.PI*2);ctx.fill();
+      }
+      if(steam.length>50)steam.splice(0,10);
+      ctx.fillStyle='rgba(241,245,249,0.5)';ctx.font='bold 9px Poppins';ctx.textAlign='center';
+      ctx.fillText('STEAM',bx+bw/2,fillY-25);
+    }
+    // Q = mcΔT display on canvas
+    ctx.fillStyle='rgba(251,191,36,0.6)';ctx.font='bold 12px Poppins';ctx.textAlign='left';
+    ctx.fillText('Q = mcΔT',w*0.03,h*0.12);
+    ctx.font='10px Poppins';ctx.fillStyle='rgba(148,163,184,0.6)';
+    if(totalQ>0){
+      ctx.fillText('Q = '+mass+'g × '+c+' × '+(currentT-parseInt(document.getElementById('initT').value)).toFixed(1)+'°C',w*0.03,h*0.17);
+      ctx.fillText('Q = '+Math.round(totalQ)+' J',w*0.03,h*0.22);
+    }
+    // Heating curve chart (line over time)
+    var chartX=w*0.05,chartY=h*0.78,chartW=w*0.9,chartH=h*0.19;
+    // Chart background
+    ctx.fillStyle='rgba(15,23,42,0.5)';ctx.fillRect(chartX,chartY,chartW,chartH);
+    ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.strokeRect(chartX,chartY,chartW,chartH);
+    // Grid lines
+    ctx.strokeStyle='rgba(51,65,85,0.4)';ctx.setLineDash([2,4]);
+    for(var gl=0;gl<5;gl++){
+      var gy=chartY+chartH*gl/4;
+      ctx.beginPath();ctx.moveTo(chartX,gy);ctx.lineTo(chartX+chartW,gy);ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    // Y-axis labels
+    ctx.fillStyle='#64748b';ctx.font='8px Poppins';ctx.textAlign='right';
+    for(var tl=0;tl<=200;tl+=50){
+      var tly=chartY+chartH-chartH*(tl/200);
+      ctx.fillText(tl+'°',chartX-4,tly+3);
+    }
+    // X-axis label
+    ctx.textAlign='center';ctx.fillText('Time (s)',chartX+chartW/2,chartY+chartH+14);
+    // Chart title
+    ctx.fillStyle='#94a3b8';ctx.font='bold 9px Poppins';
+    ctx.fillText('Heating Curve',chartX+chartW/2,chartY-4);
+    // Draw heating curve line
+    if(history.length>1){
+      var maxTime=Math.max(history[history.length-1].t,10);
+      ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.beginPath();
+      for(var hi=0;hi<history.length;hi++){
+        var hx=chartX+(history[hi].t/maxTime)*chartW;
+        var hy=chartY+chartH-Math.min((history[hi].T-5)/195,1)*chartH;
+        if(hi===0)ctx.moveTo(hx,hy);else ctx.lineTo(hx,hy);
+      }
+      ctx.stroke();
+      // Glow on current point
+      var lastH=history[history.length-1];
+      var lpx=chartX+(lastH.t/maxTime)*chartW;
+      var lpy=chartY+chartH-Math.min((lastH.T-5)/195,1)*chartH;
+      ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(lpx,lpy,4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(239,68,68,0.2)';ctx.beginPath();ctx.arc(lpx,lpy,8,0,Math.PI*2);ctx.fill();
+    }
+    t+=0.05;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

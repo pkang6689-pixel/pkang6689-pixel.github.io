@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Earth Science Lab</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: #0f172a; color: #f1f5f9; }
+    .sim-container { max-width: 1100px; margin: 5rem auto 2rem; padding: 1rem 2rem; }
+    h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.25rem; }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 1rem; }
+    .tabs { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap; }
+    .tab-btn { padding: 0.5rem 1.2rem; border-radius: 0.5rem; border: 1px solid #334155; background: #1e293b; color: #f1f5f9; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; }
+    .tab-btn.active { background: #3b82f6; border-color: #3b82f6; }
+    .tab-btn:hover { background: #334155; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .canvas-wrap { position: relative; background: #020617; border: 1px solid #334155; border-radius: 1rem; overflow: hidden; }
+    canvas { display: block; width: 100%; }
+    .info-box { margin-top: 1rem; background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; padding: 1rem 1.25rem; font-size: 0.85rem; color: #cbd5e1; line-height: 1.7; }
+    .info-box h3 { color: #67e8f9; margin: 0 0 0.5rem; font-size: 0.95rem; }
+    .controls-row { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
+    .ctrl-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #334155; background: #1e293b; color: #f1f5f9; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; }
+    .ctrl-btn:hover { background: #334155; }
+    .ctrl-btn.active { background: #3b82f6; border-color: #3b82f6; }
+    .layer-legend { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 0.75rem; font-size: 0.8rem; }
+    .layer-legend span { display: flex; align-items: center; gap: 4px; color: #94a3b8; }
+    .leg-box { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  </style>
+</head>
+<body class="dark-mode">
+  <script src="../scripts/taskbar.js"></script>
+  <div class="sim-container">
+    <h1>🌍 Earth Science Lab</h1>
+    <p class="subtitle">Explore tectonic plates, rock layers, and the water cycle.</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchES('plates', this)">🌋 Tectonic Plates</button>
+      <button class="tab-btn" onclick="switchES('layers', this)">🪨 Rock Layers</button>
+      <button class="tab-btn" onclick="switchES('water', this)">💧 Water Cycle</button>
+    </div>
+
+    <!-- TECTONIC PLATES -->
+    <div class="panel active" id="es-plates">
+      <div class="canvas-wrap"><canvas id="plates-canvas" height="400"></canvas></div>
+      <div class="controls-row">
+        <button class="ctrl-btn active" id="btn-convergent" onclick="setPlateMode('convergent', this)">🏔️ Convergent</button>
+        <button class="ctrl-btn" id="btn-divergent" onclick="setPlateMode('divergent', this)">↔️ Divergent</button>
+        <button class="ctrl-btn" id="btn-transform" onclick="setPlateMode('transform', this)">⇔ Transform</button>
+        <button class="ctrl-btn" onclick="animatePlates()">▶ Animate</button>
+      </div>
+      <div class="info-box" id="plates-info">
+        <h3>🏔️ Convergent Boundary</h3>
+        Two plates move toward each other. When an oceanic plate meets a continental plate, the denser oceanic plate subducts beneath. This creates deep ocean trenches, volcanic arcs, and earthquakes. Example: the Andes Mountains.
+      </div>
+    </div>
+
+    <!-- ROCK LAYERS -->
+    <div class="panel" id="es-layers">
+      <div class="canvas-wrap"><canvas id="layers-canvas" height="420"></canvas></div>
+      <div class="layer-legend" id="rock-legend"></div>
+      <div class="info-box" id="layers-info">
+        <h3>🪨 Earth's Rock Layers</h3>
+        Click on a layer to learn about it. The Earth is made of distinct layers with different compositions and properties.
+      </div>
+    </div>
+
+    <!-- WATER CYCLE -->
+    <div class="panel" id="es-water">
+      <div class="canvas-wrap"><canvas id="water-canvas" height="400"></canvas></div>
+      <div class="info-box">
+        <h3>💧 The Water Cycle (Hydrological Cycle)</h3>
+        Water continuously moves through the environment: evaporation from oceans and lakes, condensation into clouds, precipitation as rain or snow, and collection in rivers, groundwater, and oceans. Solar energy drives this cycle. Click on any stage to learn more.
+      </div>
+    </div>
+  </div>
+
+  <script>
+  window.switchES = function(tab, btn) {
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('es-' + tab).classList.add('active');
+    btn.classList.add('active');
+  };
+
+  // Auto-select tab from URL hash
+  (function() {
+    var hash = location.hash.replace('#', '');
+    if (hash) {
+      var panel = document.getElementById('es-' + hash);
+      if (panel) {
+        document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        panel.classList.add('active');
+        var btns = document.querySelectorAll('.tab-btn');
+        btns.forEach(function(b) { if (b.getAttribute('onclick').indexOf(hash) !== -1) b.classList.add('active'); });
+      }
+    }
+  })();
+
+  // ============ TECTONIC PLATES ============
+  (function() {
+    var canvas = document.getElementById('plates-canvas');
+    var ctx = canvas.getContext('2d');
+    var mode = 'convergent';
+    var animProgress = 0;
+    var animating = false, animId = null;
+
+    function resize() { canvas.width = canvas.parentElement.clientWidth; draw(); }
+    window.addEventListener('resize', resize);
+
+    var plateInfo = {
+      convergent: { title: '🏔️ Convergent Boundary', text: 'Two plates move toward each other. When an oceanic plate meets a continental plate, the denser oceanic plate subducts beneath. This creates deep ocean trenches, volcanic arcs, and earthquakes. Example: the Andes Mountains.' },
+      divergent: { title: '↔️ Divergent Boundary', text: 'Two plates move apart from each other. Magma rises to fill the gap, creating new crust. Found at mid-ocean ridges (e.g., Mid-Atlantic Ridge). Can also occur on land, forming rift valleys like the East African Rift.' },
+      transform: { title: '⇔ Transform Boundary', text: 'Two plates slide horizontally past each other. No crust is created or destroyed but friction causes earthquakes. Example: the San Andreas Fault in California.' }
+    };
+
+    window.setPlateMode = function(m, btn) {
+      mode = m;
+      animProgress = 0;
+      animating = false;
+      if (animId) cancelAnimationFrame(animId);
+      document.querySelectorAll('.controls-row .ctrl-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var info = plateInfo[m];
+      document.getElementById('plates-info').innerHTML = '<h3>' + info.title + '</h3>' + info.text;
+      draw();
+    };
+
+    window.animatePlates = function() {
+      if (animating) return;
+      animating = true;
+      animProgress = 0;
+      function step() {
+        animProgress = Math.min(1, animProgress + 0.008);
+        draw();
+        if (animProgress < 1) animId = requestAnimationFrame(step);
+        else animating = false;
+      }
+      step();
+    };
+
+    function draw() {
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      // Sky
+      var sky = ctx.createLinearGradient(0, 0, 0, H * 0.4);
+      sky.addColorStop(0, '#1e3a5f');
+      sky.addColorStop(1, '#0f172a');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, W, H * 0.4);
+
+      // Ocean
+      ctx.fillStyle = '#1e40af';
+      ctx.fillRect(0, H * 0.35, W, H * 0.1);
+
+      var mid = W / 2;
+      var offset = animProgress * 60;
+
+      if (mode === 'convergent') {
+        // Left plate (oceanic - moves right)
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(0, H * 0.4, mid - 20 + offset, H * 0.12);
+        // Right plate (continental - moves left)
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(mid + 20 - offset, H * 0.38, W, H * 0.14);
+        // Subduction zone
+        ctx.beginPath();
+        ctx.moveTo(mid - 20 + offset, H * 0.4);
+        ctx.quadraticCurveTo(mid, H * 0.65, mid - 80, H * 0.85);
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        // Mountain
+        if (animProgress > 0.3) {
+          var mh = animProgress * 60;
+          ctx.beginPath();
+          ctx.moveTo(mid - 40, H * 0.38);
+          ctx.lineTo(mid, H * 0.38 - mh);
+          ctx.lineTo(mid + 40, H * 0.38);
+          ctx.fillStyle = '#92400e';
+          ctx.fill();
+          // Snow cap
+          if (mh > 30) {
+            ctx.beginPath();
+            ctx.moveTo(mid - 12, H * 0.38 - mh + 15);
+            ctx.lineTo(mid, H * 0.38 - mh);
+            ctx.lineTo(mid + 12, H * 0.38 - mh + 15);
+            ctx.fillStyle = '#f1f5f9';
+            ctx.fill();
+          }
+        }
+        // Mantle beneath
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(0, H * 0.7, W, H * 0.3);
+        ctx.fillStyle = '#7f1d1d';
+        ctx.fillRect(0, H * 0.85, W, H * 0.15);
+        // Arrows
+        drawArrow(mid - 120, H * 0.46, mid - 50, H * 0.46, '#fbbf24');
+        drawArrow(mid + 120, H * 0.46, mid + 50, H * 0.46, '#fbbf24');
+      } else if (mode === 'divergent') {
+        // Plates moving apart
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(0, H * 0.4, mid - 30 - offset, H * 0.12);
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(mid + 30 + offset, H * 0.4, W, H * 0.12);
+        // Magma rising
+        var magmaH = animProgress * 80;
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(mid - 20, H * 0.52);
+        ctx.lineTo(mid, H * 0.52 - magmaH);
+        ctx.lineTo(mid + 20, H * 0.52);
+        ctx.fill();
+        // New crust
+        if (animProgress > 0.5) {
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(mid - 15, H * 0.4, 30, H * 0.12);
+        }
+        // Mantle
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(0, H * 0.7, W, H * 0.3);
+        // Arrows
+        drawArrow(mid - 40, H * 0.46, mid - 100 - offset, H * 0.46, '#fbbf24');
+        drawArrow(mid + 40, H * 0.46, mid + 100 + offset, H * 0.46, '#fbbf24');
+      } else { // transform
+        var shear = offset * 0.8;
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(0, H * 0.4 - 2, mid - 2, H * 0.12);
+        ctx.save();
+        ctx.translate(shear, 0);
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(0, H * 0.4 - 2, mid - 2, H * 0.12);
+        ctx.restore();
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(mid + 2, H * 0.4, W, H * 0.12);
+        ctx.save();
+        ctx.translate(-shear, 0);
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(mid + 2, H * 0.4, W, H * 0.12);
+        ctx.restore();
+        // Fault line
+        ctx.beginPath();
+        ctx.moveTo(mid, H * 0.35);
+        ctx.lineTo(mid, H * 0.55);
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // Mantle
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(0, H * 0.7, W, H * 0.3);
+        // Earthquake waves
+        if (animProgress > 0.3) {
+          for (var w = 0; w < 3; w++) {
+            ctx.beginPath();
+            ctx.arc(mid, H * 0.47, 20 + w * 25 + animProgress * 30, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(251,191,36,' + (0.4 - w * 0.12) + ')';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+        }
+        drawArrow(mid - 60, H * 0.36, mid - 120, H * 0.36, '#fbbf24');
+        drawArrow(mid + 60, H * 0.36, mid + 120, H * 0.36, '#fbbf24');
+      }
+
+      // Labels
+      ctx.font = 'bold 13px Poppins';
+      ctx.fillStyle = '#f1f5f9';
+      ctx.textAlign = 'center';
+      ctx.fillText(mode.charAt(0).toUpperCase() + mode.slice(1) + ' Boundary', mid, 25);
+    }
+
+    function drawArrow(x1, y1, x2, y2, color) {
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      var angle = Math.atan2(y2 - y1, x2 - x1);
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - 8 * Math.cos(angle - 0.4), y2 - 8 * Math.sin(angle - 0.4));
+      ctx.lineTo(x2 - 8 * Math.cos(angle + 0.4), y2 - 8 * Math.sin(angle + 0.4));
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
+    resize();
+  })();
+
+  // ============ ROCK LAYERS ============
+  (function() {
+    var canvas = document.getElementById('layers-canvas');
+    var ctx = canvas.getContext('2d');
+
+    var layers = [
+      { name: 'Atmosphere', color: '#1e3a5f', h: 0.08, desc: 'The gaseous envelope surrounding Earth. Contains nitrogen (78%), oxygen (21%), and trace gases. Protects life from harmful radiation.' },
+      { name: 'Crust (Continental)', color: '#a16207', h: 0.07, desc: 'The outermost solid layer, 30-70 km thick on continents. Composed mainly of granite and silicon-rich minerals. The thinnest layer.' },
+      { name: 'Crust (Oceanic)', color: '#334155', h: 0.05, desc: 'Oceanic crust is thinner (5-10 km) but denser than continental crust. Made primarily of basalt.' },
+      { name: 'Upper Mantle (Lithosphere)', color: '#92400e', h: 0.1, desc: 'The rigid upper mantle combined with the crust forms the lithosphere. Tectonic plates are pieces of the lithosphere. Extends to ~100 km depth.' },
+      { name: 'Asthenosphere', color: '#c2410c', h: 0.12, desc: 'A partially molten, ductile layer of the upper mantle (100-200 km). Tectonic plates float and move on this layer. Convection currents here drive plate tectonics.' },
+      { name: 'Lower Mantle', color: '#dc2626', h: 0.18, desc: 'Extends from ~660 km to ~2,900 km depth. Solid but flows slowly over geological time. Made of silicate minerals rich in iron and magnesium. Temperature: 1,000-3,700°C.' },
+      { name: 'Outer Core', color: '#f59e0b', h: 0.2, desc: 'A liquid layer of iron and nickel, 2,900-5,100 km deep. Its flowing motion generates Earth\'s magnetic field through the dynamo effect. Temperature: 4,400-6,100°C.' },
+      { name: 'Inner Core', color: '#fbbf24', h: 0.2, desc: 'A solid ball of iron and nickel at Earth\'s center. Despite temperatures of 5,200°C+, immense pressure keeps it solid. Radius: ~1,220 km.' },
+    ];
+
+    function resize() { canvas.width = canvas.parentElement.clientWidth; draw(); }
+    window.addEventListener('resize', resize);
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var y = 0;
+      layers.forEach(function(l) {
+        var lh = l.h * canvas.height;
+        ctx.fillStyle = l.color;
+        ctx.fillRect(0, y, canvas.width, lh);
+        // Label
+        ctx.font = '12px Poppins';
+        ctx.fillStyle = '#f1f5f9';
+        ctx.textAlign = 'center';
+        ctx.fillText(l.name, canvas.width / 2, y + lh / 2 + 4);
+        // Border
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, y + lh);
+        ctx.lineTo(canvas.width, y + lh);
+        ctx.stroke();
+        y += lh;
+      });
+    }
+
+    // Legend
+    var legend = document.getElementById('rock-legend');
+    layers.forEach(function(l) {
+      var s = document.createElement('span');
+      s.innerHTML = '<span class="leg-box" style="background:' + l.color + '"></span>' + l.name;
+      legend.appendChild(s);
+    });
+
+    // Click to learn
+    canvas.addEventListener('click', function(e) {
+      var rect = canvas.getBoundingClientRect();
+      var my = (e.clientY - rect.top) * (canvas.height / rect.height);
+      var y = 0;
+      for (var i = 0; i < layers.length; i++) {
+        var lh = layers[i].h * canvas.height;
+        if (my >= y && my < y + lh) {
+          document.getElementById('layers-info').innerHTML = '<h3>' + layers[i].name + '</h3>' + layers[i].desc;
+          break;
+        }
+        y += lh;
+      }
+    });
+
+    resize();
+  })();
+
+  // ============ WATER CYCLE ============
+  (function() {
+    var canvas = document.getElementById('water-canvas');
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var animId;
+
+    function resize() { canvas.width = canvas.parentElement.clientWidth; draw(); }
+    window.addEventListener('resize', resize);
+
+    // Create rain particles
+    function initParticles() {
+      particles = [];
+      for (var i = 0; i < 30; i++) {
+        particles.push({
+          x: Math.random() * canvas.width * 0.4 + canvas.width * 0.3,
+          y: Math.random() * canvas.height * 0.3 + canvas.height * 0.2,
+          vy: 1 + Math.random() * 2,
+          phase: 'rain'
+        });
+      }
+    }
+
+    function draw() {
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      // Sky gradient
+      var sky = ctx.createLinearGradient(0, 0, 0, H * 0.5);
+      sky.addColorStop(0, '#1e3a5f');
+      sky.addColorStop(1, '#0c4a6e');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, W, H * 0.5);
+
+      // Sun
+      ctx.beginPath();
+      ctx.arc(W * 0.85, H * 0.12, 30, 0, Math.PI * 2);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(W * 0.85, H * 0.12, 40, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(251,191,36,0.15)';
+      ctx.fill();
+
+      // Mountains
+      ctx.beginPath();
+      ctx.moveTo(W * 0.6, H * 0.5);
+      ctx.lineTo(W * 0.72, H * 0.25);
+      ctx.lineTo(W * 0.84, H * 0.5);
+      ctx.fillStyle = '#334155';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(W * 0.68, H * 0.5);
+      ctx.lineTo(W * 0.78, H * 0.3);
+      ctx.lineTo(W * 0.88, H * 0.5);
+      ctx.fillStyle = '#475569';
+      ctx.fill();
+      // Snow caps
+      ctx.beginPath();
+      ctx.moveTo(W * 0.72 - 8, H * 0.27);
+      ctx.lineTo(W * 0.72, H * 0.25);
+      ctx.lineTo(W * 0.72 + 8, H * 0.27);
+      ctx.fillStyle = '#f1f5f9';
+      ctx.fill();
+
+      // Ground
+      ctx.fillStyle = '#166534';
+      ctx.fillRect(0, H * 0.5, W, H * 0.08);
+
+      // Ocean / Lake
+      ctx.fillStyle = '#1d4ed8';
+      ctx.fillRect(0, H * 0.58, W * 0.55, H * 0.42);
+      // River
+      ctx.beginPath();
+      ctx.moveTo(W * 0.72, H * 0.5);
+      ctx.quadraticCurveTo(W * 0.65, H * 0.55, W * 0.55, H * 0.6);
+      ctx.strokeStyle = '#3b82f6';
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      // Underground
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(W * 0.55, H * 0.58, W * 0.45, H * 0.42);
+      // Ground water
+      ctx.fillStyle = 'rgba(59,130,246,0.3)';
+      ctx.fillRect(W * 0.55, H * 0.78, W * 0.45, H * 0.22);
+
+      // Clouds
+      drawCloud(W * 0.2, H * 0.12, 50);
+      drawCloud(W * 0.38, H * 0.08, 60);
+      drawCloud(W * 0.5, H * 0.15, 45);
+
+      // Evaporation arrows (wavy lines rising from water)
+      ctx.strokeStyle = 'rgba(96,165,250,0.5)';
+      ctx.lineWidth = 2;
+      for (var e = 0; e < 5; e++) {
+        var ex = W * 0.1 + e * W * 0.09;
+        ctx.beginPath();
+        for (var ey = 0; ey < 40; ey++) {
+          var yy = H * 0.56 - ey * 2;
+          var xx = ex + Math.sin(ey * 0.3 + Date.now() / 500 + e) * 4;
+          ey === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy);
+        }
+        ctx.stroke();
+      }
+
+      // Rain particles
+      ctx.fillStyle = '#60a5fa';
+      particles.forEach(function(p) {
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, 1.5, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Labels
+      ctx.font = 'bold 13px Poppins';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#93c5fd';
+      ctx.fillText('☀️ Evaporation', W * 0.22, H * 0.48);
+      ctx.fillText('☁️ Condensation', W * 0.38, H * 0.06);
+      ctx.fillText('🌧️ Precipitation', W * 0.42, H * 0.28);
+      ctx.fillText('💧 Collection', W * 0.25, H * 0.75);
+      ctx.fillText('🏔️ Runoff', W * 0.65, H * 0.48);
+      ctx.fillStyle = 'rgba(96,165,250,0.7)';
+      ctx.fillText('Groundwater', W * 0.75, H * 0.88);
+    }
+
+    function drawCloud(x, y, r) {
+      ctx.fillStyle = 'rgba(226,232,240,0.7)';
+      ctx.beginPath();
+      ctx.arc(x, y, r * 0.6, 0, Math.PI * 2);
+      ctx.arc(x + r * 0.4, y - r * 0.2, r * 0.5, 0, Math.PI * 2);
+      ctx.arc(x - r * 0.35, y - r * 0.1, r * 0.45, 0, Math.PI * 2);
+      ctx.arc(x + r * 0.2, y + r * 0.1, r * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function animate() {
+      particles.forEach(function(p) {
+        p.y += p.vy;
+        if (p.y > canvas.height * 0.58) {
+          p.y = canvas.height * 0.15 + Math.random() * canvas.height * 0.1;
+          p.x = Math.random() * canvas.width * 0.35 + canvas.width * 0.25;
+        }
+      });
+      draw();
+      animId = requestAnimationFrame(animate);
+    }
+
+    initParticles();
+    resize();
+    animate();
+  })();
+  </script>
+  <script src="../scripts/translation_loader.js" data-base="translations"></script>
+  <script src="../../search_data.js"></script>
+  <script src="../../search_logic.js"></script>
+</body>
+</html>

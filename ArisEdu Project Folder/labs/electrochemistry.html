@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Electrochemistry Lab</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group select,.ctrl-group input[type=range]{accent-color:#f59e0b;background:#1e293b;color:#f1f5f9;border:1px solid #334155;border-radius:.4rem;padding:.3rem;font-size:.8rem}
+    .ctrl-group input[type=range]{width:160px}
+    .ctrl-group .val{font-size:.8rem;color:#fbbf24;font-weight:600}
+    .readout{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#fbbf24}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#fbbf24;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🔋 Electrochemistry Lab</h1>
+  <p class="subtitle">Build galvanic and electrolytic cells. Watch electron flow and measure voltage.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Anode Metal</label>
+      <select id="anode" onchange="update()"><option value="Zn">Zinc (Zn)</option><option value="Fe">Iron (Fe)</option><option value="Al">Aluminum (Al)</option><option value="Mg">Magnesium (Mg)</option></select></div>
+    <div class="ctrl-group"><label>Cathode Metal</label>
+      <select id="cathode" onchange="update()"><option value="Cu">Copper (Cu)</option><option value="Ag">Silver (Ag)</option><option value="Au">Gold (Au)</option><option value="Pt">Platinum (Pt)</option></select></div>
+    <div class="ctrl-group"><label>Electrolyte Conc.</label>
+      <input type="range" id="conc" min="1" max="10" value="5" oninput="update()"><span class="val" id="conc-val">1.0 M</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Cell Voltage: <strong id="emf">1.10 V</strong></div>
+    <div class="datum">Current Flow: <strong id="current">Anode → Cathode</strong></div>
+    <div class="datum">Anode Reaction: <strong id="anode-rx">Zn → Zn²⁺ + 2e⁻</strong></div>
+    <div class="datum">Cathode Reaction: <strong id="cathode-rx">Cu²⁺ + 2e⁻ → Cu</strong></div>
+  </div>
+  <div class="info-box"><h3>Galvanic Cell</h3><p>A galvanic (voltaic) cell converts chemical energy to electrical energy. The more reactive metal (anode) loses electrons through oxidation, which flow through an external wire to the less reactive metal (cathode) where reduction occurs. A salt bridge completes the circuit by allowing ion flow.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0;
+  var potentials={Zn:-0.76,Fe:-0.44,Al:-1.66,Mg:-2.37,Cu:0.34,Ag:0.80,Au:1.50,Pt:1.18};
+  var ionColors={Zn:'#94a3b8',Fe:'#a3e635',Al:'#d1d5db',Mg:'#e2e8f0',Cu:'#3b82f6',Ag:'#e2e8f0',Au:'#fbbf24',Pt:'#d1d5db'};
+  var electrons=[],ions=[];
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.update=function(){
+    var a=document.getElementById('anode').value,c=document.getElementById('cathode').value;
+    var conc=parseInt(document.getElementById('conc').value);
+    document.getElementById('conc-val').textContent=(conc/5).toFixed(1)+' M';
+    var emf=(potentials[c]-potentials[a]).toFixed(2);
+    document.getElementById('emf').textContent=emf+' V';
+    document.getElementById('current').textContent=parseFloat(emf)>0?'Anode → Cathode':'Reversed';
+    document.getElementById('anode-rx').textContent=a+' → '+a+'²⁺ + 2e⁻';
+    document.getElementById('cathode-rx').textContent=c+'²⁺ + 2e⁻ → '+c;
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    var a=document.getElementById('anode').value,c=document.getElementById('cathode').value;
+    var conc2=parseInt(document.getElementById('conc').value);
+    var emf=Math.abs(potentials[c]-potentials[a]);
+    // Beakers
+    var bL=w*0.15,bR=w*0.55,bW=w*0.3,bH=h*0.45,bY=h*0.4;
+    // Left beaker (anode) with colored solution
+    ctx.strokeStyle='#64748b';ctx.lineWidth=2;
+    ctx.strokeRect(bL,bY,bW,bH);
+    var aAlpha=0.1+conc2*0.02;
+    ctx.fillStyle=ionColors[a].replace(')',','+aAlpha+')').replace('rgb','rgba').replace('#','');
+    ctx.fillStyle='rgba(59,130,246,'+aAlpha+')';
+    ctx.fillRect(bL+2,bY+bH*0.2,bW-4,bH*0.8-2);
+    // Right beaker (cathode) with colored solution
+    ctx.strokeRect(bR,bY,bW,bH);
+    var cAlpha=0.1+conc2*0.02;
+    ctx.fillStyle='rgba(251,146,60,'+cAlpha+')';
+    ctx.fillRect(bR+2,bY+bH*0.2,bW-4,bH*0.8-2);
+    // Anode electrode with glow
+    var anodeGlow=ctx.createRadialGradient(bL+bW*0.5,bY+bH*0.3,0,bL+bW*0.5,bY+bH*0.3,bW*0.2);
+    anodeGlow.addColorStop(0,'rgba(239,68,68,0.15)');anodeGlow.addColorStop(1,'rgba(239,68,68,0)');
+    ctx.fillStyle=anodeGlow;ctx.fillRect(bL+bW*0.2,bY,bW*0.6,bH*0.7);
+    ctx.fillStyle='#94a3b8';ctx.fillRect(bL+bW*0.4,bY-h*0.05,bW*0.2,bH*0.7);
+    // Cathode electrode with glow
+    var cathGlow=ctx.createRadialGradient(bR+bW*0.5,bY+bH*0.3,0,bR+bW*0.5,bY+bH*0.3,bW*0.2);
+    cathGlow.addColorStop(0,'rgba(34,197,94,0.15)');cathGlow.addColorStop(1,'rgba(34,197,94,0)');
+    ctx.fillStyle=cathGlow;ctx.fillRect(bR+bW*0.2,bY,bW*0.6,bH*0.7);
+    ctx.fillStyle='#f97316';ctx.fillRect(bR+bW*0.4,bY-h*0.05,bW*0.2,bH*0.7);
+    // Labels with oxidation/reduction
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 14px Poppins';ctx.textAlign='center';
+    ctx.fillText(a+' (Anode)',bL+bW/2,bY+bH+25);
+    ctx.fillText(c+' (Cathode)',bR+bW/2,bY+bH+25);
+    ctx.fillStyle='#ef4444';ctx.font='bold 16px Poppins';ctx.fillText('−',bL+bW/2,bY-h*0.07);
+    ctx.font='10px Poppins';ctx.fillText('OXIDATION',bL+bW/2,bY+bH+40);
+    ctx.fillStyle='#22c55e';ctx.font='bold 16px Poppins';ctx.fillText('+',bR+bW/2,bY-h*0.07);
+    ctx.font='10px Poppins';ctx.fillText('REDUCTION',bR+bW/2,bY+bH+40);
+    // Wire with glow
+    var wireY=bY-h*0.12;
+    ctx.strokeStyle='#475569';ctx.lineWidth=3;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(bL+bW*0.5,bY-h*0.05);ctx.lineTo(bL+bW*0.5,wireY);
+    ctx.lineTo(bR+bW*0.5,wireY);ctx.lineTo(bR+bW*0.5,bY-h*0.05);ctx.stroke();
+    // Wire glow when active
+    if(emf>0){
+      ctx.strokeStyle='rgba(251,191,36,0.15)';ctx.lineWidth=8;
+      ctx.beginPath();ctx.moveTo(bL+bW*0.5,wireY);ctx.lineTo(bR+bW*0.5,wireY);ctx.stroke();
+    }
+    // Voltmeter with glow
+    var vmX=w*0.5,vmY=wireY-25;
+    var vmGlow=ctx.createRadialGradient(vmX,vmY,0,vmX,vmY,30);
+    vmGlow.addColorStop(0,'rgba(251,191,36,0.2)');vmGlow.addColorStop(1,'rgba(251,191,36,0)');
+    ctx.fillStyle=vmGlow;ctx.beginPath();ctx.arc(vmX,vmY,30,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1e293b';ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(vmX,vmY,20,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#fbbf24';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText(emf.toFixed(2)+'V',vmX,vmY+4);
+    ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.fillText('VOLTMETER',vmX,vmY-25);
+    // Salt bridge with U-shape
+    ctx.fillStyle='rgba(148,163,184,0.25)';
+    ctx.beginPath();ctx.moveTo(bL+bW-5,bY+bH*0.25);
+    ctx.quadraticCurveTo(w*0.5,bY+bH*0.05,bR+5,bY+bH*0.25);
+    ctx.lineTo(bR+5,bY+bH*0.35);
+    ctx.quadraticCurveTo(w*0.5,bY+bH*0.15,bL+bW-5,bY+bH*0.35);ctx.fill();
+    ctx.strokeStyle='rgba(148,163,184,0.4)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(bL+bW-5,bY+bH*0.3);
+    ctx.quadraticCurveTo(w*0.5,bY+bH*0.1,bR+5,bY+bH*0.3);ctx.stroke();
+    ctx.fillStyle='rgba(148,163,184,0.7)';ctx.font='bold 10px Poppins';
+    ctx.fillText('Salt Bridge (KNO₃)',w*0.5,bY+bH*0.12);
+    // Ion movement in solutions
+    if(emf>0&&Math.random()<0.12){
+      // Cations leaving anode
+      ions.push({x:bL+bW*0.5,y:bY+bH*0.5,vx:(Math.random()-0.5)*1.5,vy:(Math.random()-0.5)*0.8,side:'L',life:120,type:'+'});
+      // Cations depositing on cathode
+      ions.push({x:bR+bW*0.3+Math.random()*bW*0.4,y:bY+bH*0.3+Math.random()*bH*0.4,vx:(Math.random()-0.5)*0.3,vy:0.3+Math.random()*0.3,side:'R',life:120,type:'+'});
+    }
+    for(var ii=ions.length-1;ii>=0;ii--){
+      var ion=ions[ii];ion.x+=ion.vx;ion.y+=ion.vy;ion.life--;
+      if(ion.life<0){ions.splice(ii,1);continue;}
+      // Keep within beakers
+      if(ion.side==='L'){
+        if(ion.x<bL+5)ion.vx=Math.abs(ion.vx);if(ion.x>bL+bW-5)ion.vx=-Math.abs(ion.vx);
+        if(ion.y<bY+bH*0.25)ion.vy=Math.abs(ion.vy);if(ion.y>bY+bH-5)ion.vy=-Math.abs(ion.vy);
+      }else{
+        if(ion.x<bR+5)ion.vx=Math.abs(ion.vx);if(ion.x>bR+bW-5)ion.vx=-Math.abs(ion.vx);
+        if(ion.y<bY+bH*0.25)ion.vy=Math.abs(ion.vy);if(ion.y>bY+bH-5)ion.vy=-Math.abs(ion.vy);
+      }
+      var ialpha=Math.min(ion.life/60,1)*0.7;
+      ctx.fillStyle=ion.type==='+'?'rgba(251,191,36,'+ialpha+')':'rgba(96,165,250,'+ialpha+')';
+      ctx.beginPath();ctx.arc(ion.x,ion.y,3,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,'+ialpha+')';ctx.font='bold 6px Poppins';ctx.textAlign='center';
+      ctx.fillText(ion.type,ion.x,ion.y+2);
+    }
+    if(ions.length>80)ions.splice(0,15);
+    // Electrons along wire
+    if(emf>0&&Math.random()<0.15){
+      electrons.push({x:bL+bW*0.5,y:bY-h*0.05,phase:0});
+    }
+    ctx.fillStyle='#fbbf24';
+    for(var i=electrons.length-1;i>=0;i--){
+      var e=electrons[i];e.phase+=0.02*emf;
+      if(e.phase<0.33){e.x=bL+bW*0.5;e.y=bY-h*0.05-(e.phase/0.33)*(bY-h*0.05-wireY);}
+      else if(e.phase<0.66){var p=(e.phase-0.33)/0.33;e.x=bL+bW*0.5+p*(bR-bL);e.y=wireY;}
+      else if(e.phase<1){var p2=(e.phase-0.66)/0.34;e.x=bR+bW*0.5;e.y=wireY+p2*(bY-h*0.05-wireY);}
+      else{electrons.splice(i,1);continue;}
+      ctx.beginPath();ctx.arc(e.x,e.y,3,0,Math.PI*2);ctx.fill();
+      // Electron trail glow
+      ctx.fillStyle='rgba(251,191,36,0.15)';ctx.beginPath();ctx.arc(e.x,e.y,6,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fbbf24';
+    }
+    if(electrons.length>30)electrons.splice(0,5);
+    // Electron flow direction label
+    if(emf>0){
+      ctx.fillStyle='rgba(251,191,36,0.6)';ctx.font='9px Poppins';ctx.textAlign='center';
+      ctx.fillText('e⁻ →',w*0.5,wireY-8);
+    }
+    t+=0.016;requestAnimationFrame(draw);
+  }
+  update();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

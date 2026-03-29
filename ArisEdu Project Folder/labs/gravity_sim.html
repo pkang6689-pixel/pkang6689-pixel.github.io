@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Gravity Simulator</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden;cursor:crosshair}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#f59e0b}
+    .ctrl-group .val{font-size:.8rem;color:#f59e0b;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0f172a}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#f59e0b}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🌍 N-Body Gravity Simulator</h1>
+  <p class="subtitle">Click to place bodies. Watch gravitational orbits emerge.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>New Body Mass</label>
+      <input type="range" id="mass" min="1" max="100" value="10" oninput="upd()"><span class="val" id="m-val">10</span></div>
+    <div class="ctrl-group"><label>G Strength</label>
+      <input type="range" id="grav" min="1" max="20" value="5" oninput="upd()"><span class="val" id="g-val">5</span></div>
+    <button class="action-btn" onclick="addCentral()">Add Central Star</button>
+    <button class="action-btn" style="background:#64748b;color:white" onclick="clearBodies()">Clear All</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Bodies: <strong id="nbodies">0</strong></div>
+    <div class="datum">Total KE: <strong id="ke">0</strong></div>
+    <div class="datum">Total PE: <strong id="pe">0</strong></div>
+  </div>
+  <div class="info-box"><h3>Gravity & Orbits</h3><p>Every body attracts every other body with force <strong>F = GMm/r²</strong>. With two bodies you get elliptical orbits (Kepler). With three or more, the system can be chaotic — no general analytical solution exists (the "three-body problem"). Click to place orbiting bodies around a central mass and watch complex gravitational dynamics unfold.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0;
+  var bodies=[],trails=[];
+  function resize(){cv.width=cv.parentElement.clientWidth;}
+  window.addEventListener('resize',resize);resize();
+  window.upd=function(){
+    document.getElementById('m-val').textContent=document.getElementById('mass').value;
+    document.getElementById('g-val').textContent=document.getElementById('grav').value;
+  };
+  window.addCentral=function(){
+    bodies.push({x:cv.width/2,y:cv.height/2,vx:0,vy:0,mass:200,r:12,color:'#fbbf24',trail:[]});
+  };
+  window.clearBodies=function(){bodies=[];};
+  var dragging=false,dragStart=null,dragEnd=null;
+  cv.addEventListener('mousedown',function(e){
+    var r=cv.getBoundingClientRect();
+    dragStart={x:(e.clientX-r.left)*(cv.width/r.width),y:(e.clientY-r.top)*(cv.height/r.height)};
+    dragging=true;
+  });
+  cv.addEventListener('mousemove',function(e){
+    if(!dragging)return;
+    var r=cv.getBoundingClientRect();
+    dragEnd={x:(e.clientX-r.left)*(cv.width/r.width),y:(e.clientY-r.top)*(cv.height/r.height)};
+  });
+  cv.addEventListener('mouseup',function(e){
+    if(!dragging)return;dragging=false;
+    var r=cv.getBoundingClientRect();
+    var ex=(e.clientX-r.left)*(cv.width/r.width),ey=(e.clientY-r.top)*(cv.height/r.height);
+    var mass2=parseInt(document.getElementById('mass').value);
+    var vx2=dragStart?(dragStart.x-ex)*0.05:0;
+    var vy2=dragStart?(dragStart.y-ey)*0.05:0;
+    bodies.push({x:dragStart.x,y:dragStart.y,vx:vx2,vy:vy2,mass:mass2,r:3+mass2*0.1,
+      color:'hsl('+(Math.random()*360)+',70%,60%)',trail:[]});
+    dragStart=null;dragEnd=null;
+  });
+  function draw(){
+    var w=cv.width,h=cv.height;
+    ctx.fillStyle='rgba(2,6,23,0.2)';ctx.fillRect(0,0,w,h);
+    t+=0.016;
+    var G=parseInt(document.getElementById('grav').value)*0.5;
+    // Subtle grid
+    if(t<0.02){
+      ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);
+      ctx.strokeStyle='#0f172a';ctx.lineWidth=0.3;
+      for(var gx=0;gx<w;gx+=40){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,h);ctx.stroke();}
+      for(var gy=0;gy<h;gy+=40){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(w,gy);ctx.stroke();}
+    }
+    // Physics step
+    var dt=0.5;
+    for(var i=0;i<bodies.length;i++){
+      var bi=bodies[i];
+      var ax=0,ay=0;
+      for(var j=0;j<bodies.length;j++){
+        if(i===j)continue;
+        var bj=bodies[j];
+        var dx=bj.x-bi.x,dy=bj.y-bi.y;
+        var dist2=dx*dx+dy*dy+100;
+        var dist3=Math.sqrt(dist2);
+        var force=G*bj.mass/dist2;
+        ax+=force*dx/dist3;
+        ay+=force*dy/dist3;
+      }
+      bi.vx+=ax*dt;bi.vy+=ay*dt;
+    }
+    // Update positions
+    for(var k=0;k<bodies.length;k++){
+      var bk=bodies[k];
+      bk.x+=bk.vx*dt;bk.y+=bk.vy*dt;
+      bk.trail.push({x:bk.x,y:bk.y});
+      if(bk.trail.length>150)bk.trail.shift();
+      if(bk.x<-50)bk.x=w+50;if(bk.x>w+50)bk.x=-50;
+      if(bk.y<-50)bk.y=h+50;if(bk.y>h+50)bk.y=-50;
+    }
+    // Draw trails with gradient fade
+    bodies.forEach(function(b){
+      if(b.trail.length<2)return;
+      for(var ti=1;ti<b.trail.length;ti++){
+        var alpha=(ti/b.trail.length)*0.3;
+        ctx.strokeStyle=b.color.replace('60%)',alpha*100+'%)').replace('hsl','hsla').replace(')',','+alpha+')');
+        ctx.lineWidth=0.5+ti/b.trail.length;
+        ctx.beginPath();ctx.moveTo(b.trail[ti-1].x,b.trail[ti-1].y);ctx.lineTo(b.trail[ti].x,b.trail[ti].y);ctx.stroke();
+      }
+    });
+    // Draw bodies with glow proportional to mass
+    bodies.forEach(function(b){
+      // Glow for all bodies
+      var glowR=b.r*(2+b.mass*0.02);
+      var gGrd=ctx.createRadialGradient(b.x,b.y,b.r*0.5,b.x,b.y,glowR);
+      gGrd.addColorStop(0,b.color+'25');gGrd.addColorStop(1,b.color+'00');
+      ctx.fillStyle=gGrd;ctx.beginPath();ctx.arc(b.x,b.y,glowR,0,Math.PI*2);ctx.fill();
+      // Body gradient
+      var bGrad=ctx.createRadialGradient(b.x-b.r*0.3,b.y-b.r*0.3,0,b.x,b.y,b.r);
+      bGrad.addColorStop(0,'#fff8');bGrad.addColorStop(0.3,b.color);bGrad.addColorStop(1,b.color.replace('60%','30%'));
+      ctx.fillStyle=bGrad;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();
+      // Velocity vector
+      var vLen=Math.sqrt(b.vx*b.vx+b.vy*b.vy);
+      if(vLen>0.5){
+        var vScale=Math.min(30,vLen*3);
+        var vnx=b.vx/vLen*vScale,vny=b.vy/vLen*vScale;
+        ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(b.x+vnx,b.y+vny);ctx.stroke();
+        // Arrowhead
+        var aAngle=Math.atan2(vny,vnx);
+        ctx.fillStyle='rgba(34,197,94,0.3)';
+        ctx.beginPath();ctx.moveTo(b.x+vnx,b.y+vny);
+        ctx.lineTo(b.x+vnx-5*Math.cos(aAngle-0.4),b.y+vny-5*Math.sin(aAngle-0.4));
+        ctx.lineTo(b.x+vnx-5*Math.cos(aAngle+0.4),b.y+vny-5*Math.sin(aAngle+0.4));
+        ctx.closePath();ctx.fill();
+      }
+    });
+    // Drag indicator – enhanced
+    if(dragging&&dragStart&&dragEnd){
+      // Velocity preview line
+      ctx.strokeStyle='rgba(245,158,11,0.5)';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);
+      ctx.beginPath();ctx.moveTo(dragStart.x,dragStart.y);ctx.lineTo(dragEnd.x,dragEnd.y);ctx.stroke();
+      ctx.setLineDash([]);
+      // Preview circle
+      var previewR=3+parseInt(document.getElementById('mass').value)*0.1;
+      ctx.strokeStyle='rgba(245,158,11,0.3)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(dragStart.x,dragStart.y,previewR,0,Math.PI*2);ctx.stroke();
+      // Velocity magnitude label
+      var dragDx=dragStart.x-dragEnd.x,dragDy=dragStart.y-dragEnd.y;
+      var dragV=Math.sqrt(dragDx*dragDx+dragDy*dragDy)*0.05;
+      ctx.fillStyle='rgba(245,158,11,0.6)';ctx.font='9px Poppins';ctx.textAlign='center';
+      ctx.fillText('v='+dragV.toFixed(1),(dragStart.x+dragEnd.x)/2,(dragStart.y+dragEnd.y)/2-8);
+    }
+    // Force equation overlay (top-right)
+    ctx.fillStyle='rgba(15,23,42,0.6)';ctx.beginPath();ctx.roundRect(w-155,8,148,40,6);ctx.fill();
+    ctx.fillStyle='#f59e0b';ctx.font='bold 10px Poppins';ctx.textAlign='left';
+    ctx.fillText('F = G\u00b7m\u2081m\u2082/r\u00b2',w-148,24);
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';
+    ctx.fillText('G = '+G.toFixed(1)+' (scaled)',w-148,40);
+    // Stats
+    document.getElementById('nbodies').textContent=bodies.length;
+    var ke=0;
+    bodies.forEach(function(b2){ke+=0.5*b2.mass*(b2.vx*b2.vx+b2.vy*b2.vy);});
+    document.getElementById('ke').textContent=Math.round(ke);
+    document.getElementById('pe').textContent='~'+Math.round(-ke*0.8);
+    // Instructions
+    if(bodies.length===0){
+      ctx.fillStyle='rgba(148,163,184,0.4)';ctx.font='14px Poppins';ctx.textAlign='center';
+      ctx.fillText('Click "Add Central Star" then click-drag to launch orbiters',w/2,h/2);
+    }
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

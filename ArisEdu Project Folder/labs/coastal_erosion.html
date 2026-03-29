@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Coastal Erosion</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#3b82f6}
+    .ctrl-group .val{font-size:.8rem;color:#60a5fa;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#60a5fa}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#60a5fa;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🏖️ Coastal Erosion</h1>
+  <p class="subtitle">Watch waves reshape coastlines through hydraulic action and abrasion.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Wave Power</label>
+      <input type="range" id="power" min="1" max="10" value="5" oninput="upd()"><span class="val" id="pow-val">5</span></div>
+    <div class="ctrl-group"><label>Rock Hardness</label>
+      <input type="range" id="hard" min="1" max="10" value="5" oninput="upd()"><span class="val" id="hard-val">5</span></div>
+    <div class="ctrl-group"><label>Sea Level Rise (cm)</label>
+      <input type="range" id="slr" min="0" max="50" value="0" oninput="upd()"><span class="val" id="slr-val">0 cm</span></div>
+    <button class="action-btn" onclick="resetCoast()">Reset Coast</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Years Elapsed: <strong id="years">0</strong></div>
+    <div class="datum">Land Lost: <strong id="lost">0 m</strong></div>
+    <div class="datum">Erosion Rate: <strong id="erate">0 m/yr</strong></div>
+  </div>
+  <div class="info-box"><h3>Coastal Erosion Processes</h3><p><strong>Hydraulic action:</strong> waves compress air in rock cracks, breaking them apart. <strong>Abrasion:</strong> sediment carried by waves grinds the cliff face. <strong>Corrosion:</strong> salt water dissolves minerals. Softer rock erodes faster, creating bays. Harder rock remains as headlands. Sea level rise accelerates erosion by bringing waves to higher positions.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0;
+  var cliffProfile=[];var years=0;
+  function resize(){cv.width=cv.parentElement.clientWidth;resetCoast();}
+  window.addEventListener('resize',resize);resize();
+  window.resetCoast=function(){
+    cliffProfile=[];years=0;
+    var h=cv.height;
+    for(var y=0;y<h;y++){
+      cliffProfile[y]=cv.width*0.6+Math.random()*10;
+    }
+  };
+  window.upd=function(){
+    document.getElementById('pow-val').textContent=document.getElementById('power').value;
+    document.getElementById('hard-val').textContent=document.getElementById('hard').value;
+    document.getElementById('slr-val').textContent=document.getElementById('slr').value+' cm';
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    t+=0.016;years+=0.02;
+    var power2=parseInt(document.getElementById('power').value);
+    var hard2=parseInt(document.getElementById('hard').value);
+    var slr2=parseInt(document.getElementById('slr').value);
+    var waterLine=h*0.55-slr2*0.5;
+    // Erode cliff
+    var erodeRate=power2*0.003/(hard2*0.5);
+    for(var y=0;y<h;y++){
+      var dist=Math.abs(y-waterLine);
+      var factor=Math.max(0,1-dist/(h*0.2));
+      cliffProfile[y]-=erodeRate*factor*(0.8+Math.random()*0.4);
+      cliffProfile[y]=Math.max(w*0.2,cliffProfile[y]);
+    }
+    // Sky gradient
+    var skyGrad=ctx.createLinearGradient(0,0,0,waterLine);
+    skyGrad.addColorStop(0,'#0f172a');skyGrad.addColorStop(0.5,'#1e293b');skyGrad.addColorStop(1,'#334155');
+    ctx.fillStyle=skyGrad;ctx.fillRect(0,0,w,waterLine);
+    // Clouds
+    ctx.fillStyle='rgba(148,163,184,0.08)';
+    for(var cl=0;cl<4;cl++){
+      var cx2=((cl*210+t*8)%(w+100))-50;var cy2=20+cl*25;
+      ctx.beginPath();ctx.arc(cx2,cy2,20,0,Math.PI*2);ctx.arc(cx2+18,cy2-5,15,0,Math.PI*2);ctx.arc(cx2+32,cy2,18,0,Math.PI*2);ctx.fill();
+    }
+    // Land/cliff with rock layers
+    ctx.fillStyle='#92400e';ctx.beginPath();ctx.moveTo(w,0);
+    for(var y2=0;y2<h;y2++){ctx.lineTo(cliffProfile[y2],y2);}
+    ctx.lineTo(w,h);ctx.closePath();ctx.fill();
+    // Rock strata layers
+    var strataColors=['rgba(120,80,40,0.3)','rgba(180,140,90,0.2)','rgba(100,60,30,0.25)','rgba(160,120,70,0.2)'];
+    for(var st=0;st<4;st++){
+      var layerY=waterLine-40+st*40;
+      ctx.fillStyle=strataColors[st];
+      ctx.beginPath();ctx.moveTo(w,layerY);
+      for(var sx=w;sx>=0;sx-=10){
+        var cpy=cliffProfile[Math.min(Math.floor(layerY),h-1)]||w*0.5;
+        if(sx>cpy-5)ctx.lineTo(sx,layerY+Math.sin(sx*0.05)*3);
+      }
+      ctx.lineTo(w,layerY+35);ctx.closePath();ctx.fill();
+    }
+    // Cliff face shading (shadow on left edge)
+    ctx.strokeStyle='rgba(0,0,0,0.15)';ctx.lineWidth=3;
+    ctx.beginPath();
+    for(var y4=Math.floor(waterLine-30);y4<h;y4+=2){
+      var cx3=cliffProfile[y4];
+      if(y4===Math.floor(waterLine-30))ctx.moveTo(cx3,y4);else ctx.lineTo(cx3,y4);
+    }
+    ctx.stroke();
+    // Grass on top with blades
+    var grassGrad=ctx.createLinearGradient(0,0,0,waterLine-20);
+    grassGrad.addColorStop(0,'rgba(34,197,94,0.25)');grassGrad.addColorStop(1,'rgba(34,197,94,0.08)');
+    ctx.fillStyle=grassGrad;ctx.beginPath();ctx.moveTo(w,0);
+    for(var y3=0;y3<waterLine-20;y3++){ctx.lineTo(cliffProfile[y3],y3);}
+    ctx.lineTo(w,waterLine-20);ctx.fill();
+    // Grass blade details at edge
+    ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;
+    for(var gb=0;gb<12;gb++){
+      var gby=Math.floor(Math.random()*(waterLine-30));
+      var gbx=cliffProfile[gby];
+      ctx.beginPath();ctx.moveTo(gbx,gby);ctx.lineTo(gbx-5-Math.sin(t+gb)*2,gby-6);ctx.stroke();
+    }
+    // Beach/sediment with gradient
+    var beachStart=Math.min.apply(null,cliffProfile.slice(Math.floor(waterLine),h))-30;
+    var beachGrad=ctx.createLinearGradient(beachStart-30,0,beachStart+40,0);
+    beachGrad.addColorStop(0,'#d4a574');beachGrad.addColorStop(1,'#c49564');
+    ctx.fillStyle=beachGrad;
+    ctx.beginPath();ctx.moveTo(0,h*0.9);
+    ctx.lineTo(beachStart,h*0.9);ctx.quadraticCurveTo(beachStart-20,h*0.95,0,h);ctx.lineTo(0,h);ctx.fill();
+    // Sand texture dots
+    ctx.fillStyle='rgba(180,150,100,0.2)';
+    for(var sd=0;sd<20;sd++){
+      var sdx=Math.random()*beachStart;var sdy=h*0.9+Math.random()*(h*0.1);
+      ctx.beginPath();ctx.arc(sdx,sdy,1,0,Math.PI*2);ctx.fill();
+    }
+    // Water with depth gradient
+    var waterGrad=ctx.createLinearGradient(0,waterLine,0,h);
+    waterGrad.addColorStop(0,'rgba(37,99,235,0.35)');waterGrad.addColorStop(0.5,'rgba(37,99,235,0.55)');waterGrad.addColorStop(1,'rgba(30,58,138,0.7)');
+    ctx.fillStyle=waterGrad;ctx.fillRect(0,waterLine,w,h-waterLine);
+    // Waves with curl
+    for(var wv=0;wv<4;wv++){
+      var wy2=waterLine+wv*18;
+      // Wave fill
+      ctx.fillStyle='rgba(147,197,253,'+(0.08-wv*0.015)+')';
+      ctx.beginPath();
+      for(var wx=0;wx<w*0.65;wx+=3){
+        var wvy=wy2+Math.sin(wx*0.025+t*3+wv*0.8)*power2*(1.2-wv*0.2);
+        if(wx===0)ctx.moveTo(wx,wvy);else ctx.lineTo(wx,wvy);
+      }
+      ctx.lineTo(w*0.65,wy2+15);ctx.lineTo(0,wy2+15);ctx.closePath();ctx.fill();
+      // Wave crest line
+      ctx.strokeStyle='rgba(147,197,253,'+(0.4-wv*0.08)+')';ctx.lineWidth=1.5;
+      ctx.beginPath();
+      for(var wx2=0;wx2<w*0.65;wx2+=3){
+        var wvy2=wy2+Math.sin(wx2*0.025+t*3+wv*0.8)*power2*(1.2-wv*0.2);
+        if(wx2===0)ctx.moveTo(wx2,wvy2);else ctx.lineTo(wx2,wvy2);
+      }
+      ctx.stroke();
+    }
+    // White foam at wave crest
+    ctx.fillStyle='rgba(255,255,255,0.15)';
+    for(var fm=0;fm<8;fm++){
+      var fmx=((fm*80+t*50)%(w*0.55));
+      var fmy=waterLine+Math.sin(fmx*0.025+t*3)*power2;
+      ctx.beginPath();ctx.arc(fmx,fmy,3+Math.random()*2,0,Math.PI*2);ctx.fill();
+    }
+    // Spray at cliff impact
+    if(power2>2){
+      var impactX=cliffProfile[Math.floor(waterLine)]||w*0.5;
+      for(var sp=0;sp<power2*2;sp++){
+        var spx=impactX-Math.random()*25;
+        var spy=waterLine-Math.random()*power2*6;
+        var spSize=1+Math.random()*2;
+        // Spray with glow
+        var spGlow=ctx.createRadialGradient(spx,spy,0,spx,spy,spSize*2);
+        spGlow.addColorStop(0,'rgba(147,197,253,0.4)');spGlow.addColorStop(1,'rgba(147,197,253,0)');
+        ctx.fillStyle=spGlow;ctx.beginPath();ctx.arc(spx,spy,spSize*2,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='rgba(200,220,255,0.35)';
+        ctx.beginPath();ctx.arc(spx,spy,spSize,0,Math.PI*2);ctx.fill();
+      }
+    }
+    // Erosion process labels on cliff
+    var cliffX=cliffProfile[Math.floor(waterLine)]||w*0.5;
+    ctx.fillStyle='rgba(148,163,184,0.4)';ctx.font='8px Poppins';ctx.textAlign='right';
+    ctx.fillText('Hydraulic Action \u2192',cliffX-8,waterLine-5);
+    ctx.fillText('Abrasion \u2192',cliffX-8,waterLine+20);
+    ctx.fillText('Corrosion \u2192',cliffX-8,waterLine+38);
+    // Sea level indicator
+    ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(96,165,250,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(0,waterLine);ctx.lineTo(w*0.35,waterLine);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(96,165,250,0.35)';ctx.font='8px Poppins';ctx.textAlign='left';
+    ctx.fillText('Sea Level'+(slr2>0?' (+'+slr2+'cm)':''),5,waterLine-4);
+    // Stats
+    var initialCliff=w*0.6;
+    var currentCliff=cliffProfile[Math.floor(waterLine)]||w*0.5;
+    var lost2=(initialCliff-currentCliff)*0.1;
+    document.getElementById('years').textContent=Math.floor(years);
+    document.getElementById('lost').textContent=lost2.toFixed(1)+' m';
+    document.getElementById('erate').textContent=(years>0?lost2/years:0).toFixed(2)+' m/yr';
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

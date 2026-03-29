@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab Simulations</title>
+  <script src="../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com" async defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <style>
+    body {
+      box-sizing: border-box;
+      background-color: white;
+    }
+
+    .logo-font {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .main-container {
+      height: 100%;
+      width: 100%;
+      padding: 5rem 2rem 2rem 2rem;
+      overflow: auto;
+    }
+
+    .logo-section {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    .logo-title-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      flex: 1;
+    }
+
+    .company-title {
+      font-size: 5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* === LAB CATEGORY CONTAINER === */
+    .labs-container {
+      background: #f8fafc;
+      border: 2px solid rgba(226, 232, 240, 0.8);
+      border-radius: 2rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      transition: padding 0.3s ease;
+    }
+
+    /* === COLLAPSIBLE SECTIONS === */
+    .labs-section {
+      margin-bottom: 2rem;
+    }
+
+    .labs-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .labs-section.collapsed {
+      margin-bottom: 0;
+    }
+
+    .labs-section.collapsed .labs-section-title {
+      margin-bottom: 0;
+    }
+
+    .labs-section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      user-select: none;
+    }
+
+    .labs-section-title:hover {
+      opacity: 0.8;
+    }
+
+    .labs-section-title .chevron {
+      display: inline-block;
+      transition: transform 0.3s ease;
+      font-size: 0.8em;
+    }
+
+    .labs-section.collapsed .chevron {
+      transform: rotate(-90deg);
+    }
+
+    .labs-section .labs-grid {
+      max-height: 2000px;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+      opacity: 1;
+    }
+
+    .labs-section.collapsed .labs-grid {
+      max-height: 0;
+      opacity: 0;
+    }
+
+    /* === GRID & BOXES === */
+    .labs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .lab-box {
+      border-radius: 1rem !important;
+      padding: 1.25rem 0.75rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    body:not(.dark-mode) .lab-box {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+    }
+
+    body:not(.dark-mode) .lab-box:hover {
+      background: #ffffff !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    }
+
+    .lab-box:hover {
+      transform: translateY(-4px);
+    }
+
+    .lab-box:hover .lab-icon-svg {
+      filter: brightness(1.2);
+    }
+
+    .lab-box a {
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      width: 100%;
+    }
+
+    .lab-icon-svg {
+      width: 80px;
+      height: 80px;
+      transition: filter 0.3s ease;
+    }
+
+    .lab-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    /* Color themes per category */
+    .lab-box.physical .lab-title { color: #f59e0b; }
+    .lab-box.life .lab-title { color: #22c55e; }
+    .lab-box.earth .lab-title { color: #3b82f6; }
+    .lab-box.math .lab-title { color: #a855f7; }
+
+    .lab-description {
+      font-size: 0.75rem;
+      color: #64748b;
+      line-height: 1.4;
+      margin-top: -0.25rem;
+    }
+
+    /* === DARK MODE === */
+    body.dark-mode {
+      background-color: #1e293b;
+    }
+
+    body.dark-mode .company-title {
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    body.dark-mode .labs-container {
+      background: #273244;
+      border-color: rgba(51, 65, 85, 0.8);
+    }
+
+    body.dark-mode .labs-section-title {
+      color: #f1f5f9;
+    }
+
+    body.dark-mode .lab-box {
+      background: transparent !important;
+      border: 1px solid #334155 !important;
+      box-shadow: none !important;
+    }
+
+    body.dark-mode .lab-box:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    }
+
+    body.dark-mode .lab-description {
+      color: #94a3b8;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+      .logo-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .logo-title-wrapper {
+        align-items: center;
+        width: 100%;
+      }
+
+      .company-title {
+        font-size: 2.5rem;
+        line-height: 1.2;
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .labs-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .labs-container {
+        padding: 1.5rem 1rem;
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="theme_manager.js"></script>
+ </head>
+ <body class="h-full dark-mode">
+  <script src="scripts/taskbar.js"></script>
+  <main class="main-container">
+
+    <div class="logo-section">
+      <div class="logo-title-wrapper">
+        <h1 class="logo-font company-title">Lab Simulations</h1>
+      </div>
+    </div>
+
+    <div class="labs-container">
+
+      <!-- ======== CHEMISTRY ======== -->
+      <div class="labs-section collapsed">
+        <h2 class="labs-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> ⚗️ Chemistry</h2>
+        <div class="labs-grid">
+          <div class="lab-box physical">
+            <a href="labs/chemistry_lab.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 2v6L4 18a2 2 0 002 2h12a2 2 0 002-2L14 8V2"/><line x1="9" y1="2" x2="15" y2="2"/>
+                <circle cx="10" cy="15" r="0.5" fill="#f59e0b" opacity="0.5" stroke="none"/><circle cx="14" cy="16" r="0.4" fill="#f59e0b" opacity="0.5" stroke="none"/>
+              </svg>
+              <span class="lab-title">Chemical Reactions</span>
+              <span class="lab-description">Mix reagents &amp; observe real reactions</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/phase_changes.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17" cy="7" r="4"/><path d="M13 17h8" stroke-dasharray="2,1"/>
+                <path d="M6 11V7" stroke-width="0.8"/><path d="M4 9l2-2 2 2" stroke-width="0.8"/>
+              </svg>
+              <span class="lab-title">Phase Changes</span>
+              <span class="lab-description">Heating curves &amp; state transitions</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/gas_laws.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="12" rx="2"/><line x1="4" y1="20" x2="20" y2="20"/>
+                <circle cx="9" cy="10" r="1" fill="#f59e0b" opacity="0.4" stroke="none"/><circle cx="14" cy="8" r="1" fill="#f59e0b" opacity="0.4" stroke="none"/><circle cx="12" cy="12" r="1" fill="#f59e0b" opacity="0.4" stroke="none"/>
+                <path d="M7 16l3-4 3 2 4-5" stroke-width="0.8"/>
+              </svg>
+              <span class="lab-title">Gas Laws</span>
+              <span class="lab-description">Boyle's, Charles's &amp; ideal gas law</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/titration.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="11" y="1" width="2" height="14" rx="0.5"/><path d="M9 15v5a2 2 0 004 0v-5"/>
+                <line x1="10" y1="5" x2="14" y2="5" stroke-width="0.6"/><line x1="10" y1="8" x2="14" y2="8" stroke-width="0.6"/>
+                <path d="M2 18h6" stroke-dasharray="1.5,1"/><circle cx="5" cy="18" r="0.6" fill="#f59e0b" opacity="0.5" stroke="none"/>
+              </svg>
+              <span class="lab-title">Acid-Base Titration</span>
+              <span class="lab-description">pH curves &amp; equivalence points</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/electrochemistry.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="6" width="7" height="12" rx="1"/><rect x="14" y="6" width="7" height="12" rx="1"/>
+                <line x1="6" y1="3" x2="6" y2="6"/><line x1="18" y1="3" x2="18" y2="6"/>
+                <path d="M6 3h12" stroke-dasharray="2,1"/><path d="M12 3v-1"/>
+              </svg>
+              <span class="lab-title">Electrochemistry</span>
+              <span class="lab-description">Galvanic cells &amp; redox reactions</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/calorimetry.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="8" y="4" width="4" height="16" rx="2"/><circle cx="10" cy="17" r="3"/>
+                <line x1="12" y1="8" x2="15" y2="8" stroke-width="0.6"/><line x1="12" y1="11" x2="14" y2="11" stroke-width="0.6"/>
+              </svg>
+              <span class="lab-title">Calorimetry</span>
+              <span class="lab-description">Heat transfer &amp; Q = mcΔT</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/equilibrium.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 12h16"/><path d="M10 8l2 4 2-4"/><path d="M10 16l2-4 2 4"/>
+                <circle cx="6" cy="12" r="1.5" fill="#f59e0b" opacity="0.3"/><circle cx="18" cy="12" r="1.5" fill="#f59e0b" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Chemical Equilibrium</span>
+              <span class="lab-description">Le Chatelier&apos;s principle &amp; shifting reactions</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/atomic_orbitals.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="2" fill="#f59e0b"/><ellipse cx="12" cy="12" rx="10" ry="4"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/>
+              </svg>
+              <span class="lab-title">Atomic Orbitals</span>
+              <span class="lab-description">3D electron probability clouds</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/stoichiometry.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="8" height="6" rx="1"/><rect x="14" y="4" width="8" height="6" rx="1"/>
+                <path d="M10 7h4"/><path d="M12 14v4"/><path d="M8 18h8" stroke-width="1.5"/>
+              </svg>
+              <span class="lab-title">Stoichiometry</span>
+              <span class="lab-description">Balancing equations &amp; limiting reagents</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/solutions.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 2v6l-4 10a2 2 0 002 2h16a2 2 0 002-2L18 8V2"/><line x1="6" y1="2" x2="18" y2="2"/>
+                <path d="M4 14h16" stroke-dasharray="2,2" opacity="0.5"/>
+                <circle cx="10" cy="16" r="0.5" fill="#f59e0b" opacity="0.4"/><circle cx="14" cy="15" r="0.5" fill="#f59e0b" opacity="0.4"/>
+              </svg>
+              <span class="lab-title">Solutions Lab</span>
+              <span class="lab-description">Molarity, dilution &amp; solubility</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== PHYSICS ======== -->
+      <div class="labs-section collapsed">
+        <h2 class="labs-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> ⚡ Physics</h2>
+        <div class="labs-grid">
+          <div class="lab-box physical">
+            <a href="labs/physics_sandbox.html#projectile">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="4" cy="20" r="2"/><path d="M6 18Q12 4 20 6"/><path d="M17 4l3 2-1 3"/>
+              </svg>
+              <span class="lab-title">Projectile Motion</span>
+              <span class="lab-description">Launch &amp; track projectile trajectories</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/physics_sandbox.html#pendulum">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="3" x2="20" y2="3"/><line x1="12" y1="3" x2="8" y2="17"/><circle cx="8" cy="19" r="2"/>
+                <path d="M12 3l6 14" stroke-dasharray="2,1.5" opacity="0.4"/><circle cx="18" cy="19" r="2" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Pendulum</span>
+              <span class="lab-description">Swing with length, angle &amp; damping</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/physics_sandbox.html#collision">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="7" cy="12" r="4"/><circle cx="17" cy="12" r="3"/><path d="M11 12h2" stroke-width="1.5"/>
+                <path d="M3 12H1"/><path d="M23 12h-2"/>
+              </svg>
+              <span class="lab-title">Collisions</span>
+              <span class="lab-description">Elastic &amp; inelastic momentum transfer</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/wave_simulator.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12 Q5 6 8 12 Q11 18 14 12 Q17 6 20 12 Q23 18 24 12"/>
+                <path d="M2 12 Q5 18 8 12 Q11 6 14 12 Q17 18 20 12" stroke-dasharray="2,1.5" opacity="0.4"/>
+              </svg>
+              <span class="lab-title">Wave Simulator</span>
+              <span class="lab-description">Frequency, amplitude &amp; interference</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/circuit_builder.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="8" width="18" height="8" rx="1"/><line x1="8" y1="8" x2="8" y2="16"/>
+                <line x1="16" y1="8" x2="16" y2="16"/><path d="M1 12h2"/><path d="M21 12h2"/>
+                <circle cx="12" cy="12" r="1" fill="#f59e0b" opacity="0.5"/>
+              </svg>
+              <span class="lab-title">Circuit Builder</span>
+              <span class="lab-description">Ohm&apos;s law &amp; series/parallel circuits</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/optics.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="12" rx="3" ry="8"/><path d="M2 12h7"/><path d="M15 12h7"/>
+                <path d="M2 8l7 4-7 4" opacity="0.4"/><path d="M15 8l7 4-7 4" opacity="0.4"/>
+              </svg>
+              <span class="lab-title">Optics Lab</span>
+              <span class="lab-description">Refraction, lenses &amp; mirrors</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/inclined_plane.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 20L20 6v14z"/><circle cx="10" cy="14" r="2"/>
+                <path d="M10 14l-2 3" stroke-width="0.8" opacity="0.5"/>
+              </svg>
+              <span class="lab-title">Inclined Plane</span>
+              <span class="lab-description">Forces on a slope &amp; friction</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/electric_fields.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/>
+                <path d="M9 12c2-3 4-3 6 0" stroke-dasharray="2,1"/><path d="M9 12c2 3 4 3 6 0" stroke-dasharray="2,1"/>
+                <text x="5" y="13" font-size="4" fill="#f59e0b">+</text><text x="17" y="13" font-size="4" fill="#f59e0b">−</text>
+              </svg>
+              <span class="lab-title">Electric Fields</span>
+              <span class="lab-description">Coulomb&apos;s law &amp; field lines</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/spring_shm.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="2" y1="4" x2="2" y2="20"/><path d="M2 12 L4 8 L6 16 L8 8 L10 16 L12 8 L14 16 L16 12"/>
+                <circle cx="18" cy="12" r="3"/><path d="M18 15v4" stroke-dasharray="2,1"/>
+              </svg>
+              <span class="lab-title">Spring &amp; SHM</span>
+              <span class="lab-description">Hooke&apos;s law &amp; oscillations</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/thermodynamics.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M6 18L10 10L14 14L18 6"/>
+                <circle cx="6" cy="18" r="1" fill="#f59e0b" opacity="0.5"/><circle cx="18" cy="6" r="1" fill="#f59e0b" opacity="0.5"/>
+              </svg>
+              <span class="lab-title">Thermodynamics</span>
+              <span class="lab-description">Heat engines &amp; PV diagrams</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== BIOLOGY ======== -->
+      <div class="labs-section collapsed">
+        <h2 class="labs-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> 🧬 Biology</h2>
+        <div class="labs-grid">
+          <div class="lab-box life">
+            <a href="labs/biology_lab.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="0.8" fill="#22c55e"/>
+                <line x1="12" y1="4" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="20"/>
+              </svg>
+              <span class="lab-title">Cell Explorer</span>
+              <span class="lab-description">Microscope — animal, plant &amp; bacteria cells</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/photosynthesis.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="17" cy="6" r="3" stroke="#f59e0b"/><path d="M14 6H12"/><path d="M9 17c-3 0-5-3-5-6s3-4 5-2c1-3 5-3 6 0 2-1 4 1 4 3s-2 4-4 4"/>
+                <line x1="9" y1="17" x2="9" y2="22"/><path d="M7 19l2-2 2 2"/>
+              </svg>
+              <span class="lab-title">Photosynthesis</span>
+              <span class="lab-description">Light reactions &amp; the Calvin cycle</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/enzyme_kinetics.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 20 Q8 18 10 12 Q12 6 16 5 Q20 4 22 4"/><circle cx="10" cy="12" r="1.5"/>
+                <rect x="2" y="2" width="5" height="5" rx="1" stroke-dasharray="1.5,1"/>
+              </svg>
+              <span class="lab-title">Enzyme Kinetics</span>
+              <span class="lab-description">Reaction rates &amp; Michaelis-Menten curves</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/dna_replication.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4c4 4 12 4 16 0"/><path d="M4 10c4 4 12 4 16 0"/>
+                <path d="M4 16c4 4 12 4 16 0"/><path d="M4 22c4 4 12 4 16 0" opacity="0.4"/>
+                <line x1="8" y1="5" x2="8" y2="9" stroke-width="0.8"/><line x1="16" y1="11" x2="16" y2="15" stroke-width="0.8"/>
+              </svg>
+              <span class="lab-title">DNA Replication</span>
+              <span class="lab-description">Replication fork &amp; base pairing</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/natural_selection.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="6" cy="16" r="3"/><circle cx="12" cy="14" r="3"/><circle cx="18" cy="12" r="3"/>
+                <path d="M4 8l4-4 4 2 4-2 4 4" stroke-dasharray="2,1"/>
+              </svg>
+              <span class="lab-title">Natural Selection</span>
+              <span class="lab-description">Population adaptation &amp; survival</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/nervous_system.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="4" cy="12" r="2"/><line x1="6" y1="12" x2="18" y2="12"/>
+                <circle cx="20" cy="12" r="2"/><path d="M8 8l2 4-2 4" stroke-width="0.8" opacity="0.5"/>
+                <path d="M14 8l-2 4 2 4" stroke-width="0.8" opacity="0.5"/>
+              </svg>
+              <span class="lab-title">Nervous System</span>
+              <span class="lab-description">Action potentials &amp; neurons</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/mitosis.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="8" cy="12" r="5"/><circle cx="16" cy="12" r="5"/>
+                <line x1="12" y1="7" x2="12" y2="17" stroke-dasharray="2,1"/>
+              </svg>
+              <span class="lab-title">Mitosis</span>
+              <span class="lab-description">Cell division phases step-by-step</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/ecosystem.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 18Q8 10 12 12Q16 14 20 6"/><path d="M4 14Q8 16 12 10Q16 4 20 10" stroke-dasharray="2,1"/>
+                <line x1="2" y1="20" x2="22" y2="20" stroke-width="0.6"/>
+              </svg>
+              <span class="lab-title">Ecosystem Dynamics</span>
+              <span class="lab-description">Predator-prey populations</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/respiratory.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v6"/><path d="M12 8c-4 0-8 4-8 10h6"/><path d="M12 8c4 0 8 4 8 10h-6"/>
+                <circle cx="8" cy="14" r="1" fill="#22c55e" opacity="0.3"/><circle cx="16" cy="14" r="1" fill="#22c55e" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Respiratory System</span>
+              <span class="lab-description">Breathing mechanics &amp; gas exchange</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/genetics.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <text x="7" y="10" font-size="4" fill="#22c55e">Bb</text><text x="14" y="10" font-size="4" fill="#22c55e">BB</text>
+              </svg>
+              <span class="lab-title">Genetics Lab</span>
+              <span class="lab-description">Punnett squares &amp; inheritance</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== MARINE SCIENCE ======== -->
+      <div class="labs-section collapsed">
+        <h2 class="labs-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> 🌊 Marine Science</h2>
+        <div class="labs-grid">
+          <div class="lab-box life">
+            <a href="labs/marine_science_lab.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 8 Q6 4 12 8 Q18 12 22 8"/><path d="M2 12 Q6 8 12 12 Q18 16 22 12" opacity="0.5"/>
+                <ellipse cx="12" cy="18" rx="3" ry="1.5"/><path d="M15 18l2-1.5v3z"/>
+              </svg>
+              <span class="lab-title">Ocean Depth Explorer</span>
+              <span class="lab-description">Dive through 5 ocean zones</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/coral_reef.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 22v-6c0-2 2-4 3-5"/><path d="M12 22v-8c0-2-1-3-2-4"/><path d="M18 22v-5c0-2-2-4-3-5"/>
+                <circle cx="6" cy="10" r="2"/><circle cx="12" cy="8" r="2.5"/><circle cx="18" cy="11" r="2"/>
+              </svg>
+              <span class="lab-title">Coral Reef Ecosystem</span>
+              <span class="lab-description">Reef health, bleaching &amp; biodiversity</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/ocean_currents.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 6c4 0 6 4 10 4s6-4 10-4"/><path d="M2 12c4 0 6 4 10 4s6-4 10-4" opacity="0.6"/>
+                <path d="M2 18c4 0 6 4 10 4s6-4 10-4" opacity="0.3"/><path d="M19 4l3 2-3 2"/>
+              </svg>
+              <span class="lab-title">Ocean Currents</span>
+              <span class="lab-description">Thermohaline circulation &amp; gyres</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/tides.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="6" r="3"/><path d="M2 14c3-3 6-3 9 0s6 3 9 0"/>
+                <path d="M2 18c3-3 6-3 9 0s6 3 9 0" opacity="0.4"/>
+                <path d="M15 6l-3 4" stroke-dasharray="2,1" opacity="0.5"/>
+              </svg>
+              <span class="lab-title">Tides</span>
+              <span class="lab-description">Spring/neap tides &amp; lunar forces</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/marine_food_web.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 20h20"/><path d="M4 20v-4h4v4"/><path d="M10 20v-8h4v8"/><path d="M16 20v-14h4v14"/>
+                <path d="M2 4l5 3 5-1 5 2 5-4" stroke-dasharray="2,1" opacity="0.5"/>
+              </svg>
+              <span class="lab-title">Marine Food Web</span>
+              <span class="lab-description">Energy pyramids &amp; trophic levels</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/salinity.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 14h16" stroke-dasharray="2,2"/>
+                <circle cx="8" cy="10" r="0.5" fill="#22c55e" opacity="0.5"/><circle cx="12" cy="11" r="0.5" fill="#22c55e" opacity="0.5"/>
+                <circle cx="16" cy="9" r="0.5" fill="#22c55e" opacity="0.5"/><circle cx="10" cy="17" r="0.5" fill="#22c55e" opacity="0.5"/>
+              </svg>
+              <span class="lab-title">Salinity &amp; Density</span>
+              <span class="lab-description">Ocean water properties &amp; buoyancy</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/deep_sea_vents.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 22v-6c0-2 2-4 4-6"/><path d="M16 22v-6c0-2-2-4-4-6"/>
+                <path d="M12 10c0-3 0-6 0-8" stroke-dasharray="2,1"/>
+                <circle cx="11" cy="4" r="1" fill="#22c55e" opacity="0.3"/><circle cx="13" cy="6" r="1" fill="#22c55e" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Deep Sea Vents</span>
+              <span class="lab-description">Hydrothermal vents &amp; chemosynthesis</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/coastal_erosion.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 16l6-8h8l6 8"/><path d="M2 16h20"/><path d="M2 20h20"/>
+                <path d="M4 16c2-1 4-1 6 0s4 1 6 0" opacity="0.5"/>
+              </svg>
+              <span class="lab-title">Coastal Erosion</span>
+              <span class="lab-description">Wave action &amp; cliff retreat</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/bioluminescence.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="8" stroke-dasharray="2,2" opacity="0.3"/>
+                <line x1="12" y1="2" x2="12" y2="4" opacity="0.5"/><line x1="12" y1="20" x2="12" y2="22" opacity="0.5"/>
+                <line x1="2" y1="12" x2="4" y2="12" opacity="0.5"/><line x1="20" y1="12" x2="22" y2="12" opacity="0.5"/>
+              </svg>
+              <span class="lab-title">Bioluminescence</span>
+              <span class="lab-description">Deep sea light production</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/oil_spill.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="14" rx="8" ry="4"/><ellipse cx="12" cy="14" rx="5" ry="2.5" opacity="0.4"/>
+                <path d="M12 4v6"/><path d="M10 4h4"/>
+                <path d="M4 20c3-2 6-2 8 0s5 2 8 0" stroke-dasharray="2,1" opacity="0.4"/>
+              </svg>
+              <span class="lab-title">Oil Spill Response</span>
+              <span class="lab-description">Containment &amp; cleanup simulation</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== EARTH SCIENCE ======== -->
+      <div class="labs-section collapsed">
+        <h2 class="labs-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> 🌍 Earth Science</h2>
+        <div class="labs-grid">
+          <div class="lab-box earth">
+            <a href="labs/earth_science_lab.html#plates">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="8" width="8" height="12" rx="1"/><rect x="14" y="8" width="8" height="12" rx="1"/>
+                <path d="M10 14h4" stroke-dasharray="1.5,1"/><path d="M12 4v4"/>
+                <path d="M10 4l2-2 2 2"/>
+              </svg>
+              <span class="lab-title">Tectonic Plates</span>
+              <span class="lab-description">Convergent, divergent &amp; transform boundaries</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/earth_science_lab.html#layers">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="8" x2="21" y2="8"/>
+                <line x1="3" y1="13" x2="21" y2="13"/><line x1="3" y1="17" x2="21" y2="17"/>
+              </svg>
+              <span class="lab-title">Rock Layers</span>
+              <span class="lab-description">Explore geological strata &amp; composition</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/earth_science_lab.html#water">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2C8 8 4 12 4 16a8 8 0 0016 0c0-4-4-8-8-14z"/>
+                <path d="M8 16a4 4 0 008 0" stroke-dasharray="1.5,1"/>
+              </svg>
+              <span class="lab-title">Water Cycle</span>
+              <span class="lab-description">Evaporation, condensation &amp; precipitation</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/volcano_sim.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 22L9 8h6l7 14z"/><path d="M10 8l2-6 2 6"/>
+                <path d="M9 4c-1-2 0-3 1-3" opacity="0.5"/><path d="M15 4c1-2 0-3-1-3" opacity="0.5"/>
+                <path d="M11 2c0-1 1-1.5 1-1.5" opacity="0.5"/>
+              </svg>
+              <span class="lab-title">Volcano Simulator</span>
+              <span class="lab-description">Eruption types &amp; magma viscosity</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/weather.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 18c-2 0-4-2-4-4s2-4 4-4c0-3 3-6 6-6s6 3 6 6c2 0 4 2 4 4s-2 4-4 4z"/>
+                <path d="M8 18v2"/><path d="M12 18v3"/><path d="M16 18v2"/>
+              </svg>
+              <span class="lab-title">Weather Systems</span>
+              <span class="lab-description">Fronts, pressure &amp; hurricanes</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/earthquake.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12h4l2-6 3 12 3-8 2 4h6"/><line x1="2" y1="20" x2="22" y2="20" stroke-width="0.6"/>
+              </svg>
+              <span class="lab-title">Earthquake Simulator</span>
+              <span class="lab-description">Seismic waves &amp; magnitude</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/rock_cycle.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="4" r="3"/><circle cx="4" cy="18" r="3"/><circle cx="20" cy="18" r="3"/>
+                <path d="M10 6l-4 10"/><path d="M14 6l4 10"/><path d="M7 18h10"/>
+              </svg>
+              <span class="lab-title">Rock Cycle</span>
+              <span class="lab-description">Igneous, sedimentary &amp; metamorphic</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/glacier.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 20L8 8l4 4 4-6 6 14z"/><path d="M6 16h12" stroke-dasharray="2,2" opacity="0.4"/>
+                <circle cx="10" cy="6" r="0.5" fill="#3b82f6" opacity="0.3"/><circle cx="14" cy="4" r="0.5" fill="#3b82f6" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Glacier Dynamics</span>
+              <span class="lab-description">Advance, retreat &amp; moraine</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/atmosphere.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="18" r="4"/><path d="M4 14c0-5 8-12 8-12s8 7 8 12" stroke-dasharray="2,1"/>
+                <path d="M6 10h12" stroke-width="0.5" opacity="0.3"/><path d="M8 6h8" stroke-width="0.5" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Atmosphere Layers</span>
+              <span class="lab-description">Troposphere to exosphere</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/carbon_cycle.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8"/><path d="M8 10c0-2 2-3 4-3s4 1 4 3-2 2-4 3-4 2-4 4 2 3 4 3 4-1 4-3"/>
+              </svg>
+              <span class="lab-title">Carbon Cycle</span>
+              <span class="lab-description">Emissions, sinks &amp; climate</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== ASTRONOMY ======== -->
+      <div class="labs-section collapsed">
+        <h2 class="labs-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> 🔭 Astronomy</h2>
+        <div class="labs-grid">
+          <div class="lab-box earth">
+            <a href="labs/astronomy_observatory.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="1.5" fill="#3b82f6"/><circle cx="5" cy="5" r="0.8" fill="#3b82f6"/>
+                <circle cx="19" cy="7" r="0.6" fill="#3b82f6"/><circle cx="7" cy="19" r="0.5" fill="#3b82f6"/>
+                <circle cx="20" cy="17" r="0.7" fill="#3b82f6"/><line x1="5" y1="5" x2="12" y2="12" opacity="0.3"/>
+                <line x1="19" y1="7" x2="12" y2="12" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Star Map</span>
+              <span class="lab-description">Interactive night sky with constellations</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/solar_system.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3" fill="#f59e0b" stroke="#f59e0b"/>
+                <circle cx="12" cy="12" r="6" stroke-dasharray="2,1.5"/><circle cx="18" cy="12" r="1" fill="#3b82f6"/>
+                <circle cx="12" cy="12" r="9" stroke-dasharray="2,1.5" opacity="0.5"/><circle cx="12" cy="3" r="1.2" fill="#c084fc"/>
+              </svg>
+              <span class="lab-title">Solar System</span>
+              <span class="lab-description">Orbiting planets &amp; relative scales</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/moon_phases.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8"/><path d="M12 4a6 6 0 000 16" fill="#3b82f6" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Moon Phases</span>
+              <span class="lab-description">Lunar cycle &amp; eclipses</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/hr_diagram.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="21" x2="3" y2="3"/><line x1="3" y1="21" x2="21" y2="21"/>
+                <path d="M5 18Q10 16 14 10Q18 4 20 3" stroke-width="1.5"/>
+                <circle cx="8" cy="16" r="1" fill="#3b82f6" opacity="0.5"/><circle cx="14" cy="10" r="1.5" fill="#3b82f6" opacity="0.5"/>
+              </svg>
+              <span class="lab-title">H-R Diagram</span>
+              <span class="lab-description">Star classification by luminosity &amp; temp</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/galaxies.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)" opacity="0.4"/>
+                <circle cx="12" cy="12" r="2" fill="#3b82f6" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Galaxy Explorer</span>
+              <span class="lab-description">Spiral, elliptical &amp; irregular types</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/exoplanets.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="10" cy="12" r="6"/><circle cx="16" cy="12" r="2"/>
+                <path d="M2 20l4-3h12l4 3" stroke-dasharray="2,1" opacity="0.4"/>
+                <path d="M4 20h16" stroke-width="0.6"/>
+              </svg>
+              <span class="lab-title">Exoplanet Detection</span>
+              <span class="lab-description">Transit &amp; radial velocity methods</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/spectroscopy.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12h20"/><rect x="3" y="8" width="3" height="8" rx="0.5" fill="#ef4444" opacity="0.3"/>
+                <rect x="7" y="8" width="2" height="8" rx="0.5" fill="#f59e0b" opacity="0.3"/>
+                <rect x="11" y="8" width="3" height="8" rx="0.5" fill="#22c55e" opacity="0.3"/>
+                <rect x="15" y="8" width="2" height="8" rx="0.5" fill="#3b82f6" opacity="0.3"/>
+                <rect x="19" y="8" width="3" height="8" rx="0.5" fill="#8b5cf6" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Spectroscopy</span>
+              <span class="lab-description">Emission &amp; absorption spectra</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/gravity_sim.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4" fill="#3b82f6" opacity="0.2"/><circle cx="12" cy="12" r="8" stroke-dasharray="2,2"/>
+                <circle cx="20" cy="12" r="1.5" fill="#3b82f6"/><circle cx="12" cy="4" r="1" fill="#3b82f6" opacity="0.6"/>
+              </svg>
+              <span class="lab-title">Gravity Simulator</span>
+              <span class="lab-description">N-body orbital dynamics</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/seasons.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="6"/>
+                <line x1="12" y1="18" x2="12" y2="22"/><line x1="4" y1="12" x2="2" y2="12"/>
+                <line x1="22" y1="12" x2="18" y2="12"/><path d="M10 3l2-1 2 1" stroke-width="0.8"/>
+              </svg>
+              <span class="lab-title">Seasons</span>
+              <span class="lab-description">Axial tilt &amp; insolation</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/cosmic_distance.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="10" x2="2" y2="14"/>
+                <line x1="22" y1="10" x2="22" y2="14"/><line x1="8" y1="11" x2="8" y2="13" stroke-width="0.6"/>
+                <line x1="14" y1="11" x2="14" y2="13" stroke-width="0.6"/>
+                <circle cx="2" cy="12" r="1.5" fill="#3b82f6" opacity="0.3"/><circle cx="22" cy="12" r="1.5" fill="#3b82f6" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Cosmic Distance Ladder</span>
+              <span class="lab-description">Parallax, Cepheids &amp; redshift</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== MATHEMATICS ======== -->
+      <div class="labs-section collapsed">
+        <h2 class="labs-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> 🔢 Mathematics</h2>
+        <div class="labs-grid">
+          <div class="lab-box math">
+            <a href="labs/graphing_calculator.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="21" x2="3" y2="3"/><line x1="3" y1="12" x2="21" y2="12"/>
+                <path d="M5 18Q9 6 13 12Q17 18 21 4" stroke-width="1.5"/>
+                <circle cx="9" cy="9" r="0.8" fill="#a855f7" opacity="0.6"/>
+              </svg>
+              <span class="lab-title">Graphing Calculator</span>
+              <span class="lab-description">Plot functions, zoom, pan &amp; find values</span>
+            </a>
+          </div>
+          <div class="lab-box math">
+            <a href="labs/triangle_centers.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 20L12 4l8 16z"/>
+                <circle cx="12" cy="14" r="1.5" fill="#a855f7" opacity="0.5"/>
+                <line x1="4" y1="20" x2="16" y2="10" stroke-dasharray="2,1" opacity="0.4"/>
+                <line x1="20" y1="20" x2="8" y2="10" stroke-dasharray="2,1" opacity="0.4"/>
+              </svg>
+              <span class="lab-title">Triangle Centers</span>
+              <span class="lab-description">Incenter, circumcenter, centroid &amp; orthocenter</span>
+            </a>
+          </div>
+          <div class="lab-box math">
+            <a href="labs/unit_circle.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8"/>
+                <line x1="12" y1="12" x2="18" y2="6" stroke-width="1.5"/>
+                <line x1="12" y1="4" x2="12" y2="20" opacity="0.3"/><line x1="4" y1="12" x2="20" y2="12" opacity="0.3"/>
+                <circle cx="18" cy="6" r="1.2" fill="#a855f7"/>
+              </svg>
+              <span class="lab-title">Unit Circle</span>
+              <span class="lab-description">sin, cos, tan &amp; radian visualization</span>
+            </a>
+          </div>
+          <div class="lab-box math">
+            <a href="labs/conic_sections.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="12" rx="9" ry="5"/>
+                <circle cx="7" cy="12" r="1" fill="#a855f7" opacity="0.5"/>
+                <circle cx="17" cy="12" r="1" fill="#a855f7" opacity="0.5"/>
+                <line x1="12" y1="4" x2="12" y2="20" stroke-dasharray="2,1" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Conic Sections</span>
+              <span class="lab-description">Ellipse, parabola, hyperbola &amp; circle</span>
+            </a>
+          </div>
+          <div class="lab-box math">
+            <a href="labs/transformations.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="10" width="8" height="8" rx="1" opacity="0.4"/>
+                <rect x="11" y="4" width="8" height="8" rx="1"/>
+                <path d="M7 10l4-4" stroke-dasharray="2,1"/>
+                <path d="M11 18l-4 0" stroke-dasharray="2,1" opacity="0.4"/>
+              </svg>
+              <span class="lab-title">Transformations</span>
+              <span class="lab-description">Translate, rotate, reflect &amp; dilate</span>
+            </a>
+          </div>
+          <div class="lab-box math">
+            <a href="labs/vectors.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="20" x2="14" y2="6" stroke-width="1.5"/>
+                <path d="M14 6l-3 2 1 3" fill="#a855f7" opacity="0.6"/>
+                <line x1="4" y1="20" x2="20" y2="14" stroke-width="1.5" opacity="0.6"/>
+                <path d="M20 14l-3 0 0 3" fill="#a855f7" opacity="0.3"/>
+              </svg>
+              <span class="lab-title">Vector Operations</span>
+              <span class="lab-description">Addition, dot product, cross &amp; projection</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="scripts/translation_loader.js" data-base="translations"></script>
+  <script src="../search_data.js"></script>
+  <script src="../search_logic.js"></script>
+ </body>
+</html>

@@ -406,6 +406,7 @@
         '<nav class="mobile-drawer-section" aria-label="Discover">' +
           '<div class="mobile-drawer-section-title">Discover</div>' +
           '<a class="drawer-item" href="/ArisEdu Project Folder/arcade.html">\uD83D\uDC7E Arcade</a>' +
+          '<a class="drawer-item" href="/ArisEdu Project Folder/lab_simulations.html">🔬 Lab Simulations</a>' +
           '<button class="drawer-item" id="drawer-forums-btn">\uD83D\uDCAC Forums</button>' +
         '</nav>' +
         '<div class="drawer-divider"></div>' +
@@ -504,6 +505,7 @@
             '<div class="taskbar-more-panel" id="more-menu-panel" role="menu" aria-label="More options">' +
               '<a class="more-item" href="/ArisEdu Project Folder/TeacherAnalytics.html" role="menuitem">📊 Teacher Analytics</a>' +
               '<a class="more-item" href="/ArisEdu Project Folder/arcade.html"'+getDisp('arcade')+' role="menuitem">\uD83D\uDC7E Arcade</a>' +
+              '<a class="more-item" href="/ArisEdu Project Folder/lab_simulations.html" role="menuitem">🔬 Lab Simulations</a>' +
               '<button class="more-item" id="more-forums-btn"'+getDisp('forums')+' role="menuitem">\uD83D\uDCAC Forums</button>' +
               '<button class="more-item" id="more-update-btn" role="menuitem">\uD83D\uDD14 Updates</button>' +
             '</div>' +
@@ -1119,7 +1121,7 @@
                  // Force override
                  window._isDevUser = function() { return true; };
                  var script = document.createElement('script');
-                 script.src = '/ArisEdu Project Folder/scripts/dev_tools.js?v=' + Date.now();
+                 script.src = './dev_tools.js?v=' + Date.now();
                  document.body.appendChild(script);
              }
         }

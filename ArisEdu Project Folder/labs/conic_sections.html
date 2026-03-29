@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Conic Sections</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:150px;accent-color:#a855f7}
+    .ctrl-group .val{font-size:.8rem;color:#a855f7;font-weight:600;font-family:monospace}
+    .tab-row{display:flex;gap:.4rem}
+    .tab-btn{padding:.5rem 1.1rem;border-radius:.5rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.85rem;transition:all .2s}
+    .tab-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.12)}
+    .toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+    .toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+    .readout .datum strong{color:#a855f7}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🔶 Conic Sections</h1>
+  <p class="subtitle">Explore ellipses, parabolas &amp; hyperbolas with adjustable parameters</p>
+  <div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+  <div class="controls">
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-ellipse" onclick="setType('ellipse')">Ellipse</button>
+      <button class="tab-btn" id="tab-parabola" onclick="setType('parabola')">Parabola</button>
+      <button class="tab-btn" id="tab-hyperbola" onclick="setType('hyperbola')">Hyperbola</button>
+      <button class="tab-btn" id="tab-circle" onclick="setType('circle')">Circle</button>
+    </div>
+    <div class="ctrl-group" id="cg-a"><label>a (semi-major)</label>
+      <input type="range" id="param-a" min="20" max="220" value="160" oninput="upd()"><span class="val" id="va">160</span></div>
+    <div class="ctrl-group" id="cg-b"><label>b (semi-minor)</label>
+      <input type="range" id="param-b" min="20" max="200" value="100" oninput="upd()"><span class="val" id="vb">100</span></div>
+    <div class="ctrl-group" id="cg-p" style="display:none"><label>p (focal param)</label>
+      <input type="range" id="param-p" min="20" max="200" value="80" oninput="upd()"><span class="val" id="vp">80</span></div>
+    <button class="toggle-btn active" id="btn-foci" onclick="togO('foci')">Foci</button>
+    <button class="toggle-btn active" id="btn-dir" onclick="togO('dir')">Directrix</button>
+    <button class="toggle-btn" id="btn-asym" onclick="togO('asym')">Asymptotes</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Equation: <strong id="eq">—</strong></div>
+    <div class="datum">Eccentricity: <strong id="ecc">—</strong></div>
+    <div class="datum">Area: <strong id="area">—</strong></div>
+  </div>
+  <div class="info-box"><h3>Conic Sections</h3><p>Conic sections are curves formed by intersecting a plane with a cone. An <strong>ellipse</strong> (eccentricity 0 &lt; e &lt; 1) has two foci; the sum of distances to them is constant. A <strong>parabola</strong> (e = 1) has one focus and a directrix — every point is equidistant from both. A <strong>hyperbola</strong> (e &gt; 1) is two branches; the <em>difference</em> of focal distances is constant. A <strong>circle</strong> is a special ellipse where e = 0.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var W,H;
+  function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+  window.addEventListener('resize',resize);resize();
+
+  var type='ellipse';
+  var showO={foci:true,dir:true,asym:false};
+
+  window.setType=function(t){
+    type=t;
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+    document.getElementById('tab-'+t).classList.add('active');
+    document.getElementById('cg-a').style.display=(t==='parabola')?'none':'flex';
+    document.getElementById('cg-b').style.display=(t==='parabola'||t==='circle')?'none':'flex';
+    document.getElementById('cg-p').style.display=(t==='parabola')?'flex':'none';
+    upd();
+  };
+  window.togO=function(k){showO[k]=!showO[k];document.getElementById('btn-'+k).classList.toggle('active');};
+  window.upd=function(){
+    document.getElementById('va').textContent=document.getElementById('param-a').value;
+    document.getElementById('vb').textContent=document.getElementById('param-b').value;
+    document.getElementById('vp').textContent=document.getElementById('param-p').value;
+  };
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+    var cx=W/2,cy=H/2;
+
+    /* grid */
+    ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+    for(var g=-300;g<=300;g+=50){
+      ctx.beginPath();ctx.moveTo(cx+g,0);ctx.lineTo(cx+g,H);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(0,cy+g);ctx.lineTo(W,cy+g);ctx.stroke();
+    }
+
+    /* axes */
+    ctx.strokeStyle='#475569';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+
+    var a=+document.getElementById('param-a').value;
+    var b=+document.getElementById('param-b').value;
+    var p=+document.getElementById('param-p').value;
+
+    if(type==='ellipse'){
+      if(b>a)b=a; /* enforce a >= b */
+      var c=Math.sqrt(a*a-b*b);
+      var e=c/a;
+      /* curve */
+      ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.shadowColor='#a855f7';ctx.shadowBlur=8;
+      ctx.beginPath();ctx.ellipse(cx,cy,a,b,0,0,Math.PI*2);ctx.stroke();
+      ctx.shadowBlur=0;
+      /* fill */
+      ctx.fillStyle='rgba(168,85,247,0.06)';ctx.beginPath();ctx.ellipse(cx,cy,a,b,0,0,Math.PI*2);ctx.fill();
+      /* foci */
+      if(showO.foci){
+        ctx.fillStyle='#f472b6';
+        ctx.beginPath();ctx.arc(cx-c,cy,5,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();ctx.arc(cx+c,cy,5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#f472b6';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+        ctx.fillText('F₁',cx-c,cy+18);ctx.fillText('F₂',cx+c,cy+18);
+      }
+      /* directrix */
+      if(showO.dir&&e>0.01){
+        var dx=a/e;
+        ctx.strokeStyle='#38bdf8';ctx.lineWidth=1;ctx.setLineDash([6,4]);
+        ctx.beginPath();ctx.moveTo(cx-dx,0);ctx.lineTo(cx-dx,H);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(cx+dx,0);ctx.lineTo(cx+dx,H);ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      /* semi-axes labels */
+      ctx.strokeStyle='rgba(168,85,247,0.4)';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+a,cy);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx,cy-b);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='#a855f7';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+      ctx.fillText('a',cx+a/2,cy+16);ctx.fillText('b',cx-12,cy-b/2);
+
+      document.getElementById('eq').textContent='x²/'+a+'² + y²/'+b+'² = 1';
+      document.getElementById('ecc').textContent='e = '+e.toFixed(3);
+      document.getElementById('area').textContent='πab = '+(Math.PI*a*b).toFixed(0)+' px²';
+
+    }else if(type==='parabola'){
+      /* y² = 4px  →  x = t²/(4p), y = t */
+      ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.shadowColor='#a855f7';ctx.shadowBlur=8;
+      ctx.beginPath();
+      for(var t=-H;t<=H;t+=1){
+        var xx=t*t/(4*p);
+        var sx=cx+xx,sy=cy-t;
+        if(sx>W+50)continue;
+        t===-H?ctx.moveTo(sx,sy):ctx.lineTo(sx,sy);
+      }
+      ctx.stroke();ctx.shadowBlur=0;
+      if(showO.foci){
+        ctx.fillStyle='#f472b6';ctx.beginPath();ctx.arc(cx+p,cy,5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#f472b6';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+        ctx.fillText('F',cx+p,cy+18);
+      }
+      if(showO.dir){
+        ctx.strokeStyle='#38bdf8';ctx.lineWidth=1;ctx.setLineDash([6,4]);
+        ctx.beginPath();ctx.moveTo(cx-p,0);ctx.lineTo(cx-p,H);ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle='#38bdf8';ctx.font='10px Poppins';ctx.textAlign='center';
+        ctx.fillText('directrix',cx-p,20);
+      }
+      document.getElementById('eq').textContent='y² = 4·'+p+'·x  (p='+p+')';
+      document.getElementById('ecc').textContent='e = 1 (parabola)';
+      document.getElementById('area').textContent='—';
+
+    }else if(type==='hyperbola'){
+      var ch=Math.sqrt(a*a+b*b);
+      var eh=ch/a;
+      /* x²/a² - y²/b² = 1 → x = a·sec(t), y = b·tan(t) */
+      ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.shadowColor='#a855f7';ctx.shadowBlur=8;
+      /* right branch */
+      ctx.beginPath();
+      for(var t2=-1.4;t2<=1.4;t2+=0.01){
+        var hx=a/Math.cos(t2),hy=b*Math.tan(t2);
+        var sx2=cx+hx,sy2=cy-hy;
+        t2===-1.4?ctx.moveTo(sx2,sy2):ctx.lineTo(sx2,sy2);
+      }
+      ctx.stroke();
+      /* left branch */
+      ctx.beginPath();
+      for(var t3=-1.4;t3<=1.4;t3+=0.01){
+        var hx2=-a/Math.cos(t3),hy2=-b*Math.tan(t3);
+        var sx3=cx+hx2,sy3=cy-hy2;
+        t3===-1.4?ctx.moveTo(sx3,sy3):ctx.lineTo(sx3,sy3);
+      }
+      ctx.stroke();ctx.shadowBlur=0;
+      /* asymptotes */
+      if(showO.asym){
+        ctx.strokeStyle='rgba(250,204,21,0.4)';ctx.lineWidth=1;ctx.setLineDash([6,4]);
+        ctx.beginPath();ctx.moveTo(cx-W,cy+W*b/a);ctx.lineTo(cx+W,cy-W*b/a);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(cx-W,cy-W*b/a);ctx.lineTo(cx+W,cy+W*b/a);ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      if(showO.foci){
+        ctx.fillStyle='#f472b6';
+        ctx.beginPath();ctx.arc(cx-ch,cy,5,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();ctx.arc(cx+ch,cy,5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#f472b6';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+        ctx.fillText('F₁',cx-ch,cy+18);ctx.fillText('F₂',cx+ch,cy+18);
+      }
+      if(showO.dir&&eh>0.01){
+        var dxh=a/eh;
+        ctx.strokeStyle='#38bdf8';ctx.lineWidth=1;ctx.setLineDash([6,4]);
+        ctx.beginPath();ctx.moveTo(cx-dxh,0);ctx.lineTo(cx-dxh,H);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(cx+dxh,0);ctx.lineTo(cx+dxh,H);ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      document.getElementById('eq').textContent='x²/'+a+'² − y²/'+b+'² = 1';
+      document.getElementById('ecc').textContent='e = '+eh.toFixed(3);
+      document.getElementById('area').textContent='—';
+
+    }else if(type==='circle'){
+      ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.shadowColor='#a855f7';ctx.shadowBlur=8;
+      ctx.beginPath();ctx.arc(cx,cy,a,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;
+      ctx.fillStyle='rgba(168,85,247,0.06)';ctx.beginPath();ctx.arc(cx,cy,a,0,Math.PI*2);ctx.fill();
+      if(showO.foci){
+        ctx.fillStyle='#f472b6';ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#f472b6';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+        ctx.fillText('Center',cx,cy+18);
+      }
+      /* radius line */
+      ctx.strokeStyle='rgba(168,85,247,0.4)';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+a,cy);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='#a855f7';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+      ctx.fillText('r = '+a,cx+a/2,cy+16);
+
+      document.getElementById('eq').textContent='x² + y² = '+a+'²';
+      document.getElementById('ecc').textContent='e = 0 (circle)';
+      document.getElementById('area').textContent='πr² = '+(Math.PI*a*a).toFixed(0)+' px²';
+    }
+
+    /* origin label */
+    ctx.fillStyle='#475569';ctx.font='10px Poppins';ctx.textAlign='left';
+    ctx.fillText('O',cx+4,cy+14);
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

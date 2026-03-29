@@ -5,151 +5,268 @@ LinearAlgebraLessons — Unit7
 --- Lesson 7.1: Characteristic Polynomial (Summary) ---
 
   Key Concepts: Characteristic Polynomial
-Key Concepts: Characteristic Polynomial
-
-Content for Characteristic Polynomial is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+What is the characteristic polynomial of a 2x2 matrix A defined as?
+The characteristic polynomial of a matrix A is defined as p(lambda) = det(A - lambda I), where I is the identity matrix of the same size.
+What is the degree of the characteristic polynomial of a 3x3 matrix?
+The characteristic polynomial of an n x n matrix is always a polynomial of degree n. For a 3x3 matrix, the degree is 3.
+For a diagonal matrix D = diag(2, 5, -1), what is the characteristic polynomial?
+For a diagonal matrix, the characteristic polynomial is the product of (d_i - lambda) for each diagonal entry d_i. So p(lambda) = (2 - lambda)(5 - lambda)(-1 - lambda).
+If the characteristic polynomial of a 2x2 matrix is lambda^2 - 5lambda + 6, what is the trace of the matrix?
+For a 2x2 matrix, the characteristic polynomial is lambda^2 - (trace)lambda + det. Comparing with lambda^2 - 5lambda + 6, the trace is 5.
+What is the characteristic polynomial of the 2x2 identity matrix I?
+For I = [[1,0],[0,1]], det(I - lambda I) = (1-lambda)^2 = (lambda-1)^2. The only eigenvalue is 1 with algebraic multiplicity 2.
+What is the constant term of the characteristic polynomial of a matrix A?
+Evaluating the characteristic polynomial at lambda = 0 gives det(A - 0*I) = det(A). Therefore, the constant term equals the determinant of A.
+What is the characteristic polynomial of a matrix?
+The characteristic polynomial is p(lambda) = det(A - lambda I). Its roots are precisely the eigenvalues of the matrix A.
+What is the trace of a matrix in relation to its characteristic polynomial?
+The trace of a matrix equals the sum of its eigenvalues, which are the roots of the characteristic polynomial. For an n x n matrix, the coefficient of lambda^(n-1) equals (-1) times the trace.
+What is a 'monic polynomial' in the context of characteristic polynomials?
+A monic polynomial has a leading coefficient of 1. Characteristic polynomials are often written in monic form as lambda^n - (trace)lambda^(n-1) + ... + (-1)^n det(A).
+What is the minimal polynomial of a matrix?
+The minimal polynomial is the monic polynomial of smallest degree such that p(A) = 0. It always divides the characteristic polynomial and shares the same roots.
+What is the 'characteristic equation' of a matrix?
+The characteristic equation is det(A - lambda I) = 0. Solving this equation yields the eigenvalues of the matrix A.
+What is the 'spectrum' of a matrix?
+The spectrum of a matrix is the set of all its eigenvalues. It consists of all values of lambda that are roots of the characteristic polynomial.
+What is the spectral radius of a matrix?
+The spectral radius rho(A) is the maximum absolute value of the eigenvalues: rho(A) = max(|lambda_i|). It plays a key role in convergence analysis of iterative methods.
+A structural engineer models a two-story building's vibration modes using the stiffness matrix K = [[5, -2], [-2, 3]]. To find the natural frequencies, she needs the characteristic polynomial of K. What is it?
+det(K - lambda I) = (5 - lambda)(3 - lambda) - (-2)(-2) = lambda^2 - 8lambda + 15 - 4 = lambda^2 - 8lambda + 11. The roots give the squares of the natural frequencies.
+A population biologist models two competing species with the matrix A = [[1.2, -0.3], [0.1, 0.8]]. To analyze long-term behavior, she computes the characteristic polynomial. What is the sum of the eigenvalues?
+The sum of the eigenvalues equals the trace of A. trace(A) = 1.2 + 0.8 = 2.0. This is the coefficient of lambda in the characteristic polynomial (with a sign change).
+A data scientist computes the covariance matrix C = [[4, 2], [2, 3]] for a dataset. What is the product of the eigenvalues of C?
+The product of the eigenvalues equals the determinant. det(C) = 4(3) - 2(2) = 12 - 4 = 8. This fact comes directly from the constant term of the characteristic polynomial.
+A chemical engineer models a two-reactor system with the rate matrix A = [[-3, 1], [2, -4]]. She uses the Cayley-Hamilton theorem to express A^(-1) in terms of A and I. If the characteristic polynomial is lambda^2 + 7lambda + 10, what is A^(-1)?
+By Cayley-Hamilton, A^2 + 7A + 10I = 0. Multiplying both sides by A^(-1): A + 7I + 10A^(-1) = 0, so A^(-1) = (-1/10)(A + 7I).
+A quantum computing researcher works with the Pauli-Z matrix Z = [[1, 0], [0, -1]]. What is the characteristic polynomial of Z?
+det(Z - lambda I) = (1-lambda)(-1-lambda) = -(1-lambda)(1+lambda) = lambda^2 - 1. The eigenvalues are 1 and -1, corresponding to spin-up and spin-down states.
+A financial analyst models portfolio risk with the covariance matrix S = [[9, 3, 0], [3, 5, 1], [0, 1, 2]]. What is the sum of all eigenvalues of S?
+The sum of eigenvalues equals the trace. trace(S) = 9 + 5 + 2 = 16. This represents the total variance across all three assets in the portfolio.
+An electrical engineer designs a filter described by the transfer matrix H = [[2, -1], [1, 4]]. To determine the system's poles, she finds the characteristic polynomial. What is it?
+det(H - lambda I) = (2-lambda)(4-lambda) - (-1)(1) = 8 - 6lambda + lambda^2 + 1 = lambda^2 - 6lambda + 9 = (lambda - 3)^2. The repeated eigenvalue 3 indicates a critically damped system.
+A wildlife biologist uses a Leslie matrix L = [[0, 4], [0.5, 0]] to model a fish population. What is the dominant eigenvalue (largest in absolute value)?
+det(L - lambda I) = (0 - lambda)(0 - lambda) - (4)(0.5) = lambda^2 - 2. So lambda = sqrt(2) and -sqrt(2). The dominant eigenvalue is sqrt(2) approximately 1.414, indicating population growth.
+Real-World Applications
+Example: What does the term 'algebraic multiplicity' mean for an eigenvalue?
+The algebraic multiplicity of an eigenvalue is the number of times it appears as a root of the characteristic polynomial, counting repeated roots.
+Example: What does 'geometric multiplicity' of an eigenvalue refer to?
+The geometric multiplicity is the dimension of the eigenspace ker(A - lambda I), i.e., the number of linearly independent eigenvectors for that eigenvalue. It is always at most equal to the algebraic multiplicity.
 
 --- Lesson 7.1: Characteristic Polynomial (Quiz) ---
 
-  Q1. Sample question 1 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Characteristic Polynomial.
+  Q1. What is the characteristic polynomial of a 2x2 matrix A defined as?
+    [*] det(A - lambda I)
+    [ ] det(A + lambda I)
+    [ ] det(A * lambda I)
+    [ ] det(lambda A - I)
+    Explanation: The characteristic polynomial of a matrix A is defined as p(lambda) = det(A - lambda I), where I is the identity matrix of the same size.
 
-  Q2. Sample question 2 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Characteristic Polynomial.
+  Q2. What is the degree of the characteristic polynomial of a 3x3 matrix?
+    [ ] 9
+    [ ] 6
+    [ ] 2
+    [*] 3
+    Explanation: The characteristic polynomial of an n x n matrix is always a polynomial of degree n. For a 3x3 matrix, the degree is 3.
 
-  Q3. Sample question 3 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Characteristic Polynomial.
+  Q3. Find the characteristic polynomial of A = [[4, 1], [0, 3]].
+    [ ] lambda^2 + 7lambda + 12
+    [*] lambda^2 - 7lambda + 12
+    [ ] lambda^2 - 12lambda + 7
+    [ ] lambda^2 - 7lambda - 12
+    Explanation: det(A - lambda I) = (4 - lambda)(3 - lambda) - (1)(0) = lambda^2 - 7lambda + 12. The trace is 7 and the determinant is 12.
 
-  Q4. Sample question 4 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Characteristic Polynomial.
+  Q4. For a diagonal matrix D = diag(2, 5, -1), what is the characteristic polynomial?
+    [ ] (lambda - 2)(lambda - 5)(lambda + 1)
+    [ ] (lambda - 2)(lambda + 5)(lambda - 1)
+    [*] (2 - lambda)(5 - lambda)(-1 - lambda)
+    [ ] (lambda + 2)(lambda + 5)(lambda - 1)
+    Explanation: For a diagonal matrix, the characteristic polynomial is the product of (d_i - lambda) for each diagonal entry d_i. So p(lambda) = (2 - lambda)(5 - lambda)(-1 - lambda).
 
-  Q5. Sample question 5 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Characteristic Polynomial.
+  Q5. If the characteristic polynomial of a 2x2 matrix is lambda^2 - 5lambda + 6, what is the trace of the matrix?
+    [ ] 6
+    [ ] -6
+    [*] 5
+    [ ] -5
+    Explanation: For a 2x2 matrix, the characteristic polynomial is lambda^2 - (trace)lambda + det. Comparing with lambda^2 - 5lambda + 6, the trace is 5.
 
-  Q6. Sample question 6 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Characteristic Polynomial.
+  Q6. What is the characteristic polynomial of the 2x2 identity matrix I?
+    [*] (lambda - 1)^2
+    [ ] (lambda + 1)^2
+    [ ] lambda^2 - 1
+    [ ] lambda^2 + 1
+    Explanation: For I = [[1,0],[0,1]], det(I - lambda I) = (1-lambda)^2 = (lambda-1)^2. The only eigenvalue is 1 with algebraic multiplicity 2.
 
-  Q7. Sample question 7 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Characteristic Polynomial.
+  Q7. For a triangular matrix with diagonal entries 3, -2, and 7, what are the roots of the characteristic polynomial?
+    [ ] 3, 2, and 7
+    [ ] 1, 1, and 1
+    [*] 3, -2, and 7
+    [ ] -3, 2, and -7
+    Explanation: For triangular matrices, the eigenvalues are the diagonal entries. The characteristic polynomial factors as (3 - lambda)(-2 - lambda)(7 - lambda), with roots 3, -2, and 7.
 
-  Q8. Sample question 8 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Characteristic Polynomial.
+  Q8. If the characteristic polynomial of a 2x2 matrix is lambda^2 + 4, what can be said about the eigenvalues?
+    [*] The eigenvalues are complex: 2i and -2i
+    [ ] Both eigenvalues are real and positive
+    [ ] Both eigenvalues are real and negative
+    [ ] There are no eigenvalues
+    Explanation: Setting lambda^2 + 4 = 0 gives lambda^2 = -4, so lambda = 2i and lambda = -2i. The eigenvalues are purely imaginary complex conjugates.
 
-  Q9. Sample question 9 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Characteristic Polynomial.
+  Q9. What is the constant term of the characteristic polynomial of a matrix A?
+    [*] The determinant of A
+    [ ] The rank of A
+    [ ] The norm of A
+    [ ] The trace of A
+    Explanation: Evaluating the characteristic polynomial at lambda = 0 gives det(A - 0*I) = det(A). Therefore, the constant term equals the determinant of A.
 
-  Q10. Sample question 10 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Characteristic Polynomial.
+  Q10. Find the characteristic polynomial of A = [[0, -1], [1, 0]].
+    [ ] lambda^2 - 2lambda + 1
+    [ ] lambda^2 - 1
+    [*] lambda^2 + 1
+    [ ] lambda^2
+    Explanation: det(A - lambda I) = (0 - lambda)(0 - lambda) - (-1)(1) = lambda^2 + 1. This is a 90-degree rotation matrix with complex eigenvalues i and -i.
 
-  Q11. Sample question 11 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Characteristic Polynomial.
+  Q11. What is the characteristic polynomial of a matrix?
+    [ ] A polynomial representing the trace as a function of lambda
+    [*] A polynomial obtained from det(A - lambda I) whose roots are the eigenvalues
+    [ ] A polynomial whose roots give the singular values of the matrix
+    [ ] The minimal polynomial that annihilates the matrix
+    Explanation: The characteristic polynomial is p(lambda) = det(A - lambda I). Its roots are precisely the eigenvalues of the matrix A.
 
-  Q12. Sample question 12 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Characteristic Polynomial.
+  Q12. What does the term 'algebraic multiplicity' mean for an eigenvalue?
+    [*] The number of times the eigenvalue appears as a root of the characteristic polynomial
+    [ ] The dimension of the eigenspace associated with that eigenvalue
+    [ ] The number of eigenvectors corresponding to that eigenvalue
+    [ ] The absolute value of the eigenvalue
+    Explanation: The algebraic multiplicity of an eigenvalue is the number of times it appears as a root of the characteristic polynomial, counting repeated roots.
 
-  Q13. Sample question 13 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Characteristic Polynomial.
+  Q13. What is the trace of a matrix in relation to its characteristic polynomial?
+    [ ] The trace has no relationship to the characteristic polynomial
+    [ ] The trace equals the constant term of the characteristic polynomial
+    [*] The trace equals the sum of the roots of the characteristic polynomial
+    [ ] The trace equals the leading coefficient of the characteristic polynomial
+    Explanation: The trace of a matrix equals the sum of its eigenvalues, which are the roots of the characteristic polynomial. For an n x n matrix, the coefficient of lambda^(n-1) equals (-1) times the trace.
 
-  Q14. Sample question 14 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Characteristic Polynomial.
+  Q14. What does the Cayley-Hamilton theorem state?
+    [ ] Every matrix has at least one real eigenvalue
+    [ ] The characteristic polynomial always has distinct roots
+    [ ] Similar matrices have different characteristic polynomials
+    [*] Every matrix satisfies its own characteristic polynomial
+    Explanation: The Cayley-Hamilton theorem states that every square matrix satisfies its own characteristic equation. If p(lambda) is the characteristic polynomial of A, then p(A) = 0 (the zero matrix).
 
-  Q15. Sample question 15 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Characteristic Polynomial.
+  Q15. What is a 'monic polynomial' in the context of characteristic polynomials?
+    [*] A polynomial whose highest-degree term has coefficient 1
+    [ ] A polynomial with integer coefficients only
+    [ ] A polynomial whose leading coefficient is 1 or -1
+    [ ] A polynomial with all positive coefficients
+    Explanation: A monic polynomial has a leading coefficient of 1. Characteristic polynomials are often written in monic form as lambda^n - (trace)lambda^(n-1) + ... + (-1)^n det(A).
 
-  Q16. Sample question 16 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Characteristic Polynomial.
+  Q16. What is the minimal polynomial of a matrix?
+    [ ] The characteristic polynomial divided by the determinant
+    [*] The monic polynomial of least degree that annihilates the matrix
+    [ ] The polynomial with the smallest coefficients that has the same roots
+    [ ] The polynomial formed by the smallest eigenvalue only
+    Explanation: The minimal polynomial is the monic polynomial of smallest degree such that p(A) = 0. It always divides the characteristic polynomial and shares the same roots.
 
-  Q17. Sample question 17 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Characteristic Polynomial.
+  Q17. What is the 'characteristic equation' of a matrix?
+    [ ] The equation Ax = b for an unknown vector x
+    [ ] The equation det(A) = 0
+    [*] The equation formed by setting the characteristic polynomial equal to zero
+    [ ] The equation relating eigenvalues to singular values
+    Explanation: The characteristic equation is det(A - lambda I) = 0. Solving this equation yields the eigenvalues of the matrix A.
 
-  Q18. Sample question 18 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Characteristic Polynomial.
+  Q18. What is the 'spectrum' of a matrix?
+    [*] The set of all eigenvalues of the matrix
+    [ ] The set of all singular values
+    [ ] The range of the matrix as a linear transformation
+    [ ] The set of all possible characteristic polynomials
+    Explanation: The spectrum of a matrix is the set of all its eigenvalues. It consists of all values of lambda that are roots of the characteristic polynomial.
 
-  Q19. Sample question 19 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Characteristic Polynomial.
+  Q19. What is the spectral radius of a matrix?
+    [ ] The determinant divided by the trace
+    [ ] The average of all eigenvalues
+    [ ] The smallest eigenvalue in absolute value
+    [*] The largest eigenvalue in absolute value
+    Explanation: The spectral radius rho(A) is the maximum absolute value of the eigenvalues: rho(A) = max(|lambda_i|). It plays a key role in convergence analysis of iterative methods.
 
-  Q20. Sample question 20 for Characteristic Polynomial
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Characteristic Polynomial.
+  Q20. What does 'geometric multiplicity' of an eigenvalue refer to?
+    [ ] The number of matrices sharing that eigenvalue
+    [ ] The physical magnitude of the eigenvalue
+    [ ] The number of times the eigenvalue appears as a root of the characteristic polynomial
+    [*] The dimension of the eigenspace corresponding to that eigenvalue
+    Explanation: The geometric multiplicity is the dimension of the eigenspace ker(A - lambda I), i.e., the number of linearly independent eigenvectors for that eigenvalue. It is always at most equal to the algebraic multiplicity.
+
+  Q21. A structural engineer models a two-story building's vibration modes using the stiffness matrix K = [[5, -2], [-2, 3]]. To find the natural frequencies, she needs the characteristic polynomial of K. What is it?
+    [ ] lambda^2 - 8lambda - 11
+    [ ] lambda^2 - 8lambda + 15
+    [*] lambda^2 - 8lambda + 11
+    [ ] lambda^2 + 8lambda + 11
+    Explanation: det(K - lambda I) = (5 - lambda)(3 - lambda) - (-2)(-2) = lambda^2 - 8lambda + 15 - 4 = lambda^2 - 8lambda + 11. The roots give the squares of the natural frequencies.
+
+  Q22. A population biologist models two competing species with the matrix A = [[1.2, -0.3], [0.1, 0.8]]. To analyze long-term behavior, she computes the characteristic polynomial. What is the sum of the eigenvalues?
+    [ ] 0.96
+    [*] 2.0
+    [ ] 1.5
+    [ ] 0.4
+    Explanation: The sum of the eigenvalues equals the trace of A. trace(A) = 1.2 + 0.8 = 2.0. This is the coefficient of lambda in the characteristic polynomial (with a sign change).
+
+  Q23. A control systems engineer analyzes the stability of a feedback system with matrix A = [[0, 1], [-6, -5]]. Using the characteristic polynomial, what are the eigenvalues?
+    [ ] 1 and 6
+    [ ] -1 and -6
+    [ ] 2 and 3
+    [*] -2 and -3
+    Explanation: det(A - lambda I) = (0-lambda)(-5-lambda) - (1)(-6) = lambda^2 + 5lambda + 6 = (lambda + 2)(lambda + 3). The eigenvalues are -2 and -3, both negative, so the system is stable.
+
+  Q24. A data scientist computes the covariance matrix C = [[4, 2], [2, 3]] for a dataset. What is the product of the eigenvalues of C?
+    [ ] 10
+    [ ] 12
+    [*] 8
+    [ ] 7
+    Explanation: The product of the eigenvalues equals the determinant. det(C) = 4(3) - 2(2) = 12 - 4 = 8. This fact comes directly from the constant term of the characteristic polynomial.
+
+  Q25. A chemical engineer models a two-reactor system with the rate matrix A = [[-3, 1], [2, -4]]. She uses the Cayley-Hamilton theorem to express A^(-1) in terms of A and I. If the characteristic polynomial is lambda^2 + 7lambda + 10, what is A^(-1)?
+    [ ] (-1/7)(A + 10I)
+    [ ] (1/7)(A + 10I)
+    [ ] (1/10)(A + 7I)
+    [*] (-1/10)(A + 7I)
+    Explanation: By Cayley-Hamilton, A^2 + 7A + 10I = 0. Multiplying both sides by A^(-1): A + 7I + 10A^(-1) = 0, so A^(-1) = (-1/10)(A + 7I).
+
+  Q26. A quantum computing researcher works with the Pauli-Z matrix Z = [[1, 0], [0, -1]]. What is the characteristic polynomial of Z?
+    [ ] lambda^2 - 2lambda + 1
+    [ ] lambda^2 + 2lambda + 1
+    [*] lambda^2 - 1
+    [ ] lambda^2 + 1
+    Explanation: det(Z - lambda I) = (1-lambda)(-1-lambda) = -(1-lambda)(1+lambda) = lambda^2 - 1. The eigenvalues are 1 and -1, corresponding to spin-up and spin-down states.
+
+  Q27. A financial analyst models portfolio risk with the covariance matrix S = [[9, 3, 0], [3, 5, 1], [0, 1, 2]]. What is the sum of all eigenvalues of S?
+    [ ] 17
+    [ ] 15
+    [ ] 14
+    [*] 16
+    Explanation: The sum of eigenvalues equals the trace. trace(S) = 9 + 5 + 2 = 16. This represents the total variance across all three assets in the portfolio.
+
+  Q28. An electrical engineer designs a filter described by the transfer matrix H = [[2, -1], [1, 4]]. To determine the system's poles, she finds the characteristic polynomial. What is it?
+    [ ] lambda^2 + 6lambda + 9
+    [*] lambda^2 - 6lambda + 9
+    [ ] lambda^2 - 6lambda + 7
+    [ ] lambda^2 - 6lambda + 8
+    Explanation: det(H - lambda I) = (2-lambda)(4-lambda) - (-1)(1) = 8 - 6lambda + lambda^2 + 1 = lambda^2 - 6lambda + 9 = (lambda - 3)^2. The repeated eigenvalue 3 indicates a critically damped system.
+
+  Q29. A wildlife biologist uses a Leslie matrix L = [[0, 4], [0.5, 0]] to model a fish population. What is the dominant eigenvalue (largest in absolute value)?
+    [ ] 2, pa
+    [ ] 4, pa
+    [*] sqrt(2)
+    [ ] 0.5
+    Explanation: det(L - lambda I) = (0 - lambda)(0 - lambda) - (4)(0.5) = lambda^2 - 2. So lambda = sqrt(2) and -sqrt(2). The dominant eigenvalue is sqrt(2) approximately 1.414, indicating population growth.
+
+  Q30. A mechanical engineer studies a mass-spring system modeled by M = [[3, -1], [-1, 3]]. She notes the characteristic polynomial is lambda^2 - 6lambda + 8. What type of vibration modes does this system have?
+    [ ] A single repeated mode with eigenvalue 3
+    [ ] One oscillatory mode and one exponential decay
+    [ ] Two complex conjugate modes
+    [*] Two distinct real modes with eigenvalues 2 and 4
+    Explanation: lambda^2 - 6lambda + 8 = (lambda - 2)(lambda - 4), giving eigenvalues 2 and 4. Both are real and positive, corresponding to two distinct vibration modes with frequencies proportional to sqrt(2) and 2.
 
 --- Lesson 7.1: Characteristic Polynomial (Flashcards) ---
 
@@ -168,154 +285,270 @@ Content for Characteristic Polynomial is coming soon. Check back for detailed no
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 7.2: Finding Eigenvalues (Summary) ---
 
   Key Concepts: Finding Eigenvalues
-Key Concepts: Finding Eigenvalues
-
-Content for Finding Eigenvalues is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+A matrix has eigenvalues 2, -3, and 5. What is its determinant?
+The determinant equals the product of all eigenvalues: 2 * (-3) * 5 = -30.
+If lambda = 4 is an eigenvalue of A, what is an eigenvalue of 3A?
+If Av = 4v, then (3A)v = 3(Av) = 3(4v) = 12v. Scaling a matrix by c multiplies all eigenvalues by c.
+If lambda = 3 is an eigenvalue of A, what is the corresponding eigenvalue of A^2?
+If Av = 3v, then A^2 v = A(Av) = A(3v) = 3(Av) = 9v. The eigenvalues of A^k are lambda^k.
+If A is invertible with eigenvalue lambda = 2, what is the corresponding eigenvalue of A^(-1)?
+If Av = 2v, then v = A^(-1)(2v) = 2A^(-1)v, so A^(-1)v = (1/2)v. The eigenvalues of A^(-1) are the reciprocals of those of A.
+What is an eigenvalue of a matrix?
+An eigenvalue lambda is a scalar for which Av = lambda v has a nonzero solution v. This means A acts on v by simply scaling it.
+What is meant by a 'defective eigenvalue'?
+An eigenvalue is defective when its geometric multiplicity (dimension of eigenspace) is strictly less than its algebraic multiplicity (multiplicity as a root of the characteristic polynomial).
+What is a 'dominant eigenvalue' of a matrix?
+The dominant eigenvalue is the eigenvalue with the largest absolute value. It determines the long-term behavior of systems like A^k v as k grows large.
+What is meant by a 'similar matrix' in the context of eigenvalues?
+Matrices A and B are similar if B = P^(-1)AP for some invertible P. Similar matrices share the same characteristic polynomial and therefore the same eigenvalues.
+What is meant by the 'power method' for finding eigenvalues?
+The power method starts with a random vector and repeatedly multiplies by A, normalizing at each step. The sequence converges to the eigenvector of the dominant eigenvalue.
+What is a 'characteristic root' of a matrix?
+A characteristic root is simply another term for an eigenvalue. It refers to a root of the characteristic polynomial det(A - lambda I) = 0.
+A Markov chain model for customer loyalty has transition matrix T = [[0.9, 0.2], [0.1, 0.8]]. One eigenvalue is always 1 for a stochastic matrix. What is the other eigenvalue?
+The trace = 0.9 + 0.8 = 1.7 = sum of eigenvalues. Since one eigenvalue is 1, the other is 1.7 - 1 = 0.7. Since |0.7| < 1, the chain converges to its steady state.
+A climate scientist models heat transfer between two ocean layers with A = [[-0.4, 0.2], [0.4, -0.2]]. One eigenvalue is 0. What is the other eigenvalue, and what does it indicate?
+The trace = -0.4 + (-0.2) = -0.6. Since the eigenvalues sum to the trace and one is 0, the other is -0.6. The negative eigenvalue means the non-equilibrium component decays exponentially.
+A web developer uses the adjacency matrix A = [[0, 1, 1], [1, 0, 1], [1, 1, 0]] for a 3-page website. What is the largest eigenvalue of A?
+This is the adjacency matrix of the complete graph K3. The eigenvalues are 2 (once) and -1 (twice). The vector (1,1,1) is an eigenvector with eigenvalue 2, since each row sums to 2.
+An economist models a two-sector economy with the input-output matrix A = [[0.3, 0.4], [0.2, 0.5]]. What is the dominant eigenvalue, and does the Hawkins-Simon condition hold (all eigenvalues of A less than 1)?
+det(A - lambda I) = (0.3-lambda)(0.5-lambda) - 0.08 = lambda^2 - 0.8lambda + 0.07 = (lambda - 0.7)(lambda - 0.1). The dominant eigenvalue is 0.7 < 1, confirming the Hawkins-Simon condition holds.
+Real-World Applications
+Example: A web developer uses the adjacency matrix A = [[0, 1, 1], [1, 0, 1], [1, 1, 0]] for a 3-page website. What is the largest eigenvalue of A?
+This is the adjacency matrix of the complete graph K3. The eigenvalues are 2 (once) and -1 (twice). The vector (1,1,1) is an eigenvector with eigenvalue 2, since each row sums to 2.
 
 --- Lesson 7.2: Finding Eigenvalues (Quiz) ---
 
-  Q1. Sample question 1 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Finding Eigenvalues.
+  Q1. What are the eigenvalues of A = [[3, 0], [0, 7]]?
+    [ ] 0 and 21
+    [ ] 1 and 1
+    [ ] 10 and -4
+    [*] 3 and 7
+    Explanation: For a diagonal matrix, the eigenvalues are simply the diagonal entries. Here the eigenvalues are 3 and 7.
 
-  Q2. Sample question 2 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Finding Eigenvalues.
+  Q2. Find the eigenvalues of A = [[2, 1], [0, 5]].
+    [*] 2 and 5
+    [ ] 3 and 4
+    [ ] 1 and 10
+    [ ] 7 and 0
+    Explanation: A is upper triangular, so the eigenvalues are the diagonal entries: 2 and 5.
 
-  Q3. Sample question 3 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Finding Eigenvalues.
+  Q3. What are the eigenvalues of A = [[1, 2], [2, 1]]?
+    [ ] 0 and 3
+    [*] 3 and -1
+    [ ] 1 and 2
+    [ ] 2 and -2
+    Explanation: det(A - lambda I) = (1-lambda)^2 - 4 = lambda^2 - 2lambda - 3 = (lambda - 3)(lambda + 1). The eigenvalues are 3 and -1.
 
-  Q4. Sample question 4 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Finding Eigenvalues.
+  Q4. Find the eigenvalues of A = [[4, -2], [1, 1]].
+    [*] 3 and 2
+    [ ] 1 and 4
+    [ ] -1 and 6
+    [ ] 5 and 0
+    Explanation: det(A - lambda I) = (4-lambda)(1-lambda) - (-2)(1) = lambda^2 - 5lambda + 6 = (lambda - 2)(lambda - 3). The eigenvalues are 2 and 3.
 
-  Q5. Sample question 5 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Finding Eigenvalues.
+  Q5. A matrix has eigenvalues 2, -3, and 5. What is its determinant?
+    [ ] 10
+    [*] -30
+    [ ] 30
+    [ ] 4
+    Explanation: The determinant equals the product of all eigenvalues: 2 * (-3) * 5 = -30.
 
-  Q6. Sample question 6 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Finding Eigenvalues.
+  Q6. What are the eigenvalues of A = [[0, 1], [-1, 0]]?
+    [*] i and -i
+    [ ] 2i and -2i
+    [ ] 0 and 0
+    [ ] 1 and -1
+    Explanation: det(A - lambda I) = lambda^2 + 1 = 0, giving lambda = i and lambda = -i. This rotation matrix has purely imaginary eigenvalues.
 
-  Q7. Sample question 7 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Finding Eigenvalues.
+  Q7. If lambda = 4 is an eigenvalue of A, what is an eigenvalue of 3A?
+    [ ] 7
+    [ ] 64
+    [*] 12
+    [ ] 4
+    Explanation: If Av = 4v, then (3A)v = 3(Av) = 3(4v) = 12v. Scaling a matrix by c multiplies all eigenvalues by c.
 
-  Q8. Sample question 8 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Finding Eigenvalues.
+  Q8. If lambda = 3 is an eigenvalue of A, what is the corresponding eigenvalue of A^2?
+    [ ] sqrt(3)
+    [ ] 6
+    [ ] 3
+    [*] 9
+    Explanation: If Av = 3v, then A^2 v = A(Av) = A(3v) = 3(Av) = 9v. The eigenvalues of A^k are lambda^k.
 
-  Q9. Sample question 9 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Finding Eigenvalues.
+  Q9. Find the eigenvalues of A = [[5, 0, 0], [0, 5, 0], [0, 0, 5]].
+    [ ] 0, 5, and 15
+    [*] 5 with algebraic multiplicity 3
+    [ ] 5 with algebraic multiplicity 1
+    [ ] 125 with algebraic multiplicity 1
+    Explanation: This is 5I, so the characteristic polynomial is (5 - lambda)^3. The only eigenvalue is 5 with algebraic multiplicity 3.
 
-  Q10. Sample question 10 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Finding Eigenvalues.
+  Q10. If A is invertible with eigenvalue lambda = 2, what is the corresponding eigenvalue of A^(-1)?
+    [ ] -2
+    [ ] 2
+    [*] 1/2
+    [ ] 4
+    Explanation: If Av = 2v, then v = A^(-1)(2v) = 2A^(-1)v, so A^(-1)v = (1/2)v. The eigenvalues of A^(-1) are the reciprocals of those of A.
 
-  Q11. Sample question 11 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Finding Eigenvalues.
+  Q11. What is an eigenvalue of a matrix?
+    [ ] A vector that satisfies Av = 0
+    [*] A scalar lambda such that Av = lambda v for some nonzero vector v
+    [ ] Any scalar that appears as an entry in the matrix
+    [ ] The determinant of the matrix
+    Explanation: An eigenvalue lambda is a scalar for which Av = lambda v has a nonzero solution v. This means A acts on v by simply scaling it.
 
-  Q12. Sample question 12 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Finding Eigenvalues.
+  Q12. What does it mean for a matrix to have a 'repeated eigenvalue'?
+    [ ] The matrix can be diagonalized
+    [ ] The eigenvalue appears in more than one row of the matrix
+    [ ] The matrix has only one eigenvector
+    [*] An eigenvalue has algebraic multiplicity greater than 1
+    Explanation: A repeated eigenvalue has algebraic multiplicity greater than 1, meaning it is a repeated root of the characteristic polynomial.
 
-  Q13. Sample question 13 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Finding Eigenvalues.
+  Q13. What does it mean for eigenvalues to be 'complex conjugate pairs'?
+    [*] Eigenvalues of the form a + bi and a - bi that arise from real matrices
+    [ ] Eigenvalues that are both negative
+    [ ] Eigenvalues that sum to zero
+    [ ] Eigenvalues that are reciprocals of each other
+    Explanation: For real matrices, complex eigenvalues always come in conjugate pairs a + bi and a - bi. This follows from the fact that the characteristic polynomial has real coefficients.
 
-  Q14. Sample question 14 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Finding Eigenvalues.
+  Q14. What is meant by a 'defective eigenvalue'?
+    [ ] An eigenvalue that is irrational
+    [*] An eigenvalue whose geometric multiplicity is less than its algebraic multiplicity
+    [ ] An eigenvalue that is negative
+    [ ] An eigenvalue equal to zero
+    Explanation: An eigenvalue is defective when its geometric multiplicity (dimension of eigenspace) is strictly less than its algebraic multiplicity (multiplicity as a root of the characteristic polynomial).
 
-  Q15. Sample question 15 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Finding Eigenvalues.
+  Q15. What does the Fundamental Theorem of Algebra guarantee about eigenvalues of an n x n matrix?
+    [ ] All eigenvalues are real numbers
+    [*] The characteristic polynomial has exactly n roots (counted with multiplicity) in the complex numbers
+    [ ] There are exactly n distinct eigenvalues
+    [ ] The matrix is always diagonalizable
+    Explanation: By the Fundamental Theorem of Algebra, the degree-n characteristic polynomial has exactly n complex roots (with multiplicity). Every n x n matrix therefore has exactly n eigenvalues over the complex numbers.
 
-  Q16. Sample question 16 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Finding Eigenvalues.
+  Q16. What is a 'dominant eigenvalue' of a matrix?
+    [ ] The eigenvalue with the smallest absolute value
+    [ ] The only real eigenvalue of a matrix
+    [*] The eigenvalue with the largest absolute value
+    [ ] The eigenvalue associated with the most eigenvectors
+    Explanation: The dominant eigenvalue is the eigenvalue with the largest absolute value. It determines the long-term behavior of systems like A^k v as k grows large.
 
-  Q17. Sample question 17 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Finding Eigenvalues.
+  Q17. What does it mean for a matrix to be 'positive definite' in terms of eigenvalues?
+    [*] The matrix is symmetric and all eigenvalues are strictly positive
+    [ ] The trace is positive
+    [ ] All entries of the matrix are positive
+    [ ] The determinant is positive
+    Explanation: A symmetric matrix is positive definite if and only if all of its eigenvalues are strictly positive. This is equivalent to x^T A x > 0 for all nonzero vectors x.
 
-  Q18. Sample question 18 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Finding Eigenvalues.
+  Q18. What is meant by a 'similar matrix' in the context of eigenvalues?
+    [ ] Matrices that differ by a scalar multiple
+    [*] Matrices related by B = P^(-1)AP that share the same eigenvalues
+    [ ] Matrices that have the same dimension
+    [ ] Matrices with the same entries in different order
+    Explanation: Matrices A and B are similar if B = P^(-1)AP for some invertible P. Similar matrices share the same characteristic polynomial and therefore the same eigenvalues.
 
-  Q19. Sample question 19 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Finding Eigenvalues.
+  Q19. What is meant by the 'power method' for finding eigenvalues?
+    [ ] Computing A^n directly and reading off the diagonal
+    [ ] Raising each entry of the matrix to a power
+    [*] An iterative algorithm that repeatedly multiplies a vector by A to converge to the dominant eigenvector
+    [ ] A method that uses the trace and determinant to compute eigenvalues
+    Explanation: The power method starts with a random vector and repeatedly multiplies by A, normalizing at each step. The sequence converges to the eigenvector of the dominant eigenvalue.
 
-  Q20. Sample question 20 for Finding Eigenvalues
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Finding Eigenvalues.
+  Q20. What is a 'characteristic root' of a matrix?
+    [ ] The square root of the determinant
+    [*] Another name for an eigenvalue
+    [ ] The principal square root of the matrix
+    [ ] A root of the minimal polynomial only
+    Explanation: A characteristic root is simply another term for an eigenvalue. It refers to a root of the characteristic polynomial det(A - lambda I) = 0.
+
+  Q21. A structural engineer analyzes a bridge support modeled by the stiffness matrix K = [[6, -3], [-3, 6]]. What eigenvalues determine the natural vibration frequencies?
+    [ ] -3 and 9
+    [*] 3 and 9
+    [ ] 6 and 6
+    [ ] 0 and 12
+    Explanation: det(K - lambda I) = (6-lambda)^2 - 9 = lambda^2 - 12lambda + 27 = (lambda - 3)(lambda - 9). The eigenvalues 3 and 9 give the squared natural frequencies.
+
+  Q22. A Markov chain model for customer loyalty has transition matrix T = [[0.9, 0.2], [0.1, 0.8]]. One eigenvalue is always 1 for a stochastic matrix. What is the other eigenvalue?
+    [*] 0.7
+    [ ] 0.8
+    [ ] 0.9
+    [ ] 0.5
+    Explanation: The trace = 0.9 + 0.8 = 1.7 = sum of eigenvalues. Since one eigenvalue is 1, the other is 1.7 - 1 = 0.7. Since |0.7| < 1, the chain converges to its steady state.
+
+  Q23. A robotics engineer models a 2D arm with rotation matrix R(60 degrees) = [[0.5, -0.866], [0.866, 0.5]]. What are the eigenvalues?
+    [ ] 0.5 and 0.866
+    [*] 0.5 + 0.866i and 0.5 - 0.866i
+    [ ] 1 and -1
+    [ ] 0.866i and -0.866i
+    Explanation: det(R - lambda I) = (0.5 - lambda)^2 + 0.866^2 = lambda^2 - lambda + 1. Using the quadratic formula: lambda = (1 +/- sqrt(1-4))/2 = 0.5 +/- 0.866i. These are e^(i*60 deg) and e^(-i*60 deg).
+
+  Q24. A climate scientist models heat transfer between two ocean layers with A = [[-0.4, 0.2], [0.4, -0.2]]. One eigenvalue is 0. What is the other eigenvalue, and what does it indicate?
+    [ ] -0.2, indicating slow decay
+    [ ] 0.6, indicating the system grows
+    [*] -0.6, indicating the system decays to equilibrium
+    [ ] 0.2, indicating oscillation
+    Explanation: The trace = -0.4 + (-0.2) = -0.6. Since the eigenvalues sum to the trace and one is 0, the other is -0.6. The negative eigenvalue means the non-equilibrium component decays exponentially.
+
+  Q25. A web developer uses the adjacency matrix A = [[0, 1, 1], [1, 0, 1], [1, 1, 0]] for a 3-page website. What is the largest eigenvalue of A?
+    [ ] 3
+    [ ] sqrt(3)
+    [*] 2
+    [ ] 1
+    Explanation: This is the adjacency matrix of the complete graph K3. The eigenvalues are 2 (once) and -1 (twice). The vector (1,1,1) is an eigenvector with eigenvalue 2, since each row sums to 2.
+
+  Q26. A pharmaceutical researcher models drug concentration in blood and tissue with A = [[-2, 1], [2, -3]]. Are the eigenvalues real or complex, and is the system stable?
+    [*] Real negative eigenvalues -1 and -4; the system is stable
+    [ ] Real positive eigenvalues; the system is unstable
+    [ ] Complex eigenvalues; the system oscillates
+    [ ] One zero eigenvalue; the system has a steady state only
+    Explanation: det(A - lambda I) = (-2-lambda)(-3-lambda) - 2 = lambda^2 + 5lambda + 4 = (lambda+1)(lambda+4). Both eigenvalues -1 and -4 are real and negative, so the drug concentrations decay to zero.
+
+  Q27. A machine learning engineer computes the Hessian matrix H = [[8, 2], [2, 5]] at a critical point. If both eigenvalues are positive, what does this indicate about the critical point?
+    [ ] It is a saddle point
+    [*] It is a local minimum
+    [ ] The test is inconclusive
+    [ ] It is a local maximum
+    Explanation: det(H - lambda I) = (8-lambda)(5-lambda) - 4 = lambda^2 - 13lambda + 36 = (lambda - 4)(lambda - 9). Both eigenvalues 4 and 9 are positive, so H is positive definite and the critical point is a local minimum.
+
+  Q28. An ecologist models predator-prey dynamics with A = [[0, -2], [1, 3]]. What are the eigenvalues and what do they indicate about population behavior?
+    [*] 1 and 2; both populations grow
+    [ ] -1 and -2; both populations decline
+    [ ] 0 and 3; one population stays constant
+    [ ] i and -i; populations oscillate
+    Explanation: det(A - lambda I) = (0-lambda)(3-lambda) - (-2)(1) = lambda^2 - 3lambda + 2 = (lambda-1)(lambda-2). Both eigenvalues are positive, indicating exponential growth in the linearized model.
+
+  Q29. A signal processing engineer needs to find the eigenvalues of the DFT matrix component F = [[1, 1], [1, -1]]. What are they?
+    [ ] i and -i
+    [ ] 2 and 0
+    [ ] 1 and 1
+    [*] sqrt(2) and -sqrt(2)
+    Explanation: det(F - lambda I) = (1-lambda)(-1-lambda) - 1 = -1 + lambda^2 - 1 = lambda^2 - 2. So lambda = sqrt(2) and -sqrt(2).
+
+  Q30. An economist models a two-sector economy with the input-output matrix A = [[0.3, 0.4], [0.2, 0.5]]. What is the dominant eigenvalue, and does the Hawkins-Simon condition hold (all eigenvalues of A less than 1)?
+    [ ] 1.0; no, the economy is at break-even
+    [ ] 1.1; no, the economy requires external input
+    [*] 0.7; yes, the economy is productive
+    [ ] 0.8; yes, but barely productive
+    Explanation: det(A - lambda I) = (0.3-lambda)(0.5-lambda) - 0.08 = lambda^2 - 0.8lambda + 0.07 = (lambda - 0.7)(lambda - 0.1). The dominant eigenvalue is 0.7 < 1, confirming the Hawkins-Simon condition holds.
 
 --- Lesson 7.2: Finding Eigenvalues (Flashcards) ---
 
@@ -334,154 +567,266 @@ Content for Finding Eigenvalues is coming soon. Check back for detailed notes an
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 7.3: Finding Eigenvectors (Summary) ---
 
   Key Concepts: Finding Eigenvectors
-Key Concepts: Finding Eigenvectors
-
-Content for Finding Eigenvectors is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+For the identity matrix I, what is the eigenspace for lambda = 1?
+I - 1*I = 0 (the zero matrix). The null space of the zero matrix is all of R^n, so every nonzero vector is an eigenvector of I with eigenvalue 1.
+For A = [[1, 0, 0], [0, 2, 0], [0, 0, 3]], what is the eigenvector corresponding to lambda = 2?
+For diagonal matrices, the eigenvector for eigenvalue d_i is the standard basis vector e_i. Since lambda = 2 is the second diagonal entry, the eigenvector is e2 = (0, 1, 0).
+What is an eigenvector of a matrix?
+An eigenvector is a nonzero vector v satisfying Av = lambda v. It is a direction that the matrix scales without changing direction (or reverses for negative lambda).
+What is the eigenspace of a matrix for a given eigenvalue?
+The eigenspace for eigenvalue lambda is the null space of (A - lambda I). It consists of all eigenvectors for that eigenvalue together with the zero vector, forming a subspace.
+What is a 'generalized eigenvector' of a matrix A?
+A generalized eigenvector satisfies (A - lambda I)^k v = 0 for some k >= 1. Regular eigenvectors correspond to k = 1. Generalized eigenvectors are needed when A is not diagonalizable.
+What is the 'null space' of (A - lambda I) in the context of eigenvectors?
+The null space of (A - lambda I) is exactly the eigenspace for eigenvalue lambda. It contains all vectors v with (A - lambda I)v = 0, i.e., Av = lambda v.
+What is meant by 'left eigenvector' versus 'right eigenvector'?
+A right eigenvector v satisfies Av = lambda v (column vector on the right of A). A left eigenvector w satisfies w^T A = lambda w^T (row vector on the left of A). Left eigenvectors are eigenvectors of A^T.
+What is an 'invariant subspace' with respect to a matrix A?
+An invariant subspace W under A satisfies A(W) subset of W. Every eigenspace is an invariant subspace, since if v is in the eigenspace, Av = lambda v is also in the eigenspace.
+A Google-style PageRank algorithm uses the matrix M = [[0, 1/2], [1, 1/2]]. The dominant eigenvector (for lambda = 1) gives the page rankings. What is this eigenvector (unnormalized)?
+M - I = [[-1, 1/2], [1, -1/2]]. Row reducing gives [[1, -1/2], [0, 0]], so x1 = x2/2. Taking x2 = 2 gives (1, 2). Page 2 has twice the rank of page 1.
+An ecologist models a population with the Leslie matrix L = [[0, 6], [0.5, 0]]. The dominant eigenvalue is sqrt(3). What is the corresponding eigenvector (stable age distribution)?
+L - sqrt(3)I = [[-sqrt(3), 6], [0.5, -sqrt(3)]]. From row 1: -sqrt(3)*x1 + 6*x2 = 0, so x1 = 6x2/sqrt(3) = 2sqrt(3)*x2. The eigenvector is (2sqrt(3), 1).
+A mechanical engineer analyzes a coupled spring system with matrix K = [[3, -1, 0], [-1, 2, -1], [0, -1, 3]]. One eigenvalue is 3. What is an eigenvector for this eigenvalue?
+K - 3I = [[0,-1,0],[-1,-1,-1],[0,-1,0]]. From rows 1 and 3: x2 = 0. From row 2: -x1-x3 = 0, so x1 = -x3. The eigenvector is (1, 0, -1), representing outer masses moving opposite while center stays still.
+Real-World Applications
+Example: A Google-style PageRank algorithm uses the matrix M = [[0, 1/2], [1, 1/2]]. The dominant eigenvector (for lambda = 1) gives the page rankings. What is this eigenvector (unnormalized)?
+M - I = [[-1, 1/2], [1, -1/2]]. Row reducing gives [[1, -1/2], [0, 0]], so x1 = x2/2. Taking x2 = 2 gives (1, 2). Page 2 has twice the rank of page 1.
+Example: An ecologist models a population with the Leslie matrix L = [[0, 6], [0.5, 0]]. The dominant eigenvalue is sqrt(3). What is the corresponding eigenvector (stable age distribution)?
+L - sqrt(3)I = [[-sqrt(3), 6], [0.5, -sqrt(3)]]. From row 1: -sqrt(3)*x1 + 6*x2 = 0, so x1 = 6x2/sqrt(3) = 2sqrt(3)*x2. The eigenvector is (2sqrt(3), 1).
 
 --- Lesson 7.3: Finding Eigenvectors (Quiz) ---
 
-  Q1. Sample question 1 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Finding Eigenvectors.
+  Q1. To find eigenvectors for eigenvalue lambda, which system must be solved?
+    [*] (A - lambda I)v = 0
+    [ ] Av = 0
+    [ ] (A - lambda I)v = lambda v
+    [ ] (A + lambda I)v = 0
+    Explanation: Eigenvectors satisfy Av = lambda v, which rearranges to (A - lambda I)v = 0. We solve this homogeneous system to find the eigenspace.
 
-  Q2. Sample question 2 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Finding Eigenvectors.
+  Q2. Find an eigenvector of A = [[3, 1], [0, 2]] for eigenvalue lambda = 3.
+    [*] (1, 0)
+    [ ] (1, 1)
+    [ ] (0, 1)
+    [ ] (3, 1)
+    Explanation: A - 3I = [[0, 1], [0, -1]]. Row reducing gives [[0, 1], [0, 0]], so x2 = 0 and x1 is free. The eigenvector is (1, 0).
 
-  Q3. Sample question 3 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Finding Eigenvectors.
+  Q3. For A = [[2, 1], [1, 2]], find an eigenvector for lambda = 3.
+    [ ] (2, 1)
+    [*] (1, 1)
+    [ ] (1, -1)
+    [ ] (0, 1)
+    Explanation: A - 3I = [[-1, 1], [1, -1]]. Row reducing gives [[-1, 1], [0, 0]], so x1 = x2. Taking x2 = 1 gives eigenvector (1, 1).
 
-  Q4. Sample question 4 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Finding Eigenvectors.
+  Q4. Can the zero vector be an eigenvector?
+    [ ] Yes, but only for singular matrices
+    [ ] Yes, only for eigenvalue 0
+    [*] No, eigenvectors must be nonzero by definition
+    [ ] Yes, for any eigenvalue
+    Explanation: By definition, an eigenvector must be nonzero. While A*0 = lambda*0 is trivially true for any lambda, the zero vector is excluded from being an eigenvector.
 
-  Q5. Sample question 5 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Finding Eigenvectors.
+  Q5. For A = [[4, -2], [1, 1]] with eigenvalue lambda = 2, find an eigenvector.
+    [ ] (-1, 1)
+    [*] (1, 1)
+    [ ] (2, -1)
+    [ ] (1, 0)
+    Explanation: A - 2I = [[2, -2], [1, -1]]. Row reducing gives [[1, -1], [0, 0]], so x1 = x2. Taking x2 = 1, the eigenvector is (1, 1).
 
-  Q6. Sample question 6 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Finding Eigenvectors.
+  Q6. If v is an eigenvector of A with eigenvalue lambda, is 5v also an eigenvector?
+    [ ] Yes, but with eigenvalue 5*lambda
+    [ ] Only if lambda = 1
+    [ ] No, each eigenvalue has exactly one eigenvector
+    [*] Yes, with the same eigenvalue lambda
+    Explanation: A(5v) = 5(Av) = 5(lambda v) = lambda(5v). Any nonzero scalar multiple of an eigenvector is also an eigenvector with the same eigenvalue.
 
-  Q7. Sample question 7 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Finding Eigenvectors.
+  Q7. Find an eigenvector of A = [[5, 4], [1, 2]] corresponding to eigenvalue lambda = 1.
+    [ ] (4, 1)
+    [ ] (1, -4)
+    [ ] (1, 1)
+    [*] (-1, 1)
+    Explanation: A - I = [[4, 4], [1, 1]]. Row reducing gives [[1, 1], [0, 0]], so x1 = -x2. Taking x2 = 1 gives eigenvector (-1, 1).
 
-  Q8. Sample question 8 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Finding Eigenvectors.
+  Q8. For the identity matrix I, what is the eigenspace for lambda = 1?
+    [ ] The zero vector
+    [ ] The span of the standard basis vector e1
+    [*] The entire space R^n
+    [ ] Only the vector (1, 1, ..., 1)
+    Explanation: I - 1*I = 0 (the zero matrix). The null space of the zero matrix is all of R^n, so every nonzero vector is an eigenvector of I with eigenvalue 1.
 
-  Q9. Sample question 9 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Finding Eigenvectors.
+  Q9. For A = [[1, 0, 0], [0, 2, 0], [0, 0, 3]], what is the eigenvector corresponding to lambda = 2?
+    [ ] (1, 0, 0)
+    [ ] (0, 0, 1)
+    [ ] (1, 2, 3)
+    [*] (0, 1, 0)
+    Explanation: For diagonal matrices, the eigenvector for eigenvalue d_i is the standard basis vector e_i. Since lambda = 2 is the second diagonal entry, the eigenvector is e2 = (0, 1, 0).
 
-  Q10. Sample question 10 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Finding Eigenvectors.
+  Q10. Find the dimension of the eigenspace for lambda = 2 if A - 2I row reduces to [[1, -1, 0], [0, 0, 0], [0, 0, 0]].
+    [ ] 1
+    [*] 2
+    [ ] 3
+    [ ] 0
+    Explanation: The reduced matrix has 1 pivot and 3 variables, so there are 3 - 1 = 2 free variables. The eigenspace has dimension 2 (geometric multiplicity = 2).
 
-  Q11. Sample question 11 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Finding Eigenvectors.
+  Q11. What is an eigenvector of a matrix?
+    [*] A nonzero vector v such that Av = lambda v for some scalar lambda
+    [ ] A vector in the column space of the matrix
+    [ ] The vector of diagonal entries
+    [ ] Any column of the matrix
+    Explanation: An eigenvector is a nonzero vector v satisfying Av = lambda v. It is a direction that the matrix scales without changing direction (or reverses for negative lambda).
 
-  Q12. Sample question 12 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Finding Eigenvectors.
+  Q12. What is the eigenspace of a matrix for a given eigenvalue?
+    [*] The null space of (A - lambda I), including the zero vector
+    [ ] The column space of A
+    [ ] The set of all eigenvalues
+    [ ] The row space of (A - lambda I)
+    Explanation: The eigenspace for eigenvalue lambda is the null space of (A - lambda I). It consists of all eigenvectors for that eigenvalue together with the zero vector, forming a subspace.
 
-  Q13. Sample question 13 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Finding Eigenvectors.
+  Q13. What does it mean for eigenvectors corresponding to distinct eigenvalues to be linearly independent?
+    [ ] They all have the same length
+    [ ] They are orthogonal to each other
+    [*] None of them can be written as a linear combination of the others
+    [ ] They span the null space of A
+    Explanation: Eigenvectors from distinct eigenvalues are always linearly independent. This means no eigenvector can be expressed as a combination of others from different eigenspaces.
 
-  Q14. Sample question 14 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Finding Eigenvectors.
+  Q14. What is a 'generalized eigenvector' of a matrix A?
+    [*] A vector v satisfying (A - lambda I)^k v = 0 for some positive integer k
+    [ ] An eigenvector that has been normalized to unit length
+    [ ] An eigenvector of A^T
+    [ ] A vector in the column space of A
+    Explanation: A generalized eigenvector satisfies (A - lambda I)^k v = 0 for some k >= 1. Regular eigenvectors correspond to k = 1. Generalized eigenvectors are needed when A is not diagonalizable.
 
-  Q15. Sample question 15 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Finding Eigenvectors.
+  Q15. What does a 'basis of eigenvectors' mean for a matrix?
+    [*] A set of n linearly independent eigenvectors that spans R^n
+    [ ] The columns of A itself
+    [ ] The standard basis vectors e1, e2, ..., en
+    [ ] Any set of eigenvectors regardless of independence
+    Explanation: A basis of eigenvectors is a set of n linearly independent eigenvectors of an n x n matrix. When such a basis exists, the matrix is diagonalizable.
 
-  Q16. Sample question 16 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Finding Eigenvectors.
+  Q16. What does the term 'eigendecomposition' mean?
+    [ ] Breaking a matrix into its row and column spaces
+    [ ] Reducing a matrix to row echelon form
+    [ ] The process of finding the rank of a matrix
+    [*] Decomposing a matrix as A = PDP^(-1) where D is diagonal and P contains eigenvectors
+    Explanation: Eigendecomposition writes A = PDP^(-1), where D is the diagonal matrix of eigenvalues and P is the matrix whose columns are the corresponding eigenvectors.
 
-  Q17. Sample question 17 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Finding Eigenvectors.
+  Q17. What is the 'null space' of (A - lambda I) in the context of eigenvectors?
+    [ ] The set of vectors orthogonal to all eigenvectors
+    [*] The eigenspace corresponding to eigenvalue lambda
+    [ ] The kernel of A only
+    [ ] The set of all vectors that A maps to lambda
+    Explanation: The null space of (A - lambda I) is exactly the eigenspace for eigenvalue lambda. It contains all vectors v with (A - lambda I)v = 0, i.e., Av = lambda v.
 
-  Q18. Sample question 18 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Finding Eigenvectors.
+  Q18. What is meant by 'left eigenvector' versus 'right eigenvector'?
+    [ ] They refer to the left and right halves of the eigenvector
+    [ ] Left eigenvectors have negative eigenvalues; right eigenvectors have positive
+    [*] Left eigenvectors satisfy w^T A = lambda w^T; right eigenvectors satisfy Av = lambda v
+    [ ] Left eigenvectors are for A^(-1); right eigenvectors are for A
+    Explanation: A right eigenvector v satisfies Av = lambda v (column vector on the right of A). A left eigenvector w satisfies w^T A = lambda w^T (row vector on the left of A). Left eigenvectors are eigenvectors of A^T.
 
-  Q19. Sample question 19 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Finding Eigenvectors.
+  Q19. What is an 'invariant subspace' with respect to a matrix A?
+    [ ] A subspace that is unchanged by row operations
+    [ ] The orthogonal complement of the eigenspace
+    [*] A subspace W such that A maps W into itself (Aw is in W for all w in W)
+    [ ] A subspace that A maps to the zero vector
+    Explanation: An invariant subspace W under A satisfies A(W) subset of W. Every eigenspace is an invariant subspace, since if v is in the eigenspace, Av = lambda v is also in the eigenspace.
 
-  Q20. Sample question 20 for Finding Eigenvectors
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Finding Eigenvectors.
+  Q20. What does 'diagonalizable' mean in terms of eigenvectors?
+    [ ] The matrix has only diagonal entries
+    [ ] The matrix is symmetric
+    [ ] All eigenvalues are distinct
+    [*] The matrix has n linearly independent eigenvectors
+    Explanation: A matrix is diagonalizable if and only if it has n linearly independent eigenvectors (where n is the matrix size). This is equivalent to saying A = PDP^(-1) for some diagonal D.
+
+  Q21. A civil engineer models wind forces on a two-story building with matrix A = [[3, 1], [1, 3]]. To find the principal stress directions, she needs the eigenvectors. What are they?
+    [*] (1, 1) and (1, -1)
+    [ ] (1, 2) and (2, 1)
+    [ ] (3, 1) and (1, 3)
+    [ ] (1, 0) and (0, 1)
+    Explanation: Eigenvalues are 4 and 2. For lambda=4: A-4I = [[-1,1],[1,-1]], giving (1,1). For lambda=2: A-2I = [[1,1],[1,1]], giving (1,-1). These represent symmetric and antisymmetric modes.
+
+  Q22. A data scientist applies PCA to a 2D dataset with covariance matrix C = [[5, 3], [3, 5]]. The eigenvalues are 8 and 2. Which eigenvector corresponds to the first principal component (lambda = 8)?
+    [ ] (1, 0)
+    [ ] (1, -1)/sqrt(2)
+    [*] (1, 1)/sqrt(2)
+    [ ] (3, 5)/sqrt(34)
+    Explanation: For lambda=8: C-8I = [[-3,3],[3,-3]], row reduces to [[1,-1],[0,0]], giving x1=x2. The normalized eigenvector is (1,1)/sqrt(2), the direction of maximum variance.
+
+  Q23. A control engineer has a system matrix A = [[0, 1], [-2, -3]]. The eigenvalues are -1 and -2. She needs the eigenvectors to decouple the system. What are they?
+    [ ] (1, 0) and (0, 1)
+    [ ] (-1, 1) and (2, -1)
+    [*] (1, -1) and (1, -2)
+    [ ] (1, 1) and (1, 2)
+    Explanation: For lambda=-1: A+I = [[1,1],[-2,-2]], giving x1=-x2, so v1=(1,-1). For lambda=-2: A+2I = [[2,1],[-2,-1]], giving 2x1=-x2, so v2=(1,-2).
+
+  Q24. A Google-style PageRank algorithm uses the matrix M = [[0, 1/2], [1, 1/2]]. The dominant eigenvector (for lambda = 1) gives the page rankings. What is this eigenvector (unnormalized)?
+    [ ] (1, 1)
+    [*] (1, 2)
+    [ ] (2, 1)
+    [ ] (1, -1)
+    Explanation: M - I = [[-1, 1/2], [1, -1/2]]. Row reducing gives [[1, -1/2], [0, 0]], so x1 = x2/2. Taking x2 = 2 gives (1, 2). Page 2 has twice the rank of page 1.
+
+  Q25. A quantum physicist measures spin using the Pauli-X matrix sigma_x = [[0, 1], [1, 0]]. The eigenvalues are 1 and -1. What are the corresponding eigenstates?
+    [ ] (0, 1) and (1, 0)
+    [ ] (1, 0) and (0, 1)
+    [ ] (1, i)/sqrt(2) and (1, -i)/sqrt(2)
+    [*] (1, 1)/sqrt(2) and (1, -1)/sqrt(2)
+    Explanation: For lambda=1: sigma_x - I = [[-1,1],[1,-1]], giving (1,1). For lambda=-1: sigma_x + I = [[1,1],[1,1]], giving (1,-1). Normalized: (1,1)/sqrt(2) and (1,-1)/sqrt(2), the |+> and |-> states.
+
+  Q26. An ecologist models a population with the Leslie matrix L = [[0, 6], [0.5, 0]]. The dominant eigenvalue is sqrt(3). What is the corresponding eigenvector (stable age distribution)?
+    [ ] (6, 1), particularly regarding
+    [ ] (1, 0.5), particularly regarding
+    [ ] (2, sqrt(3)/3) within the typical
+    [*] (sqrt(3), 0.5) or equivalently (2sqrt(3), 1)
+    Explanation: L - sqrt(3)I = [[-sqrt(3), 6], [0.5, -sqrt(3)]]. From row 1: -sqrt(3)*x1 + 6*x2 = 0, so x1 = 6x2/sqrt(3) = 2sqrt(3)*x2. The eigenvector is (2sqrt(3), 1).
+
+  Q27. A mechanical engineer analyzes a coupled spring system with matrix K = [[3, -1, 0], [-1, 2, -1], [0, -1, 3]]. One eigenvalue is 3. What is an eigenvector for this eigenvalue?
+    [ ] (1, 1, 1)
+    [*] (1, 0, -1)
+    [ ] (0, 1, 0)
+    [ ] (1, -2, 1)
+    Explanation: K - 3I = [[0,-1,0],[-1,-1,-1],[0,-1,0]]. From rows 1 and 3: x2 = 0. From row 2: -x1-x3 = 0, so x1 = -x3. The eigenvector is (1, 0, -1), representing outer masses moving opposite while center stays still.
+
+  Q28. A financial analyst uses the correlation matrix R = [[1, 0.8], [0.8, 1]] to analyze two stocks. The eigenvalues are 1.8 and 0.2. What eigenvector indicates the common market factor (lambda = 1.8)?
+    [ ] (1, 0)
+    [*] (1, 1)/sqrt(2)
+    [ ] (0.8, 1)/sqrt(1.64)
+    [ ] (1, -1)/sqrt(2)
+    Explanation: R - 1.8I = [[-0.8, 0.8], [0.8, -0.8]], giving x1 = x2. The eigenvector (1,1)/sqrt(2) represents stocks moving together -- the market factor explaining 90% of variance.
+
+  Q29. A robotics engineer has a rotation-reflection matrix A = [[0, -1], [-1, 0]]. The eigenvalues are 1 and -1. What are the eigenvectors, and what do they represent geometrically?
+    [ ] (1, 0) for lambda=1, (0, 1) for lambda=-1
+    [ ] (1, 1) for lambda=1, (1, 0) for lambda=-1
+    [ ] (0, 1) for lambda=1, (1, 0) for lambda=-1
+    [*] (1, -1) for lambda=1, (1, 1) for lambda=-1
+    Explanation: For lambda=1: A-I = [[-1,-1],[-1,-1]], giving x1=-x2, so (1,-1). For lambda=-1: A+I = [[1,-1],[-1,1]], giving x1=x2, so (1,1). The line y=-x is the reflection axis.
+
+  Q30. An electrical engineer models a circuit with impedance matrix Z = [[10, -5], [-5, 10]]. The eigenvalues are 15 and 5. To find decoupled current modes, what eigenvectors should she use?
+    [ ] (1, 0) and (0, 1)
+    [*] (1, 1) for lambda=5 and (1, -1) for lambda=15
+    [ ] (10, -5) and (-5, 10)
+    [ ] (1, -1) for lambda=5 and (1, 1) for lambda=15
+    Explanation: For lambda=15: Z-15I = [[-5,-5],[-5,-5]], giving x1=-x2, so (1,-1). For lambda=5: Z-5I = [[5,-5],[-5,5]], giving x1=x2, so (1,1). Equal currents see impedance 5; opposing currents see impedance 15.
 
 --- Lesson 7.3: Finding Eigenvectors (Flashcards) ---
 
@@ -500,154 +845,270 @@ Content for Finding Eigenvectors is coming soon. Check back for detailed notes a
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 7.4: Diagonalization (Summary) ---
 
   Key Concepts: Diagonalization
-Key Concepts: Diagonalization
-
-Content for Diagonalization is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+If A = PDP^(-1), what is A^5?
+A^5 = (PDP^(-1))^5 = PD(P^(-1)P)D(P^(-1)P)...(P^(-1)P)DP^(-1) = PD^5 P^(-1). The inner P^(-1)P pairs all cancel, leaving only the outermost P and P^(-1).
+What is D^k for a diagonal matrix D = diag(2, 3)?
+For a diagonal matrix, D^k = diag(d1^k, d2^k, ...). Each diagonal entry is raised to the k-th power independently.
+Diagonalize A = [[4, 1], [0, 3]]. What is D?
+The eigenvalues are 4 and 3 (diagonal entries of this upper triangular matrix). So D = diag(4, 3).
+If A = PDP^(-1) with D = diag(1, -1), what is A^100?
+A^100 = PD^100 P^(-1) = P diag(1^100, (-1)^100) P^(-1) = P diag(1, 1) P^(-1) = P I P^(-1) = I. Any diagonalizable involution raised to an even power is the identity.
+If A is diagonalizable with eigenvalues 2 and 5, what is det(A)?
+det(A) = det(PDP^(-1)) = det(D) = 2 * 5 = 10. The determinant is always the product of the eigenvalues.
+What is the Spectral Theorem for real symmetric matrices?
+The Spectral Theorem states that every real symmetric matrix has real eigenvalues and orthogonal eigenvectors, so A = QDQ^T where Q is an orthogonal matrix.
+What is a 'defective matrix' in the context of diagonalization?
+A defective matrix has at least one eigenvalue whose geometric multiplicity is less than its algebraic multiplicity, resulting in fewer than n independent eigenvectors.
+What is meant by 'matrix similarity'?
+Matrices A and B are similar if B = P^(-1)AP for some invertible P. Similar matrices share the same eigenvalues, trace, determinant, and characteristic polynomial.
+What is the role of the matrix P in the diagonalization A = PDP^(-1)?
+In A = PDP^(-1), P is the modal matrix whose columns are the eigenvectors of A. The i-th column of P is the eigenvector corresponding to the i-th diagonal entry of D.
+What is a 'matrix exponential' and how does diagonalization help compute it?
+The matrix exponential e^A = I + A + A^2/2! + ... If A = PDP^(-1), then e^A = P e^D P^(-1) where e^D = diag(e^(d1), e^(d2), ...), making computation straightforward.
+What is a 'diagonal matrix' in linear algebra?
+A diagonal matrix has nonzero entries only on the main diagonal (d_ij = 0 when i != j). It is the simplest type of matrix for computation.
+A population biologist models a species with growth matrix A = [[0.5, 0.6], [0.4, 0.9]]. To predict the population after 20 generations efficiently, she diagonalizes A. If eigenvalues are 0.2 and 1.2, what is the dominant term of A^20?
+A^20 = P diag(0.2^20, 1.2^20) P^(-1). Since 0.2^20 is essentially 0 and 1.2^20 is approximately 38.34, the long-term behavior is dominated by the eigenvalue 1.2 and its eigenvector.
+A financial engineer uses diagonalization to compute the matrix exponential e^(At) for portfolio risk modeling with A = [[-1, 2], [0, -3]]. What is e^(0*A)?
+e^(0) = e^0 = I for any matrix. This is the initial condition: at time t = 0, the state transition matrix is the identity.
+A climate modeler diagonalizes the heat transfer matrix A = [[0.6, 0.3], [0.4, 0.7]] to predict long-term temperature distribution. The eigenvalues are 1 and 0.3. What is the steady-state temperature ratio between the two regions?
+The steady state is the eigenvector for lambda=1. A - I = [[-0.4, 0.3], [0.4, -0.3]], giving 0.4x1 = 0.3x2, so x1/x2 = 3/4. The steady-state distribution is (3, 4) normalized to (3/7, 4/7).
+Real-World Applications
+Example: An image processing engineer needs to apply a sharpening filter A repeatedly. She diagonalizes A and finds eigenvalues 1.5 and 0.8. After 10 applications, which eigenvalue dominates?
+1.5^10 approximately equals 57.67 while 0.8^10 approximately equals 0.107. The component along the eigenvector for 1.5 grows exponentially, dominating after multiple applications.
 
 --- Lesson 7.4: Diagonalization (Quiz) ---
 
-  Q1. Sample question 1 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Diagonalization.
+  Q1. A matrix A is diagonalizable if and only if it can be written as:
+    [ ] A = P^T DP where P is orthogonal
+    [*] A = PDP^(-1) where D is diagonal
+    [ ] A = P + D + P^(-1)
+    [ ] A = D^2 for some diagonal D
+    Explanation: A diagonalizable matrix can be factored as A = PDP^(-1), where D contains eigenvalues on the diagonal and P's columns are the corresponding eigenvectors.
 
-  Q2. Sample question 2 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Diagonalization.
+  Q2. Which of the following matrices is NOT diagonalizable?
+    [*] [[2, 1], [0, 2]]
+    [ ] [[1, 0], [0, -1]]
+    [ ] [[0, 1], [1, 0]]
+    [ ] [[3, 0], [0, 5]]
+    Explanation: [[2,1],[0,2]] has eigenvalue 2 with algebraic multiplicity 2 but geometric multiplicity 1 (only one independent eigenvector). It is defective and not diagonalizable.
 
-  Q3. Sample question 3 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Diagonalization.
+  Q3. If A has n distinct eigenvalues for an n x n matrix, is A diagonalizable?
+    [ ] Only if all eigenvalues are positive
+    [*] Yes, always
+    [ ] Only if A is symmetric
+    [ ] Not necessarily
+    Explanation: If an n x n matrix has n distinct eigenvalues, the corresponding eigenvectors are linearly independent, guaranteeing diagonalizability.
 
-  Q4. Sample question 4 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Diagonalization.
+  Q4. If A = PDP^(-1), what is A^5?
+    [ ] 5PDP^(-1)
+    [ ] P^5 D P^(-1)
+    [ ] P^5 D^5 P^(-5)
+    [*] PD^5 P^(-1)
+    Explanation: A^5 = (PDP^(-1))^5 = PD(P^(-1)P)D(P^(-1)P)...(P^(-1)P)DP^(-1) = PD^5 P^(-1). The inner P^(-1)P pairs all cancel, leaving only the outermost P and P^(-1).
 
-  Q5. Sample question 5 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Diagonalization.
+  Q5. What is D^k for a diagonal matrix D = diag(2, 3)?
+    [ ] diag(k*2, k*3)
+    [ ] diag(2k, 3k)
+    [*] diag(2^k, 3^k)
+    [ ] diag(2+k, 3+k)
+    Explanation: For a diagonal matrix, D^k = diag(d1^k, d2^k, ...). Each diagonal entry is raised to the k-th power independently.
 
-  Q6. Sample question 6 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Diagonalization.
+  Q6. Is every symmetric real matrix diagonalizable?
+    [ ] Only if the matrix is positive definite
+    [ ] No, symmetric matrices may be defective
+    [*] Yes, by the Spectral Theorem
+    [ ] Only if all eigenvalues are distinct
+    Explanation: The Spectral Theorem guarantees that every real symmetric matrix is diagonalizable, and moreover can be orthogonally diagonalized: A = QDQ^T with Q orthogonal.
 
-  Q7. Sample question 7 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Diagonalization.
+  Q7. Diagonalize A = [[4, 1], [0, 3]]. What is D?
+    [ ] [[7, 0], [0, 12]]
+    [*] [[4, 0], [0, 3]]
+    [ ] [[1, 0], [0, 1]]
+    [ ] [[3, 0], [0, 4]]
+    Explanation: The eigenvalues are 4 and 3 (diagonal entries of this upper triangular matrix). So D = diag(4, 3).
 
-  Q8. Sample question 8 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Diagonalization.
+  Q8. If A = PDP^(-1) with D = diag(1, -1), what is A^100?
+    [ ] PDP^(-1)
+    [ ] P(diag(100, -100))P^(-1)
+    [ ] 100 PDP^(-1)
+    [*] P(diag(1, 1))P^(-1)
+    Explanation: A^100 = PD^100 P^(-1) = P diag(1^100, (-1)^100) P^(-1) = P diag(1, 1) P^(-1) = P I P^(-1) = I. Any diagonalizable involution raised to an even power is the identity.
 
-  Q9. Sample question 9 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Diagonalization.
+  Q9. A matrix A is diagonalizable if and only if for each eigenvalue:
+    [ ] The eigenvalue is nonzero
+    [ ] The algebraic multiplicity equals 1
+    [*] The geometric multiplicity equals the algebraic multiplicity
+    [ ] The eigenvalue is real
+    Explanation: A matrix is diagonalizable when the geometric multiplicity equals the algebraic multiplicity for every eigenvalue. This ensures enough independent eigenvectors to form a basis.
 
-  Q10. Sample question 10 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Diagonalization.
+  Q10. If A is diagonalizable with eigenvalues 2 and 5, what is det(A)?
+    [*] 10
+    [ ] 3
+    [ ] 25
+    [ ] 7
+    Explanation: det(A) = det(PDP^(-1)) = det(D) = 2 * 5 = 10. The determinant is always the product of the eigenvalues.
 
-  Q11. Sample question 11 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Diagonalization.
+  Q11. What does it mean for a matrix to be 'diagonalizable'?
+    [ ] The matrix can be reduced to row echelon form
+    [*] The matrix is similar to a diagonal matrix
+    [ ] The matrix has nonzero diagonal entries
+    [ ] The matrix is already diagonal
+    Explanation: A matrix is diagonalizable if it is similar to a diagonal matrix, meaning there exists an invertible P such that P^(-1)AP = D is diagonal.
 
-  Q12. Sample question 12 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Diagonalization.
+  Q12. What is the Spectral Theorem for real symmetric matrices?
+    [*] Every real symmetric matrix can be orthogonally diagonalized as A = QDQ^T
+    [ ] Every real symmetric matrix has integer eigenvalues
+    [ ] Every real symmetric matrix is invertible
+    [ ] Every real symmetric matrix has only positive eigenvalues
+    Explanation: The Spectral Theorem states that every real symmetric matrix has real eigenvalues and orthogonal eigenvectors, so A = QDQ^T where Q is an orthogonal matrix.
 
-  Q13. Sample question 13 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Diagonalization.
+  Q13. What is a 'defective matrix' in the context of diagonalization?
+    [ ] A matrix with a zero determinant
+    [*] A matrix that cannot be diagonalized because it lacks enough independent eigenvectors
+    [ ] A matrix with negative eigenvalues
+    [ ] A matrix that is not symmetric
+    Explanation: A defective matrix has at least one eigenvalue whose geometric multiplicity is less than its algebraic multiplicity, resulting in fewer than n independent eigenvectors.
 
-  Q14. Sample question 14 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Diagonalization.
+  Q14. What does 'orthogonal diagonalization' mean?
+    [ ] Diagonalizing both A and A^T simultaneously
+    [*] Writing A = QDQ^T where Q is an orthogonal matrix (Q^(-1) = Q^T)
+    [ ] Diagonalizing using row operations only
+    [ ] Finding a diagonal matrix with orthogonal entries
+    Explanation: Orthogonal diagonalization means A = QDQ^T where Q's columns are orthonormal eigenvectors. This is possible if and only if A is real and symmetric.
 
-  Q15. Sample question 15 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Diagonalization.
+  Q15. What is meant by 'matrix similarity'?
+    [*] Two matrices A and B where B = P^(-1)AP for some invertible P
+    [ ] Two matrices with the same dimensions
+    [ ] Two matrices that look alike visually
+    [ ] Two matrices that commute: AB = BA
+    Explanation: Matrices A and B are similar if B = P^(-1)AP for some invertible P. Similar matrices share the same eigenvalues, trace, determinant, and characteristic polynomial.
 
-  Q16. Sample question 16 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Diagonalization.
+  Q16. What does the 'Jordan normal form' provide when a matrix is not diagonalizable?
+    [*] A nearly diagonal form with eigenvalues on the diagonal and 1s on the superdiagonal for defective eigenvalues
+    [ ] A triangular decomposition, particularly regarding does under the given assumptions
+    [ ] A way to make the matrix symmetric in accordance with classical theory
+    [ ] The closest diagonal matrix approximation based on established principles
+    Explanation: The Jordan form is J = P^(-1)AP with eigenvalues on the diagonal and 1s on the superdiagonal within Jordan blocks for defective eigenvalues. It is the simplest form under similarity.
 
-  Q17. Sample question 17 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Diagonalization.
+  Q17. What is the role of the matrix P in the diagonalization A = PDP^(-1)?
+    [ ] P contains the eigenvalues as its columns
+    [ ] P is the inverse of A
+    [*] P is the matrix whose columns are the eigenvectors of A
+    [ ] P is a permutation matrix
+    Explanation: In A = PDP^(-1), P is the modal matrix whose columns are the eigenvectors of A. The i-th column of P is the eigenvector corresponding to the i-th diagonal entry of D.
 
-  Q18. Sample question 18 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Diagonalization.
+  Q18. What does 'simultaneously diagonalizable' mean for two matrices A and B?
+    [ ] AB is a diagonal matrix, particularly regarding what following
+    [ ] A + B is diagonalizable, particularly regarding does when applying
+    [ ] A and B are both diagonal, particularly regarding they under normal circumstances
+    [*] There exists a single invertible P such that both P^(-1)AP and P^(-1)BP are diagonal
+    Explanation: Two matrices are simultaneously diagonalizable if a single P diagonalizes both. This occurs if and only if they are both diagonalizable and commute (AB = BA).
 
-  Q19. Sample question 19 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Diagonalization.
+  Q19. What is a 'matrix exponential' and how does diagonalization help compute it?
+    [ ] The matrix exponential only exists for diagonal matrices
+    [ ] e^A = eA; diagonalization is needed to compute eA
+    [ ] Raising each entry to e; diagonalization is not related
+    [*] e^A = sum of A^k/k!; if A = PDP^(-1) then e^A = P e^D P^(-1) where e^D = diag(e^d1, ...)
+    Explanation: The matrix exponential e^A = I + A + A^2/2! + ... If A = PDP^(-1), then e^A = P e^D P^(-1) where e^D = diag(e^(d1), e^(d2), ...), making computation straightforward.
 
-  Q20. Sample question 20 for Diagonalization
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Diagonalization.
+  Q20. What is a 'diagonal matrix' in linear algebra?
+    [ ] Any triangular matrix, particularly regarding algebra as observed in
+    [ ] A symmetric matrix, particularly regarding only within the typical
+    [ ] A matrix with equal diagonal entries as predicted by standard models
+    [*] A matrix where all entries are on the main diagonal and off-diagonal entries are zero
+    Explanation: A diagonal matrix has nonzero entries only on the main diagonal (d_ij = 0 when i != j). It is the simplest type of matrix for computation.
+
+  Q21. A population biologist models a species with growth matrix A = [[0.5, 0.6], [0.4, 0.9]]. To predict the population after 20 generations efficiently, she diagonalizes A. If eigenvalues are 0.2 and 1.2, what is the dominant term of A^20?
+    [ ] Exactly 20 * 1.2 = 24
+    [*] Dominated by 1.2^20, approximately 38.34
+    [ ] Both terms contribute equally
+    [ ] Dominated by 0.2^20, which is negligible
+    Explanation: A^20 = P diag(0.2^20, 1.2^20) P^(-1). Since 0.2^20 is essentially 0 and 1.2^20 is approximately 38.34, the long-term behavior is dominated by the eigenvalue 1.2 and its eigenvector.
+
+  Q22. An electrical engineer has a circuit described by the system x' = Ax where A = [[-3, 1], [1, -3]]. She diagonalizes A to solve the ODE. If eigenvalues are -2 and -4, which solution decays fastest?
+    [ ] Both modes decay at the same rate
+    [ ] Neither mode decays; the system grows
+    [*] The mode with eigenvalue -4 decays faster
+    [ ] The mode with eigenvalue -2 decays faster
+    Explanation: The solutions involve e^(-2t) and e^(-4t). Since e^(-4t) has a larger negative exponent, it decays faster. After diagonalization, each decoupled variable decays independently.
+
+  Q23. A computer graphics programmer needs to compute the 100th power of a transformation matrix A = [[1, 1], [0, 1]]. Can she use diagonalization?
+    [ ] No, because A is not symmetric
+    [ ] Yes, and A^100 = I
+    [*] No, A is not diagonalizable since it has a repeated eigenvalue with deficient eigenspace
+    [ ] Yes, because all matrices are diagonalizable
+    Explanation: A has eigenvalue 1 with algebraic multiplicity 2, but A - I = [[0,1],[0,0]] has rank 1, so the eigenspace is 1-dimensional. The matrix is defective and not diagonalizable. She would need the Jordan form instead: A^100 = [[1,100],[0,1]].
+
+  Q24. A quantum physicist diagonalizes the Hamiltonian H = [[E1, V], [V, E2]] with E1 = 3, E2 = 7, V = 2. What are the energy eigenvalues (eigenvalues of H)?
+    [ ] 1 and 9, particularly
+    [ ] 3 and 7, particularly
+    [*] 5 + sqrt(8) and 5 - sqrt(8)
+    [ ] 5 and 5, particularly
+    Explanation: H = [[3,2],[2,7]]. Trace = 10, det = 21 - 4 = 17. Eigenvalues: (10 +/- sqrt(100-68))/2 = (10 +/- sqrt(32))/2 = 5 +/- sqrt(8). The coupling V shifts the energies from the bare values.
+
+  Q25. A Markov chain analyst diagonalizes the transition matrix T = [[0.7, 0.4], [0.3, 0.6]]. The eigenvalues are 1 and 0.3. After many steps, what does T^n approach?
+    [*] A matrix with identical columns equal to the steady-state vector
+    [ ] The zero matrix, particularly regarding after when
+    [ ] The identity matrix, particularly regarding
+    [ ] The matrix T itself, particularly regarding does as
+    Explanation: As n grows, 0.3^n approaches 0, so T^n approaches the projection onto the eigenspace of lambda=1. This gives a rank-1 matrix whose columns are the steady-state distribution (4/7, 3/7).
+
+  Q26. A vibration analyst diagonalizes the mass-spring matrix M = [[2, -1], [-1, 2]]. The eigenvalues are 1 and 3. She uses this to find normal modes. What are the modal frequencies?
+    [ ] omega = sqrt(2) and omega = sqrt(2)
+    [*] omega = 1 and omega = sqrt(3)
+    [ ] omega = 1 and omega = 3
+    [ ] omega = 2 and omega = 4
+    Explanation: The natural frequencies are the square roots of the eigenvalues: omega_1 = sqrt(1) = 1 and omega_2 = sqrt(3). These correspond to symmetric and antisymmetric oscillation modes.
+
+  Q27. A financial engineer uses diagonalization to compute the matrix exponential e^(At) for portfolio risk modeling with A = [[-1, 2], [0, -3]]. What is e^(0*A)?
+    [ ] diag(e^(-1), e^(-3))
+    [ ] A itself
+    [ ] The zero matrix
+    [*] The identity matrix I
+    Explanation: e^(0) = e^0 = I for any matrix. This is the initial condition: at time t = 0, the state transition matrix is the identity.
+
+  Q28. An image processing engineer needs to apply a sharpening filter A repeatedly. She diagonalizes A and finds eigenvalues 1.5 and 0.8. After 10 applications, which eigenvalue dominates?
+    [ ] Neither dominates; both decay
+    [*] 1.5, because 1.5^10 = 57.67 grows
+    [ ] They contribute equally after 10 steps
+    [ ] 0.8, because 0.8^10 = 0.107 is larger
+    Explanation: 1.5^10 approximately equals 57.67 while 0.8^10 approximately equals 0.107. The component along the eigenvector for 1.5 grows exponentially, dominating after multiple applications.
+
+  Q29. A climate modeler diagonalizes the heat transfer matrix A = [[0.6, 0.3], [0.4, 0.7]] to predict long-term temperature distribution. The eigenvalues are 1 and 0.3. What is the steady-state temperature ratio between the two regions?
+    [ ] 6:7 ratio
+    [*] 3:4 ratio
+    [ ] 1:2 ratio
+    [ ] Equal temperatures (1:1)
+    Explanation: The steady state is the eigenvector for lambda=1. A - I = [[-0.4, 0.3], [0.4, -0.3]], giving 0.4x1 = 0.3x2, so x1/x2 = 3/4. The steady-state distribution is (3, 4) normalized to (3/7, 4/7).
+
+  Q30. A machine learning researcher diagonalizes the Hessian matrix at a critical point and finds D = diag(5, -2, 0). What does this tell about the critical point?
+    [ ] The test is inconclusive due to the zero eigenvalue
+    [ ] It is a local minimum
+    [*] It is a saddle point because eigenvalues have mixed signs
+    [ ] It is a local maximum
+    Explanation: Having both positive (5) and negative (-2) eigenvalues definitively makes this a saddle point. The function curves upward in one direction and downward in another. The zero eigenvalue indicates a flat direction.
 
 --- Lesson 7.4: Diagonalization (Flashcards) ---
 
@@ -666,154 +1127,270 @@ Content for Diagonalization is coming soon. Check back for detailed notes and ke
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 7.5: Applications in Differential Equations (Summary) ---
 
   Key Concepts: Applications in Differential Equations
-Key Concepts: Applications in Differential Equations
-
-Content for Applications in Differential Equations is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+If a 2x2 system has eigenvalues 2 and -1, what is the behavior near the origin?
+One positive eigenvalue (2) and one negative eigenvalue (-1) produce a saddle point. Solutions grow along one eigenvector direction and decay along the other.
+For the system x' = Ax with purely imaginary eigenvalues +/- 3i, what is the behavior?
+Purely imaginary eigenvalues (a = 0) produce a center with closed orbits. Solutions oscillate with period 2*pi/3 and constant amplitude.
+What is the matrix exponential e^(At) used for in differential equations?
+The solution to the linear ODE system x' = Ax with x(0) = x0 is x(t) = e^(At) x0. The matrix exponential serves as the fundamental matrix of the system.
+What is a 'phase portrait' in the context of linear ODE systems?
+A phase portrait shows the trajectories of solutions in the x1-x2 plane (state space). The shape of trajectories depends on the eigenvalues: nodes, saddles, spirals, or centers.
+What is the 'fundamental matrix' of a linear system x' = Ax?
+The fundamental matrix Phi(t) has columns that are n linearly independent solutions. The general solution is x(t) = Phi(t) c for a constant vector c. The matrix exponential e^(At) is a fundamental matrix.
+What is a 'node' in the classification of equilibrium points?
+A node has two real eigenvalues of the same sign. If both are negative, it is a stable node (sink); if both are positive, it is an unstable node (source).
+What is the 'half-life' of a decaying mode in a linear system?
+For a decaying exponential e^(lambda t) with lambda < 0, the half-life is t_half = ln(2)/|lambda|. This is the time for the mode amplitude to decrease by 50%.
+What is a 'saddle point' in the phase plane?
+A saddle point has one positive and one negative eigenvalue. Trajectories approach along the eigenvector of the negative eigenvalue and depart along that of the positive eigenvalue.
+What is meant by 'variation of parameters' for a nonhomogeneous system x' = Ax + g(t)?
+Variation of parameters writes x_p(t) = Phi(t) integral of Phi^(-1)(s) g(s) ds, using the fundamental matrix Phi(t) to find a particular solution to the nonhomogeneous system.
+What is the 'state-space representation' of a differential equation?
+State-space form converts a single nth-order ODE into a system of n first-order ODEs by introducing state variables x1 = y, x2 = y', etc., giving x' = Ax + Bu.
+What is meant by the 'time constant' of a linear system mode?
+The time constant tau = 1/|lambda| characterizes how quickly a mode decays (or grows). After time tau, the mode has decayed to e^(-1) or about 36.8% of its initial value.
+A mechanical engineer models a damped spring-mass system with the equation mx'' + cx' + kx = 0 where m=1, c=5, k=6. Using eigenvalues, what is the response type?
+The characteristic equation lambda^2 + 5lambda + 6 = (lambda+2)(lambda+3) = 0 gives eigenvalues -2 and -3. Two distinct negative reals = overdamped. The discriminant c^2 - 4mk = 25 - 24 = 1 > 0.
+A control engineer designs a feedback system with x' = [[-2, 1], [-1, -2]]x. The eigenvalues are -2 +/- i. What is the frequency of oscillation?
+For eigenvalues a +/- bi = -2 +/- i, the oscillation frequency is b = 1 rad/s. The real part a = -2 determines the decay rate. The solution oscillates at frequency 1 while decaying with time constant 1/2.
+A robotics engineer linearizes a nonlinear system around an equilibrium and gets x' = [[0, 1], [-9, -6]]x. The eigenvalues are -3 (repeated). What is the nature of this equilibrium?
+lambda = -3 repeated. A - (-3)I = [[3,1],[-9,-3]] has rank 1, so geometric multiplicity is 1 (defective). This gives a degenerate stable node: the system is critically damped with solutions decaying as (c1 + c2 t)e^(-3t).
+Important Concepts
+A control engineer designs a feedback system with x' = [[-2, 1], [-1, -2]]x. The eigenvalues are -2 +/- i. What is the frequency of oscillation
+For eigenvalues a +/- bi = -2 +/- i, the oscillation frequency is b = 1 rad/s. The real part a = -2 determines the decay rate. The solution oscillates at frequency 1 while decaying with time constant 1/2.
 
 --- Lesson 7.5: Applications in Differential Equations (Quiz) ---
 
-  Q1. Sample question 1 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Applications in Differential Equations.
+  Q1. The general solution to x' = Ax when A is diagonalizable with eigenvalues lambda_1, lambda_2 and eigenvectors v1, v2 is:
+    [ ] x(t) = e^(At) (v1 + v2)
+    [*] x(t) = c1 e^(lambda_1 * t) v1 + c2 e^(lambda_2 * t) v2
+    [ ] x(t) = c1 lambda_1 v1 + c2 lambda_2 v2
+    [ ] x(t) = c1 t^(lambda_1) v1 + c2 t^(lambda_2) v2
+    Explanation: When A is diagonalizable, the system decouples into independent exponential solutions along each eigenvector direction, giving x(t) = c1 e^(lambda_1 t) v1 + c2 e^(lambda_2 t) v2.
 
-  Q2. Sample question 2 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Applications in Differential Equations.
+  Q2. For the system x' = Ax with A = [[-1, 0], [0, -3]], what type of equilibrium is the origin?
+    [ ] Unstable node
+    [ ] Center
+    [ ] Saddle point
+    [*] Stable node (sink)
+    Explanation: Both eigenvalues (-1 and -3) are real and negative, so all solutions decay to the origin. This is a stable node or sink.
 
-  Q3. Sample question 3 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Applications in Differential Equations.
+  Q3. If a 2x2 system has eigenvalues 2 and -1, what is the behavior near the origin?
+    [ ] Center
+    [*] Saddle point
+    [ ] Unstable spiral
+    [ ] Stable node
+    Explanation: One positive eigenvalue (2) and one negative eigenvalue (-1) produce a saddle point. Solutions grow along one eigenvector direction and decay along the other.
 
-  Q4. Sample question 4 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Applications in Differential Equations.
+  Q4. If a system x' = Ax has complex eigenvalues a +/- bi with a < 0, the origin is a:
+    [ ] Center (solutions orbit)
+    [ ] Stable node
+    [ ] Unstable spiral (solutions spiral outward)
+    [*] Stable spiral (solutions spiral inward)
+    Explanation: Complex eigenvalues produce oscillatory behavior. When the real part a < 0, the oscillations decay in amplitude, creating a stable spiral toward the origin.
 
-  Q5. Sample question 5 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Applications in Differential Equations.
+  Q5. For the system x' = Ax with purely imaginary eigenvalues +/- 3i, what is the behavior?
+    [ ] Solutions decay to the origin
+    [*] Solutions orbit the origin in closed curves (center)
+    [ ] Solutions grow without bound
+    [ ] Solutions are constant
+    Explanation: Purely imaginary eigenvalues (a = 0) produce a center with closed orbits. Solutions oscillate with period 2*pi/3 and constant amplitude.
 
-  Q6. Sample question 6 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Applications in Differential Equations.
+  Q6. What is the matrix exponential e^(At) used for in differential equations?
+    [ ] It finds the steady-state solution only
+    [*] It is the solution to x' = Ax with initial condition x(0) = x0: x(t) = e^(At) x0
+    [ ] It transforms the system to polar coordinates
+    [ ] It computes the eigenvalues of the system
+    Explanation: The solution to the linear ODE system x' = Ax with x(0) = x0 is x(t) = e^(At) x0. The matrix exponential serves as the fundamental matrix of the system.
 
-  Q7. Sample question 7 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Applications in Differential Equations.
+  Q7. For the system x' = [[0, 1], [-4, 0]]x, what are the eigenvalues and what type of motion occurs?
+    [ ] lambda = +/- 2; exponential growth and decay
+    [*] lambda = +/- 2i; simple harmonic oscillation
+    [ ] lambda = 2 +/- i; growing spiral
+    [ ] lambda = -2, -2; overdamped decay
+    Explanation: det(A - lambda I) = lambda^2 + 4 = 0, giving lambda = +/- 2i. Purely imaginary eigenvalues produce simple harmonic oscillation with frequency 2.
 
-  Q8. Sample question 8 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Applications in Differential Equations.
+  Q8. A coupled ODE system converts the second-order equation y'' + 5y' + 6y = 0 to a first-order system. What are the eigenvalues?
+    [ ] -1 and -6
+    [ ] -5 and -6
+    [ ] 2 and 3
+    [*] -2 and -3
+    Explanation: Setting x1 = y, x2 = y' gives the system with A = [[0,1],[-6,-5]]. The characteristic equation lambda^2 + 5lambda + 6 = (lambda+2)(lambda+3) = 0 gives eigenvalues -2 and -3.
 
-  Q9. Sample question 9 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Applications in Differential Equations.
+  Q9. For a stable linear system x' = Ax, what must be true about all eigenvalues of A?
+    [ ] All eigenvalues must be real
+    [ ] The eigenvalues must sum to zero
+    [*] All eigenvalues must have negative real parts
+    [ ] All eigenvalues must be integers
+    Explanation: For asymptotic stability (all solutions approach the origin), all eigenvalues must have negative real parts. This ensures all exponential terms e^(lambda t) decay.
 
-  Q10. Sample question 10 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Applications in Differential Equations.
+  Q10. How does the phase portrait of x' = Ax with eigenvalues 3 and 1 look?
+    [ ] Trajectories form closed loops
+    [ ] Trajectories spiral inward
+    [*] Trajectories move away from the origin (unstable node)
+    [ ] Trajectories approach the origin from all directions
+    Explanation: Both eigenvalues are positive, so e^(3t) and e^(t) both grow. All trajectories move away from the origin, creating an unstable node (source).
 
-  Q11. Sample question 11 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Applications in Differential Equations.
+  Q11. What is a 'phase portrait' in the context of linear ODE systems?
+    [ ] The matrix A plotted as a grid
+    [*] A graphical representation of solution trajectories in state space
+    [ ] A plot of eigenvalues in the complex plane
+    [ ] A graph of x(t) versus t for each component
+    Explanation: A phase portrait shows the trajectories of solutions in the x1-x2 plane (state space). The shape of trajectories depends on the eigenvalues: nodes, saddles, spirals, or centers.
 
-  Q12. Sample question 12 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Applications in Differential Equations.
+  Q12. What is the 'fundamental matrix' of a linear system x' = Ax?
+    [*] A matrix whose columns are linearly independent solutions of the system
+    [ ] The diagonal matrix of eigenvalues
+    [ ] The matrix A itself, particularly regarding linearly as
+    [ ] The inverse of A, particularly regarding that when
+    Explanation: The fundamental matrix Phi(t) has columns that are n linearly independent solutions. The general solution is x(t) = Phi(t) c for a constant vector c. The matrix exponential e^(At) is a fundamental matrix.
 
-  Q13. Sample question 13 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Applications in Differential Equations.
+  Q13. What does 'decoupling' a system of ODEs mean using eigenvectors?
+    [*] Changing to eigenvector coordinates so each equation involves only one variable
+    [ ] Setting all initial conditions to zero
+    [ ] Removing the nonlinear terms from the system
+    [ ] Eliminating variables to reduce the system size
+    Explanation: Substituting x = Py (where P contains eigenvectors) transforms x' = Ax into y' = Dy, where D is diagonal. Each variable y_i satisfies y_i' = lambda_i y_i independently.
 
-  Q14. Sample question 14 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Applications in Differential Equations.
+  Q14. What is a 'node' in the classification of equilibrium points?
+    [ ] An equilibrium where eigenvalues have opposite signs
+    [ ] An equilibrium where trajectories spiral inward or outward
+    [ ] An equilibrium with purely imaginary eigenvalues
+    [*] An equilibrium with real eigenvalues of the same sign, where trajectories approach or leave along eigenvector directions
+    Explanation: A node has two real eigenvalues of the same sign. If both are negative, it is a stable node (sink); if both are positive, it is an unstable node (source).
 
-  Q15. Sample question 15 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Applications in Differential Equations.
+  Q15. What is the 'half-life' of a decaying mode in a linear system?
+    [*] The time for the solution component to reach half its initial value: t = ln(2)/|lambda|
+    [ ] The time for the eigenvalue to decrease by half
+    [ ] Half the period of oscillation
+    [ ] The time when all components equal 0.5
+    Explanation: For a decaying exponential e^(lambda t) with lambda < 0, the half-life is t_half = ln(2)/|lambda|. This is the time for the mode amplitude to decrease by 50%.
 
-  Q16. Sample question 16 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Applications in Differential Equations.
+  Q16. What is a 'saddle point' in the phase plane?
+    [*] An equilibrium where eigenvalues are real with opposite signs
+    [ ] An equilibrium where solutions form closed loops
+    [ ] An equilibrium where both eigenvalues are negative
+    [ ] An equilibrium where both eigenvalues are complex
+    Explanation: A saddle point has one positive and one negative eigenvalue. Trajectories approach along the eigenvector of the negative eigenvalue and depart along that of the positive eigenvalue.
 
-  Q17. Sample question 17 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Applications in Differential Equations.
+  Q17. What is meant by 'variation of parameters' for a nonhomogeneous system x' = Ax + g(t)?
+    [ ] Changing the variable names in the system
+    [ ] Adding parameters to make the system linear
+    [ ] Varying the eigenvalues to match boundary conditions
+    [*] A method using the fundamental matrix to express the particular solution as an integral
+    Explanation: Variation of parameters writes x_p(t) = Phi(t) integral of Phi^(-1)(s) g(s) ds, using the fundamental matrix Phi(t) to find a particular solution to the nonhomogeneous system.
 
-  Q18. Sample question 18 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Applications in Differential Equations.
+  Q18. What is the 'state-space representation' of a differential equation?
+    [ ] Writing the solution in terms of state vectors
+    [ ] A representation using only diagonal matrices
+    [ ] A coordinate system for plotting phase portraits
+    [*] Writing a higher-order ODE as a system of first-order ODEs using state variables
+    Explanation: State-space form converts a single nth-order ODE into a system of n first-order ODEs by introducing state variables x1 = y, x2 = y', etc., giving x' = Ax + Bu.
 
-  Q19. Sample question 19 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Applications in Differential Equations.
+  Q19. What is meant by the 'time constant' of a linear system mode?
+    [ ] The eigenvalue itself
+    [ ] The period of oscillation
+    [ ] The time when the system reaches steady state
+    [*] The reciprocal of the eigenvalue magnitude: tau = 1/|lambda|
+    Explanation: The time constant tau = 1/|lambda| characterizes how quickly a mode decays (or grows). After time tau, the mode has decayed to e^(-1) or about 36.8% of its initial value.
 
-  Q20. Sample question 20 for Applications in Differential Equations
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Applications in Differential Equations.
+  Q20. What does 'coupled system' mean in differential equations?
+    [ ] A system where all equations are identical
+    [ ] A system with only two equations
+    [ ] A system that cannot be solved analytically
+    [*] A system where each equation depends on multiple unknown functions
+    Explanation: A coupled system has off-diagonal entries in A, meaning each derivative x_i' depends on other variables x_j (j != i). Diagonalization decouples the system into independent equations.
+
+  Q21. A pharmacologist models drug concentration in blood (x1) and tissue (x2) with x' = [[-0.5, 0.3], [0.5, -0.3]]x. The eigenvalues are 0 and -0.8. What happens to the total drug in the long run?
+    [ ] All drug is eliminated from the body
+    [ ] Drug concentration oscillates between blood and tissue
+    [*] Drug redistributes to a steady ratio of x1:x2 = 3:5 and total is conserved
+    [ ] Drug accumulates indefinitely in tissue
+    Explanation: The eigenvalue 0 means there is a conserved quantity (total drug). The mode for lambda = -0.8 decays. The steady eigenvector for lambda = 0 from the null space gives x1:x2 = 3:5.
+
+  Q22. A mechanical engineer models a damped spring-mass system with the equation mx'' + cx' + kx = 0 where m=1, c=5, k=6. Using eigenvalues, what is the response type?
+    [ ] Underdamped (oscillatory decay)
+    [*] Overdamped (two distinct negative real eigenvalues)
+    [ ] Undamped (pure oscillation)
+    [ ] Critically damped (repeated eigenvalue)
+    Explanation: The characteristic equation lambda^2 + 5lambda + 6 = (lambda+2)(lambda+3) = 0 gives eigenvalues -2 and -3. Two distinct negative reals = overdamped. The discriminant c^2 - 4mk = 25 - 24 = 1 > 0.
+
+  Q23. An epidemiologist models disease spread with S' = -0.3S + 0.1I and I' = 0.3S - 0.1I. What are the eigenvalues, and what happens long-term?
+    [ ] Eigenvalues 0.3 and -0.1; the disease grows unbounded
+    [ ] Eigenvalues +/- 0.2i; the disease oscillates
+    [ ] Eigenvalues -0.3 and -0.1; the disease dies out
+    [*] Eigenvalues 0 and -0.4; the population reaches an endemic equilibrium
+    Explanation: A = [[-0.3, 0.1],[0.3, -0.1]]. trace = -0.4, det = 0.03 - 0.03 = 0. Eigenvalues: lambda(lambda + 0.4) = 0, so lambda = 0 and -0.4. The zero eigenvalue preserves total population; the system reaches equilibrium.
+
+  Q24. A control engineer designs a feedback system with x' = [[-2, 1], [-1, -2]]x. The eigenvalues are -2 +/- i. What is the frequency of oscillation?
+    [*] 1 rad/s
+    [ ] 2 rad/s
+    [ ] sqrt(5) rad/s
+    [ ] 3 rad/s
+    Explanation: For eigenvalues a +/- bi = -2 +/- i, the oscillation frequency is b = 1 rad/s. The real part a = -2 determines the decay rate. The solution oscillates at frequency 1 while decaying with time constant 1/2.
+
+  Q25. A chemical engineer models two connected reactors with x' = [[-3, 2], [3, -4]]x. The eigenvalues are -1 and -6. How long does it take for the slower mode to decay to 10% of its initial value?
+    [ ] t = 10 seconds
+    [*] t = ln(10)/1 = 2.303 seconds
+    [ ] t = ln(10)/6 seconds
+    [ ] t = ln(10)/3 seconds
+    Explanation: The slower mode corresponds to lambda = -1 (smaller magnitude). For e^(-t) = 0.1, we need t = ln(10) = 2.303 seconds. The faster mode (lambda = -6) decays much quicker.
+
+  Q26. A biologist models competing species with x' = [[1, -2], [-1, 2]]x. One eigenvalue is 0 and the other is 3. Is the system stable?
+    [ ] Yes, because one eigenvalue is 0
+    [*] No, because the eigenvalue 3 causes exponential growth along its eigenvector
+    [ ] The stability depends on initial conditions
+    [ ] Yes, because the average eigenvalue is 1.5
+    Explanation: The positive eigenvalue 3 produces a component e^(3t) that grows exponentially. Even one positive eigenvalue makes the equilibrium unstable, regardless of the zero eigenvalue.
+
+  Q27. An electrical engineer models an RLC circuit as a second-order ODE: Lq'' + Rq' + q/C = 0, with L=1, R=4, C=1/3. What are the eigenvalues?
+    [ ] -2 and -2
+    [ ] -2 +/- i
+    [*] -1 and -3
+    [ ] 1 and 3
+    Explanation: The characteristic equation is lambda^2 + 4lambda + 3 = (lambda + 1)(lambda + 3) = 0, giving eigenvalues -1 and -3. This is an overdamped circuit; the charge decays without oscillation.
+
+  Q28. A climate scientist models temperature coupling between atmosphere (T1) and ocean (T2) with T' = [[-0.1, 0.05], [0.02, -0.04]]T. What does the slowest-decaying eigenvalue determine?
+    [ ] The fastest time scale of the system
+    [ ] The oscillation frequency
+    [ ] The steady-state temperatures
+    [*] The long-term decay rate controlling how fast the system approaches equilibrium
+    Explanation: The smallest (in magnitude) negative eigenvalue controls the longest time scale. After the faster mode has decayed, the slower mode governs how quickly the system ultimately reaches equilibrium.
+
+  Q29. A structural engineer models a two-degree-of-freedom vibrating system with M*x'' + K*x = 0 where K = [[5, -2], [-2, 5]] and M = I. What are the natural frequencies?
+    [ ] omega = 5 and omega = 2
+    [*] omega = sqrt(3) and omega = sqrt(7)
+    [ ] omega = sqrt(5) and omega = sqrt(5)
+    [ ] omega = 3 and omega = 7
+    Explanation: Eigenvalues of K: det(K-lambda I) = (5-lambda)^2 - 4 = lambda^2 - 10lambda + 21 = (lambda-3)(lambda-7). Natural frequencies omega = sqrt(eigenvalue): sqrt(3) and sqrt(7).
+
+  Q30. A robotics engineer linearizes a nonlinear system around an equilibrium and gets x' = [[0, 1], [-9, -6]]x. The eigenvalues are -3 (repeated). What is the nature of this equilibrium?
+    [ ] An unstable node, particularly regarding defective in accordance with classical theory
+    [*] A stable degenerate node (critically damped, solutions approach origin tangent to one direction)
+    [ ] A stable star node (all solutions go straight to origin)
+    [ ] A stable spiral, particularly regarding engineer in the context of this analysis
+    Explanation: lambda = -3 repeated. A - (-3)I = [[3,1],[-9,-3]] has rank 1, so geometric multiplicity is 1 (defective). This gives a degenerate stable node: the system is critically damped with solutions decaying as (c1 + c2 t)e^(-3t).
 
 --- Lesson 7.5: Applications in Differential Equations (Flashcards) ---
 
@@ -832,154 +1409,262 @@ Content for Applications in Differential Equations is coming soon. Check back fo
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 7.6: Applications in Physics (Summary) ---
 
   Key Concepts: Applications in Physics
-Key Concepts: Applications in Physics
-
-Content for Applications in Physics is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+A quantum system is in state |psi> = (3/5)|+> + (4/5)|->. If |+> and |-> are eigenstates of an operator with eigenvalues +1 and -1, what is the expectation value?
+The expectation value is sum of (probability)(eigenvalue): (3/5)^2(+1) + (4/5)^2(-1) = 9/25 - 16/25 = -7/25.
+What is a 'normal mode' in the physics of oscillating systems?
+A normal mode is a pattern of oscillation in which all parts of the system move sinusoidally at the same frequency. Each normal mode corresponds to an eigenvector of the system matrix.
+What is the 'spectral decomposition' of a Hermitian operator in quantum mechanics?
+The spectral decomposition writes A = sum of lambda_i |v_i>
+What is the physical meaning of a 'degenerate eigenvalue' in quantum mechanics?
+A degenerate eigenvalue means multiple linearly independent eigenstates share the same energy. This degeneracy often arises from symmetry in the system.
+What is a 'unitary matrix' and why is it important in quantum mechanics?
+A unitary matrix satisfies U^dagger U = I. In quantum mechanics, time evolution is unitary, meaning it preserves inner products and hence probabilities.
+What is the 'strain tensor' in continuum mechanics?
+The strain tensor is a symmetric matrix describing deformation. Its eigenvalues are the principal strains (maximum and minimum stretching), and eigenvectors are the principal strain directions.
+What is an 'Hermitian matrix' and why must physical observables be Hermitian?
+An Hermitian matrix satisfies A = A^dagger. Physical observables must be Hermitian because measurement outcomes must be real numbers, and Hermitian matrices are guaranteed to have real eigenvalues.
+What is 'perturbation theory' in quantum mechanics as it relates to eigenvalues?
+Perturbation theory computes corrections to eigenvalues and eigenvectors when H = H0 + epsilon*V, where H0 is exactly solvable. First-order energy correction: E_n^(1) = .
+A quantum computing researcher prepares a qubit in state |psi> = (1/sqrt(2))|0> + (1/sqrt(2))|1> and measures the Pauli-Z operator (eigenvalues +1, -1). What is the probability of getting +1?
+The probability of measuring eigenvalue +1 is |<0|psi>|^2 = |1/sqrt(2)|^2 = 1/2. The state has equal amplitudes in both eigenstates, giving 50-50 measurement probabilities.
+An astrophysicist models the moment of inertia tensor of an asteroid as I = [[4, 0, 0], [0, 6, 2], [0, 2, 3]] kg*m^2. What is the smallest principal moment of inertia?
+One eigenvalue is 4 (from the 1,1 block). For the 2x2 block [[6,2],[2,3]]: trace=9, det=14, eigenvalues = (9 +/- sqrt(81-56))/2 = (9 +/- 5)/2 = 7 and 2. The smallest principal moment is 2 kg*m^2.
+Important Concepts
+A plasma physicist models charged particle motion in crossed E and B fields. The gyration is described by eigenvalues +/-i*omega_c where omega_c is the cyclotron frequency. What type of motion occurs
+Purely imaginary eigenvalues +/-i*omega_c produce circular motion (center-type solution). The particle gyrates around the magnetic field line at the cyclotron frequency omega_c = qB/m.
 
 --- Lesson 7.6: Applications in Physics (Quiz) ---
 
-  Q1. Sample question 1 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Applications in Physics.
+  Q1. In quantum mechanics, eigenvalues of an observable operator represent:
+    [ ] The probabilities of measurement outcomes
+    [*] The possible measurement outcomes
+    [ ] The time evolution rates
+    [ ] The wave function amplitudes
+    Explanation: In quantum mechanics, eigenvalues of an Hermitian operator correspond to the possible measurement outcomes. The eigenvectors are the corresponding eigenstates.
 
-  Q2. Sample question 2 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Applications in Physics.
+  Q2. The moment of inertia tensor I for a rigid body has eigenvalues called:
+    [ ] Angular velocities
+    [*] Principal moments of inertia
+    [ ] Torque components
+    [ ] Rotation angles
+    Explanation: The eigenvalues of the inertia tensor are the principal moments of inertia, and the eigenvectors define the principal axes of rotation about which the body rotates freely.
 
-  Q3. Sample question 3 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Applications in Physics.
+  Q3. In a coupled oscillator system, the eigenvalues of the stiffness matrix determine:
+    [ ] The damping coefficients
+    [*] The normal mode frequencies (squared)
+    [ ] The total energy of the system
+    [ ] The equilibrium positions
+    Explanation: For M*x'' + K*x = 0, the eigenvalues of M^(-1)K give omega^2 for each normal mode. The eigenvectors give the shapes of the normal modes.
 
-  Q4. Sample question 4 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Applications in Physics.
+  Q4. The Pauli spin matrices are 2x2 Hermitian matrices. What are the eigenvalues of any Pauli matrix?
+    [ ] +1/2 and -1/2
+    [ ] 0 and 1
+    [*] +1 and -1
+    [ ] i and -i
+    Explanation: All three Pauli matrices (sigma_x, sigma_y, sigma_z) have eigenvalues +1 and -1. These correspond to spin-up and spin-down states along the respective axis.
 
-  Q5. Sample question 5 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Applications in Physics.
+  Q5. For a symmetric stress tensor, what do the eigenvalues represent?
+    [*] Principal stresses (normal stresses on principal planes)
+    [ ] Young's modulus values under normal circumstances
+    [ ] Strain rates, particularly regarding where
+    [ ] Shear stresses, particularly regarding
+    Explanation: The eigenvalues of the stress tensor are the principal stresses, the pure normal stresses acting on planes where shear stress is zero. The eigenvectors give the principal directions.
 
-  Q6. Sample question 6 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Applications in Physics.
+  Q6. A quantum system is in state |psi> = (3/5)|+> + (4/5)|->. If |+> and |-> are eigenstates of an operator with eigenvalues +1 and -1, what is the expectation value?
+    [ ] 7/25
+    [ ] 0
+    [*] -7/25
+    [ ] 1/5
+    Explanation: The expectation value is sum of (probability)(eigenvalue): (3/5)^2(+1) + (4/5)^2(-1) = 9/25 - 16/25 = -7/25.
 
-  Q7. Sample question 7 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Applications in Physics.
+  Q7. The eigenvalues of a rotation matrix in 3D about an axis by angle theta are:
+    [*] 1, e^(i*theta), e^(-i*theta)
+    [ ] cos(theta), sin(theta), 1
+    [ ] theta, -theta, 0
+    [ ] 1, 1, 1
+    Explanation: A 3D rotation has one real eigenvalue 1 (the rotation axis) and a complex conjugate pair e^(+/-i*theta). The eigenvector for eigenvalue 1 points along the axis of rotation.
 
-  Q8. Sample question 8 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Applications in Physics.
+  Q8. For a conservative force field F = -grad(V), the Hessian of V at a minimum has what property for its eigenvalues?
+    [*] All eigenvalues are positive
+    [ ] All eigenvalues are zero
+    [ ] Eigenvalues have mixed signs
+    [ ] All eigenvalues are negative
+    Explanation: At a local minimum of the potential V, the Hessian is positive definite (all eigenvalues positive). This corresponds to restoring forces in all directions.
 
-  Q9. Sample question 9 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Applications in Physics.
+  Q9. In special relativity, the Lorentz transformation preserves a quadratic form with signature (+,-,-,-). What are the eigenvalues of a Lorentz boost matrix?
+    [ ] v/c and -v/c, particularly
+    [ ] 1 and -1, particularly regarding
+    [*] e^phi and e^(-phi) where phi is the rapidity
+    [ ] gamma and 1/gamma in accordance
+    Explanation: A Lorentz boost in the t-x plane has eigenvalues e^(phi) and e^(-phi) where tanh(phi) = v/c. The eigenvectors are along the light-cone directions (t +/- x).
 
-  Q10. Sample question 10 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Applications in Physics.
+  Q10. The eigenvalues of the quantum harmonic oscillator Hamiltonian are:
+    [ ] n*h*omega for n = 0, 1, 2, ...
+    [ ] Continuous spectrum from 0 to infinity
+    [ ] n^2*h_bar*omega for n = 1, 2, 3, ...
+    [*] (n + 1/2)*h_bar*omega for n = 0, 1, 2, ...
+    Explanation: The quantum harmonic oscillator has equally spaced energy levels E_n = (n + 1/2) h_bar omega, where n = 0, 1, 2, .... The 1/2 represents the zero-point energy.
 
-  Q11. Sample question 11 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Applications in Physics.
+  Q11. What is a 'normal mode' in the physics of oscillating systems?
+    [*] A pattern of motion where all parts oscillate at the same frequency, corresponding to an eigenvector
+    [ ] The average motion of the system
+    [ ] Any oscillation perpendicular to the equilibrium
+    [ ] The fastest possible oscillation
+    Explanation: A normal mode is a pattern of oscillation in which all parts of the system move sinusoidally at the same frequency. Each normal mode corresponds to an eigenvector of the system matrix.
 
-  Q12. Sample question 12 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Applications in Physics.
+  Q12. What are 'principal axes' in the context of the inertia tensor?
+    [ ] The longest and shortest dimensions of the body
+    [ ] Axes about which the body cannot rotate
+    [*] Directions (eigenvectors) along which rotation produces angular momentum parallel to angular velocity
+    [ ] The x, y, z coordinate axes
+    Explanation: Principal axes are the eigenvectors of the inertia tensor. When a body rotates about a principal axis, L = I*omega is parallel to omega, meaning no torque is needed to maintain the rotation.
 
-  Q13. Sample question 13 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Applications in Physics.
+  Q13. What is the 'spectral decomposition' of a Hermitian operator in quantum mechanics?
+    [ ] Decomposing the operator into a product of unitary matrices
+    [ ] Finding the frequency spectrum of the operator
+    [ ] Breaking the operator into real and imaginary parts
+    [*] Writing the operator as a sum of eigenvalue times projector onto the corresponding eigenspace
+    Explanation: The spectral decomposition writes A = sum of lambda_i |v_i><v_i|, expressing the operator as a weighted sum of projection operators onto its eigenstates.
 
-  Q14. Sample question 14 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Applications in Physics.
+  Q14. What is the physical meaning of a 'degenerate eigenvalue' in quantum mechanics?
+    [ ] An energy level with no physical significance
+    [*] An eigenvalue with multiplicity greater than 1, meaning multiple distinct states share the same energy
+    [ ] An eigenvalue that changes over time
+    [ ] An eigenvalue that equals zero
+    Explanation: A degenerate eigenvalue means multiple linearly independent eigenstates share the same energy. This degeneracy often arises from symmetry in the system.
 
-  Q15. Sample question 15 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Applications in Physics.
+  Q15. What does the 'Hamiltonian matrix' represent in quantum mechanics?
+    [ ] The probability distribution matrix
+    [*] The total energy operator whose eigenvalues are allowed energy levels
+    [ ] The position operator
+    [ ] The momentum operator
+    Explanation: The Hamiltonian H is the energy operator. Its eigenvalues E_n are the allowed energy levels, and its eigenvectors are the stationary states of the quantum system.
 
-  Q16. Sample question 16 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Applications in Physics.
+  Q16. What is a 'unitary matrix' and why is it important in quantum mechanics?
+    [ ] A matrix with unit determinant; it represents measurement
+    [*] A matrix where U^dagger U = I; it represents time evolution preserving probabilities
+    [ ] A diagonal matrix; it represents energy eigenstates
+    [ ] A matrix with all entries equal to 1; it represents superposition
+    Explanation: A unitary matrix satisfies U^dagger U = I. In quantum mechanics, time evolution is unitary, meaning it preserves inner products and hence probabilities.
 
-  Q17. Sample question 17 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Applications in Physics.
+  Q17. What is the 'strain tensor' in continuum mechanics?
+    [ ] A scalar measure of total deformation
+    [*] A symmetric matrix whose eigenvalues give the principal strains (stretches)
+    [ ] The inverse of the stress tensor
+    [ ] A vector describing the forces on a body
+    Explanation: The strain tensor is a symmetric matrix describing deformation. Its eigenvalues are the principal strains (maximum and minimum stretching), and eigenvectors are the principal strain directions.
 
-  Q18. Sample question 18 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Applications in Physics.
+  Q18. What does 'diagonalizing the Hamiltonian' mean physically?
+    [ ] Removing the potential energy
+    [ ] Reducing the system to one dimension
+    [*] Finding the energy eigenstates and energy levels of the system
+    [ ] Making the system non-interacting
+    Explanation: Diagonalizing the Hamiltonian means finding a basis of energy eigenstates. In this basis, H is diagonal with energy eigenvalues on the diagonal, and each state evolves as e^(-iEt/h_bar).
 
-  Q19. Sample question 19 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Applications in Physics.
+  Q19. What is an 'Hermitian matrix' and why must physical observables be Hermitian?
+    [ ] A matrix equal to its transpose; it ensures orthogonal eigenvectors
+    [*] A matrix equal to its conjugate transpose (A = A^dagger); it guarantees real eigenvalues (real measurement outcomes)
+    [ ] A matrix with Hermitian symmetry along the diagonal; it ensures positive eigenvalues
+    [ ] An invertible complex matrix; it ensures unique solutions
+    Explanation: An Hermitian matrix satisfies A = A^dagger. Physical observables must be Hermitian because measurement outcomes must be real numbers, and Hermitian matrices are guaranteed to have real eigenvalues.
 
-  Q20. Sample question 20 for Applications in Physics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Applications in Physics.
+  Q20. What is 'perturbation theory' in quantum mechanics as it relates to eigenvalues?
+    [*] A technique for approximating eigenvalues and eigenstates when a small perturbation is added to a solvable Hamiltonian
+    [ ] A method to compute eigenvalues of large matrices numerically
+    [ ] A method for diagonalizing infinite-dimensional matrices
+    [ ] A way to remove degenerate eigenvalues from the spectrum
+    Explanation: Perturbation theory computes corrections to eigenvalues and eigenvectors when H = H0 + epsilon*V, where H0 is exactly solvable. First-order energy correction: E_n^(1) = <n|V|n>.
+
+  Q21. A physicist models two coupled pendulums with stiffness matrix K = [[5, -1], [-1, 5]]. What are the normal mode frequencies and corresponding motions?
+    [ ] omega = sqrt(5) for both modes
+    [ ] omega = 5 (in-phase) and omega = 1 (out-of-phase)
+    [ ] omega = sqrt(4) and omega = sqrt(4)
+    [*] omega = 2 (in-phase) and omega = sqrt(6) (out-of-phase)
+    Explanation: Eigenvalues: (5-lambda)^2 - 1 = 0, so lambda = 4 and 6. omega = sqrt(4) = 2 for eigenvector (1,1) (in-phase) and omega = sqrt(6) for (1,-1) (out-of-phase).
+
+  Q22. A materials scientist analyzes the stress tensor sigma = [[8, 3], [3, 8]] MPa in a loaded plate. What are the principal stresses?
+    [*] 11 MPa and 5 MPa
+    [ ] 8 MPa and 8 MPa
+    [ ] 3 MPa and 13 MPa
+    [ ] 10 MPa and 6 MPa
+    Explanation: det(sigma - lambda I) = (8-lambda)^2 - 9 = lambda^2 - 16lambda + 55 = (lambda - 11)(lambda - 5). The principal stresses are 11 MPa and 5 MPa, acting on planes rotated 45 degrees from the coordinate axes.
+
+  Q23. A quantum computing researcher prepares a qubit in state |psi> = (1/sqrt(2))|0> + (1/sqrt(2))|1> and measures the Pauli-Z operator (eigenvalues +1, -1). What is the probability of getting +1?
+    [*] 1/2
+    [ ] 1
+    [ ] 0
+    [ ] 1/sqrt(2)
+    Explanation: The probability of measuring eigenvalue +1 is |<0|psi>|^2 = |1/sqrt(2)|^2 = 1/2. The state has equal amplitudes in both eigenstates, giving 50-50 measurement probabilities.
+
+  Q24. An astrophysicist models the moment of inertia tensor of an asteroid as I = [[4, 0, 0], [0, 6, 2], [0, 2, 3]] kg*m^2. What is the smallest principal moment of inertia?
+    [*] 2 kg*m^2
+    [ ] 3 kg*m^2
+    [ ] 4 kg*m^2
+    [ ] 1 kg*m^2
+    Explanation: One eigenvalue is 4 (from the 1,1 block). For the 2x2 block [[6,2],[2,3]]: trace=9, det=14, eigenvalues = (9 +/- sqrt(81-56))/2 = (9 +/- 5)/2 = 7 and 2. The smallest principal moment is 2 kg*m^2.
+
+  Q25. A nuclear physicist models a two-level atomic system with Hamiltonian H = [[E0, V], [V, E0]] where E0 = 5 eV and V = 1 eV. What are the energy eigenvalues?
+    [ ] 3 eV and 7 eV
+    [ ] 5 eV and 5 eV
+    [ ] 5 eV and 1 eV
+    [*] 4 eV and 6 eV
+    Explanation: For H = [[5,1],[1,5]], the eigenvalues are 5+1 = 6 and 5-1 = 4. The coupling V splits the degenerate level E0 into two levels separated by 2V = 2 eV.
+
+  Q26. An optics researcher uses the Jones matrix J = [[cos(theta), -sin(theta)], [sin(theta), cos(theta)]] for theta = 45 degrees. The eigenvalues are e^(i*45 deg) and e^(-i*45 deg). What does this tell about the polarization?
+    [*] Circularly polarized eigenstates acquire a phase shift of +/-45 degrees
+    [ ] Light is reflected at 45 degrees
+    [ ] The matrix attenuates light by 45%
+    [ ] Linearly polarized light rotates 90 degrees
+    Explanation: The eigenvectors of a rotation matrix are circularly polarized states (1, +/-i)/sqrt(2). Each acquires phase e^(+/-i*theta). This is the basis for circular birefringence.
+
+  Q27. A geophysicist analyzes the seismic wave speed tensor in an anisotropic medium with C = [[5, 2], [2, 2]] (units: km^2/s^2). What are the fast and slow wave speeds?
+    [*] sqrt(6) km/s and 1 km/s
+    [ ] 3 km/s and sqrt(5) km/s
+    [ ] sqrt(7) and sqrt(2) km/s
+    [ ] 5 km/s and 2 km/s
+    Explanation: Eigenvalues of C: trace = 7, det = 10 - 4 = 6. lambda = (7 +/- sqrt(49-24))/2 = (7 +/- 5)/2 = 6 and 1. Wave speeds are sqrt(eigenvalue): sqrt(6) approximately 2.45 km/s (fast) and 1 km/s (slow).
+
+  Q28. A plasma physicist models charged particle motion in crossed E and B fields. The gyration is described by eigenvalues +/-i*omega_c where omega_c is the cyclotron frequency. What type of motion occurs?
+    [*] Circular orbit at the cyclotron frequency
+    [ ] Exponential growth
+    [ ] Linear motion along the magnetic field
+    [ ] Exponential decay to rest
+    Explanation: Purely imaginary eigenvalues +/-i*omega_c produce circular motion (center-type solution). The particle gyrates around the magnetic field line at the cyclotron frequency omega_c = qB/m.
+
+  Q29. A crystallographer analyzes the thermal vibration tensor U = [[0.05, 0.03], [0.03, 0.05]] (units: Angstrom^2). What are the principal amplitudes of vibration?
+    [ ] 0.03 and 0.07 Angstrom
+    [ ] 0.05 and 0.05 Angstrom
+    [ ] sqrt(0.05) and sqrt(0.05) Angstrom
+    [*] sqrt(0.08) and sqrt(0.02) Angstrom, approximately 0.283 and 0.141
+    Explanation: Eigenvalues: (0.05-lambda)^2 - 0.0009 = 0, so lambda = 0.05 +/- 0.03 = 0.08 and 0.02. RMS amplitudes are sqrt(0.08) = 0.283 and sqrt(0.02) = 0.141 Angstrom. The larger vibration is along the (1,1) direction.
+
+  Q30. A biophysicist models the diffusion of a protein in a cell membrane using the diffusion tensor D = [[3, 1], [1, 3]] (units: um^2/s). The eigenvalues are 4 and 2. Along which direction does the protein diffuse fastest?
+    [*] Along (1, 1)/sqrt(2), the diagonal direction
+    [ ] Along (0, 1), the y-direction
+    [ ] Along (1, 0), the x-direction
+    [ ] Equally in all directions
+    Explanation: The fastest diffusion is along the eigenvector of the largest eigenvalue. For lambda=4: D-4I = [[-1,1],[1,-1]], giving (1,1). The protein diffuses fastest along the diagonal with diffusion constant 4 um^2/s.
 
 --- Lesson 7.6: Applications in Physics (Flashcards) ---
 
@@ -998,154 +1683,274 @@ Content for Applications in Physics is coming soon. Check back for detailed note
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 7.7: Applications in Computer Science (Summary) ---
 
   Key Concepts: Applications in Computer Science
-Key Concepts: Applications in Computer Science
-
-Content for Applications in Computer Science is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+In a Markov chain with transition matrix P, what is the steady-state vector?
+The steady-state vector pi satisfies P*pi = pi, making it the eigenvector for eigenvalue 1. It represents the long-run probability distribution.
+What is the algebraic connectivity (Fiedler value) of a graph?
+The algebraic connectivity (Fiedler value) is the second smallest eigenvalue of the graph Laplacian. It measures how well connected the graph is; a larger value means more connected.
+What is 'spectral graph theory'?
+Spectral graph theory analyzes graph properties using the spectrum (eigenvalues) of matrices like the adjacency matrix or Laplacian. It connects linear algebra to combinatorial properties.
+What is the 'graph Laplacian' matrix?
+The Laplacian L = D - A is a positive semidefinite matrix where D is diagonal with vertex degrees. It encodes the graph structure and its eigenvalues reveal connectivity.
+What is the 'damping factor' in Google's PageRank and how does it affect eigenvalues?
+The damping factor d blends the link matrix with a uniform matrix: M' = dM + (1-d)(1/n)ee^T. This guarantees all secondary eigenvalues have |lambda| <= d < 1, ensuring unique convergence.
+What is 'convergence rate' of an iterative method in terms of eigenvalues?
+The error after k iterations decays approximately as rho(B)^k, where rho(B) is the spectral radius of the iteration matrix. Smaller rho means faster convergence.
+What is 'eigenface' in computer vision?
+Eigenfaces are eigenvectors of the covariance matrix computed from a set of face images. They form a basis for face space, allowing efficient face recognition by projection.
+What is the relationship between the adjacency matrix eigenvalues and graph properties?
+The spectral radius of the adjacency matrix provides bounds on the chromatic number, independence number, and clique number. The spectrum encodes much structural information about the graph.
+What is 'spectral embedding' in dimensionality reduction?
+Spectral embedding maps data points to coordinates given by eigenvectors of a similarity or Laplacian matrix. Methods like Laplacian Eigenmaps and spectral clustering use this approach.
+What is 'matrix factorization' in recommender systems?
+Matrix factorization approximates the sparse rating matrix R as a product of low-rank matrices (R ~ UV^T), where U represents user factors and V represents item factors. This is closely related to eigendecomposition.
+Real-World Applications
+Example: In Google's PageRank algorithm, the dominant eigenvalue of the transition matrix is always:
+For a column-stochastic matrix, the dominant eigenvalue is always 1. The corresponding eigenvector gives the steady-state PageRank distribution.
+Example: In image compression using eigenvalue methods, the largest eigenvalues of A^T A correspond to:
+The largest eigenvalues of A^T A capture the most significant patterns. Keeping only the top k eigenvectors provides a rank-k approximation that compresses the image.
+Example: What is the 'damping factor' in Google's PageRank and how does it affect eigenvalues?
+The damping factor d blends the link matrix with a uniform matrix: M' = dM + (1-d)(1/n)ee^T. This guarantees all secondary eigenvalues have |lambda| <= d < 1, ensuring unique convergence.
+Example: A social media company uses PageRank on a network of 4 accounts with transition matrix M = [[0, 1/2, 0, 0], [1/3, 0, 0, 1/2], [1/3, 0, 0, 1/2], [1/3, 1/2, 1, 0]]. The dominant eigenvector gives the influence ranking. Which property of M ensures convergence?
+M is column-stochastic (each column sums to 1), guaranteeing eigenvalue 1. With the damping factor ensuring primitivity, the power method converges to the unique PageRank vector.
+Example: A network security analyst examines the adjacency matrix of a computer network with 5 nodes. The Laplacian has eigenvalues 0, 1, 2, 4, 5. How many connected components does the network have?
+The number of connected components equals the multiplicity of eigenvalue 0 in the Laplacian. Since 0 appears exactly once, the network is fully connected (1 component).
+Example: A search engine engineer implements the power method to compute PageRank. The second-largest eigenvalue magnitude is 0.85 (the damping factor). How many iterations are needed to reduce the error by a factor of 1000?
+Error decays as 0.85^k. For 0.85^k = 0.001: k = log(0.001)/log(0.85) = -3/(-0.0706) = 42.5. About 42 iterations are needed for three decimal places of accuracy.
+Example: A streaming service uses collaborative filtering with a user-movie matrix R (1000 users x 5000 movies). To find latent factors, they compute the top 50 eigenvalues of R^T R. What percentage of storage is saved compared to storing R?
+Original: 1000 * 5000 = 5,000,000. With rank-50 approximation: 1000*50 + 50 + 50*5000 = 50,000 + 50 + 250,000 = 300,050. Savings: (5M - 300K)/5M = 94%. This is the power of low-rank approximation.
 
 --- Lesson 7.7: Applications in Computer Science (Quiz) ---
 
-  Q1. Sample question 1 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Applications in Computer Science.
+  Q1. In Google's PageRank algorithm, the dominant eigenvalue of the transition matrix is always:
+    [*] 1
+    [ ] The number of web pages
+    [ ] 0
+    [ ] Depends on the web graph structure
+    Explanation: For a column-stochastic matrix, the dominant eigenvalue is always 1. The corresponding eigenvector gives the steady-state PageRank distribution.
 
-  Q2. Sample question 2 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Applications in Computer Science.
+  Q2. In spectral clustering, what do the smallest eigenvalues of the graph Laplacian indicate?
+    [ ] The density of the clusters
+    [ ] The number of edges
+    [*] The connectivity structure and natural clusters in the graph
+    [ ] The diameter of the graph
+    Explanation: The smallest eigenvalues (near 0) of the graph Laplacian L = D - A reveal cluster structure. The multiplicity of eigenvalue 0 equals the number of connected components.
 
-  Q3. Sample question 3 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Applications in Computer Science.
+  Q3. In Principal Component Analysis (PCA), eigenvalues of the covariance matrix represent:
+    [ ] The number of data points in each cluster
+    [ ] The correlation between features
+    [ ] The means of each feature
+    [*] The variance captured by each principal component
+    Explanation: Each eigenvalue of the covariance matrix represents the variance of the data projected onto the corresponding principal component (eigenvector).
 
-  Q4. Sample question 4 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Applications in Computer Science.
+  Q4. The spectral radius of the iteration matrix in Jacobi's method must be less than 1 for:
+    [ ] The matrix to be invertible
+    [*] The iterative method to converge
+    [ ] The system to have a unique solution
+    [ ] The matrix to be symmetric
+    Explanation: An iterative method x^(k+1) = Bx^(k) + c converges if and only if the spectral radius rho(B) < 1. All eigenvalue magnitudes must be less than 1.
 
-  Q5. Sample question 5 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Applications in Computer Science.
+  Q5. In a Markov chain with transition matrix P, what is the steady-state vector?
+    [ ] The sum of all eigenvectors
+    [ ] The eigenvector corresponding to the smallest eigenvalue
+    [*] The eigenvector corresponding to eigenvalue 1
+    [ ] The first column of P
+    Explanation: The steady-state vector pi satisfies P*pi = pi, making it the eigenvector for eigenvalue 1. It represents the long-run probability distribution.
 
-  Q6. Sample question 6 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Applications in Computer Science.
+  Q6. In image compression using eigenvalue methods, the largest eigenvalues of A^T A correspond to:
+    [ ] The image resolution
+    [ ] The noise in the image
+    [ ] The pixel brightness values
+    [*] The most important features/patterns of the image
+    Explanation: The largest eigenvalues of A^T A capture the most significant patterns. Keeping only the top k eigenvectors provides a rank-k approximation that compresses the image.
 
-  Q7. Sample question 7 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Applications in Computer Science.
+  Q7. What is the algebraic connectivity (Fiedler value) of a graph?
+    [ ] The largest eigenvalue of the adjacency matrix
+    [*] The second smallest eigenvalue of the Laplacian matrix
+    [ ] The number of edges in the graph
+    [ ] The determinant of the Laplacian
+    Explanation: The algebraic connectivity (Fiedler value) is the second smallest eigenvalue of the graph Laplacian. It measures how well connected the graph is; a larger value means more connected.
 
-  Q8. Sample question 8 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Applications in Computer Science.
+  Q8. In the power iteration algorithm for finding the dominant eigenvalue, what happens at each step?
+    [ ] A row is eliminated from the matrix
+    [ ] The determinant is computed repeatedly
+    [*] The vector is multiplied by A and then normalized
+    [ ] The matrix is squared and the trace is computed
+    Explanation: Power iteration computes b_(k+1) = Ab_k / ||Ab_k||. The normalized vector converges to the dominant eigenvector, and the ratio ||Ab_k|| / ||b_k|| converges to the dominant eigenvalue.
 
-  Q9. Sample question 9 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Applications in Computer Science.
+  Q9. In recommender systems, eigenvalues of the user-item matrix help identify:
+    [*] Latent factors or hidden patterns in user preferences
+    [ ] The total number of ratings
+    [ ] The number of users
+    [ ] The most popular items only
+    Explanation: Eigendecomposition of the user-item matrix reveals latent factors (e.g., genre preferences). The largest eigenvalues correspond to the most prominent preference patterns.
 
-  Q10. Sample question 10 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Applications in Computer Science.
+  Q10. The condition number of a matrix, related to eigenvalues, measures:
+    [ ] The number of iterations needed for convergence
+    [ ] The rank of the matrix
+    [*] How sensitive the solution of Ax = b is to perturbations
+    [ ] How many eigenvalues the matrix has
+    Explanation: The condition number kappa(A) = |lambda_max|/|lambda_min| for symmetric matrices. A large condition number means the system Ax = b is ill-conditioned and sensitive to rounding errors.
 
-  Q11. Sample question 11 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Applications in Computer Science.
+  Q11. What is 'spectral graph theory'?
+    [ ] A technique for drawing graphs visually
+    [ ] Computing shortest paths using matrix multiplication
+    [ ] Studying graphs using color frequencies
+    [*] Studying properties of graphs through eigenvalues and eigenvectors of associated matrices
+    Explanation: Spectral graph theory analyzes graph properties using the spectrum (eigenvalues) of matrices like the adjacency matrix or Laplacian. It connects linear algebra to combinatorial properties.
 
-  Q12. Sample question 12 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Applications in Computer Science.
+  Q12. What is the 'graph Laplacian' matrix?
+    [*] L = D - A, where D is the degree matrix and A is the adjacency matrix
+    [ ] The transpose of the incidence matrix
+    [ ] The inverse of the adjacency matrix
+    [ ] The square of the adjacency matrix
+    Explanation: The Laplacian L = D - A is a positive semidefinite matrix where D is diagonal with vertex degrees. It encodes the graph structure and its eigenvalues reveal connectivity.
 
-  Q13. Sample question 13 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Applications in Computer Science.
+  Q13. What does 'spectral clustering' mean in machine learning?
+    [*] Partitioning data into clusters using eigenvectors of a similarity or Laplacian matrix
+    [ ] Using k-means on the eigenvalues directly
+    [ ] Clustering using color spectral analysis
+    [ ] Clustering based on the spectrum of electromagnetic radiation
+    Explanation: Spectral clustering uses the bottom eigenvectors of the graph Laplacian to embed data points into a lower-dimensional space, then applies k-means to cluster them.
 
-  Q14. Sample question 14 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Applications in Computer Science.
+  Q14. What is the 'damping factor' in Google's PageRank and how does it affect eigenvalues?
+    [ ] A factor that increases all eigenvalues by 15%
+    [ ] A parameter that controls the number of eigenvalues computed
+    [ ] A multiplier applied to the page content score
+    [*] A value d (typically 0.85) that ensures the modified matrix has a unique dominant eigenvalue of 1
+    Explanation: The damping factor d blends the link matrix with a uniform matrix: M' = dM + (1-d)(1/n)ee^T. This guarantees all secondary eigenvalues have |lambda| <= d < 1, ensuring unique convergence.
 
-  Q15. Sample question 15 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Applications in Computer Science.
+  Q15. What does 'low-rank approximation' mean in the context of eigenvalues?
+    [ ] Removing rows and columns to make the matrix smaller
+    [ ] Making all eigenvalues equal
+    [ ] Reducing the matrix to its smallest eigenvalue only
+    [*] Approximating a matrix by keeping only the terms corresponding to the k largest eigenvalues
+    Explanation: Low-rank approximation A_k = sum of lambda_i v_i v_i^T for i = 1,...,k retains the k largest eigenvalue/eigenvector pairs. The Eckart-Young theorem says this is the best rank-k approximation.
 
-  Q16. Sample question 16 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Applications in Computer Science.
+  Q16. What is 'convergence rate' of an iterative method in terms of eigenvalues?
+    [ ] The number of eigenvalues that are zero
+    [*] The rate is determined by the spectral radius; smaller spectral radius means faster convergence
+    [ ] The convergence rate equals the trace of the iteration matrix
+    [ ] The largest eigenvalue determines how many iterations are needed
+    Explanation: The error after k iterations decays approximately as rho(B)^k, where rho(B) is the spectral radius of the iteration matrix. Smaller rho means faster convergence.
 
-  Q17. Sample question 17 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Applications in Computer Science.
+  Q17. What is 'eigenface' in computer vision?
+    [ ] A face detected by edge detection algorithms
+    [ ] A face that is perfectly symmetric
+    [ ] The face with the largest pixel values
+    [*] An eigenvector of the covariance matrix of face images, representing a principal face pattern
+    Explanation: Eigenfaces are eigenvectors of the covariance matrix computed from a set of face images. They form a basis for face space, allowing efficient face recognition by projection.
 
-  Q18. Sample question 18 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Applications in Computer Science.
+  Q18. What is the relationship between the adjacency matrix eigenvalues and graph properties?
+    [ ] Eigenvalues have no connection to graph structure
+    [ ] The smallest eigenvalue gives the number of triangles
+    [*] The largest eigenvalue bounds the chromatic number and clique number
+    [ ] The eigenvalues equal the vertex degrees
+    Explanation: The spectral radius of the adjacency matrix provides bounds on the chromatic number, independence number, and clique number. The spectrum encodes much structural information about the graph.
 
-  Q19. Sample question 19 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Applications in Computer Science.
+  Q19. What is 'spectral embedding' in dimensionality reduction?
+    [ ] Projecting data onto the first two coordinates
+    [ ] Using the determinant to measure embedding quality
+    [*] Embedding data into a space defined by eigenvectors of a kernel or Laplacian matrix
+    [ ] Mapping data into frequency domain using Fourier transform
+    Explanation: Spectral embedding maps data points to coordinates given by eigenvectors of a similarity or Laplacian matrix. Methods like Laplacian Eigenmaps and spectral clustering use this approach.
 
-  Q20. Sample question 20 for Applications in Computer Science
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Applications in Computer Science.
+  Q20. What is 'matrix factorization' in recommender systems?
+    [ ] Dividing each rating by a normalization factor
+    [ ] Splitting the user-item matrix into prime factors
+    [*] Decomposing the rating matrix into products of lower-rank matrices to discover latent factors
+    [ ] Computing the LU decomposition for solving recommendations
+    Explanation: Matrix factorization approximates the sparse rating matrix R as a product of low-rank matrices (R ~ UV^T), where U represents user factors and V represents item factors. This is closely related to eigendecomposition.
+
+  Q21. A social media company uses PageRank on a network of 4 accounts with transition matrix M = [[0, 1/2, 0, 0], [1/3, 0, 0, 1/2], [1/3, 0, 0, 1/2], [1/3, 1/2, 1, 0]]. The dominant eigenvector gives the influence ranking. Which property of M ensures convergence?
+    [ ] M is diagonally dominant under equilibrium conditions
+    [ ] M is symmetric, particularly regarding stochastic in
+    [*] M is column-stochastic (columns sum to 1) with dominant eigenvalue 1
+    [ ] M has all positive entries when applying fundamental principles
+    Explanation: M is column-stochastic (each column sums to 1), guaranteeing eigenvalue 1. With the damping factor ensuring primitivity, the power method converges to the unique PageRank vector.
+
+  Q22. A data scientist applies PCA to 100-dimensional data and finds the first 3 eigenvalues account for 95% of the total variance. How many dimensions should she keep for an efficient representation?
+    [ ] 1, using only the dominant component
+    [*] 3, capturing 95% of the variance
+    [ ] 50, keeping half the dimensions
+    [ ] 100, to preserve all information
+    Explanation: Keeping 3 principal components captures 95% of the variance while reducing dimensionality from 100 to 3. This massive compression (97% reduction) retains most of the data structure.
+
+  Q23. A network security analyst examines the adjacency matrix of a computer network with 5 nodes. The Laplacian has eigenvalues 0, 1, 2, 4, 5. How many connected components does the network have?
+    [ ] 5
+    [*] 1
+    [ ] 2
+    [ ] 0
+    Explanation: The number of connected components equals the multiplicity of eigenvalue 0 in the Laplacian. Since 0 appears exactly once, the network is fully connected (1 component).
+
+  Q24. A game developer uses eigenvalue analysis on a 3x3 transformation matrix to detect if it is purely a rotation. The eigenvalues are 1, e^(i*pi/3), and e^(-i*pi/3). Is it a rotation?
+    [ ] No, a rotation must have all eigenvalues equal to 1
+    [ ] No, because not all eigenvalues are real
+    [ ] Yes, but only if the matrix is symmetric
+    [*] Yes, eigenvalue 1 gives the axis and the complex pair gives the rotation angle (60 degrees)
+    Explanation: A 3D rotation has eigenvalue 1 (axis direction) and a conjugate pair e^(+/-i*theta) giving the rotation angle. Here theta = pi/3 = 60 degrees. All eigenvalues have |lambda| = 1, confirming isometry.
+
+  Q25. A search engine engineer implements the power method to compute PageRank. The second-largest eigenvalue magnitude is 0.85 (the damping factor). How many iterations are needed to reduce the error by a factor of 1000?
+    [*] About 42 iterations
+    [ ] About 1000 iterations
+    [ ] About 100 iterations
+    [ ] About 10 iterations
+    Explanation: Error decays as 0.85^k. For 0.85^k = 0.001: k = log(0.001)/log(0.85) = -3/(-0.0706) = 42.5. About 42 iterations are needed for three decimal places of accuracy.
+
+  Q26. A machine learning researcher trains a neural network and analyzes the Hessian at a critical point. It has eigenvalues ranging from -0.5 to 100. What does this tell about the loss landscape?
+    [ ] The critical point is a local minimum within the typical range of values
+    [ ] The critical point is a global minimum when evaluated systematically
+    [*] The critical point is a saddle point with a negative curvature direction, and gradient descent may escape
+    [ ] The loss function is convex, particularly regarding neural under normal circumstances
+    Explanation: The negative eigenvalue (-0.5) indicates a direction of negative curvature (saddle point). The large condition number (100/0.5 = 200) also suggests that gradient descent will be slow along certain directions.
+
+  Q27. A bioinformatics researcher uses eigenvalues to analyze a protein interaction network. The largest eigenvalue of the adjacency matrix is 12.5. What does this indicate?
+    [*] It bounds the maximum degree and indicates the network has hub proteins with many interactions
+    [ ] The network has 12 connected components
+    [ ] Each protein interacts with exactly 12 others
+    [ ] There are exactly 12.5 proteins in the network
+    Explanation: The largest eigenvalue is bounded between the average degree and maximum degree. A value of 12.5 suggests highly connected hub proteins, characteristic of scale-free biological networks.
+
+  Q28. A streaming service uses collaborative filtering with a user-movie matrix R (1000 users x 5000 movies). To find latent factors, they compute the top 50 eigenvalues of R^T R. What percentage of storage is saved compared to storing R?
+    [*] About 94% (from 5 million to 300,000 entries)
+    [ ] About 10%
+    [ ] About 50%
+    [ ] No savings; the same amount of data is stored
+    Explanation: Original: 1000 * 5000 = 5,000,000. With rank-50 approximation: 1000*50 + 50 + 50*5000 = 50,000 + 50 + 250,000 = 300,050. Savings: (5M - 300K)/5M = 94%. This is the power of low-rank approximation.
+
+  Q29. A robotics engineer uses eigenvalue analysis to check stability of a discrete-time control system x(k+1) = Ax(k). The eigenvalues of A are 0.9, -0.8, and 0.5. Is the system stable?
+    [ ] No, because the eigenvalues don't sum to 1
+    [ ] Only marginally stable
+    [ ] No, because one eigenvalue is negative
+    [*] Yes, because all eigenvalues have |lambda| < 1
+    Explanation: For discrete-time systems, stability requires all |lambda| < 1. Here |0.9| = 0.9, |-0.8| = 0.8, |0.5| = 0.5, all less than 1. The system is asymptotically stable. The -0.8 causes alternating behavior but still decays.
+
+  Q30. A cybersecurity team analyzes network traffic patterns using the covariance matrix of packet features. An eigenvalue suddenly increases from 0.1 to 50. What might this indicate?
+    [ ] The network is operating normally with higher bandwidth
+    [ ] More features need to be collected
+    [ ] The covariance matrix has become singular
+    [*] A potential anomaly or attack pattern creating strongly correlated traffic in a specific direction
+    Explanation: A sudden eigenvalue spike indicates a new dominant direction of variance in the data -- likely coordinated traffic from an attack (DDoS, scanning). The eigenvector reveals the attack's signature pattern.
 
 --- Lesson 7.7: Applications in Computer Science (Flashcards) ---
 
@@ -1164,154 +1969,272 @@ Content for Applications in Computer Science is coming soon. Check back for deta
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 7.8: Applications in Economics (Summary) ---
 
   Key Concepts: Applications in Economics
-Key Concepts: Applications in Economics
-
-Content for Applications in Economics is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+A two-sector economy has input-output matrix A = [[0.2, 0.3], [0.4, 0.1]]. What is the largest eigenvalue of A?
+det(A - lambda I) = (0.2-lambda)(0.1-lambda) - 0.12 = lambda^2 - 0.3lambda - 0.1. Using the quadratic formula: lambda = (0.3 +/- sqrt(0.09 + 0.4))/2 = (0.3 +/- 0.7)/2. So lambda = 0.5 and -0.2.
+What is the Leontief input-output model?
+The Leontief model describes how sectors of an economy depend on each other. Production x must satisfy x = Ax + d, solved as x = (I-A)^(-1)d when the spectral radius of A is less than 1.
+What is the 'Hawkins-Simon condition' in economics?
+The Hawkins-Simon condition ensures the economy is productive: each sector can produce more than it consumes. Mathematically, the spectral radius of A must be less than 1.
+What is a 'stochastic matrix' in economic modeling?
+A stochastic matrix has nonnegative entries with columns (or rows) summing to 1. It models probabilistic transitions such as consumer brand switching or economic state transitions.
+What is 'dynamic input-output analysis' in economics?
+Dynamic input-output analysis extends the Leontief model to include capital accumulation: x(t+1) = Ax(t) + Bx(t). Eigenvalues determine growth rates and stability of the economic trajectory.
+What is the 'von Neumann growth model' in economics?
+The von Neumann model finds the maximum rate at which all sectors can grow simultaneously. This balanced growth rate equals the dominant eigenvalue, and the eigenvector gives the balanced growth proportions.
+What is 'convergence' in economic growth theory related to eigenvalues?
+In the Solow model, the speed of convergence to steady state is -(1-alpha)*delta, where this is the eigenvalue of the linearized system. A more negative eigenvalue means faster convergence.
+What is the 'multiplier effect' in the Leontief model related to eigenvalues?
+The Leontief inverse (I-A)^(-1) = I + A + A^2 + ... captures all rounds of inter-industry demand. This geometric series converges precisely when the spectral radius of A is less than 1.
+What is 'factor analysis' in econometrics?
+Factor analysis uses eigendecomposition of the correlation matrix to identify latent factors (e.g., market risk, interest rate risk) that explain the correlations among observed economic variables.
+What is a 'steady-state distribution' in an economic Markov model?
+The steady-state distribution pi is the eigenvector for eigenvalue 1 of the transition matrix, normalized so entries sum to 1. It represents the long-run market shares or state probabilities.
+A financial analyst has a portfolio covariance matrix C = [[0.04, 0.02], [0.02, 0.09]]. The eigenvalues are approximately 0.1 and 0.03. What is the maximum portfolio variance achievable?
+The maximum variance of a unit-weight portfolio w^T C w is the largest eigenvalue (0.1), achieved when w is the corresponding eigenvector. This is the direction of maximum risk.
+A real estate economist models housing market dynamics with x(t+1) = [[0.7, 0.1], [0.3, 0.9]]x(t), where x1 is urban and x2 is suburban population. What is the long-run urban-to-suburban ratio?
+This is a column-stochastic matrix (columns sum to 1), so eigenvalue 1 exists. A - I = [[-0.3, 0.1], [0.3, -0.1]]. From row 1: 0.3*x1 = 0.1*x2, so x1/x2 = 1/3. The long-run ratio is 1:3, meaning the suburban population is three times the urban population.
+Real-World Applications
+Example: A Leslie population model for age-structured economic labor force has matrix L with dominant eigenvalue 1.03. What does this predict?
+The dominant eigenvalue determines long-run growth: lambda > 1 means growth, lambda < 1 means decline. With lambda = 1.03, the population grows at 3% per period, approaching the stable age distribution given by the eigenvector.
+Example: In a simple Solow growth model linearized around the steady state, the eigenvalue determines the convergence speed. If lambda = 0.95, what percentage of the gap to steady state closes each period?
+If the deviation from steady state decays as 0.95^t, then each period the gap shrinks by (1 - 0.95) = 5%. The economy closes 5% of its distance to steady state each period.
+Example: What is the 'multiplier effect' in the Leontief model related to eigenvalues?
+The Leontief inverse (I-A)^(-1) = I + A + A^2 + ... captures all rounds of inter-industry demand. This geometric series converges precisely when the spectral radius of A is less than 1.
+Example: A development economist computes the Leontief inverse for a developing country and finds the largest entry is 3.2. What does this 'multiplier' mean?
+The column sum of the Leontief inverse for sector j gives the total output multiplier: how much total output across all sectors increases for a $1 increase in final demand for sector j.
 
 --- Lesson 7.8: Applications in Economics (Quiz) ---
 
-  Q1. Sample question 1 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Applications in Economics.
+  Q1. In the Leontief input-output model, the production equation is x = Ax + d. What does the matrix A represent?
+    [ ] The labor requirements per unit output
+    [*] The inter-industry consumption coefficients
+    [ ] The profit margins of each sector
+    [ ] The prices of goods in each sector
+    Explanation: In x = Ax + d, the matrix A contains the technical coefficients: a_ij is the amount of good i needed to produce one unit of good j. The vector d is final demand.
 
-  Q2. Sample question 2 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Applications in Economics.
+  Q2. For the Leontief model to have a feasible solution x = (I - A)^(-1)d, the eigenvalues of A must satisfy:
+    [ ] All eigenvalues must be negative
+    [ ] All eigenvalues must be greater than 1
+    [*] All eigenvalues must have absolute value less than 1
+    [ ] At least one eigenvalue must equal 1
+    Explanation: The spectral radius of A must be less than 1 for (I - A) to be invertible with a nonnegative inverse. This is the Hawkins-Simon condition ensuring productive feasibility.
 
-  Q3. Sample question 3 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Applications in Economics.
+  Q3. In a Markov chain model of consumer brand switching, a transition matrix has eigenvalues 1, 0.6, and 0.3. How quickly does the market reach equilibrium?
+    [ ] Determined by the smallest eigenvalue 0.3
+    [ ] Determined by the eigenvalue 1
+    [*] Determined by the second-largest eigenvalue 0.6
+    [ ] All eigenvalues contribute equally
+    Explanation: The convergence rate is governed by the second-largest eigenvalue in absolute value (0.6). Deviations from steady state decay as 0.6^k, so after about 7 periods, error < 3%.
 
-  Q4. Sample question 4 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Applications in Economics.
+  Q4. A two-sector economy has input-output matrix A = [[0.2, 0.3], [0.4, 0.1]]. What is the largest eigenvalue of A?
+    [*] 0.5
+    [ ] 0.7
+    [ ] 1.0
+    [ ] 0.3
+    Explanation: det(A - lambda I) = (0.2-lambda)(0.1-lambda) - 0.12 = lambda^2 - 0.3lambda - 0.1. Using the quadratic formula: lambda = (0.3 +/- sqrt(0.09 + 0.4))/2 = (0.3 +/- 0.7)/2. So lambda = 0.5 and -0.2.
 
-  Q5. Sample question 5 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Applications in Economics.
+  Q5. In portfolio theory, the eigenvalues of the covariance matrix of returns represent:
+    [ ] The correlation coefficients between assets
+    [*] The variance of risk along principal portfolio directions
+    [ ] The market capitalization weights
+    [ ] Expected returns of each asset
+    Explanation: Each eigenvalue of the covariance matrix represents the variance of portfolio returns along the corresponding principal direction (eigenvector). The largest eigenvalue captures the most risk.
 
-  Q6. Sample question 6 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Applications in Economics.
+  Q6. A Leslie population model for age-structured economic labor force has matrix L with dominant eigenvalue 1.03. What does this predict?
+    [ ] The age distribution will oscillate
+    [ ] The labor force is in steady state
+    [ ] The labor force will decline by 3% per period
+    [*] The labor force will grow by 3% per period in the long run
+    Explanation: The dominant eigenvalue determines long-run growth: lambda > 1 means growth, lambda < 1 means decline. With lambda = 1.03, the population grows at 3% per period, approaching the stable age distribution given by the eigenvector.
 
-  Q7. Sample question 7 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Applications in Economics.
+  Q7. In dynamic economic models of the form x(t+1) = Ax(t), an economy is stable if:
+    [ ] A is symmetric
+    [ ] The determinant of A equals 1
+    [ ] The trace of A is positive
+    [*] All eigenvalues of A have absolute value less than 1
+    Explanation: For a discrete-time system, stability requires all eigenvalues to be inside the unit circle (|lambda| < 1). This ensures x(t) converges to a steady state as t grows.
 
-  Q8. Sample question 8 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Applications in Economics.
+  Q8. The Perron-Frobenius theorem applies to nonnegative matrices. What does it guarantee for a positive matrix?
+    [*] There exists a unique dominant positive eigenvalue with a positive eigenvector
+    [ ] The matrix is diagonalizable
+    [ ] All eigenvalues are positive
+    [ ] The matrix has integer eigenvalues
+    Explanation: The Perron-Frobenius theorem states that a positive matrix has a unique largest (real, positive) eigenvalue, and the corresponding eigenvector can be chosen to have all positive entries.
 
-  Q9. Sample question 9 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Applications in Economics.
+  Q9. In a simple Solow growth model linearized around the steady state, the eigenvalue determines the convergence speed. If lambda = 0.95, what percentage of the gap to steady state closes each period?
+    [ ] 95%
+    [ ] 0.95%
+    [*] 5%
+    [ ] 50%
+    Explanation: If the deviation from steady state decays as 0.95^t, then each period the gap shrinks by (1 - 0.95) = 5%. The economy closes 5% of its distance to steady state each period.
 
-  Q10. Sample question 10 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Applications in Economics.
+  Q10. A game theory payoff matrix has eigenvalues that help determine:
+    [ ] The number of players
+    [*] The value of the game and optimal mixed strategies in zero-sum games
+    [ ] Whether cooperation is better than competition
+    [ ] The Nash equilibrium strategies
+    Explanation: For symmetric zero-sum games, eigenvalue analysis of the payoff matrix reveals the game value and helps find optimal strategies through the minimax theorem.
 
-  Q11. Sample question 11 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Applications in Economics.
+  Q11. What is the Leontief input-output model?
+    [*] A model relating production levels across economic sectors through a system of linear equations x = (I-A)^(-1)d
+    [ ] A model that uses only supply-side factors
+    [ ] A model of individual consumer choice
+    [ ] A nonlinear model of international trade
+    Explanation: The Leontief model describes how sectors of an economy depend on each other. Production x must satisfy x = Ax + d, solved as x = (I-A)^(-1)d when the spectral radius of A is less than 1.
 
-  Q12. Sample question 12 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Applications in Economics.
+  Q12. What is the 'Hawkins-Simon condition' in economics?
+    [ ] A condition requiring all sectors to have equal output
+    [*] A condition ensuring (I-A)^(-1) exists and is nonnegative, equivalent to all eigenvalues of A being less than 1
+    [ ] All entries of the input-output matrix must be positive
+    [ ] A rule that total input must exceed total output
+    Explanation: The Hawkins-Simon condition ensures the economy is productive: each sector can produce more than it consumes. Mathematically, the spectral radius of A must be less than 1.
 
-  Q13. Sample question 13 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Applications in Economics.
+  Q13. What is a 'stochastic matrix' in economic modeling?
+    [*] A nonnegative matrix whose columns (or rows) sum to 1, used for transition probabilities
+    [ ] A matrix that changes over time
+    [ ] A matrix with random entries
+    [ ] A symmetric positive definite matrix
+    Explanation: A stochastic matrix has nonnegative entries with columns (or rows) summing to 1. It models probabilistic transitions such as consumer brand switching or economic state transitions.
 
-  Q14. Sample question 14 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Applications in Economics.
+  Q14. What does the 'Perron-Frobenius theorem' guarantee for economic models?
+    [ ] That government intervention is necessary when evaluated systematically
+    [ ] That all economic growth rates are positive when applying fundamental principles
+    [*] That nonnegative matrices (like input-output matrices) have a unique dominant real eigenvalue with a nonnegative eigenvector
+    [ ] That market equilibrium always exists, particularly regarding guarantee following conventional understanding
+    Explanation: Perron-Frobenius guarantees a dominant nonneg eigenvalue with a nonneg eigenvector for nonneg matrices. In economics, this ensures meaningful production levels and growth rates.
 
-  Q15. Sample question 15 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Applications in Economics.
+  Q15. What is 'dynamic input-output analysis' in economics?
+    [ ] Measuring GDP in real time
+    [ ] Adjusting the input-output table for inflation
+    [ ] Computing static equilibrium with time-varying prices
+    [*] Studying how inter-industry relationships evolve over time using eigenvalue-driven dynamics
+    Explanation: Dynamic input-output analysis extends the Leontief model to include capital accumulation: x(t+1) = Ax(t) + Bx(t). Eigenvalues determine growth rates and stability of the economic trajectory.
 
-  Q16. Sample question 16 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Applications in Economics.
+  Q16. What is the 'von Neumann growth model' in economics?
+    [ ] A model of random economic fluctuations
+    [*] A model where the maximum balanced growth rate equals the dominant eigenvalue of a production matrix
+    [ ] A game theory model of market competition
+    [ ] A model of individual savings decisions
+    Explanation: The von Neumann model finds the maximum rate at which all sectors can grow simultaneously. This balanced growth rate equals the dominant eigenvalue, and the eigenvector gives the balanced growth proportions.
 
-  Q17. Sample question 17 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Applications in Economics.
+  Q17. What is 'convergence' in economic growth theory related to eigenvalues?
+    [ ] Rich countries always grow faster than poor countries
+    [ ] All countries eventually reach the same GDP
+    [*] The rate at which an economy approaches its steady state, determined by the eigenvalue of the linearized system
+    [ ] Economic predictions become more accurate over time
+    Explanation: In the Solow model, the speed of convergence to steady state is -(1-alpha)*delta, where this is the eigenvalue of the linearized system. A more negative eigenvalue means faster convergence.
 
-  Q18. Sample question 18 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Applications in Economics.
+  Q18. What is the 'multiplier effect' in the Leontief model related to eigenvalues?
+    [ ] The ratio of output to input for each sector in most standard conditions
+    [*] The Leontief inverse (I-A)^(-1) = I + A + A^2 + ..., whose convergence depends on eigenvalues of A being less than 1
+    [ ] The government spending multiplier, particularly regarding spectral as observed in standard experiments
+    [ ] The product of all eigenvalues, particularly regarding leontief when measured under controlled conditions
+    Explanation: The Leontief inverse (I-A)^(-1) = I + A + A^2 + ... captures all rounds of inter-industry demand. This geometric series converges precisely when the spectral radius of A is less than 1.
 
-  Q19. Sample question 19 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Applications in Economics.
+  Q19. What is 'factor analysis' in econometrics?
+    [ ] Factoring large numbers for cryptographic applications
+    [ ] Analyzing the factors of production (land, labor, capital)
+    [ ] Decomposing GDP into its components
+    [*] Using eigenvalue decomposition to identify latent factors driving observed economic variables
+    Explanation: Factor analysis uses eigendecomposition of the correlation matrix to identify latent factors (e.g., market risk, interest rate risk) that explain the correlations among observed economic variables.
 
-  Q20. Sample question 20 for Applications in Economics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Applications in Economics.
+  Q20. What is a 'steady-state distribution' in an economic Markov model?
+    [ ] Any probability distribution
+    [ ] The distribution that maximizes entropy
+    [*] The eigenvector of the transition matrix corresponding to eigenvalue 1, normalized to sum to 1
+    [ ] The average of all rows of the transition matrix
+    Explanation: The steady-state distribution pi is the eigenvector for eigenvalue 1 of the transition matrix, normalized so entries sum to 1. It represents the long-run market shares or state probabilities.
+
+  Q21. An economist models a 3-sector economy with input-output matrix A = [[0.1, 0.2, 0.1], [0.2, 0.1, 0.3], [0.1, 0.3, 0.1]]. The column sums are 0.4, 0.6, and 0.5. Is the Hawkins-Simon condition likely satisfied?
+    [ ] No, because column sums exceed 0.5
+    [ ] No, because the matrix is not diagonal
+    [ ] Cannot determine without computing eigenvalues exactly
+    [*] Yes, because all column sums are less than 1, suggesting the spectral radius is less than 1
+    Explanation: The spectral radius is bounded by the maximum column sum (0.6 < 1). Since max column sum < 1, the spectral radius < 1, and the Hawkins-Simon condition is satisfied.
+
+  Q22. A financial analyst has a portfolio covariance matrix C = [[0.04, 0.02], [0.02, 0.09]]. The eigenvalues are approximately 0.1 and 0.03. What is the maximum portfolio variance achievable?
+    [ ] 0.09 (the largest diagonal entry)
+    [ ] 0.04 (the smallest diagonal entry)
+    [*] 0.1 (the largest eigenvalue)
+    [ ] 0.13
+    Explanation: The maximum variance of a unit-weight portfolio w^T C w is the largest eigenvalue (0.1), achieved when w is the corresponding eigenvector. This is the direction of maximum risk.
+
+  Q23. A labor economist models worker mobility between 3 sectors with transition matrix P. After computing eigenvalues 1, 0.7, and 0.3, she wants to know how many periods until the distribution is within 1% of steady state. Which eigenvalue determines this?
+    [ ] The eigenvalue 0.3
+    [ ] The product 0.7 * 0.3 = 0.21
+    [*] The eigenvalue 0.7 (second largest in absolute value)
+    [ ] The eigenvalue 1
+    Explanation: Convergence rate is determined by the second-largest eigenvalue. For 0.7^k < 0.01: k > log(0.01)/log(0.7) = 12.9, so about 13 periods. The eigenvalue 0.3 mode decays much faster.
+
+  Q24. A trade economist applies the Leontief model to find that (I - A)^(-1) has entry (2,1) = 0.45. What does this mean economically?
+    [*] A $1 increase in final demand for sector 1's product requires $0.45 additional output from sector 2 (directly and indirectly)
+    [ ] Sector 2 produces 45% of sector 1's output
+    [ ] The price of sector 2's good is 45% of sector 1's price
+    [ ] 45% of sector 2's output goes to sector 1
+    Explanation: Entry (i,j) of the Leontief inverse gives the total output of sector i needed (directly and through all rounds of indirect demand) per unit of final demand for sector j's product.
+
+  Q25. A macroeconomist linearizes a dynamic stochastic general equilibrium (DSGE) model and finds eigenvalues 0.97, 0.85, and 1.03. What does this imply about the model's dynamics?
+    [*] The model has a saddle-path structure with one unstable and two stable roots
+    [ ] The model is stable; all variables converge
+    [ ] The model is completely unstable
+    [ ] The model has no meaningful solution
+    Explanation: One eigenvalue > 1 (1.03) and two < 1 (0.97, 0.85) create a saddle-path structure. The Blanchard-Kahn conditions require the number of unstable roots to equal the number of forward-looking variables for a unique solution.
+
+  Q26. An international trade analyst models 3 countries' trade flows with a transition matrix. The second eigenvalue is 0.4 + 0.3i (in absolute value approximately 0.5). What does the complex eigenvalue indicate?
+    [*] Trade patterns show dampened cyclical behavior as they converge to equilibrium
+    [ ] Trade is impossible between these countries
+    [ ] Trade grows without bound
+    [ ] The model is incorrectly specified
+    Explanation: Complex eigenvalues in a Markov transition matrix produce oscillatory convergence to steady state. The imaginary part creates cyclical patterns while the modulus < 1 ensures they dampen over time.
+
+  Q27. A real estate economist models housing market dynamics with x(t+1) = [[0.7, 0.1], [0.3, 0.9]]x(t), where x1 is urban and x2 is suburban population. What is the long-run urban-to-suburban ratio?
+    [ ] 1:1
+    [*] 1:3
+    [ ] 3:1
+    [ ] 7:9
+    Explanation: This is a column-stochastic matrix (columns sum to 1), so eigenvalue 1 exists. A - I = [[-0.3, 0.1], [0.3, -0.1]]. From row 1: 0.3*x1 = 0.1*x2, so x1/x2 = 1/3. The long-run ratio is 1:3, meaning the suburban population is three times the urban population.
+
+  Q28. A development economist computes the Leontief inverse for a developing country and finds the largest entry is 3.2. What does this 'multiplier' mean?
+    [ ] Imports are 3.2 times exports, particularly regarding across following conventional understanding
+    [ ] GDP is 3.2 times the population as determined by standard methodology
+    [*] A $1 increase in final demand in one sector generates $3.20 total output across all sectors combined
+    [ ] The economy grows at 320% per year as observed in standard experiments
+    Explanation: The column sum of the Leontief inverse for sector j gives the total output multiplier: how much total output across all sectors increases for a $1 increase in final demand for sector j.
+
+  Q29. A central banker models inflation dynamics across 2 sectors. The system matrix has eigenvalues 0.98 and 0.6. After a supply shock, how many quarters until the inflation impact is halved?
+    [ ] About 2 quarters (from the eigenvalue 0.6)
+    [*] About 34 quarters (from the eigenvalue 0.98)
+    [ ] About 50 quarters
+    [ ] About 10 quarters
+    Explanation: The dominant (slowest-decaying) eigenvalue 0.98 determines long-run dynamics. Half-life: 0.98^k = 0.5 gives k = ln(0.5)/ln(0.98) = -0.693/(-0.0202) = 34.3 quarters. Inflation is highly persistent.
+
+  Q30. A behavioral economist models consumer habit formation with x(t+1) = 0.7*x(t) + 0.3*s(t), where s is a stimulus. The eigenvalue 0.7 represents the 'habit persistence parameter.' If a marketing campaign (stimulus) stops, how quickly do old habits return?
+    [ ] Never; the effect is permanent
+    [*] With a half-life of about 2 periods (0.7^2 = 0.49)
+    [ ] After exactly 0.7 periods
+    [ ] Immediately (within 1 period)
+    Explanation: After the stimulus stops (s=0), the habit evolves as x(t) = 0.7^t * x(0). Half-life: 0.7^k = 0.5 gives k = ln(0.5)/ln(0.7) = 1.94 periods. The effect halves roughly every 2 periods.
 
 --- Lesson 7.8: Applications in Economics (Flashcards) ---
 
@@ -1329,3 +2252,18 @@ Content for Applications in Economics is coming soon. Check back for detailed no
 
   5. Q: 
      A: 
+
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A:

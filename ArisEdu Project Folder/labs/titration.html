@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acid-Base Titration</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin:0; font-family:'Poppins',sans-serif; background:#0f172a; color:#f1f5f9; }
+    .sim-container { max-width:1000px; margin:5rem auto 2rem; padding:1rem 2rem; }
+    h1 { text-align:center; font-size:1.8rem; margin-bottom:0.25rem; }
+    .subtitle { text-align:center; color:#94a3b8; margin-bottom:1.5rem; }
+    .lab-layout { display:flex; gap:1.5rem; flex-wrap:wrap; }
+    .beaker-col { flex:1; min-width:280px; display:flex; flex-direction:column; align-items:center; }
+    .canvas-wrap { background:#020617; border:1px solid #334155; border-radius:1rem; overflow:hidden; width:100%; }
+    canvas { display:block; width:100%; }
+    .chart-col { flex:1; min-width:300px; }
+    .controls { display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:1rem; align-items:center; justify-content:center; }
+    .action-btn { padding:0.6rem 1.5rem; border-radius:0.5rem; border:none; font-weight:600; cursor:pointer; font-size:0.9rem; transition:all 0.2s; }
+    .btn-drop { background:#3b82f6; color:white; }
+    .btn-drop:hover { background:#2563eb; }
+    .btn-pour { background:#22c55e; color:white; }
+    .btn-pour:hover { background:#16a34a; }
+    .btn-reset { background:#ef4444; color:white; }
+    .btn-reset:hover { background:#dc2626; }
+    .readout { display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.75rem; justify-content:center; }
+    .readout .datum { background:#1e293b; padding:0.5rem 1rem; border-radius:0.5rem; border:1px solid #334155; font-size:0.85rem; color:#94a3b8; }
+    .readout .datum strong { color:#67e8f9; }
+    .ph-bar { width:100%; height:20px; border-radius:10px; margin-top:0.5rem; background:linear-gradient(to right, #ef4444, #f59e0b, #fbbf24, #22c55e, #3b82f6, #6366f1, #8b5cf6); position:relative; }
+    .ph-marker { position:absolute; top:-4px; width:4px; height:28px; background:white; border-radius:2px; transition:left 0.3s; }
+    .info-box { margin-top:1rem; background:#1e293b; border:1px solid #334155; border-radius:0.75rem; padding:1rem; font-size:0.85rem; color:#cbd5e1; line-height:1.7; }
+    .info-box h3 { color:#67e8f9; margin:0 0 0.5rem; font-size:0.95rem; }
+    .pair-btns { display:flex; gap:0.5rem; justify-content:center; margin-bottom:1rem; flex-wrap:wrap; }
+    .pair-btn { padding:0.4rem 0.8rem; border-radius:0.5rem; border:1px solid #334155; background:#1e293b; color:#f1f5f9; cursor:pointer; font-weight:600; font-size:0.8rem; transition:all 0.2s; }
+    .pair-btn.active { background:#3b82f6; border-color:#3b82f6; }
+    .pair-btn:hover { background:#334155; }
+    @media (max-width:700px) { .lab-layout { flex-direction:column; } }
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🧪 Acid-Base Titration</h1>
+  <p class="subtitle">Add base to acid and watch the pH curve in real time.</p>
+
+  <div class="pair-btns">
+    <button class="pair-btn active" onclick="selectPair(0,this)">HCl + NaOH</button>
+    <button class="pair-btn" onclick="selectPair(1,this)">CH₃COOH + NaOH</button>
+    <button class="pair-btn" onclick="selectPair(2,this)">H₂SO₄ + KOH</button>
+  </div>
+
+  <div class="lab-layout">
+    <div class="beaker-col">
+      <div class="canvas-wrap"><canvas id="beaker-canvas" height="300"></canvas></div>
+      <div class="ph-bar"><div class="ph-marker" id="ph-marker" style="left:7%"></div></div>
+      <div class="controls">
+        <button class="action-btn btn-drop" onclick="addDrop()">💧 Add Drop (0.5 mL)</button>
+        <button class="action-btn btn-pour" onclick="pour()">🫗 Pour 5 mL</button>
+        <button class="action-btn btn-reset" onclick="resetTitration()">Reset</button>
+      </div>
+    </div>
+    <div class="chart-col">
+      <div class="canvas-wrap"><canvas id="chart-canvas" height="300"></canvas></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="datum">pH: <strong id="ph-val">1.00</strong></div>
+    <div class="datum">Base Added: <strong id="vol-val">0.0 mL</strong></div>
+    <div class="datum">Equivalence: <strong id="eq-val">25.0 mL</strong></div>
+  </div>
+
+  <div class="info-box" id="info-box">
+    <h3>Strong Acid + Strong Base</h3>
+    <p>HCl is titrated with NaOH. The pH starts low, rises gradually, then jumps steeply near the equivalence point (pH 7), and levels off at high pH. The indicator changes color at the equivalence point.</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  var pairs = [
+    { name:'HCl + NaOH', acidConc:0.1, baseConc:0.1, acidVol:25, type:'strong', eqpH:7, info:'Strong acid–strong base: equivalence at pH 7.' },
+    { name:'CH₃COOH + NaOH', acidConc:0.1, baseConc:0.1, acidVol:25, type:'weak', Ka:1.8e-5, eqpH:8.72, info:'Weak acid–strong base: equivalence above pH 7 due to conjugate base hydrolysis.' },
+    { name:'H₂SO₄ + KOH', acidConc:0.05, baseConc:0.1, acidVol:25, type:'diprotic', eqpH:7, info:'Diprotic strong acid: two equivalence points as both protons are neutralized.' }
+  ];
+
+  var currentPair = 0;
+  var baseAdded = 0;
+  var dataPoints = [];
+
+  var bCanvas = document.getElementById('beaker-canvas');
+  var bCtx = bCanvas.getContext('2d');
+  var cCanvas = document.getElementById('chart-canvas');
+  var cCtx = cCanvas.getContext('2d');
+
+  function calcpH(vol) {
+    var p = pairs[currentPair];
+    var molesAcid = p.acidConc * p.acidVol / 1000;
+    var molesBase = p.baseConc * vol / 1000;
+    var totalVol = (p.acidVol + vol) / 1000;
+
+    if (p.type === 'strong') {
+      if (molesBase < molesAcid) {
+        var excess = (molesAcid - molesBase) / totalVol;
+        return -Math.log10(Math.max(excess, 1e-14));
+      } else if (Math.abs(molesBase - molesAcid) < 1e-8) {
+        return 7;
+      } else {
+        var excess = (molesBase - molesAcid) / totalVol;
+        return 14 + Math.log10(Math.max(excess, 1e-14));
+      }
+    } else if (p.type === 'weak') {
+      var Ka = p.Ka;
+      if (molesBase < molesAcid * 0.999) {
+        var ha = (molesAcid - molesBase) / totalVol;
+        var a = molesBase / totalVol;
+        if (a < 1e-10) {
+          var h = Math.sqrt(Ka * ha);
+          return -Math.log10(h);
+        }
+        return -Math.log10(Ka) + Math.log10(a / ha); // Henderson-Hasselbalch
+      } else if (molesBase < molesAcid * 1.001) {
+        return p.eqpH;
+      } else {
+        var excess = (molesBase - molesAcid) / totalVol;
+        return 14 + Math.log10(Math.max(excess, 1e-14));
+      }
+    } else { // diprotic
+      var molesH = molesAcid * 2;
+      if (molesBase < molesH) {
+        var excess = (molesH - molesBase) / totalVol;
+        return -Math.log10(Math.max(excess, 1e-14));
+      } else {
+        var excess = (molesBase - molesH) / totalVol;
+        if (excess < 1e-10) return 7;
+        return 14 + Math.log10(excess);
+      }
+    }
+  }
+
+  function phToColor(ph) {
+    if (ph < 3) return '#ef4444';
+    if (ph < 5) return '#f59e0b';
+    if (ph < 6) return '#eab308';
+    if (ph < 7.5) return '#22c55e';
+    if (ph < 9) return '#3b82f6';
+    if (ph < 11) return '#6366f1';
+    return '#8b5cf6';
+  }
+
+  function drawBeaker() {
+    bCanvas.width = bCanvas.parentElement.clientWidth;
+    var w = bCanvas.width, h = bCanvas.height;
+    bCtx.clearRect(0,0,w,h);
+
+    var ph = calcpH(baseAdded);
+    var color = phToColor(ph);
+
+    // Beaker
+    var bx = w*0.25, by = h*0.15, bw = w*0.5, bh = h*0.7;
+    bCtx.strokeStyle = '#64748b'; bCtx.lineWidth = 2;
+    bCtx.strokeRect(bx, by, bw, bh);
+
+    // Liquid fill
+    var fillH = bh * 0.8;
+    bCtx.fillStyle = color;
+    bCtx.globalAlpha = 0.6;
+    bCtx.fillRect(bx+1, by+bh-fillH, bw-2, fillH);
+    bCtx.globalAlpha = 1;
+
+    // Burette above
+    bCtx.strokeStyle = '#94a3b8'; bCtx.lineWidth = 1.5;
+    bCtx.beginPath();
+    bCtx.moveTo(w*0.48, 0); bCtx.lineTo(w*0.48, by*0.7);
+    bCtx.lineTo(w*0.5, by*0.9);
+    bCtx.lineTo(w*0.52, by*0.7);
+    bCtx.lineTo(w*0.52, 0);
+    bCtx.stroke();
+
+    // Drops
+    if (baseAdded > 0) {
+      bCtx.fillStyle = '#93c5fd';
+      for (var i = 0; i < 3; i++) {
+        var dy = by*0.9 + Math.random()*(by*0.1+10);
+        bCtx.beginPath(); bCtx.arc(w*0.5 + (Math.random()-0.5)*4, dy, 2, 0, Math.PI*2); bCtx.fill();
+      }
+    }
+
+    // pH color indicator circle
+    bCtx.fillStyle = color;
+    bCtx.beginPath(); bCtx.arc(w*0.85, h*0.5, 15, 0, Math.PI*2); bCtx.fill();
+    bCtx.strokeStyle = '#475569'; bCtx.lineWidth = 1; bCtx.stroke();
+    bCtx.fillStyle = '#f1f5f9'; bCtx.font = '10px Poppins'; bCtx.textAlign = 'center';
+    bCtx.fillText('pH', w*0.85, h*0.5+3);
+  }
+
+  function drawChart() {
+    cCanvas.width = cCanvas.parentElement.clientWidth;
+    var w = cCanvas.width, h = cCanvas.height;
+    cCtx.clearRect(0,0,w,h);
+
+    var p = pairs[currentPair];
+    var maxVol = p.acidVol * 2.5;
+
+    // Axes
+    cCtx.strokeStyle = '#475569'; cCtx.lineWidth = 1;
+    cCtx.beginPath(); cCtx.moveTo(50, h-30); cCtx.lineTo(w-20, h-30); cCtx.stroke();
+    cCtx.beginPath(); cCtx.moveTo(50, h-30); cCtx.lineTo(50, 20); cCtx.stroke();
+
+    // Labels
+    cCtx.fillStyle = '#94a3b8'; cCtx.font = '11px Poppins'; cCtx.textAlign = 'center';
+    cCtx.fillText('Volume of Base (mL)', w/2, h-5);
+    cCtx.save(); cCtx.translate(15, h/2); cCtx.rotate(-Math.PI/2);
+    cCtx.fillText('pH', 0, 0); cCtx.restore();
+
+    // Grid lines
+    cCtx.strokeStyle = '#1e293b'; cCtx.lineWidth = 0.5;
+    for (var ph = 0; ph <= 14; ph += 2) {
+      var gy = h - 30 - (ph / 14) * (h - 50);
+      cCtx.beginPath(); cCtx.moveTo(50, gy); cCtx.lineTo(w-20, gy); cCtx.stroke();
+      cCtx.fillStyle = '#64748b'; cCtx.textAlign = 'right'; cCtx.font = '9px Poppins';
+      cCtx.fillText(ph, 45, gy+3);
+    }
+
+    // Full theoretical curve (faint)
+    cCtx.strokeStyle = '#334155'; cCtx.lineWidth = 1;
+    cCtx.beginPath();
+    for (var v = 0; v <= maxVol; v += 0.2) {
+      var tph = Math.max(0, Math.min(14, calcpH(v)));
+      var x = 50 + (v / maxVol) * (w - 70);
+      var y = h - 30 - (tph / 14) * (h - 50);
+      if (v === 0) cCtx.moveTo(x, y); else cCtx.lineTo(x, y);
+    }
+    cCtx.stroke();
+
+    // Recorded data points
+    cCtx.fillStyle = '#67e8f9';
+    for (var i = 0; i < dataPoints.length; i++) {
+      var dp = dataPoints[i];
+      var x = 50 + (dp.vol / maxVol) * (w - 70);
+      var y = h - 30 - (dp.ph / 14) * (h - 50);
+      cCtx.beginPath(); cCtx.arc(x, y, 3, 0, Math.PI*2); cCtx.fill();
+    }
+
+    // Equivalence point line
+    var eqVol = p.type === 'diprotic' ? p.acidVol * 2 * p.acidConc / p.baseConc : p.acidVol * p.acidConc / p.baseConc;
+    var ex = 50 + (eqVol / maxVol) * (w - 70);
+    cCtx.strokeStyle = '#ef4444'; cCtx.lineWidth = 1; cCtx.setLineDash([4,4]);
+    cCtx.beginPath(); cCtx.moveTo(ex, 20); cCtx.lineTo(ex, h-30); cCtx.stroke();
+    cCtx.setLineDash([]);
+    cCtx.fillStyle = '#ef4444'; cCtx.font = '9px Poppins'; cCtx.textAlign = 'center';
+    cCtx.fillText('Eq. pt', ex, 15);
+  }
+
+  function updateUI() {
+    var ph = Math.max(0, Math.min(14, calcpH(baseAdded)));
+    document.getElementById('ph-val').textContent = ph.toFixed(2);
+    document.getElementById('vol-val').textContent = baseAdded.toFixed(1) + ' mL';
+    document.getElementById('ph-marker').style.left = (ph / 14 * 96 + 2) + '%';
+    drawBeaker();
+    drawChart();
+  }
+
+  window.addDrop = function() {
+    baseAdded += 0.5;
+    var ph = Math.max(0, Math.min(14, calcpH(baseAdded)));
+    dataPoints.push({ vol: baseAdded, ph: ph });
+    updateUI();
+  };
+
+  window.pour = function() {
+    for (var i = 0; i < 10; i++) {
+      baseAdded += 0.5;
+      var ph = Math.max(0, Math.min(14, calcpH(baseAdded)));
+      dataPoints.push({ vol: baseAdded, ph: ph });
+    }
+    updateUI();
+  };
+
+  window.resetTitration = function() {
+    baseAdded = 0;
+    dataPoints = [];
+    updateUI();
+  };
+
+  window.selectPair = function(idx, btn) {
+    currentPair = idx;
+    document.querySelectorAll('.pair-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    var p = pairs[idx];
+    var eqVol = p.type === 'diprotic' ? p.acidVol * 2 * p.acidConc / p.baseConc : p.acidVol * p.acidConc / p.baseConc;
+    document.getElementById('eq-val').textContent = eqVol.toFixed(1) + ' mL';
+    document.getElementById('info-box').innerHTML = '<h3>' + p.name + '</h3><p>' + p.info + '</p>';
+    baseAdded = 0;
+    dataPoints = [];
+    updateUI();
+  };
+
+  // Init
+  var p0 = pairs[0];
+  document.getElementById('eq-val').textContent = (p0.acidVol * p0.acidConc / p0.baseConc).toFixed(1) + ' mL';
+  window.addEventListener('resize', updateUI);
+  updateUI();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body>
+</html>

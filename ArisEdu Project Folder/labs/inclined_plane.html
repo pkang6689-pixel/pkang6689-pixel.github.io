@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Inclined Plane</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#f59e0b}
+    .ctrl-group .val{font-size:.8rem;color:#fbbf24;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#22c55e,#10b981);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#fbbf24}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#fbbf24;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>📐 Inclined Plane</h1>
+  <p class="subtitle">Analyze forces on a block sliding down a ramp with friction.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Angle (°)</label>
+      <input type="range" id="angle" min="5" max="75" value="30" oninput="calc()"><span class="val" id="ang-val">30°</span></div>
+    <div class="ctrl-group"><label>Mass (kg)</label>
+      <input type="range" id="mass" min="1" max="20" value="5" oninput="calc()"><span class="val" id="mass-val">5 kg</span></div>
+    <div class="ctrl-group"><label>μ (friction coeff)</label>
+      <input type="range" id="mu" min="0" max="10" value="3" oninput="calc()"><span class="val" id="mu-val">0.30</span></div>
+    <button class="action-btn" onclick="startSlide()">▶ Release</button>
+    <button class="action-btn" style="background:#64748b" onclick="resetSim()">Reset</button>
+  </div>
+  <div class="readout">
+    <div class="datum">F<sub>gravity</sub>: <strong id="fg">24.5 N</strong></div>
+    <div class="datum">F<sub>parallel</sub>: <strong id="fp">24.5 N</strong></div>
+    <div class="datum">F<sub>normal</sub>: <strong id="fn">42.4 N</strong></div>
+    <div class="datum">F<sub>friction</sub>: <strong id="ff">12.7 N</strong></div>
+    <div class="datum">Acceleration: <strong id="acc">2.35 m/s²</strong></div>
+    <div class="datum">Velocity: <strong id="vel">0.0 m/s</strong></div>
+  </div>
+  <div class="info-box"><h3>Inclined Plane Physics</h3><p>On an incline, gravity splits into two components: F<sub>∥</sub> = mg·sin(θ) pulls the block down the slope, F<sub>⊥</sub> = mg·cos(θ) presses into the surface. Friction F<sub>f</sub> = μ·F<sub>N</sub> opposes motion. The block accelerates if F<sub>∥</sub> > F<sub>f</sub>.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var sliding=false,pos=0,velocity=0,g=9.81,t=0,sparks=[],velTrail=[];
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.calc=function(){
+    var ang=parseInt(document.getElementById('angle').value);
+    var mass=parseInt(document.getElementById('mass').value);
+    var mu=parseInt(document.getElementById('mu').value)/10;
+    document.getElementById('ang-val').textContent=ang+'°';
+    document.getElementById('mass-val').textContent=mass+' kg';
+    document.getElementById('mu-val').textContent=mu.toFixed(2);
+    var rad=ang*Math.PI/180;
+    var Fg=mass*g,Fp=Fg*Math.sin(rad),Fn=Fg*Math.cos(rad),Ff=mu*Fn;
+    var acc=Math.max(0,(Fp-Ff)/mass);
+    document.getElementById('fg').textContent=Fg.toFixed(1)+' N';
+    document.getElementById('fp').textContent=Fp.toFixed(1)+' N';
+    document.getElementById('fn').textContent=Fn.toFixed(1)+' N';
+    document.getElementById('ff').textContent=Ff.toFixed(1)+' N';
+    document.getElementById('acc').textContent=acc.toFixed(2)+' m/s²';
+    return acc;
+  };
+  window.startSlide=function(){sliding=true;pos=0;velocity=0};
+  window.resetSim=function(){sliding=false;pos=0;velocity=0;document.getElementById('vel').textContent='0.0 m/s'};
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    var ang=parseInt(document.getElementById('angle').value);
+    var mass2=parseInt(document.getElementById('mass').value);
+    var mu2=parseInt(document.getElementById('mu').value)/10;
+    var rad=ang*Math.PI/180;
+    var acc=calc();
+    t+=0.016;
+    // Ramp geometry
+    var rampLen=Math.min(w*0.7,h/Math.sin(rad)*0.8);
+    var baseX=w*0.1,baseY=h*0.85;
+    var topX=baseX+rampLen*Math.cos(rad);
+    var topY=baseY-rampLen*Math.sin(rad);
+    var cornerX=baseX+rampLen*Math.cos(rad);
+    // Ground with hash marks
+    ctx.strokeStyle='#475569';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(0,baseY);ctx.lineTo(w,baseY);ctx.stroke();
+    for(var gi=0;gi<w;gi+=15){ctx.strokeStyle='rgba(71,85,105,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(gi,baseY);ctx.lineTo(gi-6,baseY+8);ctx.stroke();}
+    // Ramp with gradient fill
+    var rampGrad=ctx.createLinearGradient(baseX,baseY,topX,topY);
+    rampGrad.addColorStop(0,'#334155');rampGrad.addColorStop(0.5,'#475569');rampGrad.addColorStop(1,'#334155');
+    ctx.fillStyle=rampGrad;ctx.beginPath();
+    ctx.moveTo(baseX,baseY);ctx.lineTo(topX,topY);ctx.lineTo(cornerX,baseY);ctx.fill();
+    // Ramp surface (brighter edge)
+    ctx.strokeStyle='#64748b';ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.moveTo(baseX,baseY);ctx.lineTo(topX,topY);ctx.stroke();
+    // Friction texture on ramp surface
+    if(mu2>0){
+      ctx.strokeStyle='rgba(100,116,139,'+(mu2*0.15)+')';ctx.lineWidth=1;
+      for(var fi=0;fi<rampLen;fi+=18){
+        var fx=baseX+fi*Math.cos(rad),fy=baseY-fi*Math.sin(rad);
+        ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(fx-3*Math.sin(rad),fy-3*Math.cos(rad));ctx.stroke();
+      }
+    }
+    // Angle arc with fill
+    ctx.fillStyle='rgba(251,191,36,0.08)';
+    ctx.beginPath();ctx.moveTo(cornerX,baseY);ctx.arc(cornerX,baseY,50,Math.PI,-Math.PI+rad,true);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='#fbbf24';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(cornerX,baseY,50,Math.PI,-Math.PI+rad,true);ctx.stroke();
+    ctx.fillStyle='#fbbf24';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText('θ='+ang+'°',cornerX-60,baseY-12);
+    // Block position update
+    if(sliding){velocity+=acc*0.016;pos+=velocity*0.016;if(pos>1)pos=1;
+      // Generate friction sparks when sliding
+      if(mu2>0&&pos<0.95){
+        for(var si=0;si<2;si++){sparks.push({x:0,y:0,vx:(Math.random()-0.5)*3,vy:-Math.random()*4,life:1});}
+      }
+    }
+    document.getElementById('vel').textContent=velocity.toFixed(1)+' m/s';
+    var t2=Math.min(pos,0.85);
+    var blkX=topX+t2*(cornerX-topX);
+    var blkY=topY+t2*(baseY-topY);
+    var bSize=22;
+    // Velocity trail
+    velTrail.push({x:blkX,y:blkY,a:1});
+    if(velTrail.length>40)velTrail.shift();
+    for(var vi=0;vi<velTrail.length-1;vi++){
+      var vp=velTrail[vi];
+      ctx.fillStyle='rgba(245,158,11,'+(vi/velTrail.length*0.15)+')';
+      ctx.beginPath();ctx.arc(vp.x,vp.y,3,0,Math.PI*2);ctx.fill();
+    }
+    // Block with glow
+    ctx.save();ctx.translate(blkX,blkY);ctx.rotate(-rad);
+    // Block glow when moving
+    if(velocity>0.5){
+      var blockGlow=ctx.createRadialGradient(0,-bSize,5,0,-bSize,bSize*2.5);
+      blockGlow.addColorStop(0,'rgba(245,158,11,0.2)');blockGlow.addColorStop(1,'rgba(245,158,11,0)');
+      ctx.fillStyle=blockGlow;ctx.fillRect(-bSize*2,-bSize*3,bSize*4,bSize*4);
+    }
+    // Block body with gradient
+    var blkGrad=ctx.createLinearGradient(-bSize,-bSize*2,bSize,0);
+    blkGrad.addColorStop(0,'#f59e0b');blkGrad.addColorStop(0.5,'#fbbf24');blkGrad.addColorStop(1,'#d97706');
+    ctx.fillStyle=blkGrad;ctx.fillRect(-bSize,-bSize*2,bSize*2,bSize*2);
+    ctx.strokeStyle='rgba(217,119,6,0.6)';ctx.lineWidth=1;ctx.strokeRect(-bSize,-bSize*2,bSize*2,bSize*2);
+    ctx.fillStyle='#0f172a';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText(mass2+'kg',0,-bSize+6);
+    ctx.restore();
+    // Friction sparks
+    for(var si2=sparks.length-1;si2>=0;si2--){
+      var sp=sparks[si2];sp.life-=0.03;sp.x+=sp.vx;sp.y+=sp.vy;sp.vy+=0.15;
+      if(sp.life<=0){sparks.splice(si2,1);continue;}
+      ctx.fillStyle='rgba(251,191,36,'+sp.life+')';
+      ctx.beginPath();ctx.arc(blkX+sp.x,blkY+sp.y,1.5*sp.life,0,Math.PI*2);ctx.fill();
+    }
+    // Force arrows with proper arrowheads
+    var Fg=mass2*g,Fp2=Fg*Math.sin(rad),Fn2=Fg*Math.cos(rad),Ff2=mu2*Fn2;
+    var arrowScale=0.3;
+    // Helper: draw arrow with head
+    function drawArrow(x1,y1,x2,y2,color,label,lx,ly){
+      ctx.strokeStyle=color;ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+      var angle2=Math.atan2(y2-y1,x2-x1);
+      ctx.fillStyle=color;ctx.beginPath();
+      ctx.moveTo(x2,y2);
+      ctx.lineTo(x2-10*Math.cos(angle2-0.35),y2-10*Math.sin(angle2-0.35));
+      ctx.lineTo(x2-10*Math.cos(angle2+0.35),y2-10*Math.sin(angle2+0.35));
+      ctx.fill();
+      ctx.fillStyle=color;ctx.font='bold 10px Poppins';ctx.textAlign='center';
+      ctx.fillText(label,lx,ly);
+    }
+    // Gravity (straight down)
+    var gLen=Fg*arrowScale;
+    drawArrow(blkX,blkY,blkX,blkY+gLen,'#ef4444','mg='+Fg.toFixed(1)+'N',blkX+40,blkY+gLen*0.6);
+    // Normal force (perpendicular away from surface)
+    var nx=-Math.sin(rad),ny=-Math.cos(rad);
+    var nLen=Fn2*arrowScale;
+    drawArrow(blkX,blkY,blkX+nx*nLen,blkY+ny*nLen,'#3b82f6','N='+Fn2.toFixed(1)+'N',blkX+nx*nLen-25,blkY+ny*nLen);
+    // Parallel component (down the slope)
+    var pdx=Math.cos(rad),pdy=Math.sin(rad);
+    var pLen=Fp2*arrowScale;
+    drawArrow(blkX,blkY,blkX+pdx*pLen,blkY+pdy*pLen,'#22c55e','F∥='+Fp2.toFixed(1)+'N',blkX+pdx*pLen+35,blkY+pdy*pLen);
+    // Friction (up the slope, if any)
+    if(Ff2>0.1){
+      var fLen=Ff2*arrowScale;
+      drawArrow(blkX,blkY,blkX-pdx*fLen,blkY-pdy*fLen,'#a855f7','f='+Ff2.toFixed(1)+'N',blkX-pdx*fLen-30,blkY-pdy*fLen);
+    }
+    // Net force indicator
+    var Fnet=Fp2-Ff2;
+    if(Fnet>0){
+      ctx.fillStyle='rgba(34,197,94,0.5)';ctx.font='bold 11px Poppins';ctx.textAlign='left';
+      ctx.fillText('F_net = '+Fnet.toFixed(1)+' N  →  a = '+acc.toFixed(2)+' m/s²',15,25);
+    }else{
+      ctx.fillStyle='rgba(239,68,68,0.5)';ctx.font='bold 11px Poppins';ctx.textAlign='left';
+      ctx.fillText('F_net = 0 (static: f ≥ F∥)',15,25);
+    }
+    // Formula on canvas
+    ctx.fillStyle='rgba(251,191,36,0.4)';ctx.font='bold 10px Poppins';ctx.textAlign='right';
+    ctx.fillText('ΣF = mg·sinθ − μ·mg·cosθ = ma',w-15,25);
+    requestAnimationFrame(draw);
+  }
+  calc();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

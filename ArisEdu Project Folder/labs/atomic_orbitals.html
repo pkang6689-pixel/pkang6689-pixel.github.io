@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Atomic Orbitals</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-btn{padding:.5rem 1rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;font-weight:600;font-size:.85rem;transition:all .2s}
+    .ctrl-btn.active{background:#a855f7;border-color:#a855f7}
+    .ctrl-btn:hover{background:#334155}
+    .readout{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#c084fc}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#c084fc;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>⚛️ Atomic Orbitals</h1>
+  <p class="subtitle">Visualize electron probability clouds for s, p, d, and f orbitals.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+  <div class="controls">
+    <button class="ctrl-btn active" onclick="setOrb('1s',this)">1s</button>
+    <button class="ctrl-btn" onclick="setOrb('2s',this)">2s</button>
+    <button class="ctrl-btn" onclick="setOrb('2p',this)">2p</button>
+    <button class="ctrl-btn" onclick="setOrb('3s',this)">3s</button>
+    <button class="ctrl-btn" onclick="setOrb('3p',this)">3p</button>
+    <button class="ctrl-btn" onclick="setOrb('3d',this)">3d</button>
+    <button class="ctrl-btn" onclick="setOrb('4f',this)">4f</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Orbital: <strong id="orb-name">1s</strong></div>
+    <div class="datum">n = <strong id="n-val">1</strong></div>
+    <div class="datum">l = <strong id="l-val">0</strong></div>
+    <div class="datum">Shape: <strong id="shape-val">Sphere</strong></div>
+    <div class="datum">Max electrons: <strong id="max-e">2</strong></div>
+  </div>
+  <div class="info-box" id="info-box"><h3>1s Orbital</h3><p>The 1s orbital is the lowest energy orbital, closest to the nucleus. It has a spherical shape with the highest electron probability density at the center. It can hold a maximum of 2 electrons with opposite spins.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0;
+  var orbital='1s';
+  var orbData={
+    '1s':{n:1,l:0,shape:'Sphere',max:2,info:'The 1s orbital is spherical, closest to the nucleus. Highest probability density at center.'},
+    '2s':{n:2,l:0,shape:'Sphere (with node)',max:2,info:'The 2s orbital is larger and spherical with one radial node — a region of zero probability.'},
+    '2p':{n:2,l:1,shape:'Dumbbell',max:6,info:'The 2p orbitals are dumbbell-shaped along x, y, and z axes. There are three 2p orbitals (px, py, pz).'},
+    '3s':{n:3,l:0,shape:'Sphere (2 nodes)',max:2,info:'The 3s is a larger sphere with two radial nodes. Energy increases with the principal quantum number.'},
+    '3p':{n:3,l:1,shape:'Dumbbell (larger)',max:6,info:'The 3p orbitals are larger dumbbells than 2p, with one radial node each.'},
+    '3d':{n:3,l:2,shape:'Cloverleaf',max:10,info:'The 3d orbitals have cloverleaf shapes with four lobes. There are five 3d orbitals. Important in transition metal chemistry.'},
+    '4f':{n:4,l:3,shape:'Complex multilobed',max:14,info:'The 4f orbitals have complex multi-lobed shapes. There are seven 4f orbitals. Important in lanthanide and actinide chemistry.'}
+  };
+  var dots=[];
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  function genDots(){
+    dots=[];var d=orbData[orbital],N=1500;
+    for(var i=0;i<N;i++){
+      var r,theta,phi,x,y,z,prob;
+      r=Math.random()*3;theta=Math.random()*Math.PI;phi=Math.random()*Math.PI*2;
+      x=r*Math.sin(theta)*Math.cos(phi);y=r*Math.sin(theta)*Math.sin(phi);z=r*Math.cos(theta);
+      if(d.l===0){// s orbital
+        prob=Math.exp(-2*r/d.n)*r*r;
+        if(d.n>=2&&Math.abs(r-1)<0.15)prob*=0.05;// node
+        if(d.n>=3&&Math.abs(r-2)<0.15)prob*=0.05;
+      }else if(d.l===1){// p orbital
+        prob=Math.exp(-r/d.n)*r*r*z*z;
+      }else if(d.l===2){// d orbital
+        prob=Math.exp(-r/(d.n*0.7))*r*r*(x*x*y*y);
+      }else{// f orbital
+        prob=Math.exp(-r/(d.n*0.5))*r*r*Math.abs(x*y*z);
+      }
+      if(Math.random()<prob*5){
+        dots.push({x:x,y:y,z:z,alpha:Math.min(prob*8,0.85),r:r});
+      }
+    }
+  }
+  genDots();
+  window.setOrb=function(o,btn){
+    orbital=o;
+    document.querySelectorAll('.ctrl-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    var d=orbData[o];
+    document.getElementById('orb-name').textContent=o;
+    document.getElementById('n-val').textContent=d.n;
+    document.getElementById('l-val').textContent=d.l;
+    document.getElementById('shape-val').textContent=d.shape;
+    document.getElementById('max-e').textContent=d.max;
+    document.getElementById('info-box').innerHTML='<h3>'+o+' Orbital</h3><p>'+d.info+'</p>';
+    genDots();
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);
+    var d=orbData[orbital];
+    var cx=w*0.45,cy=h/2,scale=Math.min(w,h)*0.13;
+    var cosT=Math.cos(t*0.3),sinT=Math.sin(t*0.3);
+    // Nucleus with layered glow
+    var nucGlow=ctx.createRadialGradient(cx,cy,0,cx,cy,25);
+    nucGlow.addColorStop(0,'rgba(239,68,68,0.4)');nucGlow.addColorStop(0.4,'rgba(239,68,68,0.1)');nucGlow.addColorStop(1,'rgba(239,68,68,0)');
+    ctx.fillStyle=nucGlow;ctx.beginPath();ctx.arc(cx,cy,25,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fca5a5';ctx.beginPath();ctx.arc(cx-1.5,cy-1.5,2,0,Math.PI*2);ctx.fill();
+    // Node rings for s orbitals
+    if(d.l===0){
+      ctx.strokeStyle='rgba(251,191,36,0.15)';ctx.lineWidth=1;ctx.setLineDash([3,5]);
+      if(d.n>=2){ctx.beginPath();ctx.arc(cx,cy,1*scale,0,Math.PI*2);ctx.stroke();}
+      if(d.n>=3){ctx.beginPath();ctx.arc(cx,cy,2*scale,0,Math.PI*2);ctx.stroke();}
+      ctx.setLineDash([]);
+      if(d.n>=2){
+        ctx.fillStyle='rgba(251,191,36,0.3)';ctx.font='8px Poppins';ctx.textAlign='left';
+        ctx.fillText('node',cx+1*scale+3,cy);
+      }
+    }
+    // Dots (rotate around y-axis) with color based on distance
+    var orbColors={0:'168,85,247',1:'59,130,246',2:'34,197,94',3:'251,191,36'};
+    var baseCol=orbColors[d.l]||'168,85,247';
+    for(var i=0;i<dots.length;i++){
+      var dot=dots[i];
+      var rx=dot.x*cosT+dot.z*sinT;
+      var rz=-dot.x*sinT+dot.z*cosT;
+      var px=cx+rx*scale;
+      var py=cy-dot.y*scale;
+      var depth=(rz+3)/6;
+      var distFade=Math.max(0.2,1-dot.r/3);
+      var a=(dot.alpha*depth*distFade).toFixed(2);
+      ctx.fillStyle='rgba('+baseCol+','+a+')';
+      ctx.beginPath();ctx.arc(px,py,1.5+depth,0,Math.PI*2);ctx.fill();
+    }
+    // Axis lines
+    ctx.strokeStyle='rgba(148,163,184,0.15)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(cx-scale*2.8,cy);ctx.lineTo(cx+scale*2.8,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx,cy-scale*2.8);ctx.lineTo(cx,cy+scale*2.8);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(148,163,184,0.35)';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText('x',cx+scale*3,cy+4);ctx.fillText('y',cx+4,cy-scale*2.8);
+    // Orbital label on canvas
+    ctx.fillStyle='rgba('+baseCol+',0.7)';ctx.font='bold 18px Poppins';ctx.textAlign='left';
+    ctx.fillText(orbital,w*0.03,h*0.08);
+    ctx.font='11px Poppins';ctx.fillStyle='rgba(148,163,184,0.6)';
+    ctx.fillText('n='+d.n+'  l='+d.l+'  ('+d.shape+')',w*0.03,h*0.13);
+    // Energy level diagram (right side)
+    var elX=w*0.78,elY=h*0.08,elW=w*0.18,elH=h*0.84;
+    ctx.strokeStyle='rgba(51,65,85,0.4)';ctx.lineWidth=1;
+    ctx.strokeRect(elX,elY,elW,elH);
+    ctx.fillStyle='rgba(148,163,184,0.4)';ctx.font='bold 9px Poppins';ctx.textAlign='center';
+    ctx.fillText('ENERGY LEVELS',elX+elW/2,elY-5);
+    // Draw energy levels
+    var levels=[
+      {name:'1s',y:0.88,col:'168,85,247'},
+      {name:'2s',y:0.72,col:'168,85,247'},{name:'2p',y:0.68,col:'59,130,246'},
+      {name:'3s',y:0.52,col:'168,85,247'},{name:'3p',y:0.48,col:'59,130,246'},{name:'3d',y:0.42,col:'34,197,94'},
+      {name:'4f',y:0.22,col:'251,191,36'}
+    ];
+    for(var li=0;li<levels.length;li++){
+      var lv=levels[li];
+      var ly=elY+lv.y*elH;
+      var isActive=lv.name===orbital;
+      ctx.strokeStyle=isActive?'rgba('+lv.col+',1)':'rgba('+lv.col+',0.3)';
+      ctx.lineWidth=isActive?3:1;
+      ctx.beginPath();ctx.moveTo(elX+10,ly);ctx.lineTo(elX+elW-10,ly);ctx.stroke();
+      // Glow on active level
+      if(isActive){
+        ctx.fillStyle='rgba('+lv.col+',0.1)';ctx.fillRect(elX+5,ly-8,elW-10,16);
+        // Bouncing marker
+        ctx.fillStyle='rgba('+lv.col+',0.9)';
+        ctx.beginPath();ctx.arc(elX+elW-5,ly,4,0,Math.PI*2);ctx.fill();
+      }
+      ctx.fillStyle=isActive?'rgba('+lv.col+',1)':'rgba(148,163,184,0.4)';
+      ctx.font=isActive?'bold 9px Poppins':'9px Poppins';ctx.textAlign='right';
+      ctx.fillText(lv.name,elX+6,ly-4);
+    }
+    // Energy arrow
+    ctx.fillStyle='rgba(148,163,184,0.25)';ctx.font='8px Poppins';ctx.textAlign='center';
+    ctx.fillText('↑ E',elX+elW/2,elY+8);
+    t+=0.016;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

@@ -56,10 +56,20 @@
       return "/update_logs.json";
   }
 
-  // Fetch update logs
-  fetch(getLogsPath())
-    .then(response => response.json())
-    .then(data => {
+  // Fetch update logs with timeout protection
+  function fetchUpdates() {
+    var timeout = new Promise(function(_, reject) {
+      setTimeout(function() { reject(new Error('Update fetch timeout')); }, 5000);
+    });
+    
+    return Promise.race([
+      fetch(getLogsPath()).then(function(response) { return response.json(); }),
+      timeout
+    ]);
+  }
+
+  fetchUpdates()
+    .then(function(data) {
       const currentVersion = data.version;
       const lastSeenVersion = localStorage.getItem('arisEduLastSeenVersion') || '0.0.0';
       
@@ -284,11 +294,17 @@
   // Note: This overrides the initial binding inside the first fetch callback, 
   // but ensures a fresh fetch if valid.
   window.showArisEduUpdate = function() {
-      fetch(getLogsPath())
-        .then(response => response.json())
-        .then(data => {
+      var timeout = new Promise(function(_, reject) {
+        setTimeout(function() { reject(new Error('Update fetch timeout')); }, 5000);
+      });
+      
+      Promise.race([
+        fetch(getLogsPath()).then(function(response) { return response.json(); }),
+        timeout
+      ])
+        .then(function(data) {
           showUpdateModal(data);
         })
-        .catch(err => console.error('Failed to load update logs:', err));
+        .catch(function(err) { console.error('Failed to load update logs:', err.message || err); });
   };
 })();

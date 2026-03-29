@@ -21,7 +21,14 @@ var _isMSPractice = _msOriginPG.indexOf('ms_') === 0;
         .replace(/_Practice\.html$/, '_Quiz.json');
     var jsonPath = '/content_data/' + normalizedDir + '/' + jsonFilename;
 
-    fetch(jsonPath).then(function(r) {
+    var timeout = new Promise(function(_, reject) {
+      setTimeout(function() { reject(new Error('Practice games fetch timeout')); }, 5000);
+    });
+    
+    Promise.race([
+      fetch(jsonPath),
+      timeout
+    ]).then(function(r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
     }).then(function(lessonData) {

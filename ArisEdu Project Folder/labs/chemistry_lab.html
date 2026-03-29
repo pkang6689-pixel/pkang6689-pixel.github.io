@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chemistry Lab Simulation</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: #0f172a; color: #f1f5f9; }
+    .sim-container { max-width: 1000px; margin: 5rem auto 2rem; padding: 1rem 2rem; }
+    h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.25rem; }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 1.5rem; }
+    .lab-bench { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .reagent-shelf { flex: 0 0 200px; background: #1e293b; border-radius: 1rem; padding: 1rem; border: 1px solid #334155; }
+    .reagent-shelf h3 { font-size: 0.95rem; margin-bottom: 0.75rem; color: #94a3b8; }
+    .reagent { padding: 0.6rem 0.8rem; margin-bottom: 0.5rem; border-radius: 0.5rem; cursor: grab; font-size: 0.85rem; font-weight: 600; border: 2px solid transparent; transition: all 0.2s; user-select: none; }
+    .reagent:hover { transform: scale(1.05); }
+    .reagent.selected { border-color: #fbbf24; box-shadow: 0 0 12px rgba(251,191,36,0.4); }
+    .beaker-area { flex: 1; min-width: 300px; display: flex; flex-direction: column; align-items: center; }
+    .beaker-wrap { position: relative; width: 220px; height: 280px; margin-bottom: 1rem; }
+    .beaker-svg { width: 100%; height: 100%; }
+    .beaker-liquid { transition: fill 0.6s, height 0.6s; }
+    .controls { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
+    .controls button { padding: 0.5rem 1.2rem; border-radius: 0.5rem; border: none; font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+    .btn-add { background: #3b82f6; color: white; }
+    .btn-add:hover { background: #2563eb; }
+    .btn-add:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-reset { background: #ef4444; color: white; }
+    .btn-reset:hover { background: #dc2626; }
+    .btn-heat { background: #f59e0b; color: #1e293b; }
+    .btn-heat:hover { background: #d97706; }
+    .result-panel { flex: 0 0 280px; background: #1e293b; border-radius: 1rem; padding: 1rem; border: 1px solid #334155; min-height: 200px; }
+    .result-panel h3 { font-size: 0.95rem; margin-bottom: 0.75rem; color: #94a3b8; }
+    .reaction-log { font-size: 0.85rem; line-height: 1.7; }
+    .reaction-log .entry { padding: 0.4rem 0; border-bottom: 1px solid #334155; }
+    .reaction-log .equation { color: #67e8f9; font-family: monospace; }
+    .reaction-log .observation { color: #a5b4fc; }
+    .bubbles { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); pointer-events: none; }
+    .bubble { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); animation: rise 1.5s ease-in infinite; }
+    @keyframes rise { 0% { opacity: 0.7; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+    .flame { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); font-size: 2rem; animation: flicker 0.3s infinite alternate; display: none; }
+    @keyframes flicker { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.1); } }
+    .added-labels { text-align: center; font-size: 0.8rem; color: #94a3b8; min-height: 1.2rem; }
+    @media (max-width: 700px) { .lab-bench { flex-direction: column; } .reagent-shelf, .result-panel { flex: unset; width: 100%; } }
+  </style>
+</head>
+<body class="dark-mode">
+  <script src="../scripts/taskbar.js"></script>
+  <div class="sim-container">
+    <h1>⚗️ Chemistry Lab</h1>
+    <p class="subtitle">Select reagents and mix them in the beaker to observe reactions.</p>
+
+    <div class="lab-bench">
+      <!-- Reagent Shelf -->
+      <div class="reagent-shelf">
+        <h3>🧪 Reagents</h3>
+        <div class="reagent" data-id="HCl" style="background:#dc2626;color:white;" onclick="selectReagent(this)">HCl (Hydrochloric Acid)</div>
+        <div class="reagent" data-id="NaOH" style="background:#2563eb;color:white;" onclick="selectReagent(this)">NaOH (Sodium Hydroxide)</div>
+        <div class="reagent" data-id="NaHCO3" style="background:#f1f5f9;color:#1e293b;" onclick="selectReagent(this)">NaHCO₃ (Baking Soda)</div>
+        <div class="reagent" data-id="CH3COOH" style="background:#84cc16;color:#1e293b;" onclick="selectReagent(this)">CH₃COOH (Vinegar)</div>
+        <div class="reagent" data-id="AgNO3" style="background:#a1a1aa;color:white;" onclick="selectReagent(this)">AgNO₃ (Silver Nitrate)</div>
+        <div class="reagent" data-id="NaCl" style="background:#fefce8;color:#1e293b;" onclick="selectReagent(this)">NaCl (Table Salt)</div>
+        <div class="reagent" data-id="CuSO4" style="background:#0ea5e9;color:white;" onclick="selectReagent(this)">CuSO₄ (Copper Sulfate)</div>
+        <div class="reagent" data-id="Fe" style="background:#78716c;color:white;" onclick="selectReagent(this)">Fe (Iron Nail)</div>
+        <div class="reagent" data-id="phenolphthalein" style="background:#e879f9;color:white;" onclick="selectReagent(this)">Phenolphthalein</div>
+      </div>
+
+      <!-- Beaker -->
+      <div class="beaker-area">
+        <div class="beaker-wrap">
+          <svg class="beaker-svg" viewBox="0 0 200 260">
+            <!-- Beaker outline -->
+            <path d="M40,30 L40,210 Q40,240 70,240 L130,240 Q160,240 160,210 L160,30" fill="none" stroke="#64748b" stroke-width="3"/>
+            <line x1="35" y1="30" x2="165" y2="30" stroke="#64748b" stroke-width="3"/>
+            <!-- Measurement lines -->
+            <line x1="42" y1="70" x2="55" y2="70" stroke="#475569" stroke-width="1"/><text x="58" y="74" fill="#475569" font-size="10">400ml</text>
+            <line x1="42" y1="110" x2="55" y2="110" stroke="#475569" stroke-width="1"/><text x="58" y="114" fill="#475569" font-size="10">300ml</text>
+            <line x1="42" y1="150" x2="55" y2="150" stroke="#475569" stroke-width="1"/><text x="58" y="154" fill="#475569" font-size="10">200ml</text>
+            <line x1="42" y1="190" x2="55" y2="190" stroke="#475569" stroke-width="1"/><text x="58" y="194" fill="#475569" font-size="10">100ml</text>
+            <!-- Liquid -->
+            <rect id="beaker-liquid" class="beaker-liquid" x="42" y="210" width="116" height="0" rx="4" fill="transparent"/>
+          </svg>
+          <div class="bubbles" id="bubbles"></div>
+          <div class="flame" id="flame">🔥</div>
+        </div>
+        <p class="added-labels" id="added-labels">Beaker is empty</p>
+        <div class="controls">
+          <button class="btn-add" id="btn-add" onclick="addToBeaker()" disabled>Add to Beaker</button>
+          <button class="btn-heat" onclick="heatBeaker()">🔥 Heat</button>
+          <button class="btn-reset" onclick="resetBeaker()">Reset</button>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="result-panel">
+        <h3>📋 Reaction Log</h3>
+        <div class="reaction-log" id="reaction-log">
+          <div class="entry" style="color:#64748b;">Add reagents to begin…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var selectedReagent = null;
+    var beakerContents = [];
+    var isHeated = false;
+
+    var reactions = {
+      'HCl+NaOH': { color: '#c4b5fd', name: 'Neutralization', eq: 'HCl + NaOH → NaCl + H₂O', obs: 'The acid and base neutralize. Solution warms slightly. pH becomes ~7.', bubbles: false },
+      'HCl+NaHCO3': { color: '#fef9c3', name: 'Acid + Carbonate', eq: 'HCl + NaHCO₃ → NaCl + H₂O + CO₂↑', obs: 'Vigorous fizzing! CO₂ gas bubbles escape from solution.', bubbles: true },
+      'CH3COOH+NaHCO3': { color: '#fef9c3', name: 'Vinegar + Baking Soda', eq: 'CH₃COOH + NaHCO₃ → CH₃COONa + H₂O + CO₂↑', obs: 'Classic volcano reaction! Rapid bubbling and foaming.', bubbles: true },
+      'AgNO3+NaCl': { color: '#e2e8f0', name: 'Precipitation', eq: 'AgNO₃ + NaCl → AgCl↓ + NaNO₃', obs: 'A white precipitate (AgCl) forms instantly, making the solution cloudy.', bubbles: false },
+      'CuSO4+Fe': { color: '#b45309', name: 'Displacement', eq: 'CuSO₄ + Fe → FeSO₄ + Cu↓', obs: 'Iron displaces copper. Reddish-brown copper metal deposits on the iron nail. Solution turns pale green.', bubbles: false },
+      'NaOH+phenolphthalein': { color: '#ec4899', name: 'Indicator Test', eq: 'NaOH + Phenolphthalein → Pink color', obs: 'Phenolphthalein turns vivid pink in basic (alkaline) solution. This confirms pH > 8.', bubbles: false },
+      'HCl+phenolphthalein': { color: '#fca5a5', name: 'Indicator Test (Acid)', eq: 'HCl + Phenolphthalein → Colorless', obs: 'Phenolphthalein stays colorless in acidic solution. pH < 8.', bubbles: false },
+      'CuSO4+NaOH': { color: '#7dd3fc', name: 'Precipitation', eq: 'CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄', obs: 'A bright blue gelatinous precipitate of copper hydroxide forms.', bubbles: false },
+      'CH3COOH+NaOH': { color: '#d1fae5', name: 'Neutralization', eq: 'CH₃COOH + NaOH → CH₃COONa + H₂O', obs: 'Weak acid neutralized by strong base. Solution warms gently.', bubbles: false },
+    };
+
+    var singleReagentColors = {
+      'HCl': '#fca5a5', 'NaOH': '#93c5fd', 'NaHCO3': '#f1f5f9', 'CH3COOH': '#d9f99d',
+      'AgNO3': '#d4d4d8', 'NaCl': '#fefce8', 'CuSO4': '#38bdf8', 'Fe': '#a8a29e', 'phenolphthalein': '#f0abfc'
+    };
+
+    function selectReagent(el) {
+      document.querySelectorAll('.reagent').forEach(function(r) { r.classList.remove('selected'); });
+      el.classList.add('selected');
+      selectedReagent = el.getAttribute('data-id');
+      document.getElementById('btn-add').disabled = false;
+    }
+
+    function addToBeaker() {
+      if (!selectedReagent) return;
+      if (beakerContents.length >= 2) { logEntry('⚠️ Beaker full! Reset to try a new combination.', ''); return; }
+      if (beakerContents.indexOf(selectedReagent) !== -1) { logEntry('⚠️ ' + selectedReagent + ' is already in the beaker.', ''); return; }
+
+      beakerContents.push(selectedReagent);
+      updateBeakerVisual();
+
+      if (beakerContents.length === 2) {
+        var key = beakerContents.slice().sort().join('+');
+        var r = reactions[key];
+        if (r) {
+          setTimeout(function() {
+            setLiquidColor(r.color);
+            logEntry('⚗️ <span class="equation">' + r.eq + '</span>', '👁️ <span class="observation">' + r.obs + '</span>');
+            if (r.bubbles) startBubbles();
+          }, 400);
+        } else {
+          setTimeout(function() {
+            logEntry('🔬 No visible reaction between ' + beakerContents[0] + ' and ' + beakerContents[1] + '.', '👁️ <span class="observation">The reagents mix but nothing notable occurs.</span>');
+          }, 400);
+        }
+      }
+
+      // deselect
+      document.querySelectorAll('.reagent').forEach(function(r) { r.classList.remove('selected'); });
+      selectedReagent = null;
+      document.getElementById('btn-add').disabled = true;
+    }
+
+    function updateBeakerVisual() {
+      var liquid = document.getElementById('beaker-liquid');
+      var labels = document.getElementById('added-labels');
+      if (beakerContents.length === 0) {
+        liquid.setAttribute('height', '0');
+        liquid.setAttribute('fill', 'transparent');
+        labels.textContent = 'Beaker is empty';
+        return;
+      }
+      var h = beakerContents.length === 1 ? 80 : 140;
+      liquid.setAttribute('y', 210 - h);
+      liquid.setAttribute('height', h);
+      if (beakerContents.length === 1) {
+        liquid.setAttribute('fill', singleReagentColors[beakerContents[0]] || '#94a3b8');
+      }
+      labels.textContent = 'Contains: ' + beakerContents.join(' + ');
+    }
+
+    function setLiquidColor(c) {
+      document.getElementById('beaker-liquid').setAttribute('fill', c);
+    }
+
+    function startBubbles() {
+      var container = document.getElementById('bubbles');
+      container.innerHTML = '';
+      for (var i = 0; i < 12; i++) {
+        var b = document.createElement('div');
+        b.className = 'bubble';
+        b.style.left = (Math.random() * 60 - 30) + 'px';
+        b.style.animationDelay = (Math.random() * 1.5) + 's';
+        b.style.animationDuration = (1 + Math.random()) + 's';
+        container.appendChild(b);
+      }
+      setTimeout(function() { container.innerHTML = ''; }, 5000);
+    }
+
+    function heatBeaker() {
+      if (beakerContents.length === 0) { logEntry('🔥 Nothing to heat yet.', ''); return; }
+      var flame = document.getElementById('flame');
+      flame.style.display = 'block';
+      isHeated = true;
+      logEntry('🔥 Applying heat to the beaker…', '👁️ <span class="observation">The solution begins to warm. If gas-producing, bubbling intensifies.</span>');
+      startBubbles();
+      setTimeout(function() { flame.style.display = 'none'; }, 3000);
+    }
+
+    function resetBeaker() {
+      beakerContents = [];
+      isHeated = false;
+      selectedReagent = null;
+      document.getElementById('bubbles').innerHTML = '';
+      document.getElementById('flame').style.display = 'none';
+      document.getElementById('reaction-log').innerHTML = '<div class="entry" style="color:#64748b;">Add reagents to begin…</div>';
+      document.querySelectorAll('.reagent').forEach(function(r) { r.classList.remove('selected'); });
+      document.getElementById('btn-add').disabled = true;
+      updateBeakerVisual();
+    }
+
+    function logEntry(line1, line2) {
+      var log = document.getElementById('reaction-log');
+      var first = log.querySelector('.entry');
+      if (first && first.textContent.indexOf('Add reagents') !== -1) log.innerHTML = '';
+      var d = document.createElement('div');
+      d.className = 'entry';
+      d.innerHTML = line1 + (line2 ? '<br>' + line2 : '');
+      log.appendChild(d);
+      log.scrollTop = log.scrollHeight;
+    }
+  </script>
+  <script src="../scripts/translation_loader.js" data-base="translations"></script>
+  <script src="../../search_data.js"></script>
+  <script src="../../search_logic.js"></script>
+</body>
+</html>

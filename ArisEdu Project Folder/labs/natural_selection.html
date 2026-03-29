@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Natural Selection</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#22c55e}
+    .ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#22c55e,#10b981);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#22c55e}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🦎 Natural Selection Simulator</h1>
+  <p class="subtitle">Watch populations evolve through survival of the fittest.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Environment</label>
+      <select id="env" onchange="resetPop()" style="padding:.3rem;border-radius:.3rem;background:#1e293b;color:#f1f5f9;border:1px solid #334155">
+        <option value="dark">Dark Forest</option><option value="light">Light Desert</option><option value="mixed">Mixed Terrain</option>
+      </select></div>
+    <div class="ctrl-group"><label>Predator Pressure</label>
+      <input type="range" id="pred" min="1" max="10" value="5" oninput="upd()"><span class="val" id="pred-val">5</span></div>
+    <div class="ctrl-group"><label>Mutation Rate</label>
+      <input type="range" id="mut" min="0" max="10" value="2" oninput="upd()"><span class="val" id="mut-val">2%</span></div>
+    <button class="action-btn" onclick="nextGen()">Next Generation</button>
+    <button class="action-btn" onclick="autoRun()">▶ Auto Run</button>
+    <button class="action-btn" style="background:#64748b" onclick="resetPop()">Reset</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Generation: <strong id="gen">0</strong></div>
+    <div class="datum">Population: <strong id="pop">40</strong></div>
+    <div class="datum">Dark %: <strong id="darkp">50%</strong></div>
+    <div class="datum">Light %: <strong id="lightp">50%</strong></div>
+    <div class="datum">Avg Fitness: <strong id="avgfit">0.50</strong></div>
+  </div>
+  <div class="info-box"><h3>Natural Selection</h3><p>Organisms with traits better suited to their environment are more likely to survive and reproduce. In a dark forest, dark-colored organisms are camouflaged from predators. Over generations, the population shifts toward the advantageous trait. This is <strong>directional selection</strong>. Mutation introduces variation; higher predator pressure speeds selection.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var organisms=[],gen=0,autoId=null,history=[],t=0;
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  function initPop(){
+    organisms=[];gen=0;history=[];
+    for(var i=0;i<40;i++){
+      organisms.push({shade:Math.random(),x:Math.random()*cv.width,y:Math.random()*cv.height*0.7+cv.height*0.05});
+    }
+    updateStats();
+  }
+  function fitness(shade){
+    var env=document.getElementById('env').value;
+    if(env==='dark') return 1-shade; // darker = better in dark env
+    if(env==='light') return shade;  // lighter = better in light env
+    return 0.5+0.2*Math.sin(shade*Math.PI); // mixed
+  }
+  window.upd=function(){
+    document.getElementById('pred-val').textContent=document.getElementById('pred').value;
+    document.getElementById('mut-val').textContent=document.getElementById('mut').value+'%';
+  };
+  function updateStats(){
+    var dark=0,light=0,totalFit=0;
+    organisms.forEach(function(o){
+      if(o.shade<0.5) dark++; else light++;
+      totalFit+=fitness(o.shade);
+    });
+    var n=organisms.length||1;
+    document.getElementById('gen').textContent=gen;
+    document.getElementById('pop').textContent=organisms.length;
+    document.getElementById('darkp').textContent=(dark/n*100).toFixed(0)+'%';
+    document.getElementById('lightp').textContent=(light/n*100).toFixed(0)+'%';
+    document.getElementById('avgfit').textContent=(totalFit/n).toFixed(2);
+    history.push({dark:dark/n,light:light/n});
+  }
+  window.nextGen=function(){
+    var pred=parseInt(document.getElementById('pred').value)/10;
+    var mut=parseInt(document.getElementById('mut').value)/100;
+    // Selection: fitness-proportional survival
+    var survivors=[];
+    organisms.forEach(function(o){
+      var f=fitness(o.shade);
+      var survProb=f*(1-pred*0.5)+0.1;
+      if(Math.random()<survProb) survivors.push(o);
+    });
+    // Reproduce to maintain population ~40
+    var next=[];
+    while(next.length<40&&survivors.length>0){
+      var parent=survivors[Math.floor(Math.random()*survivors.length)];
+      var childShade=parent.shade+(Math.random()-0.5)*mut*2;
+      childShade=Math.max(0,Math.min(1,childShade));
+      next.push({shade:childShade,x:Math.random()*cv.width,y:Math.random()*cv.height*0.7+cv.height*0.05});
+    }
+    organisms=next;gen++;updateStats();
+  };
+  window.autoRun=function(){
+    if(autoId){clearInterval(autoId);autoId=null;return;}
+    autoId=setInterval(function(){nextGen()},400);
+  };
+  window.resetPop=function(){if(autoId){clearInterval(autoId);autoId=null;}initPop()};
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    t+=0.016;
+    // Environment background with gradient
+    var env=document.getElementById('env').value;
+    if(env==='dark'){
+      var bg=ctx.createRadialGradient(w/2,h*0.4,50,w/2,h*0.4,w*0.7);
+      bg.addColorStop(0,'#1a3a1a');bg.addColorStop(1,'#0d1f0d');ctx.fillStyle=bg;
+    }else if(env==='light'){
+      var bg=ctx.createRadialGradient(w/2,h*0.3,50,w/2,h*0.4,w*0.7);
+      bg.addColorStop(0,'#3d3520');bg.addColorStop(1,'#2d2a1f');ctx.fillStyle=bg;
+    }else{
+      var bg=ctx.createLinearGradient(0,0,w,h);
+      bg.addColorStop(0,'#1a2e1a');bg.addColorStop(0.5,'#2d2a1f');bg.addColorStop(1,'#1a2025');ctx.fillStyle=bg;
+    }
+    ctx.fillRect(0,0,w,h);
+    // Ground texture dots
+    ctx.fillStyle=env==='dark'?'rgba(20,50,20,0.5)':'rgba(60,55,40,0.3)';
+    for(var gi=0;gi<30;gi++){
+      var gx=((gi*137)%w),gy=((gi*89)%h);
+      ctx.beginPath();ctx.arc(gx,gy,2,0,Math.PI*2);ctx.fill();
+    }
+    // Organisms with fitness glow
+    organisms.forEach(function(o){
+      var gray=Math.floor(o.shade*255);
+      var fit=fitness(o.shade);
+      // Fitness glow (well-camouflaged = bigger glow)
+      if(fit>0.6){
+        var glow=ctx.createRadialGradient(o.x,o.y,3,o.x,o.y,12);
+        glow.addColorStop(0,'rgba(34,197,94,'+(fit*0.2)+')');glow.addColorStop(1,'rgba(34,197,94,0)');
+        ctx.fillStyle=glow;ctx.beginPath();ctx.arc(o.x,o.y,12,0,Math.PI*2);ctx.fill();
+      }
+      // Organism body (beetle shape)
+      ctx.fillStyle='rgb('+gray+','+gray+','+gray+')';
+      ctx.beginPath();ctx.ellipse(o.x,o.y,7,5,0,0,Math.PI*2);ctx.fill();
+      // Outline
+      ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.stroke();
+      // Eyes
+      ctx.fillStyle='rgba(255,255,255,0.3)';
+      ctx.beginPath();ctx.arc(o.x+3,o.y-2,1.2,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(o.x+3,o.y+2,1.2,0,Math.PI*2);ctx.fill();
+    });
+    // Population history graph (bottom)
+    if(history.length>1){
+      var gx2=w*0.08,gy2=h*0.8,gw2=w*0.84,gh2=h*0.17;
+      // Graph background
+      ctx.fillStyle='rgba(0,0,0,0.4)';
+      ctx.beginPath();ctx.roundRect(gx2-5,gy2-5,gw2+10,gh2+15,6);ctx.fill();
+      ctx.strokeStyle='rgba(51,65,85,0.3)';ctx.lineWidth=1;ctx.strokeRect(gx2,gy2,gw2,gh2);
+      // Grid lines
+      ctx.strokeStyle='rgba(51,65,85,0.15)';ctx.lineWidth=0.5;
+      for(var gli=0;gli<5;gli++){ctx.beginPath();ctx.moveTo(gx2,gy2+gli*gh2/4);ctx.lineTo(gx2+gw2,gy2+gli*gh2/4);ctx.stroke();}
+      var step=gw2/(history.length-1||1);
+      // Dark area fill
+      ctx.fillStyle='rgba(100,116,139,0.1)';ctx.beginPath();ctx.moveTo(gx2,gy2+gh2);
+      for(var i=0;i<history.length;i++){ctx.lineTo(gx2+i*step,gy2+gh2-history[i].dark*gh2);}
+      ctx.lineTo(gx2+(history.length-1)*step,gy2+gh2);ctx.fill();
+      // Dark line
+      ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;ctx.beginPath();
+      for(var i=0;i<history.length;i++){
+        var hx=gx2+i*step,hy=gy2+gh2-history[i].dark*gh2;
+        if(i===0) ctx.moveTo(hx,hy); else ctx.lineTo(hx,hy);
+      }
+      ctx.stroke();
+      // Light area fill
+      ctx.fillStyle='rgba(251,191,36,0.1)';ctx.beginPath();ctx.moveTo(gx2,gy2+gh2);
+      for(var i=0;i<history.length;i++){ctx.lineTo(gx2+i*step,gy2+gh2-history[i].light*gh2);}
+      ctx.lineTo(gx2+(history.length-1)*step,gy2+gh2);ctx.fill();
+      // Light line
+      ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.beginPath();
+      for(var i=0;i<history.length;i++){
+        var hx2=gx2+i*step,hy2=gy2+gh2-history[i].light*gh2;
+        if(i===0) ctx.moveTo(hx2,hy2); else ctx.lineTo(hx2,hy2);
+      }
+      ctx.stroke();
+      // Legend
+      ctx.fillStyle='#94a3b8';ctx.font='bold 9px Poppins';ctx.textAlign='left';
+      ctx.fillRect(gx2+8,gy2+8,10,3);ctx.fillText('Dark phenotype',gx2+22,gy2+12);
+      ctx.fillStyle='#fbbf24';ctx.fillRect(gx2+8,gy2+20,10,3);ctx.fillText('Light phenotype',gx2+22,gy2+24);
+      ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='8px Poppins';ctx.textAlign='center';
+      ctx.fillText('Generations →',gx2+gw2/2,gy2+gh2+12);
+    }
+    // Generation label
+    ctx.fillStyle='rgba(34,197,94,0.4)';ctx.font='bold 10px Poppins';ctx.textAlign='left';
+    ctx.fillText('Gen '+gen+'  |  Pop: '+organisms.length,10,15);
+    // Environment label
+    ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='9px Poppins';ctx.textAlign='right';
+    ctx.fillText('Environment: '+(env==='dark'?'Dark Forest':env==='light'?'Light Desert':'Mixed Terrain'),w-10,15);
+    requestAnimationFrame(draw);
+  }
+  initPop();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

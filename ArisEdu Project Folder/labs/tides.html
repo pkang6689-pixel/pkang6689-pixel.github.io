@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Tide Simulator</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#3b82f6}
+    .ctrl-group .val{font-size:.8rem;color:#60a5fa;font-weight:600}
+    .ctrl-btn{padding:.5rem 1rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;font-weight:600;font-size:.85rem;transition:all .2s}
+    .ctrl-btn.active{background:#3b82f6;border-color:#3b82f6;color:white}
+    .ctrl-btn:hover{background:#334155}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#60a5fa}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#60a5fa;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🌊 Tide Simulator</h1>
+  <p class="subtitle">Explore how the Moon and Sun create tidal bulges on Earth.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+  <div class="controls">
+    <button class="ctrl-btn active" onclick="setTide('spring',this)">Spring Tide</button>
+    <button class="ctrl-btn" onclick="setTide('neap',this)">Neap Tide</button>
+    <div class="ctrl-group"><label>Time Speed</label>
+      <input type="range" id="speed" min="1" max="10" value="5"><span class="val" id="sp-val">5×</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Tide Type: <strong id="ttype">Spring</strong></div>
+    <div class="datum">Water Level: <strong id="wlevel">High</strong></div>
+    <div class="datum">Moon Phase: <strong id="mphase">Full/New</strong></div>
+    <div class="datum">Tidal Range: <strong id="trange">Large</strong></div>
+  </div>
+  <div class="info-box"><h3>Tidal Forces</h3><p>Tides are caused by the gravitational pull of the Moon and Sun. <strong>Spring tides</strong> occur when Sun, Moon, and Earth align (new/full moon) — tidal range is maximum. <strong>Neap tides</strong> occur at quarter moons when forces partially cancel — minimum range. Earth experiences two high tides and two low tides per day due to the tidal bulge on both sides.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0,tideMode='spring';
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.setTide=function(m,btn){
+    tideMode=m;
+    document.querySelectorAll('.ctrl-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);
+    var speed=parseInt(document.getElementById('speed').value);
+    document.getElementById('sp-val').textContent=speed+'×';
+    t+=0.005*speed;
+    var cx=w/2,cy=h*0.4;
+    var earthR=50;
+    // Stars with twinkle
+    for(var s=0;s<40;s++){
+      var sx=(s*137)%w,sy=(s*97)%h;
+      var twinkle=0.1+0.15*Math.sin(t*2+s);
+      ctx.fillStyle='rgba(241,245,249,'+twinkle+')';
+      ctx.beginPath();ctx.arc(sx,sy,0.8+Math.sin(t+s)*0.3,0,Math.PI*2);ctx.fill();
+    }
+    // Sun with glow
+    var sunAngle=tideMode==='spring'?0:Math.PI/2;
+    var sunX=cx+Math.cos(sunAngle)*w*0.35,sunY=cy+Math.sin(sunAngle)*w*0.1;
+    var sunGlow=ctx.createRadialGradient(sunX,sunY,12,sunX,sunY,40);
+    sunGlow.addColorStop(0,'rgba(251,191,36,0.4)');sunGlow.addColorStop(1,'rgba(251,191,36,0)');
+    ctx.fillStyle=sunGlow;ctx.beginPath();ctx.arc(sunX,sunY,40,0,Math.PI*2);ctx.fill();
+    var sunGrad=ctx.createRadialGradient(sunX-5,sunY-5,3,sunX,sunY,20);
+    sunGrad.addColorStop(0,'#fde68a');sunGrad.addColorStop(1,'#f59e0b');
+    ctx.fillStyle=sunGrad;ctx.beginPath();ctx.arc(sunX,sunY,20,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fbbf24';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Sun',sunX,sunY+32);
+    // Gravitational force line from sun
+    ctx.strokeStyle='rgba(251,191,36,0.12)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(sunX,sunY);ctx.lineTo(cx,cy);ctx.stroke();ctx.setLineDash([]);
+    // Earth with gradient
+    var earthGrad=ctx.createRadialGradient(cx-10,cy-10,5,cx,cy,earthR);
+    earthGrad.addColorStop(0,'#3b82f6');earthGrad.addColorStop(0.6,'#1e40af');earthGrad.addColorStop(1,'#1e3a5f');
+    ctx.fillStyle=earthGrad;ctx.beginPath();ctx.arc(cx,cy,earthR,0,Math.PI*2);ctx.fill();
+    // Continents hint
+    ctx.fillStyle='rgba(34,197,94,0.2)';
+    ctx.beginPath();ctx.ellipse(cx-15,cy-10,18,12,0.3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(cx+20,cy+5,12,20,0.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Poppins';ctx.fillText('Earth',cx,cy+4);
+    // Moon orbit with gradient
+    ctx.strokeStyle='rgba(100,116,139,0.15)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.ellipse(cx,cy,120,120*0.3,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    // Moon with glow
+    var moonAngle=t;
+    var moonDist=120;
+    var moonX=cx+Math.cos(moonAngle)*moonDist;
+    var moonY=cy+Math.sin(moonAngle)*moonDist*0.3;
+    var moonGlow=ctx.createRadialGradient(moonX,moonY,6,moonX,moonY,20);
+    moonGlow.addColorStop(0,'rgba(209,213,219,0.2)');moonGlow.addColorStop(1,'rgba(209,213,219,0)');
+    ctx.fillStyle=moonGlow;ctx.beginPath();ctx.arc(moonX,moonY,20,0,Math.PI*2);ctx.fill();
+    var moonGrad=ctx.createRadialGradient(moonX-3,moonY-3,2,moonX,moonY,12);
+    moonGrad.addColorStop(0,'#e5e7eb');moonGrad.addColorStop(1,'#9ca3af');
+    ctx.fillStyle=moonGrad;ctx.beginPath();ctx.arc(moonX,moonY,12,0,Math.PI*2);ctx.fill();
+    // Moon craters
+    ctx.fillStyle='rgba(107,114,128,0.3)';
+    ctx.beginPath();ctx.arc(moonX-3,moonY-2,3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(moonX+4,moonY+3,2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#d1d5db';ctx.font='bold 10px Poppins';ctx.fillText('Moon',moonX,moonY+24);
+    // Gravitational force line from moon
+    ctx.strokeStyle='rgba(209,213,219,0.15)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(moonX,moonY);ctx.lineTo(cx,cy);ctx.stroke();ctx.setLineDash([]);
+    // Tidal bulge on Earth with gradient
+    var tidalAngle=moonAngle;
+    var bulgeSize=tideMode==='spring'?18:8;
+    var bulgeGrad=ctx.createRadialGradient(cx,cy,earthR-5,cx,cy,earthR+bulgeSize+5);
+    bulgeGrad.addColorStop(0,'rgba(59,130,246,0.35)');bulgeGrad.addColorStop(1,'rgba(59,130,246,0.05)');
+    ctx.fillStyle=bulgeGrad;
+    ctx.beginPath();ctx.ellipse(cx,cy,earthR+bulgeSize,earthR-bulgeSize*0.3,tidalAngle,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(96,165,250,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.ellipse(cx,cy,earthR+bulgeSize,earthR-bulgeSize*0.3,tidalAngle,0,Math.PI*2);ctx.stroke();
+    // Bulge labels
+    var bx1=cx+Math.cos(tidalAngle)*(earthR+bulgeSize+8);
+    var by1=cy+Math.sin(tidalAngle)*(earthR+bulgeSize+8)*0.3;
+    var bx2=cx+Math.cos(tidalAngle+Math.PI)*(earthR+bulgeSize+8);
+    var by2=cy+Math.sin(tidalAngle+Math.PI)*(earthR+bulgeSize+8)*0.3;
+    ctx.fillStyle='rgba(96,165,250,0.5)';ctx.font='7px Poppins';
+    ctx.fillText('HIGH',bx1,by1-8);ctx.fillText('HIGH',bx2,by2-8);
+    // Force arrows
+    ctx.strokeStyle='rgba(245,158,11,0.3)';ctx.lineWidth=1.5;
+    var arrowLen=20;
+    ctx.beginPath();ctx.moveTo(cx+Math.cos(tidalAngle)*earthR,cy+Math.sin(tidalAngle)*earthR*0.3);
+    ctx.lineTo(cx+Math.cos(tidalAngle)*(earthR+arrowLen),cy+Math.sin(tidalAngle)*(earthR+arrowLen)*0.3);ctx.stroke();
+    // Alignment label
+    ctx.fillStyle='rgba(148,163,184,0.4)';ctx.font='9px Poppins';
+    ctx.fillText(tideMode==='spring'?'Sun-Moon Aligned (Syzygy)':'Sun-Moon 90\u00B0 (Quadrature)',cx,h*0.08);
+    // Tide level graph (bottom) with gradient fill
+    var gy=h*0.7,gw=w*0.8,gx=w*0.1,gh=h*0.25;
+    // Graph background
+    ctx.fillStyle='rgba(0,0,0,0.3)';
+    ctx.beginPath();ctx.moveTo(gx+5,gy);ctx.lineTo(gx+gw-5,gy);ctx.quadraticCurveTo(gx+gw,gy,gx+gw,gy+5);
+    ctx.lineTo(gx+gw,gy+gh-5);ctx.quadraticCurveTo(gx+gw,gy+gh,gx+gw-5,gy+gh);
+    ctx.lineTo(gx+5,gy+gh);ctx.quadraticCurveTo(gx,gy+gh,gx,gy+gh-5);
+    ctx.lineTo(gx,gy+5);ctx.quadraticCurveTo(gx,gy,gx+5,gy);ctx.fill();
+    // Grid lines
+    ctx.strokeStyle='rgba(51,65,85,0.3)';ctx.lineWidth=0.5;
+    for(var gridY=1;gridY<4;gridY++){ctx.beginPath();ctx.moveTo(gx,gy+gh*gridY/4);ctx.lineTo(gx+gw,gy+gh*gridY/4);ctx.stroke();}
+    ctx.strokeStyle='#475569';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(gx,gy+gh/2);ctx.lineTo(gx+gw,gy+gh/2);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Tide Level over Time',gx+gw/2,gy-8);
+    ctx.font='7px Poppins';ctx.textAlign='right';
+    ctx.fillText('High',gx-4,gy+8);ctx.fillText('Low',gx-4,gy+gh-4);
+    ctx.textAlign='center';
+    // Tide wave with area fill
+    var amplitude=tideMode==='spring'?gh*0.4:gh*0.15;
+    ctx.beginPath();ctx.moveTo(gx,gy+gh/2);
+    for(var i=0;i<=gw;i++){
+      var ty=gy+gh/2-Math.sin((i/gw)*Math.PI*4+t*2)*amplitude;
+      ctx.lineTo(gx+i,ty);
+    }
+    ctx.lineTo(gx+gw,gy+gh/2);ctx.closePath();
+    var waveGrad=ctx.createLinearGradient(0,gy,0,gy+gh);
+    waveGrad.addColorStop(0,'rgba(59,130,246,0.2)');waveGrad.addColorStop(0.5,'rgba(59,130,246,0.05)');waveGrad.addColorStop(1,'rgba(59,130,246,0)');
+    ctx.fillStyle=waveGrad;ctx.fill();
+    // Tide wave line
+    ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;ctx.beginPath();
+    for(var i2=0;i2<=gw;i2++){
+      var ty2=gy+gh/2-Math.sin((i2/gw)*Math.PI*4+t*2)*amplitude;
+      if(i2===0)ctx.moveTo(gx,ty2);else ctx.lineTo(gx+i2,ty2);
+    }
+    ctx.stroke();
+    // Current position marker with glow
+    var curX=gx+((t*2/(Math.PI*4))%1)*gw;
+    var curLevel=Math.sin(t*2)*amplitude;
+    var dotGlow=ctx.createRadialGradient(curX,gy+gh/2-curLevel,2,curX,gy+gh/2-curLevel,10);
+    dotGlow.addColorStop(0,'rgba(251,191,36,0.4)');dotGlow.addColorStop(1,'rgba(251,191,36,0)');
+    ctx.fillStyle=dotGlow;ctx.beginPath();ctx.arc(curX,gy+gh/2-curLevel,10,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(curX,gy+gh/2-curLevel,4,0,Math.PI*2);ctx.fill();
+    // Update readouts
+    document.getElementById('ttype').textContent=tideMode==='spring'?'Spring':'Neap';
+    document.getElementById('wlevel').textContent=curLevel>0?'High Tide':'Low Tide';
+    document.getElementById('mphase').textContent=tideMode==='spring'?'Full/New Moon':'Quarter Moon';
+    document.getElementById('trange').textContent=tideMode==='spring'?'Large (max)':'Small (min)';
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>
