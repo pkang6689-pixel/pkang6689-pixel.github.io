@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>DNA Replication</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#22c55e}
+    .ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#22c55e,#10b981);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#22c55e}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🧬 DNA Replication</h1>
+  <p class="subtitle">Watch helicase unwind and DNA polymerase build new strands.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Speed</label>
+      <input type="range" id="speed" min="1" max="10" value="5" oninput="calc()"><span class="val" id="sp-val">5×</span></div>
+    <button class="action-btn" onclick="togglePlay()">▶ Play / Pause</button>
+    <button class="action-btn" style="background:#64748b" onclick="resetAnim()">Reset</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Bases Replicated: <strong id="bases">0</strong></div>
+    <div class="datum">Fork Position: <strong id="forkpos">0%</strong></div>
+    <div class="datum">Stage: <strong id="stage">Waiting</strong></div>
+  </div>
+  <div class="info-box"><h3>DNA Replication</h3><p><strong>Helicase</strong> unwinds the double helix by breaking hydrogen bonds. <strong>DNA Polymerase III</strong> adds complementary nucleotides (A↔T, C↔G) to each template strand. The leading strand is synthesized continuously (3'→5'), while the lagging strand forms Okazaki fragments. <strong>Primase</strong> adds RNA primers; <strong>Ligase</strong> seals the fragments.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var playing=false,forkPos=0,t=0;
+  var bases='ATCGGCTATAGCGATTACGCATGCTAGCGATCGATGCATCG';
+  var complement={A:'T',T:'A',C:'G',G:'C'};
+  var baseColors={A:'#ef4444',T:'#3b82f6',C:'#22c55e',G:'#f59e0b'};
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.calc=function(){document.getElementById('sp-val').textContent=document.getElementById('speed').value+'×'};
+  window.togglePlay=function(){playing=!playing};
+  window.resetAnim=function(){forkPos=0;playing=false};
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    var speed=parseInt(document.getElementById('speed').value);
+    if(playing){forkPos+=speed*0.0008;if(forkPos>1)forkPos=1;}
+    var replicated=Math.floor(forkPos*bases.length);
+    document.getElementById('bases').textContent=replicated;
+    document.getElementById('forkpos').textContent=(forkPos*100).toFixed(0)+'%';
+    document.getElementById('stage').textContent=forkPos===0?'Waiting':forkPos<1?'Replicating':'Complete';
+    var bpW=w/(bases.length+4);
+    var cy1=h*0.35,cy2=h*0.65;
+    var forkX=w*0.08+forkPos*(w*0.84);
+    // Draw double helix (unreplicated right side)
+    for(var i=replicated;i<bases.length;i++){
+      var x=w*0.08+(i+2)*bpW;
+      if(x<forkX)continue;
+      // Top strand
+      ctx.fillStyle=baseColors[bases[i]];
+      ctx.fillRect(x,cy1-8,bpW*0.7,16);
+      // Bottom strand (complement)
+      ctx.fillStyle=baseColors[complement[bases[i]]];
+      ctx.fillRect(x,cy2-8,bpW*0.7,16);
+      // H-bond
+      ctx.strokeStyle='rgba(148,163,184,0.3)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy1+8);ctx.lineTo(x+bpW*0.35,cy2-8);ctx.stroke();
+      // Labels
+      ctx.fillStyle='#fff';ctx.font='bold 9px Poppins';ctx.textAlign='center';
+      ctx.fillText(bases[i],x+bpW*0.35,cy1+4);
+      ctx.fillText(complement[bases[i]],x+bpW*0.35,cy2+4);
+    }
+    // Draw replicated strands (separated, left of fork)
+    for(var i=0;i<replicated;i++){
+      var x=w*0.08+(i+2)*bpW;
+      // Top: template + new complement above
+      var sep=30;
+      ctx.fillStyle=baseColors[bases[i]];
+      ctx.fillRect(x,cy1-sep-8,bpW*0.7,16);
+      ctx.fillStyle=baseColors[complement[bases[i]]];
+      ctx.fillRect(x,cy1-sep+12,bpW*0.7,16);
+      // Bond
+      ctx.strokeStyle='rgba(34,197,94,0.4)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy1-sep+8);ctx.lineTo(x+bpW*0.35,cy1-sep+12);ctx.stroke();
+      // Bottom: template + new complement below
+      ctx.fillStyle=baseColors[complement[bases[i]]];
+      ctx.fillRect(x,cy2+sep-8,bpW*0.7,16);
+      ctx.fillStyle=baseColors[bases[i]];
+      ctx.fillRect(x,cy2+sep-24,bpW*0.7,16);
+      ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy2+sep-8);ctx.lineTo(x+bpW*0.35,cy2+sep-12);ctx.stroke();
+      // Labels
+      ctx.fillStyle='#fff';ctx.font='bold 8px Poppins';ctx.textAlign='center';
+      ctx.fillText(bases[i],x+bpW*0.35,cy1-sep+4);
+      ctx.fillText(complement[bases[i]],x+bpW*0.35,cy2+sep+4);
+    }
+    // Replication fork Y-shape
+    if(forkPos>0&&forkPos<1){
+      ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;
+      // Top strand separating upward
+      ctx.beginPath();ctx.moveTo(forkX,cy1);ctx.lineTo(forkX-20,cy1-30);ctx.stroke();
+      // Bottom strand separating downward
+      ctx.beginPath();ctx.moveTo(forkX,cy2);ctx.lineTo(forkX-20,cy2+30);ctx.stroke();
+      // Helicase (yellow circle at fork)
+      ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(forkX,h/2,12,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#0f172a';ctx.font='bold 8px Poppins';ctx.textAlign='center';
+      ctx.fillText('HEL',forkX,h/2+3);
+      // Polymerase on leading strand
+      ctx.fillStyle='#a855f7';ctx.beginPath();ctx.arc(forkX-30,cy1-25,10,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fff';ctx.font='bold 7px Poppins';
+      ctx.fillText('POL',forkX-30,cy1-22);
+      // Polymerase on lagging strand
+      ctx.fillStyle='#a855f7';ctx.beginPath();ctx.arc(forkX-30,cy2+25,10,0,Math.PI*2);ctx.fill();
+      ctx.fillText('POL',forkX-30,cy2+28);
+    }
+    // Legend
+    ctx.font='10px Poppins';ctx.textAlign='left';
+    var ly=h-20;
+    ['A','T','C','G'].forEach(function(b,i){
+      ctx.fillStyle=baseColors[b];ctx.fillRect(10+i*50,ly-8,12,12);
+      ctx.fillStyle='#94a3b8';ctx.fillText(b,26+i*50,ly+2);
+    });
+    requestAnimationFrame(draw);
+  }
+  calc();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

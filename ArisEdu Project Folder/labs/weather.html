@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Weather Systems</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#3b82f6}
+    .ctrl-group .val{font-size:.8rem;color:#60a5fa;font-weight:600}
+    .ctrl-btn{padding:.5rem 1rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;font-weight:600;font-size:.85rem;transition:all .2s}
+    .ctrl-btn.active{background:#3b82f6;border-color:#3b82f6;color:white}
+    .ctrl-btn:hover{background:#334155}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#60a5fa}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#60a5fa;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🌦️ Weather Systems</h1>
+  <p class="subtitle">Explore how pressure systems and fronts create weather patterns.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+  <div class="controls">
+    <button class="ctrl-btn active" onclick="setMode('front',this)">Weather Fronts</button>
+    <button class="ctrl-btn" onclick="setMode('pressure',this)">Pressure Systems</button>
+    <button class="ctrl-btn" onclick="setMode('hurricane',this)">Hurricane</button>
+    <div class="ctrl-group"><label>Temperature Difference (°C)</label>
+      <input type="range" id="tdiff" min="5" max="40" value="20" oninput="upd()"><span class="val" id="td-val">20°C</span></div>
+    <div class="ctrl-group"><label>Humidity (%)</label>
+      <input type="range" id="humid" min="10" max="100" value="60" oninput="upd()"><span class="val" id="hum-val">60%</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Mode: <strong id="mode-lbl">Weather Fronts</strong></div>
+    <div class="datum">Precipitation: <strong id="precip">Moderate</strong></div>
+    <div class="datum">Wind: <strong id="wind">15 mph</strong></div>
+  </div>
+  <div class="info-box"><h3>Weather Fronts & Pressure Systems</h3><p><strong>Cold fronts</strong> (blue, triangles) bring rapid temperature drops and storms. <strong>Warm fronts</strong> (red, semicircles) bring steady rain then warming. <strong>Low-pressure systems</strong> have rising air → clouds and rain. <strong>High-pressure</strong> brings sinking air → clear skies. <strong>Hurricanes</strong> form over warm oceans (>26.5°C) with Coriolis-driven rotation.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0,mode='front';
+  var raindrops=[],windParticles=[];
+  function resize(){cv.width=cv.parentElement.clientWidth;}
+  window.addEventListener('resize',resize);resize();
+  window.setMode=function(m,btn){
+    mode=m;
+    document.querySelectorAll('.ctrl-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById('mode-lbl').textContent=m==='front'?'Weather Fronts':m==='pressure'?'Pressure Systems':'Hurricane';
+  };
+  window.upd=function(){
+    document.getElementById('td-val').textContent=document.getElementById('tdiff').value+'°C';
+    document.getElementById('hum-val').textContent=document.getElementById('humid').value+'%';
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    t+=0.016;
+    var tdiff2=parseInt(document.getElementById('tdiff').value);
+    var hum=parseInt(document.getElementById('humid').value);
+    if(mode==='front')drawFronts(w,h,tdiff2,hum);
+    else if(mode==='pressure')drawPressure(w,h,tdiff2,hum);
+    else drawHurricane(w,h,tdiff2,hum);
+    // Rain
+    if(hum>40){
+      var rainRate=mode==='hurricane'?8:hum>70?4:1;
+      for(var r=0;r<rainRate;r++){
+        raindrops.push({x:Math.random()*w,y:0,vy:4+Math.random()*4,vx:mode==='hurricane'?3:0});
+      }
+    }
+    ctx.strokeStyle='rgba(147,197,253,0.4)';ctx.lineWidth=1;
+    for(var ri=raindrops.length-1;ri>=0;ri--){
+      var rd=raindrops[ri];rd.y+=rd.vy;rd.x+=rd.vx;
+      if(rd.y>h){raindrops.splice(ri,1);continue;}
+      ctx.beginPath();ctx.moveTo(rd.x,rd.y);ctx.lineTo(rd.x+rd.vx*0.5,rd.y+5);ctx.stroke();
+    }
+    if(raindrops.length>300)raindrops.splice(0,50);
+    // Stats
+    document.getElementById('precip').textContent=hum>80?'Heavy':hum>50?'Moderate':hum>30?'Light':'None';
+    document.getElementById('wind').textContent=Math.round(tdiff2*1.5+(mode==='hurricane'?80:0))+' mph';
+    requestAnimationFrame(draw);
+  }
+  function drawFronts(w,h,td,hm){
+    // Warm mass (red/left)
+    ctx.fillStyle='rgba(239,68,68,0.15)';ctx.fillRect(0,0,w/2,h);
+    // Cold mass (blue/right)
+    ctx.fillStyle='rgba(59,130,246,0.15)';ctx.fillRect(w/2,0,w/2,h);
+    // Cold front line
+    var fx=w/2+Math.sin(t*0.5)*30;
+    ctx.strokeStyle='#3b82f6';ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(fx,0);ctx.lineTo(fx,h);ctx.stroke();
+    // Triangles on cold front
+    for(var tri=20;tri<h;tri+=40){
+      ctx.fillStyle='#3b82f6';ctx.beginPath();
+      ctx.moveTo(fx-10,tri);ctx.lineTo(fx,tri-8);ctx.lineTo(fx+10,tri);ctx.fill();
+    }
+    // Warm front behind
+    var wfx=fx-100;
+    ctx.strokeStyle='#ef4444';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(wfx,0);ctx.lineTo(wfx,h);ctx.stroke();
+    for(var sc=20;sc<h;sc+=40){
+      ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(wfx,sc,6,Math.PI*1.5,Math.PI*0.5);ctx.fill();
+    }
+    // Cloud near front
+    ctx.fillStyle='rgba(148,163,184,0.3)';
+    for(var cl=0;cl<5;cl++){
+      var clx=fx-20+Math.sin(t+cl)*10,cly=50+cl*25;
+      ctx.beginPath();ctx.arc(clx,cly,20+hm*0.2,0,Math.PI*2);ctx.fill();
+    }
+    // Labels
+    ctx.fillStyle='#ef4444';ctx.font='bold 14px Poppins';ctx.textAlign='center';
+    ctx.fillText('Warm Air Mass',w*0.25,h*0.5);ctx.fillText(Math.round(20+td/2)+'°C',w*0.25,h*0.55);
+    ctx.fillStyle='#3b82f6';ctx.fillText('Cold Air Mass',w*0.75,h*0.5);ctx.fillText(Math.round(20-td/2)+'°C',w*0.75,h*0.55);
+    // Rising air arrows
+    ctx.strokeStyle='rgba(148,163,184,0.4)';ctx.lineWidth=2;
+    for(var a=0;a<3;a++){
+      var ax=fx-5+a*5,ay=h*0.4+Math.sin(t+a)*20;
+      ctx.beginPath();ctx.moveTo(ax,ay+20);ctx.lineTo(ax,ay);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(ax-5,ay+8);ctx.lineTo(ax,ay);ctx.lineTo(ax+5,ay+8);ctx.stroke();
+    }
+  }
+  function drawPressure(w,h,td,hm){
+    ctx.fillStyle='#0a1628';ctx.fillRect(0,0,w,h);
+    // Low pressure system (left)
+    ctx.strokeStyle='rgba(239,68,68,0.3)';ctx.lineWidth=1;
+    var lpx=w*0.3,lpy=h*0.5;
+    for(var r2=20;r2<120;r2+=20){
+      ctx.beginPath();ctx.arc(lpx,lpy,r2,0,Math.PI*2);ctx.stroke();
+    }
+    // CCW wind arrows
+    ctx.strokeStyle='#ef4444';ctx.lineWidth=2;
+    for(var a2=0;a2<6;a2++){
+      var ang=a2*Math.PI/3+t;
+      var ar=80;
+      ctx.beginPath();
+      ctx.moveTo(lpx+Math.cos(ang)*ar,lpy+Math.sin(ang)*ar);
+      ctx.lineTo(lpx+Math.cos(ang+0.3)*ar*0.9,lpy+Math.sin(ang+0.3)*ar*0.9);
+      ctx.stroke();
+    }
+    ctx.fillStyle='#ef4444';ctx.font='bold 20px Poppins';ctx.textAlign='center';
+    ctx.fillText('L',lpx,lpy+7);
+    ctx.font='10px Poppins';ctx.fillText('Low Pressure',lpx,lpy+25);ctx.fillText('Rising Air → Clouds',lpx,lpy+40);
+    // High pressure (right)
+    ctx.strokeStyle='rgba(59,130,246,0.3)';ctx.lineWidth=1;
+    var hpx=w*0.7,hpy=h*0.5;
+    for(var r3=20;r3<120;r3+=20){
+      ctx.beginPath();ctx.arc(hpx,hpy,r3,0,Math.PI*2);ctx.stroke();
+    }
+    // CW wind arrows
+    ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;
+    for(var a3=0;a3<6;a3++){
+      var ang2=a3*Math.PI/3-t;
+      ctx.beginPath();
+      ctx.moveTo(hpx+Math.cos(ang2)*80,hpy+Math.sin(ang2)*80);
+      ctx.lineTo(hpx+Math.cos(ang2-0.3)*72,hpy+Math.sin(ang2-0.3)*72);
+      ctx.stroke();
+    }
+    ctx.fillStyle='#3b82f6';ctx.font='bold 20px Poppins';ctx.textAlign='center';
+    ctx.fillText('H',hpx,hpy+7);
+    ctx.font='10px Poppins';ctx.fillText('High Pressure',hpx,hpy+25);ctx.fillText('Sinking Air → Clear',hpx,hpy+40);
+  }
+  function drawHurricane(w,h,td,hm){
+    ctx.fillStyle='#0a1628';ctx.fillRect(0,0,w,h);
+    var cx=w/2,cy=h/2;
+    // Spiral bands
+    for(var band=0;band<3;band++){
+      ctx.strokeStyle='rgba(148,163,184,'+(0.2-band*0.05)+')';ctx.lineWidth=15-band*3;
+      ctx.beginPath();
+      for(var ang=0;ang<Math.PI*4;ang+=0.1){
+        var r4=20+ang*25+band*20;
+        var x2=cx+Math.cos(ang+t+band)*r4;
+        var y2=cy+Math.sin(ang+t+band)*r4;
+        if(ang===0)ctx.moveTo(x2,y2);else ctx.lineTo(x2,y2);
+      }
+      ctx.stroke();
+    }
+    // Eye
+    ctx.fillStyle='#0a1628';ctx.beginPath();ctx.arc(cx,cy,20,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(cx,cy,20,0,Math.PI*2);ctx.stroke();
+    // Eye label
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('EYE',cx,cy+4);
+    // Category
+    var cat=td>30?5:td>25?4:td>20?3:td>15?2:1;
+    ctx.fillStyle='#f59e0b';ctx.font='bold 14px Poppins';
+    ctx.fillText('Category '+cat+' Hurricane',cx,30);
+    ctx.font='11px Poppins';ctx.fillStyle='#94a3b8';
+    ctx.fillText('Wind: '+Math.round(74+td*3)+' mph',cx,50);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

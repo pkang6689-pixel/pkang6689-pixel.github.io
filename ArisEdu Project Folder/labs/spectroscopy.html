@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Spectroscopy</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-btn{padding:.5rem 1rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;font-weight:600;font-size:.85rem;transition:all .2s}
+    .ctrl-btn.active{background:#f59e0b;border-color:#f59e0b;color:#0f172a}
+    .ctrl-btn:hover{background:#334155}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#f59e0b}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🌈 Spectroscopy</h1>
+  <p class="subtitle">Analyze absorption and emission spectra to identify chemical elements.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <button class="ctrl-btn active" onclick="setEl('hydrogen',this)">Hydrogen</button>
+    <button class="ctrl-btn" onclick="setEl('helium',this)">Helium</button>
+    <button class="ctrl-btn" onclick="setEl('sodium',this)">Sodium</button>
+    <button class="ctrl-btn" onclick="setEl('iron',this)">Iron</button>
+    <button class="ctrl-btn" onclick="setEl('neon',this)">Neon</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Element: <strong id="el-lbl">Hydrogen (H)</strong></div>
+    <div class="datum">Type: <strong id="spec-type">Emission</strong></div>
+    <div class="datum">Lines: <strong id="num-lines">4</strong></div>
+  </div>
+  <div class="info-box"><h3>Stellar Spectroscopy</h3><p>When light passes through a prism, it spreads into a spectrum. Each element produces unique spectral lines: <strong>Emission spectra</strong> (bright lines) from excited gas, and <strong>Absorption spectra</strong> (dark lines in continuous) from gas absorbing specific wavelengths. Astronomers use these "fingerprints" to identify elements in stars, nebulae, and exoplanet atmospheres without visiting them.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0,element='hydrogen';
+  // Spectral lines (wavelength in nm)
+  var elements={
+    hydrogen:{name:'Hydrogen (H)',lines:[410,434,486,656],colors:['#7b00ff','#4400ff','#00b7ff','#ff0000']},
+    helium:{name:'Helium (He)',lines:[388,447,471,501,587,668],colors:['#6600cc','#0022ff','#0055ff','#00cc66','#ffcc00','#ff3300']},
+    sodium:{name:'Sodium (Na)',lines:[589,590],colors:['#ffaa00','#ffaa00']},
+    iron:{name:'Iron (Fe)',lines:[382,404,438,466,495,527,533],colors:['#5500bb','#4400cc','#0033ff','#0077ff','#00bb77','#33cc00','#55cc00']},
+    neon:{name:'Neon (Ne)',lines:[533,540,585,603,616,640,650,660],colors:['#55cc00','#66cc00','#ff8800','#ff5500','#ff3300','#ff1100','#ff0500','#ff0000']}
+  };
+  function resize(){cv.width=cv.parentElement.clientWidth;}
+  window.addEventListener('resize',resize);resize();
+  window.setEl=function(el,btn){
+    element=el;
+    document.querySelectorAll('.ctrl-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById('el-lbl').textContent=elements[el].name;
+    document.getElementById('num-lines').textContent=elements[el].lines.length;
+  };
+  function wavelengthToX(wl,w){
+    return 40+(wl-380)/(700-380)*(w-80);
+  }
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);
+    t+=0.016;
+    var el=elements[element];
+    var specH=60;
+    // 1. Continuous spectrum (top)
+    var y1=30;
+    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';ctx.textAlign='left';
+    ctx.fillText('Continuous Spectrum (white light)',10,y1-5);
+    for(var wl=380;wl<=700;wl++){
+      var x=wavelengthToX(wl,w);
+      ctx.fillStyle=wavelengthToColor(wl);
+      ctx.fillRect(x,y1,2,specH);
+    }
+    // 2. Absorption spectrum (middle)
+    var y2=y1+specH+30;
+    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';
+    ctx.fillText('Absorption Spectrum — '+el.name,10,y2-5);
+    for(var wl2=380;wl2<=700;wl2++){
+      var x2=wavelengthToX(wl2,w);
+      // Check if this wavelength is near an absorption line
+      var absorbed=false;
+      el.lines.forEach(function(line){if(Math.abs(wl2-line)<2)absorbed=true;});
+      ctx.fillStyle=absorbed?'#020617':wavelengthToColor(wl2);
+      ctx.fillRect(x2,y2,2,specH);
+    }
+    // 3. Emission spectrum (bottom)
+    var y3=y2+specH+30;
+    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';
+    ctx.fillText('Emission Spectrum — '+el.name,10,y3-5);
+    ctx.fillStyle='#0a0a0a';ctx.fillRect(40,y3,w-80,specH);
+    el.lines.forEach(function(line,i){
+      var lx=wavelengthToX(line,w);
+      // Glowing emission line
+      ctx.fillStyle=el.colors[i];
+      ctx.fillRect(lx-1,y3,3,specH);
+      // Glow effect
+      var grd=ctx.createRadialGradient(lx,y3+specH/2,0,lx,y3+specH/2,8);
+      grd.addColorStop(0,el.colors[i]+'80');grd.addColorStop(1,el.colors[i]+'00');
+      ctx.fillStyle=grd;ctx.fillRect(lx-10,y3,20,specH);
+    });
+    // Wavelength scale
+    var y4=y3+specH+15;
+    ctx.strokeStyle='#475569';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(40,y4);ctx.lineTo(w-40,y4);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';
+    for(var wl3=400;wl3<=700;wl3+=50){
+      var x3=wavelengthToX(wl3,w);
+      ctx.fillText(wl3+' nm',x3,y4+13);
+      ctx.beginPath();ctx.moveTo(x3,y4);ctx.lineTo(x3,y4+4);ctx.stroke();
+    }
+    ctx.fillText('← Violet (UV)    Wavelength (nm)    Red (IR) →',w/2,y4+28);
+    // Line labels
+    var y5=y4+45;
+    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';ctx.textAlign='left';
+    ctx.fillText('Spectral Lines:',10,y5);
+    el.lines.forEach(function(line,i){
+      ctx.fillStyle=el.colors[i];
+      ctx.fillRect(10+i*90,y5+8,12,12);
+      ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
+      ctx.fillText(line+' nm',26+i*90,y5+18);
+    });
+    // Prism diagram
+    var prismX=w/2,prismY=h-50;
+    // White light arrow
+    ctx.strokeStyle='#f1f5f9';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(prismX-100,prismY);ctx.lineTo(prismX-30,prismY);ctx.stroke();
+    ctx.fillStyle='#f1f5f9';ctx.font='9px Poppins';ctx.textAlign='center';
+    ctx.fillText('White Light →',prismX-70,prismY-8);
+    // Prism
+    ctx.fillStyle='rgba(147,197,253,0.2)';ctx.strokeStyle='#93c5fd';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(prismX-20,prismY+15);ctx.lineTo(prismX,prismY-15);ctx.lineTo(prismX+20,prismY+15);ctx.closePath();ctx.fill();ctx.stroke();
+    // Dispersed rays
+    var colors=['#7b00ff','#0000ff','#00ff00','#ffff00','#ff8800','#ff0000'];
+    colors.forEach(function(c,ci){
+      ctx.strokeStyle=c;ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(prismX+20,prismY);
+      ctx.lineTo(prismX+80,prismY-15+ci*6);ctx.stroke();
+    });
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';
+    ctx.fillText('→ Spectrum',prismX+100,prismY);
+    document.getElementById('spec-type').textContent='Emission & Absorption';
+    requestAnimationFrame(draw);
+  }
+  function wavelengthToColor(wl){
+    var r=0,g=0,b=0;
+    if(wl>=380&&wl<440){r=-(wl-440)/(440-380);b=1;}
+    else if(wl>=440&&wl<490){g=(wl-440)/(490-440);b=1;}
+    else if(wl>=490&&wl<510){g=1;b=-(wl-510)/(510-490);}
+    else if(wl>=510&&wl<580){r=(wl-510)/(580-510);g=1;}
+    else if(wl>=580&&wl<645){r=1;g=-(wl-645)/(645-580);}
+    else if(wl>=645&&wl<=700){r=1;}
+    var factor=0.6;
+    if(wl>=380&&wl<420)factor=0.3+0.7*(wl-380)/(420-380);
+    else if(wl>=420&&wl<=700)factor=1;
+    else if(wl>700)factor=0.3+0.7*(780-wl)/(780-700);
+    return'rgb('+Math.round(r*factor*255)+','+Math.round(g*factor*255)+','+Math.round(b*factor*255)+')';
+  }
+  draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

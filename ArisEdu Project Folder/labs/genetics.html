@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Genetics Lab</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group select{padding:.3rem .5rem;border-radius:.3rem;background:#1e293b;color:#f1f5f9;border:1px solid #334155;font-size:.85rem}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#22c55e,#10b981);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#22c55e}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🧪 Genetics & Punnett Squares</h1>
+  <p class="subtitle">Cross organisms and predict offspring genotype/phenotype ratios.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Trait</label>
+      <select id="trait" onchange="calc()">
+        <option value="color">Flower Color (R = red, r = white)</option>
+        <option value="height">Plant Height (T = tall, t = short)</option>
+        <option value="shape">Seed Shape (W = round, w = wrinkled)</option>
+      </select></div>
+    <div class="ctrl-group"><label>Parent 1</label>
+      <select id="p1" onchange="calc()"><option value="AA">Homozygous Dominant (AA)</option><option value="Aa" selected>Heterozygous (Aa)</option><option value="aa">Homozygous Recessive (aa)</option></select></div>
+    <div class="ctrl-group"><label>Parent 2</label>
+      <select id="p2" onchange="calc()"><option value="AA">Homozygous Dominant (AA)</option><option value="Aa" selected>Heterozygous (Aa)</option><option value="aa">Homozygous Recessive (aa)</option></select></div>
+    <button class="action-btn" onclick="runCross()">🧬 Cross!</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Genotype Ratio: <strong id="gratio">1:2:1</strong></div>
+    <div class="datum">Phenotype Ratio: <strong id="pratio">3:1</strong></div>
+    <div class="datum">Offspring Sampled: <strong id="sampled">0</strong></div>
+  </div>
+  <div class="info-box"><h3>Mendelian Genetics</h3><p>Each parent contributes one allele. <strong>Dominant</strong> alleles (uppercase) mask <strong>recessive</strong> (lowercase). A <strong>Punnett Square</strong> shows all possible offspring combinations. Heterozygous × Heterozygous → 1 AA : 2 Aa : 1 aa genotype ratio (3:1 phenotype ratio for complete dominance).</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var offspring=[],totalSampled=0;
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  var traitData={
+    color:{dom:'Red',rec:'White',domColor:'#ef4444',recColor:'#f1f5f9',letter:'R'},
+    height:{dom:'Tall',rec:'Short',domColor:'#22c55e',recColor:'#86efac',letter:'T'},
+    shape:{dom:'Round',rec:'Wrinkled',domColor:'#f59e0b',recColor:'#fde68a',letter:'W'}
+  };
+  function getGenotypes(p){
+    if(p==='AA') return ['A','A'];
+    if(p==='Aa') return ['A','a'];
+    return ['a','a'];
+  }
+  window.calc=function(){
+    var p1g=getGenotypes(document.getElementById('p1').value);
+    var p2g=getGenotypes(document.getElementById('p2').value);
+    var combos={};
+    for(var i=0;i<2;i++){for(var j=0;j<2;j++){
+      var g=p1g[i]+p2g[j];
+      if(g[0]==='a'&&g[1]!=='a') g=g[1]+g[0]; // normalize
+      combos[g]=(combos[g]||0)+1;
+    }}
+    var parts=[];
+    ['AA','Aa','aa'].forEach(function(k){if(combos[k])parts.push(combos[k]+' '+k)});
+    document.getElementById('gratio').textContent=parts.join(' : ');
+    var domCount=(combos['AA']||0)+(combos['Aa']||0);
+    var recCount=combos['aa']||0;
+    if(recCount===0) document.getElementById('pratio').textContent='All Dominant';
+    else if(domCount===0) document.getElementById('pratio').textContent='All Recessive';
+    else document.getElementById('pratio').textContent=domCount+' Dom : '+recCount+' Rec';
+  };
+  window.runCross=function(){
+    var p1g=getGenotypes(document.getElementById('p1').value);
+    var p2g=getGenotypes(document.getElementById('p2').value);
+    offspring=[];
+    for(var n=0;n<16;n++){
+      var a1=p1g[Math.floor(Math.random()*2)];
+      var a2=p2g[Math.floor(Math.random()*2)];
+      var g2=a1+a2;
+      if(g2[0]==='a'&&g2[1]!=='a') g2=g2[1]+g2[0];
+      offspring.push(g2);
+    }
+    totalSampled+=16;
+    document.getElementById('sampled').textContent=totalSampled;
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    var trait=document.getElementById('trait').value;
+    var td=traitData[trait];
+    var p1=document.getElementById('p1').value;
+    var p2=document.getElementById('p2').value;
+    var p1g=getGenotypes(p1);
+    var p2g=getGenotypes(p2);
+    var letter=td.letter;
+    var p1Label=p1.replace(/A/g,letter).replace(/a/g,letter.toLowerCase());
+    var p2Label=p2.replace(/A/g,letter).replace(/a/g,letter.toLowerCase());
+    // Punnett Square
+    var sqX=w*0.08,sqY=h*0.05,sqSize=Math.min(h*0.55,w*0.4);
+    var cellSize=sqSize/2;
+    // Header
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 13px Poppins';ctx.textAlign='center';
+    ctx.fillText('Punnett Square',sqX+sqSize/2+cellSize*0.5,sqY-8);
+    // Parent labels
+    ctx.fillStyle='#f59e0b';ctx.font='bold 12px Poppins';
+    var a1Labels=[p1g[0].replace('A',letter).replace('a',letter.toLowerCase()),p1g[1].replace('A',letter).replace('a',letter.toLowerCase())];
+    var a2Labels=[p2g[0].replace('A',letter).replace('a',letter.toLowerCase()),p2g[1].replace('A',letter).replace('a',letter.toLowerCase())];
+    ctx.fillText(a2Labels[0],sqX+cellSize*0.5+cellSize,sqY+cellSize*0.4);
+    ctx.fillText(a2Labels[1],sqX+cellSize*0.5+cellSize*2,sqY+cellSize*0.4);
+    ctx.fillText(a1Labels[0],sqX+cellSize*0.3,sqY+cellSize+cellSize*0.5);
+    ctx.fillText(a1Labels[1],sqX+cellSize*0.3,sqY+cellSize*2+cellSize*0.5);
+    // Grid
+    for(var r=0;r<2;r++){
+      for(var c=0;c<2;c++){
+        var gx=sqX+cellSize+(c*cellSize),gy=sqY+cellSize+(r*cellSize);
+        var allele1=p1g[r],allele2=p2g[c];
+        var geno=allele1+allele2;
+        if(geno[0]==='a'&&geno[1]!=='a') geno=geno[1]+geno[0];
+        var isDom=geno.indexOf('A')!==-1;
+        ctx.fillStyle=isDom?td.domColor+'30':td.recColor+'20';
+        ctx.fillRect(gx,gy,cellSize,cellSize);
+        ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.strokeRect(gx,gy,cellSize,cellSize);
+        var label=geno.replace(/A/g,letter).replace(/a/g,letter.toLowerCase());
+        ctx.fillStyle=isDom?td.domColor:'#94a3b8';
+        ctx.font='bold 14px Poppins';ctx.textAlign='center';
+        ctx.fillText(label,gx+cellSize/2,gy+cellSize/2-5);
+        ctx.font='10px Poppins';ctx.fillText(isDom?td.dom:td.rec,gx+cellSize/2,gy+cellSize/2+12);
+      }
+    }
+    // Offspring display (right side)
+    if(offspring.length>0){
+      var ox=w*0.55,oy=h*0.08;
+      ctx.fillStyle='#f1f5f9';ctx.font='bold 13px Poppins';ctx.textAlign='center';
+      ctx.fillText('Offspring Sample (n=16)',ox+w*0.2,oy);
+      for(var i=0;i<offspring.length;i++){
+        var row=Math.floor(i/4),col=i%4;
+        var oxx=ox+col*55,oyy=oy+20+row*55;
+        var isDom2=offspring[i].indexOf('A')!==-1;
+        ctx.fillStyle=isDom2?td.domColor:td.recColor;
+        ctx.beginPath();ctx.arc(oxx+20,oyy+20,18,0,Math.PI*2);ctx.fill();
+        var label2=offspring[i].replace(/A/g,letter).replace(/a/g,letter.toLowerCase());
+        ctx.fillStyle=isDom2?'#fff':'#0f172a';ctx.font='bold 10px Poppins';
+        ctx.fillText(label2,oxx+20,oyy+24);
+      }
+    }
+    // Parent phenotypes at bottom
+    ctx.fillStyle='#94a3b8';ctx.font='11px Poppins';ctx.textAlign='center';
+    ctx.fillText('Parent 1: '+p1Label+' ('+((p1.indexOf('A')!==-1)?td.dom:td.rec)+')',w*0.25,h-20);
+    ctx.fillText('Parent 2: '+p2Label+' ('+((p2.indexOf('A')!==-1)?td.dom:td.rec)+')',w*0.75,h-20);
+    requestAnimationFrame(draw);
+  }
+  calc();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

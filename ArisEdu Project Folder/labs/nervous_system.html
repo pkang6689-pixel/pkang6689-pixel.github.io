@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Nervous System</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#22c55e}
+    .ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#22c55e,#10b981);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#22c55e}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🧠 Action Potential Simulator</h1>
+  <p class="subtitle">Visualize how neurons fire and signals propagate along an axon.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Stimulus Strength (mV)</label>
+      <input type="range" id="stim" min="0" max="100" value="60" oninput="upd()"><span class="val" id="stim-val">60 mV</span></div>
+    <div class="ctrl-group"><label>Temperature Factor</label>
+      <input type="range" id="temp" min="5" max="20" value="10" oninput="upd()"><span class="val" id="temp-val">1.0×</span></div>
+    <button class="action-btn" onclick="fireNeuron()">⚡ Stimulate</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Membrane Potential: <strong id="vmem">-70 mV</strong></div>
+    <div class="datum">Threshold: <strong>-55 mV</strong></div>
+    <div class="datum">State: <strong id="state">Resting</strong></div>
+    <div class="datum">Na⁺ channels: <strong id="nach">Closed</strong></div>
+    <div class="datum">K⁺ channels: <strong id="kch">Closed</strong></div>
+  </div>
+  <div class="info-box"><h3>Action Potential</h3><p>Neurons have a resting potential of −70 mV. When a stimulus reaches the threshold (−55 mV), voltage-gated Na⁺ channels open → rapid depolarization to +30 mV. K⁺ channels then open → repolarization, followed by a brief hyperpolarization. This is an <strong>all-or-nothing</strong> response. The signal propagates down the axon as a wave of depolarization.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var time=0,firing=false,Vm=-70,phase='rest',phaseTime=0;
+  var graph=[];
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.upd=function(){
+    document.getElementById('stim-val').textContent=document.getElementById('stim').value+' mV';
+    document.getElementById('temp-val').textContent=(parseInt(document.getElementById('temp').value)/10).toFixed(1)+'×';
+  };
+  window.fireNeuron=function(){
+    var stim=parseInt(document.getElementById('stim').value);
+    if(stim>=55&&phase==='rest'){
+      firing=true;phase='depol';phaseTime=0;
+    }
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    var speed=(parseInt(document.getElementById('temp').value)/10);
+    time+=0.016*speed;
+    // Update action potential
+    if(firing){
+      phaseTime+=0.016*speed;
+      if(phase==='depol'){
+        Vm+=(100*speed*0.016)*5;if(Vm>=30){Vm=30;phase='repol';phaseTime=0;}
+        document.getElementById('state').textContent='Depolarization';
+        document.getElementById('nach').textContent='OPEN';document.getElementById('kch').textContent='Closed';
+      }else if(phase==='repol'){
+        Vm-=(100*speed*0.016)*4;if(Vm<=-80){Vm=-80;phase='hyper';phaseTime=0;}
+        document.getElementById('state').textContent='Repolarization';
+        document.getElementById('nach').textContent='Inactivated';document.getElementById('kch').textContent='OPEN';
+      }else if(phase==='hyper'){
+        Vm+=20*0.016*speed;if(Vm>=-70){Vm=-70;phase='rest';firing=false;}
+        document.getElementById('state').textContent='Hyperpolarization';
+        document.getElementById('nach').textContent='Closed';document.getElementById('kch').textContent='Closing';
+      }
+    }else{
+      document.getElementById('state').textContent='Resting';
+      document.getElementById('nach').textContent='Closed';document.getElementById('kch').textContent='Closed';
+    }
+    document.getElementById('vmem').textContent=Vm.toFixed(0)+' mV';
+    graph.push(Vm);if(graph.length>300)graph.shift();
+    // Voltage graph (top half)
+    var gx=w*0.1,gy=h*0.05,gw=w*0.8,gh=h*0.4;
+    ctx.fillStyle='rgba(0,0,0,0.2)';ctx.fillRect(gx,gy,gw,gh);
+    ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.strokeRect(gx,gy,gw,gh);
+    // Y-axis labels
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='right';
+    ctx.fillText('+30',gx-5,gy+10);ctx.fillText('0',gx-5,gy+gh*0.3);
+    ctx.fillText('-55',gx-5,gy+gh*0.55);ctx.fillText('-70',gx-5,gy+gh*0.7);
+    ctx.fillText('-80',gx-5,gy+gh*0.8);
+    // Threshold line
+    ctx.strokeStyle='rgba(239,68,68,0.3)';ctx.setLineDash([4,4]);
+    var threshY=gy+gh*(1-((-55+80)/110));
+    ctx.beginPath();ctx.moveTo(gx,threshY);ctx.lineTo(gx+gw,threshY);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#ef4444';ctx.font='8px Poppins';ctx.textAlign='left';ctx.fillText('threshold',gx+gw+3,threshY+3);
+    // Graph line
+    ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.beginPath();
+    for(var i=0;i<graph.length;i++){
+      var px=gx+gw-graph.length+i;
+      var py=gy+gh*(1-((graph[i]+80)/110));
+      if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    // Neuron diagram (bottom half)
+    var ny=h*0.55;
+    // Cell body
+    ctx.fillStyle='rgba(34,197,94,0.15)';ctx.beginPath();ctx.arc(w*0.15,ny+h*0.15,40,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.beginPath();ctx.arc(w*0.15,ny+h*0.15,40,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#22c55e';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Cell Body',w*0.15,ny+h*0.15+4);
+    // Dendrites
+    ctx.strokeStyle='#22c55e80';ctx.lineWidth=1.5;
+    for(var d=0;d<4;d++){
+      var da=-0.8+d*0.4;
+      ctx.beginPath();ctx.moveTo(w*0.15-35*Math.cos(da),ny+h*0.15-35*Math.sin(da));
+      ctx.lineTo(w*0.15-70*Math.cos(da),ny+h*0.15-70*Math.sin(da));ctx.stroke();
+    }
+    // Axon
+    ctx.strokeStyle='#22c55e';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(w*0.15+40,ny+h*0.15);ctx.lineTo(w*0.75,ny+h*0.15);ctx.stroke();
+    // Myelin sheath
+    for(var m=0;m<5;m++){
+      var mx=w*0.22+m*(w*0.55/5);
+      ctx.fillStyle='rgba(251,191,36,0.2)';
+      ctx.beginPath();ctx.ellipse(mx+w*0.04,ny+h*0.15,w*0.04,12,0,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#fbbf2460';ctx.stroke();
+    }
+    // Action potential propagation
+    if(firing){
+      var apX=w*0.15+40+phaseTime*80*speed;
+      if(apX<w*0.75){
+        ctx.fillStyle='rgba(34,197,94,0.6)';ctx.beginPath();ctx.arc(apX,ny+h*0.15,8,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#fff';ctx.font='bold 7px Poppins';ctx.fillText('AP',apX,ny+h*0.15+3);
+      }
+    }
+    // Axon terminal
+    ctx.fillStyle='rgba(168,85,247,0.3)';
+    for(var t2=0;t2<3;t2++){
+      ctx.beginPath();ctx.arc(w*0.77,ny+h*0.15-10+t2*10,8,0,Math.PI*2);ctx.fill();
+    }
+    ctx.fillStyle='#a855f7';ctx.font='9px Poppins';ctx.fillText('Terminals',w*0.77,ny+h*0.15+30);
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

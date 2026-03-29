@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Exoplanet Detection</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-btn{padding:.5rem 1rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;font-weight:600;font-size:.85rem;transition:all .2s}
+    .ctrl-btn.active{background:#f59e0b;border-color:#f59e0b;color:#0f172a}
+    .ctrl-btn:hover{background:#334155}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#f59e0b}
+    .ctrl-group .val{font-size:.8rem;color:#f59e0b;font-weight:600}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#f59e0b}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🔭 Exoplanet Detection</h1>
+  <p class="subtitle">Discover exoplanets using the transit and radial velocity methods.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <button class="ctrl-btn active" onclick="setMethod('transit',this)">Transit Method</button>
+    <button class="ctrl-btn" onclick="setMethod('radial',this)">Radial Velocity</button>
+    <div class="ctrl-group"><label>Planet Radius (R⊕)</label>
+      <input type="range" id="prad" min="0.5" max="15" step="0.5" value="3" oninput="upd()"><span class="val" id="pr-val">3.0</span></div>
+    <div class="ctrl-group"><label>Orbital Period (days)</label>
+      <input type="range" id="period" min="1" max="365" value="30" oninput="upd()"><span class="val" id="per-val">30</span></div>
+    <div class="ctrl-group"><label>Orbital Distance (AU)</label>
+      <input type="range" id="dist" min="0.01" max="2" step="0.01" value="0.2" oninput="upd()"><span class="val" id="di-val">0.20</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Method: <strong id="method-lbl">Transit</strong></div>
+    <div class="datum">Brightness Dip: <strong id="dip">0.09%</strong></div>
+    <div class="datum">Star Wobble: <strong id="wobble">50 m/s</strong></div>
+    <div class="datum">Habitable Zone: <strong id="hz">No</strong></div>
+  </div>
+  <div class="info-box"><h3>Exoplanet Detection Methods</h3><p><strong>Transit method:</strong> When a planet crosses in front of its star, the star's brightness dips slightly. The dip size reveals planet radius; interval reveals orbital period. <strong>Radial velocity:</strong> A planet's gravity causes its star to wobble. Spectral blueshifts/redshifts reveal the wobble speed, giving planet mass. Kepler discovered 2,600+ exoplanets via transits.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0,method='transit';
+  var lightCurve=[],rvCurve=[];
+  function resize(){cv.width=cv.parentElement.clientWidth;}
+  window.addEventListener('resize',resize);resize();
+  window.setMethod=function(m,btn){
+    method=m;
+    document.querySelectorAll('.ctrl-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById('method-lbl').textContent=m==='transit'?'Transit':'Radial Velocity';
+  };
+  window.upd=function(){
+    document.getElementById('pr-val').textContent=parseFloat(document.getElementById('prad').value).toFixed(1)+' R⊕';
+    document.getElementById('per-val').textContent=document.getElementById('period').value+' d';
+    document.getElementById('di-val').textContent=parseFloat(document.getElementById('dist').value).toFixed(2)+' AU';
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);
+    t+=0.016;
+    var prad2=parseFloat(document.getElementById('prad').value);
+    var period2=parseInt(document.getElementById('period').value);
+    var dist2=parseFloat(document.getElementById('dist').value);
+    var orbSpeed=Math.PI*2/(period2*0.5);// scaled
+    var pAngle=t*orbSpeed;
+    var starR=50,planetR=prad2*3;
+    var orbR=80+dist2*60;
+    var sceneH=h*0.55;
+    if(method==='transit'){
+      // Star
+      var sx=w/2,sy=sceneH/2;
+      var sGrad=ctx.createRadialGradient(sx,sy,0,sx,sy,starR);
+      sGrad.addColorStop(0,'#fef3c7');sGrad.addColorStop(0.7,'#fbbf24');sGrad.addColorStop(1,'#f59e0b');
+      ctx.fillStyle=sGrad;ctx.beginPath();ctx.arc(sx,sy,starR,0,Math.PI*2);ctx.fill();
+      // Glow
+      var glGr=ctx.createRadialGradient(sx,sy,starR,sx,sy,starR*2);
+      glGr.addColorStop(0,'rgba(251,191,36,0.15)');glGr.addColorStop(1,'rgba(251,191,36,0)');
+      ctx.fillStyle=glGr;ctx.beginPath();ctx.arc(sx,sy,starR*2,0,Math.PI*2);ctx.fill();
+      // Planet orbit (edge-on, so ellipse)
+      var px=sx+Math.cos(pAngle)*orbR;
+      var pz=Math.sin(pAngle);// depth
+      // Only draw planet if in front or behind star
+      ctx.fillStyle='#1e293b';
+      ctx.beginPath();ctx.arc(px,sy+pz*15,planetR,0,Math.PI*2);ctx.fill();
+      // Transit happening?
+      var transiting=Math.abs(px-sx)<starR+planetR&&pz>-0.3;
+      // Light curve
+      var brightness=1;
+      if(transiting){
+        var overlap=Math.max(0,1-Math.abs(px-sx)/(starR));
+        brightness=1-overlap*(planetR*planetR)/(starR*starR);
+      }
+      lightCurve.push(brightness);if(lightCurve.length>200)lightCurve.shift();
+      // Draw light curve below
+      var graphY=sceneH+10,graphH=h-sceneH-30;
+      ctx.fillStyle='#0f172a';ctx.fillRect(0,graphY,w,graphH+20);
+      ctx.strokeStyle='#334155';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(40,graphY+graphH/2);ctx.lineTo(w-20,graphY+graphH/2);ctx.stroke();
+      ctx.fillStyle='#94a3b8';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+      ctx.fillText('LIGHT CURVE (Brightness vs Time)',w/2,graphY+10);
+      ctx.textAlign='right';ctx.font='8px Poppins';
+      ctx.fillText('1.000',38,graphY+20);ctx.fillText('0.990',38,graphY+graphH-5);
+      // Draw curve
+      ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.beginPath();
+      var step=((w-60)/200);
+      for(var i=0;i<lightCurve.length;i++){
+        var gx=40+i*step;
+        var gy=graphY+20+(1-lightCurve[i])*graphH*80;
+        gy=Math.min(graphY+graphH-5,Math.max(graphY+15,gy));
+        if(i===0)ctx.moveTo(gx,gy);else ctx.lineTo(gx,gy);
+      }
+      ctx.stroke();
+      // Transit indicator
+      if(transiting){
+        ctx.fillStyle='#ef4444';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+        ctx.fillText('⚡ TRANSIT DETECTED',w/2,graphY+graphH-2);
+      }
+      document.getElementById('dip').textContent=((planetR*planetR)/(starR*starR)*100).toFixed(2)+'%';
+    }else{
+      // Radial velocity view
+      var sx2=w/2,sy2=sceneH/2;
+      // Star wobbles
+      var wobbleAmp=prad2*2;
+      var starX=sx2-Math.cos(pAngle)*wobbleAmp;
+      var sGrad2=ctx.createRadialGradient(starX,sy2,0,starX,sy2,starR);
+      sGrad2.addColorStop(0,'#fef3c7');sGrad2.addColorStop(0.7,'#fbbf24');sGrad2.addColorStop(1,'#f59e0b');
+      ctx.fillStyle=sGrad2;ctx.beginPath();ctx.arc(starX,sy2,starR,0,Math.PI*2);ctx.fill();
+      // Planet
+      var px2=sx2+Math.cos(pAngle)*orbR;
+      var py2=sy2+Math.sin(pAngle)*orbR*0.3;
+      ctx.fillStyle='#3b82f6';ctx.beginPath();ctx.arc(px2,py2,planetR,0,Math.PI*2);ctx.fill();
+      // Orbit path
+      ctx.strokeStyle='rgba(59,130,246,0.2)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.ellipse(sx2,sy2,orbR,orbR*0.3,0,0,Math.PI*2);ctx.stroke();
+      // Blueshift/redshift indicator
+      var approaching=Math.sin(pAngle)>0;
+      ctx.fillStyle=approaching?'#3b82f6':'#ef4444';ctx.font='bold 12px Poppins';ctx.textAlign='center';
+      ctx.fillText(approaching?'← Blueshift':'Redshift →',starX,sy2+starR+20);
+      // RV curve
+      var rv=Math.sin(pAngle)*wobbleAmp*5;
+      rvCurve.push(rv);if(rvCurve.length>200)rvCurve.shift();
+      var graphY2=sceneH+10,graphH2=h-sceneH-30;
+      ctx.fillStyle='#0f172a';ctx.fillRect(0,graphY2,w,graphH2+20);
+      ctx.strokeStyle='#334155';ctx.lineWidth=1;
+      var midG=graphY2+graphH2/2+5;
+      ctx.beginPath();ctx.moveTo(40,midG);ctx.lineTo(w-20,midG);ctx.stroke();
+      ctx.fillStyle='#94a3b8';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+      ctx.fillText('RADIAL VELOCITY CURVE',w/2,graphY2+10);
+      ctx.textAlign='right';ctx.font='8px Poppins';
+      ctx.fillStyle='#3b82f6';ctx.fillText('Approach',38,graphY2+20);
+      ctx.fillStyle='#ef4444';ctx.fillText('Recede',38,graphY2+graphH2-5);
+      ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.beginPath();
+      for(var j=0;j<rvCurve.length;j++){
+        var gx2=40+j*((w-60)/200);
+        var gy2=midG-rvCurve[j]*2;
+        if(j===0)ctx.moveTo(gx2,gy2);else ctx.lineTo(gx2,gy2);
+      }
+      ctx.stroke();
+      document.getElementById('wobble').textContent=Math.round(wobbleAmp*10)+' m/s';
+    }
+    // Habitable zone
+    document.getElementById('hz').textContent=(dist2>=0.7&&dist2<=1.5)?'✅ Yes':'❌ No';
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Galaxy Types</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;font-weight:600;font-size:.85rem;transition:all .2s}
+    .ctrl-btn.active{background:#f59e0b;border-color:#f59e0b;color:#0f172a}
+    .ctrl-btn:hover{background:#334155}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#f59e0b}
+    .ctrl-group .val{font-size:.8rem;color:#f59e0b;font-weight:600}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#f59e0b}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🌌 Galaxy Types</h1>
+  <p class="subtitle">Explore spiral, elliptical, and irregular galaxy morphologies.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+  <div class="controls">
+    <button class="ctrl-btn active" onclick="setType('spiral',this)">Spiral</button>
+    <button class="ctrl-btn" onclick="setType('barred',this)">Barred Spiral</button>
+    <button class="ctrl-btn" onclick="setType('elliptical',this)">Elliptical</button>
+    <button class="ctrl-btn" onclick="setType('irregular',this)">Irregular</button>
+    <div class="ctrl-group"><label>Rotation Speed</label>
+      <input type="range" id="rot" min="1" max="10" value="5" oninput="upd()"><span class="val" id="rot-val">5</span></div>
+    <div class="ctrl-group"><label>Star Count</label>
+      <input type="range" id="stars" min="500" max="5000" step="100" value="2000" oninput="rebuild()"><span class="val" id="star-val">2000</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Type: <strong id="type-lbl">Spiral (Sc)</strong></div>
+    <div class="datum">Stars: <strong id="num-stars">2000</strong></div>
+    <div class="datum">Example: <strong id="example">Milky Way</strong></div>
+  </div>
+  <div class="info-box"><h3>Galaxy Classification (Hubble Sequence)</h3><p><strong>Spiral (S):</strong> Flat disk with spiral arms, active star formation, ~77% of observed galaxies. <strong>Barred Spiral (SB):</strong> Central bar structure with arms extending from bar ends (~2/3 of spirals). <strong>Elliptical (E):</strong> Spheroidal, old red stars, little gas/dust, from E0 (round) to E7. <strong>Irregular (Irr):</strong> No distinct shape, chaotic, often small with active star formation.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0,gType='spiral';
+  var starPts=[];
+  function resize(){cv.width=cv.parentElement.clientWidth;rebuild();}
+  window.addEventListener('resize',resize);resize();
+  window.setType=function(tp,btn){
+    gType=tp;
+    document.querySelectorAll('.ctrl-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    var info={spiral:['Spiral (Sc)','Milky Way'],barred:['Barred Spiral (SBb)','NGC 1300'],elliptical:['Elliptical (E0)','M87'],irregular:['Irregular (Irr)','Large Magellanic Cloud']};
+    document.getElementById('type-lbl').textContent=info[tp][0];
+    document.getElementById('example').textContent=info[tp][1];
+    rebuild();
+  };
+  window.upd=function(){document.getElementById('rot-val').textContent=document.getElementById('rot').value;};
+  window.rebuild=function(){
+    var n=parseInt(document.getElementById('stars').value);
+    document.getElementById('star-val').textContent=n;
+    document.getElementById('num-stars').textContent=n;
+    starPts=[];
+    for(var i=0;i<n;i++){
+      if(gType==='spiral'||gType==='barred'){
+        var arm=Math.floor(Math.random()*2);
+        var dist2=Math.random()*150+10;
+        var angle=dist2*0.03+arm*Math.PI+Math.random()*0.5;
+        var spread=5+dist2*0.15;
+        starPts.push({
+          baseAngle:angle,dist:dist2,
+          ox:(Math.random()-0.5)*spread,oy:(Math.random()-0.5)*spread,
+          bright:0.3+Math.random()*0.7,size:0.5+Math.random()*1.5,
+          hue:dist2<30?40:dist2<80?220:200+Math.random()*40
+        });
+      }else if(gType==='elliptical'){
+        var r=Math.random()*140;
+        var a=Math.random()*Math.PI*2;
+        starPts.push({x:(Math.cos(a)*r),y:(Math.sin(a)*r*0.6),
+          bright:0.2+Math.random()*0.5,size:0.5+Math.random(),hue:30+Math.random()*20});
+      }else{
+        starPts.push({x:(Math.random()-0.5)*250,y:(Math.random()-0.5)*180,
+          bright:0.3+Math.random()*0.7,size:0.5+Math.random()*2,hue:180+Math.random()*100});
+      }
+    }
+    // Add central bulge stars
+    for(var j=0;j<n*0.2;j++){
+      var br=Math.random()*30;
+      var ba=Math.random()*Math.PI*2;
+      starPts.push({x:Math.cos(ba)*br,y:Math.sin(ba)*br*(gType==='elliptical'?0.6:0.8),
+        bright:0.5+Math.random()*0.5,size:0.5+Math.random(),hue:40,bulge:true});
+    }
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;
+    ctx.fillStyle='rgba(2,6,23,0.15)';ctx.fillRect(0,0,w,h);
+    t+=0.016;
+    var rot2=parseInt(document.getElementById('rot').value)*0.0005;
+    var cx=w/2,cy=h/2;
+    // Draw stars
+    starPts.forEach(function(s){
+      var x,y;
+      if(s.bulge){
+        x=cx+s.x;y=cy+s.y;
+      }else if(gType==='spiral'){
+        var ang=s.baseAngle+t*rot2*(200/(s.dist+20));
+        x=cx+Math.cos(ang)*s.dist+s.ox;
+        y=cy+Math.sin(ang)*s.dist*0.4+s.oy;
+      }else if(gType==='barred'){
+        var ang2=s.baseAngle+t*rot2*(200/(s.dist+20));
+        // Bar effect for inner stars
+        var barFactor=s.dist<50?0.8:0;
+        var bx=Math.cos(t*rot2*2)*s.dist*barFactor;
+        x=cx+Math.cos(ang2)*s.dist+s.ox+bx;
+        y=cy+Math.sin(ang2)*s.dist*0.4+s.oy;
+      }else{
+        x=cx+s.x;y=cy+s.y;
+      }
+      var alpha=s.bright*(0.8+Math.sin(t*2+x)*0.1);
+      ctx.fillStyle='hsla('+s.hue+',70%,75%,'+alpha+')';
+      ctx.beginPath();ctx.arc(x,y,s.size,0,Math.PI*2);ctx.fill();
+    });
+    // Central glow
+    var cGrad=ctx.createRadialGradient(cx,cy,0,cx,cy,gType==='elliptical'?80:40);
+    cGrad.addColorStop(0,'rgba(251,191,36,0.08)');cGrad.addColorStop(1,'rgba(251,191,36,0)');
+    ctx.fillStyle=cGrad;ctx.beginPath();ctx.arc(cx,cy,gType==='elliptical'?80:40,0,Math.PI*2);ctx.fill();
+    // Dust lanes for spiral
+    if(gType==='spiral'||gType==='barred'){
+      ctx.strokeStyle='rgba(100,50,20,0.05)';ctx.lineWidth=8;
+      for(var d=0;d<2;d++){
+        ctx.beginPath();
+        for(var dd=20;dd<150;dd+=3){
+          var da=dd*0.03+d*Math.PI+t*rot2*(200/(dd+20));
+          var dx2=cx+Math.cos(da)*dd,dy2=cy+Math.sin(da)*dd*0.4;
+          if(dd===20)ctx.moveTo(dx2,dy2);else ctx.lineTo(dx2,dy2);
+        }
+        ctx.stroke();
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

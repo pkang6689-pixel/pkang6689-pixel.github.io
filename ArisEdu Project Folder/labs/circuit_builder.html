@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Circuit Builder</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#f59e0b}
+    .ctrl-group .val{font-size:.8rem;color:#fbbf24;font-weight:600}
+    .ctrl-btn{padding:.5rem 1rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;font-weight:600;font-size:.85rem;transition:all .2s}
+    .ctrl-btn.active{background:#f59e0b;border-color:#f59e0b;color:#0f172a}
+    .ctrl-btn:hover{background:#334155}
+    .readout{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#fbbf24}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#fbbf24;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🔌 Circuit Builder</h1>
+  <p class="subtitle">Build series and parallel circuits. Apply Ohm's Law (V = IR).</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <button class="ctrl-btn active" onclick="setCircuit('series',this)">Series</button>
+    <button class="ctrl-btn" onclick="setCircuit('parallel',this)">Parallel</button>
+    <div class="ctrl-group"><label>Voltage (V)</label>
+      <input type="range" id="voltage" min="1" max="24" value="12" oninput="calc()"><span class="val" id="v-val">12 V</span></div>
+    <div class="ctrl-group"><label>R₁ (Ω)</label>
+      <input type="range" id="r1" min="1" max="100" value="20" oninput="calc()"><span class="val" id="r1-val">20 Ω</span></div>
+    <div class="ctrl-group"><label>R₂ (Ω)</label>
+      <input type="range" id="r2" min="1" max="100" value="30" oninput="calc()"><span class="val" id="r2-val">30 Ω</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">R<sub>total</sub>: <strong id="rtot">50 Ω</strong></div>
+    <div class="datum">I<sub>total</sub>: <strong id="itot">0.24 A</strong></div>
+    <div class="datum">P<sub>total</sub>: <strong id="ptot">2.88 W</strong></div>
+    <div class="datum">V₁: <strong id="v1">4.80 V</strong></div>
+    <div class="datum">V₂: <strong id="v2">7.20 V</strong></div>
+  </div>
+  <div class="info-box" id="info-box"><h3>Series Circuit</h3><p>In a series circuit, current flows through each resistor sequentially. Total resistance R = R₁ + R₂. Current is the same through each component. Voltage divides proportionally: V₁ = I × R₁.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0,mode='series';
+  var electrons=[];
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.setCircuit=function(m,btn){
+    mode=m;
+    document.querySelectorAll('.ctrl-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    var info=mode==='series'?
+      '<h3>Series Circuit</h3><p>In series, current flows through each resistor sequentially. R<sub>total</sub> = R₁ + R₂. Current is same everywhere. Voltage divides: V₁ = I × R₁.</p>':
+      '<h3>Parallel Circuit</h3><p>In parallel, current splits between branches. 1/R<sub>total</sub> = 1/R₁ + 1/R₂. Voltage is same across each resistor. Current divides inversely with resistance.</p>';
+    document.getElementById('info-box').innerHTML=info;
+    calc();
+  };
+  window.calc=function(){
+    var V=parseInt(document.getElementById('voltage').value);
+    var R1=parseInt(document.getElementById('r1').value);
+    var R2=parseInt(document.getElementById('r2').value);
+    document.getElementById('v-val').textContent=V+' V';
+    document.getElementById('r1-val').textContent=R1+' Ω';
+    document.getElementById('r2-val').textContent=R2+' Ω';
+    var Rt,I,V1,V2;
+    if(mode==='series'){
+      Rt=R1+R2;I=V/Rt;V1=I*R1;V2=I*R2;
+    }else{
+      Rt=1/(1/R1+1/R2);I=V/Rt;V1=V;V2=V;
+    }
+    document.getElementById('rtot').textContent=Rt.toFixed(1)+' Ω';
+    document.getElementById('itot').textContent=I.toFixed(3)+' A';
+    document.getElementById('ptot').textContent=(V*I).toFixed(2)+' W';
+    document.getElementById('v1').textContent=V1.toFixed(2)+' V';
+    document.getElementById('v2').textContent=V2.toFixed(2)+' V';
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    var V=parseInt(document.getElementById('voltage').value);
+    var R1=parseInt(document.getElementById('r1').value);
+    var R2=parseInt(document.getElementById('r2').value);
+    var Rt=mode==='series'?R1+R2:1/(1/R1+1/R2);
+    var current=V/Rt;
+    var cx=w/2,cy=h/2;
+    // V=IR formula display
+    ctx.fillStyle='rgba(251,191,36,0.6)';ctx.font='bold 13px Poppins';ctx.textAlign='left';
+    ctx.fillText('V = IR',w*0.03,h*0.08);
+    ctx.font='10px Poppins';ctx.fillStyle='rgba(148,163,184,0.5)';
+    ctx.fillText(V+'V = '+current.toFixed(3)+'A × '+Rt.toFixed(1)+'Ω',w*0.03,h*0.13);
+    // Wire glow based on current
+    var wireGlow=Math.min(current*0.3,0.25);
+    ctx.strokeStyle='#475569';ctx.lineWidth=3;ctx.lineCap='round';
+    if(mode==='series'){
+      var x1=w*0.15,x2=w*0.85,y1=h*0.25,y2=h*0.75;
+      // Wire glow
+      ctx.strokeStyle='rgba(251,191,36,'+wireGlow+')';ctx.lineWidth=10;
+      ctx.beginPath();ctx.moveTo(x1,y2);ctx.lineTo(x2,y2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2,y1);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x2,y1);ctx.lineTo(x1,y1);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1,y2);ctx.stroke();
+      // Actual wires
+      ctx.strokeStyle='#475569';ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(x1,y2);ctx.lineTo(x2,y2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2,y1);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x2,y1);ctx.lineTo(x1,y1);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1,y2);ctx.stroke();
+      // Battery with gradient
+      var batGrad=ctx.createLinearGradient(x1-12,cy-20,x1+12,cy+20);
+      batGrad.addColorStop(0,'#22c55e');batGrad.addColorStop(1,'#15803d');
+      ctx.fillStyle=batGrad;ctx.fillRect(x1-12,cy-22,24,18);
+      ctx.fillStyle='#ef4444';ctx.fillRect(x1-8,cy+4,16,16);
+      ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+      ctx.fillText('+',x1,cy-10);ctx.fillText('−',x1,cy+15);
+      ctx.fillStyle='#fbbf24';ctx.font='bold 11px Poppins';
+      ctx.fillText(V+'V',x1,cy+35);
+      // Resistors with heat glow
+      var rx1=w*0.35,rx2=w*0.65;
+      var heatR1=Math.min(current*current*R1*0.01,0.4);
+      var heatR2=Math.min(current*current*R2*0.01,0.4);
+      // R1 glow
+      var r1Glow=ctx.createRadialGradient(rx1,y1,0,rx1,y1,30);
+      r1Glow.addColorStop(0,'rgba(239,68,68,'+heatR1+')');r1Glow.addColorStop(1,'rgba(239,68,68,0)');
+      ctx.fillStyle=r1Glow;ctx.fillRect(rx1-25,y1-22,50,44);
+      // R2 glow
+      var r2Glow=ctx.createRadialGradient(rx2,y1,0,rx2,y1,30);
+      r2Glow.addColorStop(0,'rgba(239,68,68,'+heatR2+')');r2Glow.addColorStop(1,'rgba(239,68,68,0)');
+      ctx.fillStyle=r2Glow;ctx.fillRect(rx2-25,y1-22,50,44);
+      // Resistor bodies
+      ctx.fillStyle='#f59e0b';
+      ctx.beginPath();ctx.roundRect(rx1-18,y1-13,36,26,4);ctx.fill();
+      ctx.beginPath();ctx.roundRect(rx2-18,y1-13,36,26,4);ctx.fill();
+      ctx.fillStyle='#0f172a';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+      ctx.fillText('R₁',rx1,y1+4);ctx.fillText('R₂',rx2,y1+4);
+      // Resistance values
+      ctx.fillStyle='rgba(148,163,184,0.6)';ctx.font='9px Poppins';
+      ctx.fillText(R1+'Ω',rx1,y1-18);ctx.fillText(R2+'Ω',rx2,y1-18);
+      // Current direction arrows
+      ctx.fillStyle='rgba(251,191,36,0.4)';ctx.font='10px Poppins';
+      ctx.fillText('I →',w*0.5,y1-25);ctx.fillText('← I',w*0.5,y2+15);
+      // Voltage drops
+      var V1=current*R1,V2=current*R2;
+      ctx.fillStyle='rgba(96,165,250,0.5)';ctx.font='9px Poppins';
+      ctx.fillText('V₁='+V1.toFixed(1)+'V',rx1,y1+22);
+      ctx.fillText('V₂='+V2.toFixed(1)+'V',rx2,y1+22);
+    }else{
+      var x1=w*0.15,x2=w*0.85,y1=h*0.2,y2=h*0.5,y3=h*0.8;
+      // Wire glow
+      ctx.strokeStyle='rgba(251,191,36,'+wireGlow+')';ctx.lineWidth=10;
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1,y3);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x2,y1);ctx.lineTo(x2,y3);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y1);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x1,y2);ctx.lineTo(x2,y2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x1,y3);ctx.lineTo(x2,y3);ctx.stroke();
+      // Wires
+      ctx.strokeStyle='#475569';ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1,y3);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x2,y1);ctx.lineTo(x2,y3);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y1);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x1,y2);ctx.lineTo(x2,y2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x1,y3);ctx.lineTo(x2,y3);ctx.stroke();
+      // Battery
+      var batGrad2=ctx.createLinearGradient(cx-12,y3-8,cx+12,y3+8);
+      batGrad2.addColorStop(0,'#22c55e');batGrad2.addColorStop(1,'#15803d');
+      ctx.fillStyle=batGrad2;ctx.fillRect(cx-12,y3-8,24,15);
+      ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+      ctx.fillText(V+'V',cx,y3+22);
+      // Branch current labels
+      var I1=V/R1,I2=V/R2;
+      ctx.fillStyle='rgba(148,163,184,0.5)';ctx.font='9px Poppins';
+      ctx.fillText('I₁='+I1.toFixed(2)+'A →',cx,y1-8);
+      ctx.fillText('I₂='+I2.toFixed(2)+'A →',cx,y2-8);
+      // Resistors
+      ctx.fillStyle='#f59e0b';
+      ctx.beginPath();ctx.roundRect(cx-18,y1-13,36,26,4);ctx.fill();
+      ctx.beginPath();ctx.roundRect(cx-18,y2-13,36,26,4);ctx.fill();
+      ctx.fillStyle='#0f172a';ctx.font='bold 10px Poppins';
+      ctx.fillText('R₁',cx,y1+4);ctx.fillText('R₂',cx,y2+4);
+      ctx.fillStyle='rgba(148,163,184,0.6)';ctx.font='9px Poppins';
+      ctx.fillText(R1+'Ω',cx,y1+22);ctx.fillText(R2+'Ω',cx,y2+22);
+    }
+    // Electron flow animation with glow trail
+    if(Math.random()<current*0.3){
+      electrons.push({pos:0,speed:0.005*current});
+    }
+    for(var i=electrons.length-1;i>=0;i--){
+      var e=electrons[i];e.pos+=e.speed;
+      if(e.pos>1){electrons.splice(i,1);continue;}
+      var ex,ey;
+      if(mode==='series'){
+        var x1=w*0.15,x2=w*0.85,y1=h*0.25,y2=h*0.75;
+        if(e.pos<0.25){ex=x1;ey=y2-(e.pos/0.25)*(y2-y1);}
+        else if(e.pos<0.5){ex=x1+(e.pos-0.25)/0.25*(x2-x1);ey=h*0.25;}
+        else if(e.pos<0.75){ex=x2;ey=h*0.25+(e.pos-0.5)/0.25*(y2-y1);}
+        else{ex=x2-(e.pos-0.75)/0.25*(x2-x1);ey=y2;}
+      }else{
+        var x1=w*0.15,x2=w*0.85,y1=h*0.2,y3=h*0.8;
+        if(e.pos<0.25){ex=x1;ey=y3-(e.pos/0.25)*(y3-y1);}
+        else if(e.pos<0.5){ex=x1+(e.pos-0.25)/0.25*(x2-x1);ey=y1;}
+        else if(e.pos<0.75){ex=x2;ey=y1+(e.pos-0.5)/0.25*(y3-y1);}
+        else{ex=x2-(e.pos-0.75)/0.25*(x2-x1);ey=y3;}
+      }
+      // Electron glow
+      ctx.fillStyle='rgba(251,191,36,0.12)';ctx.beginPath();ctx.arc(ex,ey,7,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(ex,ey,3,0,Math.PI*2);ctx.fill();
+    }
+    if(electrons.length>40)electrons.splice(0,10);
+    t+=0.016;requestAnimationFrame(draw);
+  }
+  calc();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

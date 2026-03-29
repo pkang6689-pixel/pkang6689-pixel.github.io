@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Seasons Simulator</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:180px;accent-color:#f59e0b}
+    .ctrl-group .val{font-size:.8rem;color:#f59e0b;font-weight:600}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#f59e0b}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🌞 Seasons Simulator</h1>
+  <p class="subtitle">See how Earth's axial tilt creates seasons throughout the year.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Month of Year</label>
+      <input type="range" id="month" min="0" max="11" value="6" oninput="upd()"><span class="val" id="mo-val">July</span></div>
+    <div class="ctrl-group"><label>Axial Tilt (°)</label>
+      <input type="range" id="tilt" min="0" max="45" value="23.4" step="0.1" oninput="upd()"><span class="val" id="ti-val">23.4°</span></div>
+    <div class="ctrl-group"><label>Latitude (°N)</label>
+      <input type="range" id="lat" min="-90" max="90" value="40" oninput="upd()"><span class="val" id="la-val">40°N</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Season (N): <strong id="season">Summer</strong></div>
+    <div class="datum">Daylight: <strong id="daylight">15 hrs</strong></div>
+    <div class="datum">Sun Angle: <strong id="sunang">73°</strong></div>
+    <div class="datum">Intensity: <strong id="intensity">High</strong></div>
+  </div>
+  <div class="info-box"><h3>Why Seasons Happen</h3><p>Earth's axis is tilted <strong>23.4°</strong> from its orbital plane. During <strong>June solstice</strong>, the Northern Hemisphere tilts toward the Sun — longer days, more direct sunlight = summer. During <strong>December solstice</strong>, it tilts away = winter. At the <strong>equinoxes</strong> (March/September), neither hemisphere tilts toward the Sun — equal day/night. Seasons are NOT caused by Earth's distance from the Sun.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0;
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function resize(){cv.width=cv.parentElement.clientWidth;}
+  window.addEventListener('resize',resize);resize();
+  window.upd=function(){
+    var mo=parseInt(document.getElementById('month').value);
+    var tilt2=parseFloat(document.getElementById('tilt').value);
+    var lat=parseInt(document.getElementById('lat').value);
+    document.getElementById('mo-val').textContent=months[mo];
+    document.getElementById('ti-val').textContent=tilt2+'°';
+    document.getElementById('la-val').textContent=lat>=0?lat+'°N':(-lat)+'°S';
+    // Season calculation
+    var declination=tilt2*Math.sin((mo-2)/12*Math.PI*2);// simplified
+    var sunAngle=90-Math.abs(lat-declination);
+    sunAngle=Math.max(0,Math.min(90,sunAngle));
+    var daylight=12+2*(declination*lat/90/tilt2)*6;
+    daylight=Math.max(0,Math.min(24,daylight));
+    var seasons;
+    if(lat>=0){seasons=(mo>=3&&mo<=5)?'Spring':(mo>=6&&mo<=8)?'Summer':(mo>=9&&mo<=11)?'Autumn':'Winter';}
+    else{seasons=(mo>=3&&mo<=5)?'Autumn':(mo>=6&&mo<=8)?'Winter':(mo>=9&&mo<=11)?'Spring':'Summer';}
+    document.getElementById('season').textContent=seasons;
+    document.getElementById('daylight').textContent=daylight.toFixed(1)+' hrs';
+    document.getElementById('sunang').textContent=sunAngle.toFixed(0)+'°';
+    document.getElementById('intensity').textContent=sunAngle>60?'High':sunAngle>30?'Moderate':'Low';
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);
+    t+=0.016;
+    var mo2=parseInt(document.getElementById('month').value);
+    var tilt3=parseFloat(document.getElementById('tilt').value);
+    var lat2=parseInt(document.getElementById('lat').value);
+    // Orbital view (top half)
+    var orbitCX=w/2,orbitCY=h*0.35;
+    var orbitRX=w*0.35,orbitRY=h*0.18;
+    // Sun at center
+    var sGrad=ctx.createRadialGradient(orbitCX,orbitCY,0,orbitCX,orbitCY,30);
+    sGrad.addColorStop(0,'#fef3c7');sGrad.addColorStop(0.6,'#fbbf24');sGrad.addColorStop(1,'#f59e0b00');
+    ctx.fillStyle=sGrad;ctx.beginPath();ctx.arc(orbitCX,orbitCY,30,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fbbf24';ctx.font='12px sans-serif';ctx.textAlign='center';
+    ctx.fillText('☀',orbitCX,orbitCY+4);
+    // Orbit path
+    ctx.strokeStyle='rgba(148,163,184,0.2)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.ellipse(orbitCX,orbitCY,orbitRX,orbitRY,0,0,Math.PI*2);ctx.stroke();
+    // Earth positions for solstices/equinoxes
+    var positions=[
+      {mo:0,label:'Jan',ang:Math.PI},
+      {mo:3,label:'Mar Equinox',ang:Math.PI*0.5},
+      {mo:6,label:'Jun Solstice',ang:0},
+      {mo:9,label:'Sep Equinox',ang:Math.PI*1.5}
+    ];
+    positions.forEach(function(pos){
+      var ex=orbitCX+Math.cos(pos.ang)*orbitRX;
+      var ey=orbitCY+Math.sin(pos.ang)*orbitRY;
+      ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='9px Poppins';ctx.textAlign='center';
+      ctx.fillText(pos.label,ex,ey-18);
+    });
+    // Current Earth position
+    var earthAng=(mo2/12)*Math.PI*2-Math.PI/2;
+    var earthX=orbitCX+Math.cos(earthAng)*orbitRX;
+    var earthY=orbitCY+Math.sin(earthAng)*orbitRY;
+    var earthR=15;
+    // Draw Earth with tilt
+    var tiltRad=tilt3*Math.PI/180;
+    var declination2=tilt3*Math.sin((mo2-2)/12*Math.PI*2);
+    ctx.save();ctx.translate(earthX,earthY);ctx.rotate(-tiltRad*Math.cos(earthAng));
+    // Earth circle
+    ctx.fillStyle='#1e40af';ctx.beginPath();ctx.arc(0,0,earthR,0,Math.PI*2);ctx.fill();
+    // Continents hint
+    ctx.fillStyle='#22c55e40';ctx.beginPath();ctx.arc(-3,-5,5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(4,3,4,0,Math.PI*2);ctx.fill();
+    // Axis line
+    ctx.strokeStyle='#f1f5f9';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(0,-earthR-10);ctx.lineTo(0,earthR+10);ctx.stroke();ctx.setLineDash([]);
+    // N/S labels
+    ctx.fillStyle='#f1f5f9';ctx.font='8px Poppins';ctx.textAlign='center';
+    ctx.fillText('N',0,-earthR-13);ctx.fillText('S',0,earthR+17);
+    // Latitude marker
+    var latY=-lat2/90*earthR;
+    ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(0,latY,2,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+    // Sun rays hitting Earth
+    ctx.strokeStyle='rgba(251,191,36,0.2)';ctx.lineWidth=1;
+    for(var ray=0;ray<5;ray++){
+      var ry=earthY-10+ray*5;
+      ctx.beginPath();ctx.moveTo(orbitCX+35,orbitCY-10+ray*5);ctx.lineTo(earthX-earthR,ry);ctx.stroke();
+    }
+    // Insolation diagram (bottom half)
+    var diagY=h*0.65,diagH=h*0.3;
+    ctx.fillStyle='#0a1628';ctx.fillRect(0,diagY-10,w,diagH+30);
+    // Ground line
+    var groundY=diagY+diagH-20;
+    ctx.fillStyle='#22c55e20';ctx.fillRect(w*0.1,groundY,w*0.8,20);
+    // Sun angle visualization
+    var sunAngle2=90-Math.abs(lat2-declination2);
+    sunAngle2=Math.max(5,Math.min(90,sunAngle2));
+    var sunAngRad=sunAngle2*Math.PI/180;
+    var rayLen=diagH*0.7;
+    var sunRayX=w/2-Math.cos(sunAngRad)*rayLen;
+    var sunRayY=groundY-Math.sin(sunAngRad)*rayLen;
+    // Sun rays
+    ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;
+    for(var sr=-2;sr<=2;sr++){
+      ctx.beginPath();ctx.moveTo(sunRayX+sr*20,sunRayY);ctx.lineTo(w/2+sr*20*Math.sin(sunAngRad),groundY);ctx.stroke();
+    }
+    // Angle arc
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(w/2,groundY,30,Math.PI*1.5,Math.PI*1.5+sunAngRad,true);ctx.stroke();
+    ctx.fillStyle='#f59e0b';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText(sunAngle2.toFixed(0)+'°',w/2+40,groundY-15);
+    // Labels
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
+    ctx.fillText('Sun angle at '+Math.abs(lat2)+'°'+(lat2>=0?'N':'S')+' in '+months[mo2],w/2,diagY);
+    ctx.fillText(sunAngle2>60?'Direct sunlight → More heating':sunAngle2>30?'Moderate angle → Less heating':'Low angle → Minimal heating',w/2,groundY+30);
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

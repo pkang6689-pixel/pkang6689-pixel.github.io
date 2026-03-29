@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Earthquake Waves</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#3b82f6}
+    .ctrl-group .val{font-size:.8rem;color:#60a5fa;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#ef4444,#dc2626);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#60a5fa}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#60a5fa;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🌍 Earthquake Waves</h1>
+  <p class="subtitle">Trigger an earthquake and observe P-waves, S-waves, and seismograph readings.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Magnitude</label>
+      <input type="range" id="mag" min="2" max="9" step="0.1" value="5" oninput="upd()"><span class="val" id="mag-val">5.0</span></div>
+    <div class="ctrl-group"><label>Depth (km)</label>
+      <input type="range" id="qdepth" min="5" max="300" value="30" oninput="upd()"><span class="val" id="dep-val">30 km</span></div>
+    <button class="action-btn" onclick="triggerQuake()">⚡ Trigger Earthquake</button>
+  </div>
+  <div class="readout">
+    <div class="datum">P-Wave Speed: <strong id="pspeed">6 km/s</strong></div>
+    <div class="datum">S-Wave Speed: <strong id="sspeed">3.5 km/s</strong></div>
+    <div class="datum">Surface Waves: <strong id="surf">Waiting</strong></div>
+    <div class="datum">Energy: <strong id="energy">-</strong></div>
+  </div>
+  <div class="info-box"><h3>Seismic Waves</h3><p><strong>P-waves</strong> (Primary) are fastest, compressional, travel through solids & liquids. <strong>S-waves</strong> (Secondary) are slower, transverse, only through solids. <strong>Surface waves</strong> cause the most damage with rolling/swaying motion. The <strong>Richter scale</strong> is logarithmic — each whole number = 10× more ground motion and 31.6× more energy. Seismographs record all three wave types, with P-waves arriving first.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0;
+  var quakeTime=-1,seismoData=[],seismoLen=300;
+  function resize(){cv.width=cv.parentElement.clientWidth;}
+  window.addEventListener('resize',resize);resize();
+  for(var i=0;i<seismoLen;i++)seismoData.push(0);
+  window.upd=function(){
+    document.getElementById('mag-val').textContent=parseFloat(document.getElementById('mag').value).toFixed(1);
+    document.getElementById('dep-val').textContent=document.getElementById('qdepth').value+' km';
+  };
+  window.triggerQuake=function(){quakeTime=t;document.getElementById('surf').textContent='Propagating...';};
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    t+=0.016;
+    var mag2=parseFloat(document.getElementById('mag').value);
+    var dep=parseInt(document.getElementById('qdepth').value);
+    var earthH=h*0.55,seismoH=h*0.4,seismoY=earthH+10;
+    // Earth cross-section
+    var earthGrad=ctx.createLinearGradient(0,0,0,earthH);
+    earthGrad.addColorStop(0,'#4a3520');earthGrad.addColorStop(0.3,'#7c5d3a');
+    earthGrad.addColorStop(0.7,'#c06020');earthGrad.addColorStop(1,'#e84040');
+    ctx.fillStyle=earthGrad;ctx.fillRect(0,0,w,earthH);
+    // Fault line
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=2;ctx.setLineDash([5,5]);
+    ctx.beginPath();ctx.moveTo(w/2,0);ctx.lineTo(w/2,earthH);ctx.stroke();ctx.setLineDash([]);
+    // Epicenter
+    var epY=dep/300*earthH*0.8;
+    if(quakeTime>0){
+      var elapsed=t-quakeTime;
+      // P-wave ring (faster)
+      var pR=elapsed*200;
+      if(pR<w){
+        ctx.strokeStyle='rgba(59,130,246,0.5)';ctx.lineWidth=3;
+        ctx.beginPath();ctx.arc(w/2,epY,pR,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle='#3b82f6';ctx.font='10px Poppins';ctx.textAlign='left';
+        if(pR>30)ctx.fillText('P-wave',w/2+pR*0.7,epY-10);
+      }
+      // S-wave ring (slower)
+      var sR=elapsed*120;
+      if(sR>0&&sR<w){
+        ctx.strokeStyle='rgba(239,68,68,0.5)';ctx.lineWidth=3;
+        ctx.beginPath();ctx.arc(w/2,epY,sR,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle='#ef4444';ctx.font='10px Poppins';
+        if(sR>30)ctx.fillText('S-wave',w/2+sR*0.7,epY+15);
+      }
+      // Surface wave
+      if(elapsed>dep/300*2){
+        var surfSpread=Math.min(w/2,(elapsed-dep/300*2)*100);
+        ctx.strokeStyle='rgba(34,197,94,0.4)';ctx.lineWidth=4;
+        ctx.beginPath();
+        for(var sx=w/2-surfSpread;sx<w/2+surfSpread;sx+=3){
+          var sy2=5*Math.sin((sx-w/2)*0.1+t*5)*mag2/5*Math.max(0,1-Math.abs(sx-w/2)/(surfSpread+1));
+          if(sx===w/2-surfSpread)ctx.moveTo(sx,sy2);else ctx.lineTo(sx,sy2);
+        }
+        ctx.stroke();
+        document.getElementById('surf').textContent='Active — Damage zone';
+      }
+      // Seismograph data
+      var pArrival=0.5,sArrival=1.2;
+      var val=0;
+      if(elapsed>pArrival&&elapsed<pArrival+2)val+=Math.sin(elapsed*30)*mag2*0.3*Math.exp(-(elapsed-pArrival));
+      if(elapsed>sArrival&&elapsed<sArrival+3)val+=Math.sin(elapsed*15)*mag2*0.6*Math.exp(-(elapsed-sArrival)*0.5);
+      if(elapsed>sArrival+1)val+=Math.sin(elapsed*8)*mag2*Math.exp(-(elapsed-sArrival-1)*0.3);
+      seismoData.push(val);if(seismoData.length>seismoLen)seismoData.shift();
+    }
+    // Epicenter star
+    ctx.fillStyle='#f59e0b';ctx.font='16px sans-serif';ctx.textAlign='center';
+    ctx.fillText('★',w/2,epY+6);
+    ctx.fillStyle='#f59e0b';ctx.font='10px Poppins';
+    ctx.fillText('Focus ('+dep+' km)',w/2,epY+20);
+    // Surface label
+    ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='10px Poppins';ctx.textAlign='left';
+    ctx.fillText('Surface',5,12);
+    ctx.fillText('Mantle',5,earthH-10);
+    // Seismograph area
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,earthH,w,seismoH+20);
+    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText('SEISMOGRAPH',w/2,seismoY+15);
+    // Grid
+    ctx.strokeStyle='rgba(51,65,85,0.3)';ctx.lineWidth=0.5;
+    var midY=seismoY+seismoH/2+10;
+    ctx.beginPath();ctx.moveTo(0,midY);ctx.lineTo(w,midY);ctx.stroke();
+    // Seismograph trace
+    ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;ctx.beginPath();
+    var step=w/seismoLen;
+    for(var si=0;si<seismoData.length;si++){
+      var sx2=si*step;
+      var sy3=midY-seismoData[si]*15;
+      if(si===0)ctx.moveTo(sx2,sy3);else ctx.lineTo(sx2,sy3);
+    }
+    ctx.stroke();
+    // Stats
+    document.getElementById('pspeed').textContent=(5+dep/100).toFixed(1)+' km/s';
+    document.getElementById('sspeed').textContent=(3+dep/150).toFixed(1)+' km/s';
+    var energy=Math.pow(10,1.5*mag2+4.8);
+    document.getElementById('energy').textContent=energy>1e12?(energy/1e12).toFixed(1)+' TJ':energy>1e9?(energy/1e9).toFixed(1)+' GJ':(energy/1e6).toFixed(1)+' MJ';
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Marine Food Web</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#3b82f6}
+    .ctrl-group .val{font-size:.8rem;color:#60a5fa;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#60a5fa}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#60a5fa;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🐟 Marine Food Web</h1>
+  <p class="subtitle">Explore trophic levels and energy flow in ocean ecosystems.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Phytoplankton</label>
+      <input type="range" id="phyto" min="10" max="100" value="80" oninput="upd()"><span class="val" id="phy-val">80%</span></div>
+    <div class="ctrl-group"><label>Zooplankton</label>
+      <input type="range" id="zoo" min="5" max="60" value="40" oninput="upd()"><span class="val" id="zoo-val">40%</span></div>
+    <div class="ctrl-group"><label>Small Fish</label>
+      <input type="range" id="sfish" min="5" max="40" value="20" oninput="upd()"><span class="val" id="sf-val">20%</span></div>
+    <button class="action-btn" onclick="removeApex()">Remove Apex Predator</button>
+    <button class="action-btn" style="background:#64748b" onclick="resetWeb()">Reset</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Total Energy: <strong id="tenergy">100%</strong></div>
+    <div class="datum">Trophic Efficiency: <strong>~10%</strong></div>
+    <div class="datum">Apex Status: <strong id="apex">Present</strong></div>
+  </div>
+  <div class="info-box"><h3>Energy Pyramid</h3><p>Only about <strong>10%</strong> of energy transfers between trophic levels (10% rule). Producers (phytoplankton) form the base. Primary consumers (zooplankton) eat producers. Secondary consumers (small fish) eat primary consumers. Tertiary/apex predators (sharks, orcas) sit at the top. Removing an apex predator causes a <strong>trophic cascade</strong>.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0,apexPresent=true;
+  var levels=[
+    {name:'Phytoplankton',emoji:'🌿',color:'#22c55e',pop:80},
+    {name:'Zooplankton',emoji:'🦐',color:'#60a5fa',pop:40},
+    {name:'Small Fish',emoji:'🐟',color:'#f59e0b',pop:20},
+    {name:'Large Fish',emoji:'🐠',color:'#ef4444',pop:10},
+    {name:'Apex Predator',emoji:'🦈',color:'#a855f7',pop:5}
+  ];
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.upd=function(){
+    levels[0].pop=parseInt(document.getElementById('phyto').value);
+    levels[1].pop=parseInt(document.getElementById('zoo').value);
+    levels[2].pop=parseInt(document.getElementById('sfish').value);
+    levels[3].pop=Math.round(levels[2].pop*0.4);
+    levels[4].pop=apexPresent?Math.round(levels[3].pop*0.3):0;
+    document.getElementById('phy-val').textContent=levels[0].pop+'%';
+    document.getElementById('zoo-val').textContent=levels[1].pop+'%';
+    document.getElementById('sf-val').textContent=levels[2].pop+'%';
+    document.getElementById('tenergy').textContent=levels[0].pop+'%';
+    document.getElementById('apex').textContent=apexPresent?'Present':'Removed!';
+  };
+  window.removeApex=function(){apexPresent=false;upd()};
+  window.resetWeb=function(){
+    apexPresent=true;
+    document.getElementById('phyto').value=80;document.getElementById('zoo').value=40;document.getElementById('sfish').value=20;
+    upd();
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    t+=0.016;
+    // Energy pyramid (left)
+    var px=w*0.05,py=h*0.05,pw=w*0.4,ph=h*0.85;
+    var numLevels=apexPresent?5:4;
+    var layerH=ph/numLevels;
+    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText('Energy Pyramid',px+pw/2,py-5);
+    for(var i=0;i<numLevels;i++){
+      var idx=numLevels-1-i;
+      var lw=pw*(0.3+levels[idx].pop/100*0.7);
+      var lx=px+(pw-lw)/2;
+      var ly=py+i*layerH;
+      ctx.fillStyle=levels[idx].color+'40';
+      ctx.fillRect(lx,ly,lw,layerH-4);
+      ctx.strokeStyle=levels[idx].color;ctx.lineWidth=1;ctx.strokeRect(lx,ly,lw,layerH-4);
+      ctx.fillStyle=levels[idx].color;ctx.font='bold 11px Poppins';ctx.textAlign='center';
+      ctx.fillText(levels[idx].emoji+' '+levels[idx].name,px+pw/2,ly+layerH/2);
+      ctx.font='9px Poppins';ctx.fillText(levels[idx].pop+'% energy',px+pw/2,ly+layerH/2+14);
+    }
+    // Food web diagram (right)
+    var fwx=w*0.55,fwy=h*0.05,fww=w*0.4,fwh=h*0.85;
+    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText('Food Web Connections',fwx+fww/2,fwy-5);
+    var nodes=[];
+    for(var j=0;j<numLevels;j++){
+      var ny=fwy+fwh*0.1+j*(fwh*0.8/(numLevels-1));
+      var nx=fwx+fww/2+Math.sin(j*1.5)*fww*0.2;
+      nodes.push({x:nx,y:ny,level:j});
+      // Draw node
+      ctx.fillStyle=levels[j].color;ctx.beginPath();ctx.arc(nx,ny,15+levels[j].pop*0.15,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.fillText(levels[j].emoji,nx,ny+5);
+    }
+    // Arrows between levels
+    for(var k=0;k<nodes.length-1;k++){
+      ctx.strokeStyle=levels[k].color+'80';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(nodes[k].x,nodes[k].y+18);ctx.lineTo(nodes[k+1].x,nodes[k+1].y-18);ctx.stroke();
+      // Arrow head
+      var angle2=Math.atan2(nodes[k+1].y-nodes[k].y,nodes[k+1].x-nodes[k].x);
+      ctx.fillStyle=levels[k].color+'80';
+      ctx.beginPath();
+      ctx.moveTo(nodes[k+1].x-18*Math.cos(angle2),nodes[k+1].y-18*Math.sin(angle2));
+      ctx.lineTo(nodes[k+1].x-25*Math.cos(angle2-0.3),nodes[k+1].y-25*Math.sin(angle2-0.3));
+      ctx.lineTo(nodes[k+1].x-25*Math.cos(angle2+0.3),nodes[k+1].y-25*Math.sin(angle2+0.3));
+      ctx.closePath();ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

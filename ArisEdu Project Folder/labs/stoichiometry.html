@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Stoichiometry Lab</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group select,.ctrl-group input[type=range]{accent-color:#f59e0b;background:#1e293b;color:#f1f5f9;border:1px solid #334155;border-radius:.4rem;padding:.3rem;font-size:.8rem}
+    .ctrl-group input[type=range]{width:140px}
+    .ctrl-group .val{font-size:.8rem;color:#fbbf24;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#fbbf24}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#fbbf24;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>⚖️ Stoichiometry Lab</h1>
+  <p class="subtitle">Balance equations, find limiting reagents, and calculate theoretical yield.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="380"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Reaction</label>
+      <select id="rxn" onchange="calcStoich()">
+        <option value="0">2H₂ + O₂ → 2H₂O</option>
+        <option value="1">N₂ + 3H₂ → 2NH₃</option>
+        <option value="2">CH₄ + 2O₂ → CO₂ + 2H₂O</option>
+      </select></div>
+    <div class="ctrl-group"><label>Reactant A (mol)</label>
+      <input type="range" id="molA" min="1" max="10" value="4" oninput="calcStoich()"><span class="val" id="molA-val">4 mol</span></div>
+    <div class="ctrl-group"><label>Reactant B (mol)</label>
+      <input type="range" id="molB" min="1" max="10" value="3" oninput="calcStoich()"><span class="val" id="molB-val">3 mol</span></div>
+    <button class="action-btn" onclick="calcStoich()">Calculate</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Limiting Reagent: <strong id="limiting">-</strong></div>
+    <div class="datum">Excess: <strong id="excess">-</strong></div>
+    <div class="datum">Theoretical Yield: <strong id="yield">-</strong></div>
+    <div class="datum">Excess Left: <strong id="leftover">-</strong></div>
+  </div>
+  <div class="info-box"><h3>Stoichiometry</h3><p>Stoichiometry uses mole ratios from balanced equations to predict how much product forms. The <strong>limiting reagent</strong> is completely consumed first, determining maximum yield. The <strong>excess reagent</strong> has leftover moles after the reaction.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  // Reactions: [coeff_A, name_A, coeff_B, name_B, coeff_P, name_P]
+  var rxns=[
+    {cA:2,nA:'H₂',cB:1,nB:'O₂',cP:2,nP:'H₂O',colA:'#3b82f6',colB:'#ef4444',colP:'#22c55e'},
+    {cA:1,nA:'N₂',cB:3,nB:'H₂',cP:2,nP:'NH₃',colA:'#a855f7',colB:'#3b82f6',colP:'#fbbf24'},
+    {cA:1,nA:'CH₄',cB:2,nB:'O₂',cP:1,nP:'CO₂',colA:'#64748b',colB:'#ef4444',colP:'#94a3b8'}
+  ];
+  var result={limiting:'',excess:'',yieldMol:0,leftover:0,rxIdx:0,usedA:0,usedB:0,prodMol:0};
+  var animPhase=0,reacting=false;
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.calcStoich=function(){
+    var idx=parseInt(document.getElementById('rxn').value);
+    var mA=parseInt(document.getElementById('molA').value);
+    var mB=parseInt(document.getElementById('molB').value);
+    document.getElementById('molA-val').textContent=mA+' mol';
+    document.getElementById('molB-val').textContent=mB+' mol';
+    var r=rxns[idx];
+    var ratioA=mA/r.cA,ratioB=mB/r.cB;
+    if(ratioA<=ratioB){
+      result.limiting=r.nA;result.excess=r.nB;
+      result.usedA=mA;result.usedB=ratioA*r.cB;
+      result.prodMol=ratioA*r.cP;result.leftover=mB-result.usedB;
+    }else{
+      result.limiting=r.nB;result.excess=r.nA;
+      result.usedB=mB;result.usedA=ratioB*r.cA;
+      result.prodMol=ratioB*r.cP;result.leftover=mA-result.usedA;
+    }
+    result.rxIdx=idx;reacting=true;animPhase=0;
+    document.getElementById('limiting').textContent=result.limiting;
+    document.getElementById('excess').textContent=result.excess;
+    document.getElementById('yield').textContent=result.prodMol.toFixed(1)+' mol '+r.nP;
+    document.getElementById('leftover').textContent=result.leftover.toFixed(1)+' mol';
+  };
+  var t=0;
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    var r=rxns[result.rxIdx];var mA=parseInt(document.getElementById('molA').value);var mB=parseInt(document.getElementById('molB').value);
+    if(reacting&&animPhase<1)animPhase+=0.012;
+    if(animPhase>=1)reacting=false;
+    var ap=Math.min(animPhase,1);
+    // Reaction equation on canvas
+    ctx.fillStyle='rgba(251,191,36,0.7)';ctx.font='bold 14px Poppins';ctx.textAlign='center';
+    var eqTexts=['2H₂ + O₂ → 2H₂O','N₂ + 3H₂ → 2NH₃','CH₄ + 2O₂ → CO₂ + 2H₂O'];
+    ctx.fillText(eqTexts[result.rxIdx],w*0.5,h*0.07);
+    // Draw molecule groups
+    ctx.font='bold 12px Poppins';ctx.textAlign='center';
+    var aX=w*0.14,bX=w*0.38,pX=w*0.72,yBase=h*0.15;
+    // Reactant A section
+    ctx.fillStyle='#94a3b8';ctx.fillText('Reactant: '+r.nA,aX,yBase);
+    ctx.font='9px Poppins';ctx.fillText('('+r.cA+' mol coeff.)',aX,yBase+14);
+    for(var i=0;i<mA;i++){
+      var row=Math.floor(i/3),col=i%3;
+      var used=i<Math.round(result.usedA);
+      var baseX=aX-20+col*24,baseY=yBase+25+row*28;
+      // Animate used molecules moving toward product
+      var dx=0,dy=0;
+      if(used&&ap>0){dx=(pX-baseX)*ap*0.3;dy=0;}
+      var mx=baseX+dx,my=baseY+dy;
+      // Glow for limiting reagent
+      if(result.limiting===r.nA&&used){
+        ctx.fillStyle='rgba('+(r.colA==='#3b82f6'?'59,130,246':r.colA==='#a855f7'?'168,85,247':'100,116,139')+',0.15)';
+        ctx.beginPath();ctx.arc(mx,my,14,0,Math.PI*2);ctx.fill();
+      }
+      ctx.fillStyle=used?r.colA:'rgba(100,116,139,0.2)';
+      // Molecule shape (double circle for diatomics)
+      ctx.beginPath();ctx.arc(mx-4,my,7,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(mx+4,my,7,0,Math.PI*2);ctx.fill();
+      if(!used){ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='7px Poppins';ctx.fillText('excess',mx,my+14);}
+    }
+    // Reactant B section
+    ctx.fillStyle='#94a3b8';ctx.font='bold 12px Poppins';ctx.fillText('Reactant: '+r.nB,bX,yBase);
+    ctx.font='9px Poppins';ctx.fillText('('+r.cB+' mol coeff.)',bX,yBase+14);
+    for(var i=0;i<mB;i++){
+      var row=Math.floor(i/3),col=i%3;
+      var used=i<Math.round(result.usedB);
+      var baseX2=bX-20+col*24,baseY2=yBase+25+row*28;
+      var dx2=0;
+      if(used&&ap>0){dx2=(pX-baseX2)*ap*0.3;}
+      var mx2=baseX2+dx2,my2=baseY2;
+      if(result.limiting===r.nB&&used){
+        ctx.fillStyle='rgba('+(r.colB==='#ef4444'?'239,68,68':r.colB==='#3b82f6'?'59,130,246':'100,116,139')+',0.15)';
+        ctx.beginPath();ctx.arc(mx2,my2,14,0,Math.PI*2);ctx.fill();
+      }
+      ctx.fillStyle=used?r.colB:'rgba(100,116,139,0.2)';
+      ctx.beginPath();ctx.arc(mx2,my2,8,0,Math.PI*2);ctx.fill();
+      if(!used){ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='7px Poppins';ctx.textAlign='center';ctx.fillText('excess',mx2,my2+15);}
+    }
+    // Arrow with animation
+    var arrowX=w*0.55;
+    ctx.fillStyle=ap>0?'#fbbf24':'#475569';ctx.font='bold 28px Poppins';ctx.textAlign='center';
+    ctx.fillText('→',arrowX,h*0.3);
+    if(ap>0&&ap<1){
+      ctx.fillStyle='rgba(251,191,36,'+(0.3*Math.sin(t*5))+')';
+      ctx.beginPath();ctx.arc(arrowX,h*0.3-5,20,0,Math.PI*2);ctx.fill();
+    }
+    // Mole ratio display
+    ctx.fillStyle='rgba(148,163,184,0.4)';ctx.font='9px Poppins';
+    ctx.fillText('ratio: '+r.cA+':'+r.cB+':'+r.cP,arrowX,h*0.35);
+    // Product section
+    ctx.fillStyle='#94a3b8';ctx.font='bold 12px Poppins';ctx.fillText('Product: '+r.nP,pX,yBase);
+    ctx.font='9px Poppins';ctx.fillText('('+r.cP+' mol coeff.)',pX,yBase+14);
+    var nProd=Math.round(result.prodMol*ap);
+    for(var i=0;i<nProd;i++){
+      var row=Math.floor(i/3),col=i%3;
+      ctx.fillStyle=r.colP;
+      var px2=pX-20+col*24,py2=yBase+25+row*28;
+      // Triangular molecule
+      ctx.beginPath();ctx.moveTo(px2,py2-10);ctx.lineTo(px2+9,py2+7);ctx.lineTo(px2-9,py2+7);ctx.closePath();ctx.fill();
+      // Glow
+      ctx.fillStyle=r.colP.replace('#','rgba(')+'..';
+      ctx.fillStyle='rgba(34,197,94,0.1)';
+      ctx.beginPath();ctx.arc(px2,py2,14,0,Math.PI*2);ctx.fill();
+    }
+    // Bar chart at bottom with grid
+    var chartY=h*0.58,barH=h*0.32,barW=w*0.17;
+    // Chart background
+    ctx.fillStyle='rgba(15,23,42,0.3)';ctx.fillRect(w*0.08,chartY,w*0.84,barH+20);
+    // Grid lines
+    ctx.strokeStyle='rgba(51,65,85,0.3)';ctx.lineWidth=1;ctx.setLineDash([2,4]);
+    for(var gl=0;gl<=5;gl++){
+      var gy=chartY+barH-gl*(barH/5);
+      ctx.beginPath();ctx.moveTo(w*0.1,gy);ctx.lineTo(w*0.85,gy);ctx.stroke();
+      ctx.fillStyle='#475569';ctx.font='8px Poppins';ctx.textAlign='right';
+      ctx.fillText((gl*2)+'',w*0.09,gy+3);
+    }
+    ctx.setLineDash([]);
+    // A bar with gradient
+    var hA=barH*(mA/10);
+    var gA=ctx.createLinearGradient(0,chartY+barH-hA,0,chartY+barH);
+    gA.addColorStop(0,r.colA);gA.addColorStop(1,r.colA+'66');
+    ctx.fillStyle=gA;ctx.fillRect(w*0.15,chartY+barH-hA,barW,hA);
+    // Limiting label
+    if(result.limiting===r.nA){ctx.fillStyle='#fbbf24';ctx.font='bold 8px Poppins';ctx.textAlign='center';ctx.fillText('LIMITING',w*0.15+barW/2,chartY+barH-hA-12);}
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText(r.nA+' ('+mA+')',w*0.15+barW/2,chartY+barH+15);
+    // B bar
+    var hB=barH*(mB/10);
+    var gB=ctx.createLinearGradient(0,chartY+barH-hB,0,chartY+barH);
+    gB.addColorStop(0,r.colB);gB.addColorStop(1,r.colB+'66');
+    ctx.fillStyle=gB;ctx.fillRect(w*0.4,chartY+barH-hB,barW,hB);
+    if(result.limiting===r.nB){ctx.fillStyle='#fbbf24';ctx.font='bold 8px Poppins';ctx.textAlign='center';ctx.fillText('LIMITING',w*0.4+barW/2,chartY+barH-hB-12);}
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText(r.nB+' ('+mB+')',w*0.4+barW/2,chartY+barH+15);
+    // Product bar (animated)
+    var hP=barH*(result.prodMol*ap/10);
+    var gP=ctx.createLinearGradient(0,chartY+barH-hP,0,chartY+barH);
+    gP.addColorStop(0,r.colP);gP.addColorStop(1,r.colP+'66');
+    ctx.fillStyle=gP;ctx.fillRect(w*0.65,chartY+barH-hP,barW,hP);
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText(r.nP+' ('+(result.prodMol*ap).toFixed(1)+')',w*0.65+barW/2,chartY+barH+15);
+    // Yield value on bar
+    ctx.fillStyle='#fbbf24';ctx.font='bold 9px Poppins';
+    ctx.fillText((result.prodMol*ap).toFixed(1)+' mol',w*0.65+barW/2,chartY+barH-hP-5);
+    t+=0.016;requestAnimationFrame(draw);
+  }
+  calcStoich();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

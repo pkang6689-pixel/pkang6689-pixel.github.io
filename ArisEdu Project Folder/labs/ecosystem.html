@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Ecosystem Simulator</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:130px;accent-color:#22c55e}
+    .ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#22c55e,#10b981);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#22c55e}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🌿 Ecosystem Simulator</h1>
+  <p class="subtitle">Lotka-Volterra predator-prey dynamics with population graphs.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Prey Birth Rate</label>
+      <input type="range" id="pbirth" min="1" max="20" value="10" oninput="upd()"><span class="val" id="pb-val">1.0</span></div>
+    <div class="ctrl-group"><label>Predation Rate</label>
+      <input type="range" id="prate" min="1" max="20" value="5" oninput="upd()"><span class="val" id="pr-val">0.5</span></div>
+    <div class="ctrl-group"><label>Predator Death Rate</label>
+      <input type="range" id="pdeath" min="1" max="20" value="8" oninput="upd()"><span class="val" id="pd-val">0.8</span></div>
+    <div class="ctrl-group"><label>Conversion Eff.</label>
+      <input type="range" id="conv" min="1" max="10" value="3" oninput="upd()"><span class="val" id="cv-val">0.3</span></div>
+    <button class="action-btn" onclick="resetSim()">Reset</button>
+  </div>
+  <div class="readout">
+    <div class="datum">🐇 Prey: <strong id="preyN">100</strong></div>
+    <div class="datum">🐺 Predators: <strong id="predN">20</strong></div>
+    <div class="datum">Time: <strong id="time2">0</strong></div>
+  </div>
+  <div class="info-box"><h3>Predator-Prey Dynamics</h3><p>The Lotka-Volterra equations model population cycles: dPrey/dt = αP − βPQ, dPred/dt = δβPQ − γQ. Prey grow exponentially but are consumed by predators. Predator populations grow when food is abundant but decline when prey is scarce. This creates natural oscillation cycles.</p></div>
+</div>
+<script>
+(function(){
+  var cv2=document.getElementById('cv'),ctx=cv2.getContext('2d');
+  var prey=100,pred=20,simTime=0,history2=[];
+  function resize(){cv2.width=cv2.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.upd=function(){
+    document.getElementById('pb-val').textContent=(parseInt(document.getElementById('pbirth').value)/10).toFixed(1);
+    document.getElementById('pr-val').textContent=(parseInt(document.getElementById('prate').value)/10).toFixed(1);
+    document.getElementById('pd-val').textContent=(parseInt(document.getElementById('pdeath').value)/10).toFixed(1);
+    document.getElementById('cv-val').textContent=(parseInt(document.getElementById('conv').value)/10).toFixed(1);
+  };
+  window.resetSim=function(){prey=100;pred=20;simTime=0;history2=[]};
+  function step(){
+    var a=parseInt(document.getElementById('pbirth').value)/1000;
+    var b=parseInt(document.getElementById('prate').value)/10000;
+    var c=parseInt(document.getElementById('pdeath').value)/1000;
+    var d=parseInt(document.getElementById('conv').value)/10000;
+    var dt=1;
+    var dPrey=a*prey-b*prey*pred;
+    var dPred=d*prey*pred-c*pred;
+    prey+=dPrey*dt;pred+=dPred*dt;
+    prey=Math.max(1,Math.min(500,prey));
+    pred=Math.max(1,Math.min(200,pred));
+    simTime++;
+    history2.push({prey:prey,pred:pred});
+    if(history2.length>400)history2.shift();
+    document.getElementById('preyN').textContent=Math.round(prey);
+    document.getElementById('predN').textContent=Math.round(pred);
+    document.getElementById('time2').textContent=simTime;
+  }
+  function draw(){
+    var w=cv2.width,h=cv2.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    step();
+    // Population graph
+    var gx=w*0.08,gy=h*0.05,gw=w*0.84,gh=h*0.55;
+    ctx.fillStyle='rgba(0,0,0,0.2)';ctx.fillRect(gx,gy,gw,gh);
+    ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.strokeRect(gx,gy,gw,gh);
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Population over Time',gx+gw/2,gy-5);
+    // Prey line
+    if(history2.length>1){
+      var maxPop=Math.max(300,Math.max.apply(null,history2.map(function(h2){return Math.max(h2.prey,h2.pred)})));
+      var step2=gw/(history2.length-1);
+      ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.beginPath();
+      for(var i=0;i<history2.length;i++){
+        var hx=gx+i*step2,hy=gy+gh-history2[i].prey/maxPop*gh;
+        if(i===0)ctx.moveTo(hx,hy);else ctx.lineTo(hx,hy);
+      }
+      ctx.stroke();
+      // Predator line
+      ctx.strokeStyle='#ef4444';ctx.beginPath();
+      for(var i2=0;i2<history2.length;i2++){
+        var hx2=gx+i2*step2,hy2=gy+gh-history2[i2].pred/maxPop*gh;
+        if(i2===0)ctx.moveTo(hx2,hy2);else ctx.lineTo(hx2,hy2);
+      }
+      ctx.stroke();
+    }
+    // Legend
+    ctx.fillStyle='#22c55e';ctx.font='11px Poppins';ctx.textAlign='left';
+    ctx.fillRect(gx+10,gy+10,12,3);ctx.fillText('Prey (🐇)',gx+26,gy+15);
+    ctx.fillStyle='#ef4444';ctx.fillRect(gx+10,gy+25,12,3);ctx.fillText('Predators (🐺)',gx+26,gy+30);
+    // Animated creatures below graph
+    var fieldY=h*0.68,fieldH=h*0.3;
+    ctx.fillStyle='rgba(34,197,94,0.05)';ctx.fillRect(0,fieldY,w,fieldH);
+    // Draw some prey icons
+    var nPrey=Math.min(30,Math.round(prey/5));
+    ctx.fillStyle='#22c55e';
+    for(var p=0;p<nPrey;p++){
+      var px2=((p*137+simTime*0.5)%(w-20))+10;
+      var py=fieldY+10+(p*31)%(fieldH-20);
+      ctx.beginPath();ctx.arc(px2,py,4,0,Math.PI*2);ctx.fill();
+    }
+    // Draw predator icons
+    var nPred2=Math.min(15,Math.round(pred/3));
+    ctx.fillStyle='#ef4444';
+    for(var q=0;q<nPred2;q++){
+      var qx=((q*193+simTime*0.3)%(w-20))+10;
+      var qy=fieldY+10+(q*47)%(fieldH-20);
+      ctx.beginPath();ctx.moveTo(qx,qy-5);ctx.lineTo(qx+5,qy+5);ctx.lineTo(qx-5,qy+5);ctx.closePath();ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

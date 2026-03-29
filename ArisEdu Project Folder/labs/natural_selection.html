@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Natural Selection</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#22c55e}
+    .ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#22c55e,#10b981);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#22c55e}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🦎 Natural Selection Simulator</h1>
+  <p class="subtitle">Watch populations evolve through survival of the fittest.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Environment</label>
+      <select id="env" onchange="resetPop()" style="padding:.3rem;border-radius:.3rem;background:#1e293b;color:#f1f5f9;border:1px solid #334155">
+        <option value="dark">Dark Forest</option><option value="light">Light Desert</option><option value="mixed">Mixed Terrain</option>
+      </select></div>
+    <div class="ctrl-group"><label>Predator Pressure</label>
+      <input type="range" id="pred" min="1" max="10" value="5" oninput="upd()"><span class="val" id="pred-val">5</span></div>
+    <div class="ctrl-group"><label>Mutation Rate</label>
+      <input type="range" id="mut" min="0" max="10" value="2" oninput="upd()"><span class="val" id="mut-val">2%</span></div>
+    <button class="action-btn" onclick="nextGen()">Next Generation</button>
+    <button class="action-btn" onclick="autoRun()">▶ Auto Run</button>
+    <button class="action-btn" style="background:#64748b" onclick="resetPop()">Reset</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Generation: <strong id="gen">0</strong></div>
+    <div class="datum">Population: <strong id="pop">40</strong></div>
+    <div class="datum">Dark %: <strong id="darkp">50%</strong></div>
+    <div class="datum">Light %: <strong id="lightp">50%</strong></div>
+    <div class="datum">Avg Fitness: <strong id="avgfit">0.50</strong></div>
+  </div>
+  <div class="info-box"><h3>Natural Selection</h3><p>Organisms with traits better suited to their environment are more likely to survive and reproduce. In a dark forest, dark-colored organisms are camouflaged from predators. Over generations, the population shifts toward the advantageous trait. This is <strong>directional selection</strong>. Mutation introduces variation; higher predator pressure speeds selection.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var organisms=[],gen=0,autoId=null,history=[];
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  function initPop(){
+    organisms=[];gen=0;history=[];
+    for(var i=0;i<40;i++){
+      organisms.push({shade:Math.random(),x:Math.random()*cv.width,y:Math.random()*cv.height*0.7+cv.height*0.05});
+    }
+    updateStats();
+  }
+  function fitness(shade){
+    var env=document.getElementById('env').value;
+    if(env==='dark') return 1-shade; // darker = better in dark env
+    if(env==='light') return shade;  // lighter = better in light env
+    return 0.5+0.2*Math.sin(shade*Math.PI); // mixed
+  }
+  window.upd=function(){
+    document.getElementById('pred-val').textContent=document.getElementById('pred').value;
+    document.getElementById('mut-val').textContent=document.getElementById('mut').value+'%';
+  };
+  function updateStats(){
+    var dark=0,light=0,totalFit=0;
+    organisms.forEach(function(o){
+      if(o.shade<0.5) dark++; else light++;
+      totalFit+=fitness(o.shade);
+    });
+    var n=organisms.length||1;
+    document.getElementById('gen').textContent=gen;
+    document.getElementById('pop').textContent=organisms.length;
+    document.getElementById('darkp').textContent=(dark/n*100).toFixed(0)+'%';
+    document.getElementById('lightp').textContent=(light/n*100).toFixed(0)+'%';
+    document.getElementById('avgfit').textContent=(totalFit/n).toFixed(2);
+    history.push({dark:dark/n,light:light/n});
+  }
+  window.nextGen=function(){
+    var pred=parseInt(document.getElementById('pred').value)/10;
+    var mut=parseInt(document.getElementById('mut').value)/100;
+    // Selection: fitness-proportional survival
+    var survivors=[];
+    organisms.forEach(function(o){
+      var f=fitness(o.shade);
+      var survProb=f*(1-pred*0.5)+0.1;
+      if(Math.random()<survProb) survivors.push(o);
+    });
+    // Reproduce to maintain population ~40
+    var next=[];
+    while(next.length<40&&survivors.length>0){
+      var parent=survivors[Math.floor(Math.random()*survivors.length)];
+      var childShade=parent.shade+(Math.random()-0.5)*mut*2;
+      childShade=Math.max(0,Math.min(1,childShade));
+      next.push({shade:childShade,x:Math.random()*cv.width,y:Math.random()*cv.height*0.7+cv.height*0.05});
+    }
+    organisms=next;gen++;updateStats();
+  };
+  window.autoRun=function(){
+    if(autoId){clearInterval(autoId);autoId=null;return;}
+    autoId=setInterval(function(){nextGen()},400);
+  };
+  window.resetPop=function(){if(autoId){clearInterval(autoId);autoId=null;}initPop()};
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    // Background based on environment
+    var env=document.getElementById('env').value;
+    if(env==='dark') ctx.fillStyle='#1a2e1a';
+    else if(env==='light') ctx.fillStyle='#2d2a1f';
+    else ctx.fillStyle='#1a2025';
+    ctx.fillRect(0,0,w,h);
+    // Organisms
+    organisms.forEach(function(o){
+      var gray=Math.floor(o.shade*255);
+      ctx.fillStyle='rgb('+gray+','+gray+','+gray+')';
+      ctx.beginPath();ctx.arc(o.x,o.y,6,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;ctx.stroke();
+    });
+    // Population history graph (bottom)
+    if(history.length>1){
+      var gx=w*0.1,gy=h*0.82,gw=w*0.8,gh=h*0.15;
+      ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(gx,gy,gw,gh);
+      ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.strokeRect(gx,gy,gw,gh);
+      // Dark line
+      ctx.strokeStyle='#64748b';ctx.lineWidth=1.5;ctx.beginPath();
+      var step=gw/(history.length-1||1);
+      for(var i=0;i<history.length;i++){
+        var hx=gx+i*step,hy=gy+gh-history[i].dark*gh;
+        if(i===0) ctx.moveTo(hx,hy); else ctx.lineTo(hx,hy);
+      }
+      ctx.stroke();
+      // Light line
+      ctx.strokeStyle='#fbbf24';ctx.beginPath();
+      for(var i=0;i<history.length;i++){
+        var hx2=gx+i*step,hy2=gy+gh-history[i].light*gh;
+        if(i===0) ctx.moveTo(hx2,hy2); else ctx.lineTo(hx2,hy2);
+      }
+      ctx.stroke();
+      ctx.fillStyle='#64748b';ctx.font='9px Poppins';ctx.textAlign='left';
+      ctx.fillText('Dark',gx+5,gy+12);
+      ctx.fillStyle='#fbbf24';ctx.fillText('Light',gx+40,gy+12);
+    }
+    requestAnimationFrame(draw);
+  }
+  initPop();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

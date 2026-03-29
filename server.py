@@ -17,8 +17,8 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     timeout = 5
     
     def log_message(self, format, *args):
-        # Minimal logging - only show errors
-        if 'error' in format.lower() or args and 'error' in str(args).lower():
+        # Only log actual errors, not timeout messages
+        if 'timed out' not in str(args).lower() and 'timeout' not in format.lower():
             print(f"[{self.log_date_time_string()}] {format % args}", flush=True)
     
     def translate_path(self, path):
@@ -60,9 +60,47 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     
     def do_GET(self):
         try:
-            super().do_GET()
+            # Override parent to add extra safety
+            path = self.translate_path(self.path)
+            f = None
+            try:
+                # Try to open file
+                f = open(path, 'rb')
+            except OSError:
+                self.send_error(404)
+                return
+            
+            try:
+                # Send response headers
+                self.send_response(200)
+                self.send_header('Content-type', self.guess_type(path))
+                self.send_header('Content-Length', str(os.path.getsize(path)))
+                self.end_headers()
+                
+                # Send file in chunks, with write error handling
+                chunk_size = 65536
+                bytes_sent = 0
+                while True:
+                    chunk = f.read(chunk_size)
+                    if not chunk:
+                        break
+                    try:
+                        self.wfile.write(chunk)
+                        bytes_sent += len(chunk)
+                    except (BrokenPipeError, ConnectionResetError):
+                        # Client closed connection, stop sending
+                        print(f"[Connection closed] {self.client_address} after {bytes_sent} bytes on {self.path}", flush=True)
+                        break
+            finally:
+                if f:
+                    f.close()
+                    
         except Exception as e:
             print(f"[do_GET error on {self.path}] {e}", flush=True)
+            try:
+                self.send_error(500)
+            except:
+                pass
         finally:
             self.close_connection = True
     
@@ -98,12 +136,28 @@ class CleanupTCPServer(socketserver.ThreadingTCPServer):
             raise
     
     def process_request_thread(self, request, client_address):
-        """Override to track active connections"""
+        """Override to track active connections and prevent thread explosion"""
+        active_threads = threading.active_count()
+        
+        # Safety limit: don't allow more than 30 threads
+        if active_threads > 30:
+            print(f"[WARNING] Too many threads ({active_threads}), rejecting connection", flush=True)
+            request.close()
+            return
+        
         CleanupTCPServer._connection_count += 1
         try:
             super().process_request_thread(request, client_address)
         finally:
             CleanupTCPServer._connection_count -= 1
+    
+    def verify_request(self, request, client_address):
+        """Verify request and prevent DoS"""
+        active_threads = threading.active_count()
+        if active_threads > 40:
+            print(f"[CRITICAL] Excessive threads: {active_threads}", flush=True)
+            return False
+        return True
 
 def monitor_resources():
     """Monitor and clean up resources periodically"""

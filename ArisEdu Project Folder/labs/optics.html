@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Optics Lab</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:140px;accent-color:#f59e0b}
+    .ctrl-group .val{font-size:.8rem;color:#fbbf24;font-weight:600}
+    .ctrl-btn{padding:.5rem 1rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;font-weight:600;font-size:.85rem;transition:all .2s}
+    .ctrl-btn.active{background:#f59e0b;border-color:#f59e0b;color:#0f172a}
+    .ctrl-btn:hover{background:#334155}
+    .readout{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#fbbf24}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#fbbf24;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🔦 Optics Lab</h1>
+  <p class="subtitle">Explore reflection, refraction, and lenses with ray diagrams.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+  <div class="controls">
+    <button class="ctrl-btn active" onclick="setMode('refraction',this)">Refraction</button>
+    <button class="ctrl-btn" onclick="setMode('lens',this)">Convex Lens</button>
+    <button class="ctrl-btn" onclick="setMode('mirror',this)">Mirror</button>
+    <div class="ctrl-group"><label>Angle of Incidence (°)</label>
+      <input type="range" id="angle" min="5" max="80" value="45" oninput="calc()"><span class="val" id="angle-val">45°</span></div>
+    <div class="ctrl-group"><label id="param-label">n₂ (refractive index)</label>
+      <input type="range" id="param" min="10" max="25" value="15" oninput="calc()"><span class="val" id="param-val">1.5</span></div>
+  </div>
+  <div class="readout">
+    <div class="datum">Angle In: <strong id="ang-in">45°</strong></div>
+    <div class="datum">Angle Out: <strong id="ang-out">28.1°</strong></div>
+    <div class="datum">Snell's Law: <strong id="snell">n₁sinθ₁ = n₂sinθ₂</strong></div>
+  </div>
+  <div class="info-box" id="info-box"><h3>Refraction</h3><p>When light passes from one medium to another, it bends. Snell's Law: n₁ sin(θ₁) = n₂ sin(θ₂). Light bends toward the normal when entering a denser medium (higher n). Total internal reflection occurs when the angle exceeds the critical angle.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),optMode='refraction',t=0;
+  function resize(){cv.width=cv.parentElement.clientWidth}
+  window.addEventListener('resize',resize);resize();
+  window.setMode=function(m,btn){
+    optMode=m;
+    document.querySelectorAll('.ctrl-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    var infos={
+      refraction:'<h3>Refraction</h3><p>When light passes between media, it bends according to Snell\'s Law: n₁sin(θ₁)=n₂sin(θ₂). Light bends toward the normal in denser media. Total internal reflection occurs beyond the critical angle.</p>',
+      lens:'<h3>Convex Lens</h3><p>A convex lens converges parallel rays to a focal point. The thin lens equation: 1/f = 1/d₀ + 1/dᵢ. Object distance and focal length determine image position, size, and orientation.</p>',
+      mirror:'<h3>Concave Mirror</h3><p>A concave mirror reflects light to a focal point. The mirror equation: 1/f = 1/d₀ + 1/dᵢ. The angle of incidence equals the angle of reflection.</p>'
+    };
+    var labels={refraction:'n₂ (refractive index)',lens:'Focal Length (cm)',mirror:'Focal Length (cm)'};
+    document.getElementById('info-box').innerHTML=infos[m];
+    document.getElementById('param-label').textContent=labels[m];
+    calc();
+  };
+  window.calc=function(){
+    var angle=parseInt(document.getElementById('angle').value);
+    var param=parseInt(document.getElementById('param').value);
+    document.getElementById('angle-val').textContent=angle+'°';
+    document.getElementById('ang-in').textContent=angle+'°';
+    if(optMode==='refraction'){
+      var n2=param/10;
+      document.getElementById('param-val').textContent=n2.toFixed(1);
+      var sinOut=Math.sin(angle*Math.PI/180)/n2;
+      if(sinOut>1){
+        document.getElementById('ang-out').textContent='TIR';
+        document.getElementById('snell').textContent='Total Internal Reflection!';
+      }else{
+        var angOut=Math.asin(sinOut)*180/Math.PI;
+        document.getElementById('ang-out').textContent=angOut.toFixed(1)+'°';
+        document.getElementById('snell').textContent='sin('+angle+'°)/sin('+angOut.toFixed(1)+'°) = '+n2.toFixed(1);
+      }
+    }else{
+      var f=param;
+      document.getElementById('param-val').textContent=f+' cm';
+      document.getElementById('ang-out').textContent='f = '+f+' cm';
+      document.getElementById('snell').textContent='1/f = 1/d₀ + 1/dᵢ';
+    }
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    var angle=parseInt(document.getElementById('angle').value);
+    var param=parseInt(document.getElementById('param').value);
+    var cx=w/2,cy=h/2;
+    t+=0.016;
+    if(optMode==='refraction'){
+      var n2=param/10;
+      // Two media with gradient
+      var topGrad=ctx.createLinearGradient(0,0,0,cy);
+      topGrad.addColorStop(0,'rgba(59,130,246,0.02)');topGrad.addColorStop(1,'rgba(59,130,246,0.08)');
+      ctx.fillStyle=topGrad;ctx.fillRect(0,0,w,cy);
+      var botGrad=ctx.createLinearGradient(0,cy,0,h);
+      botGrad.addColorStop(0,'rgba(59,130,246,0.15)');botGrad.addColorStop(1,'rgba(59,130,246,0.25)');
+      ctx.fillStyle=botGrad;ctx.fillRect(0,cy,w,cy);
+      // Interface with shimmer
+      ctx.strokeStyle='#475569';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(w,cy);ctx.stroke();
+      // Normal (dashed)
+      ctx.strokeStyle='rgba(148,163,184,0.3)';ctx.lineWidth=1;ctx.setLineDash([5,5]);
+      ctx.beginPath();ctx.moveTo(cx,cy-h*0.42);ctx.lineTo(cx,cy+h*0.42);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='9px Poppins';ctx.textAlign='left';
+      ctx.fillText('Normal',cx+5,cy-h*0.38);
+      // Incident ray with animated pulse
+      var rad=angle*Math.PI/180;
+      var rayLen=Math.min(w,h)*0.38;
+      var ix=cx-Math.sin(rad)*rayLen,iy=cy-Math.cos(rad)*rayLen;
+      // Ray glow
+      ctx.strokeStyle='rgba(251,191,36,0.1)';ctx.lineWidth=8;
+      ctx.beginPath();ctx.moveTo(ix,iy);ctx.lineTo(cx,cy);ctx.stroke();
+      // Ray
+      ctx.strokeStyle='#fbbf24';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(ix,iy);ctx.lineTo(cx,cy);ctx.stroke();
+      // Animated photon pulse along incident ray
+      var pulseT=(t*0.8)%1;
+      var px=ix+(cx-ix)*pulseT,py=iy+(cy-iy)*pulseT;
+      ctx.fillStyle='rgba(251,191,36,0.6)';ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fill();
+      // Incident angle arc
+      ctx.strokeStyle='#fbbf24';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(cx,cy,35,-Math.PI/2,-Math.PI/2+rad,false);ctx.stroke();
+      ctx.fillStyle='#fbbf24';ctx.font='10px Poppins';ctx.textAlign='center';
+      ctx.fillText('θ₁='+angle+'°',cx+Math.sin(rad/2)*50,cy-Math.cos(rad/2)*50);
+      // Refracted/reflected ray
+      var sinOut=Math.sin(rad)/n2;
+      if(sinOut<=1){
+        var outRad=Math.asin(sinOut);
+        var rx=cx+Math.sin(outRad)*rayLen,ry=cy+Math.cos(outRad)*rayLen;
+        // Ray glow
+        ctx.strokeStyle='rgba(239,68,68,0.1)';ctx.lineWidth=8;
+        ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(rx,ry);ctx.stroke();
+        // Ray
+        ctx.strokeStyle='#ef4444';ctx.lineWidth=2.5;
+        ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(rx,ry);ctx.stroke();
+        // Refraction angle arc
+        ctx.strokeStyle='#ef4444';ctx.lineWidth=1.5;
+        var outDeg=Math.round(outRad*180/Math.PI);
+        ctx.beginPath();ctx.arc(cx,cy,30,Math.PI/2-outRad,Math.PI/2,false);ctx.stroke();
+        ctx.fillStyle='#ef4444';ctx.font='10px Poppins';
+        ctx.fillText('θ₂='+outDeg+'°',cx+Math.sin(outRad/2)*48,cy+Math.cos(outRad/2)*48);
+      }else{
+        // Total internal reflection
+        var rx=cx+Math.sin(rad)*rayLen,ry=cy-Math.cos(rad)*rayLen;
+        ctx.strokeStyle='rgba(239,68,68,0.1)';ctx.lineWidth=8;
+        ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(rx,ry);ctx.stroke();
+        ctx.strokeStyle='#ef4444';ctx.lineWidth=2.5;
+        ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(rx,ry);ctx.stroke();
+        // TIR label with flash
+        ctx.fillStyle='rgba(239,68,68,'+(0.5+Math.sin(t*4)*0.3)+')';ctx.font='bold 14px Poppins';ctx.textAlign='center';
+        ctx.fillText('Total Internal Reflection!',cx,cy-h*0.38);
+        // Critical angle indicator
+        var critAngle=Math.asin(1/n2)*180/Math.PI;
+        ctx.fillStyle='rgba(239,68,68,0.5)';ctx.font='10px Poppins';
+        ctx.fillText('θ_c = '+critAngle.toFixed(1)+'°',cx,cy-h*0.33);
+      }
+      // Medium labels with n values
+      ctx.fillStyle='#94a3b8';ctx.font='bold 12px Poppins';ctx.textAlign='left';
+      ctx.fillText('n₁ = 1.00 (air)',15,30);
+      ctx.fillText('n₂ = '+n2.toFixed(2),15,cy+25);
+      // Snell's law on canvas
+      ctx.fillStyle='rgba(251,191,36,0.5)';ctx.font='bold 11px Poppins';ctx.textAlign='right';
+      ctx.fillText('n₁ sin θ₁ = n₂ sin θ₂',w-15,30);
+    }else if(optMode==='lens'){
+      var f=param*3;
+      // Optical axis with arrow
+      ctx.strokeStyle='rgba(148,163,184,0.15)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(w,cy);ctx.stroke();
+      // Lens with refraction effect
+      ctx.strokeStyle='#60a5fa';ctx.lineWidth=3;
+      ctx.beginPath();ctx.ellipse(cx,cy,8,h*0.35,0,0,Math.PI*2);ctx.stroke();
+      // Lens fill gradient
+      ctx.fillStyle='rgba(96,165,250,0.08)';
+      ctx.beginPath();ctx.ellipse(cx,cy,8,h*0.35,0,0,Math.PI*2);ctx.fill();
+      // Lens markers
+      ctx.fillStyle='rgba(96,165,250,0.4)';ctx.font='8px Poppins';ctx.textAlign='center';
+      ctx.fillText('▲',cx,cy-h*0.37);ctx.fillText('▼',cx,cy+h*0.37+8);
+      // Focal points with glow
+      ctx.fillStyle='rgba(239,68,68,0.2)';ctx.beginPath();ctx.arc(cx-f,cy,10,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(239,68,68,0.2)';ctx.beginPath();ctx.arc(cx+f,cy,10,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#ef4444';
+      ctx.beginPath();ctx.arc(cx-f,cy,4,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(cx+f,cy,4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';
+      ctx.fillText('F',cx-f,cy+18);ctx.fillText("F'",cx+f,cy+18);
+      // 2F points
+      ctx.fillStyle='rgba(148,163,184,0.3)';
+      ctx.beginPath();ctx.arc(cx-f*2,cy,3,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(cx+f*2,cy,3,0,Math.PI*2);ctx.fill();
+      ctx.fillText('2F',cx-f*2,cy+15);ctx.fillText("2F'",cx+f*2,cy+15);
+      // Object arrow (green)
+      var objX=cx-f*1.5,objH=h*0.2;
+      ctx.strokeStyle='#22c55e';ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(objX,cy);ctx.lineTo(objX,cy-objH);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(objX-6,cy-objH+10);ctx.lineTo(objX,cy-objH);ctx.lineTo(objX+6,cy-objH+10);ctx.stroke();
+      ctx.fillStyle='#22c55e';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('Object',objX,cy+15);
+      // Principal rays with glow
+      // Ray 1: parallel → through F'
+      ctx.strokeStyle='rgba(251,191,36,0.15)';ctx.lineWidth=5;
+      ctx.beginPath();ctx.moveTo(objX,cy-objH);ctx.lineTo(cx,cy-objH);ctx.stroke();
+      ctx.strokeStyle='#fbbf2490';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(objX,cy-objH);ctx.lineTo(cx,cy-objH);
+      ctx.lineTo(cx+f*3,cy+objH*(f*3)/(f));ctx.stroke();
+      // Ray 2: through center (undeviated)
+      ctx.strokeStyle='rgba(251,191,36,0.15)';ctx.lineWidth=5;
+      ctx.beginPath();ctx.moveTo(objX,cy-objH);ctx.lineTo(cx+f*3,cy+objH*(cx+f*3-objX)/(cx-objX)-objH*(cx+f*3-objX)/(cx-objX)+objH*(f*3+cx-objX)/(cx-objX));ctx.stroke();
+      ctx.strokeStyle='#fbbf2490';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(objX,cy-objH);ctx.lineTo(w,cy+objH*(w-objX)/(cx-objX)-objH);ctx.stroke();
+      // Formula on canvas
+      ctx.fillStyle='rgba(251,191,36,0.5)';ctx.font='bold 11px Poppins';ctx.textAlign='right';
+      ctx.fillText('1/f = 1/dₒ + 1/dᵢ',w-15,30);
+    }else{
+      var f=param*3;
+      // Concave mirror
+      ctx.strokeStyle='#60a5fa';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(cx+f*2,cy,f*2,Math.PI*0.83,Math.PI*1.17);ctx.stroke();
+      // Mirror hatching
+      for(var hi=0;hi<8;hi++){
+        var ha=Math.PI*0.83+(hi/8)*Math.PI*0.34;
+        var hx=cx+f*2+Math.cos(ha)*f*2,hy=cy+Math.sin(ha)*f*2;
+        ctx.strokeStyle='rgba(96,165,250,0.2)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(hx+8,hy+4);ctx.stroke();
+      }
+      // Axis
+      ctx.strokeStyle='rgba(148,163,184,0.15)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(w,cy);ctx.stroke();
+      // Focal & center points
+      var mirX=cx+f*2-Math.sqrt(f*f*4);
+      ctx.fillStyle='rgba(239,68,68,0.2)';ctx.beginPath();ctx.arc(mirX-f,cy,10,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(mirX-f,cy,4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';
+      ctx.fillText('F',mirX-f,cy+18);
+      ctx.fillText('C',mirX-f*2,cy+18);
+      ctx.fillStyle='rgba(148,163,184,0.3)';ctx.beginPath();ctx.arc(mirX-f*2,cy,3,0,Math.PI*2);ctx.fill();
+      // Incident & reflected rays with glow
+      var rad2=angle*Math.PI/180;
+      ctx.strokeStyle='rgba(251,191,36,0.1)';ctx.lineWidth=6;
+      ctx.beginPath();ctx.moveTo(0,cy-Math.tan(rad2)*mirX);ctx.lineTo(mirX,cy);ctx.stroke();
+      ctx.strokeStyle='#fbbf24';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(0,cy-Math.tan(rad2)*mirX);ctx.lineTo(mirX,cy);ctx.stroke();
+      ctx.strokeStyle='rgba(239,68,68,0.1)';ctx.lineWidth=6;
+      ctx.beginPath();ctx.moveTo(mirX,cy);ctx.lineTo(0,cy+Math.tan(rad2)*mirX);ctx.stroke();
+      ctx.strokeStyle='#ef4444';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(mirX,cy);ctx.lineTo(0,cy+Math.tan(rad2)*mirX);ctx.stroke();
+      // Angle label
+      ctx.fillStyle='#fbbf24';ctx.font='10px Poppins';ctx.fillText('θ='+angle+'°',mirX-40,cy-15);
+      ctx.fillStyle='rgba(251,191,36,0.5)';ctx.font='bold 11px Poppins';ctx.textAlign='right';
+      ctx.fillText('θᵢ = θᵣ (Law of Reflection)',w-15,30);
+    }
+    requestAnimationFrame(draw);
+  }
+  calc();draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>

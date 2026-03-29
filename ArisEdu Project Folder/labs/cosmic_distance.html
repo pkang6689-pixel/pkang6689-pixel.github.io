@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Cosmic Distance Ladder</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-btn{padding:.5rem 1rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;font-weight:600;font-size:.85rem;transition:all .2s}
+    .ctrl-btn.active{background:#f59e0b;border-color:#f59e0b;color:#0f172a}
+    .ctrl-btn:hover{background:#334155}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#f59e0b}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>📏 Cosmic Distance Ladder</h1>
+  <p class="subtitle">Understand how astronomers measure distances across the universe.</p>
+  <div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
+  <div class="controls">
+    <button class="ctrl-btn active" onclick="setStep('parallax',this)">Parallax</button>
+    <button class="ctrl-btn" onclick="setStep('cepheid',this)">Cepheid Variables</button>
+    <button class="ctrl-btn" onclick="setStep('supernova',this)">Type Ia Supernovae</button>
+    <button class="ctrl-btn" onclick="setStep('redshift',this)">Redshift</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Method: <strong id="method-lbl">Parallax</strong></div>
+    <div class="datum">Range: <strong id="range">Up to ~1000 pc</strong></div>
+    <div class="datum">Distance Example: <strong id="dist-ex">Proxima: 1.3 pc</strong></div>
+  </div>
+  <div class="info-box"><h3>Cosmic Distance Ladder</h3><p>No single method measures all cosmic distances. Instead, astronomers use a "ladder" of techniques, each calibrated by the previous rung: <strong>Parallax</strong> (nearby stars, <1000 pc), <strong>Cepheid Variables</strong> (period-luminosity, ~30 Mpc), <strong>Type Ia Supernovae</strong> (standard candles, ~1000 Mpc), <strong>Redshift</strong> (Hubble's law, entire observable universe). 1 parsec ≈ 3.26 light-years.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),t=0,step='parallax';
+  var info={
+    parallax:{name:'Stellar Parallax',range:'Up to ~1000 pc',ex:'Proxima Centauri: 1.3 pc'},
+    cepheid:{name:'Cepheid Variables',range:'Up to ~30 Mpc',ex:'Andromeda (M31): 0.77 Mpc'},
+    supernova:{name:'Type Ia Supernovae',range:'Up to ~1000 Mpc',ex:'Virgo Cluster: 16.5 Mpc'},
+    redshift:{name:'Hubble\'s Law (Redshift)',range:'Entire Observable Universe',ex:'GN-z11: 9.8 Gpc (13.4 Gly)'}
+  };
+  function resize(){cv.width=cv.parentElement.clientWidth;}
+  window.addEventListener('resize',resize);resize();
+  window.setStep=function(s,btn){
+    step=s;
+    document.querySelectorAll('.ctrl-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById('method-lbl').textContent=info[s].name;
+    document.getElementById('range').textContent=info[s].range;
+    document.getElementById('dist-ex').textContent=info[s].ex;
+  };
+  function draw(){
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);
+    t+=0.016;
+    // Background stars
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    for(var i=0;i<40;i++){
+      ctx.beginPath();ctx.arc((i*73)%w,(i*97)%h,0.5+Math.sin(t+i)*0.3,0,Math.PI*2);ctx.fill();
+    }
+    if(step==='parallax')drawParallax(w,h);
+    else if(step==='cepheid')drawCepheid(w,h);
+    else if(step==='supernova')drawSupernova(w,h);
+    else drawRedshift(w,h);
+    requestAnimationFrame(draw);
+  }
+  function drawParallax(w,h){
+    ctx.fillStyle='#f59e0b';ctx.font='bold 14px Poppins';ctx.textAlign='center';
+    ctx.fillText('Stellar Parallax',w/2,25);
+    // Sun at center
+    ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(w/2,h/2,15,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fbbf24';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('Sun',w/2,h/2+30);
+    // Earth orbit
+    var orbitR=100;
+    ctx.strokeStyle='rgba(59,130,246,0.2)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(w/2,h/2,orbitR,0,Math.PI*2);ctx.stroke();
+    // Earth at two positions (6 months apart)
+    var earthAng1=t*0.3;
+    var earthAng2=earthAng1+Math.PI;
+    var e1x=w/2+Math.cos(earthAng1)*orbitR,e1y=h/2+Math.sin(earthAng1)*orbitR;
+    var e2x=w/2+Math.cos(earthAng2)*orbitR,e2y=h/2+Math.sin(earthAng2)*orbitR;
+    // Earth 1 (blue)
+    ctx.fillStyle='#3b82f6';ctx.beginPath();ctx.arc(e1x,e1y,8,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#3b82f6';ctx.font='9px Poppins';ctx.fillText('Jan',e1x,e1y+20);
+    // Earth 2 (green)
+    ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(e2x,e2y,8,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#22c55e';ctx.font='9px Poppins';ctx.fillText('Jul',e2x,e2y+20);
+    // Distant star
+    var starX=w*0.8,starY=h*0.15;
+    ctx.fillStyle='#f1f5f9';ctx.beginPath();ctx.arc(starX,starY,4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f1f5f9';ctx.font='10px Poppins';ctx.fillText('Nearby Star',starX,starY-10);
+    // Sight lines from each position to star
+    ctx.strokeStyle='rgba(239,68,68,0.3)';ctx.lineWidth=1;ctx.setLineDash([5,5]);
+    ctx.beginPath();ctx.moveTo(e1x,e1y);ctx.lineTo(starX,starY);ctx.stroke();
+    ctx.strokeStyle='rgba(34,197,94,0.3)';
+    ctx.beginPath();ctx.moveTo(e2x,e2y);ctx.lineTo(starX,starY);ctx.stroke();
+    ctx.setLineDash([]);
+    // Parallax angle arc
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;
+    var angToStar1=Math.atan2(starY-e1y,starX-e1x);
+    var angToStar2=Math.atan2(starY-e2y,starX-e2x);
+    ctx.beginPath();ctx.arc(starX,starY,40,angToStar2+Math.PI,angToStar1+Math.PI);ctx.stroke();
+    ctx.fillStyle='#f59e0b';ctx.font='bold 11px Poppins';
+    ctx.fillText('p (parallax angle)',starX-60,starY+30);
+    // Formula
+    ctx.fillStyle='#94a3b8';ctx.font='12px Poppins';
+    ctx.fillText('d = 1/p  (d in parsecs, p in arcseconds)',w/2,h-20);
+    // Baseline
+    ctx.strokeStyle='rgba(148,163,184,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(e1x,e1y);ctx.lineTo(e2x,e2y);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';
+    ctx.fillText('2 AU baseline',w/2,h/2+orbitR+20);
+  }
+  function drawCepheid(w,h){
+    ctx.fillStyle='#f59e0b';ctx.font='bold 14px Poppins';ctx.textAlign='center';
+    ctx.fillText('Cepheid Variable Stars',w/2,25);
+    // Pulsating star
+    var pulseR=20+Math.sin(t*3)*10;
+    var brightness=0.5+Math.sin(t*3)*0.3;
+    var sGrad=ctx.createRadialGradient(w/2,h*0.3,0,w/2,h*0.3,pulseR*2);
+    sGrad.addColorStop(0,'rgba(251,191,36,'+brightness+')');sGrad.addColorStop(1,'rgba(251,191,36,0)');
+    ctx.fillStyle=sGrad;ctx.beginPath();ctx.arc(w/2,h*0.3,pulseR*2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(w/2,h*0.3,pulseR,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
+    ctx.fillText('Cepheid pulsates with regular period',w/2,h*0.3+pulseR+20);
+    // Light curve
+    var graphY=h*0.5,graphH=h*0.3;
+    ctx.strokeStyle='#334155';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(w*0.1,graphY+graphH/2);ctx.lineTo(w*0.9,graphY+graphH/2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(w*0.1,graphY);ctx.lineTo(w*0.1,graphY+graphH);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Period-Luminosity Relationship',w/2,graphY-8);
+    ctx.textAlign='right';ctx.font='8px Poppins';
+    ctx.fillText('Bright',w*0.09,graphY+10);ctx.fillText('Dim',w*0.09,graphY+graphH-5);
+    // Light curve wave
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.beginPath();
+    for(var x=0;x<w*0.8;x+=2){
+      var gx=w*0.1+x;
+      var gy=graphY+graphH/2-Math.sin(x*0.05+t*3)*graphH*0.3;
+      if(x===0)ctx.moveTo(gx,gy);else ctx.lineTo(gx,gy);
+    }
+    ctx.stroke();
+    // Period annotation
+    ctx.fillStyle='#f59e0b';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText('← Period →',w/2,graphY+graphH+15);
+    ctx.fillStyle='#94a3b8';ctx.font='11px Poppins';
+    ctx.fillText('Longer period = More luminous → Known luminosity → Distance!',w/2,h-15);
+  }
+  function drawSupernova(w,h){
+    ctx.fillStyle='#f59e0b';ctx.font='bold 14px Poppins';ctx.textAlign='center';
+    ctx.fillText('Type Ia Supernovae (Standard Candles)',w/2,25);
+    // Exploding star
+    var explR=30+Math.sin(t*2)*15;
+    var flash=Math.max(0,Math.sin(t*2));
+    // Explosion
+    var eGrad=ctx.createRadialGradient(w/2,h*0.35,0,w/2,h*0.35,explR*3);
+    eGrad.addColorStop(0,'rgba(255,200,100,'+flash*0.5+')');
+    eGrad.addColorStop(0.5,'rgba(239,68,68,'+flash*0.2+')');
+    eGrad.addColorStop(1,'rgba(239,68,68,0)');
+    ctx.fillStyle=eGrad;ctx.beginPath();ctx.arc(w/2,h*0.35,explR*3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fef3c7';ctx.beginPath();ctx.arc(w/2,h*0.35,explR*0.5,0,Math.PI*2);ctx.fill();
+    // Debris
+    for(var d=0;d<12;d++){
+      var dang=d*Math.PI/6+t;
+      var dr=explR+explR*Math.sin(t+d);
+      ctx.fillStyle='rgba(239,68,68,'+(0.3+flash*0.3)+')';
+      ctx.beginPath();ctx.arc(w/2+Math.cos(dang)*dr,h*0.35+Math.sin(dang)*dr,3,0,Math.PI*2);ctx.fill();
+    }
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
+    ctx.fillText('Type Ia: White dwarf exceeds Chandrasekhar limit (1.4 M☉)',w/2,h*0.55);
+    ctx.fillText('Always same peak luminosity → "Standard Candle"',w/2,h*0.6);
+    // Distance ladder diagram
+    ctx.strokeStyle='#334155';ctx.lineWidth=2;
+    var steps=[{x:w*0.15,label:'Parallax\n<1000 pc'},{x:w*0.38,label:'Cepheids\n<30 Mpc'},{x:w*0.62,label:'Type Ia SN\n<1000 Mpc'},{x:w*0.85,label:'Redshift\n∞'}];
+    var ladderY=h*0.75;
+    ctx.beginPath();ctx.moveTo(w*0.1,ladderY);ctx.lineTo(w*0.9,ladderY);ctx.stroke();
+    steps.forEach(function(s,si){
+      ctx.fillStyle=si===2?'#f59e0b':'#475569';
+      ctx.beginPath();ctx.arc(s.x,ladderY,8,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=si===2?'#f59e0b':'#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';
+      var lines=s.label.split('\n');
+      lines.forEach(function(ln,li){ctx.fillText(ln,s.x,ladderY+20+li*12);});
+      if(si<3){
+        ctx.strokeStyle='#475569';ctx.beginPath();ctx.moveTo(s.x+12,ladderY);ctx.lineTo(steps[si+1].x-12,ladderY);ctx.stroke();
+      }
+    });
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
+    ctx.fillText('Each rung calibrates the next — the cosmic distance ladder',w/2,h-15);
+  }
+  function drawRedshift(w,h){
+    ctx.fillStyle='#f59e0b';ctx.font='bold 14px Poppins';ctx.textAlign='center';
+    ctx.fillText('Cosmological Redshift & Hubble\'s Law',w/2,25);
+    // Expanding space visualization
+    var cx=w/2,cy=h*0.35;
+    // Galaxies moving apart
+    var numG=6;
+    for(var gi=0;gi<numG;gi++){
+      var ga=gi*Math.PI*2/numG;
+      var baseDist=80;
+      var expanding=baseDist+t*5%(baseDist);
+      var gx=cx+Math.cos(ga)*expanding;
+      var gy=cy+Math.sin(ga)*expanding*0.5;
+      // Galaxy dot
+      ctx.fillStyle='#8b5cf6';ctx.beginPath();ctx.arc(gx,gy,6,0,Math.PI*2);ctx.fill();
+      // Redshift arrow
+      ctx.strokeStyle='#ef4444';ctx.lineWidth=1;
+      var ax=Math.cos(ga)*15,ay=Math.sin(ga)*7;
+      ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx+ax,gy+ay);ctx.stroke();
+    }
+    // Observer at center
+    ctx.fillStyle='#3b82f6';ctx.beginPath();ctx.arc(cx,cy,8,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#3b82f6';ctx.font='9px Poppins';ctx.fillText('Observer',cx,cy+20);
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
+    ctx.fillText('All galaxies recede — farther = faster (Hubble Flow)',cx,cy+60);
+    // Spectrum shift demo
+    var specY=h*0.6,specH=30;
+    // Rest spectrum
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='left';
+    ctx.fillText('Rest (lab):',10,specY);
+    for(var wl=380;wl<=700;wl++){
+      var sx=100+(wl-380)/320*(w-150);
+      ctx.fillStyle=wavelengthToColor(wl);
+      ctx.fillRect(sx,specY-10,1.5,20);
+    }
+    // Absorption lines
+    [486,589,656].forEach(function(line){
+      var lx=100+(line-380)/320*(w-150);
+      ctx.fillStyle='#020617';ctx.fillRect(lx-1,specY-10,3,20);
+    });
+    // Redshifted spectrum
+    var specY2=specY+40;
+    ctx.fillStyle='#94a3b8';ctx.textAlign='left';
+    ctx.fillText('Redshifted:',10,specY2);
+    var z=0.2;// redshift
+    for(var wl2=380;wl2<=700;wl2++){
+      var sx2=100+((wl2*(1+z))-380)/320*(w-150);
+      if(sx2<100||sx2>w-50)continue;
+      ctx.fillStyle=wavelengthToColor(wl2);
+      ctx.fillRect(sx2,specY2-10,1.5,20);
+    }
+    [486,589,656].forEach(function(line){
+      var lx2=100+((line*(1+z))-380)/320*(w-150);
+      ctx.fillStyle='#020617';ctx.fillRect(lx2-1,specY2-10,3,20);
+      // Arrow showing shift
+      ctx.strokeStyle='#ef4444';ctx.lineWidth=1;
+      var lx1=100+(line-380)/320*(w-150);
+      ctx.beginPath();ctx.moveTo(lx1,specY+12);ctx.lineTo(lx2,specY2-12);ctx.stroke();
+    });
+    ctx.fillStyle='#ef4444';ctx.textAlign='right';ctx.font='9px Poppins';
+    ctx.fillText('→ Lines shift red',w-10,specY2);
+    // Hubble's law formula
+    ctx.fillStyle='#f59e0b';ctx.font='bold 12px Poppins';ctx.textAlign='center';
+    ctx.fillText('v = H₀ × d',w/2,h-40);
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
+    ctx.fillText('v = recession velocity, H₀ ≈ 70 km/s/Mpc, d = distance',w/2,h-20);
+  }
+  function wavelengthToColor(wl){
+    var r=0,g=0,b=0;
+    if(wl>=380&&wl<440){r=-(wl-440)/(440-380);b=1;}
+    else if(wl>=440&&wl<490){g=(wl-440)/(490-440);b=1;}
+    else if(wl>=490&&wl<510){g=1;b=-(wl-510)/(510-490);}
+    else if(wl>=510&&wl<580){r=(wl-510)/(580-510);g=1;}
+    else if(wl>=580&&wl<645){r=1;g=-(wl-645)/(645-580);}
+    else if(wl>=645&&wl<=700){r=1;}
+    return'rgb('+Math.round(r*255)+','+Math.round(g*255)+','+Math.round(b*255)+')';
+  }
+  draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body></html>
