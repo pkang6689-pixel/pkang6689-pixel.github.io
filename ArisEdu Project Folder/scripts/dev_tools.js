@@ -928,8 +928,14 @@
       temp.showArcadeTour();
     } else {
       // Non-quiz page: fetch the source as text and eval only the method we need
-      fetch('/scripts/quiz_loader.js')
-        .then(function(r) { return r.text(); })
+      var timeout = new Promise(function(_, reject) {
+        setTimeout(function() { reject(new Error('Fetch timeout')); }, 5000);
+      });
+      Promise.race([
+        fetch('/ArisEdu Project Folder/scripts/quiz_loader.js')
+          .then(function(r) { return r.text(); }),
+        timeout
+      ])
         .then(function(src) {
           // Extract showArcadeTour method body and run it stand-alone
           var match = src.match(/showArcadeTour\s*\(\)\s*\{/);
@@ -944,7 +950,7 @@
           var fnBody = src.substring(start + match[0].length, i);
           (new Function(fnBody))();
         })
-        .catch(function() { alert('Could not load quiz_loader.js'); });
+        .catch(function(err) { alert('Could not load quiz_loader.js: ' + (err.message || 'timeout')); });
     }
   });
 

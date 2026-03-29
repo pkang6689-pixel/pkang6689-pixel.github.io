@@ -60,7 +60,14 @@
     }
 
     function _fetchJSON(url) {
-        return fetch(url).then(function (res) {
+        var timeout = new Promise(function(_, reject) {
+          setTimeout(function() { reject(new Error('Translation fetch timeout')); }, 5000);
+        });
+        
+        return Promise.race([
+          fetch(url),
+          timeout
+        ]).then(function (res) {
             if (!res.ok) {
                 // Return empty dict if file doesn't exist yet — graceful degradation
                 if (res.status === 404) return {};
