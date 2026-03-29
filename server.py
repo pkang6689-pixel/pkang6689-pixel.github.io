@@ -22,6 +22,25 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def translate_path(self, path):
         try:
             path = urllib.parse.unquote(path)
+            
+            # Handle absolute path redirects for the dev server
+            # Map framework paths to root-level files
+            if path.startswith('/search_data.js'):
+                path = '/search_data.js'
+            elif path.startswith('/search_logic.js'):
+                path = '/search_logic.js'
+            elif path.startswith('/_sdk/'):
+                path = path  # Keep as is - points to root _sdk folder
+            # Map /styles/* to ArisEdu Project Folder/styles/*
+            elif path.startswith('/styles/'):
+                path = '/ArisEdu Project Folder' + path
+            # Map /scripts/* to ArisEdu Project Folder/scripts/* if it's not already
+            elif path.startswith('/scripts/') and not path.startswith('/ArisEdu Project Folder/scripts/'):
+                path = '/ArisEdu Project Folder' + path
+            # /content_data/* stays as root-level
+            # /translations/* stays as root-level
+            # /ArisEdu Project Folder/* stays as is
+            
             return super().translate_path(path)
         except:
             return super().translate_path(path)

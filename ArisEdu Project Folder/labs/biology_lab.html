@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biology Lab Simulation</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: #0f172a; color: #f1f5f9; }
+    .sim-container { max-width: 1100px; margin: 5rem auto 2rem; padding: 1rem 2rem; }
+    h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.25rem; }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 1.5rem; }
+    .microscope-area { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .slide-selector { flex: 0 0 200px; background: #1e293b; border-radius: 1rem; padding: 1rem; border: 1px solid #334155; }
+    .slide-selector h3 { font-size: 0.95rem; color: #94a3b8; margin-bottom: 0.75rem; }
+    .slide-btn { display: block; width: 100%; text-align: left; padding: 0.6rem 0.8rem; margin-bottom: 0.4rem; background: #334155; border: 2px solid transparent; border-radius: 0.5rem; color: #f1f5f9; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; }
+    .slide-btn:hover { background: #475569; }
+    .slide-btn.active { border-color: #3b82f6; background: rgba(59,130,246,0.15); }
+    .viewer { flex: 1; min-width: 320px; position: relative; }
+    .lens { width: 100%; height: 420px; border-radius: 50%; background: #020617; border: 6px solid #334155; overflow: hidden; position: relative; box-shadow: inset 0 0 60px rgba(0,0,0,0.8), 0 0 30px rgba(59,130,246,0.1); }
+    .cell-canvas { width: 100%; height: 100%; }
+    .zoom-controls { display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem; }
+    .zoom-btn { padding: 0.5rem 1.2rem; border-radius: 0.5rem; border: 1px solid #334155; background: #1e293b; color: #f1f5f9; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .zoom-btn:hover { background: #334155; }
+    .zoom-label { padding: 0.5rem 1rem; color: #94a3b8; font-size: 0.85rem; display: flex; align-items: center; }
+    .info-panel { flex: 0 0 280px; background: #1e293b; border-radius: 1rem; padding: 1rem; border: 1px solid #334155; }
+    .info-panel h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .info-panel .part-name { color: #67e8f9; font-weight: 600; }
+    .info-panel p { font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; }
+    .parts-list { margin-top: 0.75rem; }
+    .part-item { padding: 0.5rem 0.6rem; border-radius: 0.4rem; cursor: pointer; font-size: 0.8rem; transition: background 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+    .part-item:hover { background: rgba(59,130,246,0.1); }
+    .part-item.highlight { background: rgba(59,130,246,0.2); }
+    .part-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    @media (max-width: 700px) { .microscope-area { flex-direction: column; } .slide-selector, .info-panel { flex: unset; width: 100%; } .lens { height: 320px; border-radius: 1rem; } }
+  </style>
+</head>
+<body class="dark-mode">
+  <script src="../scripts/taskbar.js"></script>
+  <div class="sim-container">
+    <h1>🧬 Biology Lab</h1>
+    <p class="subtitle">Examine cell structures under a virtual microscope. Click on organelles to learn about them.</p>
+
+    <div class="microscope-area">
+      <div class="slide-selector">
+        <h3>🔬 Slides</h3>
+        <button class="slide-btn active" onclick="loadSlide('animal')">🐾 Animal Cell</button>
+        <button class="slide-btn" onclick="loadSlide('plant')">🌿 Plant Cell</button>
+        <button class="slide-btn" onclick="loadSlide('bacteria')">🦠 Bacteria Cell</button>
+      </div>
+
+      <div class="viewer">
+        <div class="lens">
+          <canvas id="cell-canvas" class="cell-canvas"></canvas>
+        </div>
+        <div class="zoom-controls">
+          <button class="zoom-btn" onclick="adjustZoom(-0.2)">− Zoom Out</button>
+          <span class="zoom-label" id="zoom-label">100×</span>
+          <button class="zoom-btn" onclick="adjustZoom(0.2)">+ Zoom In</button>
+        </div>
+      </div>
+
+      <div class="info-panel">
+        <h3 id="cell-title">🐾 Animal Cell</h3>
+        <p id="cell-desc">A typical eukaryotic animal cell. Click on an organelle to learn more.</p>
+        <div class="parts-list" id="parts-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    var canvas = document.getElementById('cell-canvas');
+    var ctx = canvas.getContext('2d');
+    var zoom = 1;
+    var currentSlide = 'animal';
+    var selectedPart = null;
+
+    var cellData = {
+      animal: {
+        title: '🐾 Animal Cell',
+        desc: 'A eukaryotic cell without a cell wall. Contains membrane-bound organelles.',
+        color: '#fef3c7',
+        membrane: '#f59e0b',
+        parts: [
+          { name: 'Nucleus', x: 0.5, y: 0.48, r: 0.14, color: '#7c3aed', desc: 'The control center of the cell. Contains DNA organized into chromosomes and directs all cell activities including growth, metabolism, and reproduction.' },
+          { name: 'Nucleolus', x: 0.52, y: 0.46, r: 0.04, color: '#4c1d95', desc: 'A dense structure inside the nucleus that produces ribosomal RNA (rRNA) and assembles ribosome subunits.' },
+          { name: 'Mitochondria', x: 0.3, y: 0.35, r: 0.06, color: '#ef4444', desc: 'The powerhouse of the cell. Generates ATP through cellular respiration. Has its own DNA, supporting the endosymbiotic theory.' },
+          { name: 'Mitochondria 2', x: 0.68, y: 0.62, r: 0.05, color: '#ef4444', desc: 'Another mitochondrion. A cell can contain hundreds to thousands, depending on energy needs.', label: 'Mitochondria' },
+          { name: 'Endoplasmic Reticulum', x: 0.35, y: 0.58, r: 0.08, color: '#3b82f6', desc: 'A network of membranes. Rough ER (with ribosomes) synthesizes proteins; Smooth ER synthesizes lipids and detoxifies chemicals.' },
+          { name: 'Golgi Apparatus', x: 0.65, y: 0.38, r: 0.07, color: '#f59e0b', desc: 'The cell\'s "post office." Modifies, packages, and ships proteins and lipids to their destinations inside or outside the cell.' },
+          { name: 'Lysosome', x: 0.72, y: 0.52, r: 0.035, color: '#84cc16', desc: 'Contains digestive enzymes that break down waste, cellular debris, and foreign invaders. Acts as the cell\'s recycling center.' },
+          { name: 'Centrosome', x: 0.42, y: 0.32, r: 0.03, color: '#ec4899', desc: 'Organizes microtubules during cell division. Contains two centrioles that help form the mitotic spindle.' },
+          { name: 'Ribosome', x: 0.28, y: 0.52, r: 0.02, color: '#94a3b8', desc: 'Tiny molecular machines that translate mRNA into proteins. Found free in cytoplasm or attached to rough ER.' },
+        ]
+      },
+      plant: {
+        title: '🌿 Plant Cell',
+        desc: 'A eukaryotic cell with a rigid cell wall, chloroplasts, and a large central vacuole.',
+        color: '#d1fae5',
+        membrane: '#22c55e',
+        parts: [
+          { name: 'Nucleus', x: 0.5, y: 0.38, r: 0.12, color: '#7c3aed', desc: 'The control center containing DNA. Directs protein synthesis and cell reproduction.' },
+          { name: 'Chloroplast', x: 0.32, y: 0.35, r: 0.07, color: '#16a34a', desc: 'The site of photosynthesis. Contains chlorophyll that captures light energy to convert CO₂ and H₂O into glucose and O₂.' },
+          { name: 'Chloroplast 2', x: 0.7, y: 0.42, r: 0.06, color: '#16a34a', desc: 'Plant cells can have 10–100 chloroplasts. They have their own DNA, like mitochondria.', label: 'Chloroplast' },
+          { name: 'Central Vacuole', x: 0.5, y: 0.6, r: 0.18, color: '#67e8f9', desc: 'A large, fluid-filled organelle that maintains turgor pressure, stores nutrients and waste, and helps the plant stay rigid.' },
+          { name: 'Cell Wall', x: 0.5, y: 0.15, r: 0.04, color: '#a3e635', desc: 'A rigid outer layer made of cellulose. Provides structural support and protection. Located outside the cell membrane.' },
+          { name: 'Mitochondria', x: 0.3, y: 0.55, r: 0.05, color: '#ef4444', desc: 'The powerhouse — generates ATP even in plant cells. Photosynthesis provides glucose; mitochondria convert it to usable energy.' },
+          { name: 'Endoplasmic Reticulum', x: 0.65, y: 0.3, r: 0.07, color: '#3b82f6', desc: 'Network of membranes for synthesizing proteins (rough ER) and lipids (smooth ER).' },
+          { name: 'Golgi Apparatus', x: 0.35, y: 0.45, r: 0.06, color: '#f59e0b', desc: 'Processes and packages proteins and lipids. Also involved in synthesizing cell wall components.' },
+        ]
+      },
+      bacteria: {
+        title: '🦠 Bacteria Cell',
+        desc: 'A prokaryotic cell — no membrane-bound nucleus. Simpler structure but highly efficient.',
+        color: '#e0e7ff',
+        membrane: '#6366f1',
+        parts: [
+          { name: 'Nucleoid', x: 0.5, y: 0.48, r: 0.15, color: '#7c3aed', desc: 'The region containing the bacterial chromosome — a single circular DNA molecule. Not enclosed in a membrane (no true nucleus).' },
+          { name: 'Plasmid', x: 0.65, y: 0.38, r: 0.03, color: '#ec4899', desc: 'Small, circular DNA separate from the chromosome. Can carry genes for antibiotic resistance. Used in genetic engineering.' },
+          { name: 'Ribosome', x: 0.35, y: 0.4, r: 0.025, color: '#94a3b8', desc: 'Smaller than eukaryotic ribosomes (70S vs 80S). This difference is why certain antibiotics target bacteria without harming human cells.' },
+          { name: 'Cell Wall', x: 0.5, y: 0.18, r: 0.04, color: '#a3e635', desc: 'Made of peptidoglycan (not cellulose like plants). Provides shape and prevents the cell from bursting. Gram-positive walls are thicker than gram-negative.' },
+          { name: 'Flagellum', x: 0.82, y: 0.5, r: 0.04, color: '#f59e0b', desc: 'A long, whip-like appendage used for movement. Rotates like a motor, propelling the bacterium through liquid environments.' },
+          { name: 'Pili', x: 0.2, y: 0.55, r: 0.03, color: '#fb923c', desc: 'Short, hair-like structures on the surface. Help bacteria attach to surfaces and to other bacteria during conjugation (gene transfer).' },
+          { name: 'Capsule', x: 0.5, y: 0.12, r: 0.03, color: '#67e8f9', desc: 'A slimy outer layer that protects the bacterium from the host immune system and prevents dehydration.' },
+        ]
+      }
+    };
+
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+      draw();
+    }
+    window.addEventListener('resize', resize);
+
+    function draw() {
+      var data = cellData[currentSlide];
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var cx = canvas.width / 2, cy = canvas.height / 2;
+      var baseR = Math.min(canvas.width, canvas.height) * 0.38 * zoom;
+
+      // Cell membrane / wall
+      ctx.beginPath();
+      if (currentSlide === 'bacteria') {
+        // Oval shape
+        ctx.ellipse(cx, cy, baseR * 1.3, baseR * 0.7, 0, 0, Math.PI * 2);
+      } else {
+        ctx.arc(cx, cy, baseR, 0, Math.PI * 2);
+      }
+      ctx.fillStyle = data.color + '33';
+      ctx.fill();
+      ctx.strokeStyle = data.membrane;
+      ctx.lineWidth = currentSlide === 'plant' ? 6 : 3;
+      ctx.stroke();
+
+      // Second membrane for plant cell wall
+      if (currentSlide === 'plant') {
+        ctx.beginPath();
+        ctx.arc(cx, cy, baseR + 8, 0, Math.PI * 2);
+        ctx.strokeStyle = '#a3e635';
+        ctx.lineWidth = 4;
+        ctx.setLineDash([8, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Draw organelles
+      data.parts.forEach(function(p) {
+        var px, py, pr;
+        if (currentSlide === 'bacteria') {
+          px = cx + (p.x - 0.5) * baseR * 2.6;
+          py = cy + (p.y - 0.5) * baseR * 1.4;
+        } else {
+          px = cx + (p.x - 0.5) * baseR * 2;
+          py = cy + (p.y - 0.5) * baseR * 2;
+        }
+        pr = p.r * baseR * 1.6;
+
+        ctx.beginPath();
+        ctx.arc(px, py, pr, 0, Math.PI * 2);
+        var isSelected = selectedPart && (selectedPart.name === p.name);
+        ctx.fillStyle = p.color + (isSelected ? 'cc' : '88');
+        ctx.fill();
+        if (isSelected) {
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+
+        // Label
+        ctx.font = (10 * zoom) + 'px Poppins, sans-serif';
+        ctx.fillStyle = '#f1f5f9';
+        ctx.textAlign = 'center';
+        var label = p.label || p.name;
+        ctx.fillText(label, px, py + pr + 12 * zoom);
+      });
+    }
+
+    function buildPartsList() {
+      var data = cellData[currentSlide];
+      var list = document.getElementById('parts-list');
+      list.innerHTML = '';
+      var seen = {};
+      data.parts.forEach(function(p) {
+        var label = p.label || p.name;
+        if (seen[label]) return;
+        seen[label] = true;
+        var item = document.createElement('div');
+        item.className = 'part-item';
+        item.innerHTML = '<span class="part-dot" style="background:' + p.color + '"></span>' + label;
+        item.addEventListener('click', function() {
+          selectedPart = p;
+          document.getElementById('cell-desc').innerHTML = '<span class="part-name">' + label + ':</span> ' + p.desc;
+          document.querySelectorAll('.part-item').forEach(function(el) { el.classList.remove('highlight'); });
+          item.classList.add('highlight');
+          draw();
+        });
+        list.appendChild(item);
+      });
+    }
+
+    window.loadSlide = function(type) {
+      currentSlide = type;
+      selectedPart = null;
+      var data = cellData[type];
+      document.getElementById('cell-title').textContent = data.title;
+      document.getElementById('cell-desc').textContent = data.desc;
+      document.querySelectorAll('.slide-btn').forEach(function(b) { b.classList.remove('active'); });
+      event.target.classList.add('active');
+      buildPartsList();
+      draw();
+    };
+
+    window.adjustZoom = function(delta) {
+      zoom = Math.max(0.6, Math.min(2.0, zoom + delta));
+      document.getElementById('zoom-label').textContent = Math.round(zoom * 100) + '×';
+      draw();
+    };
+
+    // Click on canvas to select organelle
+    canvas.addEventListener('click', function(e) {
+      var rect = canvas.getBoundingClientRect();
+      var mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+      var my = (e.clientY - rect.top) * (canvas.height / rect.height);
+      var cx = canvas.width / 2, cy = canvas.height / 2;
+      var baseR = Math.min(canvas.width, canvas.height) * 0.38 * zoom;
+      var data = cellData[currentSlide];
+
+      var found = null;
+      for (var i = data.parts.length - 1; i >= 0; i--) {
+        var p = data.parts[i];
+        var px, py;
+        if (currentSlide === 'bacteria') {
+          px = cx + (p.x - 0.5) * baseR * 2.6;
+          py = cy + (p.y - 0.5) * baseR * 1.4;
+        } else {
+          px = cx + (p.x - 0.5) * baseR * 2;
+          py = cy + (p.y - 0.5) * baseR * 2;
+        }
+        var pr = p.r * baseR * 1.6;
+        var dx = mx - px, dy = my - py;
+        if (Math.sqrt(dx * dx + dy * dy) < pr + 5) { found = p; break; }
+      }
+
+      if (found) {
+        selectedPart = found;
+        var label = found.label || found.name;
+        document.getElementById('cell-desc').innerHTML = '<span class="part-name">' + label + ':</span> ' + found.desc;
+        // highlight in parts list
+        document.querySelectorAll('.part-item').forEach(function(el) {
+          el.classList.toggle('highlight', el.textContent.trim() === label);
+        });
+      } else {
+        selectedPart = null;
+        document.getElementById('cell-desc').textContent = cellData[currentSlide].desc;
+        document.querySelectorAll('.part-item').forEach(function(el) { el.classList.remove('highlight'); });
+      }
+      draw();
+    });
+
+    resize();
+    buildPartsList();
+  })();
+  </script>
+  <script src="../scripts/translation_loader.js" data-base="translations"></script>
+  <script src="../../search_data.js"></script>
+  <script src="../../search_logic.js"></script>
+</body>
+</html>

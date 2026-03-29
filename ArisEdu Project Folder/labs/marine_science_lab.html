@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marine Science Lab</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: #0f172a; color: #f1f5f9; }
+    .sim-container { max-width: 1100px; margin: 5rem auto 2rem; padding: 1rem 2rem; }
+    h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.25rem; }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 1rem; }
+    .ocean-layout { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .ocean-view { flex: 1; min-width: 350px; position: relative; }
+    .ocean-wrap { position: relative; width: 100%; height: 520px; border-radius: 1rem; overflow: hidden; border: 1px solid #1e3a5f; cursor: pointer; }
+    canvas { display: block; width: 100%; height: 100%; }
+    .depth-gauge { position: absolute; right: 10px; top: 0; bottom: 0; width: 36px; display: flex; flex-direction: column; justify-content: space-between; padding: 8px 0; pointer-events: none; }
+    .depth-mark { font-size: 0.65rem; color: rgba(241,245,249,0.5); text-align: center; }
+    .creature-panel { flex: 0 0 300px; background: #1e293b; border-radius: 1rem; padding: 1.25rem; border: 1px solid #334155; max-height: 520px; overflow-y: auto; }
+    .creature-panel h3 { font-size: 1rem; margin: 0 0 0.75rem; color: #67e8f9; }
+    .creature-panel p { font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; margin: 0; }
+    .creature-list { margin-top: 0.75rem; }
+    .creature-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.6rem; border-radius: 0.4rem; cursor: pointer; font-size: 0.85rem; transition: background 0.2s; }
+    .creature-item:hover { background: rgba(59,130,246,0.1); }
+    .creature-item.active { background: rgba(59,130,246,0.2); }
+    .creature-item .emoji { font-size: 1.2rem; }
+    .zone-label { font-size: 0.7rem; color: rgba(241,245,249,0.4); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.75rem; margin-bottom: 0.25rem; }
+    .controls-row { display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.75rem; }
+    .ctrl-btn { padding: 0.4rem 1rem; border-radius: 0.5rem; border: 1px solid #334155; background: #1e293b; color: #f1f5f9; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+    .ctrl-btn:hover { background: #334155; }
+    @media (max-width: 700px) { .ocean-layout { flex-direction: column; } .creature-panel { flex: unset; width: 100%; max-height: unset; } }
+  </style>
+</head>
+<body class="dark-mode">
+  <script src="../scripts/taskbar.js"></script>
+  <div class="sim-container">
+    <h1>🌊 Marine Science Lab</h1>
+    <p class="subtitle">Dive through ocean zones and discover marine life at every depth.</p>
+
+    <div class="ocean-layout">
+      <div class="ocean-view">
+        <div class="ocean-wrap">
+          <canvas id="ocean-canvas"></canvas>
+          <div class="depth-gauge">
+            <div class="depth-mark">0m</div>
+            <div class="depth-mark">200m</div>
+            <div class="depth-mark">1000m</div>
+            <div class="depth-mark">4000m</div>
+            <div class="depth-mark">6000m</div>
+            <div class="depth-mark">11000m</div>
+          </div>
+        </div>
+        <div class="controls-row">
+          <button class="ctrl-btn" onclick="scrollOcean(-80)">⬆ Ascend</button>
+          <button class="ctrl-btn" onclick="scrollOcean(80)">⬇ Descend</button>
+          <button class="ctrl-btn" onclick="toggleCurrents()">🌊 Show Currents</button>
+        </div>
+      </div>
+
+      <div class="creature-panel">
+        <h3 id="creature-name">🌊 Ocean Zones</h3>
+        <p id="creature-desc">Scroll through the ocean to explore different depth zones. Click on a creature to learn about it.</p>
+        <div class="creature-list" id="creature-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    var canvas = document.getElementById('ocean-canvas');
+    var ctx = canvas.getContext('2d');
+    var scrollY = 0;
+    var maxScroll = 2000;
+    var showCurrents = false;
+    var selectedCreature = null;
+
+    var zones = [
+      { name: 'Epipelagic (Sunlight Zone)', depthStart: 0, depthEnd: 200, colorTop: '#0369a1', colorBot: '#075985', desc: '0–200m depth. Sunlight penetrates this zone, enabling photosynthesis. Most ocean life (90%) lives here. Home to coral reefs, fish, and marine mammals.' },
+      { name: 'Mesopelagic (Twilight Zone)', depthStart: 200, depthEnd: 1000, colorTop: '#075985', colorBot: '#0c4a6e', desc: '200–1000m depth. Very dim light reaches here. Many animals migrate to the surface at night to feed. Bioluminescence is common.' },
+      { name: 'Bathypelagic (Midnight Zone)', depthStart: 1000, depthEnd: 4000, colorTop: '#0c4a6e', colorBot: '#082f49', desc: '1000–4000m. No sunlight at all. Constant near-freezing temperatures. Creatures have adapted with bioluminescence, large eyes, and slow metabolisms.' },
+      { name: 'Abyssopelagic (Abyss)', depthStart: 4000, depthEnd: 6000, colorTop: '#082f49', colorBot: '#0a1628', desc: '4000–6000m. Extreme pressure (400+ atm), near-freezing water. Sparse life: sea cucumbers, tube worms near hydrothermal vents, and specialized bacteria.' },
+      { name: 'Hadal Zone (Trenches)', depthStart: 6000, depthEnd: 11000, colorTop: '#0a1628', colorBot: '#020617', desc: '6000–11000m. The deepest parts of the ocean (ocean trenches). Extreme pressure. Life includes amphipods, snailfish, and xenophyophores. The Mariana Trench reaches ~10,935m.' },
+    ];
+
+    var creatures = [
+      { name: 'Clownfish', emoji: '🐠', zone: 0, x: 0.3, depth: 50, info: 'Small, colorful fish famous for living among sea anemone tentacles. The mucus on their skin protects them from stings. They have a symbiotic relationship — the fish cleans the anemone and gets protection in return.' },
+      { name: 'Sea Turtle', emoji: '🐢', zone: 0, x: 0.6, depth: 80, info: 'Marine reptiles that have existed for 100+ million years. They can hold their breath for hours and migrate thousands of miles. All 7 species are threatened or endangered.' },
+      { name: 'Great White Shark', emoji: '🦈', zone: 0, x: 0.45, depth: 150, info: 'Apex predators reaching 6m+ in length. Can detect a single drop of blood in 25 gallons of water. Despite their reputation, they rarely attack humans — most bites are investigatory.' },
+      { name: 'Dolphin', emoji: '🐬', zone: 0, x: 0.7, depth: 30, info: 'Highly intelligent marine mammals. They use echolocation to navigate and hunt, live in social groups called pods, and can swim up to 37 km/h. Known to help injured members of their pod.' },
+      { name: 'Jellyfish', emoji: '🪼', zone: 0, x: 0.2, depth: 120, info: 'Ancient creatures (500+ million years old) with no brain, heart, or bones. Their bodies are 95% water. Some species like the Box Jellyfish are among the most venomous animals on Earth.' },
+      { name: 'Swordfish', emoji: '⚔️', zone: 1, x: 0.5, depth: 400, info: 'Fast predators reaching speeds of 100 km/h, making them one of the fastest fish. Their "sword" (bill) is used to slash at prey. They can regulate their eye and brain temperature for better vision in cold, deep water.' },
+      { name: 'Hatchetfish', emoji: '🐟', zone: 1, x: 0.3, depth: 600, info: 'Small deep-sea fish with bioluminescent organs on their bellies. This counter-illumination camouflage makes them invisible to predators looking up from below.' },
+      { name: 'Giant Squid', emoji: '🦑', zone: 2, x: 0.4, depth: 1500, info: 'Legendary deep-sea creatures reaching 13m+ in length. They have the largest eyes in the animal kingdom (up to 27cm diameter) to detect faint bioluminescent light. They were not photographed alive until 2004.' },
+      { name: 'Anglerfish', emoji: '🐡', zone: 2, x: 0.6, depth: 2500, info: 'Deep-sea predators with bioluminescent lures (esca) on their heads to attract prey in total darkness. Males are tiny and fuse permanently to the larger females — an extreme form of parasitism.' },
+      { name: 'Gulper Eel', emoji: '🐍', zone: 2, x: 0.35, depth: 3000, info: 'Bizarre deep-sea fish with enormous mouths that can swallow prey much larger than themselves. Their stomachs stretch to accommodate huge meals — important when food is scarce in the deep ocean.' },
+      { name: 'Tube Worms', emoji: '🪱', zone: 3, x: 0.5, depth: 4500, info: 'Giant tube worms (Riftia) live near hydrothermal vents at 2,000m+. They have no mouth, gut, or eyes. Instead, they rely on chemosynthetic bacteria inside them that convert vent chemicals (hydrogen sulfide) into energy.' },
+      { name: 'Sea Cucumber', emoji: '🥒', zone: 3, x: 0.7, depth: 5000, info: 'Important deep-sea recyclers. They crawl along the ocean floor eating organic matter and sediment — essentially vacuuming the sea floor. Some can eject their internal organs to confuse predators and regenerate them later.' },
+      { name: 'Snailfish', emoji: '🐌', zone: 4, x: 0.45, depth: 8200, info: 'The deepest-living fish ever recorded, found at 8,336m in the Izu-Ogasawara Trench. Their bodies lack scales and have a gelatinous structure to withstand extreme pressure. They have special cellular adaptations that prevent proteins from being crushed.' },
+    ];
+
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+      draw();
+    }
+    window.addEventListener('resize', resize);
+
+    function depthToY(depth) {
+      // Map 0-11000m to canvas height, with scroll offset
+      return (depth / 11000) * maxScroll - scrollY;
+    }
+
+    function draw() {
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      // Draw zones
+      zones.forEach(function(z) {
+        var y1 = depthToY(z.depthStart);
+        var y2 = depthToY(z.depthEnd);
+        if (y2 < 0 || y1 > H) return;
+        var drawY1 = Math.max(0, y1);
+        var drawY2 = Math.min(H, y2);
+        var grd = ctx.createLinearGradient(0, drawY1, 0, drawY2);
+        grd.addColorStop(0, z.colorTop);
+        grd.addColorStop(1, z.colorBot);
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, drawY1, W, drawY2 - drawY1);
+
+        // Zone label
+        var labelY = (y1 + y2) / 2;
+        if (labelY > 10 && labelY < H - 10) {
+          ctx.font = '11px Poppins';
+          ctx.fillStyle = 'rgba(241,245,249,0.3)';
+          ctx.textAlign = 'left';
+          ctx.fillText(z.name, 10, labelY);
+        }
+      });
+
+      // Ocean floor at bottom
+      var floorY = depthToY(11000);
+      if (floorY < H) {
+        ctx.fillStyle = '#1a1207';
+        ctx.fillRect(0, floorY, W, H - floorY);
+        // Rocks
+        for (var r = 0; r < 15; r++) {
+          ctx.beginPath();
+          ctx.arc(W * (r / 15 + 0.03), floorY + 8, 4 + Math.random() * 6, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(120,113,108,' + (0.3 + Math.random() * 0.3) + ')';
+          ctx.fill();
+        }
+      }
+
+      // Light rays in sunlight zone
+      var sunlightBottom = depthToY(200);
+      if (sunlightBottom > 0) {
+        for (var ray = 0; ray < 8; ray++) {
+          var rx = W * (ray / 8 + 0.06);
+          ctx.beginPath();
+          ctx.moveTo(rx, Math.max(0, depthToY(0)));
+          ctx.lineTo(rx + 20, Math.min(sunlightBottom, H));
+          ctx.lineTo(rx - 10, Math.min(sunlightBottom, H));
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(251,191,36,0.04)';
+          ctx.fill();
+        }
+      }
+
+      // Currents
+      if (showCurrents) {
+        ctx.strokeStyle = 'rgba(96,165,250,0.2)';
+        ctx.lineWidth = 2;
+        for (var ci = 0; ci < 6; ci++) {
+          var cy = depthToY(ci * 1800 + 100);
+          if (cy < -20 || cy > H + 20) continue;
+          ctx.beginPath();
+          for (var cx = 0; cx < W; cx += 3) {
+            var yoff = Math.sin((cx + Date.now() / 1000 * 30 + ci * 100) / 40) * 8;
+            cx === 0 ? ctx.moveTo(cx, cy + yoff) : ctx.lineTo(cx, cy + yoff);
+          }
+          ctx.stroke();
+        }
+      }
+
+      // Bubbles
+      var time = Date.now() / 1000;
+      for (var bi = 0; bi < 12; bi++) {
+        var bx = (W * 0.1 + bi * W * 0.07 + Math.sin(time + bi) * 10) % W;
+        var by = ((time * 20 + bi * 80) % H);
+        ctx.beginPath();
+        ctx.arc(bx, H - by, 2 + Math.random(), 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.08)';
+        ctx.fill();
+      }
+
+      // Draw creatures
+      creatures.forEach(function(c) {
+        var cy = depthToY(c.depth);
+        if (cy < -30 || cy > H + 30) return;
+        var cx = c.x * (W - 60) + 30;
+        // Glow for selected
+        if (selectedCreature && selectedCreature.name === c.name) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(59,130,246,0.25)';
+          ctx.fill();
+          ctx.strokeStyle = '#3b82f6';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+        ctx.font = '22px serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(c.emoji, cx, cy + 8);
+        // Name label
+        ctx.font = '10px Poppins';
+        ctx.fillStyle = 'rgba(241,245,249,0.6)';
+        ctx.fillText(c.name, cx, cy + 24);
+      });
+    }
+
+    // Animation loop
+    function animate() {
+      draw();
+      requestAnimationFrame(animate);
+    }
+
+    // Click on creature
+    canvas.addEventListener('click', function(e) {
+      var rect = canvas.getBoundingClientRect();
+      var mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+      var my = (e.clientY - rect.top) * (canvas.height / rect.height);
+      var found = null;
+      for (var i = 0; i < creatures.length; i++) {
+        var c = creatures[i];
+        var cy = depthToY(c.depth);
+        var cx = c.x * (canvas.width - 60) + 30;
+        var dx = mx - cx, dy = my - cy;
+        if (Math.sqrt(dx * dx + dy * dy) < 25) { found = c; break; }
+      }
+      if (found) {
+        selectedCreature = found;
+        document.getElementById('creature-name').textContent = found.emoji + ' ' + found.name;
+        document.getElementById('creature-desc').textContent = found.info;
+        document.querySelectorAll('.creature-item').forEach(function(el) {
+          el.classList.toggle('active', el.dataset.name === found.name);
+        });
+      }
+    });
+
+    // Scroll with mouse wheel
+    canvas.parentElement.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      scrollY = Math.max(0, Math.min(maxScroll - canvas.height, scrollY + e.deltaY * 0.5));
+    }, { passive: false });
+
+    window.scrollOcean = function(delta) {
+      scrollY = Math.max(0, Math.min(maxScroll - canvas.height, scrollY + delta));
+    };
+
+    window.toggleCurrents = function() {
+      showCurrents = !showCurrents;
+    };
+
+    // Build creature list in sidebar
+    var list = document.getElementById('creature-list');
+    var currentZone = -1;
+    creatures.forEach(function(c) {
+      if (c.zone !== currentZone) {
+        currentZone = c.zone;
+        var zl = document.createElement('div');
+        zl.className = 'zone-label';
+        zl.textContent = zones[c.zone].name;
+        list.appendChild(zl);
+      }
+      var item = document.createElement('div');
+      item.className = 'creature-item';
+      item.dataset.name = c.name;
+      item.innerHTML = '<span class="emoji">' + c.emoji + '</span><span>' + c.name + '</span>';
+      item.addEventListener('click', function() {
+        selectedCreature = c;
+        document.getElementById('creature-name').textContent = c.emoji + ' ' + c.name;
+        document.getElementById('creature-desc').textContent = c.info;
+        document.querySelectorAll('.creature-item').forEach(function(el) { el.classList.remove('active'); });
+        item.classList.add('active');
+        // Scroll to creature
+        var targetY = (c.depth / 11000) * maxScroll - canvas.height / 2;
+        scrollY = Math.max(0, Math.min(maxScroll - canvas.height, targetY));
+      });
+      list.appendChild(item);
+    });
+
+    resize();
+    animate();
+  })();
+  </script>
+  <script src="../scripts/translation_loader.js" data-base="translations"></script>
+  <script src="../../search_data.js"></script>
+  <script src="../../search_logic.js"></script>
+</body>
+</html>

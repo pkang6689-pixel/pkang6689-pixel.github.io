@@ -25,105 +25,240 @@
       overflow: auto;
     }
 
-    .lab-header {
-      text-align: center;
+    .logo-section {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    .logo-title-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      flex: 1;
+    }
+
+    .company-title {
+      font-size: 5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* === LAB CATEGORY CONTAINER === */
+    .labs-container {
+      background: #f8fafc;
+      border: 2px solid rgba(226, 232, 240, 0.8);
+      border-radius: 2rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      transition: padding 0.3s ease;
+    }
+
+    /* === COLLAPSIBLE SECTIONS === */
+    .labs-section {
       margin-bottom: 2rem;
     }
 
-    .lab-header h1 {
-      font-size: 2rem;
+    .labs-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .labs-section.collapsed {
+      margin-bottom: 0;
+    }
+
+    .labs-section.collapsed .labs-section-title {
+      margin-bottom: 0;
+    }
+
+    .labs-section-title {
+      font-size: 1.5rem;
       font-weight: 700;
       color: #1e293b;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      user-select: none;
     }
 
-    .lab-header p {
-      color: #64748b;
-      margin-top: 0.5rem;
-      font-size: 1.05rem;
+    .labs-section-title:hover {
+      opacity: 0.8;
     }
 
-    body.dark-mode .lab-header h1 {
-      color: #f1f5f9;
-    }
-
-    body.dark-mode .lab-header p {
-      color: #94a3b8;
-    }
-
-    .lab-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .lab-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 1rem;
-      padding: 1.5rem;
-      transition: transform 0.2s, box-shadow 0.2s;
-      cursor: default;
-    }
-
-    .lab-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    }
-
-    .lab-card .lab-icon {
-      font-size: 2rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .lab-card h3 {
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 0.5rem;
-    }
-
-    .lab-card p {
-      font-size: 0.9rem;
-      color: #64748b;
-      line-height: 1.5;
-    }
-
-    .lab-badge {
+    .labs-section-title .chevron {
       display: inline-block;
-      margin-top: 0.75rem;
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
+      transition: transform 0.3s ease;
+      font-size: 0.8em;
+    }
+
+    .labs-section.collapsed .chevron {
+      transform: rotate(-90deg);
+    }
+
+    .labs-section .labs-grid {
+      max-height: 2000px;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+      opacity: 1;
+    }
+
+    .labs-section.collapsed .labs-grid {
+      max-height: 0;
+      opacity: 0;
+    }
+
+    /* === GRID & BOXES === */
+    .labs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .lab-box {
+      border-radius: 1rem !important;
+      padding: 1.25rem 0.75rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    body:not(.dark-mode) .lab-box {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+    }
+
+    body:not(.dark-mode) .lab-box:hover {
+      background: #ffffff !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    }
+
+    .lab-box:hover {
+      transform: translateY(-4px);
+    }
+
+    .lab-box:hover .lab-icon-svg {
+      filter: brightness(1.2);
+    }
+
+    .lab-box a {
+      text-decoration: none;
+      font-size: 1rem;
       font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      width: 100%;
     }
 
-    .badge-coming-soon {
-      background: #fef3c7;
-      color: #92400e;
+    .lab-icon-svg {
+      width: 120px;
+      height: 180px;
+      transition: filter 0.3s ease;
     }
 
-    body.dark-mode .lab-card {
-      background: #1e293b;
-      border-color: #334155;
+    .lab-title {
+      font-weight: 600;
+      font-size: 0.95rem;
     }
 
-    body.dark-mode .lab-card h3 {
-      color: #f1f5f9;
+    /* Color themes per category */
+    .lab-box.physical .lab-title { color: #f59e0b; }
+    .lab-box.life .lab-title { color: #22c55e; }
+    .lab-box.earth .lab-title { color: #3b82f6; }
+
+    .lab-description {
+      font-size: 0.78rem;
+      color: #64748b;
+      line-height: 1.4;
+      margin-top: -0.25rem;
     }
 
-    body.dark-mode .lab-card p {
-      color: #94a3b8;
-    }
-
+    /* === DARK MODE === */
     body.dark-mode {
       background-color: #1e293b;
     }
 
-    @media (max-width: 640px) {
-      .lab-grid {
+    body.dark-mode .company-title {
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    body.dark-mode .labs-container {
+      background: #273244;
+      border-color: rgba(51, 65, 85, 0.8);
+    }
+
+    body.dark-mode .labs-section-title {
+      color: #f1f5f9;
+    }
+
+    body.dark-mode .lab-box {
+      background: transparent !important;
+      border: 1px solid #334155 !important;
+      box-shadow: none !important;
+    }
+
+    body.dark-mode .lab-box:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    }
+
+    body.dark-mode .lab-description {
+      color: #94a3b8;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+      .logo-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .logo-title-wrapper {
+        align-items: center;
+        width: 100%;
+      }
+
+      .company-title {
+        font-size: 2.5rem;
+        line-height: 1.2;
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .labs-grid {
         grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .labs-container {
+        padding: 1.5rem 1rem;
       }
     }
   </style>
@@ -133,53 +268,129 @@
  <body class="h-full dark-mode">
   <script src="scripts/taskbar.js"></script>
   <main class="main-container">
-    <div class="lab-header">
-      <h1>🔬 Lab Simulations</h1>
-      <p>Interactive virtual labs to explore science concepts hands-on.</p>
+
+    <div class="logo-section">
+      <div class="logo-title-wrapper">
+        <h1 class="logo-font company-title">Lab Simulations</h1>
+      </div>
     </div>
 
-    <div class="lab-grid">
-      <div class="lab-card">
-        <div class="lab-icon">⚗️</div>
-        <h3>Chemistry Lab</h3>
-        <p>Mix reagents, observe reactions, and learn stoichiometry in a virtual chemistry bench.</p>
-        <span class="lab-badge badge-coming-soon">Coming Soon</span>
+    <div class="labs-container">
+
+      <!-- Physical Sciences -->
+      <div class="labs-section collapsed">
+        <h2 class="labs-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> Physical Sciences</h2>
+        <div class="labs-grid">
+          <div class="lab-box physical">
+            <a href="labs/chemistry_lab.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 36" fill="none" stroke="#f59e0b" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Erlenmeyer flask -->
+                <path d="M10 4 L10 14 L4 28 Q4 30 6 30 L18 30 Q20 30 20 28 L14 14 L14 4" fill="none"/>
+                <line x1="9" y1="4" x2="15" y2="4"/>
+                <path d="M6 24 Q12 20 18 24" fill="none" stroke-width="0.4" opacity="0.6"/>
+                <circle cx="9" cy="26" r="0.5" fill="#f59e0b" fill-opacity="0.4" stroke="none"/>
+                <circle cx="13" cy="24" r="0.4" fill="#f59e0b" fill-opacity="0.4" stroke="none"/>
+                <circle cx="15" cy="27" r="0.6" fill="#f59e0b" fill-opacity="0.4" stroke="none"/>
+              </svg>
+              <span class="lab-title">Chemistry Lab</span>
+              <span class="lab-description">Mix reagents and observe real chemical reactions</span>
+            </a>
+          </div>
+          <div class="lab-box physical">
+            <a href="labs/physics_sandbox.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 36" fill="none" stroke="#f59e0b" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Lightbulb / physics -->
+                <path d="M12 4a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V19H8v-2.26C6.19 15.47 5 13.38 5 11a7 7 0 0 1 7-7z"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="9" y1="23" x2="15" y2="23"/>
+                <!-- Motion arrow -->
+                <line x1="4" y1="30" x2="20" y2="30" stroke-width="0.4"/>
+                <path d="M17 28 L20 30 L17 32" fill="none" stroke-width="0.4"/>
+              </svg>
+              <span class="lab-title">Physics Sandbox</span>
+              <span class="lab-description">Projectiles, pendulums, and collisions</span>
+            </a>
+          </div>
+        </div>
       </div>
 
-      <div class="lab-card">
-        <div class="lab-icon">🔭</div>
-        <h3>Astronomy Observatory</h3>
-        <p>Explore stars, planets, and constellations with an interactive night-sky simulator.</p>
-        <span class="lab-badge badge-coming-soon">Coming Soon</span>
+      <!-- Life Sciences -->
+      <div class="labs-section collapsed">
+        <h2 class="labs-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> Life Sciences</h2>
+        <div class="labs-grid">
+          <div class="lab-box life">
+            <a href="labs/biology_lab.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 36" fill="none" stroke="#22c55e" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Microscope -->
+                <rect x="10" y="4" width="4" height="12" rx="1" fill="none"/>
+                <circle cx="12" cy="18" r="2" fill="none"/>
+                <line x1="12" y1="20" x2="12" y2="26"/>
+                <line x1="8" y1="26" x2="16" y2="26"/>
+                <line x1="6" y1="30" x2="18" y2="30"/>
+                <line x1="8" y1="26" x2="6" y2="30"/>
+                <line x1="16" y1="26" x2="18" y2="30"/>
+              </svg>
+              <span class="lab-title">Biology Lab</span>
+              <span class="lab-description">Virtual microscope — animal, plant &amp; bacteria cells</span>
+            </a>
+          </div>
+          <div class="lab-box life">
+            <a href="labs/marine_science_lab.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 36" fill="none" stroke="#22c55e" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Ocean waves + fish -->
+                <path d="M2 14 Q6 10 12 14 Q18 18 22 14" fill="none"/>
+                <path d="M2 18 Q6 14 12 18 Q18 22 22 18" fill="none" opacity="0.6"/>
+                <!-- Fish -->
+                <ellipse cx="12" cy="24" rx="4" ry="2" fill="none"/>
+                <path d="M16 24 L19 22 L19 26 Z" fill="none"/>
+                <circle cx="10" cy="23.5" r="0.4" fill="#22c55e"/>
+              </svg>
+              <span class="lab-title">Marine Science Lab</span>
+              <span class="lab-description">Explore ocean zones and deep-sea creatures</span>
+            </a>
+          </div>
+        </div>
       </div>
 
-      <div class="lab-card">
-        <div class="lab-icon">🧬</div>
-        <h3>Biology Lab</h3>
-        <p>Dissect virtual specimens and examine cell structures under a digital microscope.</p>
-        <span class="lab-badge badge-coming-soon">Coming Soon</span>
+      <!-- Earth & Space Sciences -->
+      <div class="labs-section collapsed">
+        <h2 class="labs-section-title" onclick="this.parentElement.classList.toggle('collapsed')"><span class="chevron">▼</span> Earth &amp; Space Sciences</h2>
+        <div class="labs-grid">
+          <div class="lab-box earth">
+            <a href="labs/earth_science_lab.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 36" fill="none" stroke="#3b82f6" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Globe -->
+                <circle cx="12" cy="16" r="8" fill="none"/>
+                <ellipse cx="12" cy="16" rx="4" ry="8" fill="none" stroke-width="0.4"/>
+                <line x1="4" y1="16" x2="20" y2="16" stroke-width="0.4"/>
+                <path d="M5.5 11 Q12 9 18.5 11" fill="none" stroke-width="0.3"/>
+                <path d="M5.5 21 Q12 23 18.5 21" fill="none" stroke-width="0.3"/>
+              </svg>
+              <span class="lab-title">Earth Science Lab</span>
+              <span class="lab-description">Tectonic plates, rock layers &amp; water cycle</span>
+            </a>
+          </div>
+          <div class="lab-box earth">
+            <a href="labs/astronomy_observatory.html">
+              <svg class="lab-icon-svg" viewBox="0 0 24 36" fill="none" stroke="#3b82f6" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Telescope / stars -->
+                <circle cx="12" cy="14" r="6" fill="none"/>
+                <circle cx="8" cy="8" r="1.2" fill="#3b82f6"/>
+                <circle cx="18" cy="10" r="0.8" fill="#3b82f6"/>
+                <circle cx="16" cy="22" r="0.6" fill="#3b82f6"/>
+                <path d="M8 8 L12 14" fill="none" stroke-width="0.3" opacity="0.5"/>
+                <path d="M18 10 L12 14" fill="none" stroke-width="0.3" opacity="0.5"/>
+                <!-- Saturn ring -->
+                <circle cx="12" cy="14" r="2.5" fill="none" stroke-width="0.4"/>
+                <ellipse cx="12" cy="14" rx="4.5" ry="1" fill="none" stroke-width="0.3"/>
+              </svg>
+              <span class="lab-title">Astronomy Observatory</span>
+              <span class="lab-description">Stars, planets &amp; constellations in an interactive sky</span>
+            </a>
+          </div>
+        </div>
       </div>
 
-      <div class="lab-card">
-        <div class="lab-icon">⚡</div>
-        <h3>Physics Sandbox</h3>
-        <p>Build circuits, test forces, and simulate projectile motion in real time.</p>
-        <span class="lab-badge badge-coming-soon">Coming Soon</span>
-      </div>
-
-      <div class="lab-card">
-        <div class="lab-icon">🌍</div>
-        <h3>Earth Science Lab</h3>
-        <p>Model tectonic plates, weather systems, and rock cycles interactively.</p>
-        <span class="lab-badge badge-coming-soon">Coming Soon</span>
-      </div>
-
-      <div class="lab-card">
-        <div class="lab-icon">🌊</div>
-        <h3>Marine Science Lab</h3>
-        <p>Dive into ocean ecosystems and study marine life in a virtual underwater environment.</p>
-        <span class="lab-badge badge-coming-soon">Coming Soon</span>
-      </div>
     </div>
   </main>
 

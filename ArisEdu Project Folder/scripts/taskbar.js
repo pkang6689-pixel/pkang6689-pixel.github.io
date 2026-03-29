@@ -1121,7 +1121,7 @@
                  // Force override
                  window._isDevUser = function() { return true; };
                  var script = document.createElement('script');
-                 script.src = '/ArisEdu Project Folder/scripts/dev_tools.js?v=' + Date.now();
+                 script.src = './dev_tools.js?v=' + Date.now();
                  document.body.appendChild(script);
              }
         }
