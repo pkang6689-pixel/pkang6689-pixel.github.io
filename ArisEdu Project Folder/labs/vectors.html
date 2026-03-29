@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Vector Operations</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden;cursor:crosshair}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:120px;accent-color:#a855f7}
+    .ctrl-group .val{font-size:.8rem;color:#a855f7;font-weight:600;font-family:monospace}
+    .tab-btn{padding:.45rem 1rem;border-radius:.5rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.82rem;transition:all .2s}
+    .tab-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.12)}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#a855f7,#7c3aed);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+    .readout .datum strong{color:#a855f7}
+    .vec-label{font-size:.8rem;font-weight:700}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>➡️ Vector Operations</h1>
+  <p class="subtitle">Visualize addition, subtraction, dot &amp; cross products in 2D</p>
+  <div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+  <div class="controls">
+    <button class="tab-btn active" id="tab-add" onclick="setOp('add')">Add</button>
+    <button class="tab-btn" id="tab-sub" onclick="setOp('sub')">Subtract</button>
+    <button class="tab-btn" id="tab-scale" onclick="setOp('scale')">Scale</button>
+    <button class="tab-btn" id="tab-dot" onclick="setOp('dot')">Dot Product</button>
+    <button class="tab-btn" id="tab-cross" onclick="setOp('cross')">Cross Product</button>
+    <button class="tab-btn" id="tab-proj" onclick="setOp('proj')">Projection</button>
+  </div>
+  <div class="controls">
+    <div class="ctrl-group">
+      <label><span class="vec-label" style="color:#f472b6">u</span> x</label>
+      <input type="range" id="ux" min="-8" max="8" value="3" step="0.5" oninput="upd()"><span class="val" id="vux">3</span>
+    </div>
+    <div class="ctrl-group">
+      <label><span class="vec-label" style="color:#f472b6">u</span> y</label>
+      <input type="range" id="uy" min="-8" max="8" value="4" step="0.5" oninput="upd()"><span class="val" id="vuy">4</span>
+    </div>
+    <div class="ctrl-group">
+      <label><span class="vec-label" style="color:#38bdf8">v</span> x</label>
+      <input type="range" id="vx" min="-8" max="8" value="5" step="0.5" oninput="upd()"><span class="val" id="vvx">5</span>
+    </div>
+    <div class="ctrl-group">
+      <label><span class="vec-label" style="color:#38bdf8">v</span> y</label>
+      <input type="range" id="vy" min="-8" max="8" value="1" step="0.5" oninput="upd()"><span class="val" id="vvy">1</span>
+    </div>
+    <div class="ctrl-group" id="cg-scalar" style="display:none">
+      <label>Scalar k</label>
+      <input type="range" id="sk" min="-30" max="30" value="15" oninput="upd()"><span class="val" id="vsk">1.5</span>
+    </div>
+    <button class="action-btn" onclick="resetV()">Reset</button>
+  </div>
+  <div class="readout">
+    <div class="datum"><span style="color:#f472b6;font-weight:700">u</span> = <strong id="r-u">(3, 4)</strong></div>
+    <div class="datum"><span style="color:#38bdf8;font-weight:700">v</span> = <strong id="r-v">(5, 1)</strong></div>
+    <div class="datum">|u| = <strong id="r-mu">5.00</strong></div>
+    <div class="datum">|v| = <strong id="r-mv">5.10</strong></div>
+    <div class="datum">Result: <strong id="r-result">—</strong></div>
+    <div class="datum">θ = <strong id="r-angle">—</strong></div>
+  </div>
+  <div class="info-box"><h3>Vector Operations</h3><p><strong>Addition/Subtraction</strong>: Combine vectors tip-to-tail. <strong>Scalar multiplication</strong>: Scale magnitude, flip for negatives. <strong>Dot product</strong>: u · v = |u||v|cos θ — measures alignment (positive = same direction, zero = perpendicular, negative = opposite). <strong>Cross product</strong> in 2D gives a scalar (the z-component): |u × v| = |u||v|sin θ — measures the area of the parallelogram they span. <strong>Projection</strong>: proj_v(u) is the shadow of u onto v.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var W,H;
+  function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+  window.addEventListener('resize',resize);resize();
+
+  var op='add';
+  var SCALE;
+
+  window.setOp=function(o){
+    op=o;
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+    document.getElementById('tab-'+o).classList.add('active');
+    document.getElementById('cg-scalar').style.display=(o==='scale')?'flex':'none';
+  };
+  window.upd=function(){
+    document.getElementById('vux').textContent=document.getElementById('ux').value;
+    document.getElementById('vuy').textContent=document.getElementById('uy').value;
+    document.getElementById('vvx').textContent=document.getElementById('vx').value;
+    document.getElementById('vvy').textContent=document.getElementById('vy').value;
+    document.getElementById('vsk').textContent=(+document.getElementById('sk').value/10).toFixed(1);
+  };
+  window.resetV=function(){
+    document.getElementById('ux').value=3;document.getElementById('uy').value=4;
+    document.getElementById('vx').value=5;document.getElementById('vy').value=1;
+    document.getElementById('sk').value=15;upd();
+  };
+
+  function toScreen(mx,my){return{x:W/2+mx*SCALE,y:H/2-my*SCALE};}
+
+  function drawArrow(fx,fy,tx,ty,color,lw,label,labelSide){
+    var s1=toScreen(fx,fy),s2=toScreen(tx,ty);
+    var dx=s2.x-s1.x,dy=s2.y-s1.y;
+    var len=Math.sqrt(dx*dx+dy*dy);
+    if(len<2)return;
+    var nx=dx/len,ny=dy/len;
+    /* shaft */
+    ctx.strokeStyle=color;ctx.lineWidth=lw||2.5;
+    ctx.beginPath();ctx.moveTo(s1.x,s1.y);ctx.lineTo(s2.x,s2.y);ctx.stroke();
+    /* arrowhead */
+    var hs=12;
+    ctx.fillStyle=color;ctx.beginPath();
+    ctx.moveTo(s2.x,s2.y);
+    ctx.lineTo(s2.x-nx*hs+ny*hs*0.4,s2.y-ny*hs-nx*hs*0.4);
+    ctx.lineTo(s2.x-nx*hs-ny*hs*0.4,s2.y-ny*hs+nx*hs*0.4);
+    ctx.closePath();ctx.fill();
+    /* label */
+    if(label){
+      var mx=(s1.x+s2.x)/2,my=(s1.y+s2.y)/2;
+      var off=labelSide||1;
+      ctx.fillStyle=color;ctx.font='bold 13px Poppins';ctx.textAlign='center';
+      ctx.fillText(label,mx+ny*16*off,my+nx*16*off+4);
+    }
+  }
+
+  function drawDashedArrow(fx,fy,tx,ty,color){
+    var s1=toScreen(fx,fy),s2=toScreen(tx,ty);
+    ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.setLineDash([6,4]);
+    ctx.beginPath();ctx.moveTo(s1.x,s1.y);ctx.lineTo(s2.x,s2.y);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+    SCALE=Math.min(W,H)/20;
+
+    var ux=+document.getElementById('ux').value,uy=+document.getElementById('uy').value;
+    var vx2=+document.getElementById('vx').value,vy2=+document.getElementById('vy').value;
+    var sk=(+document.getElementById('sk').value)/10;
+
+    /* grid */
+    ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+    for(var g=-10;g<=10;g++){
+      var p1=toScreen(g,0),p2=toScreen(0,g);
+      ctx.beginPath();ctx.moveTo(p1.x,0);ctx.lineTo(p1.x,H);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(0,p2.y);ctx.lineTo(W,p2.y);ctx.stroke();
+    }
+    /* tick labels */
+    ctx.font='9px Poppins';ctx.fillStyle='#334155';ctx.textAlign='center';
+    for(var t=-10;t<=10;t++){
+      if(t===0)continue;
+      var tp=toScreen(t,0);ctx.fillText(t,tp.x,tp.y+14);
+    }
+    ctx.textAlign='right';
+    for(var t2=-10;t2<=10;t2++){
+      if(t2===0)continue;
+      var tp2=toScreen(0,t2);ctx.fillText(t2,tp2.x-6,tp2.y+3);
+    }
+
+    /* axes */
+    var o=toScreen(0,0);
+    ctx.strokeStyle='#475569';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(o.x,0);ctx.lineTo(o.x,H);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,o.y);ctx.lineTo(W,o.y);ctx.stroke();
+
+    /* vectors u (pink) and v (blue) */
+    drawArrow(0,0,ux,uy,'#f472b6',3,'u',-1);
+    if(op!=='scale')drawArrow(0,0,vx2,vy2,'#38bdf8',3,'v',1);
+
+    /* operation specific */
+    var result='';
+    if(op==='add'){
+      /* tip-to-tail */
+      drawDashedArrow(ux,uy,ux+vx2,uy+vy2,'rgba(56,189,248,0.4)');
+      drawDashedArrow(vx2,vy2,ux+vx2,uy+vy2,'rgba(244,114,182,0.4)');
+      drawArrow(0,0,ux+vx2,uy+vy2,'#a855f7',3,'u+v',1);
+      /* parallelogram fill */
+      var p1=toScreen(0,0),p2=toScreen(ux,uy),p3=toScreen(ux+vx2,uy+vy2),p4=toScreen(vx2,vy2);
+      ctx.fillStyle='rgba(168,85,247,0.08)';
+      ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.lineTo(p3.x,p3.y);ctx.lineTo(p4.x,p4.y);ctx.closePath();ctx.fill();
+      result='u+v = ('+(ux+vx2).toFixed(1)+', '+(uy+vy2).toFixed(1)+')';
+    }else if(op==='sub'){
+      drawArrow(vx2,vy2,ux,uy,'#a855f7',3,'u-v',1);
+      result='u-v = ('+(ux-vx2).toFixed(1)+', '+(uy-vy2).toFixed(1)+')';
+    }else if(op==='scale'){
+      drawArrow(0,0,ux*sk,uy*sk,'#a855f7',3,'ku',1);
+      result='ku = ('+(ux*sk).toFixed(1)+', '+(uy*sk).toFixed(1)+')';
+    }else if(op==='dot'){
+      var dot=ux*vx2+uy*vy2;
+      /* angle arc */
+      var ang1=Math.atan2(uy,ux),ang2=Math.atan2(vy2,vx2);
+      ctx.strokeStyle='rgba(168,85,247,0.5)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(o.x,o.y,SCALE*1.5,-ang1,-ang2,ang1>ang2);ctx.stroke();
+      var angBetween=Math.acos(Math.max(-1,Math.min(1,dot/(Math.sqrt(ux*ux+uy*uy)*Math.sqrt(vx2*vx2+vy2*vy2)+1e-10))));
+      /* dot product badge */
+      ctx.fillStyle='rgba(168,85,247,0.2)';
+      var bx=W/2+30,by=40;
+      ctx.beginPath();ctx.roundRect(bx,by,160,32,8);ctx.fill();
+      ctx.fillStyle='#a855f7';ctx.font='bold 12px monospace';ctx.textAlign='left';
+      ctx.fillText('u · v = '+dot.toFixed(2),bx+12,by+21);
+      result='u · v = '+dot.toFixed(2);
+      document.getElementById('r-angle').textContent=(angBetween*180/Math.PI).toFixed(1)+'°';
+    }else if(op==='cross'){
+      var cross=ux*vy2-uy*vx2;
+      /* parallelogram */
+      var p1c=toScreen(0,0),p2c=toScreen(ux,uy),p3c=toScreen(ux+vx2,uy+vy2),p4c=toScreen(vx2,vy2);
+      ctx.fillStyle=cross>0?'rgba(74,222,128,0.12)':'rgba(239,68,68,0.12)';
+      ctx.strokeStyle=cross>0?'#4ade80':'#ef4444';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+      ctx.beginPath();ctx.moveTo(p1c.x,p1c.y);ctx.lineTo(p2c.x,p2c.y);ctx.lineTo(p3c.x,p3c.y);ctx.lineTo(p4c.x,p4c.y);ctx.closePath();
+      ctx.fill();ctx.stroke();ctx.setLineDash([]);
+      /* area badge */
+      ctx.fillStyle='rgba(168,85,247,0.2)';
+      var bx2=W/2+30,by2=40;
+      ctx.beginPath();ctx.roundRect(bx2,by2,200,32,8);ctx.fill();
+      ctx.fillStyle='#a855f7';ctx.font='bold 12px monospace';ctx.textAlign='left';
+      ctx.fillText('u × v = '+cross.toFixed(2)+' (area)',bx2+10,by2+21);
+      result='u × v = '+cross.toFixed(2);
+    }else if(op==='proj'){
+      /* projection of u onto v */
+      var dotP=ux*vx2+uy*vy2;
+      var vLenSq=vx2*vx2+vy2*vy2;
+      if(vLenSq>0.01){
+        var s=dotP/vLenSq;
+        var px=s*vx2,py=s*vy2;
+        drawArrow(0,0,px,py,'#facc15',3,'proj',1);
+        /* perpendicular from u to proj */
+        drawDashedArrow(ux,uy,px,py,'rgba(250,204,21,0.4)');
+        /* right angle marker */
+        var ps=toScreen(px,py),us=toScreen(ux,uy);
+        ctx.strokeStyle='rgba(250,204,21,0.6)';ctx.lineWidth=1;
+        var rdx=us.x-ps.x,rdy=us.y-ps.y,rl=Math.sqrt(rdx*rdx+rdy*rdy);
+        if(rl>10){
+          rdx/=rl;rdy/=rl;
+          var vsx=toScreen(vx2,vy2).x-o.x,vsy=toScreen(vx2,vy2).y-o.y;
+          var vl=Math.sqrt(vsx*vsx+vsy*vsy);if(vl>1){vsx/=vl;vsy/=vl;}
+          var rsz=10;
+          ctx.beginPath();
+          ctx.moveTo(ps.x+rdx*rsz,ps.y+rdy*rsz);
+          ctx.lineTo(ps.x+rdx*rsz+vsx*rsz,ps.y+rdy*rsz+vsy*rsz);
+          ctx.lineTo(ps.x+vsx*rsz,ps.y+vsy*rsz);
+          ctx.stroke();
+        }
+        result='proj_v(u) = ('+px.toFixed(2)+', '+py.toFixed(2)+')';
+      }else{result='v is zero';}
+    }
+
+    document.getElementById('r-u').textContent='('+ux+', '+uy+')';
+    document.getElementById('r-v').textContent='('+vx2+', '+vy2+')';
+    document.getElementById('r-mu').textContent=Math.sqrt(ux*ux+uy*uy).toFixed(2);
+    document.getElementById('r-mv').textContent=Math.sqrt(vx2*vx2+vy2*vy2).toFixed(2);
+    document.getElementById('r-result').textContent=result;
+    if(op!=='dot'){
+      var dotA=ux*vx2+uy*vy2;
+      var mags=Math.sqrt(ux*ux+uy*uy)*Math.sqrt(vx2*vx2+vy2*vy2);
+      document.getElementById('r-angle').textContent=mags>0.01?(Math.acos(Math.max(-1,Math.min(1,dotA/mags)))*180/Math.PI).toFixed(1)+'°':'—';
+    }
+
+    requestAnimationFrame(draw);
+  }
+  upd();draw();
+})();
+</script>
+</body>
+</html>

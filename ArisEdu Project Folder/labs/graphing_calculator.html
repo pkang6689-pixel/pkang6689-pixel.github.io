@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Graphing Calculator</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden;position:relative}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .func-row{display:flex;gap:.5rem;align-items:center;width:100%}
+    .func-input{flex:1;padding:.5rem .75rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#f1f5f9;font-family:monospace;font-size:.9rem}
+    .func-input:focus{outline:none;border-color:#a855f7}
+    .color-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid #475569}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#a855f7,#7c3aed);color:white}
+    .action-btn.secondary{background:#334155;color:#cbd5e1}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+    .readout .datum strong{color:#a855f7}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+    .preset-btns{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center}
+    .preset-btn{padding:.3rem .7rem;border-radius:.4rem;border:1px solid #475569;background:#1e293b;color:#cbd5e1;cursor:pointer;font-size:.75rem}
+    .preset-btn:hover{border-color:#a855f7;color:#a855f7}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>📈 Graphing Calculator</h1>
+  <p class="subtitle">Plot functions, find intersections &amp; explore graphs interactively</p>
+  <div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+  <div class="controls">
+    <div class="func-row">
+      <span class="color-dot" style="background:#a855f7"></span>
+      <span style="color:#a855f7;font-weight:700;font-size:.85rem">f(x) =</span>
+      <input class="func-input" id="f1" value="sin(x)" placeholder="e.g. x^2, sin(x), abs(x)">
+    </div>
+    <div class="func-row">
+      <span class="color-dot" style="background:#f59e0b"></span>
+      <span style="color:#f59e0b;font-weight:700;font-size:.85rem">g(x) =</span>
+      <input class="func-input" id="f2" value="" placeholder="(optional) second function">
+    </div>
+    <div class="func-row">
+      <span class="color-dot" style="background:#22c55e"></span>
+      <span style="color:#22c55e;font-weight:700;font-size:.85rem">h(x) =</span>
+      <input class="func-input" id="f3" value="" placeholder="(optional) third function">
+    </div>
+    <div class="preset-btns">
+      <button class="preset-btn" onclick="setPreset('x^2','','')">x²</button>
+      <button class="preset-btn" onclick="setPreset('sin(x)','cos(x)','')">sin &amp; cos</button>
+      <button class="preset-btn" onclick="setPreset('x^3 - 3*x','','')">Cubic</button>
+      <button class="preset-btn" onclick="setPreset('1/x','','')">1/x</button>
+      <button class="preset-btn" onclick="setPreset('sqrt(abs(x))','','')">√|x|</button>
+      <button class="preset-btn" onclick="setPreset('log(abs(x))','','')">ln|x|</button>
+      <button class="preset-btn" onclick="setPreset('2^x','','')">2ˣ</button>
+      <button class="preset-btn" onclick="setPreset('tan(x)','','')">tan(x)</button>
+      <button class="preset-btn" onclick="setPreset('sin(x)','x','')">sin = x</button>
+    </div>
+    <button class="action-btn" onclick="resetView()">Reset View</button>
+    <button class="action-btn secondary" onclick="toggleGrid()">Toggle Grid</button>
+  </div>
+  <div class="readout">
+    <div class="datum">Cursor: <strong id="cursor-pos">(0, 0)</strong></div>
+    <div class="datum">x-range: <strong id="x-range">[-10, 10]</strong></div>
+    <div class="datum">y-range: <strong id="y-range">[-10, 10]</strong></div>
+  </div>
+  <div class="info-box"><h3>Function Graphing</h3><p>Type any expression using <strong>x</strong> as the variable. Supported: <strong>+, -, *, /, ^</strong> (power), <strong>sin, cos, tan, sqrt, abs, log</strong> (natural log), <strong>pi, e</strong>. Scroll to zoom, drag to pan. The calculator plots continuous curves and highlights where graph meets axes.</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var W,H;
+  var viewX=-10,viewY=-10,viewW=20,viewH=20;
+  var showGrid=true;
+  var mouseX=NaN,mouseY=NaN;
+  var panning=false,panStart=null,panViewStart=null;
+
+  var COLORS=['#a855f7','#f59e0b','#22c55e'];
+  var funcInputs=['f1','f2','f3'];
+
+  function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+  window.addEventListener('resize',resize);resize();
+
+  function safeEval(expr,x){
+    if(!expr||!expr.trim())return NaN;
+    try{
+      var s=expr.replace(/\^/g,'**')
+               .replace(/sin/g,'Math.sin').replace(/cos/g,'Math.cos').replace(/tan/g,'Math.tan')
+               .replace(/sqrt/g,'Math.sqrt').replace(/abs/g,'Math.abs').replace(/log/g,'Math.log')
+               .replace(/pi/g,'Math.PI').replace(/(?<![a-zA-Z])e(?![a-zA-Z])/g,'Math.E');
+      if(/[^0-9x+\-*/().Math sincoqrtablgEPI, **]/.test(s.replace(/Math\.\w+/g,'')))return NaN;
+      var fn=new Function('x','return '+s);
+      var v=fn(x);
+      return isFinite(v)?v:NaN;
+    }catch(e){return NaN;}
+  }
+
+  function toScreen(mx,my){return{x:(mx-viewX)/viewW*W,y:H-(my-viewY)/viewH*H};}
+  function toMath(sx,sy){return{x:viewX+sx/W*viewW,y:viewY+(H-sy)/H*viewH};}
+
+  window.setPreset=function(a,b,c){
+    document.getElementById('f1').value=a;
+    document.getElementById('f2').value=b;
+    document.getElementById('f3').value=c;
+  };
+  window.resetView=function(){viewX=-10;viewY=-10;viewW=20;viewH=20;};
+  window.toggleGrid=function(){showGrid=!showGrid;};
+
+  cv.addEventListener('wheel',function(e){
+    e.preventDefault();
+    var r=cv.getBoundingClientRect();
+    var mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+    var mp=toMath(mx,my);
+    var factor=e.deltaY>0?1.15:1/1.15;
+    var nw=viewW*factor,nh=viewH*factor;
+    viewX=mp.x-(mp.x-viewX)*factor;
+    viewY=mp.y-(mp.y-viewY)*factor;
+    viewW=nw;viewH=nh;
+  },{passive:false});
+
+  cv.addEventListener('mousedown',function(e){
+    panning=true;
+    var r=cv.getBoundingClientRect();
+    panStart={x:e.clientX,y:e.clientY};
+    panViewStart={x:viewX,y:viewY};
+  });
+  cv.addEventListener('mousemove',function(e){
+    var r=cv.getBoundingClientRect();
+    mouseX=(e.clientX-r.left)*(W/r.width);mouseY=(e.clientY-r.top)*(H/r.height);
+    if(panning&&panStart){
+      var dx=(e.clientX-panStart.x)*(W/r.width)/W*viewW;
+      var dy=(e.clientY-panStart.y)*(H/r.height)/H*viewH;
+      viewX=panViewStart.x-dx;viewY=panViewStart.y+dy;
+    }
+  });
+  cv.addEventListener('mouseup',function(){panning=false;});
+  cv.addEventListener('mouseleave',function(){panning=false;mouseX=NaN;});
+
+  function niceStep(range){
+    var raw=range/10,mag=Math.pow(10,Math.floor(Math.log10(raw))),r=raw/mag;
+    if(r<=1.5)return mag;if(r<=3.5)return 2*mag;if(r<=7.5)return 5*mag;return 10*mag;
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    /* subtle bg */
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+
+    /* grid */
+    if(showGrid){
+      var stepX=niceStep(viewW),stepY=niceStep(viewH);
+      ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+      var startX=Math.floor(viewX/stepX)*stepX;
+      for(var gx=startX;gx<=viewX+viewW;gx+=stepX){
+        var sx=toScreen(gx,0).x;
+        ctx.beginPath();ctx.moveTo(sx,0);ctx.lineTo(sx,H);ctx.stroke();
+      }
+      var startY=Math.floor(viewY/stepY)*stepY;
+      for(var gy=startY;gy<=viewY+viewH;gy+=stepY){
+        var sy=toScreen(0,gy).y;
+        ctx.beginPath();ctx.moveTo(0,sy);ctx.lineTo(W,sy);ctx.stroke();
+      }
+      /* tick labels */
+      ctx.font='10px Poppins';ctx.fillStyle='#475569';ctx.textAlign='center';
+      for(var gx2=startX;gx2<=viewX+viewW;gx2+=stepX){
+        if(Math.abs(gx2)<stepX*0.01)continue;
+        var sx2=toScreen(gx2,0).x;
+        var axY=toScreen(0,0).y;
+        var ly=Math.min(Math.max(axY+14,12),H-4);
+        ctx.fillText(+gx2.toFixed(4),sx2,ly);
+      }
+      ctx.textAlign='right';
+      for(var gy2=startY;gy2<=viewY+viewH;gy2+=stepY){
+        if(Math.abs(gy2)<stepY*0.01)continue;
+        var sy2=toScreen(0,gy2).y;
+        var axX=toScreen(0,0).x;
+        var lx=Math.max(Math.min(axX-4,W-4),30);
+        ctx.fillText(+gy2.toFixed(4),lx,sy2+3);
+      }
+    }
+
+    /* axes */
+    var ox=toScreen(0,0);
+    ctx.strokeStyle='#64748b';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(ox.x,0);ctx.lineTo(ox.x,H);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,ox.y);ctx.lineTo(W,ox.y);ctx.stroke();
+    /* origin */
+    ctx.fillStyle='#475569';ctx.font='11px Poppins';ctx.textAlign='left';
+    ctx.fillText('0',ox.x+4,ox.y+14);
+
+    /* plot functions */
+    for(var fi=0;fi<3;fi++){
+      var expr=document.getElementById(funcInputs[fi]).value;
+      if(!expr.trim())continue;
+      ctx.strokeStyle=COLORS[fi];ctx.lineWidth=2.5;
+      ctx.shadowColor=COLORS[fi];ctx.shadowBlur=6;
+      ctx.beginPath();
+      var started=false;
+      for(var px=0;px<=W;px+=1){
+        var mp=toMath(px,0);
+        var val=safeEval(expr,mp.x);
+        if(isNaN(val)){started=false;continue;}
+        var sp=toScreen(mp.x,val);
+        if(!started){ctx.moveTo(sp.x,sp.y);started=true;}
+        else{
+          if(Math.abs(sp.y-toScreen(mp.x,safeEval(expr,mp.x)).y)<H*2)ctx.lineTo(sp.x,sp.y);
+          else{ctx.moveTo(sp.x,sp.y);}
+        }
+      }
+      ctx.stroke();
+      ctx.shadowBlur=0;
+    }
+
+    /* cursor crosshair + values */
+    if(!isNaN(mouseX)){
+      var mp2=toMath(mouseX,mouseY);
+      ctx.strokeStyle='rgba(168,85,247,0.3)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+      ctx.beginPath();ctx.moveTo(mouseX,0);ctx.lineTo(mouseX,H);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(0,mouseY);ctx.lineTo(W,mouseY);ctx.stroke();
+      ctx.setLineDash([]);
+
+      /* snap to nearest func & show dot */
+      for(var fi2=0;fi2<3;fi2++){
+        var expr2=document.getElementById(funcInputs[fi2]).value;
+        if(!expr2.trim())continue;
+        var val2=safeEval(expr2,mp2.x);
+        if(isNaN(val2))continue;
+        var sp2=toScreen(mp2.x,val2);
+        ctx.fillStyle=COLORS[fi2];
+        ctx.beginPath();ctx.arc(sp2.x,sp2.y,5,0,Math.PI*2);ctx.fill();
+        /* label */
+        ctx.fillStyle=COLORS[fi2];ctx.font='bold 11px monospace';
+        ctx.textAlign='left';
+        ctx.fillText('('+mp2.x.toFixed(2)+', '+val2.toFixed(2)+')',sp2.x+8,sp2.y-8);
+      }
+      document.getElementById('cursor-pos').textContent='('+mp2.x.toFixed(2)+', '+mp2.y.toFixed(2)+')';
+    }
+
+    document.getElementById('x-range').textContent='['+viewX.toFixed(1)+', '+(viewX+viewW).toFixed(1)+']';
+    document.getElementById('y-range').textContent='['+viewY.toFixed(1)+', '+(viewY+viewH).toFixed(1)+']';
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

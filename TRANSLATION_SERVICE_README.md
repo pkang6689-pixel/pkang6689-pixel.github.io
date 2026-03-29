@@ -1,81 +1,100 @@
 # Spanish Translation Background Service
 
-This system automatically translates all course content to Spanish using Google's Gemini API (free tier with generous quota).
+Two approaches available:
 
-## Prerequisites: Get a Free API Key
+## Approach 1: OFFLINE (Recommended - No API Key Needed)
+Uses local Hugging Face models - perfect for overnight processing.
+
+## Approach 2: API-based (If Google available in your region)
+Uses Google's Gemini API with free tier.
+
+---
+
+## OFFLINE Translation (Recommended)
+
+**Best for:**
+- No API key needed
+- Completely offline after model download
+- Perfect overnight processing
+- Works in any region
+
+### Prerequisites
+
+```bash
+pip install transformers torch
+```
+
+### Usage
+
+#### Test First (30 seconds)
+```bash
+python translate_spanish_offline_test.py
+```
+
+#### Run Full Translation
+```bash
+python translate_spanish_offline.py
+```
+
+**First run:** Downloads model (~200MB), then translates all 25 courses
+- Estimated time: 30-60 minutes for full translation
+- No internet needed after first model download
+- Can pause/resume anytime (Ctrl+C)
+- Safe to leave running overnight
+
+---
+
+## API-Based Translation (Google Gemini)
+
+Only use if Google API is available in your region.
+
+### Prerequisites: Get a Free API Key
 
 1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. Click **"Create API Key"**
-3. Select your project (or create a new one)
-4. Copy the API key
+3. Copy the API key
 
-Google provides:
-- **Free tier**: 15 API calls/minute, unlimited monthly quota (~$5/month credit minimum)
-- Perfect for our translation use case
-- No credit card required for free tier
+### Setup
 
-## Setup
-
-### Windows (Command Prompt)
+**Windows (Command Prompt):**
 ```cmd
 set GOOGLE_API_KEY=your-api-key-here
 python translate_spanish_test.py
 ```
 
-### Windows (PowerShell)
+**Windows (PowerShell):**
 ```powershell
 $env:GOOGLE_API_KEY="your-api-key-here"
 python translate_spanish_test.py
 ```
 
-### Linux/Mac
+**Linux/Mac:**
 ```bash
 export GOOGLE_API_KEY="your-api-key-here"
 python translate_spanish_test.py
 ```
 
-## Files
+### Usage
 
-- `translate_spanish.py` - Main translation service that fills in all Spanish translation JSON files
-- `translate_spanish_test.py` - Test mode with a small subset to verify API connection
-- This README
-
-## How It Works
-
-1. **Finds all Spanish translation JSON files** in `ArisEdu Project Folder/translations/es/`
-2. **Uses Google Gemini API** (free tier) to translate English text to Spanish
-3. **Processes in batches** (10 items/batch with 2-second delays to respect rate limits)
-4. **Saves progress** to `translation_progress.log`
-5. **Recovers from errors** with automatic retries and exponential backoff
-
-## Usage
-
-### Test Mode First (Recommended!)
-Always test your API key before running full translation:
-
+#### Test First
 ```bash
 python translate_spanish_test.py
 ```
 
-This:
-- Verifies API key is valid
-- Tests translation quality
-- Checks file structure
-- Takes ~30 seconds
-
-### Basic Translation (Full Suite)
-Once test passes:
-
+#### Run Full Translation
 ```bash
 python translate_spanish.py
 ```
 
-This will:
-- Translate all 25 courses (6,400+ JSON files)
-- Run with automatic rate limiting (safe at free tier limits)
-- Log all progress to `translation_progress.log`
-- Takes 2-4 hours to complete but runs safely in background
-- Can be paused anytime (Ctrl+C) and resumed - only translates empty entries
+---
+
+## Files
+
+- `translate_spanish_offline.py` - Main offline service (Recommended)
+- `translate_spanish_offline_test.py` - Test offline setup
+- `translate_spanish.py` - API-based service (Google Gemini)
+- `translate_spanish_test.py` - Test API setup
+- `TRANSLATION_SERVICE_README.md` - This file
 
 ## Progress Tracking
 

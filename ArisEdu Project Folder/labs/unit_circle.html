@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Unit Circle</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+    .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+    h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+    .canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+    canvas{display:block;width:100%}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+    .ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+    .ctrl-group label{font-size:.75rem;color:#94a3b8}
+    .ctrl-group input[type=range]{width:200px;accent-color:#a855f7}
+    .ctrl-group .val{font-size:.9rem;color:#a855f7;font-weight:600;font-family:monospace}
+    .toggle-btn{padding:.45rem 1rem;border-radius:.5rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.8rem;transition:all .2s}
+    .toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+    .action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#a855f7,#7c3aed);color:white}
+    .readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+    .readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.85rem;color:#94a3b8;font-family:monospace}
+    .readout .datum strong{color:#a855f7}
+    .info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+    .info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+    .snap-btns{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:center}
+    .snap-btn{padding:.25rem .55rem;border-radius:.3rem;border:1px solid #475569;background:#1e293b;color:#cbd5e1;cursor:pointer;font-size:.7rem;font-family:monospace}
+    .snap-btn:hover{border-color:#a855f7;color:#a855f7}
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+  <h1>🔵 Unit Circle &amp; Trigonometry</h1>
+  <p class="subtitle">Visualize sin, cos, tan on the unit circle in real-time</p>
+  <div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+  <div class="controls">
+    <div class="ctrl-group"><label>Angle θ</label>
+      <input type="range" id="theta" min="0" max="720" value="45" oninput="upd()">
+      <span class="val" id="t-val">45°</span></div>
+    <div class="ctrl-group">
+      <div class="snap-btns">
+        <button class="snap-btn" onclick="setA(0)">0°</button>
+        <button class="snap-btn" onclick="setA(30)">30°</button>
+        <button class="snap-btn" onclick="setA(45)">45°</button>
+        <button class="snap-btn" onclick="setA(60)">60°</button>
+        <button class="snap-btn" onclick="setA(90)">90°</button>
+        <button class="snap-btn" onclick="setA(120)">120°</button>
+        <button class="snap-btn" onclick="setA(135)">135°</button>
+        <button class="snap-btn" onclick="setA(150)">150°</button>
+        <button class="snap-btn" onclick="setA(180)">180°</button>
+        <button class="snap-btn" onclick="setA(210)">210°</button>
+        <button class="snap-btn" onclick="setA(225)">225°</button>
+        <button class="snap-btn" onclick="setA(270)">270°</button>
+        <button class="snap-btn" onclick="setA(315)">315°</button>
+        <button class="snap-btn" onclick="setA(360)">360°</button>
+      </div>
+    </div>
+    <button class="toggle-btn active" id="btn-sin" onclick="togF('sin')">sin</button>
+    <button class="toggle-btn active" id="btn-cos" onclick="togF('cos')">cos</button>
+    <button class="toggle-btn" id="btn-tan" onclick="togF('tan')">tan</button>
+    <button class="toggle-btn" id="btn-wave" onclick="togF('wave')">Wave Graph</button>
+  </div>
+  <div class="readout">
+    <div class="datum">θ = <strong id="r-deg">45°</strong> = <strong id="r-rad">π/4</strong></div>
+    <div class="datum">sin θ = <strong id="r-sin">0.707</strong></div>
+    <div class="datum">cos θ = <strong id="r-cos">0.707</strong></div>
+    <div class="datum">tan θ = <strong id="r-tan">1.000</strong></div>
+  </div>
+  <div class="info-box"><h3>The Unit Circle</h3><p>A circle of radius 1 centred at the origin. Any point on the circle at angle θ has coordinates <strong>(cos θ, sin θ)</strong>. The tangent function equals <strong>sin θ / cos θ</strong> and can be visualised as the vertical line segment from (1, 0) to where the radius line extended meets x = 1. Special angles (30°, 45°, 60°, etc.) have exact fractional values — try snapping to them!</p></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var W,H;
+  function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+  window.addEventListener('resize',resize);resize();
+
+  var angleDeg=45;
+  var showF={sin:true,cos:true,tan:false,wave:false};
+  var anim=0;
+
+  window.upd=function(){angleDeg=+document.getElementById('theta').value;updateReadout();};
+  window.setA=function(d){angleDeg=d;document.getElementById('theta').value=d;updateReadout();};
+  window.togF=function(k){showF[k]=!showF[k];document.getElementById('btn-'+k).classList.toggle('active');};
+
+  function frac(deg){
+    var map={0:'0',30:'π/6',45:'π/4',60:'π/3',90:'π/2',120:'2π/3',135:'3π/4',150:'5π/6',
+             180:'π',210:'7π/6',225:'5π/4',240:'4π/3',270:'3π/2',300:'5π/3',315:'7π/4',330:'11π/6',360:'2π'};
+    var d=((deg%360)+360)%360;
+    if(map[d])return(deg>=360?'2π + ':deg<0?'-':'')+map[d];
+    return(deg*Math.PI/180).toFixed(3)+' rad';
+  }
+
+  function updateReadout(){
+    var rad=angleDeg*Math.PI/180;
+    document.getElementById('t-val').textContent=angleDeg+'°';
+    document.getElementById('r-deg').textContent=angleDeg+'°';
+    document.getElementById('r-rad').textContent=frac(angleDeg);
+    document.getElementById('r-sin').textContent=Math.sin(rad).toFixed(4);
+    document.getElementById('r-cos').textContent=Math.cos(rad).toFixed(4);
+    document.getElementById('r-tan').textContent=Math.abs(Math.cos(rad))<1e-10?'undefined':Math.tan(rad).toFixed(4);
+  }
+  updateReadout();
+
+  /* interactive drag on circle */
+  var dragging=false;
+  cv.addEventListener('mousedown',function(e){dragging=true;setAngleFromMouse(e);});
+  cv.addEventListener('mousemove',function(e){if(dragging)setAngleFromMouse(e);});
+  cv.addEventListener('mouseup',function(){dragging=false;});
+  cv.addEventListener('mouseleave',function(){dragging=false;});
+  cv.addEventListener('touchstart',function(e){e.preventDefault();dragging=true;setAngleFromTouch(e);},{passive:false});
+  cv.addEventListener('touchmove',function(e){e.preventDefault();if(dragging)setAngleFromTouch(e);},{passive:false});
+  cv.addEventListener('touchend',function(){dragging=false;});
+
+  function setAngleFromMouse(e){
+    var r=cv.getBoundingClientRect();
+    var mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+    setAngleFromXY(mx,my);
+  }
+  function setAngleFromTouch(e){
+    var t=e.touches[0],r=cv.getBoundingClientRect();
+    var mx=(t.clientX-r.left)*(W/r.width),my=(t.clientY-r.top)*(H/r.height);
+    setAngleFromXY(mx,my);
+  }
+  function setAngleFromXY(mx,my){
+    var cx=W*0.38,cy=H/2,R=Math.min(W*0.34,H*0.42);
+    var dx=mx-cx,dy=-(my-cy);
+    var a=Math.atan2(dy,dx)*180/Math.PI;
+    if(a<0)a+=360;
+    angleDeg=Math.round(a);
+    document.getElementById('theta').value=angleDeg;
+    updateReadout();
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+    anim+=0.02;
+
+    var cx=showF.wave?W*0.32:W/2;
+    var cy=H/2;
+    var R=Math.min(showF.wave?W*0.28:W*0.38,H*0.42);
+    var rad=angleDeg*Math.PI/180;
+
+    var px=cx+R*Math.cos(rad);
+    var py=cy-R*Math.sin(rad);
+
+    /* subtle grid */
+    ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+    for(var i=-1;i<=1;i+=0.5){
+      var gx=cx+i*R,gy=cy-i*R;
+      ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke();
+    }
+
+    /* axes */
+    ctx.strokeStyle='#475569';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+
+    /* axis labels */
+    ctx.fillStyle='#64748b';ctx.font='11px Poppins';ctx.textAlign='center';
+    ctx.fillText('1',cx+R,cy+16);ctx.fillText('-1',cx-R,cy+16);
+    ctx.textAlign='right';ctx.fillText('1',cx-8,cy-R+4);ctx.fillText('-1',cx-8,cy+R+4);
+
+    /* unit circle */
+    ctx.strokeStyle='#64748b';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.stroke();
+    /* circle glow */
+    ctx.strokeStyle='rgba(168,85,247,0.15)';ctx.lineWidth=6;
+    ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.stroke();
+
+    /* angle arc */
+    ctx.strokeStyle='#a855f7';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(cx,cy,R*0.15,0,-rad,rad>0);ctx.stroke();
+    /* θ label */
+    var la=rad/2;
+    ctx.fillStyle='#a855f7';ctx.font='bold 13px Poppins';ctx.textAlign='center';
+    ctx.fillText('θ',cx+R*0.22*Math.cos(la),cy-R*0.22*Math.sin(la)+4);
+
+    /* radius line */
+    ctx.strokeStyle='#e2e8f0';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(px,py);ctx.stroke();
+
+    /* cos line (horizontal) */
+    if(showF.cos){
+      ctx.strokeStyle='#38bdf8';ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(px,cy);ctx.stroke();
+      ctx.fillStyle='#38bdf8';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+      ctx.fillText('cos θ',(cx+px)/2,cy+18);
+    }
+
+    /* sin line (vertical) */
+    if(showF.sin){
+      ctx.strokeStyle='#f472b6';ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(px,cy);ctx.lineTo(px,py);ctx.stroke();
+      ctx.fillStyle='#f472b6';ctx.font='bold 11px Poppins';ctx.textAlign='left';
+      ctx.fillText('sin θ',px+8,(cy+py)/2+4);
+    }
+
+    /* tan line */
+    if(showF.tan&&Math.abs(Math.cos(rad))>0.01){
+      var tanVal=Math.tan(rad);
+      var tanY=cy-tanVal*R;
+      var tanClamp=Math.max(0,Math.min(H,tanY));
+      ctx.strokeStyle='#f59e0b';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(cx+R,cy);ctx.lineTo(cx+R,tanClamp);ctx.stroke();
+      ctx.fillStyle='#f59e0b';ctx.font='bold 11px Poppins';ctx.textAlign='left';
+      ctx.fillText('tan θ',cx+R+8,(cy+tanClamp)/2+4);
+      /* extended radius to tangent */
+      ctx.strokeStyle='rgba(245,158,11,0.3)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+R,tanClamp);ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    /* point on circle */
+    ctx.shadowColor='#a855f7';ctx.shadowBlur=12;
+    ctx.fillStyle='#a855f7';ctx.beginPath();ctx.arc(px,py,7,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    /* coord label */
+    ctx.fillStyle='#e2e8f0';ctx.font='bold 11px monospace';ctx.textAlign='left';
+    ctx.fillText('('+Math.cos(rad).toFixed(2)+', '+Math.sin(rad).toFixed(2)+')',px+12,py-10);
+
+    /* quadrant markers */
+    ctx.fillStyle='#334155';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText('I',cx+R*0.6,cy-R*0.6);ctx.fillText('II',cx-R*0.6,cy-R*0.6);
+    ctx.fillText('III',cx-R*0.6,cy+R*0.6);ctx.fillText('IV',cx+R*0.6,cy+R*0.6);
+
+    /* special angle dots */
+    var specials=[0,30,45,60,90,120,135,150,180,210,225,240,270,300,315,330];
+    for(var si=0;si<specials.length;si++){
+      var sr=specials[si]*Math.PI/180;
+      var sx=cx+R*Math.cos(sr),sy=cy-R*Math.sin(sr);
+      ctx.fillStyle='#475569';ctx.beginPath();ctx.arc(sx,sy,3,0,Math.PI*2);ctx.fill();
+    }
+
+    /* wave graph */
+    if(showF.wave){
+      var waveL=cx+R+40,waveR=W-20,waveW=waveR-waveL;
+      /* wave axes */
+      ctx.strokeStyle='#334155';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(waveL,cy);ctx.lineTo(waveR,cy);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(waveL,cy-R);ctx.lineTo(waveL,cy+R);ctx.stroke();
+      ctx.fillStyle='#475569';ctx.font='9px Poppins';ctx.textAlign='center';
+      ctx.fillText('0',waveL,cy+12);ctx.fillText('π',waveL+waveW/2,cy+12);ctx.fillText('2π',waveR,cy+12);
+
+      /* sin wave */
+      if(showF.sin){
+        ctx.strokeStyle='#f472b6';ctx.lineWidth=2;ctx.beginPath();
+        for(var wp=0;wp<=waveW;wp++){
+          var wa=wp/waveW*Math.PI*2;
+          var wy=cy-R*Math.sin(wa);
+          wp===0?ctx.moveTo(waveL+wp,wy):ctx.lineTo(waveL+wp,wy);
+        }
+        ctx.stroke();
+        /* marker */
+        var mx1=waveL+angleDeg/360*waveW;
+        ctx.fillStyle='#f472b6';ctx.beginPath();ctx.arc(mx1,cy-R*Math.sin(rad),5,0,Math.PI*2);ctx.fill();
+        /* connecting line */
+        ctx.strokeStyle='rgba(244,114,182,0.3)';ctx.setLineDash([3,3]);
+        ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(mx1,cy-R*Math.sin(rad));ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      /* cos wave */
+      if(showF.cos){
+        ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;ctx.beginPath();
+        for(var wp2=0;wp2<=waveW;wp2++){
+          var wa2=wp2/waveW*Math.PI*2;
+          var wy2=cy-R*Math.cos(wa2);
+          wp2===0?ctx.moveTo(waveL+wp2,wy2):ctx.lineTo(waveL+wp2,wy2);
+        }
+        ctx.stroke();
+        var mx2=waveL+angleDeg/360*waveW;
+        ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(mx2,cy-R*Math.cos(rad),5,0,Math.PI*2);ctx.fill();
+      }
+    }
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
