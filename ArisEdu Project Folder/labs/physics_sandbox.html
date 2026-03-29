@@ -142,6 +142,21 @@
     btn.classList.add('active');
   };
 
+  // Auto-select tab from URL hash
+  (function() {
+    var hash = location.hash.replace('#', '');
+    if (hash) {
+      var panel = document.getElementById('panel-' + hash);
+      if (panel) {
+        document.querySelectorAll('.sim-panel').forEach(function(p) { p.classList.remove('active'); });
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        panel.classList.add('active');
+        var btns = document.querySelectorAll('.tab-btn');
+        btns.forEach(function(b) { if (b.textContent.toLowerCase().indexOf(hash) !== -1 || b.getAttribute('onclick').indexOf(hash) !== -1) b.classList.add('active'); });
+      }
+    }
+  })();
+
   // =================== PROJECTILE MOTION ===================
   (function() {
     var canvas = document.getElementById('proj-canvas');

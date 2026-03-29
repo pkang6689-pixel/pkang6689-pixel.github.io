@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volcano Simulator</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin:0; font-family:'Poppins',sans-serif; background:#0f172a; color:#f1f5f9; }
+    .sim-container { max-width:1000px; margin:5rem auto 2rem; padding:1rem 2rem; }
+    h1 { text-align:center; font-size:1.8rem; margin-bottom:0.25rem; }
+    .subtitle { text-align:center; color:#94a3b8; margin-bottom:1.5rem; }
+    .canvas-wrap { background:#020617; border:1px solid #334155; border-radius:1rem; overflow:hidden; }
+    canvas { display:block; width:100%; }
+    .controls { display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem; align-items:center; justify-content:center; }
+    .ctrl-group { display:flex; flex-direction:column; gap:0.25rem; }
+    .ctrl-group label { font-size:0.75rem; color:#94a3b8; }
+    .ctrl-group input[type=range] { width:160px; accent-color:#ef4444; }
+    .ctrl-group .val { font-size:0.8rem; color:#f87171; font-weight:600; }
+    .action-btn { padding:0.6rem 1.5rem; border-radius:0.5rem; border:none; font-weight:600; cursor:pointer; font-size:0.9rem; transition:all 0.2s; }
+    .btn-erupt { background:linear-gradient(135deg,#ef4444,#f97316); color:white; font-size:1rem; }
+    .btn-erupt:hover { filter:brightness(1.1); }
+    .btn-reset { background:#64748b; color:white; }
+    .type-btns { display:flex; gap:0.5rem; justify-content:center; margin-bottom:1rem; flex-wrap:wrap; }
+    .type-btn { padding:0.5rem 1rem; border-radius:0.5rem; border:1px solid #334155; background:#1e293b; color:#f1f5f9; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; }
+    .type-btn.active { background:#ef4444; border-color:#ef4444; }
+    .type-btn:hover { background:#334155; }
+    .readout { display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.75rem; justify-content:center; }
+    .readout .datum { background:#1e293b; padding:0.4rem 0.8rem; border-radius:0.5rem; border:1px solid #334155; font-size:0.8rem; color:#94a3b8; }
+    .readout .datum strong { color:#f87171; }
+    .info-box { margin-top:1rem; background:#1e293b; border:1px solid #334155; border-radius:0.75rem; padding:1rem; font-size:0.85rem; color:#cbd5e1; line-height:1.7; }
+    .info-box h3 { color:#f87171; margin:0 0 0.5rem; font-size:0.95rem; }
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🌋 Volcano Simulator</h1>
+  <p class="subtitle">Choose a volcano type, adjust magma viscosity, and trigger an eruption.</p>
+
+  <div class="type-btns">
+    <button class="type-btn active" onclick="setType('shield',this)">Shield</button>
+    <button class="type-btn" onclick="setType('strato',this)">Stratovolcano</button>
+    <button class="type-btn" onclick="setType('cinder',this)">Cinder Cone</button>
+  </div>
+
+  <div class="canvas-wrap"><canvas id="volc-canvas" height="450"></canvas></div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>Magma Viscosity</label>
+      <input type="range" id="viscosity" min="1" max="10" value="3">
+      <span class="val" id="visc-val">Low</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Gas Content</label>
+      <input type="range" id="gas" min="1" max="10" value="4">
+      <span class="val" id="gas-val">Moderate</span>
+    </div>
+    <button class="action-btn btn-erupt" onclick="triggerEruption()">🌋 Erupt!</button>
+    <button class="action-btn btn-reset" onclick="resetVolcano()">Reset</button>
+  </div>
+
+  <div class="readout">
+    <div class="datum">Type: <strong id="type-name">Shield</strong></div>
+    <div class="datum">Explosivity (VEI): <strong id="vei-val">1</strong></div>
+    <div class="datum">Lava Type: <strong id="lava-type">Basaltic</strong></div>
+  </div>
+
+  <div class="info-box" id="info-box">
+    <h3>Shield Volcano</h3>
+    <p>Shield volcanoes (like Mauna Loa) have broad, gently sloping sides built from fluid basaltic lava. Eruptions are typically effusive — lava flows freely rather than exploding. Low viscosity magma and low gas content make these the least explosive volcano type.</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  var canvas = document.getElementById('volc-canvas');
+  var ctx = canvas.getContext('2d');
+  var t = 0;
+  var volcType = 'shield';
+  var erupting = false;
+  var eruptTimer = 0;
+  var lavaParticles = [];
+  var ashParticles = [];
+  var smokeParticles = [];
+  var lavaFlows = [];
+
+  var types = {
+    shield: { slope:0.15, height:0.3, title:'Shield Volcano', info:'Shield volcanoes have broad, gently sloping sides built from fluid basaltic lava. Eruptions are effusive — lava flows freely. Low viscosity + low gas = least explosive.', lava:'Basaltic' },
+    strato: { slope:0.4, height:0.5, title:'Stratovolcano', info:'Stratovolcanoes (like Mt. Fuji) are tall with steep slopes, built from alternating layers of lava and ash. High viscosity + high gas = violent explosive eruptions with pyroclastic flows.', lava:'Andesitic' },
+    cinder: { slope:0.55, height:0.35, title:'Cinder Cone', info:'Cinder cones are the smallest, built from fragments (cinders) ejected from a single vent. Moderate explosivity, short-lived eruptions. Lava can sometimes break through the base.', lava:'Basaltic-Andesitic' }
+  };
+
+  function resize() { canvas.width = canvas.parentElement.clientWidth; }
+  window.addEventListener('resize', resize);
+  resize();
+
+  window.setType = function(type, btn) {
+    volcType = type;
+    document.querySelectorAll('.type-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    var info = types[type];
+    document.getElementById('type-name').textContent = info.title.replace(' Volcano','');
+    document.getElementById('lava-type').textContent = info.lava;
+    document.getElementById('info-box').innerHTML = '<h3>' + info.title + '</h3><p>' + info.info + '</p>';
+    resetVolcano();
+  };
+
+  window.triggerEruption = function() {
+    erupting = true;
+    eruptTimer = 300;
+  };
+
+  window.resetVolcano = function() {
+    erupting = false; eruptTimer = 0;
+    lavaParticles = []; ashParticles = []; smokeParticles = []; lavaFlows = [];
+  };
+
+  function draw() {
+    var w = canvas.width, h = canvas.height;
+    var visc = parseInt(document.getElementById('viscosity').value);
+    var gas = parseInt(document.getElementById('gas').value);
+    var vei = Math.min(8, Math.round((visc + gas) / 2.5));
+    document.getElementById('visc-val').textContent = visc <= 3 ? 'Low' : visc <= 7 ? 'Medium' : 'High';
+    document.getElementById('gas-val').textContent = gas <= 3 ? 'Low' : gas <= 7 ? 'Moderate' : 'High';
+    document.getElementById('vei-val').textContent = vei;
+
+    var vt = types[volcType];
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Sky
+    var sky = ctx.createLinearGradient(0, 0, 0, h * 0.6);
+    if (erupting) {
+      sky.addColorStop(0, '#451a03');
+      sky.addColorStop(1, '#1c1917');
+    } else {
+      sky.addColorStop(0, '#1e293b');
+      sky.addColorStop(1, '#0f172a');
+    }
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, w, h);
+
+    // Ground
+    ctx.fillStyle = '#3f2a14';
+    ctx.fillRect(0, h * 0.78, w, h * 0.22);
+
+    // Mountain shape
+    var peakX = w * 0.5;
+    var peakY = h * (1 - vt.height);
+    var baseHalfW = vt.height / vt.slope * w * 0.25;
+    var baseY = h * 0.78;
+
+    // Mountain body
+    var mtnGrad = ctx.createLinearGradient(0, peakY, 0, baseY);
+    mtnGrad.addColorStop(0, '#57534e');
+    mtnGrad.addColorStop(0.5, '#44403c');
+    mtnGrad.addColorStop(1, '#292524');
+    ctx.fillStyle = mtnGrad;
+    ctx.beginPath();
+    ctx.moveTo(peakX - 15, peakY);
+    ctx.lineTo(peakX - baseHalfW, baseY);
+    ctx.lineTo(peakX + baseHalfW, baseY);
+    ctx.lineTo(peakX + 15, peakY);
+    ctx.fill();
+
+    // Crater
+    ctx.fillStyle = '#1c1917';
+    ctx.beginPath();
+    ctx.ellipse(peakX, peakY, 18, 8, 0, 0, Math.PI);
+    ctx.fill();
+
+    // Magma glow in crater
+    if (erupting || eruptTimer > 0) {
+      ctx.fillStyle = 'rgba(239,68,68,0.6)';
+      ctx.beginPath();
+      ctx.ellipse(peakX, peakY + 2, 12, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Eruption
+    if (erupting) {
+      eruptTimer--;
+      if (eruptTimer <= 0) erupting = false;
+
+      var intensity = gas / 10;
+      var flowSpeed = (11 - visc) / 10;
+
+      // Lava projectiles (high gas = more)
+      if (Math.random() < intensity * 0.5) {
+        lavaParticles.push({
+          x: peakX + (Math.random() - 0.5) * 20,
+          y: peakY,
+          vx: (Math.random() - 0.5) * gas * 1.5,
+          vy: -3 - Math.random() * gas * 1.5,
+          life: 60 + Math.random() * 60,
+          size: 3 + Math.random() * 5
+        });
+      }
+
+      // Ash cloud (high viscosity = more ash)
+      if (visc > 4 && Math.random() < visc * 0.05) {
+        ashParticles.push({
+          x: peakX + (Math.random() - 0.5) * 30,
+          y: peakY - 10,
+          vx: (Math.random() - 0.5) * 2,
+          vy: -1 - Math.random() * 2,
+          size: 10 + Math.random() * 20,
+          life: 120 + Math.random() * 80,
+          alpha: 0.5
+        });
+      }
+
+      // Lava flow down sides (low viscosity = more flow)
+      if (flowSpeed > 0.3 && Math.random() < flowSpeed * 0.15) {
+        var dir = Math.random() > 0.5 ? 1 : -1;
+        lavaFlows.push({
+          x: peakX + dir * 10,
+          y: peakY + 5,
+          vx: dir * flowSpeed * 2,
+          vy: 1 + flowSpeed,
+          life: 200,
+          width: 3 + Math.random() * 4
+        });
+      }
+
+      // Smoke plume
+      if (Math.random() < 0.3) {
+        smokeParticles.push({
+          x: peakX + (Math.random() - 0.5) * 15,
+          y: peakY - 15,
+          vx: (Math.random() - 0.5),
+          vy: -1.5 - Math.random(),
+          size: 15 + Math.random() * 25,
+          life: 100,
+          alpha: 0.3
+        });
+      }
+    }
+
+    // Draw lava flows
+    for (var i = lavaFlows.length - 1; i >= 0; i--) {
+      var lf = lavaFlows[i];
+      lf.x += lf.vx * 0.5;
+      lf.y += lf.vy * 0.3;
+      lf.life--;
+      if (lf.life <= 0 || lf.y > baseY) { lavaFlows.splice(i, 1); continue; }
+      var alpha = Math.min(lf.life / 50, 1);
+      ctx.strokeStyle = 'rgba(239,68,68,' + alpha + ')';
+      ctx.lineWidth = lf.width;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(lf.x - lf.vx, lf.y - lf.vy * 0.3);
+      ctx.lineTo(lf.x, lf.y);
+      ctx.stroke();
+      // Glow
+      ctx.strokeStyle = 'rgba(251,146,60,' + alpha * 0.3 + ')';
+      ctx.lineWidth = lf.width * 3;
+      ctx.stroke();
+    }
+
+    // Draw lava projectiles
+    for (var i = lavaParticles.length - 1; i >= 0; i--) {
+      var lp = lavaParticles[i];
+      lp.vy += 0.1; // gravity
+      lp.x += lp.vx;
+      lp.y += lp.vy;
+      lp.life--;
+      if (lp.life <= 0 || lp.y > baseY) { lavaParticles.splice(i, 1); continue; }
+      var alpha = Math.min(lp.life / 30, 1);
+      ctx.fillStyle = 'rgba(239,68,68,' + alpha + ')';
+      ctx.beginPath(); ctx.arc(lp.x, lp.y, lp.size, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(251,191,36,' + alpha * 0.5 + ')';
+      ctx.beginPath(); ctx.arc(lp.x, lp.y, lp.size * 0.5, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Draw ash
+    for (var i = ashParticles.length - 1; i >= 0; i--) {
+      var ap = ashParticles[i];
+      ap.x += ap.vx;
+      ap.y += ap.vy;
+      ap.size += 0.3;
+      ap.life--;
+      ap.alpha *= 0.995;
+      if (ap.life <= 0) { ashParticles.splice(i, 1); continue; }
+      ctx.fillStyle = 'rgba(120,113,108,' + ap.alpha + ')';
+      ctx.beginPath(); ctx.arc(ap.x, ap.y, ap.size, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Draw smoke
+    for (var i = smokeParticles.length - 1; i >= 0; i--) {
+      var sp = smokeParticles[i];
+      sp.x += sp.vx;
+      sp.y += sp.vy;
+      sp.size += 0.5;
+      sp.life--;
+      sp.alpha *= 0.99;
+      if (sp.life <= 0) { smokeParticles.splice(i, 1); continue; }
+      ctx.fillStyle = 'rgba(68,64,60,' + sp.alpha + ')';
+      ctx.beginPath(); ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Idle smoke wisps
+    if (!erupting && Math.random() < 0.05) {
+      smokeParticles.push({
+        x: peakX + (Math.random()-0.5)*10, y: peakY - 5,
+        vx: (Math.random()-0.5)*0.3, vy: -0.5-Math.random()*0.3,
+        size: 5+Math.random()*8, life: 60, alpha: 0.15
+      });
+    }
+
+    t += 0.016;
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enzyme Kinetics</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin:0; font-family:'Poppins',sans-serif; background:#0f172a; color:#f1f5f9; }
+    .sim-container { max-width:1000px; margin:5rem auto 2rem; padding:1rem 2rem; }
+    h1 { text-align:center; font-size:1.8rem; margin-bottom:0.25rem; }
+    .subtitle { text-align:center; color:#94a3b8; margin-bottom:1.5rem; }
+    .layout { display:flex; gap:1.5rem; flex-wrap:wrap; }
+    .chart-panel { flex:1; min-width:300px; }
+    .canvas-wrap { background:#020617; border:1px solid #334155; border-radius:1rem; overflow:hidden; }
+    canvas { display:block; width:100%; }
+    .anim-panel { flex:0 0 300px; }
+    .controls { display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem; align-items:center; }
+    .ctrl-group { display:flex; flex-direction:column; gap:0.25rem; }
+    .ctrl-group label { font-size:0.75rem; color:#94a3b8; }
+    .ctrl-group input[type=range] { width:180px; accent-color:#22c55e; }
+    .ctrl-group .val { font-size:0.8rem; color:#4ade80; font-weight:600; }
+    .readout { display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.75rem; }
+    .readout .datum { background:#1e293b; padding:0.4rem 0.8rem; border-radius:0.5rem; border:1px solid #334155; font-size:0.8rem; color:#94a3b8; }
+    .readout .datum strong { color:#4ade80; }
+    .info-box { margin-top:1rem; background:#1e293b; border:1px solid #334155; border-radius:0.75rem; padding:1rem; font-size:0.85rem; color:#cbd5e1; line-height:1.7; }
+    .info-box h3 { color:#4ade80; margin:0 0 0.5rem; font-size:0.95rem; }
+    .toggle-row { display:flex; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap; }
+    .toggle-btn { padding:0.4rem 0.8rem; border-radius:0.5rem; border:1px solid #334155; background:#1e293b; color:#f1f5f9; cursor:pointer; font-weight:600; font-size:0.8rem; transition:all 0.2s; }
+    .toggle-btn.active { background:#22c55e; border-color:#22c55e; color:#052e16; }
+    .toggle-btn:hover { background:#334155; }
+    @media (max-width:700px) { .layout { flex-direction:column; } .anim-panel { flex:unset; width:100%; } }
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🧫 Enzyme Kinetics</h1>
+  <p class="subtitle">Explore Michaelis-Menten kinetics, inhibition, and temperature effects.</p>
+
+  <div class="layout">
+    <div class="chart-panel">
+      <div class="canvas-wrap"><canvas id="mm-canvas" height="350"></canvas></div>
+    </div>
+    <div class="anim-panel">
+      <div class="canvas-wrap"><canvas id="anim-canvas" height="350"></canvas></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>[Substrate] (mM)</label>
+      <input type="range" id="substrate" min="0.1" max="20" step="0.1" value="5" oninput="updateSim()">
+      <span class="val" id="sub-val">5.0</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Vmax (mM/s)</label>
+      <input type="range" id="vmax" min="1" max="20" value="10" oninput="updateSim()">
+      <span class="val" id="vmax-val">10</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Km (mM)</label>
+      <input type="range" id="km" min="0.5" max="15" step="0.5" value="5" oninput="updateSim()">
+      <span class="val" id="km-val">5.0</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Temperature (°C)</label>
+      <input type="range" id="etemp" min="10" max="70" value="37" oninput="updateSim()">
+      <span class="val" id="etemp-val">37</span>
+    </div>
+  </div>
+
+  <div class="toggle-row">
+    <button class="toggle-btn" id="inhib-none" onclick="setInhibitor('none')">No Inhibitor</button>
+    <button class="toggle-btn" id="inhib-comp" onclick="setInhibitor('competitive')">Competitive</button>
+    <button class="toggle-btn" id="inhib-uncomp" onclick="setInhibitor('uncompetitive')">Uncompetitive</button>
+  </div>
+
+  <div class="readout">
+    <div class="datum">V₀: <strong id="v0-out">—</strong></div>
+    <div class="datum">Km (apparent): <strong id="km-app">—</strong></div>
+    <div class="datum">Vmax (apparent): <strong id="vmax-app">—</strong></div>
+  </div>
+
+  <div class="info-box">
+    <h3>Michaelis-Menten Equation: V₀ = Vmax·[S] / (Km + [S])</h3>
+    <p><strong>Vmax</strong>: Maximum reaction velocity when all enzyme active sites are saturated.<br>
+    <strong>Km</strong>: Substrate concentration at half Vmax — a measure of enzyme affinity.<br>
+    <strong>Competitive inhibitor</strong>: Increases apparent Km without changing Vmax.<br>
+    <strong>Uncompetitive inhibitor</strong>: Decreases both apparent Vmax and Km.</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  var mmCanvas = document.getElementById('mm-canvas');
+  var mmCtx = mmCanvas.getContext('2d');
+  var animCanvas = document.getElementById('anim-canvas');
+  var animCtx = animCanvas.getContext('2d');
+  var inhibitor = 'none';
+  var t = 0;
+
+  // Particles for animation
+  var substrates = [];
+  var products = [];
+  var enzyme = { x: 0.5, y: 0.5, bound: false, timer: 0 };
+
+  function initParticles() {
+    substrates = [];
+    products = [];
+    enzyme.bound = false; enzyme.timer = 0;
+    var S = parseFloat(document.getElementById('substrate').value);
+    var count = Math.min(Math.round(S * 2), 30);
+    for (var i = 0; i < count; i++) {
+      substrates.push({ x: Math.random(), y: Math.random(), vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2 });
+    }
+  }
+
+  function tempFactor() {
+    var temp = parseInt(document.getElementById('etemp').value);
+    // Peaks at ~37, denatures above 50
+    if (temp <= 37) return 0.3 + 0.7 * (temp - 10) / 27;
+    return Math.max(0, 1 - (temp - 37) / 33);
+  }
+
+  function getEffective() {
+    var Vm = parseFloat(document.getElementById('vmax').value);
+    var Kk = parseFloat(document.getElementById('km').value);
+    var tf = tempFactor();
+    if (inhibitor === 'competitive') Kk *= 2.5;
+    else if (inhibitor === 'uncompetitive') { Vm *= 0.5; Kk *= 0.5; }
+    return { vmax: Vm * tf, km: Kk };
+  }
+
+  window.setInhibitor = function(type) {
+    inhibitor = type;
+    document.querySelectorAll('.toggle-btn').forEach(function(b){b.classList.remove('active');});
+    document.getElementById('inhib-' + (type === 'none' ? 'none' : type === 'competitive' ? 'comp' : 'uncomp')).classList.add('active');
+    updateSim();
+  };
+  document.getElementById('inhib-none').classList.add('active');
+
+  window.updateSim = function() {
+    var S = parseFloat(document.getElementById('substrate').value);
+    document.getElementById('sub-val').textContent = S.toFixed(1);
+    document.getElementById('vmax-val').textContent = document.getElementById('vmax').value;
+    document.getElementById('km-val').textContent = parseFloat(document.getElementById('km').value).toFixed(1);
+    document.getElementById('etemp-val').textContent = document.getElementById('etemp').value;
+
+    var eff = getEffective();
+    var V0 = eff.vmax * S / (eff.km + S);
+    document.getElementById('v0-out').textContent = V0.toFixed(2) + ' mM/s';
+    document.getElementById('km-app').textContent = eff.km.toFixed(1) + ' mM';
+    document.getElementById('vmax-app').textContent = eff.vmax.toFixed(1) + ' mM/s';
+
+    initParticles();
+    drawChart();
+  };
+
+  function drawChart() {
+    mmCanvas.width = mmCanvas.parentElement.clientWidth;
+    var w = mmCanvas.width, h = mmCanvas.height;
+    mmCtx.clearRect(0, 0, w, h);
+
+    var eff = getEffective();
+    var maxS = 20, maxV = 22;
+
+    // Axes
+    mmCtx.strokeStyle = '#475569'; mmCtx.lineWidth = 1;
+    mmCtx.beginPath(); mmCtx.moveTo(50, h - 40); mmCtx.lineTo(w - 20, h - 40); mmCtx.stroke();
+    mmCtx.beginPath(); mmCtx.moveTo(50, h - 40); mmCtx.lineTo(50, 20); mmCtx.stroke();
+
+    mmCtx.fillStyle = '#94a3b8'; mmCtx.font = '10px Poppins'; mmCtx.textAlign = 'center';
+    mmCtx.fillText('[S] (mM)', w / 2, h - 8);
+    mmCtx.save(); mmCtx.translate(14, h / 2); mmCtx.rotate(-Math.PI / 2);
+    mmCtx.fillText('V₀ (mM/s)', 0, 0); mmCtx.restore();
+
+    // Grid
+    mmCtx.strokeStyle = '#1e293b'; mmCtx.lineWidth = 0.5;
+    for (var v = 0; v <= maxV; v += 5) {
+      var gy = h - 40 - (v / maxV) * (h - 60);
+      mmCtx.beginPath(); mmCtx.moveTo(50, gy); mmCtx.lineTo(w - 20, gy); mmCtx.stroke();
+      mmCtx.fillStyle = '#64748b'; mmCtx.textAlign = 'right'; mmCtx.font = '9px Poppins';
+      mmCtx.fillText(v, 45, gy + 3);
+    }
+
+    // Vmax line (dashed)
+    var vmaxY = h - 40 - (eff.vmax / maxV) * (h - 60);
+    mmCtx.strokeStyle = '#ef4444'; mmCtx.lineWidth = 1; mmCtx.setLineDash([4, 4]);
+    mmCtx.beginPath(); mmCtx.moveTo(50, vmaxY); mmCtx.lineTo(w - 20, vmaxY); mmCtx.stroke();
+    mmCtx.setLineDash([]);
+    mmCtx.fillStyle = '#ef4444'; mmCtx.textAlign = 'left'; mmCtx.font = '9px Poppins';
+    mmCtx.fillText('Vmax = ' + eff.vmax.toFixed(1), w - 80, vmaxY - 5);
+
+    // Km marker
+    var kmX = 50 + (eff.km / maxS) * (w - 70);
+    var halfVmaxY = h - 40 - (eff.vmax / 2 / maxV) * (h - 60);
+    mmCtx.strokeStyle = '#3b82f6'; mmCtx.setLineDash([4, 4]);
+    mmCtx.beginPath(); mmCtx.moveTo(kmX, h - 40); mmCtx.lineTo(kmX, halfVmaxY); mmCtx.stroke();
+    mmCtx.beginPath(); mmCtx.moveTo(50, halfVmaxY); mmCtx.lineTo(kmX, halfVmaxY); mmCtx.stroke();
+    mmCtx.setLineDash([]);
+    mmCtx.fillStyle = '#3b82f6';
+    mmCtx.fillText('Km', kmX - 5, h - 28);
+
+    // Normal curve (no inhibitor)
+    var baseVm = parseFloat(document.getElementById('vmax').value) * tempFactor();
+    var baseKm = parseFloat(document.getElementById('km').value);
+    if (inhibitor !== 'none') {
+      mmCtx.strokeStyle = '#334155'; mmCtx.lineWidth = 1;
+      mmCtx.beginPath();
+      for (var s = 0; s <= maxS; s += 0.2) {
+        var vv = baseVm * s / (baseKm + s);
+        var x = 50 + (s / maxS) * (w - 70);
+        var y = h - 40 - (vv / maxV) * (h - 60);
+        if (s === 0) mmCtx.moveTo(x, y); else mmCtx.lineTo(x, y);
+      }
+      mmCtx.stroke();
+    }
+
+    // MM curve (with current settings)
+    mmCtx.strokeStyle = '#4ade80'; mmCtx.lineWidth = 2.5;
+    mmCtx.beginPath();
+    for (var s = 0; s <= maxS; s += 0.2) {
+      var vv = eff.vmax * s / (eff.km + s);
+      var x = 50 + (s / maxS) * (w - 70);
+      var y = h - 40 - (vv / maxV) * (h - 60);
+      if (s === 0) mmCtx.moveTo(x, y); else mmCtx.lineTo(x, y);
+    }
+    mmCtx.stroke();
+
+    // Current point
+    var S = parseFloat(document.getElementById('substrate').value);
+    var V0 = eff.vmax * S / (eff.km + S);
+    var px = 50 + (S / maxS) * (w - 70);
+    var py = h - 40 - (V0 / maxV) * (h - 60);
+    mmCtx.fillStyle = '#fbbf24';
+    mmCtx.beginPath(); mmCtx.arc(px, py, 6, 0, Math.PI * 2); mmCtx.fill();
+  }
+
+  function drawAnim() {
+    animCanvas.width = animCanvas.parentElement.clientWidth;
+    var w = animCanvas.width, h = animCanvas.height;
+    animCtx.clearRect(0, 0, w, h);
+    animCtx.fillStyle = '#020617';
+    animCtx.fillRect(0, 0, w, h);
+
+    var eff = getEffective();
+    var S = parseFloat(document.getElementById('substrate').value);
+    var rate = eff.vmax * S / (eff.km + S) / eff.vmax; // normalized 0-1
+
+    // Enzyme (pac-man shape)
+    var ex = w * 0.5, ey = h * 0.5;
+    var mouthAngle = enzyme.bound ? 0.05 : 0.3;
+    animCtx.fillStyle = enzyme.bound ? '#fbbf24' : '#4ade80';
+    animCtx.beginPath();
+    animCtx.arc(ex, ey, 30, mouthAngle * Math.PI, (2 - mouthAngle) * Math.PI);
+    animCtx.lineTo(ex, ey);
+    animCtx.fill();
+    animCtx.fillStyle = '#0f172a';
+    animCtx.beginPath(); animCtx.arc(ex - 5, ey - 12, 4, 0, Math.PI * 2); animCtx.fill();
+
+    // Label
+    animCtx.fillStyle = '#94a3b8'; animCtx.font = '10px Poppins'; animCtx.textAlign = 'center';
+    animCtx.fillText('Enzyme', ex, ey + 45);
+
+    if (enzyme.bound) {
+      enzyme.timer--;
+      if (enzyme.timer <= 0) {
+        enzyme.bound = false;
+        products.push({ x: ex / w + 0.05, y: ey / h, vx: 2, vy: (Math.random()-0.5)*2, life: 60 });
+        products.push({ x: ex / w + 0.05, y: ey / h + 0.05, vx: 2.5, vy: (Math.random()-0.5)*2, life: 60 });
+      }
+    }
+
+    // Substrates
+    animCtx.fillStyle = '#3b82f6';
+    for (var i = substrates.length - 1; i >= 0; i--) {
+      var s = substrates[i];
+      s.vx += (Math.random() - 0.5) * 0.5;
+      s.vy += (Math.random() - 0.5) * 0.5;
+      s.vx *= 0.95; s.vy *= 0.95;
+      s.x += s.vx * 0.003; s.y += s.vy * 0.003;
+      if (s.x < 0.05) { s.x = 0.05; s.vx *= -1; }
+      if (s.x > 0.95) { s.x = 0.95; s.vx *= -1; }
+      if (s.y < 0.05) { s.y = 0.05; s.vy *= -1; }
+      if (s.y > 0.95) { s.y = 0.95; s.vy *= -1; }
+
+      // Check if close to enzyme
+      var dx = s.x * w - ex, dy = s.y * h - ey;
+      if (!enzyme.bound && Math.sqrt(dx * dx + dy * dy) < 35 && Math.random() < rate * 0.05) {
+        enzyme.bound = true;
+        enzyme.timer = Math.round(30 / Math.max(rate, 0.1));
+        substrates.splice(i, 1);
+        continue;
+      }
+
+      // Draw substrate as square
+      animCtx.fillRect(s.x * w - 5, s.y * h - 5, 10, 10);
+    }
+
+    // Products (triangles)
+    animCtx.fillStyle = '#f59e0b';
+    for (var i = products.length - 1; i >= 0; i--) {
+      var p = products[i];
+      p.x += p.vx * 0.005; p.y += p.vy * 0.005;
+      p.life--;
+      if (p.life <= 0 || p.x > 1.1) { products.splice(i, 1); continue; }
+      var px = p.x * w, py = p.y * h;
+      animCtx.beginPath();
+      animCtx.moveTo(px, py - 5); animCtx.lineTo(px + 5, py + 5); animCtx.lineTo(px - 5, py + 5);
+      animCtx.fill();
+    }
+
+    // Inhibitor visualization
+    if (inhibitor !== 'none') {
+      animCtx.fillStyle = '#ef4444';
+      animCtx.font = '10px Poppins';
+      animCtx.fillText(inhibitor === 'competitive' ? '🚫 Blocking active site' : '🔒 Bound to ES complex', ex, ey - 40);
+      animCtx.globalAlpha = 0.3;
+      animCtx.fillStyle = '#ef4444';
+      animCtx.beginPath(); animCtx.arc(ex + 25, ey, 8, 0, Math.PI * 2); animCtx.fill();
+      animCtx.globalAlpha = 1;
+    }
+
+    // Legend
+    animCtx.font = '9px Poppins'; animCtx.textAlign = 'left';
+    animCtx.fillStyle = '#3b82f6'; animCtx.fillRect(10, h - 50, 10, 10);
+    animCtx.fillStyle = '#94a3b8'; animCtx.fillText('Substrate', 25, h - 42);
+    animCtx.fillStyle = '#f59e0b';
+    animCtx.beginPath(); animCtx.moveTo(15, h - 30); animCtx.lineTo(20, h - 20); animCtx.lineTo(10, h - 20); animCtx.fill();
+    animCtx.fillStyle = '#94a3b8'; animCtx.fillText('Product', 25, h - 22);
+
+    // Replenish substrates
+    if (substrates.length < Math.min(Math.round(S * 2), 30) && Math.random() < 0.1) {
+      substrates.push({ x: Math.random() * 0.3, y: Math.random(), vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2 });
+    }
+
+    t++;
+    requestAnimationFrame(drawAnim);
+  }
+
+  initParticles();
+  drawChart();
+  drawAnim();
+
+  window.addEventListener('resize', function() { drawChart(); });
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body>
+</html>

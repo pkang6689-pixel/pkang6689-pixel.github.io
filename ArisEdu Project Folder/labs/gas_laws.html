@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gas Laws Simulation</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin:0; font-family:'Poppins',sans-serif; background:#0f172a; color:#f1f5f9; }
+    .sim-container { max-width:1000px; margin:5rem auto 2rem; padding:1rem 2rem; }
+    h1 { text-align:center; font-size:1.8rem; margin-bottom:0.25rem; }
+    .subtitle { text-align:center; color:#94a3b8; margin-bottom:1.5rem; }
+    .tabs { display:flex; gap:0.5rem; justify-content:center; margin-bottom:1rem; flex-wrap:wrap; }
+    .tab-btn { padding:0.5rem 1.2rem; border-radius:0.5rem; border:1px solid #334155; background:#1e293b; color:#f1f5f9; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; }
+    .tab-btn.active { background:#f59e0b; border-color:#f59e0b; color:#1e293b; }
+    .tab-btn:hover { background:#334155; }
+    .panel { display:none; }
+    .panel.active { display:block; }
+    .canvas-wrap { background:#020617; border:1px solid #334155; border-radius:1rem; overflow:hidden; }
+    canvas { display:block; width:100%; }
+    .controls { display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem; align-items:center; }
+    .ctrl-group { display:flex; flex-direction:column; gap:0.25rem; }
+    .ctrl-group label { font-size:0.75rem; color:#94a3b8; }
+    .ctrl-group input[type=range] { width:160px; accent-color:#f59e0b; }
+    .ctrl-group .val { font-size:0.8rem; color:#fbbf24; font-weight:600; }
+    .readout { display:flex; gap:1.5rem; flex-wrap:wrap; margin-top:0.75rem; }
+    .readout .datum { background:#1e293b; padding:0.4rem 0.8rem; border-radius:0.5rem; border:1px solid #334155; font-size:0.8rem; color:#94a3b8; }
+    .readout .datum strong { color:#fbbf24; }
+    .info-box { margin-top:1rem; background:#1e293b; border:1px solid #334155; border-radius:0.75rem; padding:1rem; font-size:0.85rem; color:#cbd5e1; line-height:1.7; }
+    .info-box h3 { color:#fbbf24; margin:0 0 0.5rem; font-size:0.95rem; }
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>💨 Gas Laws</h1>
+  <p class="subtitle">Explore Boyle's Law, Charles's Law, and the Ideal Gas Law interactively.</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchGas('boyle',this)">Boyle's Law</button>
+    <button class="tab-btn" onclick="switchGas('charles',this)">Charles's Law</button>
+    <button class="tab-btn" onclick="switchGas('ideal',this)">Ideal Gas (PV=nRT)</button>
+  </div>
+
+  <!-- Boyle's Law Panel -->
+  <div class="panel active" id="gas-boyle">
+    <div class="canvas-wrap"><canvas id="boyle-canvas" height="350"></canvas></div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Volume (L)</label>
+        <input type="range" id="boyle-v" min="1" max="20" value="10" oninput="drawBoyle()">
+        <span class="val" id="boyle-v-val">10</span>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="datum">Pressure: <strong id="boyle-p-val">1.0 atm</strong></div>
+      <div class="datum">Constant: <strong>T = 300 K, n = 1 mol</strong></div>
+    </div>
+    <div class="info-box"><h3>Boyle's Law: P₁V₁ = P₂V₂</h3><p>At constant temperature, pressure is inversely proportional to volume. Decrease the volume and watch the gas particles crowd together, increasing pressure.</p></div>
+  </div>
+
+  <!-- Charles's Law Panel -->
+  <div class="panel" id="gas-charles">
+    <div class="canvas-wrap"><canvas id="charles-canvas" height="350"></canvas></div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Temperature (K)</label>
+        <input type="range" id="charles-t" min="100" max="600" value="300" oninput="drawCharles()">
+        <span class="val" id="charles-t-val">300</span>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="datum">Volume: <strong id="charles-vout">10.0 L</strong></div>
+      <div class="datum">Constant: <strong>P = 1 atm, n = 1 mol</strong></div>
+    </div>
+    <div class="info-box"><h3>Charles's Law: V₁/T₁ = V₂/T₂</h3><p>At constant pressure, the volume of a gas is directly proportional to its absolute temperature. Heat the gas and watch it expand.</p></div>
+  </div>
+
+  <!-- Ideal Gas Panel -->
+  <div class="panel" id="gas-ideal">
+    <div class="canvas-wrap"><canvas id="ideal-canvas" height="350"></canvas></div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Pressure (atm)</label>
+        <input type="range" id="ideal-p" min="0.5" max="10" step="0.5" value="1" oninput="drawIdeal()">
+        <span class="val" id="ideal-p-val">1</span>
+      </div>
+      <div class="ctrl-group">
+        <label>Temperature (K)</label>
+        <input type="range" id="ideal-t" min="100" max="800" value="300" oninput="drawIdeal()">
+        <span class="val" id="ideal-t-val">300</span>
+      </div>
+      <div class="ctrl-group">
+        <label>Moles (n)</label>
+        <input type="range" id="ideal-n" min="0.5" max="5" step="0.5" value="1" oninput="drawIdeal()">
+        <span class="val" id="ideal-n-val">1</span>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="datum">Volume: <strong id="ideal-vout">24.6 L</strong></div>
+      <div class="datum">Formula: <strong>PV = nRT (R = 0.0821)</strong></div>
+    </div>
+    <div class="info-box"><h3>Ideal Gas Law: PV = nRT</h3><p>Combines Boyle's and Charles's laws. Adjust pressure, temperature, and moles to see how volume changes. R = 0.0821 L·atm/(mol·K).</p></div>
+  </div>
+</div>
+
+<script>
+var R = 0.0821;
+var gasParticles = [];
+for (var i = 0; i < 40; i++) gasParticles.push({ x:Math.random(), y:Math.random(), vx:(Math.random()-0.5)*2, vy:(Math.random()-0.5)*2 });
+
+window.switchGas = function(tab, btn) {
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('gas-'+tab).classList.add('active');
+  btn.classList.add('active');
+};
+
+function drawContainer(canvas, volFrac, speed) {
+  var ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement.clientWidth;
+  var w = canvas.width, h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+
+  var boxW = w * 0.6 * Math.max(0.2, Math.min(1, volFrac));
+  var boxH = h * 0.7;
+  var bx = (w - boxW) / 2, by = (h - boxH) / 2;
+
+  // Piston top
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(bx - 5, by - 15, boxW + 10, 15);
+  // Container walls
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(bx, by, boxW, boxH);
+
+  // Gas particles
+  ctx.fillStyle = '#fbbf24';
+  for (var i = 0; i < gasParticles.length; i++) {
+    var p = gasParticles[i];
+    p.vx += (Math.random()-0.5) * speed * 0.5;
+    p.vy += (Math.random()-0.5) * speed * 0.5;
+    p.vx *= 0.92; p.vy *= 0.92;
+    p.x += p.vx * 0.005; p.y += p.vy * 0.005;
+    if (p.x < 0.02){p.x=0.02;p.vx*=-1;} if (p.x>0.98){p.x=0.98;p.vx*=-1;}
+    if (p.y < 0.02){p.y=0.02;p.vy*=-1;} if (p.y>0.98){p.y=0.98;p.vy*=-1;}
+    var px = bx + p.x * boxW;
+    var py = by + p.y * boxH;
+    ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI*2); ctx.fill();
+  }
+}
+
+window.drawBoyle = function() {
+  var v = parseFloat(document.getElementById('boyle-v').value);
+  document.getElementById('boyle-v-val').textContent = v;
+  var P = (1 * 10) / v; // P1V1 = P2V2, P1=1, V1=10
+  document.getElementById('boyle-p-val').textContent = P.toFixed(2) + ' atm';
+  drawContainer(document.getElementById('boyle-canvas'), v / 20, 1 + (20-v)/5);
+};
+
+window.drawCharles = function() {
+  var T = parseFloat(document.getElementById('charles-t').value);
+  document.getElementById('charles-t-val').textContent = T;
+  var V = 10 * T / 300; // V1/T1 = V2/T2
+  document.getElementById('charles-vout').textContent = V.toFixed(1) + ' L';
+  drawContainer(document.getElementById('charles-canvas'), V / 20, T / 200);
+};
+
+window.drawIdeal = function() {
+  var P = parseFloat(document.getElementById('ideal-p').value);
+  var T = parseFloat(document.getElementById('ideal-t').value);
+  var n = parseFloat(document.getElementById('ideal-n').value);
+  document.getElementById('ideal-p-val').textContent = P;
+  document.getElementById('ideal-t-val').textContent = T;
+  document.getElementById('ideal-n-val').textContent = n;
+  var V = n * R * T / P;
+  document.getElementById('ideal-vout').textContent = V.toFixed(1) + ' L';
+  drawContainer(document.getElementById('ideal-canvas'), Math.min(V / 50, 1), T / 200);
+};
+
+// Animate
+function animate() {
+  var active = document.querySelector('.panel.active');
+  if (active.id === 'gas-boyle') drawBoyle();
+  else if (active.id === 'gas-charles') drawCharles();
+  else drawIdeal();
+  requestAnimationFrame(animate);
+}
+window.addEventListener('resize', function(){ animate(); });
+animate();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body>
+</html>

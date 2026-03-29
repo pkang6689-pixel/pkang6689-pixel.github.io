@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coral Reef Ecosystem</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin:0; font-family:'Poppins',sans-serif; background:#0f172a; color:#f1f5f9; }
+    .sim-container { max-width:1000px; margin:5rem auto 2rem; padding:1rem 2rem; }
+    h1 { text-align:center; font-size:1.8rem; margin-bottom:0.25rem; }
+    .subtitle { text-align:center; color:#94a3b8; margin-bottom:1.5rem; }
+    .canvas-wrap { background:#020617; border:1px solid #334155; border-radius:1rem; overflow:hidden; cursor:pointer; }
+    canvas { display:block; width:100%; }
+    .controls { display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem; align-items:center; }
+    .ctrl-group { display:flex; flex-direction:column; gap:0.25rem; }
+    .ctrl-group label { font-size:0.75rem; color:#94a3b8; }
+    .ctrl-group input[type=range] { width:160px; accent-color:#22c55e; }
+    .ctrl-group .val { font-size:0.8rem; color:#4ade80; font-weight:600; }
+    .readout { display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.75rem; }
+    .readout .datum { background:#1e293b; padding:0.4rem 0.8rem; border-radius:0.5rem; border:1px solid #334155; font-size:0.8rem; color:#94a3b8; }
+    .readout .datum strong { color:#4ade80; }
+    .readout .datum.danger strong { color:#ef4444; }
+    .info-box { margin-top:1rem; background:#1e293b; border:1px solid #334155; border-radius:0.75rem; padding:1rem; font-size:0.85rem; color:#cbd5e1; line-height:1.7; }
+    .info-box h3 { color:#22c55e; margin:0 0 0.5rem; font-size:0.95rem; }
+    .status-bar { display:flex; gap:0.5rem; margin-top:0.5rem; align-items:center; }
+    .status-bar label { font-size:0.8rem; color:#94a3b8; min-width:80px; }
+    .bar-bg { flex:1; height:12px; background:#1e293b; border-radius:6px; overflow:hidden; border:1px solid #334155; }
+    .bar-fill { height:100%; border-radius:6px; transition:width 0.5s, background 0.5s; }
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🪸 Coral Reef Ecosystem</h1>
+  <p class="subtitle">Manage reef conditions and observe how coral and marine life respond.</p>
+
+  <div class="canvas-wrap"><canvas id="reef-canvas" height="450"></canvas></div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>Water Temperature (°C)</label>
+      <input type="range" id="waterTemp" min="20" max="35" step="0.5" value="26">
+      <span class="val" id="waterTemp-val">26°C</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Ocean Acidity (pH)</label>
+      <input type="range" id="ph" min="7.0" max="8.5" step="0.1" value="8.2">
+      <span class="val" id="ph-val">8.2</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Pollution Level</label>
+      <input type="range" id="pollution" min="0" max="100" value="10">
+      <span class="val" id="pollution-val">10%</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Sunlight</label>
+      <input type="range" id="sunlight" min="0" max="100" value="80">
+      <span class="val" id="sunlight-val">80%</span>
+    </div>
+  </div>
+
+  <div style="max-width:500px; margin-top:1rem;">
+    <div class="status-bar"><label>Coral Health</label><div class="bar-bg"><div class="bar-fill" id="health-bar" style="width:85%;background:#22c55e;"></div></div><span class="val" id="health-pct" style="min-width:35px;text-align:right;">85%</span></div>
+    <div class="status-bar"><label>Biodiversity</label><div class="bar-bg"><div class="bar-fill" id="bio-bar" style="width:90%;background:#3b82f6;"></div></div><span class="val" id="bio-pct" style="min-width:35px;text-align:right;">90%</span></div>
+    <div class="status-bar"><label>Algae Growth</label><div class="bar-bg"><div class="bar-fill" id="algae-bar" style="width:15%;background:#f59e0b;"></div></div><span class="val" id="algae-pct" style="min-width:35px;text-align:right;">15%</span></div>
+  </div>
+
+  <div class="readout">
+    <div class="datum" id="bleach-status">Bleaching: <strong>None</strong></div>
+    <div class="datum">Fish Species: <strong id="fish-count">12</strong></div>
+    <div class="datum">Zooxanthellae: <strong id="zox-count">High</strong></div>
+  </div>
+
+  <div class="info-box">
+    <h3>Coral Bleaching &amp; Reef Health</h3>
+    <p>Coral gets its color from symbiotic algae (zooxanthellae). When water temperature rises above ~29°C or pH drops below 7.8, coral expels the algae and turns white — <strong>bleaching</strong>. Prolonged stress leads to coral death, reducing biodiversity. Pollution increases algae overgrowth which smothers coral.</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  var canvas = document.getElementById('reef-canvas');
+  var ctx = canvas.getContext('2d');
+  var t = 0;
+  var fish = [];
+  var bubbles = [];
+
+  for (var i = 0; i < 15; i++) {
+    fish.push({
+      x: Math.random(), y: 0.1 + Math.random() * 0.4,
+      speed: 0.3 + Math.random() * 0.7,
+      size: 8 + Math.random() * 12,
+      color: ['#f59e0b','#3b82f6','#ef4444','#a78bfa','#fb923c','#14b8a6'][Math.floor(Math.random()*6)],
+      dir: Math.random() > 0.5 ? 1 : -1
+    });
+  }
+
+  function resize() { canvas.width = canvas.parentElement.clientWidth; }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function calcHealth() {
+    var temp = parseFloat(document.getElementById('waterTemp').value);
+    var ph = parseFloat(document.getElementById('ph').value);
+    var poll = parseInt(document.getElementById('pollution').value);
+    var sun = parseInt(document.getElementById('sunlight').value);
+
+    document.getElementById('waterTemp-val').textContent = temp + '°C';
+    document.getElementById('ph-val').textContent = ph;
+    document.getElementById('pollution-val').textContent = poll + '%';
+    document.getElementById('sunlight-val').textContent = sun + '%';
+
+    // Health score
+    var tempScore = temp <= 29 ? 1 : Math.max(0, 1 - (temp - 29) / 5);
+    var phScore = ph >= 7.8 ? 1 : Math.max(0, (ph - 7.0) / 0.8);
+    var pollScore = 1 - poll / 100;
+    var sunScore = Math.min(sun / 60, 1);
+    var health = Math.round((tempScore * 0.35 + phScore * 0.25 + pollScore * 0.25 + sunScore * 0.15) * 100);
+    var bio = Math.round(health * 0.9 + Math.random() * 5);
+    var algae = Math.round(Math.max(0, poll * 0.6 + (100 - health) * 0.3));
+    var bleaching = temp > 29 || ph < 7.8;
+    var fishCount = Math.max(2, Math.round(bio / 100 * 15));
+
+    document.getElementById('health-bar').style.width = health + '%';
+    document.getElementById('health-bar').style.background = health > 60 ? '#22c55e' : health > 30 ? '#f59e0b' : '#ef4444';
+    document.getElementById('health-pct').textContent = health + '%';
+
+    document.getElementById('bio-bar').style.width = Math.min(bio, 100) + '%';
+    document.getElementById('bio-pct').textContent = Math.min(bio, 100) + '%';
+
+    document.getElementById('algae-bar').style.width = Math.min(algae, 100) + '%';
+    document.getElementById('algae-bar').style.background = algae > 50 ? '#ef4444' : '#f59e0b';
+    document.getElementById('algae-pct').textContent = Math.min(algae, 100) + '%';
+
+    var bs = document.getElementById('bleach-status');
+    bs.innerHTML = 'Bleaching: <strong>' + (bleaching ? (temp > 31 ? 'SEVERE' : 'Mild') : 'None') + '</strong>';
+    if (bleaching) bs.classList.add('danger'); else bs.classList.remove('danger');
+
+    document.getElementById('fish-count').textContent = fishCount;
+    document.getElementById('zox-count').textContent = health > 60 ? 'High' : health > 30 ? 'Low' : 'Critical';
+
+    return { health: health, bleaching: bleaching, algae: algae, fishCount: fishCount, sun: sun };
+  }
+
+  function draw() {
+    var w = canvas.width, h = canvas.height;
+    var state = calcHealth();
+
+    // Water background
+    var waterGrad = ctx.createLinearGradient(0, 0, 0, h);
+    var lightA = state.sun / 100;
+    waterGrad.addColorStop(0, 'rgba(14,116,144,' + (0.3 + lightA * 0.5) + ')');
+    waterGrad.addColorStop(0.5, 'rgba(8,51,68,0.9)');
+    waterGrad.addColorStop(1, '#0c1e32');
+    ctx.fillStyle = waterGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Light rays from top
+    if (state.sun > 20) {
+      ctx.strokeStyle = 'rgba(251,191,36,' + (state.sun / 500) + ')';
+      ctx.lineWidth = 15;
+      for (var r = 0; r < 5; r++) {
+        var rx = w * 0.15 + r * w * 0.18;
+        ctx.beginPath();
+        ctx.moveTo(rx, 0);
+        ctx.lineTo(rx + Math.sin(t + r) * 40, h * 0.7);
+        ctx.stroke();
+      }
+      ctx.lineWidth = 1;
+    }
+
+    // Sand bottom
+    ctx.fillStyle = '#d4a66e';
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.85);
+    for (var x = 0; x <= w; x += 20) {
+      ctx.lineTo(x, h * 0.85 + Math.sin(x * 0.03) * 5);
+    }
+    ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.fill();
+
+    // Coral formations
+    var coralColors = state.bleaching
+      ? ['#e2e8f0', '#cbd5e1', '#f8fafc', '#e2e8f0']
+      : ['#f43f5e', '#ec4899', '#f97316', '#a855f7', '#06b6d4'];
+
+    function drawCoral(cx, cy, branches, size, colorIdx) {
+      ctx.strokeStyle = coralColors[colorIdx % coralColors.length];
+      ctx.lineWidth = size * 0.3;
+      ctx.lineCap = 'round';
+      for (var b = 0; b < branches; b++) {
+        var angle = -Math.PI / 2 + (b / (branches - 1) - 0.5) * Math.PI * 0.8;
+        var len = size + Math.sin(t * 0.5 + b) * 3;
+        var ex = cx + Math.cos(angle) * len;
+        var ey = cy + Math.sin(angle) * len;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex, ey); ctx.stroke();
+        // Sub-branches
+        for (var sb = 0; sb < 2; sb++) {
+          var sa = angle + (sb === 0 ? -0.4 : 0.4);
+          var sl = len * 0.5;
+          ctx.beginPath(); ctx.moveTo(ex, ey);
+          ctx.lineTo(ex + Math.cos(sa) * sl, ey + Math.sin(sa) * sl);
+          ctx.stroke();
+        }
+      }
+    }
+
+    drawCoral(w * 0.15, h * 0.83, 5, 40, 0);
+    drawCoral(w * 0.35, h * 0.85, 4, 35, 1);
+    drawCoral(w * 0.55, h * 0.82, 6, 45, 2);
+    drawCoral(w * 0.75, h * 0.84, 5, 38, 3);
+    drawCoral(w * 0.9, h * 0.86, 4, 30, 4);
+
+    // Fan coral (flat)
+    ctx.fillStyle = state.bleaching ? 'rgba(226,232,240,0.4)' : 'rgba(168,85,247,0.4)';
+    ctx.beginPath();
+    ctx.ellipse(w * 0.25, h * 0.78, 30, 20, 0, Math.PI, 0);
+    ctx.fill();
+
+    // Algae overgrowth
+    if (state.algae > 20) {
+      ctx.fillStyle = 'rgba(34,197,94,' + (state.algae / 200) + ')';
+      for (var a = 0; a < state.algae / 5; a++) {
+        var ax = (Math.sin(a * 1.7) * 0.5 + 0.5) * w;
+        var ay = h * 0.75 + Math.cos(a * 2.3) * h * 0.08;
+        ctx.beginPath(); ctx.ellipse(ax, ay, 15 + Math.sin(t + a) * 3, 8, 0, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    // Fish
+    for (var i = 0; i < fish.length; i++) {
+      var f = fish[i];
+      if (i >= state.fishCount) continue;
+      f.x += f.dir * f.speed * 0.002;
+      if (f.x > 1.1) { f.x = -0.1; f.dir = 1; }
+      if (f.x < -0.1) { f.x = 1.1; f.dir = -1; }
+      var fx = f.x * w, fy = f.y * h + Math.sin(t * 2 + i) * 8;
+
+      ctx.fillStyle = f.color;
+      ctx.beginPath();
+      ctx.ellipse(fx, fy, f.size, f.size * 0.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Tail
+      var tx = fx - f.dir * f.size;
+      ctx.beginPath();
+      ctx.moveTo(tx, fy); ctx.lineTo(tx - f.dir * f.size * 0.7, fy - f.size * 0.4);
+      ctx.lineTo(tx - f.dir * f.size * 0.7, fy + f.size * 0.4);
+      ctx.fill();
+      // Eye
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath(); ctx.arc(fx + f.dir * f.size * 0.4, fy - 2, 2, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Bubbles
+    if (Math.random() < 0.1) {
+      bubbles.push({ x: Math.random() * w, y: h, r: 2 + Math.random() * 3, speed: 0.5 + Math.random() });
+    }
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    for (var bi = bubbles.length - 1; bi >= 0; bi--) {
+      var bb = bubbles[bi];
+      bb.y -= bb.speed;
+      bb.x += Math.sin(t + bi) * 0.3;
+      if (bb.y < -10) { bubbles.splice(bi, 1); continue; }
+      ctx.beginPath(); ctx.arc(bb.x, bb.y, bb.r, 0, Math.PI * 2); ctx.fill();
+    }
+
+    t += 0.02;
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body>
+</html>

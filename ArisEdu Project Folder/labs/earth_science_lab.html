@@ -88,6 +88,21 @@
     btn.classList.add('active');
   };
 
+  // Auto-select tab from URL hash
+  (function() {
+    var hash = location.hash.replace('#', '');
+    if (hash) {
+      var panel = document.getElementById('es-' + hash);
+      if (panel) {
+        document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        panel.classList.add('active');
+        var btns = document.querySelectorAll('.tab-btn');
+        btns.forEach(function(b) { if (b.getAttribute('onclick').indexOf(hash) !== -1) b.classList.add('active'); });
+      }
+    }
+  })();
+
   // ============ TECTONIC PLATES ============
   (function() {
     var canvas = document.getElementById('plates-canvas');

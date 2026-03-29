@@ -5,151 +5,247 @@ LinearAlgebraLessons — Unit8
 --- Lesson 8.1: Dot Product & Orthogonality (Summary) ---
 
   Key Concepts: Dot Product & Orthogonality
-Key Concepts: Dot Product & Orthogonality
-
-Content for Dot Product & Orthogonality is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+What is the length (norm) of the vector v = (3, 4)?
+||v|| = sqrt(3^2 + 4^2) = sqrt(9 + 16) = sqrt(25) = 5.
+What is the unit vector in the direction of v = (6, 8)?
+||v|| = sqrt(36 + 64) = 10. The unit vector is v/||v|| = (6/10, 8/10) = (3/5, 4/5). Note that (0.6, 0.8) is the same as (3/5, 4/5), but the cleanest form is (3/5, 4/5).
+What is the dot product (inner product) of two vectors in R^n?
+The dot product (or standard inner product) is the scalar u . v = sum of u_i * v_i. It is a scalar, not a vector or matrix.
+What is an 'orthogonal set' of vectors?
+An orthogonal set is a collection of vectors where every pair of distinct vectors has dot product zero. An orthonormal set additionally requires each vector to have unit length.
+What is an 'orthonormal' set of vectors?
+An orthonormal set consists of mutually orthogonal vectors that are each normalized to have length 1. The standard basis {e1, e2, ..., en} is the simplest example.
+What is the 'orthogonal complement' of a subspace W?
+The orthogonal complement W^perp consists of all vectors v such that v . w = 0 for every w in W. Together, W and W^perp span the entire space.
+What is the 'Pythagorean theorem' for orthogonal vectors?
+When u and v are orthogonal, ||u+v||^2 = (u+v).(u+v) = ||u||^2 + 2(u.v) + ||v||^2 = ||u||^2 + ||v||^2 since the cross term vanishes.
+What is an 'orthogonal basis' for a subspace?
+An orthogonal basis is a basis where all vectors are mutually orthogonal. It simplifies computations: coordinates are found by simple dot products rather than solving systems.
+A data scientist normalizes feature vectors before computing cosine similarity. If x = (3, 4) and y = (5, 12), what is the cosine similarity?
+cos(theta) = x.y/(||x|| ||y||) = (15 + 48)/(5 * 13) = 63/65. This high cosine similarity (approximately 0.969) indicates the feature vectors are nearly aligned.
+A robotics engineer decomposes a force F = (5, 3) into components along d = (1, 0) and d_perp = (0, 1). What is the component of F along d?
+The component of F along d is (F . d)/(||d||) = 5/1 = 5. Since d is already a unit vector, the scalar projection is simply the dot product F . d = 5.
+An audio engineer checks if two sound signals s1 = (1, 2, -1, 0) and s2 = (2, -1, 0, 5) are orthogonal before mixing. What is s1 . s2?
+s1 . s2 = 1(2) + 2(-1) + (-1)(0) + 0(5) = 2 - 2 + 0 + 0 = 0. The signals are orthogonal, so they can be separated perfectly after mixing.
+A computer graphics programmer needs to find the angle of incidence of a light ray r = (1, -1) hitting a surface with normal n = (0, 1). What is the angle?
+cos(theta) = |r . n|/(||r|| ||n||) = |-1|/(sqrt(2) * 1) = 1/sqrt(2). So theta = 45 degrees. The absolute value is used since we want the acute angle.
+A climatologist models temperature variation using two orthogonal basis functions f1 and f2. If the temperature vector is T = 3f1 + 4f2 and {f1, f2} is orthonormal, what is the total variance ||T||^2?
+By the Pythagorean theorem for orthogonal components: ||T||^2 = 3^2 + 4^2 = 9 + 16 = 25. Each coefficient squared gives the variance along that basis direction.
 
 --- Lesson 8.1: Dot Product & Orthogonality (Quiz) ---
 
-  Q1. Sample question 1 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Dot Product & Orthogonality.
+  Q1. Compute the dot product of u = (2, 3) and v = (4, -1).
+    [ ] 11
+    [*] 5
+    [ ] 8
+    [ ] -5
+    Explanation: u . v = 2(4) + 3(-1) = 8 - 3 = 5.
 
-  Q2. Sample question 2 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Dot Product & Orthogonality.
+  Q2. Two vectors u and v are orthogonal if and only if:
+    [*] u . v = 0
+    [ ] u . v = 1
+    [ ] u = -v
+    [ ] ||u|| = ||v||
+    Explanation: Two vectors are orthogonal (perpendicular) if and only if their dot product is zero: u . v = 0.
 
-  Q3. Sample question 3 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Dot Product & Orthogonality.
+  Q3. What is the length (norm) of the vector v = (3, 4)?
+    [*] 5
+    [ ] 7
+    [ ] 25
+    [ ] sqrt(7)
+    Explanation: ||v|| = sqrt(3^2 + 4^2) = sqrt(9 + 16) = sqrt(25) = 5.
 
-  Q4. Sample question 4 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Dot Product & Orthogonality.
+  Q4. Which pair of vectors is orthogonal?
+    [ ] (1, 0) and (1, 1)
+    [ ] (3, 0) and (3, 0)
+    [ ] (1, 2) and (2, 1)
+    [*] (1, 1) and (1, -1)
+    Explanation: (1,1) . (1,-1) = 1(1) + 1(-1) = 0. The other pairs have nonzero dot products.
 
-  Q5. Sample question 5 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Dot Product & Orthogonality.
+  Q5. Find the angle between u = (1, 0) and v = (1, 1).
+    [ ] 90 degrees
+    [ ] 60 degrees
+    [*] 45 degrees
+    [ ] 30 degrees
+    Explanation: cos(theta) = u.v/(||u|| ||v||) = 1/(1 * sqrt(2)) = 1/sqrt(2). So theta = 45 degrees.
 
-  Q6. Sample question 6 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Dot Product & Orthogonality.
+  Q6. The dot product u . v equals:
+    [ ] ||u - v||
+    [ ] ||u|| ||v|| sin(theta)
+    [*] ||u|| ||v|| cos(theta)
+    [ ] ||u + v||
+    Explanation: The dot product satisfies u . v = ||u|| ||v|| cos(theta), where theta is the angle between the vectors.
 
-  Q7. Sample question 7 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Dot Product & Orthogonality.
+  Q7. Compute (1, 2, 3) . (4, -2, 1).
+    [ ] 0
+    [*] 3
+    [ ] 5
+    [ ] -3
+    Explanation: 1(4) + 2(-2) + 3(1) = 4 - 4 + 3 = 3.
 
-  Q8. Sample question 8 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Dot Product & Orthogonality.
+  Q8. If u . v > 0, the angle between u and v is:
+    [*] Less than 90 degrees (acute)
+    [ ] Exactly 180 degrees
+    [ ] Exactly 90 degrees
+    [ ] Greater than 90 degrees (obtuse)
+    Explanation: A positive dot product means cos(theta) > 0, which means theta < 90 degrees. The vectors point in generally the same direction.
 
-  Q9. Sample question 9 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Dot Product & Orthogonality.
+  Q9. What is the unit vector in the direction of v = (6, 8)?
+    [ ] (0.6, 0.8)
+    [ ] (6, 8)
+    [ ] (1/6, 1/8)
+    [*] (3/5, 4/5)
+    Explanation: ||v|| = sqrt(36 + 64) = 10. The unit vector is v/||v|| = (6/10, 8/10) = (3/5, 4/5). Note that (0.6, 0.8) is the same as (3/5, 4/5), but the cleanest form is (3/5, 4/5).
 
-  Q10. Sample question 10 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Dot Product & Orthogonality.
+  Q10. The Cauchy-Schwarz inequality states that for any vectors u, v:
+    [ ] u . v = ||u|| + ||v||
+    [*] |u . v| <= ||u|| ||v||
+    [ ] |u . v| >= ||u|| ||v||
+    [ ] |u . v| = ||u|| ||v||
+    Explanation: The Cauchy-Schwarz inequality states |u . v| <= ||u|| ||v||, with equality if and only if u and v are parallel (one is a scalar multiple of the other).
 
-  Q11. Sample question 11 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Dot Product & Orthogonality.
+  Q11. What is the dot product (inner product) of two vectors in R^n?
+    [ ] A vector perpendicular to both u and v
+    [ ] The product of the norms of the two vectors
+    [ ] The matrix formed by u times v^T
+    [*] The sum of the products of corresponding entries: u . v = u1*v1 + u2*v2 + ... + un*vn
+    Explanation: The dot product (or standard inner product) is the scalar u . v = sum of u_i * v_i. It is a scalar, not a vector or matrix.
 
-  Q12. Sample question 12 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Dot Product & Orthogonality.
+  Q12. What does it mean for two vectors to be 'orthogonal'?
+    [ ] They point in the same direction
+    [ ] Their sum is the zero vector
+    [ ] They have the same length
+    [*] They are perpendicular; their dot product is zero
+    Explanation: Orthogonal means perpendicular, generalized to higher dimensions. Two vectors are orthogonal when their dot product equals zero.
 
-  Q13. Sample question 13 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Dot Product & Orthogonality.
+  Q13. What is an 'orthogonal set' of vectors?
+    [ ] A set containing exactly two vectors
+    [ ] A set where all vectors have the same length
+    [*] A set where every pair of distinct vectors is orthogonal
+    [ ] A set forming a square when drawn
+    Explanation: An orthogonal set is a collection of vectors where every pair of distinct vectors has dot product zero. An orthonormal set additionally requires each vector to have unit length.
 
-  Q14. Sample question 14 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Dot Product & Orthogonality.
+  Q14. What is an 'orthonormal' set of vectors?
+    [*] A set of orthogonal vectors that each have unit length
+    [ ] Vectors whose entries are all 0 or 1
+    [ ] Any basis for R^n
+    [ ] A set of parallel vectors with the same norm
+    Explanation: An orthonormal set consists of mutually orthogonal vectors that are each normalized to have length 1. The standard basis {e1, e2, ..., en} is the simplest example.
 
-  Q15. Sample question 15 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Dot Product & Orthogonality.
+  Q15. What is the 'orthogonal complement' of a subspace W?
+    [ ] The transpose of W
+    [ ] The set of all vectors in W
+    [*] The set of all vectors orthogonal to every vector in W
+    [ ] The set of vectors parallel to W
+    Explanation: The orthogonal complement W^perp consists of all vectors v such that v . w = 0 for every w in W. Together, W and W^perp span the entire space.
 
-  Q16. Sample question 16 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Dot Product & Orthogonality.
+  Q16. What does the 'triangle inequality' say about vector norms?
+    [*] ||u + v|| <= ||u|| + ||v||
+    [ ] ||u + v|| >= ||u|| + ||v||
+    [ ] ||u . v|| <= ||u|| + ||v||
+    [ ] ||u + v|| = ||u|| + ||v|| always
+    Explanation: The triangle inequality states that the length of the sum is at most the sum of the lengths. Equality holds only when u and v point in the same direction.
 
-  Q17. Sample question 17 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Dot Product & Orthogonality.
+  Q17. What is the 'Pythagorean theorem' for orthogonal vectors?
+    [ ] ||u + v||^2 = ||u||^2 + ||v||^2 for all vectors
+    [ ] ||u||^2 + ||v||^2 = (u . v)^2
+    [*] If u . v = 0, then ||u + v||^2 = ||u||^2 + ||v||^2
+    [ ] If u . v = 0, then ||u|| = ||v||
+    Explanation: When u and v are orthogonal, ||u+v||^2 = (u+v).(u+v) = ||u||^2 + 2(u.v) + ||v||^2 = ||u||^2 + ||v||^2 since the cross term vanishes.
 
-  Q18. Sample question 18 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Dot Product & Orthogonality.
+  Q18. What does it mean for vectors to be 'linearly independent' when they are orthogonal?
+    [*] Orthogonal vectors are always linearly independent (provided they are nonzero)
+    [ ] Orthogonal vectors are never linearly independent
+    [ ] Linear independence requires the vectors to be parallel
+    [ ] Orthogonal vectors may or may not be linearly independent
+    Explanation: Any set of nonzero orthogonal vectors is automatically linearly independent. This is because if c1*v1 + ... + ck*vk = 0, taking the dot product with any vi gives ci*||vi||^2 = 0, so ci = 0.
 
-  Q19. Sample question 19 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Dot Product & Orthogonality.
+  Q19. What is an 'orthogonal basis' for a subspace?
+    [ ] Any basis that spans the subspace
+    [ ] The standard basis only
+    [*] A basis consisting of mutually orthogonal vectors
+    [ ] A basis where all vectors have the same direction
+    Explanation: An orthogonal basis is a basis where all vectors are mutually orthogonal. It simplifies computations: coordinates are found by simple dot products rather than solving systems.
 
-  Q20. Sample question 20 for Dot Product & Orthogonality
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Dot Product & Orthogonality.
+  Q20. What does the term 'norm' mean in linear algebra?
+    [*] The length (magnitude) of a vector, computed as sqrt(v . v)
+    [ ] The angle between a vector and the x-axis
+    [ ] The direction of a vector
+    [ ] The number of nonzero entries in a vector
+    Explanation: The norm ||v|| = sqrt(v . v) = sqrt(v1^2 + v2^2 + ... + vn^2) measures the length or magnitude of a vector in Euclidean space.
+
+  Q21. A GPS system uses satellite signals from directions u1 = (1, 0, 0), u2 = (0, 1, 0), and u3 = (0, 0, 1). Are these direction vectors orthogonal, and why does this matter for positioning accuracy?
+    [ ] Yes, but orthogonality doesn't affect accuracy
+    [ ] No, they must be parallel for best accuracy
+    [*] Yes, orthogonal signals provide the best positioning accuracy by minimizing error amplification
+    [ ] No, these vectors are not orthogonal
+    Explanation: The standard basis vectors are mutually orthogonal. Orthogonal satellite geometry minimizes the dilution of precision (DOP), giving the most accurate position fix.
+
+  Q22. A structural engineer checks if two force vectors F1 = (3, 4, 0) and F2 = (-4, 3, 0) are perpendicular before applying them to a joint. Are they orthogonal?
+    [ ] Yes, because their norms are equal
+    [ ] No, because they have different magnitudes
+    [ ] No, because they both lie in the xy-plane
+    [*] Yes, because F1 . F2 = 3(-4) + 4(3) + 0(0) = 0
+    Explanation: F1 . F2 = -12 + 12 + 0 = 0. The forces are perpendicular, meaning they independently contribute to the stress at the joint without interference.
+
+  Q23. A data scientist normalizes feature vectors before computing cosine similarity. If x = (3, 4) and y = (5, 12), what is the cosine similarity?
+    [ ] 15/65
+    [ ] 1
+    [*] 63/65
+    [ ] 48/65
+    Explanation: cos(theta) = x.y/(||x|| ||y||) = (15 + 48)/(5 * 13) = 63/65. This high cosine similarity (approximately 0.969) indicates the feature vectors are nearly aligned.
+
+  Q24. A wireless engineer designs antennas with signals s1 = (1, 1, 0) and s2 = (1, -1, 0). Are the signals orthogonal, and what power does each carry?
+    [ ] Not orthogonal; combined power is 4
+    [ ] Not orthogonal; power cannot be determined
+    [*] Orthogonal; each carries power ||s||^2 = 2
+    [ ] Orthogonal; each carries power 1
+    Explanation: s1 . s2 = 1(-1) + 1(1) + 0 = 0, so they are orthogonal. Power = ||s||^2: ||s1||^2 = 2 and ||s2||^2 = 2. Orthogonal signals don't interfere, preserving total power = 2 + 2 = 4.
+
+  Q25. A robotics engineer decomposes a force F = (5, 3) into components along d = (1, 0) and d_perp = (0, 1). What is the component of F along d?
+    [*] 5
+    [ ] sqrt(34)
+    [ ] 8
+    [ ] 3
+    Explanation: The component of F along d is (F . d)/(||d||) = 5/1 = 5. Since d is already a unit vector, the scalar projection is simply the dot product F . d = 5.
+
+  Q26. An audio engineer checks if two sound signals s1 = (1, 2, -1, 0) and s2 = (2, -1, 0, 5) are orthogonal before mixing. What is s1 . s2?
+    [*] 0 (the signals are orthogonal)
+    [ ] 3, particularly regardin
+    [ ] 5, particularly regardin
+    [ ] -1, particularly regardi
+    Explanation: s1 . s2 = 1(2) + 2(-1) + (-1)(0) + 0(5) = 2 - 2 + 0 + 0 = 0. The signals are orthogonal, so they can be separated perfectly after mixing.
+
+  Q27. A physicist measures the work done by a force F = (10, 5) N along a displacement d = (3, -6) m. How much work is done?
+    [ ] 30 J
+    [*] 0 J
+    [ ] 45 J
+    [ ] -30 J
+    Explanation: Work = F . d = 10(3) + 5(-6) = 30 - 30 = 0 J. The force is perpendicular to the displacement, so no work is done.
+
+  Q28. A computer graphics programmer needs to find the angle of incidence of a light ray r = (1, -1) hitting a surface with normal n = (0, 1). What is the angle?
+    [ ] 0 degrees
+    [ ] 90 degrees
+    [ ] 60 degrees
+    [*] 45 degrees
+    Explanation: cos(theta) = |r . n|/(||r|| ||n||) = |-1|/(sqrt(2) * 1) = 1/sqrt(2). So theta = 45 degrees. The absolute value is used since we want the acute angle.
+
+  Q29. A machine learning researcher verifies that learned feature vectors e1 = (1/sqrt(2), 1/sqrt(2)) and e2 = (1/sqrt(2), -1/sqrt(2)) form an orthonormal basis. Are they orthonormal?
+    [*] Yes, orthonormal: e1.e2 = 0 and ||e1|| = ||e2|| = 1
+    [ ] Orthonormal only in R^3, not R^2
+    [ ] Orthogonal but not orthonormal (norms are not 1)
+    [ ] Neither orthogonal nor orthonormal
+    Explanation: e1.e2 = 1/2 - 1/2 = 0 (orthogonal). ||e1|| = sqrt(1/2 + 1/2) = 1, ||e2|| = 1 (unit vectors). Both conditions are met, so they are orthonormal.
+
+  Q30. A climatologist models temperature variation using two orthogonal basis functions f1 and f2. If the temperature vector is T = 3f1 + 4f2 and {f1, f2} is orthonormal, what is the total variance ||T||^2?
+    [ ] 7
+    [*] 25
+    [ ] 12
+    [ ] 5
+    Explanation: By the Pythagorean theorem for orthogonal components: ||T||^2 = 3^2 + 4^2 = 9 + 16 = 25. Each coefficient squared gives the variance along that basis direction.
 
 --- Lesson 8.1: Dot Product & Orthogonality (Flashcards) ---
 
@@ -168,154 +264,274 @@ Content for Dot Product & Orthogonality is coming soon. Check back for detailed 
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 8.2: Orthogonal Projections (Summary) ---
 
   Key Concepts: Orthogonal Projections
-Key Concepts: Orthogonal Projections
-
-Content for Orthogonal Projections is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+Project b = (3, 4) onto a = (1, 0). What is the projection?
+proj_a(b) = (a.b / a.a) * a = (3/1)(1, 0) = (3, 0). Projecting onto the x-axis keeps only the x-component.
+Project b = (2, 6) onto a = (1, 1). What is proj_a(b)?
+a.b = 2+6=8, a.a = 1+1=2. proj = (8/2)(1,1) = 4(1,1) = (4,4).
+If P is the projection matrix onto W, what is the projection onto W^perp?
+The projection onto the orthogonal complement is I - P. For any vector b: b = Pb + (I-P)b, decomposing into its component in W and its component in W^perp.
+Project b = (1, 2, 3) onto the xy-plane (z = 0). What is the projection?
+Projecting onto the xy-plane drops the z-component: (1, 2, 3) maps to (1, 2, 0). The projection matrix is P = diag(1, 1, 0).
+What is an 'orthogonal projection'?
+An orthogonal projection maps a vector to the nearest point in the subspace. The key property is that the error (residual) is orthogonal to the subspace, minimizing distance.
+What is the 'best approximation theorem' in the context of projections?
+The best approximation theorem states that proj_W(b) is the unique vector in W that minimizes ||b - w|| over all w in W. The minimum distance is ||b - proj_W(b)||.
+What is a 'least squares regression line'?
+The least squares regression line minimizes the sum of squared residuals (vertical distances). It is found using the normal equation applied to the system with columns [1, x_i].
+What is the 'residual' in a least squares problem?
+The residual r = b - Ax-hat measures how far the prediction Ax-hat is from the actual b. It is orthogonal to the column space of A.
+What is the 'orthogonal decomposition theorem'?
+For any subspace W of R^n and any vector b, b = proj_W(b) + proj_{W^perp}(b) uniquely. This decomposes b into its W-component and its perpendicular component.
+What is meant by 'Fourier coefficients' in the context of orthogonal projection?
+When projecting v onto an orthogonal basis {u1,...,uk}, the Fourier coefficient c_i = (v.u_i)/(u_i.u_i) gives the weight of each basis vector. If the basis is orthonormal, c_i = v.u_i.
+A signal processing engineer decomposes a signal s = (5, 3, 1) into components along two orthogonal directions u1 = (1, 0, 0) and u2 = (0, 1, 0). What is the projection of s onto span{u1, u2}?
+proj = (s.u1)u1 + (s.u2)u2 = 5(1,0,0) + 3(0,1,0) = (5,3,0). The z-component (the part in the orthogonal complement) is discarded.
+An economist wants to remove the trend from economic data by projecting onto the orthogonal complement of the trend vector t = (1, 1, 1, 1). If the data is y = (10, 12, 15, 11), what is the detrended data (I - P)y?
+Mean = (10+12+15+11)/4 = 12. Projection onto t: (y.t/t.t)t = (48/4)(1,1,1,1) = (12,12,12,12). Detrended: y - proj = (10-12, 12-12, 15-12, 11-12) = (-2, 0, 3, -1).
+A telecommunications engineer uses a matched filter to detect a known signal s in noisy data y. The matched filter output is the projection of y onto s. If s = (1, 1, -1, -1) and y = (2, 3, -1, 0), what is the projection scalar?
+The projection scalar is s.y/s.s = (2+3+1+0)/4 = 6/4 = 1.5. This indicates the signal is present with amplitude 1.5 times the template.
+A mechanical engineer models vibration data as a combination of two normal mode shapes. She projects the measured vibration onto each mode shape using orthogonal projection. If modes are orthogonal, what is the advantage?
+Orthogonality allows independent computation of each mode's coefficient: c_i = (data . mode_i)/(mode_i . mode_i). No system of equations needs to be solved.
+Real-World Applications
+Example: A marketing analyst fits a line y = a + bx to sales data with 4 points: (1,2), (2,3), (3,5), (4,4). The system is Ax = b with A = [[1,1],[1,2],[1,3],[1,4]] and b = (2,3,5,4). What does the projection Ax-hat represent?
+Ax-hat gives the predicted values (y-hat) lying on the regression line. The residual b - Ax-hat gives the vertical distances from data points to the line.
+Example: A mechanical engineer models vibration data as a combination of two normal mode shapes. She projects the measured vibration onto each mode shape using orthogonal projection. If modes are orthogonal, what is the advantage?
+Orthogonality allows independent computation of each mode's coefficient: c_i = (data . mode_i)/(mode_i . mode_i). No system of equations needs to be solved.
+Example: An image processing engineer approximates a 1000-pixel image by projecting it onto the first 50 principal components. What percentage of the original data is in the residual if those 50 components capture 98% of the variance?
+If the projection captures 98% of the variance, the residual contains the remaining 2%. This means 50 components provide a highly accurate approximation, discarding only 2% of the information.
 
 --- Lesson 8.2: Orthogonal Projections (Quiz) ---
 
-  Q1. Sample question 1 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Orthogonal Projections.
+  Q1. The orthogonal projection of vector b onto vector a is given by:
+    [ ] proj_a(b) = a / (a . b)
+    [*] proj_a(b) = (a . b / a . a) * a
+    [ ] proj_a(b) = (a . b / b . b) * b
+    [ ] proj_a(b) = (a . b) * a
+    Explanation: The orthogonal projection formula is proj_a(b) = (a . b / a . a) * a. The scalar (a . b / a . a) is the component of b in the direction of a.
 
-  Q2. Sample question 2 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Orthogonal Projections.
+  Q2. Project b = (3, 4) onto a = (1, 0). What is the projection?
+    [*] (3, 0)
+    [ ] (4, 0)
+    [ ] (3, 4)
+    [ ] (0, 4)
+    Explanation: proj_a(b) = (a.b / a.a) * a = (3/1)(1, 0) = (3, 0). Projecting onto the x-axis keeps only the x-component.
 
-  Q3. Sample question 3 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Orthogonal Projections.
+  Q3. Project b = (2, 6) onto a = (1, 1). What is proj_a(b)?
+    [ ] (2, 2)
+    [ ] (3, 3)
+    [ ] (6, 6)
+    [*] (4, 4)
+    Explanation: a.b = 2+6=8, a.a = 1+1=2. proj = (8/2)(1,1) = 4(1,1) = (4,4).
 
-  Q4. Sample question 4 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Orthogonal Projections.
+  Q4. If b is projected onto a, the error vector e = b - proj_a(b) is:
+    [ ] Equal to b
+    [ ] Parallel to a
+    [*] Orthogonal to a
+    [ ] Equal to a
+    Explanation: The residual e = b - proj_a(b) is always orthogonal to a. This is the fundamental property of orthogonal projection: it minimizes the distance from b to the line spanned by a.
 
-  Q5. Sample question 5 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Orthogonal Projections.
+  Q5. The projection matrix P onto a 1D subspace spanned by a is P = :
+    [ ] I - aa^T
+    [ ] a / ||a||
+    [ ] a^T a / (aa^T)
+    [*] aa^T / (a^T a)
+    Explanation: The projection matrix is P = aa^T/(a^T a). For any vector b, Pb = (a^T b / a^T a) a, which is the orthogonal projection onto the line through a.
 
-  Q6. Sample question 6 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Orthogonal Projections.
+  Q6. A projection matrix P satisfies which property?
+    [ ] P^2 = I
+    [ ] P^(-1) = P
+    [ ] P^2 = 0
+    [*] P^2 = P (idempotent)
+    Explanation: Projection matrices are idempotent: P^2 = P. Projecting a vector that is already in the subspace doesn't change it -- projecting twice is the same as projecting once.
 
-  Q7. Sample question 7 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Orthogonal Projections.
+  Q7. For orthogonal projection onto a subspace W with orthonormal basis {u1, u2}, the formula is:
+    [ ] proj_W(b) = (u1 . u2)b
+    [*] proj_W(b) = (u1 . b)u1 + (u2 . b)u2
+    [ ] proj_W(b) = b - u1 - u2
+    [ ] proj_W(b) = u1 + u2
+    Explanation: With an orthonormal basis, the projection is the sum of projections onto each basis vector: proj_W(b) = (u1.b)u1 + (u2.b)u2. Each term is a simple dot product.
 
-  Q8. Sample question 8 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Orthogonal Projections.
+  Q8. The least squares solution to an inconsistent system Ax = b minimizes:
+    [ ] ||A||^2
+    [*] ||Ax - b||^2
+    [ ] det(A)
+    [ ] ||x||^2
+    Explanation: The least squares solution minimizes the squared error ||Ax - b||^2. It is found by solving the normal equations A^T Ax = A^T b, which projects b onto the column space of A.
 
-  Q9. Sample question 9 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Orthogonal Projections.
+  Q9. If P is the projection matrix onto W, what is the projection onto W^perp?
+    [*] I - P
+    [ ] P^(-1)
+    [ ] -P
+    [ ] P^T
+    Explanation: The projection onto the orthogonal complement is I - P. For any vector b: b = Pb + (I-P)b, decomposing into its component in W and its component in W^perp.
 
-  Q10. Sample question 10 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Orthogonal Projections.
+  Q10. Project b = (1, 2, 3) onto the xy-plane (z = 0). What is the projection?
+    [ ] (0, 2, 3)
+    [ ] (1, 2, 3)
+    [ ] (0, 0, 3)
+    [*] (1, 2, 0)
+    Explanation: Projecting onto the xy-plane drops the z-component: (1, 2, 3) maps to (1, 2, 0). The projection matrix is P = diag(1, 1, 0).
 
-  Q11. Sample question 11 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Orthogonal Projections.
+  Q11. What is an 'orthogonal projection'?
+    [ ] Scaling a vector to match a subspace
+    [ ] Rotating a vector to lie in a subspace
+    [ ] Any mapping of a vector onto a subspace
+    [*] Mapping a vector to the closest point in a subspace, with the error perpendicular to the subspace
+    Explanation: An orthogonal projection maps a vector to the nearest point in the subspace. The key property is that the error (residual) is orthogonal to the subspace, minimizing distance.
 
-  Q12. Sample question 12 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Orthogonal Projections.
+  Q12. What does the 'normal equation' A^T Ax = A^T b solve?
+    [ ] The exact solution to Ax = b
+    [*] The least squares solution that minimizes ||Ax - b||
+    [ ] The eigenvalue problem for A
+    [ ] The inverse of A
+    Explanation: The normal equation A^T Ax = A^T b gives the least squares solution x-hat that minimizes ||Ax - b||. It works by projecting b onto the column space of A.
 
-  Q13. Sample question 13 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Orthogonal Projections.
+  Q13. What does 'idempotent' mean for a projection matrix?
+    [*] P^2 = P (applying the projection twice gives the same result as once)
+    [ ] P^(-1) exists, particularly regarding onto based on the
+    [ ] P is symmetric, particularly regarding already as
+    [ ] P has eigenvalues 1 only based on the prevailing evidence
+    Explanation: Idempotent means P^2 = P. Once you project a vector onto a subspace, projecting again doesn't move it further -- it's already in the subspace.
 
-  Q14. Sample question 14 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Orthogonal Projections.
+  Q14. What is the 'best approximation theorem' in the context of projections?
+    [*] The projection of b onto W is the closest vector in W to b
+    [ ] The projection maximizes the distance from b to W
+    [ ] Any vector in W is equally close to b
+    [ ] The best approximation is always the zero vector
+    Explanation: The best approximation theorem states that proj_W(b) is the unique vector in W that minimizes ||b - w|| over all w in W. The minimum distance is ||b - proj_W(b)||.
 
-  Q15. Sample question 15 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Orthogonal Projections.
+  Q15. What is a 'least squares regression line'?
+    [*] The line y = a + bx that minimizes the sum of squared vertical distances to data points
+    [ ] Any line that fits the data exactly
+    [ ] The line connecting the first and last data points
+    [ ] The line that passes through the most data points
+    Explanation: The least squares regression line minimizes the sum of squared residuals (vertical distances). It is found using the normal equation applied to the system with columns [1, x_i].
 
-  Q16. Sample question 16 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Orthogonal Projections.
+  Q16. What is the 'residual' in a least squares problem?
+    [ ] The exact solution, particularly regarding measures as
+    [ ] The column space of A, particularly regarding orthogonal based
+    [ ] The projection of b onto W when applying fundamental principles
+    [*] The vector r = b - Ax-hat, the difference between observed and predicted values
+    Explanation: The residual r = b - Ax-hat measures how far the prediction Ax-hat is from the actual b. It is orthogonal to the column space of A.
 
-  Q17. Sample question 17 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Orthogonal Projections.
+  Q17. What is the 'orthogonal decomposition theorem'?
+    [ ] Only symmetric vectors can be decomposed orthogonally
+    [*] Any vector can be uniquely written as the sum of its projection onto W and its projection onto W^perp
+    [ ] Decomposition requires the subspace to be 1-dimensional
+    [ ] Any matrix can be decomposed into orthogonal factors
+    Explanation: For any subspace W of R^n and any vector b, b = proj_W(b) + proj_{W^perp}(b) uniquely. This decomposes b into its W-component and its perpendicular component.
 
-  Q18. Sample question 18 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Orthogonal Projections.
+  Q18. What does the 'hat matrix' H = A(A^T A)^(-1) A^T represent?
+    [ ] The rotation matrix that aligns A with the axes
+    [ ] The covariance matrix of the data
+    [*] The orthogonal projection matrix onto the column space of A
+    [ ] The inverse of A
+    Explanation: H = A(A^T A)^(-1)A^T is the projection matrix onto Col(A). It maps any b to its closest point in the column space: y-hat = Hb. It is called the 'hat matrix' because it puts the hat on y.
 
-  Q19. Sample question 19 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Orthogonal Projections.
+  Q19. What is meant by 'Fourier coefficients' in the context of orthogonal projection?
+    [*] The coefficients in the projection onto an orthogonal basis: c_i = (v . u_i)/(u_i . u_i)
+    [ ] The frequencies in a Fourier transform
+    [ ] The eigenvalues of a symmetric matrix
+    [ ] The entries of the projection matrix
+    Explanation: When projecting v onto an orthogonal basis {u1,...,uk}, the Fourier coefficient c_i = (v.u_i)/(u_i.u_i) gives the weight of each basis vector. If the basis is orthonormal, c_i = v.u_i.
 
-  Q20. Sample question 20 for Orthogonal Projections
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Orthogonal Projections.
+  Q20. What does 'QR factorization' have to do with projection?
+    [ ] R gives the projection and Q gives the residual
+    [ ] QR has no connection to projection
+    [ ] Q is the projection matrix itself
+    [*] Q contains orthonormal columns from Gram-Schmidt, and projection onto Col(A) = QQ^T
+    Explanation: A = QR where Q has orthonormal columns. The projection onto Col(A) is P = QQ^T. This is computationally more stable than using the normal equations directly.
+
+  Q21. A surveyor measures 3 distances to a point but gets inconsistent data: the system [[1,0],[0,1],[1,1]]x = [2, 3, 4] has no exact solution. What does the least squares solution give?
+    [*] The point (x1, x2) that minimizes the total squared measurement error
+    [ ] The measurement with the smallest error
+    [ ] The average of the three measurements
+    [ ] The exact intersection of all three measurements
+    Explanation: The least squares solution minimizes ||Ax-b||^2, giving the best-fit position. Solving A^T Ax = A^T b: [[2,1],[1,2]]x = [6,7], giving x = (5/3, 8/3).
+
+  Q22. A marketing analyst fits a line y = a + bx to sales data with 4 points: (1,2), (2,3), (3,5), (4,4). The system is Ax = b with A = [[1,1],[1,2],[1,3],[1,4]] and b = (2,3,5,4). What does the projection Ax-hat represent?
+    [ ] The original data points
+    [ ] The slope and intercept
+    [ ] The residuals of the fit
+    [*] The predicted y-values from the best-fit line
+    Explanation: Ax-hat gives the predicted values (y-hat) lying on the regression line. The residual b - Ax-hat gives the vertical distances from data points to the line.
+
+  Q23. A signal processing engineer decomposes a signal s = (5, 3, 1) into components along two orthogonal directions u1 = (1, 0, 0) and u2 = (0, 1, 0). What is the projection of s onto span{u1, u2}?
+    [*] (5, 3, 0)
+    [ ] (0, 0, 1)
+    [ ] (5, 0, 0)
+    [ ] (5, 3, 1)
+    Explanation: proj = (s.u1)u1 + (s.u2)u2 = 5(1,0,0) + 3(0,1,0) = (5,3,0). The z-component (the part in the orthogonal complement) is discarded.
+
+  Q24. An economist wants to remove the trend from economic data by projecting onto the orthogonal complement of the trend vector t = (1, 1, 1, 1). If the data is y = (10, 12, 15, 11), what is the detrended data (I - P)y?
+    [*] (-2, 0, 3, -1)
+    [ ] (12, 12, 12, 12)
+    [ ] (0, 0, 0, 0)
+    [ ] (10, 12, 15, 11)
+    Explanation: Mean = (10+12+15+11)/4 = 12. Projection onto t: (y.t/t.t)t = (48/4)(1,1,1,1) = (12,12,12,12). Detrended: y - proj = (10-12, 12-12, 15-12, 11-12) = (-2, 0, 3, -1).
+
+  Q25. A computer vision engineer fits a plane z = ax + by + c to 4 height measurements. The projection of the data onto the column space of the design matrix gives:
+    [ ] The equation of the plane only
+    [ ] The normal vector to the plane
+    [*] The height values predicted by the best-fit plane
+    [ ] The exact height measurements
+    Explanation: The projection Ax-hat gives the predicted z-values from the least squares plane. The residuals b - Ax-hat measure how far each point deviates from the best-fit plane.
+
+  Q26. A climate scientist projects monthly temperature data onto the subspace spanned by sin(2*pi*t/12) and cos(2*pi*t/12) to extract the seasonal cycle. What does the residual represent?
+    [ ] The seasonal cycle itself
+    [ ] The average temperature
+    [*] The non-seasonal variability (weather noise and trends)
+    [ ] The projection matrix
+    Explanation: The projection extracts the annual sinusoidal component. The residual b - proj captures everything that isn't explained by the annual cycle: random weather variations and longer-term trends.
+
+  Q27. A telecommunications engineer uses a matched filter to detect a known signal s in noisy data y. The matched filter output is the projection of y onto s. If s = (1, 1, -1, -1) and y = (2, 3, -1, 0), what is the projection scalar?
+    [*] 6/4 = 1.5
+    [ ] 6, par
+    [ ] 4, par
+    [ ] 0, par
+    Explanation: The projection scalar is s.y/s.s = (2+3+1+0)/4 = 6/4 = 1.5. This indicates the signal is present with amplitude 1.5 times the template.
+
+  Q28. A mechanical engineer models vibration data as a combination of two normal mode shapes. She projects the measured vibration onto each mode shape using orthogonal projection. If modes are orthogonal, what is the advantage?
+    [ ] The modes must be computed simultaneously
+    [ ] There is no advantage to orthogonality
+    [ ] The total vibration equals the sum of the mode shapes
+    [*] Each mode's contribution can be found independently by a single dot product
+    Explanation: Orthogonality allows independent computation of each mode's coefficient: c_i = (data . mode_i)/(mode_i . mode_i). No system of equations needs to be solved.
+
+  Q29. A statistician uses the hat matrix H to identify influential data points. If h_ii (the i-th diagonal of H) is close to 1, what does this indicate?
+    [ ] The model fits point i poorly
+    [*] Point i is highly influential and its predicted value depends almost entirely on itself
+    [ ] Point i is an outlier in the y-direction
+    [ ] Point i has very little influence on the fit
+    Explanation: h_ii close to 1 means the i-th predicted value y-hat_i depends almost entirely on y_i itself. Such a leverage point has extreme influence on the regression line.
+
+  Q30. An image processing engineer approximates a 1000-pixel image by projecting it onto the first 50 principal components. What percentage of the original data is in the residual if those 50 components capture 98% of the variance?
+    [ ] 95%
+    [ ] 98%
+    [*] 2%
+    [ ] 50%
+    Explanation: If the projection captures 98% of the variance, the residual contains the remaining 2%. This means 50 components provide a highly accurate approximation, discarding only 2% of the information.
 
 --- Lesson 8.2: Orthogonal Projections (Flashcards) ---
 
@@ -334,154 +550,276 @@ Content for Orthogonal Projections is coming soon. Check back for detailed notes
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 8.3: Gram-Schmidt Process (Summary) ---
 
   Key Concepts: Gram-Schmidt Process
-Key Concepts: Gram-Schmidt Process
-
-Content for Gram-Schmidt Process is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+What is the primary purpose of the Gram-Schmidt process?
+The Gram-Schmidt process takes a set of linearly independent vectors and produces an orthonormal set that spans the same subspace.
+Given v1 = (1, 0) and v2 = (1, 1), what is the first orthonormal vector e1 produced by Gram-Schmidt?
+The first step of Gram-Schmidt normalizes v1. Since v1 = (1, 0) already has unit length, e1 = (1, 0).
+In the Gram-Schmidt process, after obtaining the orthogonal vector u2 = v2 - proj_{u1}(v2), what is the next step?
+After subtracting the projection to make u2 orthogonal to u1, we normalize u2 by dividing by its magnitude to produce the orthonormal vector e2.
+Given v1 = (3, 4), what is e1 = v1 / ||v1||?
+||v1|| = sqrt(9 + 16) = sqrt(25) = 5, so e1 = (3/5, 4/5).
+Apply Gram-Schmidt to v1 = (1, 1, 0) and v2 = (1, 0, 1). What is the orthogonal component u2 = v2 - proj_{u1}(v2)?
+proj_{u1}(v2) = (v2 . u1)/(u1 . u1) * u1 = (1)/(2) * (1,1,0) = (1/2, 1/2, 0). So u2 = (1,0,1) - (1/2,1/2,0) = (1/2, -1/2, 1).
+What is the 'QR factorization' that results from the Gram-Schmidt process?
+QR factorization decomposes a matrix A into Q (with orthonormal columns from Gram-Schmidt) and R (upper triangular with the projection coefficients).
+What is meant by 'numerical instability' in the classical Gram-Schmidt process?
+In floating-point arithmetic, the classical Gram-Schmidt process accumulates rounding errors that can cause the resulting vectors to deviate significantly from true orthogonality.
+What is the 'modified Gram-Schmidt' process?
+Modified Gram-Schmidt improves numerical stability by projecting each vector against previously computed orthogonal vectors sequentially, reducing accumulated rounding errors.
+What is meant by 'Householder reflections' as an alternative to Gram-Schmidt?
+Householder reflections are orthogonal transformations that zero out entries below the diagonal, providing a numerically superior alternative to Gram-Schmidt for QR factorization.
+What is 'reorthogonalization' in the Gram-Schmidt context?
+Reorthogonalization applies an additional round of orthogonal projection subtraction to correct for numerical drift, restoring near-perfect orthogonality in the computed vectors.
+A structural engineer has three sensor measurements represented as vectors v1 = (1, 0, 0), v2 = (1, 1, 0), and v3 = (1, 1, 1) in a 3D stress space. She applies Gram-Schmidt to create an orthonormal basis for analysis. What is the second orthonormal vector e2?
+u1 = (1,0,0), so e1 = (1,0,0). Then u2 = v2 - (v2.u1/u1.u1)u1 = (1,1,0) - 1*(1,0,0) = (0,1,0). Since ||u2|| = 1, e2 = (0,1,0).
+A data scientist has feature vectors v1 = (2, 0) and v2 = (3, 1) and wants to orthonormalize them for a regression model. After applying Gram-Schmidt, what is e2?
+e1 = v1/||v1|| = (1,0). proj_{e1}(v2) = (v2.e1)e1 = 3*(1,0) = (3,0). u2 = v2 - (3,0) = (0,1). Since ||u2|| = 1, e2 = (0,1).
+A physicist uses Gram-Schmidt on vectors v1 = (1, 1) and v2 = (0, 1) to build an orthonormal frame for a 2D experiment. What is the R matrix in the QR factorization A = QR, where A = [v1 | v2]?
+e1 = (1,1)/sqrt(2). R11 = ||v1|| = sqrt(2). R12 = v2.e1 = 1/sqrt(2). u2 = v2 - (1/sqrt(2))e1 = (0,1) - (1/2,1/2) = (-1/2,1/2), ||u2|| = 1/sqrt(2) = R22. So R = [[sqrt(2), 1/sqrt(2)], [0, 1/sqrt(2)]].
+A surveyor collects three ground measurements as vectors v1 = (1, 2, 2), v2 = (0, 1, 0), v3 = (0, 0, 1). She applies Gram-Schmidt and finds ||v1|| = 3. What is the first column of Q in the QR factorization?
+The first column of Q is e1 = v1/||v1|| = (1,2,2)/3 = (1/3, 2/3, 2/3). This is simply the normalization of the first vector.
+A computer graphics team applies Gram-Schmidt to create an orthonormal coordinate frame from v1 = (1, 0, 1) and v2 = (0, 1, 0). What is u2 after the orthogonalization step?
+proj_{u1}(v2) = (v2.u1)/(u1.u1) * u1 = (0)/(2) * (1,0,1) = (0,0,0). Since v2 is already orthogonal to u1, u2 = v2 - (0,0,0) = (0,1,0).
+A quantum computing researcher applies Gram-Schmidt to states |a> = (1, 1) and |b> = (1, -1) in C^2 (using complex inner product). What is , the inner product?
+= conj(1)*1 + conj(1)*(-1) = 1 - 1 = 0. The vectors are already orthogonal, so Gram-Schmidt would leave them unchanged (after normalization).
+A robotics engineer has joint-angle vectors v1 = (1, 1, 0, 0) and v2 = (1, 0, 1, 0) in R^4. After Gram-Schmidt orthogonalization, what is u2?
+proj_{u1}(v2) = (v2.u1)/(u1.u1) * u1 = 1/2 * (1,1,0,0) = (1/2,1/2,0,0). So u2 = (1,0,1,0) - (1/2,1/2,0,0) = (1/2, -1/2, 1, 0).
+Important Concepts
+An audio engineer has three frequency-domain signals represented as vectors in R^3. After applying Gram-Schmidt, she obtains orthonormal vectors {e1, e2, e3}. She wants to express a new signal s = (5, 3, 2) in this basis. If e1 = (1,0,0), e2 = (0,1,0), e3 = (0,0,1), what are the coordinates of s in the orthonormal basis
+In an orthonormal basis, the coordinates are simply the dot products s.e1 = 5, s.e2 = 3, s.e3 = 2. Since the basis here is the standard basis, the coordinates are (5, 3, 2).
 
 --- Lesson 8.3: Gram-Schmidt Process (Quiz) ---
 
-  Q1. Sample question 1 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Gram-Schmidt Process.
+  Q1. What is the primary purpose of the Gram-Schmidt process?
+    [ ] To compute the determinant of a matrix
+    [*] To convert a set of linearly independent vectors into an orthonormal set
+    [ ] To solve systems of linear equations
+    [ ] To find eigenvalues of a matrix
+    Explanation: The Gram-Schmidt process takes a set of linearly independent vectors and produces an orthonormal set that spans the same subspace.
 
-  Q2. Sample question 2 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Gram-Schmidt Process.
+  Q2. Given v1 = (1, 0) and v2 = (1, 1), what is the first orthonormal vector e1 produced by Gram-Schmidt?
+    [ ] (1/sqrt(2), 1/sqrt(2))
+    [*] (1, 0)
+    [ ] (1, 1)
+    [ ] (0, 1)
+    Explanation: The first step of Gram-Schmidt normalizes v1. Since v1 = (1, 0) already has unit length, e1 = (1, 0).
 
-  Q3. Sample question 3 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Gram-Schmidt Process.
+  Q3. In the Gram-Schmidt process, after obtaining the orthogonal vector u2 = v2 - proj_{u1}(v2), what is the next step?
+    [*] Normalize u2 to get e2 = u2 / ||u2||
+    [ ] Take the transpose of u2
+    [ ] Compute the cross product of u1 and u2
+    [ ] Add u2 to u1
+    Explanation: After subtracting the projection to make u2 orthogonal to u1, we normalize u2 by dividing by its magnitude to produce the orthonormal vector e2.
 
-  Q4. Sample question 4 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Gram-Schmidt Process.
+  Q4. If you apply Gram-Schmidt to 3 linearly independent vectors in R^3, how many orthonormal vectors do you obtain?
+    [*] 3
+    [ ] 2
+    [ ] It depends on the vectors
+    [ ] 1
+    Explanation: Gram-Schmidt produces one orthonormal vector for each input vector when the input set is linearly independent, so 3 input vectors yield 3 orthonormal vectors.
 
-  Q5. Sample question 5 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Gram-Schmidt Process.
+  Q5. Given v1 = (3, 4), what is e1 = v1 / ||v1||?
+    [ ] (3/4, 1)
+    [*] (3/5, 4/5)
+    [ ] (4/5, 3/5)
+    [ ] (3/7, 4/7)
+    Explanation: ||v1|| = sqrt(9 + 16) = sqrt(25) = 5, so e1 = (3/5, 4/5).
 
-  Q6. Sample question 6 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Gram-Schmidt Process.
+  Q6. What happens if you attempt to apply Gram-Schmidt to a set of linearly dependent vectors?
+    [ ] You get extra orthonormal vectors
+    [ ] The resulting vectors are not orthogonal
+    [*] One of the intermediate vectors becomes the zero vector
+    [ ] The process produces complex numbers
+    Explanation: If a vector is a linear combination of the previous ones, subtracting all projections yields the zero vector, which cannot be normalized. This signals linear dependence.
 
-  Q7. Sample question 7 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Gram-Schmidt Process.
+  Q7. In the Gram-Schmidt process, the projection of v2 onto u1 is given by which formula?
+    [ ] proj_{u1}(v2) = (v2 . v2) / (u1 . u1) * u1
+    [*] proj_{u1}(v2) = (v2 . u1) / (u1 . u1) * u1
+    [ ] proj_{u1}(v2) = (u1 . u1) / (v2 . u1) * v2
+    [ ] proj_{u1}(v2) = v2 * u1^T
+    Explanation: The orthogonal projection of v2 onto u1 is (v2 . u1)/(u1 . u1) times u1. This scalar-times-vector formula projects v2 along the direction of u1.
 
-  Q8. Sample question 8 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Gram-Schmidt Process.
+  Q8. The Gram-Schmidt process is closely related to which matrix factorization?
+    [ ] Cholesky factorization
+    [*] QR factorization
+    [ ] LU factorization
+    [ ] Singular Value Decomposition
+    Explanation: Gram-Schmidt orthogonalization is the standard method for computing QR factorization, where Q contains the orthonormal vectors and R is upper triangular.
 
-  Q9. Sample question 9 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Gram-Schmidt Process.
+  Q9. If {u1, u2, u3} is the orthogonal set produced by Gram-Schmidt from {v1, v2, v3}, which subspace does span{u1, u2} equal?
+    [*] span{v1, v2}
+    [ ] span{v1, v3}
+    [ ] span{v2, v3}
+    [ ] span{v1, v2, v3}
+    Explanation: A key property of Gram-Schmidt is that for each k, span{u1,...,uk} = span{v1,...,vk}. So span{u1, u2} = span{v1, v2}.
 
-  Q10. Sample question 10 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Gram-Schmidt Process.
+  Q10. Apply Gram-Schmidt to v1 = (1, 1, 0) and v2 = (1, 0, 1). What is the orthogonal component u2 = v2 - proj_{u1}(v2)?
+    [ ] (1, 1, 1)
+    [ ] (1/2, 1/2, 1)
+    [*] (1/2, -1/2, 1)
+    [ ] (0, -1, 1)
+    Explanation: proj_{u1}(v2) = (v2 . u1)/(u1 . u1) * u1 = (1)/(2) * (1,1,0) = (1/2, 1/2, 0). So u2 = (1,0,1) - (1/2,1/2,0) = (1/2, -1/2, 1).
 
-  Q11. Sample question 11 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Gram-Schmidt Process.
+  Q11. What does the term 'orthogonalization' mean in the context of the Gram-Schmidt process?
+    [ ] Reducing the number of vectors in a set
+    [ ] Finding the inverse of each vector
+    [*] Transforming a set of vectors so that each pair is mutually perpendicular
+    [ ] Making all vectors have the same length
+    Explanation: Orthogonalization is the process of modifying vectors so that every pair has a dot product of zero, meaning they are mutually perpendicular (orthogonal).
 
-  Q12. Sample question 12 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Gram-Schmidt Process.
+  Q12. What does 'normalization' refer to in the Gram-Schmidt process?
+    [ ] Multiplying each vector by a negative sign
+    [*] Dividing each orthogonal vector by its magnitude to produce a unit vector
+    [ ] Setting each vector's first component to 1
+    [ ] Rearranging the order of the vectors
+    Explanation: Normalization means scaling each vector to have unit length (magnitude 1) by dividing by its norm, turning orthogonal vectors into orthonormal vectors.
 
-  Q13. Sample question 13 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Gram-Schmidt Process.
+  Q13. What is the 'QR factorization' that results from the Gram-Schmidt process?
+    [*] A factorization A = QR where Q has orthonormal columns and R is upper triangular
+    [ ] A factorization where Q is diagonal and R is symmetric
+    [ ] A factorization where Q is lower triangular and R is orthogonal
+    [ ] A factorization where both Q and R are orthogonal
+    Explanation: QR factorization decomposes a matrix A into Q (with orthonormal columns from Gram-Schmidt) and R (upper triangular with the projection coefficients).
 
-  Q14. Sample question 14 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Gram-Schmidt Process.
+  Q14. What is meant by 'numerical instability' in the classical Gram-Schmidt process?
+    [*] Rounding errors can cause the output vectors to lose orthogonality
+    [ ] The process cannot handle more than 3 vectors
+    [ ] The algorithm runs infinitely without converging
+    [ ] The process sometimes produces imaginary vectors
+    Explanation: In floating-point arithmetic, the classical Gram-Schmidt process accumulates rounding errors that can cause the resulting vectors to deviate significantly from true orthogonality.
 
-  Q15. Sample question 15 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Gram-Schmidt Process.
+  Q15. What is the 'modified Gram-Schmidt' process?
+    [ ] A version that uses eigenvalues instead of projections
+    [ ] A process that only works for 2D vectors
+    [*] A numerically more stable variant that subtracts projections one at a time using updated vectors
+    [ ] A version that skips the normalization step
+    Explanation: Modified Gram-Schmidt improves numerical stability by projecting each vector against previously computed orthogonal vectors sequentially, reducing accumulated rounding errors.
 
-  Q16. Sample question 16 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Gram-Schmidt Process.
+  Q16. What does 'orthonormal basis' mean?
+    [ ] A basis where all vectors are parallel
+    [ ] A basis consisting of only two vectors
+    [*] A basis where all vectors are mutually orthogonal and each has unit length
+    [ ] A basis where each vector has integer components
+    Explanation: An orthonormal basis is a set of basis vectors that are pairwise orthogonal (dot product zero) and each normalized to have magnitude 1.
 
-  Q17. Sample question 17 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Gram-Schmidt Process.
+  Q17. What does the term 'projection coefficient' refer to in Gram-Schmidt?
+    [ ] The angle between two vectors in radians
+    [*] The scalar (v . u)/(u . u) that determines how much of u to subtract from v
+    [ ] The determinant of the matrix formed by the vectors
+    [ ] The eigenvalue associated with each vector
+    Explanation: The projection coefficient (v . u)/(u . u) tells you the scalar multiple of u that, when subtracted from v, removes the component of v in the direction of u.
 
-  Q18. Sample question 18 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Gram-Schmidt Process.
+  Q18. What is meant by 'Householder reflections' as an alternative to Gram-Schmidt?
+    [*] Orthogonal transformations that reflect vectors across hyperplanes to achieve QR factorization
+    [ ] A method for computing eigenvalues of symmetric matrices
+    [ ] A method that uses matrix inverses to orthogonalize vectors
+    [ ] A process that rotates all vectors by 90 degrees
+    Explanation: Householder reflections are orthogonal transformations that zero out entries below the diagonal, providing a numerically superior alternative to Gram-Schmidt for QR factorization.
 
-  Q19. Sample question 19 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Gram-Schmidt Process.
+  Q19. What does 'loss of orthogonality' mean in the context of classical Gram-Schmidt?
+    [ ] The norm of each vector becomes zero
+    [*] Due to floating-point errors, dot products between output vectors are not exactly zero
+    [ ] The vectors change dimension during the process
+    [ ] The output vectors are no longer linearly independent
+    Explanation: Loss of orthogonality occurs when accumulated rounding errors in floating-point arithmetic cause the computed 'orthogonal' vectors to have non-zero dot products with each other.
 
-  Q20. Sample question 20 for Gram-Schmidt Process
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Gram-Schmidt Process.
+  Q20. What is 'reorthogonalization' in the Gram-Schmidt context?
+    [ ] Reversing the order of the input vectors
+    [ ] Doubling the length of each output vector
+    [ ] Computing the inverse of the orthogonal matrix
+    [*] Running the Gram-Schmidt process a second time on the output to restore lost orthogonality
+    Explanation: Reorthogonalization applies an additional round of orthogonal projection subtraction to correct for numerical drift, restoring near-perfect orthogonality in the computed vectors.
+
+  Q21. A structural engineer has three sensor measurements represented as vectors v1 = (1, 0, 0), v2 = (1, 1, 0), and v3 = (1, 1, 1) in a 3D stress space. She applies Gram-Schmidt to create an orthonormal basis for analysis. What is the second orthonormal vector e2?
+    [ ] (1, -1, 0)/sqrt(2)
+    [ ] (1, 1, 0)/sqrt(2)
+    [ ] (0, 0, 1)
+    [*] (0, 1, 0)
+    Explanation: u1 = (1,0,0), so e1 = (1,0,0). Then u2 = v2 - (v2.u1/u1.u1)u1 = (1,1,0) - 1*(1,0,0) = (0,1,0). Since ||u2|| = 1, e2 = (0,1,0).
+
+  Q22. A data scientist has feature vectors v1 = (2, 0) and v2 = (3, 1) and wants to orthonormalize them for a regression model. After applying Gram-Schmidt, what is e2?
+    [*] (0, 1)
+    [ ] (3/sqrt(10), 1/sqrt(10))
+    [ ] (0, -1)
+    [ ] (1, 0)
+    Explanation: e1 = v1/||v1|| = (1,0). proj_{e1}(v2) = (v2.e1)e1 = 3*(1,0) = (3,0). u2 = v2 - (3,0) = (0,1). Since ||u2|| = 1, e2 = (0,1).
+
+  Q23. An audio engineer has three frequency-domain signals represented as vectors in R^3. After applying Gram-Schmidt, she obtains orthonormal vectors {e1, e2, e3}. She wants to express a new signal s = (5, 3, 2) in this basis. If e1 = (1,0,0), e2 = (0,1,0), e3 = (0,0,1), what are the coordinates of s in the orthonormal basis?
+    [ ] (2, 3, 5)
+    [ ] (5/sqrt(38), 3/sqrt(38), 2/sqrt(38))
+    [*] (5, 3, 2)
+    [ ] (sqrt(38), 0, 0)
+    Explanation: In an orthonormal basis, the coordinates are simply the dot products s.e1 = 5, s.e2 = 3, s.e3 = 2. Since the basis here is the standard basis, the coordinates are (5, 3, 2).
+
+  Q24. A physicist uses Gram-Schmidt on vectors v1 = (1, 1) and v2 = (0, 1) to build an orthonormal frame for a 2D experiment. What is the R matrix in the QR factorization A = QR, where A = [v1 | v2]?
+    [*] [[sqrt(2), 1/sqrt(2)], [0, 1/sqrt(2)]]
+    [ ] [[sqrt(2), 0], [0, sqrt(2)]]
+    [ ] [[1, 0], [0, 1]]
+    [ ] [[1, 1], [1, 0]]
+    Explanation: e1 = (1,1)/sqrt(2). R11 = ||v1|| = sqrt(2). R12 = v2.e1 = 1/sqrt(2). u2 = v2 - (1/sqrt(2))e1 = (0,1) - (1/2,1/2) = (-1/2,1/2), ||u2|| = 1/sqrt(2) = R22. So R = [[sqrt(2), 1/sqrt(2)], [0, 1/sqrt(2)]].
+
+  Q25. A machine learning engineer applies Gram-Schmidt to three 100-dimensional feature vectors to create an orthonormal basis for a 3D subspace. How many dot product computations are needed in total for the orthogonalization step (excluding normalization)?
+    [ ] 9
+    [ ] 100
+    [*] 3
+    [ ] 6
+    Explanation: For v2 we compute 1 projection (onto u1), requiring 1 dot product. For v3 we compute 2 projections (onto u1 and u2), requiring 2 dot products. Total: 0 + 1 + 2 = 3 dot product computations for orthogonalization.
+
+  Q26. A surveyor collects three ground measurements as vectors v1 = (1, 2, 2), v2 = (0, 1, 0), v3 = (0, 0, 1). She applies Gram-Schmidt and finds ||v1|| = 3. What is the first column of Q in the QR factorization?
+    [ ] (1/sqrt(5), 2/sqrt(5), 0)
+    [*] (1/3, 2/3, 2/3)
+    [ ] (0, 1, 0)
+    [ ] (1, 2, 2)
+    Explanation: The first column of Q is e1 = v1/||v1|| = (1,2,2)/3 = (1/3, 2/3, 2/3). This is simply the normalization of the first vector.
+
+  Q27. A computer graphics team applies Gram-Schmidt to create an orthonormal coordinate frame from v1 = (1, 0, 1) and v2 = (0, 1, 0). What is u2 after the orthogonalization step?
+    [ ] (0, 0, 1)
+    [ ] (1, 1, 1)
+    [ ] (-1, 1, -1)
+    [*] (0, 1, 0)
+    Explanation: proj_{u1}(v2) = (v2.u1)/(u1.u1) * u1 = (0)/(2) * (1,0,1) = (0,0,0). Since v2 is already orthogonal to u1, u2 = v2 - (0,0,0) = (0,1,0).
+
+  Q28. A quantum computing researcher applies Gram-Schmidt to states |a> = (1, 1) and |b> = (1, -1) in C^2 (using complex inner product). What is <a|b>, the inner product?
+    [ ] 2
+    [*] 0
+    [ ] 1
+    [ ] -2
+    Explanation: <a|b> = conj(1)*1 + conj(1)*(-1) = 1 - 1 = 0. The vectors are already orthogonal, so Gram-Schmidt would leave them unchanged (after normalization).
+
+  Q29. A robotics engineer has joint-angle vectors v1 = (1, 1, 0, 0) and v2 = (1, 0, 1, 0) in R^4. After Gram-Schmidt orthogonalization, what is u2?
+    [ ] (1, 1, 1, 0)
+    [ ] (0, -1, 1, 0)
+    [ ] (0, 0, 1, 0)
+    [*] (1/2, -1/2, 1, 0)
+    Explanation: proj_{u1}(v2) = (v2.u1)/(u1.u1) * u1 = 1/2 * (1,1,0,0) = (1/2,1/2,0,0). So u2 = (1,0,1,0) - (1/2,1/2,0,0) = (1/2, -1/2, 1, 0).
+
+  Q30. A climate scientist models temperature variations using three measurement vectors and applies Gram-Schmidt to obtain an orthonormal basis. If the original vectors are columns of a 4x3 matrix A and the QR factorization gives A = QR, what are the dimensions of Q and R?
+    [ ] Q is 3x3 and R is 3x4
+    [ ] Q is 3x4 and R is 4x3
+    [*] Q is 4x3 and R is 3x3
+    [ ] Q is 4x4 and R is 4x3
+    Explanation: For the thin (reduced) QR factorization of a 4x3 matrix A, Q is 4x3 (with 3 orthonormal columns in R^4) and R is 3x3 upper triangular.
 
 --- Lesson 8.3: Gram-Schmidt Process (Flashcards) ---
 
@@ -500,154 +838,269 @@ Content for Gram-Schmidt Process is coming soon. Check back for detailed notes a
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 8.4: Orthogonal Matrices (Summary) ---
 
   Key Concepts: Orthogonal Matrices
-Key Concepts: Orthogonal Matrices
-
-Content for Orthogonal Matrices is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+What is the defining property of an orthogonal matrix Q?
+An orthogonal matrix satisfies Q^T Q = I, meaning its transpose equals its inverse. This is equivalent to saying its columns form an orthonormal set.
+What is the determinant of any orthogonal matrix?
+Since Q^T Q = I, det(Q^T)det(Q) = 1, so (det Q)^2 = 1, giving det(Q) = +1 or -1.
+If Q is an orthogonal matrix and x is any vector, what is ||Qx|| compared to ||x||?
+Orthogonal matrices preserve vector norms: ||Qx||^2 = (Qx)^T(Qx) = x^T Q^T Q x = x^T I x = ||x||^2. This means orthogonal transformations are length-preserving (isometries).
+The identity matrix I is an orthogonal matrix. What is I^T?
+The identity matrix is symmetric, so I^T = I. It trivially satisfies I^T I = I*I = I, confirming it is orthogonal.
+If Q is orthogonal, what is Q^T Q + Q Q^T for a square orthogonal matrix?
+For a square orthogonal matrix, both Q^T Q = I and Q Q^T = I (since Q^(-1) = Q^T works on both sides). Therefore Q^T Q + Q Q^T = I + I = 2I.
+What is a 'rotation matrix'?
+A rotation matrix is a special orthogonal matrix (det = +1) that rotates all vectors by a fixed angle while preserving lengths and orientation.
+What is a 'reflection matrix'?
+A reflection matrix is an orthogonal matrix with determinant -1. It reflects vectors across a hyperplane (line in 2D, plane in 3D), reversing orientation while preserving distances.
+What is the 'special orthogonal group' SO(n)?
+SO(n) is the special orthogonal group consisting of all n x n orthogonal matrices with determinant +1. These represent pure rotations in n-dimensional space and form a group under matrix multiplication.
+What is the 'Givens rotation'?
+A Givens rotation is an orthogonal matrix that performs rotation in a single coordinate plane (i,j), modifying only two rows/columns. It is used in QR algorithms to zero out individual matrix entries.
+What is a 'Householder matrix'?
+A Householder matrix H = I - 2vv^T (v unit) is an orthogonal, symmetric matrix that reflects vectors across the hyperplane perpendicular to v. It has det = -1 and is its own inverse.
+A computer graphics engine uses the rotation matrix Q = [[cos(30), -sin(30)], [sin(30), cos(30)]] to rotate a sprite. If the sprite's position vector is v = (4, 0), what is the y-component of the rotated position? (Use cos(30) = sqrt(3)/2, sin(30) = 1/2.)
+Qv = [[sqrt(3)/2, -1/2],[1/2, sqrt(3)/2]] * (4,0) = (4*sqrt(3)/2, 4*1/2) = (2sqrt(3), 2). The y-component is 2.
+A robotics engineer models a robotic arm joint using a 3x3 rotation matrix. She composes two rotations R1 and R2. If R1 rotates by 45 degrees and R2 rotates by 30 degrees (both about the same axis), what is the total rotation angle of R2*R1?
+Rotations about the same axis compose by adding angles. R2*R1 rotates by 45 + 30 = 75 degrees. The product of two rotation matrices is also a rotation matrix.
+A structural engineer uses the Householder reflection H = I - 2vv^T with unit vector v = (1/sqrt(2), 1/sqrt(2)) to transform a force vector. What is H * (1, 0)?
+vv^T = [[1/2, 1/2],[1/2, 1/2]]. H = I - 2vv^T = [[0, -1],[-1, 0]]. H*(1,0) = (0, -1). This reflects across the line perpendicular to v, which is the line y = -x.
+A machine learning engineer uses an orthogonal matrix to whiten (decorrelate) features. If the covariance matrix of the original data is C, what is the covariance after applying orthogonal transformation Q?
+When data X is transformed to QX, the new covariance is Q^T C Q. If Q is chosen as the eigenvector matrix of C, this diagonalizes C, decorrelating the features.
+A quantum computing researcher needs a unitary gate that maps |0> = (1,0) to (1/sqrt(2), 1/sqrt(2)) and |1> = (0,1) to (1/sqrt(2), -1/sqrt(2)). What is this gate called?
+The Hadamard gate H = (1/sqrt(2))[[1,1],[1,-1]] is a fundamental quantum gate. It is both unitary and Hermitian (H = H*), and creates superposition states from basis states.
 
 --- Lesson 8.4: Orthogonal Matrices (Quiz) ---
 
-  Q1. Sample question 1 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Orthogonal Matrices.
+  Q1. What is the defining property of an orthogonal matrix Q?
+    [ ] All entries of Q are positive
+    [*] Q^T Q = I (equivalently, Q^(-1) = Q^T)
+    [ ] det(Q) = 0
+    [ ] Q^T = Q
+    Explanation: An orthogonal matrix satisfies Q^T Q = I, meaning its transpose equals its inverse. This is equivalent to saying its columns form an orthonormal set.
 
-  Q2. Sample question 2 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Orthogonal Matrices.
+  Q2. What is the determinant of any orthogonal matrix?
+    [ ] Any real number
+    [ ] 0
+    [ ] Always +1
+    [*] +1 or -1
+    Explanation: Since Q^T Q = I, det(Q^T)det(Q) = 1, so (det Q)^2 = 1, giving det(Q) = +1 or -1.
 
-  Q3. Sample question 3 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Orthogonal Matrices.
+  Q3. Which of the following 2x2 matrices is orthogonal? (c = cos(theta), s = sin(theta))
+    [ ] [[c, c], [-s, s]]
+    [ ] [[1, c], [0, s]]
+    [ ] [[c, s], [s, c]]
+    [*] [[c, -s], [s, c]]
+    Explanation: The 2x2 rotation matrix [[cos(theta), -sin(theta)], [sin(theta), cos(theta)]] is orthogonal because its columns are orthonormal: column dot products give cos^2 + sin^2 = 1 and -sc + sc = 0.
 
-  Q4. Sample question 4 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Orthogonal Matrices.
+  Q4. If Q is an orthogonal matrix and x is any vector, what is ||Qx|| compared to ||x||?
+    [ ] ||Qx|| > ||x||
+    [ ] It depends on Q
+    [*] ||Qx|| = ||x||
+    [ ] ||Qx|| < ||x||
+    Explanation: Orthogonal matrices preserve vector norms: ||Qx||^2 = (Qx)^T(Qx) = x^T Q^T Q x = x^T I x = ||x||^2. This means orthogonal transformations are length-preserving (isometries).
 
-  Q5. Sample question 5 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Orthogonal Matrices.
+  Q5. The identity matrix I is an orthogonal matrix. What is I^T?
+    [ ] 2I
+    [*] I (itself)
+    [ ] The zero matrix
+    [ ] -I
+    Explanation: The identity matrix is symmetric, so I^T = I. It trivially satisfies I^T I = I*I = I, confirming it is orthogonal.
 
-  Q6. Sample question 6 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Orthogonal Matrices.
+  Q6. If P and Q are both orthogonal matrices of the same size, is PQ also orthogonal?
+    [ ] Only if P = Q
+    [*] Yes, always
+    [ ] No, never
+    [ ] Only if det(P) = det(Q)
+    Explanation: The product of orthogonal matrices is orthogonal: (PQ)^T(PQ) = Q^T P^T P Q = Q^T I Q = Q^T Q = I.
 
-  Q7. Sample question 7 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Orthogonal Matrices.
+  Q7. Which of the following is a 2x2 orthogonal matrix with determinant -1?
+    [*] [[1, 0], [0, -1]]
+    [ ] [[0, 1], [1, 1]]
+    [ ] [[1, 0], [0, 1]]
+    [ ] [[2, 0], [0, 1/2]]
+    Explanation: [[1,0],[0,-1]] has orthonormal columns (1,0) and (0,-1), and det = -1. This is a reflection matrix (reflecting across the x-axis).
 
-  Q8. Sample question 8 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Orthogonal Matrices.
+  Q8. What are the possible eigenvalues of a real orthogonal matrix?
+    [ ] Only positive real numbers
+    [*] +1, -1, or complex numbers with absolute value 1
+    [ ] Any real number
+    [ ] Only 0 and 1
+    Explanation: Since orthogonal matrices preserve norms, all eigenvalues must have absolute value 1. For real orthogonal matrices, real eigenvalues are +1 or -1, and complex eigenvalues come in conjugate pairs on the unit circle.
 
-  Q9. Sample question 9 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Orthogonal Matrices.
+  Q9. If Q is a 3x3 orthogonal matrix with det(Q) = 1, what type of transformation does Q represent?
+    [*] A rotation
+    [ ] A reflection
+    [ ] A scaling
+    [ ] A shearing
+    Explanation: An orthogonal matrix with determinant +1 is called a proper orthogonal matrix (or special orthogonal), and it represents a rotation. Determinant -1 indicates an improper rotation (rotation composed with a reflection).
 
-  Q10. Sample question 10 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Orthogonal Matrices.
+  Q10. If Q is orthogonal, what is Q^T Q + Q Q^T for a square orthogonal matrix?
+    [ ] Q^2
+    [*] 2I
+    [ ] I
+    [ ] 0
+    Explanation: For a square orthogonal matrix, both Q^T Q = I and Q Q^T = I (since Q^(-1) = Q^T works on both sides). Therefore Q^T Q + Q Q^T = I + I = 2I.
 
-  Q11. Sample question 11 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Orthogonal Matrices.
+  Q11. What does 'orthogonal transformation' mean geometrically?
+    [*] A rigid transformation that preserves distances and angles between vectors
+    [ ] A transformation that projects vectors onto a line
+    [ ] A transformation that stretches vectors
+    [ ] A transformation that maps all vectors to the origin
+    Explanation: An orthogonal transformation is a rigid motion (isometry) that preserves lengths, angles, and the overall geometry of the space. It includes rotations and reflections.
 
-  Q12. Sample question 12 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Orthogonal Matrices.
+  Q12. What is a 'rotation matrix'?
+    [ ] A diagonal matrix with entries between 0 and 1
+    [ ] Any matrix with all positive entries
+    [*] An orthogonal matrix with determinant +1 that rotates vectors by a fixed angle
+    [ ] A matrix whose eigenvalues are all real
+    Explanation: A rotation matrix is a special orthogonal matrix (det = +1) that rotates all vectors by a fixed angle while preserving lengths and orientation.
 
-  Q13. Sample question 13 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Orthogonal Matrices.
+  Q13. What is a 'reflection matrix'?
+    [ ] A matrix with all negative entries
+    [*] An orthogonal matrix with determinant -1 that reflects vectors across a hyperplane
+    [ ] A matrix equal to its own transpose
+    [ ] The inverse of any rotation matrix
+    Explanation: A reflection matrix is an orthogonal matrix with determinant -1. It reflects vectors across a hyperplane (line in 2D, plane in 3D), reversing orientation while preserving distances.
 
-  Q14. Sample question 14 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Orthogonal Matrices.
+  Q14. What does 'isometry' mean in the context of orthogonal matrices?
+    [ ] A mapping that sends all vectors to unit vectors
+    [ ] A mapping that doubles all distances
+    [ ] A mapping that preserves only angles, not distances
+    [*] A distance-preserving transformation
+    Explanation: An isometry is a transformation that preserves the distance between any two points. Orthogonal matrices represent linear isometries because ||Qx - Qy|| = ||Q(x-y)|| = ||x-y||.
 
-  Q15. Sample question 15 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Orthogonal Matrices.
+  Q15. What is the 'special orthogonal group' SO(n)?
+    [ ] The set of all n x n matrices
+    [*] The set of all n x n orthogonal matrices with determinant +1
+    [ ] The set of all n x n symmetric matrices
+    [ ] The set of all n x n diagonal matrices
+    Explanation: SO(n) is the special orthogonal group consisting of all n x n orthogonal matrices with determinant +1. These represent pure rotations in n-dimensional space and form a group under matrix multiplication.
 
-  Q16. Sample question 16 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Orthogonal Matrices.
+  Q16. What does 'orthogonal group O(n)' refer to?
+    [ ] The set of all n-dimensional vectors
+    [ ] The set of n x n matrices with orthogonal rows only
+    [ ] The set of all invertible n x n matrices
+    [*] The set of all n x n orthogonal matrices (det = +1 or -1)
+    Explanation: O(n) is the orthogonal group of all n x n real matrices Q satisfying Q^T Q = I. It includes both rotations (det = +1) and improper rotations/reflections (det = -1).
 
-  Q17. Sample question 17 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Orthogonal Matrices.
+  Q17. What is the 'Givens rotation'?
+    [ ] A rotation by exactly 90 degrees
+    [ ] A rotation that maps every vector to its negative
+    [*] A rotation in a 2D plane embedded in a higher-dimensional space, used to zero out specific matrix entries
+    [ ] The rotation associated with the largest eigenvalue
+    Explanation: A Givens rotation is an orthogonal matrix that performs rotation in a single coordinate plane (i,j), modifying only two rows/columns. It is used in QR algorithms to zero out individual matrix entries.
 
-  Q18. Sample question 18 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Orthogonal Matrices.
+  Q18. What does 'orthogonal similarity' mean for matrices A and B?
+    [*] There exists an orthogonal matrix Q such that B = Q^T A Q
+    [ ] A and B are both orthogonal
+    [ ] A and B have the same determinant
+    [ ] A + B is orthogonal
+    Explanation: Two matrices are orthogonally similar if B = Q^T A Q for some orthogonal Q. This is a special case of matrix similarity where the change-of-basis matrix is orthogonal.
 
-  Q19. Sample question 19 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Orthogonal Matrices.
+  Q19. What is a 'Householder matrix'?
+    [ ] A diagonal matrix with entries +1 or -1
+    [ ] A rotation matrix with angle pi/4
+    [ ] The matrix Q in a QR factorization
+    [*] An orthogonal reflection matrix of the form H = I - 2vv^T where v is a unit vector
+    Explanation: A Householder matrix H = I - 2vv^T (v unit) is an orthogonal, symmetric matrix that reflects vectors across the hyperplane perpendicular to v. It has det = -1 and is its own inverse.
 
-  Q20. Sample question 20 for Orthogonal Matrices
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Orthogonal Matrices.
+  Q20. What does 'unitary matrix' mean, and how does it relate to orthogonal matrices?
+    [*] A unitary matrix is the complex generalization of an orthogonal matrix, satisfying U*U = I where U* is the conjugate transpose
+    [ ] A unitary matrix is the same as an orthogonal matrix
+    [ ] A unitary matrix has all entries equal to 1
+    [ ] A unitary matrix is any matrix with unit determinant
+    Explanation: A unitary matrix satisfies U*U = I (where U* = conjugate transpose). When restricted to real entries, the conjugate transpose becomes the regular transpose, making unitary matrices the complex extension of orthogonal matrices.
+
+  Q21. A computer graphics engine uses the rotation matrix Q = [[cos(30), -sin(30)], [sin(30), cos(30)]] to rotate a sprite. If the sprite's position vector is v = (4, 0), what is the y-component of the rotated position? (Use cos(30) = sqrt(3)/2, sin(30) = 1/2.)
+    [*] 2
+    [ ] 0
+    [ ] 2sqrt(3)
+    [ ] 4
+    Explanation: Qv = [[sqrt(3)/2, -1/2],[1/2, sqrt(3)/2]] * (4,0) = (4*sqrt(3)/2, 4*1/2) = (2sqrt(3), 2). The y-component is 2.
+
+  Q22. A robotics engineer models a robotic arm joint using a 3x3 rotation matrix. She composes two rotations R1 and R2. If R1 rotates by 45 degrees and R2 rotates by 30 degrees (both about the same axis), what is the total rotation angle of R2*R1?
+    [ ] The product is not a rotation
+    [ ] 15 degrees
+    [*] 75 degrees
+    [ ] 1350 degrees
+    Explanation: Rotations about the same axis compose by adding angles. R2*R1 rotates by 45 + 30 = 75 degrees. The product of two rotation matrices is also a rotation matrix.
+
+  Q23. A signal processing engineer applies an orthogonal matrix Q to a signal vector x with ||x|| = 10. After the transformation, she measures ||Qx||. What value does she get?
+    [ ] 5
+    [ ] 100
+    [ ] 0
+    [*] 10
+    Explanation: Orthogonal matrices preserve norms, so ||Qx|| = ||x|| = 10. This is because Q^T Q = I implies (Qx)^T(Qx) = x^T x.
+
+  Q24. A structural engineer uses the Householder reflection H = I - 2vv^T with unit vector v = (1/sqrt(2), 1/sqrt(2)) to transform a force vector. What is H * (1, 0)?
+    [ ] (-1, 0)
+    [ ] (1, 0)
+    [*] (0, -1)
+    [ ] (0, 1)
+    Explanation: vv^T = [[1/2, 1/2],[1/2, 1/2]]. H = I - 2vv^T = [[0, -1],[-1, 0]]. H*(1,0) = (0, -1). This reflects across the line perpendicular to v, which is the line y = -x.
+
+  Q25. A data scientist needs to solve a least-squares problem using QR factorization. If A = QR where Q is 5x3 orthogonal and R is 3x3 upper triangular, how does she solve Ax = b?
+    [*] x = R^(-1) Q^T b
+    [ ] x = (QR)^(-1) b
+    [ ] x = Q^T R^T b
+    [ ] x = Q^(-1) R b
+    Explanation: From A = QR, the least-squares solution satisfies Rx = Q^T b. Since R is square and invertible, x = R^(-1) Q^T b. Using Q^T is efficient since Q has orthonormal columns (Q^T Q = I).
+
+  Q26. A physicist applies a 3D rotation to transform coordinates in a crystal lattice. The rotation matrix R has eigenvalue 1 with eigenvector (1, 1, 1)/sqrt(3). What does this eigenvector represent physically?
+    [ ] The direction of maximum stretching
+    [ ] The normal to the rotation plane
+    [*] The axis of rotation (the direction that remains unchanged)
+    [ ] The direction that gets reflected
+    Explanation: The eigenvector with eigenvalue 1 corresponds to the rotation axis -- the direction that is unchanged by the rotation. For a 3D rotation, this is the axis about which all other vectors rotate.
+
+  Q27. A satellite navigation system uses Givens rotations to update a QR factorization in real-time. If applying a Givens rotation to zero out one entry of a matrix, how many rows are modified?
+    [*] 2
+    [ ] None
+    [ ] 1
+    [ ] All rows
+    Explanation: A Givens rotation operates in a single 2D plane, so it only modifies 2 rows (or columns) of the matrix. This makes it efficient for sparse updates in real-time applications.
+
+  Q28. A machine learning engineer uses an orthogonal matrix to whiten (decorrelate) features. If the covariance matrix of the original data is C, what is the covariance after applying orthogonal transformation Q?
+    [ ] I, pa
+    [ ] C, pa
+    [*] Q^T C Q
+    [ ] Q C
+    Explanation: When data X is transformed to QX, the new covariance is Q^T C Q. If Q is chosen as the eigenvector matrix of C, this diagonalizes C, decorrelating the features.
+
+  Q29. A quantum computing researcher needs a unitary gate that maps |0> = (1,0) to (1/sqrt(2), 1/sqrt(2)) and |1> = (0,1) to (1/sqrt(2), -1/sqrt(2)). What is this gate called?
+    [ ] The CNOT gate
+    [*] The Hadamard gate
+    [ ] The Toffoli gate
+    [ ] The Pauli-X gate
+    Explanation: The Hadamard gate H = (1/sqrt(2))[[1,1],[1,-1]] is a fundamental quantum gate. It is both unitary and Hermitian (H = H*), and creates superposition states from basis states.
+
+  Q30. An aerospace engineer models satellite orientation using a 3x3 rotation matrix. After composing n rotations R1, R2, ..., Rn, she worries about numerical drift. What property should she check to verify the product is still (approximately) a rotation matrix?
+    [ ] The trace should equal 0
+    [ ] All eigenvalues should be real
+    [ ] All entries should be between 0 and 1
+    [*] R^T R should be close to I and det(R) close to +1
+    Explanation: A valid rotation matrix must satisfy R^T R = I (orthogonality) and det(R) = +1 (proper rotation). Checking these conditions detects numerical drift from accumulated floating-point errors in composed rotations.
 
 --- Lesson 8.4: Orthogonal Matrices (Flashcards) ---
 
@@ -666,154 +1119,278 @@ Content for Orthogonal Matrices is coming soon. Check back for detailed notes an
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 8.5: Inner Product Spaces (Summary) ---
 
   Key Concepts: Inner Product Spaces
-Key Concepts: Inner Product Spaces
-
-Content for Inner Product Spaces is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+The standard inner product on R^n is the dot product  = u . v. What is <(1, 2, 3), (4, 5, 6)>?
+<(1,2,3),(4,5,6)> = 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32.
+Consider the weighted inner product  = 2u1*v1 + 3u2*v2 on R^2. What is <(1, 1), (1, -1)>?
+<(1,1),(1,-1)> = 2(1)(1) + 3(1)(-1) = 2 - 3 = -1.
+What is an 'inner product space'?
+An inner product space is a vector space V together with an inner product <.,.>: V x V -> F that satisfies linearity, symmetry (or conjugate symmetry for complex), and positive definiteness.
+What is a 'Hilbert space'?
+A Hilbert space is a complete inner product space, meaning every Cauchy sequence of vectors converges to a vector in the space. R^n and L^2 function spaces are examples of Hilbert spaces.
+What is a 'weighted inner product'?
+A weighted inner product on R^n has the form  = sum of w_i * u_i * v_i where all weights w_i > 0. The positive weights allow emphasizing certain components while still satisfying all inner product axioms.
+What is an 'orthogonal complement' in an inner product space?
+The orthogonal complement W^perp of a subspace W consists of all vectors v such that  = 0 for every w in W. The space decomposes as V = W + W^perp (direct sum).
+What is a 'pre-Hilbert space'?
+A pre-Hilbert space is an inner product space that is not necessarily complete. Every Hilbert space is a pre-Hilbert space, but not every pre-Hilbert space is a Hilbert space (it may have 'gaps' where Cauchy sequences don't converge).
+What is the 'Gram matrix' associated with vectors v1, ..., vk in an inner product space?
+The Gram matrix G has entries G_ij = . It is always positive semi-definite, and it is positive definite if and only if the vectors are linearly independent.
+A signal processing engineer defines an inner product on the space of square-integrable functions on [0, 2pi] as  = integral of f(x)g(x)dx. She computes  over [0, 2pi]. What is the result?
+Integral from 0 to 2pi of sin(x)cos(x)dx = (1/2) integral of sin(2x)dx = [-cos(2x)/4] from 0 to 2pi = (-1/4) - (-1/4) = 0. Sin and cos are orthogonal under this inner product.
+A statistician models data using a weighted inner product  = 3u1*v1 + u2*v2 on R^2. She wants to find the norm of the vector (2, 4). What is ||( 2, 4)||?
+||v||^2 =  = 3(2)(2) + 1(4)(4) = 12 + 16 = 28. So ||v|| = sqrt(28) = 2sqrt(7).
+A machine learning researcher defines a kernel function K(x, y) that induces an inner product in a feature space. For vectors u = (1, 0) and v = (0, 1), if K(u, v) = 0 and K(u, u) = 2, what is the norm of u in the feature space?
+In the feature space, the norm is ||u|| = sqrt(K(u, u)) = sqrt(2). The kernel function K implicitly defines an inner product in a potentially high-dimensional feature space.
+A quantum physicist works in a complex inner product space C^2. For states |a> = (1, i) and |b> = (i, 1), she computes . What is the result?
+= conj(1)*1 + conj(i)*i = 1*1 + (-i)(i) = 1 + 1 = 2. The conjugate-linear first argument ensures  is always a non-negative real number.
+A climate scientist models temperature profiles as functions in L^2[0, 1] and uses the Cauchy-Schwarz inequality. If ||f|| = 3 and ||g|| = 4, what is the maximum possible value of ||?
+By Cauchy-Schwarz, || <= ||f|| * ||g|| = 3 * 4 = 12. The maximum value 12 is achieved when f and g are scalar multiples of each other (linearly dependent).
+An audio engineer approximates a sound signal f(x) using Fourier series on [0, 2pi]. She computes ||sin(x)||^2 = integral from 0 to 2pi of sin^2(x) dx. What is the result?
+Integral from 0 to 2pi of sin^2(x)dx = integral of (1 - cos(2x))/2 dx = [x/2 - sin(2x)/4] from 0 to 2pi = pi - 0 = pi.
+A control engineer uses the inner product  = trace(A^T B) on the space of 2x2 matrices. For A = [[1,0],[0,1]] (identity) and B = [[0,1],[1,0]] (swap matrix), what is ?
+A^T B = [[1,0],[0,1]][[0,1],[1,0]] = [[0,1],[1,0]]. trace(A^T B) = 0 + 0 = 0. The identity and swap matrices are orthogonal under the Frobenius (trace) inner product.
+Important Concepts
+Consider the weighted inner product  = 2u1*v1 + 3u2*v2 on R^2. What is <(1, 1), (1, -1)>
+<(1,1),(1,-1)> = 2(1)(1) + 3(1)(-1) = 2 - 3 = -1.
+What is a 'weighted inner product'
+A weighted inner product on R^n has the form  = sum of w_i * u_i * v_i where all weights w_i > 0. The positive weights allow emphasizing certain components while still satisfying all inner product axioms.
+A statistician models data using a weighted inner product  = 3u1*v1 + u2*v2 on R^2. She wants to find the norm of the vector (2, 4). What is ||( 2, 4)||
+||v||^2 =  = 3(2)(2) + 1(4)(4) = 12 + 16 = 28. So ||v|| = sqrt(28) = 2sqrt(7).
+An economist uses a weighted inner product  = 2u1v1 + 5u2v2 to measure similarity between consumption bundles. Are the bundles (1, 0) and (0, 1) orthogonal under this inner product
+<(1,0),(0,1)> = 2(1)(0) + 5(0)(1) = 0. The standard basis vectors remain orthogonal under any diagonal weighted inner product because the cross terms are zero.
 
 --- Lesson 8.5: Inner Product Spaces (Quiz) ---
 
-  Q1. Sample question 1 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Inner Product Spaces.
+  Q1. Which of the following is NOT a required axiom for an inner product <u, v> on a real vector space?
+    [ ] Linearity in the first argument
+    [ ] Positive definiteness: <v, v> >= 0, with equality iff v = 0
+    [*] Multiplicativity: <u, v> = <u, w><w, v>
+    [ ] Symmetry: <u, v> = <v, u>
+    Explanation: An inner product must satisfy symmetry, linearity in one argument, and positive definiteness. There is no multiplicativity axiom for inner products.
 
-  Q2. Sample question 2 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Inner Product Spaces.
+  Q2. The standard inner product on R^n is the dot product <u, v> = u . v. What is <(1, 2, 3), (4, 5, 6)>?
+    [ ] 15
+    [ ] 21
+    [*] 32
+    [ ] 38
+    Explanation: <(1,2,3),(4,5,6)> = 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32.
 
-  Q3. Sample question 3 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Inner Product Spaces.
+  Q3. On the vector space of continuous functions on [0, 1], which of the following defines a valid inner product?
+    [ ] <f, g> = max(f(x)) * max(g(x))
+    [*] <f, g> = integral from 0 to 1 of f(x)g(x) dx
+    [ ] <f, g> = f(1) + g(1)
+    [ ] <f, g> = f(0) * g(0)
+    Explanation: The integral inner product <f,g> = integral of f(x)g(x)dx on [0,1] satisfies all inner product axioms: symmetry, linearity, and positive definiteness (integral of f^2 >= 0, with equality only for f=0 in continuous functions).
 
-  Q4. Sample question 4 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Inner Product Spaces.
+  Q4. In an inner product space, the norm induced by the inner product is defined as ||v|| = ?
+    [ ] <v, v>
+    [ ] <v, v>^2
+    [*] sqrt(<v, v>)
+    [ ] |<v, v>|
+    Explanation: The norm induced by an inner product is ||v|| = sqrt(<v, v>). This generalizes the familiar Euclidean norm ||v|| = sqrt(v . v) to abstract inner product spaces.
 
-  Q5. Sample question 5 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Inner Product Spaces.
+  Q5. The Cauchy-Schwarz inequality states that for any vectors u and v in an inner product space:
+    [ ] <u, v> = ||u|| + ||v||
+    [ ] |<u, v>| >= ||u|| * ||v||
+    [ ] <u, v>^2 = ||u||^2 + ||v||^2
+    [*] |<u, v>| <= ||u|| * ||v||
+    Explanation: The Cauchy-Schwarz inequality |<u,v>| <= ||u|| ||v|| is one of the most fundamental results in inner product spaces. Equality holds if and only if u and v are linearly dependent.
 
-  Q6. Sample question 6 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Inner Product Spaces.
+  Q6. Consider the weighted inner product <u, v> = 2u1*v1 + 3u2*v2 on R^2. What is <(1, 1), (1, -1)>?
+    [ ] 1
+    [ ] 5
+    [ ] 0
+    [*] -1
+    Explanation: <(1,1),(1,-1)> = 2(1)(1) + 3(1)(-1) = 2 - 3 = -1.
 
-  Q7. Sample question 7 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Inner Product Spaces.
+  Q7. In an inner product space, two vectors u and v are orthogonal if and only if:
+    [ ] u + v = 0
+    [ ] <u, v> = 1
+    [*] <u, v> = 0
+    [ ] ||u|| = ||v||
+    Explanation: Orthogonality in an inner product space is defined as <u, v> = 0. This generalizes the familiar notion of perpendicularity from Euclidean space to abstract settings.
 
-  Q8. Sample question 8 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Inner Product Spaces.
+  Q8. Which of the following is the triangle inequality in an inner product space?
+    [*] ||u + v|| <= ||u|| + ||v||
+    [ ] ||u + v|| = ||u|| * ||v||
+    [ ] ||u - v|| = ||u|| + ||v||
+    [ ] ||u + v|| >= ||u|| + ||v||
+    Explanation: The triangle inequality ||u + v|| <= ||u|| + ||v|| holds in any inner product space and can be derived from the Cauchy-Schwarz inequality.
 
-  Q9. Sample question 9 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Inner Product Spaces.
+  Q9. In a complex inner product space, the inner product satisfies <u, v> = conj(<v, u>) instead of symmetry. This property is called:
+    [*] Conjugate symmetry (Hermitian symmetry)
+    [ ] Bilinearity, particularly
+    [ ] Skew-symmetry in most standard
+    [ ] Antisymmetry based on establish
+    Explanation: In complex inner product spaces, symmetry is replaced by conjugate symmetry: <u,v> = conj(<v,u>). This ensures that <v,v> is always real and non-negative.
 
-  Q10. Sample question 10 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Inner Product Spaces.
+  Q10. The parallelogram law states that ||u + v||^2 + ||u - v||^2 = ?
+    [ ] 4||u|| ||v||
+    [ ] ||u||^2 + ||v||^2
+    [*] 2(||u||^2 + ||v||^2)
+    [ ] (||u|| + ||v||)^2
+    Explanation: The parallelogram law ||u+v||^2 + ||u-v||^2 = 2(||u||^2 + ||v||^2) holds in any inner product space. A normed space is an inner product space if and only if the parallelogram law holds.
 
-  Q11. Sample question 11 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Inner Product Spaces.
+  Q11. What is an 'inner product space'?
+    [*] A vector space equipped with a function that assigns a scalar to each pair of vectors, satisfying linearity, symmetry, and positive definiteness
+    [ ] Any subspace of R^n, particularly regarding positive when applying fundamental principles
+    [ ] A vector space with a defined cross product, particularly regarding space under the given assumptions
+    [ ] A vector space where all vectors have the same length under normal circumstances
+    Explanation: An inner product space is a vector space V together with an inner product <.,.>: V x V -> F that satisfies linearity, symmetry (or conjugate symmetry for complex), and positive definiteness.
 
-  Q12. Sample question 12 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Inner Product Spaces.
+  Q12. What is a 'Hilbert space'?
+    [ ] A vector space with exactly two inner products
+    [ ] An inner product space with only real scalars
+    [*] An inner product space that is complete (every Cauchy sequence converges)
+    [ ] Any finite-dimensional vector space
+    Explanation: A Hilbert space is a complete inner product space, meaning every Cauchy sequence of vectors converges to a vector in the space. R^n and L^2 function spaces are examples of Hilbert spaces.
 
-  Q13. Sample question 13 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Inner Product Spaces.
+  Q13. What does 'positive definiteness' mean for an inner product?
+    [*] <v, v> >= 0 for all v, and <v, v> = 0 only when v is the zero vector
+    [ ] The inner product is always an integer
+    [ ] The inner product of any two vectors is positive
+    [ ] All eigenvalues of the inner product matrix are positive
+    Explanation: Positive definiteness means <v,v> >= 0 for all vectors v, with <v,v> = 0 if and only if v = 0. This ensures the induced norm ||v|| = sqrt(<v,v>) is well-defined and only zero for the zero vector.
 
-  Q14. Sample question 14 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Inner Product Spaces.
+  Q14. What is a 'weighted inner product'?
+    [ ] An inner product defined only on unit vectors
+    [*] An inner product where each component is multiplied by a positive weight before summing
+    [ ] An inner product where the result is always 1
+    [ ] An inner product that only uses some components
+    Explanation: A weighted inner product on R^n has the form <u,v> = sum of w_i * u_i * v_i where all weights w_i > 0. The positive weights allow emphasizing certain components while still satisfying all inner product axioms.
 
-  Q15. Sample question 15 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Inner Product Spaces.
+  Q15. What does the 'Riesz Representation Theorem' state in the context of Hilbert spaces?
+    [ ] Every Hilbert space is finite-dimensional
+    [ ] Every inner product space has a countable basis
+    [ ] Every bounded operator on a Hilbert space is self-adjoint
+    [*] Every continuous linear functional on a Hilbert space can be represented as an inner product with a unique vector
+    Explanation: The Riesz Representation Theorem states that for every continuous linear functional f on a Hilbert space H, there exists a unique vector y in H such that f(x) = <x, y> for all x in H.
 
-  Q16. Sample question 16 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Inner Product Spaces.
+  Q16. What is an 'orthogonal complement' in an inner product space?
+    [ ] The set of all unit vectors in the space
+    [ ] The subspace spanned by the eigenvectors
+    [*] The set of all vectors orthogonal to every vector in a given subspace
+    [ ] The set of vectors with negative inner product
+    Explanation: The orthogonal complement W^perp of a subspace W consists of all vectors v such that <v, w> = 0 for every w in W. The space decomposes as V = W + W^perp (direct sum).
 
-  Q17. Sample question 17 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Inner Product Spaces.
+  Q17. What does 'bilinearity' mean for an inner product on a real vector space?
+    [ ] The inner product equals zero for all vector pairs
+    [ ] The inner product can only be computed for pairs of vectors
+    [ ] The inner product uses two different norms
+    [*] The inner product is linear in both arguments simultaneously
+    Explanation: Bilinearity means the inner product is linear in each argument: <au + bw, v> = a<u,v> + b<w,v> and similarly in the second argument. For complex spaces, bilinearity is replaced by sesquilinearity.
 
-  Q18. Sample question 18 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Inner Product Spaces.
+  Q18. What is a 'pre-Hilbert space'?
+    [ ] A vector space without any inner product
+    [*] An inner product space that may not be complete
+    [ ] A normed space that satisfies the parallelogram law
+    [ ] A Hilbert space with a finite basis
+    Explanation: A pre-Hilbert space is an inner product space that is not necessarily complete. Every Hilbert space is a pre-Hilbert space, but not every pre-Hilbert space is a Hilbert space (it may have 'gaps' where Cauchy sequences don't converge).
 
-  Q19. Sample question 19 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Inner Product Spaces.
+  Q19. What does 'sesquilinearity' mean for a complex inner product?
+    [ ] The inner product is linear in both arguments
+    [*] The inner product is linear in one argument and conjugate-linear in the other
+    [ ] The inner product is defined using sequences
+    [ ] The inner product is always real-valued
+    Explanation: Sesquilinearity (meaning 'one-and-a-half linearity') means the inner product is linear in one argument and conjugate-linear in the other: <au, v> = conj(a)<u, v>. This ensures <v, v> is real.
 
-  Q20. Sample question 20 for Inner Product Spaces
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Inner Product Spaces.
+  Q20. What is the 'Gram matrix' associated with vectors v1, ..., vk in an inner product space?
+    [ ] The diagonal matrix of norms ||v_i||
+    [*] The matrix G with entries G_ij = <v_i, v_j>
+    [ ] The inverse of the matrix [v1 | ... | vk]
+    [ ] The matrix whose columns are v1, ..., vk
+    Explanation: The Gram matrix G has entries G_ij = <v_i, v_j>. It is always positive semi-definite, and it is positive definite if and only if the vectors are linearly independent.
+
+  Q21. A signal processing engineer defines an inner product on the space of square-integrable functions on [0, 2pi] as <f, g> = integral of f(x)g(x)dx. She computes <sin(x), cos(x)> over [0, 2pi]. What is the result?
+    [*] 0
+    [ ] 2pi
+    [ ] pi
+    [ ] 1
+    Explanation: Integral from 0 to 2pi of sin(x)cos(x)dx = (1/2) integral of sin(2x)dx = [-cos(2x)/4] from 0 to 2pi = (-1/4) - (-1/4) = 0. Sin and cos are orthogonal under this inner product.
+
+  Q22. A statistician models data using a weighted inner product <u, v> = 3u1*v1 + u2*v2 on R^2. She wants to find the norm of the vector (2, 4). What is ||( 2, 4)||?
+    [ ] sqrt(12)
+    [*] sqrt(28)
+    [ ] sqrt(20)
+    [ ] sqrt(52)
+    Explanation: ||v||^2 = <v,v> = 3(2)(2) + 1(4)(4) = 12 + 16 = 28. So ||v|| = sqrt(28) = 2sqrt(7).
+
+  Q23. A physicist working with Fourier analysis needs to show that sin(nx) and sin(mx) are orthogonal on [0, pi] when n != m (n, m positive integers). Which inner product does she use?
+    [ ] <f, g> = f(pi/2) * g(pi/2)
+    [ ] <f, g> = f(0)*g(0) + f(pi)*g(pi)
+    [*] <f, g> = integral from 0 to pi of f(x)g(x) dx
+    [ ] <f, g> = max(f) * max(g)
+    Explanation: The L^2 inner product <f,g> = integral of f(x)g(x)dx on [0, pi] makes {sin(nx)} an orthogonal set because integral of sin(nx)sin(mx)dx = 0 for n != m by trigonometric identities.
+
+  Q24. A machine learning researcher defines a kernel function K(x, y) that induces an inner product in a feature space. For vectors u = (1, 0) and v = (0, 1), if K(u, v) = 0 and K(u, u) = 2, what is the norm of u in the feature space?
+    [ ] 4, pa
+    [ ] 1, pa
+    [ ] 2, pa
+    [*] sqrt(2)
+    Explanation: In the feature space, the norm is ||u|| = sqrt(K(u, u)) = sqrt(2). The kernel function K implicitly defines an inner product in a potentially high-dimensional feature space.
+
+  Q25. A quantum physicist works in a complex inner product space C^2. For states |a> = (1, i) and |b> = (i, 1), she computes <a|a>. What is the result?
+    [ ] -2
+    [ ] 1 + i
+    [ ] 0
+    [*] 2
+    Explanation: <a|a> = conj(1)*1 + conj(i)*i = 1*1 + (-i)(i) = 1 + 1 = 2. The conjugate-linear first argument ensures <v|v> is always a non-negative real number.
+
+  Q26. An economist uses a weighted inner product <u,v> = 2u1v1 + 5u2v2 to measure similarity between consumption bundles. Are the bundles (1, 0) and (0, 1) orthogonal under this inner product?
+    [ ] No, because <(1,0),(0,1)> = 7
+    [ ] It depends on the weights
+    [*] Yes, because <(1,0),(0,1)> = 0
+    [ ] No, because <(1,0),(0,1)> = 10
+    Explanation: <(1,0),(0,1)> = 2(1)(0) + 5(0)(1) = 0. The standard basis vectors remain orthogonal under any diagonal weighted inner product because the cross terms are zero.
+
+  Q27. A climate scientist models temperature profiles as functions in L^2[0, 1] and uses the Cauchy-Schwarz inequality. If ||f|| = 3 and ||g|| = 4, what is the maximum possible value of |<f, g>|?
+    [ ] 25
+    [ ] 7
+    [*] 12
+    [ ] 1
+    Explanation: By Cauchy-Schwarz, |<f,g>| <= ||f|| * ||g|| = 3 * 4 = 12. The maximum value 12 is achieved when f and g are scalar multiples of each other (linearly dependent).
+
+  Q28. A data scientist computes the Gram matrix for three feature vectors v1, v2, v3 and finds it is 3x3 with rank 2. What can she conclude about the vectors?
+    [ ] All three vectors are orthogonal
+    [ ] The inner product is not valid
+    [ ] All three vectors are identical
+    [*] The vectors are linearly dependent, spanning a 2-dimensional subspace
+    Explanation: The rank of the Gram matrix equals the dimension of the span of the vectors. Rank 2 for 3 vectors means they are linearly dependent and span a 2-dimensional subspace.
+
+  Q29. An audio engineer approximates a sound signal f(x) using Fourier series on [0, 2pi]. She computes ||sin(x)||^2 = integral from 0 to 2pi of sin^2(x) dx. What is the result?
+    [ ] 2pi
+    [ ] 0
+    [*] pi
+    [ ] 1
+    Explanation: Integral from 0 to 2pi of sin^2(x)dx = integral of (1 - cos(2x))/2 dx = [x/2 - sin(2x)/4] from 0 to 2pi = pi - 0 = pi.
+
+  Q30. A control engineer uses the inner product <A, B> = trace(A^T B) on the space of 2x2 matrices. For A = [[1,0],[0,1]] (identity) and B = [[0,1],[1,0]] (swap matrix), what is <A, B>?
+    [ ] 2
+    [*] 0
+    [ ] -1
+    [ ] 1
+    Explanation: A^T B = [[1,0],[0,1]][[0,1],[1,0]] = [[0,1],[1,0]]. trace(A^T B) = 0 + 0 = 0. The identity and swap matrices are orthogonal under the Frobenius (trace) inner product.
 
 --- Lesson 8.5: Inner Product Spaces (Flashcards) ---
 
@@ -832,154 +1409,274 @@ Content for Inner Product Spaces is coming soon. Check back for detailed notes a
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 8.6: Applications in Data Compression (PCA) (Summary) ---
 
   Key Concepts: Applications in Data Compression (PCA)
-Key Concepts: Applications in Data Compression (PCA)
-
-Content for Applications in Data Compression (PCA) is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+If a 2D dataset has covariance matrix [[4, 0], [0, 1]], what is the first principal component direction?
+Since the covariance matrix is diagonal, its eigenvectors are the standard basis vectors. The largest eigenvalue is 4, corresponding to eigenvector (1, 0), which is the first principal component.
+In PCA, if you keep only the top k principal components from an n-dimensional dataset (k < n), what is this process called?
+Keeping only the top k principal components reduces the data from n dimensions to k dimensions, a process called dimensionality reduction. This retains the most important variance while discarding less informative dimensions.
+In image compression using PCA, each image is typically represented as a vector. For a 64x64 grayscale image, what is the dimension of this vector?
+A 64x64 image has 64 * 64 = 4096 pixels. Each pixel value becomes one component of the vector, so the image is represented as a 4096-dimensional vector.
+What is a 'principal component' in PCA?
+A principal component is an eigenvector of the data's covariance matrix, pointing in a direction that captures maximum variance. Principal components are ordered by decreasing eigenvalue (variance explained).
+What is a 'scree plot' in PCA?
+A scree plot displays eigenvalues (or explained variance ratios) in decreasing order. The 'elbow' in the plot helps determine how many principal components to retain for adequate variance explanation.
+What is 'reconstruction error' in PCA?
+Reconstruction error measures how well the reduced-dimension representation approximates the original data. It equals the sum of eigenvalues of the discarded components.
+What is an 'eigenface' in the context of PCA applied to face recognition?
+Eigenfaces are the principal components of a face image dataset. Each eigenface represents a fundamental face pattern, and any face can be approximately reconstructed as a weighted sum of eigenfaces.
+What is the 'score' of a data point in PCA?
+The PCA score of a data point is its projection onto the principal components, giving its coordinates in the new basis. These scores are the reduced-dimension representation of the original data.
+A music streaming service uses PCA to compress user preference vectors. If a user's original preference vector is x = (3, 1, 4, 1, 5) and the first principal component is e1 = (0, 0, 0, 0, 1), what is the user's score on the first component?
+The score is the projection x . e1 = 3(0) + 1(0) + 4(0) + 1(0) + 5(1) = 5. This means the user's preference is primarily captured by the 5th genre dimension in this principal direction.
+A text mining researcher represents 10,000 documents using a vocabulary of 50,000 words (TF-IDF vectors). She applies PCA to reduce to 100 dimensions. What is the approximate compression ratio?
+Each document goes from 50,000 dimensions to 100 dimensions, a compression ratio of 50,000:100 = 500:1. The 100 PCA dimensions capture the most important semantic patterns in the vocabulary.
+Real-World Applications
+Example: What percentage of total variance is captured by a principal component with eigenvalue 6 if the total variance (sum of all eigenvalues) is 10?
+The proportion of variance explained by a component is its eigenvalue divided by the sum of all eigenvalues: 6/10 = 60%.
+Example: In image compression using PCA, each image is typically represented as a vector. For a 64x64 grayscale image, what is the dimension of this vector?
+A 64x64 image has 64 * 64 = 4096 pixels. Each pixel value becomes one component of the vector, so the image is represented as a 4096-dimensional vector.
+Example: What is the 'score' of a data point in PCA?
+The PCA score of a data point is its projection onto the principal components, giving its coordinates in the new basis. These scores are the reduced-dimension representation of the original data.
+Example: A genomics researcher has gene expression data with 20,000 genes across 200 patients. She applies PCA and finds that the first 3 components explain 80% of the variance. How much storage does the compressed representation require compared to the original?
+The compressed representation stores 200 * 3 = 600 scores plus 3 component vectors of length 20,000 (60,000 values) = 60,600 total, versus 4,000,000 in the original. This is roughly a 66:1 compression ratio.
+Example: A computer vision engineer applies PCA to a set of 1000 face images, each 100x100 pixels. The covariance matrix she computes is of what size?
+Each 100x100 image is a 10,000-dimensional vector. The covariance matrix has dimensions equal to the number of features: 10,000 x 10,000. In practice, the smaller 1000x1000 matrix X X^T is often used instead.
+Example: A music streaming service uses PCA to compress user preference vectors. If a user's original preference vector is x = (3, 1, 4, 1, 5) and the first principal component is e1 = (0, 0, 0, 0, 1), what is the user's score on the first component?
+The score is the projection x . e1 = 3(0) + 1(0) + 4(0) + 1(0) + 5(1) = 5. This means the user's preference is primarily captured by the 5th genre dimension in this principal direction.
+Example: A satellite imaging company uses PCA for image compression. An image is stored as a 500x500 matrix. Using rank-10 PCA approximation, how many values need to be stored instead of 250,000?
+A rank-10 approximation of a 500x500 matrix stores 10 left singular vectors (500 each), 10 right singular vectors (500 each), and 10 singular values: 10*500 + 10*500 + 10 = 10,010 values, approximately 10,000.
 
 --- Lesson 8.6: Applications in Data Compression (PCA) (Quiz) ---
 
-  Q1. Sample question 1 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Applications in Data Compression (PCA).
+  Q1. What does PCA stand for in data analysis?
+    [ ] Parallel Component Analysis
+    [*] Principal Component Analysis
+    [ ] Primary Classification Approach
+    [ ] Projected Correlation Algorithm
+    Explanation: PCA stands for Principal Component Analysis, a technique that identifies the directions (principal components) of maximum variance in high-dimensional data.
 
-  Q2. Sample question 2 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Applications in Data Compression (PCA).
+  Q2. In PCA, the principal components are the eigenvectors of which matrix?
+    [ ] The identity matrix
+    [ ] The inverse of the data matrix
+    [*] The covariance matrix of the data
+    [ ] The data matrix itself
+    Explanation: The principal components are the eigenvectors of the covariance matrix (or equivalently, the right singular vectors of the centered data matrix). The eigenvalues represent the variance along each component.
 
-  Q3. Sample question 3 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Applications in Data Compression (PCA).
+  Q3. If a 2D dataset has covariance matrix [[4, 0], [0, 1]], what is the first principal component direction?
+    [ ] (1, 1)/sqrt(2)
+    [*] (1, 0)
+    [ ] (0, 1)
+    [ ] (1, -1)/sqrt(2)
+    Explanation: Since the covariance matrix is diagonal, its eigenvectors are the standard basis vectors. The largest eigenvalue is 4, corresponding to eigenvector (1, 0), which is the first principal component.
 
-  Q4. Sample question 4 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Applications in Data Compression (PCA).
+  Q4. What percentage of total variance is captured by a principal component with eigenvalue 6 if the total variance (sum of all eigenvalues) is 10?
+    [*] 60%
+    [ ] 40%
+    [ ] 80%
+    [ ] 16%
+    Explanation: The proportion of variance explained by a component is its eigenvalue divided by the sum of all eigenvalues: 6/10 = 60%.
 
-  Q5. Sample question 5 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Applications in Data Compression (PCA).
+  Q5. Before applying PCA, what preprocessing step is typically performed on the data?
+    [ ] Squaring all data values
+    [ ] Removing all negative values
+    [*] Centering the data by subtracting the mean of each feature
+    [ ] Sorting the data by magnitude
+    Explanation: Data is centered by subtracting the mean of each feature so that the covariance matrix correctly captures the variance structure. Without centering, PCA would be influenced by the mean.
 
-  Q6. Sample question 6 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Applications in Data Compression (PCA).
+  Q6. In PCA, if you keep only the top k principal components from an n-dimensional dataset (k < n), what is this process called?
+    [*] Dimensionality reduction
+    [ ] Feature crossing
+    [ ] Data normalization
+    [ ] Feature augmentation
+    Explanation: Keeping only the top k principal components reduces the data from n dimensions to k dimensions, a process called dimensionality reduction. This retains the most important variance while discarding less informative dimensions.
 
-  Q7. Sample question 7 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Applications in Data Compression (PCA).
+  Q7. PCA can also be computed using the Singular Value Decomposition (SVD) of the centered data matrix X = USV^T. The principal components are the columns of which matrix?
+    [*] V
+    [ ] S
+    [ ] X
+    [ ] U
+    Explanation: In X = USV^T, the columns of V are the right singular vectors, which are the eigenvectors of X^T X (proportional to the covariance matrix). These are the principal component directions.
 
-  Q8. Sample question 8 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Applications in Data Compression (PCA).
+  Q8. The covariance matrix used in PCA is always symmetric. What does this guarantee about its eigenvalues?
+    [ ] They are all negative
+    [ ] They are all integers
+    [ ] They are all complex
+    [*] They are all real and non-negative
+    Explanation: The covariance matrix is symmetric and positive semi-definite, so all its eigenvalues are real and non-negative. The eigenvalues represent variances, which cannot be negative.
 
-  Q9. Sample question 9 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Applications in Data Compression (PCA).
+  Q9. If a dataset has 100 features and PCA reveals that 95% of the variance is captured by the first 5 components, the data compression ratio is approximately:
+    [*] 5:100 or 20:1
+    [ ] 95:5 or 19:1
+    [ ] 1:1 (no compression)
+    [ ] 100:5 or 100:1
+    Explanation: Reducing from 100 to 5 dimensions gives a compression ratio of 100:5 = 20:1 while retaining 95% of the variance. This dramatic reduction is possible when data has strong correlations.
 
-  Q10. Sample question 10 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Applications in Data Compression (PCA).
+  Q10. In image compression using PCA, each image is typically represented as a vector. For a 64x64 grayscale image, what is the dimension of this vector?
+    [ ] 8192
+    [*] 4096
+    [ ] 64
+    [ ] 128
+    Explanation: A 64x64 image has 64 * 64 = 4096 pixels. Each pixel value becomes one component of the vector, so the image is represented as a 4096-dimensional vector.
 
-  Q11. Sample question 11 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Applications in Data Compression (PCA).
+  Q11. What is a 'principal component' in PCA?
+    [ ] A random direction chosen for projection
+    [*] An eigenvector of the covariance matrix representing a direction of maximum variance
+    [ ] The most frequently occurring data point
+    [ ] The mean of each feature in the dataset
+    Explanation: A principal component is an eigenvector of the data's covariance matrix, pointing in a direction that captures maximum variance. Principal components are ordered by decreasing eigenvalue (variance explained).
 
-  Q12. Sample question 12 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Applications in Data Compression (PCA).
+  Q12. What does 'explained variance ratio' mean in PCA?
+    [ ] The ratio of original to compressed file size
+    [ ] The percentage of data points retained after compression
+    [ ] The ratio of the largest to smallest eigenvalue
+    [*] The fraction of total variance captured by a given principal component
+    Explanation: The explained variance ratio for the i-th component is lambda_i / sum(lambda_j), where lambda_i is its eigenvalue. It tells you what fraction of the total data variance that component captures.
 
-  Q13. Sample question 13 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Applications in Data Compression (PCA).
+  Q13. What is a 'scree plot' in PCA?
+    [ ] A histogram of the data values
+    [ ] A plot of data points in the first two principal component dimensions
+    [ ] A scatter plot of the original features
+    [*] A bar chart showing the eigenvalues (or explained variance) for each component in decreasing order
+    Explanation: A scree plot displays eigenvalues (or explained variance ratios) in decreasing order. The 'elbow' in the plot helps determine how many principal components to retain for adequate variance explanation.
 
-  Q14. Sample question 14 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Applications in Data Compression (PCA).
+  Q14. What does 'lossy compression' mean in the context of PCA?
+    [ ] The data loses its format during compression
+    [ ] The compression algorithm sometimes fails
+    [ ] The compressed data can be perfectly reconstructed
+    [*] Some information is permanently lost during compression, as the discarded components cannot be recovered
+    Explanation: PCA-based compression is lossy because discarding the lower-variance components permanently removes that information. The reconstruction approximates but does not exactly equal the original data.
 
-  Q15. Sample question 15 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Applications in Data Compression (PCA).
+  Q15. What is 'reconstruction error' in PCA?
+    [ ] The rounding error in floating-point arithmetic
+    [ ] The number of components that were discarded
+    [*] The difference between original data and its approximation from the retained principal components
+    [ ] The error in computing eigenvalues
+    Explanation: Reconstruction error measures how well the reduced-dimension representation approximates the original data. It equals the sum of eigenvalues of the discarded components.
 
-  Q16. Sample question 16 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Applications in Data Compression (PCA).
+  Q16. What does 'loading' mean in PCA terminology?
+    [ ] The time it takes to compute the principal components
+    [ ] The number of data points used in the analysis
+    [*] The coefficients (entries) of the eigenvectors that describe how much each original variable contributes to a principal component
+    [ ] The weight applied to each data point
+    Explanation: Loadings are the entries of the principal component eigenvectors. A large loading for a variable indicates that variable contributes strongly to that component's direction.
 
-  Q17. Sample question 17 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Applications in Data Compression (PCA).
+  Q17. What is an 'eigenface' in the context of PCA applied to face recognition?
+    [ ] A face with perfectly symmetric features
+    [*] A principal component computed from a set of face images, representing a basic face pattern
+    [ ] The average face in a dataset
+    [ ] A face detection algorithm
+    Explanation: Eigenfaces are the principal components of a face image dataset. Each eigenface represents a fundamental face pattern, and any face can be approximately reconstructed as a weighted sum of eigenfaces.
 
-  Q18. Sample question 18 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Applications in Data Compression (PCA).
+  Q18. What does 'whitening' mean as a preprocessing step related to PCA?
+    [*] Transforming data so that all principal components have unit variance (covariance becomes the identity)
+    [ ] Setting all negative values to zero
+    [ ] Normalizing the data to have values between 0 and 1
+    [ ] Removing all color information from images
+    Explanation: Whitening (or sphering) transforms data by projecting onto principal components and scaling each by 1/sqrt(eigenvalue), making the covariance matrix the identity. This decorrelates and equalizes variance.
 
-  Q19. Sample question 19 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Applications in Data Compression (PCA).
+  Q19. What is the 'score' of a data point in PCA?
+    [ ] The distance from the data point to the mean
+    [ ] The eigenvalue associated with the closest component
+    [ ] A quality measure of how well PCA fits the data
+    [*] The coordinates of the data point in the principal component basis
+    Explanation: The PCA score of a data point is its projection onto the principal components, giving its coordinates in the new basis. These scores are the reduced-dimension representation of the original data.
 
-  Q20. Sample question 20 for Applications in Data Compression (PCA)
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Applications in Data Compression (PCA).
+  Q20. What does 'low-rank approximation' mean in the context of PCA and data compression?
+    [ ] Rounding all data values to the nearest integer
+    [ ] Using the smallest eigenvalues for the approximation
+    [ ] Reducing the number of data points in the dataset
+    [*] Approximating a data matrix by a matrix of lower rank using only the top principal components
+    Explanation: A rank-k approximation of an m x n data matrix keeps only the top k singular values/components. By the Eckart-Young theorem, PCA provides the best rank-k approximation in the Frobenius norm sense.
+
+  Q21. A genomics researcher has gene expression data with 20,000 genes across 200 patients. She applies PCA and finds that the first 3 components explain 80% of the variance. How much storage does the compressed representation require compared to the original?
+    [ ] Only 3 values total
+    [ ] 200 * 200 = 40,000 values
+    [*] About 200 * 3 = 600 values plus 3 * 20000 = 60000 component vectors
+    [ ] 200 * 20000 = 4,000,000 values (no reduction)
+    Explanation: The compressed representation stores 200 * 3 = 600 scores plus 3 component vectors of length 20,000 (60,000 values) = 60,600 total, versus 4,000,000 in the original. This is roughly a 66:1 compression ratio.
+
+  Q22. A computer vision engineer applies PCA to a set of 1000 face images, each 100x100 pixels. The covariance matrix she computes is of what size?
+    [ ] 1000 x 1000
+    [ ] 1000 x 10000
+    [ ] 100 x 100
+    [*] 10000 x 10000
+    Explanation: Each 100x100 image is a 10,000-dimensional vector. The covariance matrix has dimensions equal to the number of features: 10,000 x 10,000. In practice, the smaller 1000x1000 matrix X X^T is often used instead.
+
+  Q23. A music streaming service uses PCA to compress user preference vectors. If a user's original preference vector is x = (3, 1, 4, 1, 5) and the first principal component is e1 = (0, 0, 0, 0, 1), what is the user's score on the first component?
+    [*] 5
+    [ ] 1
+    [ ] 3
+    [ ] 14
+    Explanation: The score is the projection x . e1 = 3(0) + 1(0) + 4(0) + 1(0) + 5(1) = 5. This means the user's preference is primarily captured by the 5th genre dimension in this principal direction.
+
+  Q24. A financial analyst runs PCA on returns of 50 stocks and finds eigenvalues 25, 10, 5, 3, 2, 1, 1, ... (remaining near zero). How many components should she keep to capture at least 85% of the variance?
+    [*] 3
+    [ ] 5
+    [ ] 2
+    [ ] 1
+    Explanation: Total variance is approximately 25+10+5+3+2+1+1+... ~ 50 (assuming remaining sum to ~3). First 3 components: (25+10+5)/50 = 40/50 = 80%. Need to check: if total is closer to 47, then 40/47 = 85.1%. With 3 components capturing 40 out of ~47 total, she reaches approximately 85%.
+
+  Q25. A satellite imaging company uses PCA for image compression. An image is stored as a 500x500 matrix. Using rank-10 PCA approximation, how many values need to be stored instead of 250,000?
+    [ ] 5,000
+    [ ] 500
+    [*] 10,000
+    [ ] 250,000
+    Explanation: A rank-10 approximation of a 500x500 matrix stores 10 left singular vectors (500 each), 10 right singular vectors (500 each), and 10 singular values: 10*500 + 10*500 + 10 = 10,010 values, approximately 10,000.
+
+  Q26. A neuroscientist records brain activity from 128 electrodes over time and applies PCA. She finds that the first two principal components separate patients into two clusters. What type of analysis has PCA facilitated?
+    [ ] Time series forecasting
+    [ ] Regression analysis
+    [ ] Hypothesis testing
+    [*] Exploratory data visualization and clustering
+    Explanation: By reducing 128 dimensions to 2, PCA enables visualization of the data in a 2D scatter plot where clusters become visible. This is exploratory analysis -- PCA reveals structure without prior assumptions.
+
+  Q27. A recommendation system has a 10,000 users x 5,000 items ratings matrix with 95% missing entries. A data scientist wants to apply PCA. What practical issue does she face?
+    [*] Standard PCA requires a complete data matrix; the missing values must be handled first
+    [ ] PCA cannot process matrices larger than 1000x1000
+    [ ] PCA only works on square matrices
+    [ ] The matrix has too few features
+    Explanation: Standard PCA requires complete data to compute the covariance matrix. With 95% missing entries, she needs techniques like imputation, probabilistic PCA, or matrix completion before applying PCA.
+
+  Q28. A climate scientist applies PCA to global temperature measurements from 500 weather stations over 30 years. The first principal component often represents what physical phenomenon?
+    [ ] Instrument calibration errors
+    [ ] Random measurement noise
+    [*] The global mean temperature trend (overall warming/cooling pattern)
+    [ ] Daily temperature fluctuations
+    Explanation: The first principal component of global temperature data typically captures the dominant large-scale pattern, which is the overall global temperature trend. Subsequent components capture regional patterns and oscillations like El Nino.
+
+  Q29. A text mining researcher represents 10,000 documents using a vocabulary of 50,000 words (TF-IDF vectors). She applies PCA to reduce to 100 dimensions. What is the approximate compression ratio?
+    [*] 500:1
+    [ ] 100:1
+    [ ] 10:1
+    [ ] 50:1
+    Explanation: Each document goes from 50,000 dimensions to 100 dimensions, a compression ratio of 50,000:100 = 500:1. The 100 PCA dimensions capture the most important semantic patterns in the vocabulary.
+
+  Q30. A manufacturing engineer monitors 20 process variables and applies PCA for anomaly detection. She constructs a T^2 statistic using the first 3 principal components. A new observation has T^2 = 15 when the 99% control limit is 11.3. What should she conclude?
+    [ ] More principal components are needed
+    [ ] The PCA model is incorrect
+    [ ] The process is operating normally
+    [*] The observation is an anomaly because T^2 exceeds the control limit
+    Explanation: Since T^2 = 15 > 11.3 (the 99% control limit), the observation is statistically unusual at the 1% significance level. This signals a potential anomaly or process fault that warrants investigation.
 
 --- Lesson 8.6: Applications in Data Compression (PCA) (Flashcards) ---
 
@@ -998,154 +1695,270 @@ Content for Applications in Data Compression (PCA) is coming soon. Check back fo
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 8.7: Applications in Machine Learning (Summary) ---
 
   Key Concepts: Applications in Machine Learning
-Key Concepts: Applications in Machine Learning
-
-Content for Applications in Machine Learning is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+The kernel trick in SVMs implicitly computes inner products in a higher-dimensional space. What is the polynomial kernel of degree 2 for vectors x and y in R^2?
+The polynomial kernel of degree 2 is K(x,y) = (x . y + c)^2 (commonly c = 1). This computes the inner product in a feature space that includes all monomials up to degree 2 without explicitly constructing the high-dimensional features.
+What is a 'feature vector' in machine learning?
+A feature vector is a point in a high-dimensional space where each coordinate represents a measurable attribute of the data. Machine learning algorithms operate on these vector representations.
+What is 'regularization' in the context of linear models?
+Regularization adds a penalty like lambda * ||w||^2 (L2/Ridge) or lambda * ||w||_1 (L1/Lasso) to the loss function. This discourages large weights, reducing overfitting and improving generalization.
+What is the 'Hessian matrix' in optimization for machine learning?
+The Hessian H has entries H_ij = d^2L/dw_i dw_j. Its eigenvalues indicate curvature: positive eigenvalues mean the function curves upward (local minimum direction), negative means downward (local maximum direction), and mixed indicates a saddle point.
+What is a 'latent factor' in matrix factorization for recommendation systems?
+Latent factors are hidden dimensions discovered by matrix factorization. For movies, latent factors might correspond to genres, era, mood, or other abstract qualities that explain rating patterns.
+What is 'spectral clustering' in machine learning?
+Spectral clustering constructs a graph Laplacian from the data similarity matrix, then uses its smallest eigenvectors to embed data in a low-dimensional space where clusters are easily separable.
+What is the 'Moore-Penrose pseudoinverse' used for in machine learning?
+The Moore-Penrose pseudoinverse A^+ generalizes matrix inversion to non-square and singular matrices. It gives the minimum-norm least-squares solution x = A^+ b and can be computed via SVD.
+A data scientist fits a linear regression model y = w1*x1 + w2*x2 + b to 100 data points. The design matrix A is 100x3 (including a column of 1s for the bias). What is the dimension of A^T A?
+A is 100x3, so A^T is 3x100, and A^T A is 3x3. This small system is computationally easy to solve, giving the least-squares weights.
+A recommendation engine uses matrix factorization to predict missing ratings. If user i's embedding is u_i = (2, 1) and item j's embedding is v_j = (3, 4), what is the predicted rating?
+The predicted rating is u_i . v_j = 2*3 + 1*4 = 6 + 4 = 10. The dot product of user and item embeddings estimates how much the user would like the item.
+A natural language processing engineer computes cosine similarity between document vectors d1 = (3, 4) and d2 = (4, 3). What is the cosine similarity?
+cos(theta) = (d1 . d2) / (||d1|| ||d2||) = (12 + 12) / (5 * 5) = 24/25 = 0.96. The documents are very similar in direction.
+A speech recognition system uses an orthogonal transformation to convert mel-spectrogram features. If the transformation matrix Q is 40x40 orthogonal, what is the computational benefit of using Q^T instead of Q^(-1)?
+For orthogonal Q, Q^(-1) = Q^T. Computing a transpose is O(n^2) (just rearranging entries) while computing a general inverse is O(n^3). For a 40x40 matrix, this means 1,600 vs ~64,000 operations.
+Real-World Applications
+Example: In a convolutional neural network, a convolution operation can be expressed as multiplication by a Toeplitz matrix. This matrix has what special structure?
+A Toeplitz matrix has constant values along each descending diagonal, reflecting the translation-invariant nature of convolution. The kernel weights appear shifted along the diagonals.
+Example: A natural language processing engineer computes cosine similarity between document vectors d1 = (3, 4) and d2 = (4, 3). What is the cosine similarity?
+cos(theta) = (d1 . d2) / (||d1|| ||d2||) = (12 + 12) / (5 * 5) = 24/25 = 0.96. The documents are very similar in direction.
+Example: A computer vision engineer uses the Singular Value Decomposition (SVD) to compress a 1000x1000 image by keeping only the top 50 singular values. How many values need to be stored?
+A rank-50 SVD stores: 50 left singular vectors (1000 entries each) + 50 right singular vectors (1000 entries each) + 50 singular values = 50*1000 + 50*1000 + 50 = 100,050. This is about 10% of the original 1,000,000 entries.
+Example: A reinforcement learning agent uses a neural network with weight matrices W1 (100x50) and W2 (50x10). The total number of trainable weight parameters (excluding biases) is:
+W1 has 100 * 50 = 5,000 parameters and W2 has 50 * 10 = 500 parameters, for a total of 5,500 trainable weight parameters.
 
 --- Lesson 8.7: Applications in Machine Learning (Quiz) ---
 
-  Q1. Sample question 1 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Applications in Machine Learning.
+  Q1. In linear regression, the least-squares solution minimizes ||Ax - b||^2. The normal equation for this is:
+    [ ] Ax = b
+    [ ] x = A b
+    [ ] A^(-1) x = b
+    [*] A^T A x = A^T b
+    Explanation: The normal equation A^T A x = A^T b is derived by setting the gradient of ||Ax - b||^2 to zero. The solution x = (A^T A)^(-1) A^T b gives the best linear fit in the least-squares sense.
 
-  Q2. Sample question 2 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Applications in Machine Learning.
+  Q2. In a neural network, weights are typically stored as matrices. If a layer maps 100 inputs to 50 outputs, what are the dimensions of its weight matrix?
+    [*] 50 x 100
+    [ ] 100 x 50
+    [ ] 50 x 50
+    [ ] 100 x 100
+    Explanation: The weight matrix W maps input x (100-dim) to output y = Wx (50-dim). For this matrix-vector product to work, W must be 50 x 100.
 
-  Q3. Sample question 3 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Applications in Machine Learning.
+  Q3. Orthogonality plays a key role in gradient descent. At a local minimum, the gradient is orthogonal to:
+    [ ] The level set (contour) of the loss function
+    [ ] The weight vector
+    [ ] The data matrix
+    [*] Nothing in particular; the gradient is the zero vector at a minimum
+    Explanation: At a local minimum, the gradient equals the zero vector (all partial derivatives are zero). The gradient is perpendicular to level sets at non-critical points, not at the minimum itself.
 
-  Q4. Sample question 4 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Applications in Machine Learning.
+  Q4. In Support Vector Machines (SVMs), the optimal separating hyperplane is defined by w . x + b = 0. The orthogonal distance from a point x0 to this hyperplane is:
+    [ ] w . x0 + b
+    [ ] |w . x0|
+    [ ] ||w|| * ||x0||
+    [*] |w . x0 + b| / ||w||
+    Explanation: The orthogonal (perpendicular) distance from point x0 to the hyperplane w . x + b = 0 is |w . x0 + b| / ||w||. SVMs maximize this margin for the closest points (support vectors).
 
-  Q5. Sample question 5 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Applications in Machine Learning.
+  Q5. The kernel trick in SVMs implicitly computes inner products in a higher-dimensional space. What is the polynomial kernel of degree 2 for vectors x and y in R^2?
+    [*] K(x, y) = (x . y + 1)^2
+    [ ] K(x, y) = ||x - y||^2
+    [ ] K(x, y) = exp(-||x - y||^2)
+    [ ] K(x, y) = x . y
+    Explanation: The polynomial kernel of degree 2 is K(x,y) = (x . y + c)^2 (commonly c = 1). This computes the inner product in a feature space that includes all monomials up to degree 2 without explicitly constructing the high-dimensional features.
 
-  Q6. Sample question 6 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Applications in Machine Learning.
+  Q6. In collaborative filtering, a ratings matrix R (users x items) is approximately factored as R ~ UV^T. If there are 1000 users, 500 items, and 10 latent factors, what are the dimensions of U and V?
+    [ ] U is 1000x500, V is 500x10
+    [ ] U is 10x1000, V is 10x500
+    [*] U is 1000x10, V is 500x10
+    [ ] U is 1000x500, V is 500x1000
+    Explanation: With 10 latent factors, U (1000x10) holds user embeddings and V (500x10) holds item embeddings. The approximation R ~ UV^T produces a 1000x500 matrix as required.
 
-  Q7. Sample question 7 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Applications in Machine Learning.
+  Q7. Batch normalization in neural networks involves computing the mean and variance of activations. The whitening transformation (decorrelation) is related to which linear algebra concept?
+    [ ] Determinant calculation
+    [ ] Gaussian elimination
+    [ ] Cross product computation
+    [*] Eigenvalue decomposition of the covariance matrix
+    Explanation: Whitening decorrelates features by projecting data onto the eigenvectors of the covariance matrix and scaling by inverse square roots of eigenvalues. This is equivalent to transforming the covariance to the identity matrix.
 
-  Q8. Sample question 8 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Applications in Machine Learning.
+  Q8. In word embeddings (e.g., Word2Vec), words are represented as vectors. If 'king' - 'man' + 'woman' ~ 'queen', this relies on what property of the vector space?
+    [ ] Orthogonality of all word vectors
+    [*] Linear algebraic structure where semantic relationships are encoded as vector arithmetic
+    [ ] The embedding matrix being orthogonal
+    [ ] All word vectors having unit norm
+    Explanation: Word embeddings capture semantic relationships as directions in vector space. The relationship 'king - man + woman ~ queen' shows that gender is encoded as a consistent vector direction, demonstrating the linear algebraic structure of the embedding space.
 
-  Q9. Sample question 9 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Applications in Machine Learning.
+  Q9. The condition number of the matrix A^T A affects the convergence of gradient descent for linear regression. A high condition number means:
+    [ ] The solution does not exist
+    [*] Slow convergence due to elongated contours of the loss function
+    [ ] Fast convergence
+    [ ] The problem is well-conditioned and easy to solve
+    Explanation: A high condition number means the eigenvalues of A^T A vary widely, creating elongated elliptical contours. Gradient descent oscillates in narrow valleys, converging slowly. Preconditioning or using adaptive methods can help.
 
-  Q10. Sample question 10 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Applications in Machine Learning.
+  Q10. In a convolutional neural network, a convolution operation can be expressed as multiplication by a Toeplitz matrix. This matrix has what special structure?
+    [ ] All entries are either 0 or 1
+    [*] Each descending diagonal has constant values
+    [ ] It is always orthogonal
+    [ ] Diagonal entries are all different
+    Explanation: A Toeplitz matrix has constant values along each descending diagonal, reflecting the translation-invariant nature of convolution. The kernel weights appear shifted along the diagonals.
 
-  Q11. Sample question 11 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Applications in Machine Learning.
+  Q11. What is a 'feature vector' in machine learning?
+    [ ] A vector that points toward the nearest class boundary
+    [ ] The gradient of the loss function
+    [ ] The weight vector of a trained model
+    [*] A numerical representation of a data point as a vector of attribute values
+    Explanation: A feature vector is a point in a high-dimensional space where each coordinate represents a measurable attribute of the data. Machine learning algorithms operate on these vector representations.
 
-  Q12. Sample question 12 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Applications in Machine Learning.
+  Q12. What does 'cosine similarity' measure between two vectors?
+    [ ] The product of their norms
+    [ ] The sum of their components
+    [ ] The Euclidean distance between them
+    [*] The cosine of the angle between the vectors, computed as (u . v) / (||u|| ||v||)
+    Explanation: Cosine similarity measures the angle between two vectors, ranging from -1 (opposite) to +1 (same direction). It is widely used in information retrieval and recommendation systems because it ignores magnitude and focuses on direction.
 
-  Q13. Sample question 13 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Applications in Machine Learning.
+  Q13. What is 'regularization' in the context of linear models?
+    [ ] Using a regular (non-singular) matrix for the weights
+    [ ] Normalizing the input data to have zero mean
+    [ ] Ensuring the weight matrix is orthogonal
+    [*] Adding a penalty term (like ||w||^2) to the loss function to prevent overfitting
+    Explanation: Regularization adds a penalty like lambda * ||w||^2 (L2/Ridge) or lambda * ||w||_1 (L1/Lasso) to the loss function. This discourages large weights, reducing overfitting and improving generalization.
 
-  Q14. Sample question 14 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Applications in Machine Learning.
+  Q14. What is the 'Hessian matrix' in optimization for machine learning?
+    [ ] The weight matrix of the neural network
+    [ ] The data matrix of training examples
+    [ ] The identity matrix used for regularization
+    [*] The matrix of second partial derivatives of the loss function with respect to the parameters
+    Explanation: The Hessian H has entries H_ij = d^2L/dw_i dw_j. Its eigenvalues indicate curvature: positive eigenvalues mean the function curves upward (local minimum direction), negative means downward (local maximum direction), and mixed indicates a saddle point.
 
-  Q15. Sample question 15 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Applications in Machine Learning.
+  Q15. What is a 'latent factor' in matrix factorization for recommendation systems?
+    [*] A hidden feature dimension that captures underlying patterns in user-item interactions
+    [ ] The delay between a user's rating and the system's response
+    [ ] An item that no user has rated
+    [ ] A missing value in the ratings matrix
+    Explanation: Latent factors are hidden dimensions discovered by matrix factorization. For movies, latent factors might correspond to genres, era, mood, or other abstract qualities that explain rating patterns.
 
-  Q16. Sample question 16 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Applications in Machine Learning.
+  Q16. What does 'embedding' mean in machine learning?
+    [*] A learned mapping from discrete or high-dimensional objects to continuous low-dimensional vectors
+    [ ] Removing features from the dataset
+    [ ] Placing data points into a database
+    [ ] Training a model on embedded systems
+    Explanation: An embedding maps objects (words, users, items) to dense vectors in a low-dimensional space. These vector representations capture semantic similarity -- similar objects have nearby embeddings.
 
-  Q17. Sample question 17 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Applications in Machine Learning.
+  Q17. What is 'spectral clustering' in machine learning?
+    [*] A clustering method that uses eigenvalues and eigenvectors of a similarity or Laplacian matrix
+    [ ] Clustering data based on light spectrum wavelengths
+    [ ] K-means clustering applied in Fourier space
+    [ ] A method that only works on 2D data
+    Explanation: Spectral clustering constructs a graph Laplacian from the data similarity matrix, then uses its smallest eigenvectors to embed data in a low-dimensional space where clusters are easily separable.
 
-  Q18. Sample question 18 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Applications in Machine Learning.
+  Q18. What does 'orthogonal regularization' mean in neural network training?
+    [ ] Training with perpendicular gradient updates
+    [ ] Regularizing the orthogonal complement of the weight space
+    [ ] Using only orthogonal matrices as network weights
+    [*] Adding a penalty that encourages weight matrices to be close to orthogonal
+    Explanation: Orthogonal regularization adds a penalty like ||W^T W - I||^2 to encourage weight matrices to be approximately orthogonal. This helps preserve gradient norms during backpropagation, mitigating vanishing/exploding gradients.
 
-  Q19. Sample question 19 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Applications in Machine Learning.
+  Q19. What is the 'Moore-Penrose pseudoinverse' used for in machine learning?
+    [ ] Computing eigenvalues efficiently under equilibrium conditions
+    [*] Computing the minimum-norm least-squares solution for potentially non-square or singular systems
+    [ ] Inverting any square matrix, particularly regarding pseudoinverse as
+    [ ] Transposing a rectangular matrix following the established framework
+    Explanation: The Moore-Penrose pseudoinverse A^+ generalizes matrix inversion to non-square and singular matrices. It gives the minimum-norm least-squares solution x = A^+ b and can be computed via SVD.
 
-  Q20. Sample question 20 for Applications in Machine Learning
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Applications in Machine Learning.
+  Q20. What does 'attention mechanism' in transformers compute using inner products?
+    [*] Similarity scores between query and key vectors to determine how much each value contributes to the output
+    [ ] The inverse of the input embedding
+    [ ] The eigenvalues of the attention matrix
+    [ ] The determinant of the input matrix
+    Explanation: Attention computes scores as dot products of query and key vectors: score(Q, K) = QK^T / sqrt(d_k). These scores, after softmax, weight the value vectors to produce context-aware representations.
+
+  Q21. A data scientist fits a linear regression model y = w1*x1 + w2*x2 + b to 100 data points. The design matrix A is 100x3 (including a column of 1s for the bias). What is the dimension of A^T A?
+    [ ] 3 x 100
+    [ ] 100 x 100
+    [*] 3 x 3
+    [ ] 100 x 3
+    Explanation: A is 100x3, so A^T is 3x100, and A^T A is 3x3. This small system is computationally easy to solve, giving the least-squares weights.
+
+  Q22. A recommendation engine uses matrix factorization to predict missing ratings. If user i's embedding is u_i = (2, 1) and item j's embedding is v_j = (3, 4), what is the predicted rating?
+    [ ] 7
+    [ ] 5
+    [ ] 11
+    [*] 10
+    Explanation: The predicted rating is u_i . v_j = 2*3 + 1*4 = 6 + 4 = 10. The dot product of user and item embeddings estimates how much the user would like the item.
+
+  Q23. A natural language processing engineer computes cosine similarity between document vectors d1 = (3, 4) and d2 = (4, 3). What is the cosine similarity?
+    [ ] 7/25
+    [*] 24/25
+    [ ] 1
+    [ ] 12/25
+    Explanation: cos(theta) = (d1 . d2) / (||d1|| ||d2||) = (12 + 12) / (5 * 5) = 24/25 = 0.96. The documents are very similar in direction.
+
+  Q24. A machine learning engineer uses Ridge regression (L2 regularization) with parameter lambda. The solution is x = (A^T A + lambda*I)^(-1) A^T b. What does adding lambda*I to A^T A accomplish numerically?
+    [ ] It doubles the size of the matrix
+    [ ] It removes the smallest eigenvalue
+    [ ] It makes all eigenvalues zero
+    [*] It shifts all eigenvalues up by lambda, ensuring the matrix is invertible and well-conditioned
+    Explanation: Adding lambda*I shifts every eigenvalue from sigma_i to sigma_i + lambda. This ensures all eigenvalues are at least lambda > 0, making the matrix positive definite and invertible, even when A^T A is singular.
+
+  Q25. A deep learning researcher initializes a recurrent neural network with an orthogonal weight matrix. Why is this initialization strategy beneficial?
+    [ ] It eliminates the need for a bias term
+    [ ] It ensures the network outputs are always positive
+    [*] It preserves gradient norms during backpropagation, mitigating vanishing and exploding gradients
+    [ ] It makes training faster by reducing the number of parameters
+    Explanation: Orthogonal matrices have all singular values equal to 1, so multiplying by them preserves vector norms. In RNNs, this prevents gradients from shrinking (vanishing) or growing (exploding) through many time steps.
+
+  Q26. A computer vision engineer uses the Singular Value Decomposition (SVD) to compress a 1000x1000 image by keeping only the top 50 singular values. How many values need to be stored?
+    [ ] 2,500
+    [ ] 1,000,000
+    [ ] 50,000
+    [*] 100,050
+    Explanation: A rank-50 SVD stores: 50 left singular vectors (1000 entries each) + 50 right singular vectors (1000 entries each) + 50 singular values = 50*1000 + 50*1000 + 50 = 100,050. This is about 10% of the original 1,000,000 entries.
+
+  Q27. A text analytics team builds a topic model using Non-negative Matrix Factorization (NMF) on a 5000-document x 10000-word matrix V ~ WH. If they want 20 topics, what are the dimensions of W and H?
+    [ ] W is 20x5000, H is 10000x20
+    [ ] W is 20x20, H is 20x20
+    [ ] W is 5000x10000, H is 10000x20
+    [*] W is 5000x20, H is 20x10000
+    Explanation: With 20 topics, W (5000x20) gives each document's topic weights, and H (20x10000) gives each topic's word distribution. The product WH approximates the original 5000x10000 matrix.
+
+  Q28. A fraud detection system uses Mahalanobis distance, which is defined as d(x) = sqrt((x-mu)^T S^(-1) (x-mu)) where S is the covariance matrix. Why is this preferable to Euclidean distance for anomaly detection?
+    [*] It accounts for correlations between features and different variances along different directions
+    [ ] It can only be computed for 2D data
+    [ ] It does not require knowledge of the data distribution
+    [ ] It is always smaller than Euclidean distance
+    Explanation: Mahalanobis distance uses the inverse covariance matrix to normalize by the data's spread in each direction and account for correlations. A point far from the mean in a low-variance direction is more anomalous than one equally far in a high-variance direction.
+
+  Q29. A speech recognition system uses an orthogonal transformation to convert mel-spectrogram features. If the transformation matrix Q is 40x40 orthogonal, what is the computational benefit of using Q^T instead of Q^(-1)?
+    [ ] Q^T has fewer non-zero entries
+    [ ] There is no computational benefit
+    [*] Transposing is O(n^2) while inverting is O(n^3), so Q^T is much faster to compute
+    [ ] Q^T is more numerically accurate than Q^(-1)
+    Explanation: For orthogonal Q, Q^(-1) = Q^T. Computing a transpose is O(n^2) (just rearranging entries) while computing a general inverse is O(n^3). For a 40x40 matrix, this means 1,600 vs ~64,000 operations.
+
+  Q30. A reinforcement learning agent uses a neural network with weight matrices W1 (100x50) and W2 (50x10). The total number of trainable weight parameters (excluding biases) is:
+    [*] 5,500
+    [ ] 160
+    [ ] 5,000
+    [ ] 50,000
+    Explanation: W1 has 100 * 50 = 5,000 parameters and W2 has 50 * 10 = 500 parameters, for a total of 5,500 trainable weight parameters.
 
 --- Lesson 8.7: Applications in Machine Learning (Flashcards) ---
 
@@ -1164,154 +1977,270 @@ Content for Applications in Machine Learning is coming soon. Check back for deta
   5. Q: 
      A: 
 
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A: 
+
 --- Lesson 8.8: Applications in Quantum Mechanics (Summary) ---
 
   Key Concepts: Applications in Quantum Mechanics
-Key Concepts: Applications in Quantum Mechanics
-
-Content for Applications in Quantum Mechanics is coming soon. Check back for detailed notes and key concepts.
+Overview
+This lesson covers the fundamental measures of center used to analyze and summarize data sets. You'll learn how to calculate and apply the mean, median, and mode, and understand when each is most appropriate.
+Key Definitions
+If a qubit is in state |psi> = (1/sqrt(2))|0> + (1/sqrt(2))|1>, what is the probability of measuring |0>?
+The probability of measuring |0> is |<0|psi>|^2 = |1/sqrt(2)|^2 = 1/2. This is Born's rule: the measurement probability equals the squared magnitude of the inner product with the measurement basis state.
+What is a 'Hermitian matrix' in quantum mechanics?
+A Hermitian matrix satisfies A = A* (conjugate transpose). Its key properties are: real eigenvalues, orthogonal eigenvectors, and spectral decomposition -- all essential for quantum observables.
+What is a 'unitary matrix' in quantum computing?
+A unitary matrix satisfies U*U = UU* = I (conjugate transpose equals inverse). It preserves inner products and norms, ensuring quantum state evolution is reversible and probability-preserving.
+What is 'entanglement' in terms of tensor products?
+An entangled state like (|00> + |11>)/sqrt(2) cannot be factored as |a> (x) |b> for any single-qubit states |a> and |b>. Entanglement is a fundamentally non-classical correlation captured by the tensor product structure.
+What is the 'spectral decomposition' of a Hermitian matrix?
+The spectral decomposition A = sum lambda_i |v_i>
+What is a 'density matrix' in quantum mechanics?
+A density matrix rho is a positive semi-definite Hermitian matrix with trace(rho) = 1. For a pure state, rho = |psi>
+What is the 'commutator' of two matrices A and B?
+The commutator [A, B] = AB - BA measures how much A and B fail to commute. In quantum mechanics, [A, B] != 0 means the observables A and B cannot be simultaneously measured with certainty (uncertainty principle).
+What is a 'projection operator' (projector) in quantum mechanics?
+A projection operator is Hermitian (P = P*) and idempotent (P^2 = P). In measurement, P_i = |v_i>/||P_i|psi>||.
+What is the 'Bloch sphere' representation?
+The Bloch sphere maps each qubit pure state |psi> = cos(theta/2)|0> + e^{i*phi}sin(theta/2)|1> to a point on the unit sphere using angles (theta, phi). The north pole is |0>, south is |1>, and the equator contains superposition states.
+A quantum computing researcher prepares the state |psi> = (3/5)|0> + (4/5)|1>. She measures in the computational basis. What is the probability of getting outcome |1>?
+By Born's rule, P(|1>) = |<1|psi>|^2 = |4/5|^2 = 16/25 = 0.64. Note that 9/25 + 16/25 = 1, confirming the state is properly normalized.
+A physicist computes the expectation value of the Pauli-Z matrix Z = [[1,0],[0,-1]] in the state |psi> = (1/sqrt(2))(|0> + |1>). What is ?
+=  = (1/2)[1,1][[1,0],[0,-1]][1,1]^T = (1/2)[1,1][1,-1]^T = (1/2)(1-1) = 0. The equal superposition has zero expectation for Z because +1 and -1 outcomes are equally likely.
+A quantum algorithm designer applies the CNOT gate (controlled-NOT) to |10> = (0, 0, 1, 0)^T. The CNOT matrix is [[1,0,0,0],[0,1,0,0],[0,0,0,1],[0,0,1,0]]. What is the output state?
+CNOT * [0,0,1,0]^T = [0,0,0,1]^T = |11>. The CNOT gate flips the second (target) qubit when the first (control) qubit is |1>. Since the control is 1, the target flips from 0 to 1.
+A quantum error correction researcher needs to verify that two Pauli matrices anticommute. For X = [[0,1],[1,0]] and Z = [[1,0],[0,-1]], what is XZ + ZX?
+XZ = [[0,1],[1,0]][[1,0],[0,-1]] = [[0,-1],[1,0]]. ZX = [[1,0],[0,-1]][[0,1],[1,0]] = [[0,1],[-1,0]]. XZ + ZX = [[0,0],[0,0]] = 0. The Pauli X and Z matrices anticommute.
+A quantum computing student applies the Pauli-Y gate Y = [[0, -i], [i, 0]] to the state |0> = (1, 0)^T. What is the resulting state?
+Y|0> = [[0,-i],[i,0]] * [1,0]^T = [0, i]^T = i|1>. The Pauli-Y gate both flips the qubit and applies a phase of i.
+Real-World Applications
+Example: A quantum error correction researcher needs to verify that two Pauli matrices anticommute. For X = [[0,1],[1,0]] and Z = [[1,0],[0,-1]], what is XZ + ZX?
+XZ = [[0,1],[1,0]][[1,0],[0,-1]] = [[0,-1],[1,0]]. ZX = [[1,0],[0,-1]][[0,1],[1,0]] = [[0,1],[-1,0]]. XZ + ZX = [[0,0],[0,0]] = 0. The Pauli X and Z matrices anticommute.
 
 --- Lesson 8.8: Applications in Quantum Mechanics (Quiz) ---
 
-  Q1. Sample question 1 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 1 of Applications in Quantum Mechanics.
+  Q1. In quantum mechanics, the state of a qubit is represented as a vector in which space?
+    [ ] R^3 (3D real vector space)
+    [ ] R^2 (2D real vector space)
+    [*] C^2 (2D complex vector space, a Hilbert space)
+    [ ] The space of 2x2 real matrices
+    Explanation: A qubit state is a unit vector in C^2, the 2-dimensional complex Hilbert space. The state |psi> = alpha|0> + beta|1> where |alpha|^2 + |beta|^2 = 1.
 
-  Q2. Sample question 2 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 2 of Applications in Quantum Mechanics.
+  Q2. The inner product <psi|phi> in quantum mechanics uses which type of inner product?
+    [ ] The standard real dot product as predicted by standard models
+    [*] The Hermitian (complex) inner product: <psi|phi> = sum of conj(psi_i) * phi_i
+    [ ] The Frobenius inner product in accordance with classical theory
+    [ ] The cross product, particularly regarding hermitian under
+    Explanation: Quantum mechanics uses the Hermitian inner product where <psi|phi> = sum of conjugate(psi_i) * phi_i. This ensures <psi|psi> is real and non-negative, representing the probability normalization.
 
-  Q3. Sample question 3 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 3 of Applications in Quantum Mechanics.
+  Q3. Observable quantities in quantum mechanics are represented by which type of matrix?
+    [ ] Diagonal matrices only
+    [ ] Upper triangular matrices
+    [*] Hermitian (self-adjoint) matrices: A = A*
+    [ ] Any invertible matrix
+    Explanation: Observables are Hermitian matrices (A = A*, where A* is the conjugate transpose). Hermitian matrices always have real eigenvalues, which correspond to the possible measurement outcomes.
 
-  Q4. Sample question 4 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 4 of Applications in Quantum Mechanics.
+  Q4. The Pauli-X matrix is [[0, 1], [1, 0]]. What are its eigenvalues?
+    [*] +1 and -1
+    [ ] i and -i
+    [ ] 1 and 2
+    [ ] 0 and 1
+    Explanation: det(X - lambda*I) = -lambda^2 + 1 = 0 gives lambda = +1 and -1. The Pauli-X matrix is Hermitian, so its eigenvalues are real.
 
-  Q5. Sample question 5 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 5 of Applications in Quantum Mechanics.
+  Q5. If a qubit is in state |psi> = (1/sqrt(2))|0> + (1/sqrt(2))|1>, what is the probability of measuring |0>?
+    [ ] 1/sqrt(2)
+    [*] 1/2
+    [ ] 1/4
+    [ ] 1
+    Explanation: The probability of measuring |0> is |<0|psi>|^2 = |1/sqrt(2)|^2 = 1/2. This is Born's rule: the measurement probability equals the squared magnitude of the inner product with the measurement basis state.
 
-  Q6. Sample question 6 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 6 of Applications in Quantum Mechanics.
+  Q6. Quantum gates are represented by which type of matrix?
+    [ ] Singular matrices
+    [ ] Symmetric matrices
+    [ ] Positive definite matrices
+    [*] Unitary matrices: U*U = I
+    Explanation: Quantum gates are unitary matrices because quantum evolution must preserve the total probability (norm) of the state vector. U*U = I ensures ||U|psi>|| = ||psi|| = 1.
 
-  Q7. Sample question 7 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 7 of Applications in Quantum Mechanics.
+  Q7. The Hadamard gate H = (1/sqrt(2))[[1, 1], [1, -1]] maps |0> to which state?
+    [ ] |1>
+    [*] (|0> + |1>)/sqrt(2)
+    [ ] (|0> - |1>)/sqrt(2)
+    [ ] i|0>
+    Explanation: H|0> = (1/sqrt(2))[[1,1],[1,-1]] * [1,0]^T = (1/sqrt(2))[1, 1]^T = (|0> + |1>)/sqrt(2). This creates an equal superposition state.
 
-  Q8. Sample question 8 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 8 of Applications in Quantum Mechanics.
+  Q8. The tensor product of two qubit states |a> and |b> creates a state in which space?
+    [ ] R^4
+    [*] C^4
+    [ ] C^2
+    [ ] C^3
+    Explanation: The tensor product of two C^2 spaces gives C^2 (x) C^2 = C^4. A 2-qubit state is a vector in C^4 with components corresponding to |00>, |01>, |10>, |11>.
 
-  Q9. Sample question 9 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 9 of Applications in Quantum Mechanics.
+  Q9. The Pauli-Z matrix is [[1, 0], [0, -1]]. What effect does it have on the state |1> = (0, 1)^T?
+    [ ] It leaves |1> unchanged
+    [*] It maps |1> to -|1>
+    [ ] It maps |1> to i|1>
+    [ ] It maps |1> to |0>
+    Explanation: Z|1> = [[1,0],[0,-1]] * [0,1]^T = [0,-1]^T = -|1>. The Pauli-Z gate applies a phase flip, multiplying the |1> component by -1.
 
-  Q10. Sample question 10 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 10 of Applications in Quantum Mechanics.
+  Q10. The expectation value of an observable A in state |psi> is given by:
+    [*] <psi|A|psi>
+    [ ] trace(A)
+    [ ] ||A|psi>||
+    [ ] det(A)
+    Explanation: The expectation value <A> = <psi|A|psi> gives the average measurement outcome when the observable A is measured on many copies of the state |psi>.
 
-  Q11. Sample question 11 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 11 of Applications in Quantum Mechanics.
+  Q11. What is a 'Hermitian matrix' in quantum mechanics?
+    [*] A matrix equal to its conjugate transpose: A = A*
+    [ ] A matrix whose determinant is 1
+    [ ] A matrix with all real entries
+    [ ] A matrix that commutes with every other matrix
+    Explanation: A Hermitian matrix satisfies A = A* (conjugate transpose). Its key properties are: real eigenvalues, orthogonal eigenvectors, and spectral decomposition -- all essential for quantum observables.
 
-  Q12. Sample question 12 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 12 of Applications in Quantum Mechanics.
+  Q12. What is a 'unitary matrix' in quantum computing?
+    [*] A matrix that preserves inner products: <Ux|Uy> = <x|y>, satisfying U*U = I
+    [ ] A matrix that maps every state to a basis state
+    [ ] A matrix with unit determinant
+    [ ] A matrix where every entry has absolute value 1
+    Explanation: A unitary matrix satisfies U*U = UU* = I (conjugate transpose equals inverse). It preserves inner products and norms, ensuring quantum state evolution is reversible and probability-preserving.
 
-  Q13. Sample question 13 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 13 of Applications in Quantum Mechanics.
+  Q13. What does 'superposition' mean in quantum mechanics?
+    [ ] A state with zero probability of being measured
+    [ ] The product of two quantum states
+    [*] A quantum state expressed as a linear combination of basis states
+    [ ] Two particles occupying the same position
+    Explanation: Superposition is the principle that a quantum state can be a linear combination of basis states: |psi> = alpha|0> + beta|1>. This is a direct consequence of quantum states living in a linear (vector) space.
 
-  Q14. Sample question 14 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 14 of Applications in Quantum Mechanics.
+  Q14. What is 'entanglement' in terms of tensor products?
+    [ ] A state with maximum energy
+    [*] A two-particle state that cannot be written as a tensor product of individual particle states
+    [ ] The tensor product of any two states
+    [ ] A state where two particles are physically connected
+    Explanation: An entangled state like (|00> + |11>)/sqrt(2) cannot be factored as |a> (x) |b> for any single-qubit states |a> and |b>. Entanglement is a fundamentally non-classical correlation captured by the tensor product structure.
 
-  Q15. Sample question 15 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 15 of Applications in Quantum Mechanics.
+  Q15. What is the 'spectral decomposition' of a Hermitian matrix?
+    [ ] Breaking the matrix into its real and imaginary parts
+    [ ] Computing the matrix's characteristic polynomial
+    [*] Writing the matrix as a sum of outer products of its eigenvectors weighted by eigenvalues: A = sum lambda_i |v_i><v_i|
+    [ ] Factoring the matrix into L and U triangular matrices
+    Explanation: The spectral decomposition A = sum lambda_i |v_i><v_i| expresses a Hermitian matrix as a weighted sum of projection operators onto its eigenvectors. This is fundamental to quantum measurement theory.
 
-  Q16. Sample question 16 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 16 of Applications in Quantum Mechanics.
+  Q16. What does 'Born's rule' state about quantum measurement?
+    [ ] Every measurement yields the largest eigenvalue
+    [ ] Repeated measurements always give the same result
+    [*] The probability of measuring eigenvalue lambda_i is |<v_i|psi>|^2, the squared magnitude of the inner product
+    [ ] The measurement outcome is always the expectation value
+    Explanation: Born's rule connects linear algebra to physics: the probability of obtaining measurement result lambda_i is P(lambda_i) = |<v_i|psi>|^2, where |v_i> is the corresponding eigenvector.
 
-  Q17. Sample question 17 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 17 of Applications in Quantum Mechanics.
+  Q17. What is a 'density matrix' in quantum mechanics?
+    [*] A positive semi-definite Hermitian matrix with trace 1 that describes a quantum state (possibly mixed)
+    [ ] A matrix that measures the density of particles
+    [ ] The inverse of the Hamiltonian
+    [ ] A diagonal matrix of probabilities
+    Explanation: A density matrix rho is a positive semi-definite Hermitian matrix with trace(rho) = 1. For a pure state, rho = |psi><psi|. For mixed states (statistical ensembles), it generalizes the state vector description.
 
-  Q18. Sample question 18 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 18 of Applications in Quantum Mechanics.
+  Q18. What is the 'commutator' of two matrices A and B?
+    [*] [A, B] = AB - BA
+    [ ] [A, B] = AB + BA
+    [ ] [A, B] = A + B
+    [ ] [A, B] = A^(-1) B
+    Explanation: The commutator [A, B] = AB - BA measures how much A and B fail to commute. In quantum mechanics, [A, B] != 0 means the observables A and B cannot be simultaneously measured with certainty (uncertainty principle).
 
-  Q19. Sample question 19 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 19 of Applications in Quantum Mechanics.
+  Q19. What is a 'projection operator' (projector) in quantum mechanics?
+    [ ] Any matrix that maps vectors to a lower-dimensional space
+    [*] A Hermitian matrix P satisfying P^2 = P, representing a measurement outcome
+    [ ] The outer product of two different eigenvectors
+    [ ] A unitary matrix that rotates states
+    Explanation: A projection operator is Hermitian (P = P*) and idempotent (P^2 = P). In measurement, P_i = |v_i><v_i| projects onto the eigenspace of outcome lambda_i. After measurement, the state collapses to P_i|psi>/||P_i|psi>||.
 
-  Q20. Sample question 20 for Applications in Quantum Mechanics
-    [*] Option A (correct)
-    [ ] Option B
-    [ ] Option C
-    [ ] Option D
-    Explanation: This is a placeholder explanation for question 20 of Applications in Quantum Mechanics.
+  Q20. What is the 'Bloch sphere' representation?
+    [*] A geometric representation where every qubit pure state maps to a point on the surface of a unit sphere
+    [ ] A 3D plot of eigenvalues
+    [ ] The set of all unitary 2x2 matrices
+    [ ] A spherical coordinate system for 3-qubit states
+    Explanation: The Bloch sphere maps each qubit pure state |psi> = cos(theta/2)|0> + e^{i*phi}sin(theta/2)|1> to a point on the unit sphere using angles (theta, phi). The north pole is |0>, south is |1>, and the equator contains superposition states.
+
+  Q21. A quantum computing researcher prepares the state |psi> = (3/5)|0> + (4/5)|1>. She measures in the computational basis. What is the probability of getting outcome |1>?
+    [ ] 9/25
+    [ ] 3/5
+    [ ] 4/5
+    [*] 16/25
+    Explanation: By Born's rule, P(|1>) = |<1|psi>|^2 = |4/5|^2 = 16/25 = 0.64. Note that 9/25 + 16/25 = 1, confirming the state is properly normalized.
+
+  Q22. A physicist computes the expectation value of the Pauli-Z matrix Z = [[1,0],[0,-1]] in the state |psi> = (1/sqrt(2))(|0> + |1>). What is <Z>?
+    [*] 0
+    [ ] 1/2
+    [ ] -1
+    [ ] 1
+    Explanation: <Z> = <psi|Z|psi> = (1/2)[1,1][[1,0],[0,-1]][1,1]^T = (1/2)[1,1][1,-1]^T = (1/2)(1-1) = 0. The equal superposition has zero expectation for Z because +1 and -1 outcomes are equally likely.
+
+  Q23. A quantum information scientist creates the Bell state |Phi+> = (|00> + |11>)/sqrt(2). She wants to verify it is entangled by checking if it can be written as |a>|b>. If |a> = (alpha, beta)^T and |b> = (gamma, delta)^T, then |a>|b> = (alpha*gamma, alpha*delta, beta*gamma, beta*delta)^T. For |Phi+> = (1, 0, 0, 1)^T/sqrt(2), is the state separable?
+    [ ] It depends on the measurement basis, particularly regarding written as typically measured in practice
+    [ ] Yes, with alpha = gamma = 1/sqrt(2), particularly regarding checking when considering all relevant factors
+    [*] No, because alpha*delta = 0 and beta*gamma = 0 but alpha*gamma != 0 and beta*delta != 0 is impossible when both cross terms vanish
+    [ ] Yes, with any choice of alpha and beta, particularly regarding last as determined by standard methodology
+    Explanation: For |Phi+>, we need alpha*gamma = 1/sqrt(2), alpha*delta = 0, beta*gamma = 0, beta*delta = 1/sqrt(2). From the middle conditions, either alpha=0 or delta=0, but then either the first or last equation fails. So the state is entangled.
+
+  Q24. A quantum algorithm designer applies the CNOT gate (controlled-NOT) to |10> = (0, 0, 1, 0)^T. The CNOT matrix is [[1,0,0,0],[0,1,0,0],[0,0,0,1],[0,0,1,0]]. What is the output state?
+    [ ] |10>
+    [ ] |00>
+    [ ] |01>
+    [*] |11>
+    Explanation: CNOT * [0,0,1,0]^T = [0,0,0,1]^T = |11>. The CNOT gate flips the second (target) qubit when the first (control) qubit is |1>. Since the control is 1, the target flips from 0 to 1.
+
+  Q25. A quantum error correction researcher needs to verify that two Pauli matrices anticommute. For X = [[0,1],[1,0]] and Z = [[1,0],[0,-1]], what is XZ + ZX?
+    [ ] [[0,0],[0,2]]
+    [ ] 2I
+    [ ] 2XZ
+    [*] The zero matrix
+    Explanation: XZ = [[0,1],[1,0]][[1,0],[0,-1]] = [[0,-1],[1,0]]. ZX = [[1,0],[0,-1]][[0,1],[1,0]] = [[0,1],[-1,0]]. XZ + ZX = [[0,0],[0,0]] = 0. The Pauli X and Z matrices anticommute.
+
+  Q26. A quantum simulation researcher models a spin-1/2 particle in a magnetic field with Hamiltonian H = B*sigma_z = B*[[1,0],[0,-1]]. If B = 2, what are the energy eigenvalues?
+    [ ] 2 and 2
+    [ ] 0 and 4
+    [ ] 1 and -1
+    [*] +2 and -2
+    Explanation: H = 2*[[1,0],[0,-1]] = [[2,0],[0,-2]]. This diagonal matrix has eigenvalues 2 and -2 on the diagonal, corresponding to spin-up (energy +2) and spin-down (energy -2) states.
+
+  Q27. A quantum cryptography engineer uses the no-cloning theorem. This theorem states that no unitary operation can copy an arbitrary quantum state. The proof relies on which property of inner products?
+    [ ] The Cauchy-Schwarz inequality, particularly regarding this in accordance with classical theory
+    [ ] The parallelogram law, particularly regarding state when applying fundamental principles
+    [ ] The triangle inequality, particularly regarding inner under equilibrium conditions
+    [*] Linearity of unitary operators combined with the multiplicativity of inner products under tensor products
+    Explanation: The proof shows that if U|psi>|0> = |psi>|psi> for all |psi>, then taking inner products leads to <phi|psi> = <phi|psi>^2, which is only possible if <phi|psi> = 0 or 1. Thus cloning only works for orthogonal states, not arbitrary ones.
+
+  Q28. A quantum computing student applies the Pauli-Y gate Y = [[0, -i], [i, 0]] to the state |0> = (1, 0)^T. What is the resulting state?
+    [ ] (i, 0)^T = i|0>
+    [ ] (1, 0)^T = |0>
+    [*] (0, i)^T = i|1>
+    [ ] (0, -i)^T = -i|1>
+    Explanation: Y|0> = [[0,-i],[i,0]] * [1,0]^T = [0, i]^T = i|1>. The Pauli-Y gate both flips the qubit and applies a phase of i.
+
+  Q29. A quantum algorithm uses the phase gate S = [[1, 0], [0, i]]. If applied twice (S^2), what gate results?
+    [ ] The Pauli-X gate
+    [ ] The identity gate I
+    [ ] The Hadamard gate
+    [*] The Pauli-Z gate [[1, 0], [0, -1]]
+    Explanation: S^2 = [[1,0],[0,i]]^2 = [[1,0],[0,i^2]] = [[1,0],[0,-1]] = Z. The phase gate S is the 'square root' of the Pauli-Z gate.
+
+  Q30. A quantum hardware engineer designs a 3-qubit quantum processor. The state space of the 3-qubit system has how many dimensions?
+    [*] 8
+    [ ] 3
+    [ ] 9
+    [ ] 6
+    Explanation: The state space of n qubits is C^{2^n}. For 3 qubits, this is C^8 (dimension 8), with basis states |000>, |001>, |010>, |011>, |100>, |101>, |110>, |111>. The exponential growth of dimension is what gives quantum computers their power.
 
 --- Lesson 8.8: Applications in Quantum Mechanics (Flashcards) ---
 
@@ -1329,3 +2258,18 @@ Content for Applications in Quantum Mechanics is coming soon. Check back for det
 
   5. Q: 
      A: 
+
+  6. Q: 
+     A: 
+
+  7. Q: 
+     A: 
+
+  8. Q: 
+     A: 
+
+  9. Q: 
+     A: 
+
+  10. Q: 
+     A:

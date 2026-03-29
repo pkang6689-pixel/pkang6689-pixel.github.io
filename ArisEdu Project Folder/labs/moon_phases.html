@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moon Phases</title>
+  <script src="../../_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="../theme_manager.js"></script>
+  <style>
+    body { margin:0; font-family:'Poppins',sans-serif; background:#0f172a; color:#f1f5f9; }
+    .sim-container { max-width:1000px; margin:5rem auto 2rem; padding:1rem 2rem; }
+    h1 { text-align:center; font-size:1.8rem; margin-bottom:0.25rem; font-family:'Orbitron',sans-serif; }
+    .subtitle { text-align:center; color:#94a3b8; margin-bottom:1.5rem; }
+    .canvas-wrap { background:#020617; border:1px solid #334155; border-radius:1rem; overflow:hidden; }
+    canvas { display:block; width:100%; }
+    .controls { display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem; align-items:center; justify-content:center; }
+    .ctrl-group { display:flex; flex-direction:column; gap:0.25rem; }
+    .ctrl-group label { font-size:0.75rem; color:#94a3b8; }
+    .ctrl-group input[type=range] { width:280px; accent-color:#fbbf24; }
+    .ctrl-group .val { font-size:0.85rem; color:#fbbf24; font-weight:600; text-align:center; }
+    .phase-strip { display:flex; justify-content:center; gap:0; margin-top:1rem; }
+    .phase-icon { width:50px; height:50px; display:flex; flex-direction:column; align-items:center; cursor:pointer; padding:0.25rem 0.1rem; border-radius:0.4rem; transition:background 0.2s; }
+    .phase-icon:hover { background:rgba(255,255,255,0.05); }
+    .phase-icon.active { background:rgba(251,191,36,0.15); }
+    .phase-icon canvas { border-radius:50%; }
+    .phase-icon span { font-size:0.55rem; color:#94a3b8; margin-top:2px; text-align:center; line-height:1.1; }
+    .readout { display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.75rem; justify-content:center; }
+    .readout .datum { background:#1e293b; padding:0.4rem 0.8rem; border-radius:0.5rem; border:1px solid #334155; font-size:0.8rem; color:#94a3b8; }
+    .readout .datum strong { color:#fbbf24; }
+    .info-box { margin-top:1rem; background:#1e293b; border:1px solid #334155; border-radius:0.75rem; padding:1rem; font-size:0.85rem; color:#cbd5e1; line-height:1.7; }
+    .info-box h3 { color:#fbbf24; margin:0 0 0.5rem; font-size:0.95rem; }
+    .ctrl-btn { padding:0.5rem 1rem; border-radius:0.5rem; border:1px solid #334155; background:#1e293b; color:#f1f5f9; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; }
+    .ctrl-btn.active { background:#3b82f6; border-color:#3b82f6; }
+    .ctrl-btn:hover { background:#334155; }
+  </style>
+</head>
+<body class="dark-mode">
+<script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+  <h1>🌙 Moon Phases</h1>
+  <p class="subtitle">Drag the slider to advance through the 29.5-day lunar cycle.</p>
+
+  <div class="canvas-wrap"><canvas id="moon-canvas" height="450"></canvas></div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <label style="text-align:center">Day of Lunar Cycle</label>
+      <input type="range" id="day" min="0" max="295" value="0" oninput="updatePhase()">
+      <span class="val" id="day-val">Day 0.0 — New Moon</span>
+    </div>
+    <button class="ctrl-btn" id="play-btn" onclick="togglePlay()">▶ Play</button>
+  </div>
+
+  <div id="phase-strip" class="phase-strip"></div>
+
+  <div class="readout">
+    <div class="datum">Illumination: <strong id="illum-val">0%</strong></div>
+    <div class="datum">Phase: <strong id="phase-name">New Moon</strong></div>
+    <div class="datum">Moonrise: <strong id="rise-val">~6:00 AM</strong></div>
+    <div class="datum">Moonset: <strong id="set-val">~6:00 PM</strong></div>
+  </div>
+
+  <div class="info-box" id="info-box">
+    <h3>New Moon</h3>
+    <p>The Moon is between the Earth and Sun, so its illuminated side faces away from us. The Moon is invisible in the night sky. This is also when solar eclipses can occur.</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  var canvas = document.getElementById('moon-canvas');
+  var ctx = canvas.getContext('2d');
+  var playing = false;
+  var playInterval = null;
+
+  var phases = [
+    { name:'New Moon', day:0, info:'The Moon is between the Earth and Sun. Its illuminated side faces away from us — invisible in the night sky. Solar eclipses can occur during this phase.', rise:'~6:00 AM', set:'~6:00 PM' },
+    { name:'Waxing Crescent', day:3.7, info:'A thin sliver of light appears on the right side (Northern Hemisphere). Visible in the western sky after sunset. "Waxing" means the lit area is growing.', rise:'~9:00 AM', set:'~9:00 PM' },
+    { name:'First Quarter', day:7.4, info:'Half of the Moon is illuminated (right half). Called "quarter" because the Moon is one-quarter through its cycle. Rises around noon.', rise:'~12:00 PM', set:'~12:00 AM' },
+    { name:'Waxing Gibbous', day:11.1, info:'More than half illuminated, still growing. "Gibbous" means swollen or convex. Visible most of the night.', rise:'~3:00 PM', set:'~3:00 AM' },
+    { name:'Full Moon', day:14.75, info:'The entire face is illuminated. The Moon is opposite the Sun from Earth. Rises at sunset, visible all night. Lunar eclipses occur during full moons.', rise:'~6:00 PM', set:'~6:00 AM' },
+    { name:'Waning Gibbous', day:18.5, info:'Still more than half lit but shrinking. "Waning" means decreasing. Rises after sunset.', rise:'~9:00 PM', set:'~9:00 AM' },
+    { name:'Third Quarter', day:22.1, info:'Half illuminated (left half). Also called Last Quarter. The Moon is three-quarters through its cycle.', rise:'~12:00 AM', set:'~12:00 PM' },
+    { name:'Waning Crescent', day:25.8, info:'A thin sliver on the left side. Visible before sunrise in the eastern sky. The cycle is about to restart.', rise:'~3:00 AM', set:'~3:00 PM' }
+  ];
+
+  function resize() { canvas.width = canvas.parentElement.clientWidth; }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function drawMoonPhase(ctx2, cx, cy, r, dayFrac) {
+    // dayFrac: 0-1 through the cycle
+    var angle = dayFrac * Math.PI * 2;
+
+    // Draw dark moon circle
+    ctx2.fillStyle = '#1e293b';
+    ctx2.beginPath(); ctx2.arc(cx, cy, r, 0, Math.PI * 2); ctx2.fill();
+
+    // Draw light (lit) side
+    ctx2.fillStyle = '#e2e8f0';
+    ctx2.beginPath();
+
+    // Right half arc (always a semicircle edge)
+    // Left edge varies: cosine determines the terminator
+    var terminatorX = Math.cos(angle); // -1 to 1
+
+    // From new moon (day=0): angle=0, cos=1 → terminator at right edge (nothing lit)
+    // First quarter (day=7.4): angle=π/2, cos=0 → terminator at center (right half lit)
+    // Full moon (day=14.75): angle=π, cos=-1 → terminator at left edge (fully lit)
+    // Third quarter (day=22.1): angle=3π/2, cos=0 → terminator at center (left half lit)
+
+    if (dayFrac < 0.5) {
+      // Waxing: right side lit
+      ctx2.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false); // right semicircle
+      // Terminator (inner edge): ellipse from top to bottom
+      ctx2.ellipse(cx, cy, Math.abs(terminatorX) * r, r, 0, Math.PI / 2, -Math.PI / 2, terminatorX > 0);
+    } else {
+      // Waning: left side lit
+      ctx2.arc(cx, cy, r, Math.PI / 2, -Math.PI / 2, false); // left semicircle
+      ctx2.ellipse(cx, cy, Math.abs(terminatorX) * r, r, 0, -Math.PI / 2, Math.PI / 2, terminatorX < 0);
+    }
+    ctx2.fill();
+
+    // Craters (subtle)
+    ctx2.fillStyle = 'rgba(148,163,184,0.15)';
+    var craters = [{x:-0.3,y:-0.2,r:0.12},{x:0.2,y:0.3,r:0.08},{x:-0.1,y:0.4,r:0.1},{x:0.3,y:-0.3,r:0.06},{x:0.0,y:-0.1,r:0.15}];
+    for (var c = 0; c < craters.length; c++) {
+      var cr = craters[c];
+      ctx2.beginPath(); ctx2.arc(cx + cr.x * r, cy + cr.y * r, cr.r * r, 0, Math.PI * 2); ctx2.fill();
+    }
+  }
+
+  function getPhaseInfo(dayVal) {
+    // dayVal is 0 to 29.5
+    for (var i = phases.length - 1; i >= 0; i--) {
+      if (dayVal >= phases[i].day) return phases[i];
+    }
+    return phases[0];
+  }
+
+  window.updatePhase = function() {
+    var slider = document.getElementById('day');
+    var dayVal = parseInt(slider.value) / 10; // 0 to 29.5
+    var phaseInfo = getPhaseInfo(dayVal);
+
+    document.getElementById('day-val').textContent = 'Day ' + dayVal.toFixed(1) + ' — ' + phaseInfo.name;
+    document.getElementById('phase-name').textContent = phaseInfo.name;
+    document.getElementById('info-box').innerHTML = '<h3>' + phaseInfo.name + '</h3><p>' + phaseInfo.info + '</p>';
+    document.getElementById('rise-val').textContent = phaseInfo.rise;
+    document.getElementById('set-val').textContent = phaseInfo.set;
+
+    // Illumination percentage
+    var frac = dayVal / 29.5;
+    var illum = Math.round((1 - Math.cos(frac * Math.PI * 2)) / 2 * 100);
+    document.getElementById('illum-val').textContent = illum + '%';
+
+    // Highlight active phase icon
+    document.querySelectorAll('.phase-icon').forEach(function(el, idx) {
+      el.classList.toggle('active', idx === phases.indexOf(phaseInfo));
+    });
+  };
+
+  window.togglePlay = function() {
+    playing = !playing;
+    var btn = document.getElementById('play-btn');
+    if (playing) {
+      btn.textContent = '⏸ Pause';
+      btn.classList.add('active');
+      playInterval = setInterval(function() {
+        var slider = document.getElementById('day');
+        var val = parseInt(slider.value) + 1;
+        if (val > 295) val = 0;
+        slider.value = val;
+        updatePhase();
+      }, 80);
+    } else {
+      btn.textContent = '▶ Play';
+      btn.classList.remove('active');
+      clearInterval(playInterval);
+    }
+  };
+
+  // Build phase strip icons
+  var strip = document.getElementById('phase-strip');
+  for (var i = 0; i < phases.length; i++) {
+    (function(idx) {
+      var div = document.createElement('div');
+      div.className = 'phase-icon' + (idx === 0 ? ' active' : '');
+      var miniCanvas = document.createElement('canvas');
+      miniCanvas.width = 30; miniCanvas.height = 30;
+      var mctx = miniCanvas.getContext('2d');
+      drawMoonPhase(mctx, 15, 15, 13, phases[idx].day / 29.5);
+      div.appendChild(miniCanvas);
+      var label = document.createElement('span');
+      label.textContent = phases[idx].name;
+      div.appendChild(label);
+      div.onclick = function() {
+        document.getElementById('day').value = Math.round(phases[idx].day * 10);
+        updatePhase();
+      };
+      strip.appendChild(div);
+    })(i);
+  }
+
+  // Main canvas draw
+  function draw() {
+    var w = canvas.width, h = canvas.height;
+    var dayVal = parseInt(document.getElementById('day').value) / 10;
+    var frac = dayVal / 29.5;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Star background
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    for (var s = 0; s < 100; s++) {
+      var sx = ((s * 7919 + 31) % 997) / 997 * w;
+      var sy = ((s * 6271 + 17) % 991) / 991 * h;
+      ctx.beginPath(); ctx.arc(sx, sy, 0.4 + (s % 3) * 0.3, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Top view diagram (Sun – Earth – Moon)
+    var diagramY = h * 0.22;
+    var diagramR = Math.min(w * 0.15, 80);
+
+    // Sun (left area)
+    ctx.fillStyle = 'rgba(251,191,36,0.15)';
+    ctx.beginPath(); ctx.arc(w * 0.15, diagramY, 35, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath(); ctx.arc(w * 0.15, diagramY, 20, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#94a3b8'; ctx.font = '11px Poppins'; ctx.textAlign = 'center';
+    ctx.fillText('Sun', w * 0.15, diagramY + 35);
+
+    // Light rays from sun
+    ctx.strokeStyle = 'rgba(251,191,36,0.1)'; ctx.lineWidth = 1;
+    for (var r = 0; r < 8; r++) {
+      var ry = diagramY - 60 + r * 15;
+      ctx.beginPath(); ctx.moveTo(w * 0.15 + 25, ry); ctx.lineTo(w * 0.85, ry); ctx.stroke();
+    }
+
+    // Earth (center)
+    var earthX = w * 0.5;
+    ctx.fillStyle = '#3b82f6';
+    ctx.beginPath(); ctx.arc(earthX, diagramY, 14, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#22c55e';
+    ctx.beginPath(); ctx.arc(earthX - 3, diagramY - 2, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'center';
+    ctx.fillText('Earth', earthX, diagramY + 30);
+
+    // Moon orbit circle
+    ctx.strokeStyle = 'rgba(148,163,184,0.2)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(earthX, diagramY, diagramR, 0, Math.PI * 2); ctx.stroke();
+
+    // Moon position (angle 0 = between Earth and Sun = New Moon)
+    var moonAngle = frac * Math.PI * 2 - Math.PI; // Start at left (new moon = between)
+    var moonDX = earthX + Math.cos(moonAngle) * diagramR;
+    var moonDY = diagramY + Math.sin(moonAngle) * diagramR;
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.beginPath(); ctx.arc(moonDX, moonDY, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#1e293b';
+    // Shadow side (away from sun = right half when between, etc.)
+    var shadowAngle = Math.atan2(moonDY - diagramY, moonDX - w * 0.15);
+    ctx.beginPath(); ctx.arc(moonDX, moonDY, 8, shadowAngle - Math.PI / 2, shadowAngle + Math.PI / 2); ctx.fill();
+
+    ctx.fillStyle = '#fbbf24'; ctx.font = '10px Poppins';
+    ctx.fillText('Moon', moonDX, moonDY + 18);
+
+    // Viewing direction arrow
+    ctx.strokeStyle = 'rgba(251,191,36,0.3)'; ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(earthX, diagramY + 14); ctx.lineTo(earthX, diagramY + 55); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(251,191,36,0.3)';
+    ctx.beginPath(); ctx.moveTo(earthX - 5, diagramY + 50); ctx.lineTo(earthX, diagramY + 60); ctx.lineTo(earthX + 5, diagramY + 50); ctx.fill();
+    ctx.fillStyle = 'rgba(148,163,184,0.4)'; ctx.font = '9px Poppins';
+    ctx.fillText('View from Earth ↓', earthX, diagramY + 73);
+
+    // Large moon view (bottom half)
+    var moonViewY = h * 0.7;
+    var moonR = Math.min(w * 0.18, 100);
+
+    // Moon glow
+    var glow = ctx.createRadialGradient(w * 0.5, moonViewY, moonR, w * 0.5, moonViewY, moonR * 1.8);
+    glow.addColorStop(0, 'rgba(226,232,240,0.08)');
+    glow.addColorStop(1, 'rgba(226,232,240,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath(); ctx.arc(w * 0.5, moonViewY, moonR * 1.8, 0, Math.PI * 2); ctx.fill();
+
+    drawMoonPhase(ctx, w * 0.5, moonViewY, moonR, frac);
+
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+  updatePhase();
+})();
+</script>
+<script src="../scripts/translation_loader.js" data-base="../translations"></script>
+</body>
+</html>
