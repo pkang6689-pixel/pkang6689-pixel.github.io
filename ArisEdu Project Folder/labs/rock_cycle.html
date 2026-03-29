@@ -29,6 +29,7 @@
 <body class="dark-mode">
 <script src="../scripts/taskbar.js"></script>
 <div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
   <h1>🪨 Rock Cycle</h1>
   <p class="subtitle">Follow rocks through the igneous, sedimentary, and metamorphic transformations.</p>
   <div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
@@ -66,52 +67,67 @@
     requestAnimationFrame(draw);
   }
   function drawCycle(w,h){
-    ctx.fillStyle='#0a1628';ctx.fillRect(0,0,w,h);
+    // Background gradient
+    var bgGrad=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w*0.6);
+    bgGrad.addColorStop(0,'#0f172a');bgGrad.addColorStop(1,'#0a1228');
+    ctx.fillStyle=bgGrad;ctx.fillRect(0,0,w,h);
     // Three nodes
     var nodes=[
       {x:w/2,y:70,label:'Igneous',color:'#ef4444',sub:'Granite, Basalt, Obsidian'},
       {x:w*0.15,y:h*0.7,label:'Sedimentary',color:'#f59e0b',sub:'Sandstone, Limestone, Shale'},
       {x:w*0.85,y:h*0.7,label:'Metamorphic',color:'#8b5cf6',sub:'Marble, Quartzite, Slate'}
     ];
-    // Magma at center bottom
+    // Magma at center bottom with glow
     var magmaY=h*0.92;
-    ctx.fillStyle='#dc2626';ctx.font='bold 12px Poppins';ctx.textAlign='center';
-    ctx.fillText('🔥 MAGMA',w/2,magmaY);
-    // Draw arrows between nodes (curved)
+    var magmaGlow=ctx.createRadialGradient(w/2,magmaY,0,w/2,magmaY,50);
+    magmaGlow.addColorStop(0,'rgba(220,38,38,0.2)');magmaGlow.addColorStop(1,'rgba(220,38,38,0)');
+    ctx.fillStyle=magmaGlow;ctx.beginPath();ctx.arc(w/2,magmaY,50,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#dc2626';ctx.font='bold 13px Poppins';ctx.textAlign='center';
+    ctx.fillText('\ud83d\udd25 MAGMA',w/2,magmaY+5);
+    // Draw curved arrows between nodes
     var arrows=[
-      {from:0,to:1,label:'Weathering &\nErosion',color:'rgba(239,68,68,0.4)'},
-      {from:1,to:2,label:'Heat &\nPressure',color:'rgba(245,158,11,0.4)'},
-      {from:2,to:0,label:'Melting &\nCooling',color:'rgba(139,92,246,0.4)'}
+      {from:0,to:1,label:'Weathering &\nErosion',color:'#ef4444'},
+      {from:1,to:2,label:'Heat &\nPressure',color:'#f59e0b'},
+      {from:2,to:0,label:'Melting &\nCooling',color:'#8b5cf6'}
     ];
     arrows.forEach(function(arr){
       var f=nodes[arr.from],t2=nodes[arr.to];
       var mx=(f.x+t2.x)/2,my=(f.y+t2.y)/2;
-      // Offset midpoint for curve
       var dx=t2.x-f.x,dy=t2.y-f.y;
       var cx2=mx-dy*0.2,cy2=my+dx*0.2;
-      ctx.strokeStyle=arr.color;ctx.lineWidth=3;
-      ctx.beginPath();ctx.moveTo(f.x,f.y+25);ctx.quadraticCurveTo(cx2,cy2,t2.x,t2.y-25);ctx.stroke();
+      // Arrow path with gradient
+      ctx.strokeStyle=arr.color+'60';ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(f.x,f.y+28);ctx.quadraticCurveTo(cx2,cy2,t2.x,t2.y-28);ctx.stroke();
+      // Glow line
+      ctx.strokeStyle=arr.color+'20';ctx.lineWidth=8;
+      ctx.beginPath();ctx.moveTo(f.x,f.y+28);ctx.quadraticCurveTo(cx2,cy2,t2.x,t2.y-28);ctx.stroke();
       // Arrow head
-      var endX=t2.x,endY=t2.y-25;
-      ctx.fillStyle=arr.color;ctx.beginPath();
-      ctx.moveTo(endX,endY);ctx.lineTo(endX-8,endY-10);ctx.lineTo(endX+8,endY-10);ctx.fill();
+      var endX=t2.x,endY=t2.y-28;
+      ctx.fillStyle=arr.color+'80';ctx.beginPath();
+      ctx.moveTo(endX,endY);ctx.lineTo(endX-9,endY-11);ctx.lineTo(endX+9,endY-11);ctx.fill();
       // Label
       ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';
       var lines=arr.label.split('\n');
       lines.forEach(function(ln,i){ctx.fillText(ln,cx2,cy2+i*13);});
     });
-    // Magma arrows
-    ctx.strokeStyle='rgba(220,38,38,0.3)';ctx.lineWidth=2;ctx.setLineDash([5,5]);
+    // Magma arrows (dashed)
+    ctx.strokeStyle='rgba(220,38,38,0.2)';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);
     nodes.forEach(function(n){
       ctx.beginPath();ctx.moveTo(n.x,n.y+30);ctx.lineTo(w/2,magmaY-15);ctx.stroke();
     });
     ctx.setLineDash([]);
-    // Node boxes
+    ctx.fillStyle='rgba(220,38,38,0.3)';ctx.font='8px Poppins';ctx.textAlign='center';
+    ctx.fillText('Melting',w*0.35,h*0.82);ctx.fillText('Melting',w*0.65,h*0.82);
+    // Node boxes with glow
     nodes.forEach(function(n){
-      ctx.fillStyle=n.color+'20';ctx.strokeStyle=n.color;ctx.lineWidth=2;
-      var bw=130,bh=50;
-      ctx.beginPath();
-      ctx.roundRect(n.x-bw/2,n.y-bh/2,bw,bh,10);ctx.fill();ctx.stroke();
+      // Glow
+      var nGlow=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,80);
+      nGlow.addColorStop(0,n.color+'15');nGlow.addColorStop(1,n.color+'00');
+      ctx.fillStyle=nGlow;ctx.beginPath();ctx.arc(n.x,n.y,80,0,Math.PI*2);ctx.fill();
+      // Box
+      var bw=140,bh=52;
+      ctx.fillStyle=n.color+'18';ctx.strokeStyle=n.color;ctx.lineWidth=2;
+      ctx.beginPath();ctx.roundRect(n.x-bw/2,n.y-bh/2,bw,bh,10);ctx.fill();ctx.stroke();
       ctx.fillStyle=n.color;ctx.font='bold 14px Poppins';ctx.textAlign='center';
       ctx.fillText(n.label,n.x,n.y+5);
       ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';
@@ -126,113 +142,194 @@
     var mx2=(f2.x+t3.x)/2-dy2*0.2,my2=(f2.y+t3.y)/2+dx2*0.2;
     var rpx=(1-pr)*(1-pr)*f2.x+2*(1-pr)*pr*mx2+pr*pr*t3.x;
     var rpy=(1-pr)*(1-pr)*f2.y+2*(1-pr)*pr*my2+pr*pr*t3.y;
-    ctx.fillStyle='#f1f5f9';ctx.beginPath();ctx.arc(rpx,rpy,6,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#0f172a';ctx.font='8px sans-serif';ctx.textAlign='center';ctx.fillText('🪨',rpx,rpy+3);
+    // Particle trail
+    var trailColor=nodes[pi].color;
+    for(var tr=1;tr<=4;tr++){
+      var tpr=Math.max(0,pr-tr*0.015);
+      var trx=(1-tpr)*(1-tpr)*f2.x+2*(1-tpr)*tpr*mx2+tpr*tpr*t3.x;
+      var _try=(1-tpr)*(1-tpr)*f2.y+2*(1-tpr)*tpr*my2+tpr*tpr*t3.y;
+      ctx.fillStyle=trailColor+(Math.round((4-tr)/4*60)).toString(16).padStart(2,'0');
+      ctx.beginPath();ctx.arc(trx,_try,4-tr*0.7,0,Math.PI*2);ctx.fill();
+    }
+    // Main particle with glow
+    var partGlow=ctx.createRadialGradient(rpx,rpy,0,rpx,rpy,12);
+    partGlow.addColorStop(0,'rgba(241,245,249,0.4)');partGlow.addColorStop(1,'rgba(241,245,249,0)');
+    ctx.fillStyle=partGlow;ctx.beginPath();ctx.arc(rpx,rpy,12,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f1f5f9';ctx.beginPath();ctx.arc(rpx,rpy,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#64748b';ctx.beginPath();ctx.arc(rpx,rpy,3,0,Math.PI*2);ctx.fill();
   }
   function drawDetail(w,h,type){
     ctx.fillStyle='#0a1628';ctx.fillRect(0,0,w,h);
     if(type==='igneous'){
-      // Magma chamber and cooling
-      ctx.fillStyle='#dc262640';ctx.fillRect(0,h*0.7,w,h*0.3);
-      // Magma bubbles
-      ctx.fillStyle='#ef4444';
-      for(var b=0;b<8;b++){
-        var bx=w*0.2+b*w*0.08,by=h*0.8+Math.sin(t*2+b)*15;
-        ctx.beginPath();ctx.arc(bx,by,8+Math.sin(t+b)*3,0,Math.PI*2);ctx.fill();
+      // Magma chamber with gradient
+      var magGrad=ctx.createLinearGradient(0,h*0.7,0,h);
+      magGrad.addColorStop(0,'#dc262650');magGrad.addColorStop(0.5,'#dc262680');magGrad.addColorStop(1,'#991b1b90');
+      ctx.fillStyle=magGrad;ctx.fillRect(0,h*0.7,w,h*0.3);
+      // Magma bubbles with glow
+      for(var b=0;b<10;b++){
+        var bx=w*0.1+b*w*0.08,by=h*0.8+Math.sin(t*2+b)*15;
+        var br=8+Math.sin(t+b)*3;
+        var bGlow=ctx.createRadialGradient(bx,by,0,bx,by,br*2);
+        bGlow.addColorStop(0,'#fbbf24');bGlow.addColorStop(0.5,'#ef4444');bGlow.addColorStop(1,'#ef444400');
+        ctx.fillStyle=bGlow;ctx.beginPath();ctx.arc(bx,by,br*2,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(bx,by,br,0,Math.PI*2);ctx.fill();
       }
-      // Volcano shape
-      ctx.fillStyle='#4a3520';ctx.beginPath();
-      ctx.moveTo(w*0.3,h*0.7);ctx.lineTo(w*0.45,h*0.3);ctx.lineTo(w*0.55,h*0.3);
-      ctx.lineTo(w*0.7,h*0.7);ctx.fill();
-      // Lava flow
-      ctx.fillStyle='#ef4444';ctx.beginPath();
-      ctx.moveTo(w*0.47,h*0.3);
-      for(var lf=0;lf<10;lf++){
-        ctx.lineTo(w*0.47+Math.sin(t+lf)*8,h*0.3+lf*10);
+      // Volcano shape with gradient
+      var vGrad=ctx.createLinearGradient(w*0.3,h*0.7,w*0.5,h*0.3);
+      vGrad.addColorStop(0,'#78350f');vGrad.addColorStop(0.5,'#4a3520');vGrad.addColorStop(1,'#3d2914');
+      ctx.fillStyle=vGrad;ctx.beginPath();
+      ctx.moveTo(w*0.25,h*0.7);ctx.lineTo(w*0.44,h*0.28);ctx.lineTo(w*0.56,h*0.28);
+      ctx.lineTo(w*0.75,h*0.7);ctx.fill();
+      // Rock texture lines on volcano
+      ctx.strokeStyle='rgba(120,53,15,0.4)';ctx.lineWidth=1;
+      for(var rl=0;rl<6;rl++){
+        var rlY=h*0.35+rl*h*0.06;
+        ctx.beginPath();ctx.moveTo(w*0.35-rl*8,rlY);ctx.lineTo(w*0.65+rl*8,rlY);ctx.stroke();
       }
-      ctx.lineTo(w*0.53,h*0.3+100);
-      for(var lf2=9;lf2>=0;lf2--){
-        ctx.lineTo(w*0.53+Math.sin(t+lf2)*8,h*0.3+lf2*10);
-      }
-      ctx.fill();
-      // Labels
+      // Crater glow
+      var crGlow=ctx.createRadialGradient(w/2,h*0.28,0,w/2,h*0.28,30);
+      crGlow.addColorStop(0,'rgba(251,191,36,0.4)');crGlow.addColorStop(1,'rgba(251,191,36,0)');
+      ctx.fillStyle=crGlow;ctx.beginPath();ctx.arc(w/2,h*0.28,30,0,Math.PI*2);ctx.fill();
+      // Lava flow with gradient
+      ctx.beginPath();ctx.moveTo(w*0.47,h*0.28);
+      for(var lf=0;lf<12;lf++) ctx.lineTo(w*0.47+Math.sin(t+lf)*10,h*0.28+lf*9);
+      ctx.lineTo(w*0.54,h*0.28+108);
+      for(var lf2=11;lf2>=0;lf2--) ctx.lineTo(w*0.54+Math.sin(t+lf2)*10,h*0.28+lf2*9);
+      ctx.closePath();
+      var lGrad=ctx.createLinearGradient(w/2,h*0.28,w/2,h*0.55);
+      lGrad.addColorStop(0,'#fbbf24');lGrad.addColorStop(0.4,'#ef4444');lGrad.addColorStop(1,'#991b1b');
+      ctx.fillStyle=lGrad;ctx.fill();
+      // Intrusive magma body
+      ctx.fillStyle='rgba(220,38,38,0.25)';ctx.beginPath();
+      ctx.ellipse(w*0.38,h*0.58,50,15,0.15,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(220,38,38,0.4)';ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle='#ef4444';ctx.font='9px Poppins';ctx.textAlign='center';
+      ctx.fillText('Pluton (Intrusive)',w*0.38,h*0.58+4);
+      // Labels with background
+      ctx.fillStyle='rgba(15,23,42,0.7)';ctx.beginPath();ctx.roundRect(w/2-185,h*0.5,370,50,6);ctx.fill();
       ctx.fillStyle='#f1f5f9';ctx.font='bold 14px Poppins';ctx.textAlign='center';
       ctx.fillText('Igneous Rock Formation',w/2,25);
       ctx.font='11px Poppins';ctx.fillStyle='#ef4444';
-      ctx.fillText('Extrusive (fast cooling) → Fine-grained (Basalt)',w/2,h*0.55);
-      ctx.fillText('Intrusive (slow cooling) → Coarse-grained (Granite)',w/2,h*0.6);
+      ctx.fillText('Extrusive (fast cooling) \u2192 Fine-grained (Basalt)',w/2,h*0.54);
+      ctx.fillText('Intrusive (slow cooling) \u2192 Coarse-grained (Granite)',w/2,h*0.59);
       ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
-      ctx.fillText('Magma Chamber ~1200°C',w/2,h*0.85);
+      ctx.fillText('Magma Chamber ~1200\u00b0C',w/2,h*0.85);
+      // Crystal formation indicators
+      ctx.fillStyle='#fbbf24';ctx.font='9px Poppins';
+      ctx.fillText('\u2744 Slow cooling = large crystals',w*0.75,h*0.45);
+      ctx.fillText('\u26a1 Fast cooling = small/no crystals',w*0.75,h*0.5);
     }else if(type==='sedimentary'){
-      // Layers
+      // Layers with gradient fills
       var layers=[
-        {color:'#d4a574',label:'Sandstone',y:h*0.3},
-        {color:'#9ca3af',label:'Shale',y:h*0.45},
-        {color:'#e5e7eb',label:'Limestone',y:h*0.6},
-        {color:'#92400e',label:'Conglomerate',y:h*0.75}
+        {color:'#d4a574',color2:'#c2956a',label:'Sandstone',desc:'Quartz grains',y:h*0.3},
+        {color:'#9ca3af',color2:'#7d8590',label:'Shale',desc:'Clay particles',y:h*0.45},
+        {color:'#e5e7eb',color2:'#c8ccd0',label:'Limestone',desc:'CaCO\u2083 fossils',y:h*0.6},
+        {color:'#92400e',color2:'#7c3510',label:'Conglomerate',desc:'Mixed pebbles',y:h*0.75}
       ];
       layers.forEach(function(l,i){
-        ctx.fillStyle=l.color+'80';
-        ctx.fillRect(w*0.15,l.y,w*0.7,h*0.12);
-        ctx.strokeStyle=l.color;ctx.lineWidth=1;
-        ctx.strokeRect(w*0.15,l.y,w*0.7,h*0.12);
+        var lGrad=ctx.createLinearGradient(0,l.y,0,l.y+h*0.12);
+        lGrad.addColorStop(0,l.color+'90');lGrad.addColorStop(1,l.color2+'90');
+        ctx.fillStyle=lGrad;ctx.fillRect(w*0.15,l.y,w*0.7,h*0.12);
+        ctx.strokeStyle=l.color;ctx.lineWidth=1;ctx.strokeRect(w*0.15,l.y,w*0.7,h*0.12);
         // Particle textures
-        for(var p=0;p<15;p++){
-          ctx.fillStyle=l.color;
-          ctx.beginPath();ctx.arc(w*0.2+p*(w*0.65/15)+Math.sin(p)*3,l.y+h*0.06+Math.cos(p+i)*5,2+i,0,Math.PI*2);ctx.fill();
+        for(var p=0;p<20;p++){
+          var px=w*0.18+p*(w*0.64/20)+Math.sin(p)*3;
+          var py=l.y+h*0.06+Math.cos(p+i)*5;
+          var pr=1.5+i*0.8+Math.sin(p)*0.5;
+          ctx.fillStyle=l.color;ctx.beginPath();ctx.arc(px,py,pr,0,Math.PI*2);ctx.fill();
+          if(i===2){ctx.fillStyle='rgba(255,255,255,0.2)';ctx.beginPath();ctx.arc(px,py,pr*0.5,0,Math.PI*2);ctx.fill();}
         }
-        ctx.fillStyle='#f1f5f9';ctx.font='11px Poppins';ctx.textAlign='left';
-        ctx.fillText(l.label,w*0.88,l.y+h*0.07);
+        // Label and description
+        ctx.fillStyle='#f1f5f9';ctx.font='bold 11px Poppins';ctx.textAlign='left';
+        ctx.fillText(l.label,w*0.87,l.y+h*0.05);
+        ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';
+        ctx.fillText(l.desc,w*0.87,l.y+h*0.09);
       });
-      // Compression arrows
-      ctx.strokeStyle='rgba(59,130,246,0.5)';ctx.lineWidth=3;
-      ctx.beginPath();ctx.moveTo(w/2,h*0.15);ctx.lineTo(w/2,h*0.25);ctx.stroke();
-      ctx.fillStyle='rgba(59,130,246,0.5)';ctx.beginPath();ctx.moveTo(w/2-8,h*0.25);ctx.lineTo(w/2,h*0.28);ctx.lineTo(w/2+8,h*0.25);ctx.fill();
+      // Multiple compression arrows
+      [-60,-20,20,60].forEach(function(off){
+        ctx.strokeStyle='rgba(59,130,246,0.4)';ctx.lineWidth=2;
+        ctx.beginPath();ctx.moveTo(w/2+off,h*0.18);ctx.lineTo(w/2+off,h*0.26);ctx.stroke();
+        ctx.fillStyle='rgba(59,130,246,0.5)';ctx.beginPath();
+        ctx.moveTo(w/2+off-5,h*0.26);ctx.lineTo(w/2+off,h*0.28);ctx.lineTo(w/2+off+5,h*0.26);ctx.fill();
+      });
+      // Bottom pressure arrows
+      [-60,-20,20,60].forEach(function(off){
+        ctx.strokeStyle='rgba(59,130,246,0.4)';ctx.lineWidth=2;
+        ctx.beginPath();ctx.moveTo(w/2+off,h*0.92);ctx.lineTo(w/2+off,h*0.88);ctx.stroke();
+        ctx.fillStyle='rgba(59,130,246,0.5)';ctx.beginPath();
+        ctx.moveTo(w/2+off-5,h*0.88);ctx.lineTo(w/2+off,h*0.86);ctx.lineTo(w/2+off+5,h*0.88);ctx.fill();
+      });
+      // Age indicator on left
+      ctx.strokeStyle='rgba(148,163,184,0.3)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+      ctx.beginPath();ctx.moveTo(w*0.08,h*0.3);ctx.lineTo(w*0.08,h*0.88);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='#64748b';ctx.font='9px Poppins';ctx.textAlign='center';
+      ctx.save();ctx.translate(w*0.04,h*0.55);ctx.rotate(-Math.PI/2);ctx.fillText('Older \u2192',0,0);ctx.restore();
       ctx.fillStyle='#f1f5f9';ctx.font='bold 14px Poppins';ctx.textAlign='center';
       ctx.fillText('Sedimentary Rock Formation',w/2,25);
-      ctx.fillStyle='#3b82f6';ctx.font='10px Poppins';
-      ctx.fillText('⬇ Compaction & Cementation',w/2,h*0.2);
+      ctx.fillStyle='#3b82f6';ctx.font='11px Poppins';
+      ctx.fillText('\u2b07 Compaction & Cementation',w/2,h*0.14);
     }else{
       // Metamorphic — heat and pressure
       ctx.fillStyle='#f1f5f9';ctx.font='bold 14px Poppins';ctx.textAlign='center';
       ctx.fillText('Metamorphic Rock Formation',w/2,25);
-      // Rock in center
-      var rx=w/2,ry=h/2;
-      // Pressure arrows from sides
-      ctx.strokeStyle='#8b5cf6';ctx.lineWidth=3;
-      var offsets=[[-150,0],[150,0],[0,-120],[0,120]];
-      offsets.forEach(function(o){
-        var sx=rx+o[0],sy=ry+o[1];
-        ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(rx+o[0]*0.3,ry+o[1]*0.3);ctx.stroke();
+      var rx=w/2,ry=h*0.45;
+      // Outer heat glow
+      var outerGlow=ctx.createRadialGradient(rx,ry,0,rx,ry,130);
+      outerGlow.addColorStop(0,'rgba(139,92,246,0.08)');outerGlow.addColorStop(0.5,'rgba(239,68,68,0.06)');outerGlow.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=outerGlow;ctx.beginPath();ctx.arc(rx,ry,130,0,Math.PI*2);ctx.fill();
+      // Animated pressure arrows from 8 directions
+      for(var pa=0;pa<8;pa++){
+        var ang=pa*Math.PI/4;
+        var dist=110+Math.sin(t*2+pa)*8;
+        var sx2=rx+Math.cos(ang)*dist,sy2=ry+Math.sin(ang)*dist;
+        var ex2=rx+Math.cos(ang)*50,ey2=ry+Math.sin(ang)*50;
+        // Arrow shaft
+        var aGrad=ctx.createLinearGradient(sx2,sy2,ex2,ey2);
+        aGrad.addColorStop(0,'rgba(139,92,246,0.1)');aGrad.addColorStop(1,'rgba(139,92,246,0.6)');
+        ctx.strokeStyle=aGrad;ctx.lineWidth=2.5;
+        ctx.beginPath();ctx.moveTo(sx2,sy2);ctx.lineTo(ex2,ey2);ctx.stroke();
+        // Arrow head
         ctx.fillStyle='#8b5cf6';ctx.beginPath();
-        var ax=rx+o[0]*0.3,ay=ry+o[1]*0.3;
-        ctx.arc(ax,ay,5,0,Math.PI*2);ctx.fill();
-      });
-      ctx.fillStyle='#8b5cf620';ctx.font='10px Poppins';
-      ctx.fillText('← PRESSURE →',w/2,ry-80);
-      ctx.fillText('← PRESSURE →',w/2,ry+90);
-      // Heat glow
-      var heatGrad=ctx.createRadialGradient(rx,ry,10,rx,ry,80);
-      heatGrad.addColorStop(0,'rgba(239,68,68,0.3)');heatGrad.addColorStop(1,'rgba(239,68,68,0)');
-      ctx.fillStyle=heatGrad;ctx.beginPath();ctx.arc(rx,ry,80,0,Math.PI*2);ctx.fill();
-      // Rock transforming
+        var headAng=Math.atan2(ey2-sy2,ex2-sx2);
+        ctx.moveTo(ex2,ey2);
+        ctx.lineTo(ex2-10*Math.cos(headAng-0.35),ey2-10*Math.sin(headAng-0.35));
+        ctx.lineTo(ex2-10*Math.cos(headAng+0.35),ey2-10*Math.sin(headAng+0.35));ctx.fill();
+      }
+      ctx.fillStyle='#8b5cf680';ctx.font='10px Poppins';
+      ctx.fillText('PRESSURE',w/2,ry-95);
+      // Inner heat glow
+      var heatGrad=ctx.createRadialGradient(rx,ry,10,rx,ry,70);
+      heatGrad.addColorStop(0,'rgba(251,191,36,0.3)');heatGrad.addColorStop(0.5,'rgba(239,68,68,0.2)');heatGrad.addColorStop(1,'rgba(239,68,68,0)');
+      ctx.fillStyle=heatGrad;ctx.beginPath();ctx.arc(rx,ry,70,0,Math.PI*2);ctx.fill();
+      // Rock transforming with gradient
       var pulse=Math.sin(t*2)*5;
-      ctx.fillStyle='#6d28d9';ctx.beginPath();
+      var rGrad=ctx.createRadialGradient(rx-8,ry-5,0,rx,ry,40+pulse);
+      rGrad.addColorStop(0,'#7c3aed');rGrad.addColorStop(0.7,'#6d28d9');rGrad.addColorStop(1,'#4c1d95');
+      ctx.fillStyle=rGrad;ctx.beginPath();
       ctx.ellipse(rx,ry,40+pulse,30-pulse*0.5,Math.sin(t*0.5)*0.1,0,Math.PI*2);ctx.fill();
-      // Foliation lines
-      ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;
-      for(var fl=0;fl<5;fl++){
+      ctx.strokeStyle='rgba(167,139,250,0.4)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.ellipse(rx,ry,40+pulse,30-pulse*0.5,Math.sin(t*0.5)*0.1,0,Math.PI*2);ctx.stroke();
+      // Enhanced foliation lines
+      ctx.lineWidth=1.5;
+      for(var fl=0;fl<7;fl++){
+        var fAlpha=0.15+Math.sin(t+fl)*0.1;
+        ctx.strokeStyle='rgba(255,255,255,'+fAlpha+')';
         ctx.beginPath();
-        ctx.moveTo(rx-30+fl*15,ry-20);
-        ctx.quadraticCurveTo(rx-30+fl*15+Math.sin(t+fl)*3,ry,rx-30+fl*15,ry+20);
+        ctx.moveTo(rx-25+fl*8,ry-18);
+        ctx.quadraticCurveTo(rx-25+fl*8+Math.sin(t*1.5+fl)*5,ry,rx-25+fl*8,ry+18);
         ctx.stroke();
       }
-      ctx.fillStyle='#f1f5f9';ctx.font='11px Poppins';
-      ctx.fillText('🔥 HEAT',rx,ry+55);
-      ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
-      ctx.fillText('Limestone → Marble',w/2,h*0.85);
-      ctx.fillText('Sandstone → Quartzite',w/2,h*0.9);
-      ctx.fillText('Shale → Slate',w/2,h*0.95);
+      // Heat label with flame symbol
+      ctx.fillStyle='#ef4444';ctx.font='bold 11px Poppins';
+      ctx.fillText('\ud83d\udd25 HEAT (~200\u2013800\u00b0C)',rx,ry+60);
+      // Transformation examples panel
+      ctx.fillStyle='rgba(15,23,42,0.6)';ctx.beginPath();ctx.roundRect(w*0.2,h*0.78,w*0.6,h*0.2,8);ctx.fill();
+      ctx.strokeStyle='rgba(139,92,246,0.3)';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(w*0.2,h*0.78,w*0.6,h*0.2,8);ctx.stroke();
+      ctx.fillStyle='#a78bfa';ctx.font='bold 10px Poppins';ctx.fillText('Metamorphic Transformations',w/2,h*0.83);
+      ctx.fillStyle='#e2e8f0';ctx.font='10px Poppins';
+      ctx.fillText('Limestone \u2192 Marble   |   Sandstone \u2192 Quartzite   |   Shale \u2192 Slate',w/2,h*0.89);
+      ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';
+      ctx.fillText('Granite \u2192 Gneiss   |   Basalt \u2192 Schist',w/2,h*0.94);
     }
   }
   draw();

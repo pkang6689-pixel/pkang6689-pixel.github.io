@@ -78,122 +78,239 @@
     ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
     t+=0.016;
     var cx=w/2,cy=h/2,cellR=Math.min(w,h)*0.3;
+    // Subtle grid background
+    ctx.strokeStyle='rgba(51,65,85,0.15)';ctx.lineWidth=0.5;
+    for(var gx=0;gx<w;gx+=30){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,h);ctx.stroke();}
+    for(var gy2=0;gy2<h;gy2+=30){ctx.beginPath();ctx.moveTo(0,gy2);ctx.lineTo(w,gy2);ctx.stroke();}
+
     if(curPhase<=4){
-      // Cell membrane
+      // Cell membrane with glow
       var stretch=curPhase===3?1+Math.sin(t*2)*0.05:curPhase===4?1.1:1;
+      // Outer glow
+      var cellGlow=ctx.createRadialGradient(cx,cy,cellR*Math.max(stretch,1/stretch)*0.85,cx,cy,cellR*Math.max(stretch,1/stretch)*1.15);
+      cellGlow.addColorStop(0,'rgba(34,197,94,0.08)');cellGlow.addColorStop(1,'rgba(34,197,94,0)');
+      ctx.fillStyle=cellGlow;ctx.beginPath();ctx.ellipse(cx,cy,cellR*stretch*1.15,cellR/stretch*1.15,0,0,Math.PI*2);ctx.fill();
+      // Membrane
       ctx.strokeStyle='#22c55e';ctx.lineWidth=3;
       ctx.beginPath();ctx.ellipse(cx,cy,cellR*stretch,cellR/stretch,0,0,Math.PI*2);ctx.stroke();
-      ctx.fillStyle='rgba(34,197,94,0.05)';ctx.fill();
+      // Cell interior fill
+      var intGrad=ctx.createRadialGradient(cx-cellR*0.15,cy-cellR*0.15,0,cx,cy,cellR);
+      intGrad.addColorStop(0,'rgba(34,197,94,0.06)');intGrad.addColorStop(1,'rgba(34,197,94,0.02)');
+      ctx.fillStyle=intGrad;ctx.fill();
     }
     if(curPhase===0){
       // Interphase: nucleus with chromatin
+      var nucGlow=ctx.createRadialGradient(cx,cy,cellR*0.3,cx,cy,cellR*0.45);
+      nucGlow.addColorStop(0,'rgba(96,165,250,0.12)');nucGlow.addColorStop(1,'rgba(96,165,250,0)');
+      ctx.fillStyle=nucGlow;ctx.beginPath();ctx.arc(cx,cy,cellR*0.45,0,Math.PI*2);ctx.fill();
       ctx.strokeStyle='#60a5fa';ctx.lineWidth=2;
       ctx.beginPath();ctx.arc(cx,cy,cellR*0.4,0,Math.PI*2);ctx.stroke();
-      ctx.fillStyle='rgba(96,165,250,0.1)';ctx.fill();
-      // Chromatin strands
-      ctx.strokeStyle='rgba(168,85,247,0.5)';ctx.lineWidth=1.5;
+      ctx.fillStyle='rgba(96,165,250,0.08)';ctx.fill();
+      // Nuclear envelope label
+      ctx.fillStyle='rgba(96,165,250,0.5)';ctx.font='8px Poppins';ctx.textAlign='center';
+      ctx.fillText('Nuclear Envelope',cx,cy-cellR*0.4-8);
+      // Chromatin strands with glow
       for(var i=0;i<8;i++){
         var sx=cx+Math.cos(i*0.8+t*0.3)*cellR*0.25;
         var sy=cy+Math.sin(i*1.1+t*0.2)*cellR*0.2;
+        ctx.strokeStyle='rgba(168,85,247,0.2)';ctx.lineWidth=4;
+        ctx.beginPath();ctx.moveTo(sx,sy);
+        ctx.quadraticCurveTo(sx+15*Math.sin(t+i),sy+10*Math.cos(t+i),sx+20,sy+15);ctx.stroke();
+        ctx.strokeStyle='rgba(168,85,247,0.6)';ctx.lineWidth=1.5;
         ctx.beginPath();ctx.moveTo(sx,sy);
         ctx.quadraticCurveTo(sx+15*Math.sin(t+i),sy+10*Math.cos(t+i),sx+20,sy+15);ctx.stroke();
       }
-      // Centrosome
-      ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(cx+cellR*0.3,cy-cellR*0.3,4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(168,85,247,0.4)';ctx.font='8px Poppins';
+      ctx.fillText('Chromatin',cx,cy+8);
+      // Centrosomes (pair)
+      var centX=cx+cellR*0.3,centY=cy-cellR*0.3;
+      var centGlow=ctx.createRadialGradient(centX,centY,2,centX,centY,10);
+      centGlow.addColorStop(0,'rgba(245,158,11,0.4)');centGlow.addColorStop(1,'rgba(245,158,11,0)');
+      ctx.fillStyle=centGlow;ctx.beginPath();ctx.arc(centX,centY,10,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(centX-3,centY,3,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(centX+3,centY,3,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(245,158,11,0.5)';ctx.font='7px Poppins';
+      ctx.fillText('Centrosomes',centX,centY-12);
     }else if(curPhase===1){
       // Prophase: condensed chromosomes, breaking nucleus
-      ctx.strokeStyle='rgba(96,165,250,0.3)';ctx.lineWidth=1;ctx.setLineDash([4,6]);
+      ctx.strokeStyle='rgba(96,165,250,0.3)';ctx.lineWidth=1.5;ctx.setLineDash([4,6]);
       ctx.beginPath();ctx.arc(cx,cy,cellR*0.35,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-      // Chromosomes (X shapes)
-      ctx.strokeStyle='#a855f7';ctx.lineWidth=3;
+      ctx.fillStyle='rgba(96,165,250,0.3)';ctx.font='8px Poppins';ctx.textAlign='center';
+      ctx.fillText('Envelope breaking down',cx,cy-cellR*0.35-8);
+      // Chromosomes (X shapes with centromere glow)
       var chroms=[[-30,-20],[0,-35],[30,-10],[-20,20],[15,25],[0,0]];
       chroms.forEach(function(c){
         var x2=cx+c[0],y2=cy+c[1];
+        // Centromere glow
+        var cmGlow=ctx.createRadialGradient(x2,y2,1,x2,y2,8);
+        cmGlow.addColorStop(0,'rgba(168,85,247,0.3)');cmGlow.addColorStop(1,'rgba(168,85,247,0)');
+        ctx.fillStyle=cmGlow;ctx.beginPath();ctx.arc(x2,y2,8,0,Math.PI*2);ctx.fill();
+        // Sister chromatids as thick X
+        ctx.strokeStyle='#a855f7';ctx.lineWidth=3.5;ctx.lineCap='round';
         ctx.beginPath();ctx.moveTo(x2-8,y2-10);ctx.lineTo(x2+8,y2+10);ctx.stroke();
         ctx.beginPath();ctx.moveTo(x2+8,y2-10);ctx.lineTo(x2-8,y2+10);ctx.stroke();
+        // Centromere dot
+        ctx.fillStyle='#c084fc';ctx.beginPath();ctx.arc(x2,y2,2.5,0,Math.PI*2);ctx.fill();
       });
       // Spindle fibers forming
-      ctx.strokeStyle='rgba(251,191,36,0.3)';ctx.lineWidth=1;
       var poleL=cx-cellR*0.7,poleR=cx+cellR*0.7;
-      ctx.fillStyle='#f59e0b';
-      ctx.beginPath();ctx.arc(poleL,cy,5,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.arc(poleR,cy,5,0,Math.PI*2);ctx.fill();
+      // Centrosome glow
+      [poleL,poleR].forEach(function(px){
+        var pg=ctx.createRadialGradient(px,cy,3,px,cy,14);
+        pg.addColorStop(0,'rgba(245,158,11,0.4)');pg.addColorStop(1,'rgba(245,158,11,0)');
+        ctx.fillStyle=pg;ctx.beginPath();ctx.arc(px,cy,14,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(px,cy,5,0,Math.PI*2);ctx.fill();
+      });
+      // Aster rays
+      ctx.strokeStyle='rgba(251,191,36,0.15)';ctx.lineWidth=0.5;
+      for(var r=0;r<8;r++){
+        var ra=r*Math.PI/4;
+        ctx.beginPath();ctx.moveTo(poleL,cy);ctx.lineTo(poleL+Math.cos(ra)*20,cy+Math.sin(ra)*20);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(poleR,cy);ctx.lineTo(poleR+Math.cos(ra)*20,cy+Math.sin(ra)*20);ctx.stroke();
+      }
+      ctx.fillStyle='rgba(245,158,11,0.4)';ctx.font='7px Poppins';ctx.textAlign='center';
+      ctx.fillText('Centriole',poleL,cy+20);ctx.fillText('Centriole',poleR,cy+20);
     }else if(curPhase===2){
       // Metaphase: chromosomes aligned at center
-      ctx.strokeStyle='rgba(251,191,36,0.4)';ctx.lineWidth=1;
       var poleL2=cx-cellR*0.8,poleR2=cx+cellR*0.8;
-      ctx.fillStyle='#f59e0b';
-      ctx.beginPath();ctx.arc(poleL2,cy,5,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.arc(poleR2,cy,5,0,Math.PI*2);ctx.fill();
+      // Centrosome glow
+      [poleL2,poleR2].forEach(function(px){
+        var pg=ctx.createRadialGradient(px,cy,3,px,cy,14);
+        pg.addColorStop(0,'rgba(245,158,11,0.4)');pg.addColorStop(1,'rgba(245,158,11,0)');
+        ctx.fillStyle=pg;ctx.beginPath();ctx.arc(px,cy,14,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(px,cy,5,0,Math.PI*2);ctx.fill();
+      });
       // Metaphase plate line
-      ctx.strokeStyle='rgba(148,163,184,0.2)';ctx.setLineDash([3,3]);
+      ctx.strokeStyle='rgba(148,163,184,0.15)';ctx.setLineDash([3,3]);ctx.lineWidth=1;
       ctx.beginPath();ctx.moveTo(cx,cy-cellR*0.6);ctx.lineTo(cx,cy+cellR*0.6);ctx.stroke();ctx.setLineDash([]);
-      // Aligned chromosomes
+      ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='8px Poppins';ctx.textAlign='center';
+      ctx.fillText('Metaphase Plate',cx,cy-cellR*0.6-5);
+      // Aligned chromosomes with spindle fibers (gradient)
       for(var i=0;i<6;i++){
         var yOff=-60+i*24;
-        ctx.strokeStyle='#a855f7';ctx.lineWidth=3;
+        // Spindle fibers with gradient
+        var sfGradL=ctx.createLinearGradient(poleL2,cy,cx,cy+yOff);
+        sfGradL.addColorStop(0,'rgba(251,191,36,0.3)');sfGradL.addColorStop(1,'rgba(251,191,36,0.1)');
+        ctx.strokeStyle=sfGradL;ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(poleL2,cy);ctx.lineTo(cx,cy+yOff);ctx.stroke();
+        var sfGradR=ctx.createLinearGradient(poleR2,cy,cx,cy+yOff);
+        sfGradR.addColorStop(0,'rgba(251,191,36,0.3)');sfGradR.addColorStop(1,'rgba(251,191,36,0.1)');
+        ctx.strokeStyle=sfGradR;
+        ctx.beginPath();ctx.moveTo(poleR2,cy);ctx.lineTo(cx,cy+yOff);ctx.stroke();
+        // Chromosome with glow
+        var cmGlow2=ctx.createRadialGradient(cx,cy+yOff,1,cx,cy+yOff,10);
+        cmGlow2.addColorStop(0,'rgba(168,85,247,0.25)');cmGlow2.addColorStop(1,'rgba(168,85,247,0)');
+        ctx.fillStyle=cmGlow2;ctx.beginPath();ctx.arc(cx,cy+yOff,10,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#a855f7';ctx.lineWidth=3.5;ctx.lineCap='round';
         ctx.beginPath();ctx.moveTo(cx-8,cy+yOff-8);ctx.lineTo(cx+8,cy+yOff+8);ctx.stroke();
         ctx.beginPath();ctx.moveTo(cx+8,cy+yOff-8);ctx.lineTo(cx-8,cy+yOff+8);ctx.stroke();
-        // Spindle fibers
-        ctx.strokeStyle='rgba(251,191,36,0.3)';ctx.lineWidth=1;
-        ctx.beginPath();ctx.moveTo(poleL2,cy);ctx.lineTo(cx,cy+yOff);ctx.stroke();
-        ctx.beginPath();ctx.moveTo(poleR2,cy);ctx.lineTo(cx,cy+yOff);ctx.stroke();
+        ctx.fillStyle='#c084fc';ctx.beginPath();ctx.arc(cx,cy+yOff,2.5,0,Math.PI*2);ctx.fill();
       }
     }else if(curPhase===3){
       // Anaphase: chromatids pulling apart
       var sep=Math.min(t*30,cellR*0.5);
       var poleL3=cx-cellR*0.8,poleR3=cx+cellR*0.8;
-      ctx.fillStyle='#f59e0b';
-      ctx.beginPath();ctx.arc(poleL3,cy,5,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.arc(poleR3,cy,5,0,Math.PI*2);ctx.fill();
+      // Centrosomes
+      [poleL3,poleR3].forEach(function(px){
+        var pg=ctx.createRadialGradient(px,cy,3,px,cy,14);
+        pg.addColorStop(0,'rgba(245,158,11,0.4)');pg.addColorStop(1,'rgba(245,158,11,0)');
+        ctx.fillStyle=pg;ctx.beginPath();ctx.arc(px,cy,14,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(px,cy,5,0,Math.PI*2);ctx.fill();
+      });
       for(var i=0;i<6;i++){
         var yOff2=-50+i*20;
-        // Left chromatid
-        ctx.fillStyle='#a855f7';ctx.beginPath();ctx.arc(cx-sep,cy+yOff2,5,0,Math.PI*2);ctx.fill();
-        // Right chromatid
-        ctx.beginPath();ctx.arc(cx+sep,cy+yOff2,5,0,Math.PI*2);ctx.fill();
-        // Spindles
-        ctx.strokeStyle='rgba(251,191,36,0.3)';ctx.lineWidth=1;
+        // Spindle fibers
+        var sfGL=ctx.createLinearGradient(poleL3,cy,cx-sep,cy+yOff2);
+        sfGL.addColorStop(0,'rgba(251,191,36,0.25)');sfGL.addColorStop(1,'rgba(251,191,36,0.1)');
+        ctx.strokeStyle=sfGL;ctx.lineWidth=1;
         ctx.beginPath();ctx.moveTo(poleL3,cy);ctx.lineTo(cx-sep,cy+yOff2);ctx.stroke();
+        var sfGR=ctx.createLinearGradient(poleR3,cy,cx+sep,cy+yOff2);
+        sfGR.addColorStop(0,'rgba(251,191,36,0.25)');sfGR.addColorStop(1,'rgba(251,191,36,0.1)');
+        ctx.strokeStyle=sfGR;
         ctx.beginPath();ctx.moveTo(poleR3,cy);ctx.lineTo(cx+sep,cy+yOff2);ctx.stroke();
+        // Left chromatid (V shape)
+        ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.lineCap='round';
+        ctx.beginPath();ctx.moveTo(cx-sep-4,cy+yOff2-6);ctx.lineTo(cx-sep,cy+yOff2+2);ctx.lineTo(cx-sep+4,cy+yOff2-6);ctx.stroke();
+        // Right chromatid
+        ctx.beginPath();ctx.moveTo(cx+sep-4,cy+yOff2-6);ctx.lineTo(cx+sep,cy+yOff2+2);ctx.lineTo(cx+sep+4,cy+yOff2-6);ctx.stroke();
+        // Glow halos
+        var chGlow=ctx.createRadialGradient(cx-sep,cy+yOff2,2,cx-sep,cy+yOff2,8);
+        chGlow.addColorStop(0,'rgba(168,85,247,0.2)');chGlow.addColorStop(1,'rgba(168,85,247,0)');
+        ctx.fillStyle=chGlow;ctx.beginPath();ctx.arc(cx-sep,cy+yOff2,8,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();ctx.arc(cx+sep,cy+yOff2,8,0,Math.PI*2);ctx.fill();
       }
+      // Direction arrows
+      ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='bold 16px Poppins';ctx.textAlign='center';
+      ctx.fillText('←',cx-sep-20,cy);ctx.fillText('→',cx+sep+20,cy);
     }else if(curPhase===4){
       // Telophase: two nuclear envelopes forming
       var offset=cellR*0.4;
-      ctx.strokeStyle='#60a5fa';ctx.lineWidth=2;
-      ctx.beginPath();ctx.arc(cx-offset,cy,cellR*0.25,0,Math.PI*2);ctx.stroke();
-      ctx.beginPath();ctx.arc(cx+offset,cy,cellR*0.25,0,Math.PI*2);ctx.stroke();
+      // Nuclear envelope glow
+      [cx-offset,cx+offset].forEach(function(nucX){
+        var ng=ctx.createRadialGradient(nucX,cy,cellR*0.18,nucX,cy,cellR*0.3);
+        ng.addColorStop(0,'rgba(96,165,250,0.1)');ng.addColorStop(1,'rgba(96,165,250,0)');
+        ctx.fillStyle=ng;ctx.beginPath();ctx.arc(nucX,cy,cellR*0.3,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#60a5fa';ctx.lineWidth=2;
+        ctx.beginPath();ctx.arc(nucX,cy,cellR*0.25,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle='rgba(96,165,250,0.06)';ctx.fill();
+      });
       // Decondensing chromatin
-      ctx.strokeStyle='rgba(168,85,247,0.4)';ctx.lineWidth=1;
       for(var i=0;i<4;i++){
-        ctx.beginPath();
-        ctx.moveTo(cx-offset+Math.cos(i+t)*15,cy+Math.sin(i*1.5+t)*12);
-        ctx.quadraticCurveTo(cx-offset+10,cy+5,cx-offset+Math.cos(i+1)*18,cy+Math.sin(i+1)*15);ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(cx+offset+Math.cos(i+t)*15,cy+Math.sin(i*1.5+t)*12);
-        ctx.quadraticCurveTo(cx+offset+10,cy+5,cx+offset+Math.cos(i+1)*18,cy+Math.sin(i+1)*15);ctx.stroke();
+        [cx-offset,cx+offset].forEach(function(baseX){
+          ctx.strokeStyle='rgba(168,85,247,0.15)';ctx.lineWidth=3;
+          ctx.beginPath();
+          ctx.moveTo(baseX+Math.cos(i+t)*15,cy+Math.sin(i*1.5+t)*12);
+          ctx.quadraticCurveTo(baseX+10,cy+5,baseX+Math.cos(i+1)*18,cy+Math.sin(i+1)*15);ctx.stroke();
+          ctx.strokeStyle='rgba(168,85,247,0.4)';ctx.lineWidth=1;
+          ctx.beginPath();
+          ctx.moveTo(baseX+Math.cos(i+t)*15,cy+Math.sin(i*1.5+t)*12);
+          ctx.quadraticCurveTo(baseX+10,cy+5,baseX+Math.cos(i+1)*18,cy+Math.sin(i+1)*15);ctx.stroke();
+        });
       }
+      // Cleavage furrow starting
+      ctx.strokeStyle='rgba(34,197,94,0.4)';ctx.lineWidth=1;ctx.setLineDash([3,4]);
+      ctx.beginPath();ctx.moveTo(cx,cy-cellR*0.8);ctx.lineTo(cx,cy+cellR*0.8);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='rgba(34,197,94,0.3)';ctx.font='8px Poppins';ctx.textAlign='center';
+      ctx.fillText('Cleavage furrow forming',cx,cy+cellR*0.85+10);
     }else{
-      // Cytokinesis: cleavage furrow
+      // Cytokinesis: two daughter cells
       var pinch=Math.min(t*15,cellR*0.85);
+      // Left cell glow
+      var lcGlow=ctx.createRadialGradient(cx-cellR*0.5,cy,cellR*0.3,cx-cellR*0.5,cy,cellR*0.5);
+      lcGlow.addColorStop(0,'rgba(34,197,94,0.06)');lcGlow.addColorStop(1,'rgba(34,197,94,0)');
+      ctx.fillStyle=lcGlow;ctx.beginPath();ctx.arc(cx-cellR*0.5,cy,cellR*0.5,0,Math.PI*2);ctx.fill();
       ctx.strokeStyle='#22c55e';ctx.lineWidth=3;
-      // Left cell
       ctx.beginPath();ctx.arc(cx-cellR*0.5,cy,cellR*0.45,0,Math.PI*2);ctx.stroke();
-      ctx.fillStyle='rgba(34,197,94,0.05)';ctx.fill();
-      // Right cell
+      ctx.fillStyle='rgba(34,197,94,0.04)';ctx.fill();
+      // Right cell glow
+      var rcGlow=ctx.createRadialGradient(cx+cellR*0.5,cy,cellR*0.3,cx+cellR*0.5,cy,cellR*0.5);
+      rcGlow.addColorStop(0,'rgba(34,197,94,0.06)');rcGlow.addColorStop(1,'rgba(34,197,94,0)');
+      ctx.fillStyle=rcGlow;ctx.beginPath();ctx.arc(cx+cellR*0.5,cy,cellR*0.5,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#22c55e';ctx.lineWidth=3;
       ctx.beginPath();ctx.arc(cx+cellR*0.5,cy,cellR*0.45,0,Math.PI*2);ctx.stroke();
-      ctx.fill();
-      // Nuclei
-      ctx.strokeStyle='#60a5fa';ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.arc(cx-cellR*0.5,cy,cellR*0.15,0,Math.PI*2);ctx.stroke();
-      ctx.beginPath();ctx.arc(cx+cellR*0.5,cy,cellR*0.15,0,Math.PI*2);ctx.stroke();
-      ctx.fillStyle='#22c55e';ctx.font='11px Poppins';ctx.textAlign='center';
+      ctx.fillStyle='rgba(34,197,94,0.04)';ctx.fill();
+      // Nuclei with glow
+      [cx-cellR*0.5,cx+cellR*0.5].forEach(function(nucX){
+        var ng2=ctx.createRadialGradient(nucX,cy,cellR*0.05,nucX,cy,cellR*0.18);
+        ng2.addColorStop(0,'rgba(96,165,250,0.1)');ng2.addColorStop(1,'rgba(96,165,250,0)');
+        ctx.fillStyle=ng2;ctx.beginPath();ctx.arc(nucX,cy,cellR*0.18,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#60a5fa';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.arc(nucX,cy,cellR*0.15,0,Math.PI*2);ctx.stroke();
+      });
+      ctx.fillStyle='#22c55e';ctx.font='bold 11px Poppins';ctx.textAlign='center';
       ctx.fillText('2n = 46',cx-cellR*0.5,cy+cellR*0.3);
       ctx.fillText('2n = 46',cx+cellR*0.5,cy+cellR*0.3);
+      ctx.fillStyle='rgba(34,197,94,0.4)';ctx.font='9px Poppins';
+      ctx.fillText('Daughter Cell',cx-cellR*0.5,cy-cellR*0.35);
+      ctx.fillText('Daughter Cell',cx+cellR*0.5,cy-cellR*0.35);
     }
-    // Phase label
+    // Phase label with background
+    ctx.fillStyle='rgba(0,0,0,0.4)';
+    var phaseText=phases[curPhase];
+    var tw=ctx.measureText(phaseText).width;
+    ctx.fillRect(cx-tw/2-12,h-30,tw+24,22);
     ctx.fillStyle='#fff';ctx.font='bold 14px Poppins';ctx.textAlign='center';
-    ctx.fillText(phases[curPhase],cx,h-15);
+    ctx.fillText(phaseText,cx,h-14);
     requestAnimationFrame(draw);
   }
   draw();

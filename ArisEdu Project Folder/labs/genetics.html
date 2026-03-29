@@ -114,21 +114,31 @@
     var letter=td.letter;
     var p1Label=p1.replace(/A/g,letter).replace(/a/g,letter.toLowerCase());
     var p2Label=p2.replace(/A/g,letter).replace(/a/g,letter.toLowerCase());
-    // Punnett Square
-    var sqX=w*0.08,sqY=h*0.05,sqSize=Math.min(h*0.55,w*0.4);
+    // Punnett Square with improved rendering
+    var sqX=w*0.08,sqY=h*0.08,sqSize=Math.min(h*0.55,w*0.4);
     var cellSize=sqSize/2;
-    // Header
+    // Title with underline
     ctx.fillStyle='#f1f5f9';ctx.font='bold 13px Poppins';ctx.textAlign='center';
-    ctx.fillText('Punnett Square',sqX+sqSize/2+cellSize*0.5,sqY-8);
-    // Parent labels
-    ctx.fillStyle='#f59e0b';ctx.font='bold 12px Poppins';
+    ctx.fillText('Punnett Square',sqX+sqSize/2+cellSize*0.5,sqY-12);
+    ctx.strokeStyle='rgba(34,197,94,0.2)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(sqX+cellSize*0.5-20,sqY-8);ctx.lineTo(sqX+sqSize+cellSize*0.5+20,sqY-8);ctx.stroke();
+    // Parent labels with colored indicators
     var a1Labels=[p1g[0].replace('A',letter).replace('a',letter.toLowerCase()),p1g[1].replace('A',letter).replace('a',letter.toLowerCase())];
     var a2Labels=[p2g[0].replace('A',letter).replace('a',letter.toLowerCase()),p2g[1].replace('A',letter).replace('a',letter.toLowerCase())];
-    ctx.fillText(a2Labels[0],sqX+cellSize*0.5+cellSize,sqY+cellSize*0.4);
-    ctx.fillText(a2Labels[1],sqX+cellSize*0.5+cellSize*2,sqY+cellSize*0.4);
-    ctx.fillText(a1Labels[0],sqX+cellSize*0.3,sqY+cellSize+cellSize*0.5);
-    ctx.fillText(a1Labels[1],sqX+cellSize*0.3,sqY+cellSize*2+cellSize*0.5);
-    // Grid
+    // Parent 2 alleles (top)
+    ctx.fillStyle='rgba(96,165,250,0.6)';ctx.font='9px Poppins';ctx.textAlign='center';
+    ctx.fillText('Parent 2 \u2192',sqX+cellSize*1.5,sqY+cellSize*0.15);
+    ctx.fillStyle='#60a5fa';ctx.font='bold 14px Poppins';
+    ctx.fillText(a2Labels[0],sqX+cellSize*0.5+cellSize,sqY+cellSize*0.5);
+    ctx.fillText(a2Labels[1],sqX+cellSize*0.5+cellSize*2,sqY+cellSize*0.5);
+    // Parent 1 alleles (left)
+    ctx.save();ctx.translate(sqX+cellSize*0.15,sqY+cellSize*1.5);ctx.rotate(-Math.PI/2);
+    ctx.fillStyle='rgba(96,165,250,0.6)';ctx.font='9px Poppins';
+    ctx.fillText('Parent 1 \u2192',0,0);ctx.restore();
+    ctx.fillStyle='#60a5fa';ctx.font='bold 14px Poppins';ctx.textAlign='center';
+    ctx.fillText(a1Labels[0],sqX+cellSize*0.35,sqY+cellSize+cellSize*0.55);
+    ctx.fillText(a1Labels[1],sqX+cellSize*0.35,sqY+cellSize*2+cellSize*0.55);
+    // Grid cells with rounded corners and gradients
     for(var r=0;r<2;r++){
       for(var c=0;c<2;c++){
         var gx=sqX+cellSize+(c*cellSize),gy=sqY+cellSize+(r*cellSize);
@@ -136,36 +146,91 @@
         var geno=allele1+allele2;
         if(geno[0]==='a'&&geno[1]!=='a') geno=geno[1]+geno[0];
         var isDom=geno.indexOf('A')!==-1;
-        ctx.fillStyle=isDom?td.domColor+'30':td.recColor+'20';
-        ctx.fillRect(gx,gy,cellSize,cellSize);
-        ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.strokeRect(gx,gy,cellSize,cellSize);
+        // Cell background gradient
+        var cellGrad=ctx.createLinearGradient(gx,gy,gx+cellSize,gy+cellSize);
+        if(isDom){
+          cellGrad.addColorStop(0,td.domColor+'25');cellGrad.addColorStop(1,td.domColor+'10');
+        }else{
+          cellGrad.addColorStop(0,td.recColor+'20');cellGrad.addColorStop(1,td.recColor+'08');
+        }
+        ctx.fillStyle=cellGrad;ctx.fillRect(gx,gy,cellSize,cellSize);
+        ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.strokeRect(gx,gy,cellSize,cellSize);
+        // Genotype label
         var label=geno.replace(/A/g,letter).replace(/a/g,letter.toLowerCase());
         ctx.fillStyle=isDom?td.domColor:'#94a3b8';
-        ctx.font='bold 14px Poppins';ctx.textAlign='center';
-        ctx.fillText(label,gx+cellSize/2,gy+cellSize/2-5);
-        ctx.font='10px Poppins';ctx.fillText(isDom?td.dom:td.rec,gx+cellSize/2,gy+cellSize/2+12);
+        ctx.font='bold 16px Poppins';ctx.textAlign='center';
+        ctx.fillText(label,gx+cellSize/2,gy+cellSize/2-6);
+        // Phenotype
+        ctx.font='10px Poppins';ctx.fillText(isDom?td.dom:td.rec,gx+cellSize/2,gy+cellSize/2+10);
+        // Probability
+        ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='8px Poppins';
+        ctx.fillText('25%',gx+cellSize/2,gy+cellSize-6);
       }
     }
-    // Offspring display (right side)
+    // Phenotype indicators for parents
+    var p1IsDom=p1.indexOf('A')!==-1;
+    var p2IsDom=p2.indexOf('A')!==-1;
+    // Parent 1 phenotype circle
+    ctx.fillStyle=p1IsDom?td.domColor:td.recColor;
+    ctx.beginPath();ctx.arc(sqX-15,sqY+cellSize*1.5,8,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;ctx.stroke();
+    // Parent 2 phenotype circle
+    ctx.fillStyle=p2IsDom?td.domColor:td.recColor;
+    ctx.beginPath();ctx.arc(sqX+cellSize*1.5,sqY-25,8,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;ctx.stroke();
+
+    // Offspring display (right side) with improved rendering
     if(offspring.length>0){
       var ox=w*0.55,oy=h*0.08;
       ctx.fillStyle='#f1f5f9';ctx.font='bold 13px Poppins';ctx.textAlign='center';
       ctx.fillText('Offspring Sample (n=16)',ox+w*0.2,oy);
+      ctx.strokeStyle='rgba(34,197,94,0.2)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(ox+w*0.2-60,oy+4);ctx.lineTo(ox+w*0.2+60,oy+4);ctx.stroke();
+      var domCount=0,recCount=0;
       for(var i=0;i<offspring.length;i++){
         var row=Math.floor(i/4),col=i%4;
         var oxx=ox+col*55,oyy=oy+20+row*55;
         var isDom2=offspring[i].indexOf('A')!==-1;
-        ctx.fillStyle=isDom2?td.domColor:td.recColor;
+        if(isDom2) domCount++; else recCount++;
+        // Glow halo
+        var offGlow=ctx.createRadialGradient(oxx+20,oyy+20,8,oxx+20,oyy+20,20);
+        offGlow.addColorStop(0,isDom2?td.domColor+'30':td.recColor+'20');
+        offGlow.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=offGlow;ctx.beginPath();ctx.arc(oxx+20,oyy+20,20,0,Math.PI*2);ctx.fill();
+        // Circle
+        var offGrad=ctx.createRadialGradient(oxx+17,oyy+17,3,oxx+20,oyy+20,18);
+        offGrad.addColorStop(0,isDom2?td.domColor:td.recColor);
+        offGrad.addColorStop(1,isDom2?td.domColor+'cc':td.recColor+'cc');
+        ctx.fillStyle=offGrad;
         ctx.beginPath();ctx.arc(oxx+20,oyy+20,18,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.stroke();
         var label2=offspring[i].replace(/A/g,letter).replace(/a/g,letter.toLowerCase());
-        ctx.fillStyle=isDom2?'#fff':'#0f172a';ctx.font='bold 10px Poppins';
+        ctx.fillStyle=isDom2?'#fff':'#0f172a';ctx.font='bold 10px Poppins';ctx.textAlign='center';
         ctx.fillText(label2,oxx+20,oyy+24);
       }
+      // Observed ratio
+      ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';
+      ctx.fillText('Observed: '+domCount+' Dom : '+recCount+' Rec',ox+w*0.2,h*0.7);
     }
-    // Parent phenotypes at bottom
-    ctx.fillStyle='#94a3b8';ctx.font='11px Poppins';ctx.textAlign='center';
-    ctx.fillText('Parent 1: '+p1Label+' ('+((p1.indexOf('A')!==-1)?td.dom:td.rec)+')',w*0.25,h-20);
-    ctx.fillText('Parent 2: '+p2Label+' ('+((p2.indexOf('A')!==-1)?td.dom:td.rec)+')',w*0.75,h-20);
+
+    // Parent phenotype display at bottom with bigger icons
+    ctx.textAlign='center';
+    // Parent 1
+    ctx.fillStyle=p1IsDom?td.domColor:td.recColor;
+    ctx.beginPath();ctx.arc(w*0.25,h-35,14,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
+    ctx.fillText('P1: '+p1Label+' ('+((p1.indexOf('A')!==-1)?td.dom:td.rec)+')',w*0.25,h-12);
+    // Cross symbol
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 16px Poppins';
+    ctx.fillText('\u00D7',w*0.5,h-30);
+    // Parent 2
+    ctx.fillStyle=p2IsDom?td.domColor:td.recColor;
+    ctx.beginPath();ctx.arc(w*0.75,h-35,14,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
+    ctx.fillText('P2: '+p2Label+' ('+((p2.indexOf('A')!==-1)?td.dom:td.rec)+')',w*0.75,h-12);
+
     requestAnimationFrame(draw);
   }
   calc();draw();

@@ -33,6 +33,7 @@
 <body class="dark-mode">
 <script src="../scripts/taskbar.js"></script>
 <div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
   <h1>✨ Bioluminescence</h1>
   <p class="subtitle">Click the canvas to trigger bioluminescent flashes in the deep sea.</p>
   <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
@@ -93,75 +94,178 @@
     var w=cv.width,h=cv.height;
     var depth2=parseInt(document.getElementById('depth').value);
     var darkness=Math.min(0.98,depth2/4000);
-    // Dark ocean
-    ctx.fillStyle='rgba(2,6,23,'+darkness+')';ctx.fillRect(0,0,w,h);
+    // Deep ocean gradient
+    var oceanGrad=ctx.createLinearGradient(0,0,0,h);
+    oceanGrad.addColorStop(0,'rgba(2,6,23,'+Math.max(0.7,darkness*0.8)+')');
+    oceanGrad.addColorStop(0.5,'rgba(5,10,30,'+darkness+')');
+    oceanGrad.addColorStop(1,'rgba(2,4,15,'+Math.min(1,darkness*1.1)+')');
+    ctx.fillStyle=oceanGrad;ctx.fillRect(0,0,w,h);
     t+=0.016;
-    // Ambient particles
-    ctx.fillStyle='rgba(59,130,246,0.03)';
-    for(var i=0;i<20;i++){
-      var px=(i*197+t*10)%w,py=(i*131+t*5)%h;
-      ctx.beginPath();ctx.arc(px,py,1,0,Math.PI*2);ctx.fill();
+    // Dim surface light (if shallow)
+    if(depth2<1500){
+      var surfGlow=ctx.createRadialGradient(w/2,-50,0,w/2,-50,h*0.6);
+      surfGlow.addColorStop(0,'rgba(59,130,246,'+(0.04*(1-depth2/1500))+')');surfGlow.addColorStop(1,'rgba(59,130,246,0)');
+      ctx.fillStyle=surfGlow;ctx.fillRect(0,0,w,h);
     }
-    // Expanding glow rings
+    // Marine snow particles
+    ctx.fillStyle='rgba(148,163,184,0.08)';
+    for(var i=0;i<25;i++){
+      var px=(i*197+t*8)%w,py=(i*131+t*12)%h;
+      ctx.beginPath();ctx.arc(px,py,0.6+Math.sin(t+i)*0.3,0,Math.PI*2);ctx.fill();
+    }
+    // Expanding glow rings from clicks
     for(var g=glows.length-1;g>=0;g--){
       var gl=glows[g];
-      gl.r+=2;gl.alpha-=0.015;
+      gl.r+=2;gl.alpha-=0.013;
       if(gl.alpha<=0){glows.splice(g,1);continue;}
-      var glowColor=orgType==='anglerfish'?'200,220,255':orgType==='dinoflagellate'?'80,160,255':'0,255,200';
-      ctx.strokeStyle='rgba('+glowColor+','+gl.alpha*0.5+')';ctx.lineWidth=2;
+      var glowColor=orgType==='anglerfish'?'180,200,255':orgType==='dinoflagellate'?'80,180,255':'0,255,180';
+      // Outer ring
+      ctx.strokeStyle='rgba('+glowColor+','+gl.alpha*0.4+')';ctx.lineWidth=2;
       ctx.beginPath();ctx.arc(gl.x,gl.y,gl.r,0,Math.PI*2);ctx.stroke();
-      // Inner glow
+      // Pulsing inner ring
+      ctx.strokeStyle='rgba('+glowColor+','+gl.alpha*0.2+')';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(gl.x,gl.y,gl.r*0.6,0,Math.PI*2);ctx.stroke();
+      // Core glow
       var igr=ctx.createRadialGradient(gl.x,gl.y,0,gl.x,gl.y,gl.r*0.5);
-      igr.addColorStop(0,'rgba('+glowColor+','+gl.alpha*0.2+')');
+      igr.addColorStop(0,'rgba('+glowColor+','+gl.alpha*0.25+')');
       igr.addColorStop(1,'rgba('+glowColor+',0)');
       ctx.fillStyle=igr;ctx.beginPath();ctx.arc(gl.x,gl.y,gl.r*0.5,0,Math.PI*2);ctx.fill();
+      // Scattered luminous particles from ring
+      for(var rp=0;rp<3;rp++){
+        var rpa=rp/3*Math.PI*2+t;
+        var rpx=gl.x+Math.cos(rpa)*gl.r*0.8;
+        var rpy=gl.y+Math.sin(rpa)*gl.r*0.8;
+        ctx.fillStyle='rgba('+glowColor+','+gl.alpha*0.3+')';
+        ctx.beginPath();ctx.arc(rpx,rpy,1.5,0,Math.PI*2);ctx.fill();
+      }
     }
     // Creatures
     creatures.forEach(function(c){
       c.x+=c.vx;c.y+=c.vy+Math.sin(t+c.phase)*0.3;
-      if(c.x<0||c.x>w)c.vx*=-1;
+      if(c.x<-20)c.x=w+20;if(c.x>w+20)c.x=-20;
       if(c.y<0||c.y>h)c.vy*=-1;
       if(c.glowing){c.glowTime-=0.016;if(c.glowTime<=0)c.glowing=false;}
-      var glowAlpha=c.glowing?0.6+Math.sin(t*8)*0.3:0.05+Math.sin(t*0.5+c.phase)*0.03;
-      var color2=orgType==='anglerfish'?'200,220,255':orgType==='dinoflagellate'?'80,160,255':'0,255,200';
-      // Glow aura
-      var auraR=c.size*(c.glowing?2.5:1.2);
+      var glowAlpha=c.glowing?0.7+Math.sin(t*8)*0.25:0.04+Math.sin(t*0.5+c.phase)*0.03;
+      var color2=orgType==='anglerfish'?'180,200,255':orgType==='dinoflagellate'?'80,180,255':'0,255,180';
+      // Multi-ring glow aura
+      var auraR=c.size*(c.glowing?3:1.3);
       var aura=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,auraR);
-      aura.addColorStop(0,'rgba('+color2+','+glowAlpha+')');
+      aura.addColorStop(0,'rgba('+color2+','+glowAlpha*0.8+')');
+      aura.addColorStop(0.4,'rgba('+color2+','+glowAlpha*0.3+')');
       aura.addColorStop(1,'rgba('+color2+',0)');
       ctx.fillStyle=aura;ctx.beginPath();ctx.arc(c.x,c.y,auraR,0,Math.PI*2);ctx.fill();
-      // Body
       if(orgType==='jellyfish'){
-        ctx.fillStyle='rgba('+color2+','+Math.min(1,glowAlpha+0.2)+')';
+        // Bell with gradient
+        var bellGrad=ctx.createRadialGradient(c.x,c.y-c.size*0.1,0,c.x,c.y,c.size*0.6);
+        bellGrad.addColorStop(0,'rgba('+color2+','+Math.min(1,glowAlpha+0.4)+')');
+        bellGrad.addColorStop(1,'rgba('+color2+','+Math.min(1,glowAlpha+0.1)+')');
+        ctx.fillStyle=bellGrad;
         ctx.beginPath();ctx.arc(c.x,c.y,c.size*0.6,Math.PI,0);ctx.fill();
-        // Tentacles
-        ctx.strokeStyle='rgba('+color2+','+glowAlpha+')';ctx.lineWidth=1;
-        for(var tt=0;tt<4;tt++){
-          ctx.beginPath();ctx.moveTo(c.x-c.size*0.4+tt*c.size*0.25,c.y);
-          ctx.quadraticCurveTo(c.x-c.size*0.3+tt*c.size*0.2+Math.sin(t*2+tt)*5,c.y+c.size,c.x-c.size*0.2+tt*c.size*0.15,c.y+c.size*1.2);ctx.stroke();
+        // Bell rim
+        ctx.strokeStyle='rgba('+color2+','+Math.min(1,glowAlpha+0.2)+')';ctx.lineWidth=1;
+        ctx.beginPath();ctx.arc(c.x,c.y,c.size*0.6,Math.PI,0);ctx.stroke();
+        // Internal radial canals
+        ctx.strokeStyle='rgba('+color2+','+glowAlpha*0.4+')';ctx.lineWidth=0.5;
+        for(var rc=0;rc<4;rc++){
+          var rca=Math.PI+rc/4*Math.PI;
+          ctx.beginPath();ctx.moveTo(c.x,c.y);
+          ctx.lineTo(c.x+Math.cos(rca)*c.size*0.55,c.y+Math.sin(rca)*c.size*0.55);ctx.stroke();
+        }
+        // Tentacles with wave
+        ctx.strokeStyle='rgba('+color2+','+glowAlpha*0.7+')';ctx.lineWidth=1;
+        for(var tt=0;tt<5;tt++){
+          var tx=c.x-c.size*0.45+tt*c.size*0.22;
+          ctx.beginPath();ctx.moveTo(tx,c.y);
+          var cp1x=tx+Math.sin(t*2.5+tt)*6;
+          var cp1y=c.y+c.size*0.5;
+          var cp2x=tx-Math.sin(t*3+tt)*4;
+          var cp2y=c.y+c.size;
+          var endX=tx+Math.sin(t*2+tt)*3;
+          var endY=c.y+c.size*1.3;
+          ctx.bezierCurveTo(cp1x,cp1y,cp2x,cp2y,endX,endY);ctx.stroke();
+          // Tiny glow at tentacle tips when glowing
+          if(c.glowing){
+            ctx.fillStyle='rgba('+color2+','+glowAlpha*0.5+')';
+            ctx.beginPath();ctx.arc(endX,endY,1.5,0,Math.PI*2);ctx.fill();
+          }
         }
       }else if(orgType==='dinoflagellate'){
-        ctx.fillStyle='rgba('+color2+','+Math.min(1,glowAlpha+0.3)+')';
-        ctx.beginPath();ctx.arc(c.x,c.y,c.size*0.3,0,Math.PI*2);ctx.fill();
+        // Cell body with gradient
+        var cellGrad=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,c.size*0.35);
+        cellGrad.addColorStop(0,'rgba('+color2+','+Math.min(1,glowAlpha+0.5)+')');
+        cellGrad.addColorStop(0.6,'rgba('+color2+','+Math.min(1,glowAlpha+0.2)+')');
+        cellGrad.addColorStop(1,'rgba('+color2+','+glowAlpha*0.5+')');
+        ctx.fillStyle=cellGrad;
+        ctx.beginPath();ctx.arc(c.x,c.y,c.size*0.35,0,Math.PI*2);ctx.fill();
+        // Cell membrane
+        ctx.strokeStyle='rgba('+color2+','+Math.min(0.8,glowAlpha+0.15)+')';ctx.lineWidth=0.8;
+        ctx.beginPath();ctx.arc(c.x,c.y,c.size*0.35,0,Math.PI*2);ctx.stroke();
+        // Flagella with wave motion
+        ctx.strokeStyle='rgba('+color2+','+glowAlpha*0.5+')';ctx.lineWidth=0.5;
+        ctx.beginPath();ctx.moveTo(c.x+c.size*0.3,c.y);
+        ctx.quadraticCurveTo(c.x+c.size*0.6,c.y+Math.sin(t*5+c.phase)*4,c.x+c.size*0.8,c.y+Math.sin(t*6+c.phase)*5);ctx.stroke();
+        // Transverse flagellum circle
+        ctx.beginPath();ctx.arc(c.x,c.y,c.size*0.38,0,Math.PI*2);ctx.stroke();
       }else{
-        // Anglerfish
-        ctx.fillStyle='rgba(80,80,100,0.6)';
-        ctx.beginPath();ctx.ellipse(c.x,c.y,c.size,c.size*0.7,0,0,Math.PI*2);ctx.fill();
-        // Lure
-        ctx.strokeStyle='rgba(200,220,255,0.5)';ctx.lineWidth=1;
-        ctx.beginPath();ctx.moveTo(c.x+c.size*0.5,c.y-c.size*0.5);
-        ctx.quadraticCurveTo(c.x+c.size*0.8,c.y-c.size,c.x+c.size*0.6,c.y-c.size*1.2);ctx.stroke();
-        // Lure light
-        var lureGlow=ctx.createRadialGradient(c.x+c.size*0.6,c.y-c.size*1.2,0,c.x+c.size*0.6,c.y-c.size*1.2,10);
-        lureGlow.addColorStop(0,'rgba(200,220,255,'+glowAlpha+')');lureGlow.addColorStop(1,'rgba(200,220,255,0)');
-        ctx.fillStyle=lureGlow;ctx.beginPath();ctx.arc(c.x+c.size*0.6,c.y-c.size*1.2,10,0,Math.PI*2);ctx.fill();
-        // Eye
-        ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(c.x+c.size*0.3,c.y-c.size*0.2,3,0,Math.PI*2);ctx.fill();
+        // Anglerfish body with more detail
+        ctx.save();
+        var dir=c.vx>0?1:-1;
+        ctx.translate(c.x,c.y);ctx.scale(dir,1);
+        // Body gradient
+        var bodyGrad=ctx.createRadialGradient(0,0,0,0,0,c.size);
+        bodyGrad.addColorStop(0,'rgba(60,60,80,0.7)');bodyGrad.addColorStop(1,'rgba(30,30,50,0.5)');
+        ctx.fillStyle=bodyGrad;
+        ctx.beginPath();ctx.ellipse(0,0,c.size,c.size*0.7,0,0,Math.PI*2);ctx.fill();
+        // Mouth
+        ctx.fillStyle='rgba(20,20,30,0.8)';
+        ctx.beginPath();ctx.arc(c.size*0.6,c.size*0.1,c.size*0.3,0,Math.PI*2);ctx.fill();
+        // Teeth
+        ctx.fillStyle='rgba(200,200,200,0.5)';
+        for(var ft=0;ft<5;ft++){
+          var fta=-0.5+ft*0.25;
+          ctx.beginPath();
+          ctx.moveTo(c.size*0.6+Math.cos(fta)*c.size*0.28,c.size*0.1+Math.sin(fta)*c.size*0.28);
+          ctx.lineTo(c.size*0.6+Math.cos(fta)*c.size*0.35,c.size*0.1+Math.sin(fta)*c.size*0.35);
+          ctx.lineTo(c.size*0.6+Math.cos(fta+0.1)*c.size*0.28,c.size*0.1+Math.sin(fta+0.1)*c.size*0.28);
+          ctx.fill();
+        }
+        // Illicium (lure stalk)
+        ctx.strokeStyle='rgba(150,150,180,0.5)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(c.size*0.3,-c.size*0.5);
+        ctx.quadraticCurveTo(c.size*0.6,-c.size*1.1,c.size*0.4,-c.size*1.3);ctx.stroke();
+        // Esca (lure light) with pulsing glow
+        var lureR=5+Math.sin(t*4)*2;
+        var lureGlow=ctx.createRadialGradient(c.size*0.4,-c.size*1.3,0,c.size*0.4,-c.size*1.3,lureR*3);
+        lureGlow.addColorStop(0,'rgba(180,200,255,'+glowAlpha*1.2+')');
+        lureGlow.addColorStop(0.3,'rgba(180,200,255,'+glowAlpha*0.5+')');
+        lureGlow.addColorStop(1,'rgba(180,200,255,0)');
+        ctx.fillStyle=lureGlow;ctx.beginPath();ctx.arc(c.size*0.4,-c.size*1.3,lureR*3,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='rgba(220,230,255,'+Math.min(1,glowAlpha+0.3)+')';
+        ctx.beginPath();ctx.arc(c.size*0.4,-c.size*1.3,lureR*0.5,0,Math.PI*2);ctx.fill();
+        // Eye with glow
+        ctx.fillStyle='rgba(255,255,255,0.7)';ctx.beginPath();ctx.arc(c.size*0.25,-c.size*0.2,3.5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='rgba(0,0,0,0.9)';ctx.beginPath();ctx.arc(c.size*0.3,-c.size*0.2,1.8,0,Math.PI*2);ctx.fill();
+        // Fin
+        ctx.fillStyle='rgba(50,50,70,0.4)';
+        ctx.beginPath();ctx.moveTo(-c.size*0.6,0);
+        ctx.quadraticCurveTo(-c.size*0.8,-c.size*0.4,-c.size*0.5,-c.size*0.1);ctx.fill();
+        ctx.restore();
       }
     });
+    // Chemical reaction equation panel
+    ctx.fillStyle='rgba(0,0,0,0.3)';
+    var eqW=320;var eqX=w/2-eqW/2;
+    ctx.beginPath();ctx.moveTo(eqX,12);ctx.arcTo(eqX+eqW,12,eqX+eqW,42,6);ctx.arcTo(eqX+eqW,42,eqX,42,6);ctx.arcTo(eqX,42,eqX,12,6);ctx.arcTo(eqX,12,eqX+eqW,12,6);ctx.fill();
+    ctx.fillStyle='rgba(0,255,180,0.5)';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Luciferin + Luciferase + O\u2082 \u2192 Oxyluciferin + Light',w/2,30);
+    // Depth indicator
+    ctx.fillStyle='rgba(0,0,0,0.3)';
+    ctx.beginPath();ctx.moveTo(w-80,h-36);ctx.arcTo(w-6,h-36,w-6,h-8,6);ctx.arcTo(w-6,h-8,w-80,h-8,6);ctx.arcTo(w-80,h-8,w-80,h-36,6);ctx.arcTo(w-80,h-36,w-6,h-36,6);ctx.fill();
+    ctx.fillStyle='#64748b';ctx.font='9px Poppins';ctx.textAlign='center';
+    ctx.fillText(depth2+' m depth',w-43,h-17);
     // Instruction text
-    ctx.fillStyle='rgba(148,163,184,0.4)';ctx.font='11px Poppins';ctx.textAlign='center';
-    ctx.fillText('Click anywhere to trigger bioluminescence',w/2,h-15);
+    ctx.fillStyle='rgba(148,163,184,0.35)';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText('\u25CF Click anywhere to trigger bioluminescence',w/2,h-10);
     requestAnimationFrame(draw);
   }
   upd();draw();

@@ -95,66 +95,133 @@
     }
     document.getElementById('vmem').textContent=Vm.toFixed(0)+' mV';
     graph.push(Vm);if(graph.length>300)graph.shift();
-    // Voltage graph (top half)
+    // Voltage graph (top half) with improved visuals
     var gx=w*0.1,gy=h*0.05,gw=w*0.8,gh=h*0.4;
-    ctx.fillStyle='rgba(0,0,0,0.2)';ctx.fillRect(gx,gy,gw,gh);
-    ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.strokeRect(gx,gy,gw,gh);
+    ctx.fillStyle='rgba(2,6,23,0.4)';ctx.beginPath();ctx.roundRect(gx-5,gy-5,gw+10,gh+15,6);ctx.fill();
+    ctx.strokeStyle='rgba(51,65,85,0.3)';ctx.lineWidth=1;ctx.strokeRect(gx,gy,gw,gh);
+    // Grid lines
+    ctx.strokeStyle='rgba(51,65,85,0.15)';ctx.lineWidth=0.5;
+    for(var gli=0;gli<6;gli++){var gly=gy+gli*gh/5;ctx.beginPath();ctx.moveTo(gx,gly);ctx.lineTo(gx+gw,gly);ctx.stroke();}
     // Y-axis labels
     ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='right';
-    ctx.fillText('+30',gx-5,gy+10);ctx.fillText('0',gx-5,gy+gh*0.3);
+    ctx.fillText('+30 mV',gx-5,gy+10);ctx.fillText('0',gx-5,gy+gh*0.3);
     ctx.fillText('-55',gx-5,gy+gh*0.55);ctx.fillText('-70',gx-5,gy+gh*0.7);
     ctx.fillText('-80',gx-5,gy+gh*0.8);
-    // Threshold line
-    ctx.strokeStyle='rgba(239,68,68,0.3)';ctx.setLineDash([4,4]);
+    // Threshold line with label
+    ctx.strokeStyle='rgba(239,68,68,0.25)';ctx.setLineDash([4,4]);ctx.lineWidth=1;
     var threshY=gy+gh*(1-((-55+80)/110));
     ctx.beginPath();ctx.moveTo(gx,threshY);ctx.lineTo(gx+gw,threshY);ctx.stroke();ctx.setLineDash([]);
-    ctx.fillStyle='#ef4444';ctx.font='8px Poppins';ctx.textAlign='left';ctx.fillText('threshold',gx+gw+3,threshY+3);
-    // Graph line
-    ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.beginPath();
-    for(var i=0;i<graph.length;i++){
-      var px=gx+gw-graph.length+i;
-      var py=gy+gh*(1-((graph[i]+80)/110));
-      if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+    ctx.fillStyle='rgba(239,68,68,0.5)';ctx.font='bold 8px Poppins';ctx.textAlign='left';ctx.fillText('THRESHOLD −55 mV',gx+gw+3,threshY+3);
+    // Resting potential line
+    ctx.strokeStyle='rgba(148,163,184,0.15)';ctx.setLineDash([2,4]);ctx.lineWidth=0.5;
+    var restY=gy+gh*(1-((-70+80)/110));
+    ctx.beginPath();ctx.moveTo(gx,restY);ctx.lineTo(gx+gw,restY);ctx.stroke();ctx.setLineDash([]);
+    // Graph line with phase coloring
+    ctx.lineWidth=2.5;
+    for(var i=1;i<graph.length;i++){
+      var px0=gx+gw-graph.length+i-1;
+      var py0=gy+gh*(1-((graph[i-1]+80)/110));
+      var px1=gx+gw-graph.length+i;
+      var py1=gy+gh*(1-((graph[i]+80)/110));
+      if(graph[i]>graph[i-1]&&graph[i]>-55)ctx.strokeStyle='#ef4444'; // depol
+      else if(graph[i]<graph[i-1]&&graph[i]<0)ctx.strokeStyle='#3b82f6'; // repol
+      else if(graph[i]<-70)ctx.strokeStyle='#a855f7'; // hyper
+      else ctx.strokeStyle='#22c55e';
+      ctx.beginPath();ctx.moveTo(px0,py0);ctx.lineTo(px1,py1);ctx.stroke();
     }
-    ctx.stroke();
-    // Neuron diagram (bottom half)
+    // Current value dot
+    if(graph.length>0){
+      var lastPy=gy+gh*(1-((graph[graph.length-1]+80)/110));
+      ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(gx+gw-1,lastPy,4,0,Math.PI*2);ctx.fill();
+    }
+    // Phase labels on graph
+    ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='8px Poppins';ctx.textAlign='center';
+    ctx.fillText('Depol',gx+gw*0.3,gy+15);ctx.fillText('Repol',gx+gw*0.5,gy+15);ctx.fillText('Hyper',gx+gw*0.65,gy+gh-8);
+    // Title
+    ctx.fillStyle='rgba(34,197,94,0.4)';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Membrane Potential (mV) vs Time',gx+gw/2,gy-8);
+    // Neuron diagram (bottom half) with glowing elements
     var ny=h*0.55;
-    // Cell body
-    ctx.fillStyle='rgba(34,197,94,0.15)';ctx.beginPath();ctx.arc(w*0.15,ny+h*0.15,40,0,Math.PI*2);ctx.fill();
+    // Cell body with gradient
+    var cbGrad=ctx.createRadialGradient(w*0.15-5,ny+h*0.15-5,5,w*0.15,ny+h*0.15,42);
+    cbGrad.addColorStop(0,'rgba(74,222,128,0.2)');cbGrad.addColorStop(1,'rgba(34,197,94,0.05)');
+    ctx.fillStyle=cbGrad;ctx.beginPath();ctx.arc(w*0.15,ny+h*0.15,42,0,Math.PI*2);ctx.fill();
     ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.beginPath();ctx.arc(w*0.15,ny+h*0.15,40,0,Math.PI*2);ctx.stroke();
-    ctx.fillStyle='#22c55e';ctx.font='bold 10px Poppins';ctx.textAlign='center';
-    ctx.fillText('Cell Body',w*0.15,ny+h*0.15+4);
-    // Dendrites
-    ctx.strokeStyle='#22c55e80';ctx.lineWidth=1.5;
-    for(var d=0;d<4;d++){
-      var da=-0.8+d*0.4;
+    // Nucleus inside cell body
+    ctx.strokeStyle='rgba(96,165,250,0.4)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(w*0.15,ny+h*0.15,15,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#22c55e';ctx.font='bold 9px Poppins';ctx.textAlign='center';
+    ctx.fillText('Soma',w*0.15,ny+h*0.15+4);
+    // Dendrites with branching
+    ctx.lineWidth=2;
+    for(var d=0;d<5;d++){
+      var da=-1+d*0.45;
+      var dendGrad=ctx.createLinearGradient(w*0.15-35*Math.cos(da),ny+h*0.15-35*Math.sin(da),
+        w*0.15-75*Math.cos(da),ny+h*0.15-75*Math.sin(da));
+      dendGrad.addColorStop(0,'rgba(34,197,94,0.6)');dendGrad.addColorStop(1,'rgba(34,197,94,0.1)');
+      ctx.strokeStyle=dendGrad;
       ctx.beginPath();ctx.moveTo(w*0.15-35*Math.cos(da),ny+h*0.15-35*Math.sin(da));
-      ctx.lineTo(w*0.15-70*Math.cos(da),ny+h*0.15-70*Math.sin(da));ctx.stroke();
+      ctx.lineTo(w*0.15-65*Math.cos(da),ny+h*0.15-65*Math.sin(da));ctx.stroke();
+      // Branch tips
+      ctx.beginPath();ctx.moveTo(w*0.15-60*Math.cos(da),ny+h*0.15-60*Math.sin(da));
+      ctx.lineTo(w*0.15-75*Math.cos(da+0.15),ny+h*0.15-75*Math.sin(da+0.15));ctx.stroke();
     }
-    // Axon
-    ctx.strokeStyle='#22c55e';ctx.lineWidth=3;
+    ctx.fillStyle='rgba(34,197,94,0.3)';ctx.font='8px Poppins';
+    ctx.fillText('Dendrites',w*0.15-55,ny+h*0.15-50);
+    // Axon with gradient
+    var axGrad=ctx.createLinearGradient(w*0.15+40,0,w*0.75,0);
+    axGrad.addColorStop(0,'#22c55e');axGrad.addColorStop(1,'rgba(34,197,94,0.5)');
+    ctx.strokeStyle=axGrad;ctx.lineWidth=3;
     ctx.beginPath();ctx.moveTo(w*0.15+40,ny+h*0.15);ctx.lineTo(w*0.75,ny+h*0.15);ctx.stroke();
-    // Myelin sheath
+    // Axon hillock
+    ctx.fillStyle='rgba(34,197,94,0.3)';ctx.font='7px Poppins';
+    ctx.fillText('Axon Hillock',w*0.15+55,ny+h*0.15-10);
+    // Myelin sheath with improved rendering
     for(var m=0;m<5;m++){
       var mx=w*0.22+m*(w*0.55/5);
-      ctx.fillStyle='rgba(251,191,36,0.2)';
-      ctx.beginPath();ctx.ellipse(mx+w*0.04,ny+h*0.15,w*0.04,12,0,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle='#fbbf2460';ctx.stroke();
+      var mGrad=ctx.createRadialGradient(mx+w*0.04,ny+h*0.15,5,mx+w*0.04,ny+h*0.15,15);
+      mGrad.addColorStop(0,'rgba(251,191,36,0.15)');mGrad.addColorStop(1,'rgba(251,191,36,0.05)');
+      ctx.fillStyle=mGrad;
+      ctx.beginPath();ctx.ellipse(mx+w*0.04,ny+h*0.15,w*0.04,14,0,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(251,191,36,0.3)';ctx.lineWidth=1.5;ctx.stroke();
+      // Node of Ranvier label (gap between sheaths)
+      if(m<4){
+        ctx.fillStyle='rgba(148,163,184,0.2)';ctx.font='6px Poppins';
+        ctx.fillText('Node',mx+w*0.04+w*0.055/2,ny+h*0.15+22);
+      }
     }
-    // Action potential propagation
+    ctx.fillStyle='rgba(251,191,36,0.4)';ctx.font='8px Poppins';
+    ctx.fillText('Myelin Sheath',w*0.45,ny+h*0.15+30);
+    // Action potential propagation with trail
     if(firing){
       var apX=w*0.15+40+phaseTime*80*speed;
       if(apX<w*0.75){
-        ctx.fillStyle='rgba(34,197,94,0.6)';ctx.beginPath();ctx.arc(apX,ny+h*0.15,8,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#fff';ctx.font='bold 7px Poppins';ctx.fillText('AP',apX,ny+h*0.15+3);
+        // Trail glow
+        var trailLen=Math.min(40,apX-w*0.15-40);
+        var trGrad=ctx.createLinearGradient(apX-trailLen,0,apX,0);
+        trGrad.addColorStop(0,'rgba(34,197,94,0)');trGrad.addColorStop(1,'rgba(34,197,94,0.3)');
+        ctx.strokeStyle=trGrad;ctx.lineWidth=6;
+        ctx.beginPath();ctx.moveTo(apX-trailLen,ny+h*0.15);ctx.lineTo(apX,ny+h*0.15);ctx.stroke();
+        // AP pulse glow
+        var apGlow=ctx.createRadialGradient(apX,ny+h*0.15,3,apX,ny+h*0.15,15);
+        apGlow.addColorStop(0,'rgba(34,197,94,0.5)');apGlow.addColorStop(1,'rgba(34,197,94,0)');
+        ctx.fillStyle=apGlow;ctx.beginPath();ctx.arc(apX,ny+h*0.15,15,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(apX,ny+h*0.15,6,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#fff';ctx.font='bold 6px Poppins';ctx.fillText('AP',apX,ny+h*0.15+2);
       }
     }
-    // Axon terminal
-    ctx.fillStyle='rgba(168,85,247,0.3)';
+    // Axon terminals with gradient
     for(var t2=0;t2<3;t2++){
-      ctx.beginPath();ctx.arc(w*0.77,ny+h*0.15-10+t2*10,8,0,Math.PI*2);ctx.fill();
+      var tGrad=ctx.createRadialGradient(w*0.77,ny+h*0.15-10+t2*10,2,w*0.77,ny+h*0.15-10+t2*10,10);
+      tGrad.addColorStop(0,'rgba(168,85,247,0.3)');tGrad.addColorStop(1,'rgba(168,85,247,0.05)');
+      ctx.fillStyle=tGrad;ctx.beginPath();ctx.arc(w*0.77,ny+h*0.15-10+t2*10,9,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(168,85,247,0.4)';ctx.lineWidth=1;ctx.stroke();
     }
-    ctx.fillStyle='#a855f7';ctx.font='9px Poppins';ctx.fillText('Terminals',w*0.77,ny+h*0.15+30);
+    ctx.fillStyle='#a855f7';ctx.font='8px Poppins';ctx.fillText('Synaptic Terminals',w*0.77,ny+h*0.15+32);
+    // Ion channel indicator
+    ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='bold 9px Poppins';ctx.textAlign='left';
+    ctx.fillText('Na⁺ channels: '+(firing&&phase==='depol'?'OPEN':'Closed'),w*0.02,h-15);
+    ctx.fillText('K⁺ channels: '+(firing&&phase==='repol'?'OPEN':'Closed'),w*0.35,h-15);
     requestAnimationFrame(draw);
   }
   upd();draw();

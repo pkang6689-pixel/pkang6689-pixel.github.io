@@ -31,6 +31,7 @@
 <body class="dark-mode">
 <script src="../scripts/taskbar.js"></script>
 <div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
   <h1>🛢️ Oil Spill Simulator</h1>
   <p class="subtitle">Model the spread of an oil spill and see its environmental impact.</p>
   <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
@@ -82,67 +83,154 @@
   };
   function draw(){
     var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
-    // Ocean
-    ctx.fillStyle='#1e3a5f';ctx.fillRect(0,0,w,h);
+    // Ocean gradient
+    var oceanGrad=ctx.createLinearGradient(0,0,0,h);
+    oceanGrad.addColorStop(0,'#1a3a5f');oceanGrad.addColorStop(0.5,'#163050');oceanGrad.addColorStop(1,'#0f2440');
+    ctx.fillStyle=oceanGrad;ctx.fillRect(0,0,w,h);
     t+=0.016;
     var wind2=parseInt(document.getElementById('wind').value);
     var cur2=parseInt(document.getElementById('current').value);
-    // Water texture
-    ctx.strokeStyle='rgba(59,130,246,0.1)';ctx.lineWidth=1;
-    for(var wl=0;wl<h;wl+=20){
+    // Water texture with depth
+    for(var wl=0;wl<h;wl+=16){
+      ctx.strokeStyle='rgba(59,130,246,'+(0.06+wl/h*0.04)+')';ctx.lineWidth=1;
       ctx.beginPath();
-      for(var wx=0;wx<w;wx+=5){
-        var wy=wl+Math.sin(wx*0.02+t+wl)*3;
+      for(var wx=0;wx<w;wx+=4){
+        var wy=wl+Math.sin(wx*0.02+t+wl*0.1)*3;
         if(wx===0)ctx.moveTo(wx,wy);else ctx.lineTo(wx,wy);
       }
       ctx.stroke();
     }
+    // Wind direction indicator
+    if(wind2>0){
+      ctx.save();ctx.globalAlpha=0.2;
+      ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;
+      for(var wa=0;wa<3;wa++){
+        var wax=20+wa*25;var way=20;
+        ctx.beginPath();ctx.moveTo(wax,way);ctx.lineTo(wax+15,way);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(wax+12,way-3);ctx.lineTo(wax+16,way);ctx.lineTo(wax+12,way+3);ctx.stroke();
+      }
+      ctx.restore();
+      ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='8px Poppins';ctx.textAlign='left';
+      ctx.fillText('Wind '+wind2+'kt \u2192',15,34);
+    }
+    // Current direction indicator
+    if(cur2>0){
+      ctx.fillStyle='rgba(96,165,250,0.25)';ctx.font='8px Poppins';ctx.textAlign='left';
+      ctx.fillText('Current '+cur2+'kt \u2198',15,46);
+    }
     // Move oil
     var maxArea=0;
     oilBlobs.forEach(function(b){
-      // Wind pushes right, current pushes down-right
       b.vx=wind2*0.003+cur2*0.002+(Math.random()-0.5)*0.02;
       b.vy=cur2*0.001+(Math.random()-0.5)*0.02;
-      // Spread outward
       var dx=b.x-w/2,dy=b.y-h/2;
       var dist2=Math.sqrt(dx*dx+dy*dy);
       if(dist2>0){b.vx+=dx/dist2*0.05;b.vy+=dy/dist2*0.05;}
-      // Boom stops movement
       if(boomDeployed&&b.x>boomX-5){b.vx=Math.min(0,b.vx);b.x=Math.min(b.x,boomX-5);}
       b.x+=b.vx;b.y+=b.vy;
       b.x=Math.max(5,Math.min(w-5,b.x));
       b.y=Math.max(5,Math.min(h-5,b.y));
       maxArea=Math.max(maxArea,Math.sqrt((b.x-w/2)*(b.x-w/2)+(b.y-h/2)*(b.y-h/2)));
     });
-    // Draw oil
+    // Draw oil blobs with iridescent sheen
     oilBlobs.forEach(function(b){
-      ctx.fillStyle='rgba(30,20,10,0.7)';ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();
-      // Iridescent sheen
-      ctx.fillStyle='rgba(147,51,234,0.1)';ctx.beginPath();ctx.arc(b.x-1,b.y-1,b.r*0.7,0,Math.PI*2);ctx.fill();
+      // Dark oil body
+      var oilGrad=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r);
+      oilGrad.addColorStop(0,'rgba(20,15,8,0.8)');oilGrad.addColorStop(1,'rgba(35,25,15,0.5)');
+      ctx.fillStyle=oilGrad;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();
+      // Rainbow iridescent sheen — shifts with position and time
+      var sheenHue=(b.x*0.5+b.y*0.3+t*20)%360;
+      var sheenR=sheenHue/360;var sheenG=((sheenHue+120)%360)/360;var sheenB=((sheenHue+240)%360)/360;
+      ctx.fillStyle='rgba('+Math.floor(sheenR*180+75)+','+Math.floor(sheenG*100+50)+','+Math.floor(sheenB*200+50)+',0.12)';
+      ctx.beginPath();ctx.arc(b.x-b.r*0.2,b.y-b.r*0.2,b.r*0.7,0,Math.PI*2);ctx.fill();
+      // Highlight
+      ctx.fillStyle='rgba(255,255,255,0.04)';
+      ctx.beginPath();ctx.arc(b.x-b.r*0.3,b.y-b.r*0.3,b.r*0.3,0,Math.PI*2);ctx.fill();
     });
-    // Boom
-    if(boomDeployed){
-      ctx.strokeStyle='#f59e0b';ctx.lineWidth=4;
-      ctx.beginPath();ctx.moveTo(boomX,0);ctx.lineTo(boomX,h);ctx.stroke();
-      ctx.fillStyle='#f59e0b';ctx.font='10px Poppins';ctx.textAlign='center';
-      ctx.fillText('BOOM',boomX,15);
+    // Oil slick outline glow
+    if(oilBlobs.length>0){
+      var cx2=0,cy2=0;
+      oilBlobs.forEach(function(b){cx2+=b.x;cy2+=b.y;});
+      cx2/=oilBlobs.length;cy2/=oilBlobs.length;
+      var slickGlow=ctx.createRadialGradient(cx2,cy2,maxArea*0.3,cx2,cy2,maxArea*1.2);
+      slickGlow.addColorStop(0,'rgba(30,20,10,0)');slickGlow.addColorStop(1,'rgba(30,20,10,0.04)');
+      ctx.fillStyle=slickGlow;ctx.beginPath();ctx.arc(cx2,cy2,maxArea*1.2,0,Math.PI*2);ctx.fill();
     }
-    // Wildlife icons (affected if oil nearby)
-    var animals=[{x:w*0.15,y:h*0.2,emoji:'🐦'},{x:w*0.8,y:h*0.3,emoji:'🐢'},{x:w*0.3,y:h*0.8,emoji:'🐟'},{x:w*0.7,y:h*0.7,emoji:'🐠'}];
+    // Boom with floats
+    if(boomDeployed){
+      // Boom line with gradient
+      var boomGrad=ctx.createLinearGradient(0,0,0,h);
+      boomGrad.addColorStop(0,'#f59e0b');boomGrad.addColorStop(1,'#d97706');
+      ctx.strokeStyle=boomGrad;ctx.lineWidth=5;
+      ctx.beginPath();ctx.moveTo(boomX,0);ctx.lineTo(boomX,h);ctx.stroke();
+      // Float buoys along boom
+      for(var bf=0;bf<8;bf++){
+        var bfy=bf*(h/8)+h/16;
+        ctx.fillStyle='#fbbf24';
+        ctx.beginPath();ctx.arc(boomX,bfy,5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#d97706';
+        ctx.beginPath();ctx.arc(boomX,bfy,3,0,Math.PI*2);ctx.fill();
+      }
+      // Boom label
+      ctx.fillStyle='#fbbf24';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+      ctx.fillText('CONTAINMENT BOOM',boomX,15);
+      // Skirt visualization (underwater)
+      ctx.strokeStyle='rgba(245,158,11,0.15)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(boomX+3,0);ctx.lineTo(boomX+12,h);ctx.stroke();
+    }
+    // Wildlife — draw as canvas shapes instead of emoji for visual consistency
+    var animals=[
+      {x:w*0.15,y:h*0.2,type:'bird'},
+      {x:w*0.8,y:h*0.3,type:'turtle'},
+      {x:w*0.3,y:h*0.8,type:'fish'},
+      {x:w*0.7,y:h*0.7,type:'fish2'}
+    ];
     animals.forEach(function(a){
       var nearOil=oilBlobs.some(function(b){return Math.abs(b.x-a.x)<40&&Math.abs(b.y-a.y)<40;});
-      ctx.font='20px sans-serif';ctx.textAlign='center';
-      ctx.fillText(a.emoji,a.x,a.y);
-      if(nearOil){
-        ctx.fillStyle='rgba(239,68,68,0.5)';ctx.beginPath();ctx.arc(a.x,a.y-5,15,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#ef4444';ctx.font='8px Poppins';ctx.fillText('⚠',a.x+12,a.y-10);
+      ctx.save();ctx.translate(a.x,a.y);
+      if(a.type==='bird'){
+        // Seabird silhouette
+        ctx.fillStyle=nearOil?'rgba(120,80,50,0.7)':'rgba(200,200,200,0.6)';
+        ctx.beginPath();ctx.moveTo(0,-8);ctx.lineTo(-12,-2);ctx.lineTo(-8,0);ctx.lineTo(0,-3);ctx.lineTo(8,0);ctx.lineTo(12,-2);ctx.closePath();ctx.fill();
+        ctx.beginPath();ctx.arc(0,-3,3,0,Math.PI*2);ctx.fill();
+      }else if(a.type==='turtle'){
+        ctx.fillStyle=nearOil?'rgba(100,70,40,0.6)':'rgba(34,197,94,0.5)';
+        ctx.beginPath();ctx.ellipse(0,0,12,8,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=nearOil?'rgba(80,60,35,0.5)':'rgba(22,163,74,0.4)';
+        ctx.beginPath();ctx.arc(13,0,4,0,Math.PI*2);ctx.fill(); // head
+        // Flippers
+        ctx.beginPath();ctx.ellipse(-5,-9,5,2,0.3,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();ctx.ellipse(-5,9,5,2,-0.3,0,Math.PI*2);ctx.fill();
+      }else{
+        ctx.fillStyle=nearOil?'rgba(100,70,40,0.5)':'rgba(96,165,250,0.5)';
+        ctx.beginPath();ctx.ellipse(0,0,10,5,0,0,Math.PI*2);ctx.fill();
+        // Tail
+        ctx.beginPath();ctx.moveTo(-10,0);ctx.lineTo(-16,-5);ctx.lineTo(-16,5);ctx.closePath();ctx.fill();
+        // Eye
+        ctx.fillStyle='rgba(255,255,255,0.5)';ctx.beginPath();ctx.arc(5,-1,1.5,0,Math.PI*2);ctx.fill();
       }
+      // Danger indicator
+      if(nearOil){
+        ctx.strokeStyle='rgba(239,68,68,0.5)';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle='#ef4444';ctx.font='bold 9px Poppins';ctx.textAlign='center';
+        ctx.fillText('\u26A0',14,-12);
+      }
+      ctx.restore();
     });
+    // Spill source indicator
+    ctx.strokeStyle='rgba(148,163,184,0.2)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.arc(w/2,h/2,8,0,Math.PI*2);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(148,163,184,0.25)';ctx.font='8px Poppins';ctx.textAlign='center';
+    ctx.fillText('Spill Origin',w/2,h/2+18);
     // Stats
     var areaSq=(maxArea*0.01)*(maxArea*0.01)*Math.PI;
-    document.getElementById('area').textContent=areaSq.toFixed(1)+' km²';
+    document.getElementById('area').textContent=areaSq.toFixed(1)+' km\u00B2';
     document.getElementById('days').textContent=Math.floor(t/2);
-    document.getElementById('impact').textContent=areaSq>10?'Severe':areaSq>3?'High':areaSq>1?'Moderate':'Low';
+    var impactLevel=areaSq>10?'Severe':areaSq>3?'High':areaSq>1?'Moderate':'Low';
+    document.getElementById('impact').textContent=impactLevel;
+    document.getElementById('impact').style.color=areaSq>10?'#ef4444':areaSq>3?'#f59e0b':areaSq>1?'#fbbf24':'#22c55e';
     requestAnimationFrame(draw);
   }
   upd();draw();

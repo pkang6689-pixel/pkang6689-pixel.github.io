@@ -29,6 +29,7 @@
 <body class="dark-mode">
 <script src="../scripts/taskbar.js"></script>
 <div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
   <h1>🌈 Spectroscopy</h1>
   <p class="subtitle">Analyze absorption and emission spectra to identify chemical elements.</p>
   <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
@@ -77,80 +78,138 @@
     var specH=60;
     // 1. Continuous spectrum (top)
     var y1=30;
-    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';ctx.textAlign='left';
-    ctx.fillText('Continuous Spectrum (white light)',10,y1-5);
+    // Section label with background
+    var lbl1='Continuous Spectrum (white light)';
+    var lbW1=ctx.measureText(lbl1).width+12;
+    ctx.fillStyle='rgba(15,23,42,0.7)';ctx.beginPath();ctx.roundRect(8,y1-17,lbW1+4,18,4);ctx.fill();
+    ctx.fillStyle='#e2e8f0';ctx.font='bold 11px Poppins';ctx.textAlign='left';
+    ctx.fillText(lbl1,12,y1-3);
     for(var wl=380;wl<=700;wl++){
       var x=wavelengthToX(wl,w);
       ctx.fillStyle=wavelengthToColor(wl);
       ctx.fillRect(x,y1,2,specH);
     }
+    // Top/bottom gradient edges
+    var edgeTop=ctx.createLinearGradient(0,y1,0,y1+6);
+    edgeTop.addColorStop(0,'rgba(2,6,23,0.5)');edgeTop.addColorStop(1,'rgba(2,6,23,0)');
+    ctx.fillStyle=edgeTop;ctx.fillRect(40,y1,w-80,6);
+    var edgeBot=ctx.createLinearGradient(0,y1+specH-6,0,y1+specH);
+    edgeBot.addColorStop(0,'rgba(2,6,23,0)');edgeBot.addColorStop(1,'rgba(2,6,23,0.5)');
+    ctx.fillStyle=edgeBot;ctx.fillRect(40,y1+specH-6,w-80,6);
     // 2. Absorption spectrum (middle)
     var y2=y1+specH+30;
-    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';
-    ctx.fillText('Absorption Spectrum — '+el.name,10,y2-5);
+    var lbl2='Absorption Spectrum \u2014 '+el.name;
+    var lbW2=ctx.measureText(lbl2).width+12;
+    ctx.fillStyle='rgba(15,23,42,0.7)';ctx.beginPath();ctx.roundRect(8,y2-17,lbW2+4,18,4);ctx.fill();
+    ctx.fillStyle='#e2e8f0';ctx.font='bold 11px Poppins';ctx.textAlign='left';
+    ctx.fillText(lbl2,12,y2-3);
     for(var wl2=380;wl2<=700;wl2++){
       var x2=wavelengthToX(wl2,w);
-      // Check if this wavelength is near an absorption line
       var absorbed=false;
       el.lines.forEach(function(line){if(Math.abs(wl2-line)<2)absorbed=true;});
       ctx.fillStyle=absorbed?'#020617':wavelengthToColor(wl2);
       ctx.fillRect(x2,y2,2,specH);
     }
-    // 3. Emission spectrum (bottom)
-    var y3=y2+specH+30;
-    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';
-    ctx.fillText('Emission Spectrum — '+el.name,10,y3-5);
-    ctx.fillStyle='#0a0a0a';ctx.fillRect(40,y3,w-80,specH);
+    // Absorption line markers with arrows
     el.lines.forEach(function(line,i){
       var lx=wavelengthToX(line,w);
-      // Glowing emission line
+      ctx.strokeStyle='#94a3b8';ctx.lineWidth=0.5;ctx.setLineDash([2,2]);
+      ctx.beginPath();ctx.moveTo(lx,y2-2);ctx.lineTo(lx,y2+specH+2);ctx.stroke();
+      ctx.setLineDash([]);
+      // Small arrow above
+      ctx.fillStyle='#94a3b8';
+      ctx.beginPath();ctx.moveTo(lx,y2);ctx.lineTo(lx-3,y2-5);ctx.lineTo(lx+3,y2-5);ctx.closePath();ctx.fill();
+    });
+    // Gradient edges
+    var edgeTop2=ctx.createLinearGradient(0,y2,0,y2+6);
+    edgeTop2.addColorStop(0,'rgba(2,6,23,0.5)');edgeTop2.addColorStop(1,'rgba(2,6,23,0)');
+    ctx.fillStyle=edgeTop2;ctx.fillRect(40,y2,w-80,6);
+    // 3. Emission spectrum (bottom)
+    var y3=y2+specH+30;
+    var lbl3='Emission Spectrum \u2014 '+el.name;
+    var lbW3=ctx.measureText(lbl3).width+12;
+    ctx.fillStyle='rgba(15,23,42,0.7)';ctx.beginPath();ctx.roundRect(8,y3-17,lbW3+4,18,4);ctx.fill();
+    ctx.fillStyle='#e2e8f0';ctx.font='bold 11px Poppins';ctx.textAlign='left';
+    ctx.fillText(lbl3,12,y3-3);
+    ctx.fillStyle='#050505';ctx.fillRect(40,y3,w-80,specH);
+    el.lines.forEach(function(line,i){
+      var lx=wavelengthToX(line,w);
+      // Outer glow
+      var outerGlow=ctx.createRadialGradient(lx,y3+specH/2,0,lx,y3+specH/2,14);
+      outerGlow.addColorStop(0,el.colors[i]+'40');outerGlow.addColorStop(1,el.colors[i]+'00');
+      ctx.fillStyle=outerGlow;ctx.fillRect(lx-14,y3,28,specH);
+      // Inner glow
+      var grd=ctx.createRadialGradient(lx,y3+specH/2,0,lx,y3+specH/2,6);
+      grd.addColorStop(0,el.colors[i]+'90');grd.addColorStop(1,el.colors[i]+'00');
+      ctx.fillStyle=grd;ctx.fillRect(lx-8,y3,16,specH);
+      // Core line
       ctx.fillStyle=el.colors[i];
       ctx.fillRect(lx-1,y3,3,specH);
-      // Glow effect
-      var grd=ctx.createRadialGradient(lx,y3+specH/2,0,lx,y3+specH/2,8);
-      grd.addColorStop(0,el.colors[i]+'80');grd.addColorStop(1,el.colors[i]+'00');
-      ctx.fillStyle=grd;ctx.fillRect(lx-10,y3,20,specH);
     });
-    // Wavelength scale
+    // Wavelength scale with enhanced ticks
     var y4=y3+specH+15;
-    ctx.strokeStyle='#475569';ctx.lineWidth=1;
+    ctx.strokeStyle='#475569';ctx.lineWidth=1.5;
     ctx.beginPath();ctx.moveTo(40,y4);ctx.lineTo(w-40,y4);ctx.stroke();
     ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';
     for(var wl3=400;wl3<=700;wl3+=50){
       var x3=wavelengthToX(wl3,w);
-      ctx.fillText(wl3+' nm',x3,y4+13);
-      ctx.beginPath();ctx.moveTo(x3,y4);ctx.lineTo(x3,y4+4);ctx.stroke();
+      // Color dot at tick
+      ctx.fillStyle=wavelengthToColor(wl3);
+      ctx.beginPath();ctx.arc(x3,y4,2,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#94a3b8';ctx.fillText(wl3+' nm',x3,y4+13);
+      ctx.strokeStyle='#475569';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x3,y4-3);ctx.lineTo(x3,y4+4);ctx.stroke();
     }
-    ctx.fillText('← Violet (UV)    Wavelength (nm)    Red (IR) →',w/2,y4+28);
-    // Line labels
-    var y5=y4+45;
-    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';ctx.textAlign='left';
-    ctx.fillText('Spectral Lines:',10,y5);
+    ctx.fillStyle='#64748b';ctx.font='9px Poppins';
+    ctx.fillText('\u2190 Violet (UV)    Wavelength (nm)    Red (IR) \u2192',w/2,y4+28);
+    // Element badge
+    var y5=y4+40;
+    ctx.fillStyle='rgba(245,158,11,0.08)';
+    ctx.beginPath();ctx.roundRect(10,y5-4,70,26,6);ctx.fill();
+    ctx.strokeStyle='rgba(245,158,11,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.roundRect(10,y5-4,70,26,6);ctx.stroke();
+    ctx.fillStyle='#f59e0b';ctx.font='bold 14px Orbitron';ctx.textAlign='center';
+    ctx.fillText(el.name,45,y5+14);
+    // Line labels with color swatches
+    ctx.fillStyle='#94a3b8';ctx.font='bold 10px Poppins';ctx.textAlign='left';
+    ctx.fillText('Spectral Lines:',90,y5+5);
     el.lines.forEach(function(line,i){
+      var bx=90+i*90;
       ctx.fillStyle=el.colors[i];
-      ctx.fillRect(10+i*90,y5+8,12,12);
-      ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
-      ctx.fillText(line+' nm',26+i*90,y5+18);
+      ctx.beginPath();ctx.roundRect(bx,y5+10,14,10,2);ctx.fill();
+      ctx.fillStyle='#cbd5e1';ctx.font='9px Poppins';
+      ctx.fillText(line+' nm',bx+18,y5+19);
     });
-    // Prism diagram
+    // Enhanced prism diagram
     var prismX=w/2,prismY=h-50;
-    // White light arrow
-    ctx.strokeStyle='#f1f5f9';ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(prismX-100,prismY);ctx.lineTo(prismX-30,prismY);ctx.stroke();
-    ctx.fillStyle='#f1f5f9';ctx.font='9px Poppins';ctx.textAlign='center';
-    ctx.fillText('White Light →',prismX-70,prismY-8);
-    // Prism
-    ctx.fillStyle='rgba(147,197,253,0.2)';ctx.strokeStyle='#93c5fd';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(prismX-20,prismY+15);ctx.lineTo(prismX,prismY-15);ctx.lineTo(prismX+20,prismY+15);ctx.closePath();ctx.fill();ctx.stroke();
-    // Dispersed rays
+    // White light beam
+    ctx.strokeStyle='#e2e8f0';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(prismX-110,prismY);ctx.lineTo(prismX-25,prismY);ctx.stroke();
+    // Arrowhead
+    ctx.fillStyle='#e2e8f0';
+    ctx.beginPath();ctx.moveTo(prismX-25,prismY);ctx.lineTo(prismX-32,prismY-4);ctx.lineTo(prismX-32,prismY+4);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';
+    ctx.fillText('White Light',prismX-70,prismY-10);
+    // Prism with glass gradient
+    var prGrad=ctx.createLinearGradient(prismX-20,prismY+15,prismX+20,prismY-15);
+    prGrad.addColorStop(0,'rgba(147,197,253,0.15)');prGrad.addColorStop(0.5,'rgba(147,197,253,0.25)');prGrad.addColorStop(1,'rgba(147,197,253,0.1)');
+    ctx.fillStyle=prGrad;ctx.strokeStyle='#93c5fd';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(prismX-22,prismY+18);ctx.lineTo(prismX,prismY-18);ctx.lineTo(prismX+22,prismY+18);ctx.closePath();ctx.fill();ctx.stroke();
+    // Glass highlight
+    ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(prismX-10,prismY+10);ctx.lineTo(prismX-2,prismY-8);ctx.stroke();
+    // Dispersed rays with glow
     var colors=['#7b00ff','#0000ff','#00ff00','#ffff00','#ff8800','#ff0000'];
+    var labels=['V','B','G','Y','O','R'];
     colors.forEach(function(c,ci){
-      ctx.strokeStyle=c;ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(prismX+20,prismY);
-      ctx.lineTo(prismX+80,prismY-15+ci*6);ctx.stroke();
+      ctx.save();ctx.shadowColor=c;ctx.shadowBlur=4;
+      ctx.strokeStyle=c;ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(prismX+22,prismY);
+      ctx.lineTo(prismX+90,prismY-18+ci*7);ctx.stroke();
+      ctx.restore();
+      ctx.fillStyle=c;ctx.font='bold 8px Poppins';ctx.textAlign='left';
+      ctx.fillText(labels[ci],prismX+93,prismY-16+ci*7);
     });
-    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';
-    ctx.fillText('→ Spectrum',prismX+100,prismY);
     document.getElementById('spec-type').textContent='Emission & Absorption';
     requestAnimationFrame(draw);
   }

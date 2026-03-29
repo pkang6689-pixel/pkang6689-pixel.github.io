@@ -88,53 +88,141 @@
     var w=cv2.width,h=cv2.height;ctx.clearRect(0,0,w,h);
     ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
     step();
-    // Population graph
+    // Population graph with improved styling
     var gx=w*0.08,gy=h*0.05,gw=w*0.84,gh=h*0.55;
-    ctx.fillStyle='rgba(0,0,0,0.2)';ctx.fillRect(gx,gy,gw,gh);
-    ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.strokeRect(gx,gy,gw,gh);
-    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';
-    ctx.fillText('Population over Time',gx+gw/2,gy-5);
-    // Prey line
+    // Graph background with rounded rect
+    ctx.fillStyle='rgba(0,0,0,0.25)';
+    ctx.beginPath();ctx.moveTo(gx+6,gy);ctx.lineTo(gx+gw-6,gy);ctx.quadraticCurveTo(gx+gw,gy,gx+gw,gy+6);
+    ctx.lineTo(gx+gw,gy+gh-6);ctx.quadraticCurveTo(gx+gw,gy+gh,gx+gw-6,gy+gh);
+    ctx.lineTo(gx+6,gy+gh);ctx.quadraticCurveTo(gx,gy+gh,gx,gy+gh-6);
+    ctx.lineTo(gx,gy+6);ctx.quadraticCurveTo(gx,gy,gx+6,gy);ctx.fill();
+    // Grid lines
+    ctx.strokeStyle='rgba(51,65,85,0.3)';ctx.lineWidth=0.5;
+    for(var gi=1;gi<5;gi++){
+      var gy2=gy+gh*gi/5;
+      ctx.beginPath();ctx.moveTo(gx,gy2);ctx.lineTo(gx+gw,gy2);ctx.stroke();
+    }
+    for(var gj=1;gj<8;gj++){
+      var gx2=gx+gw*gj/8;
+      ctx.beginPath();ctx.moveTo(gx2,gy);ctx.lineTo(gx2,gy+gh);ctx.stroke();
+    }
+    // Axes
+    ctx.strokeStyle='#475569';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx,gy+gh);ctx.lineTo(gx+gw,gy+gh);ctx.stroke();
+    // Y-axis labels
+    ctx.fillStyle='#64748b';ctx.font='8px Poppins';ctx.textAlign='right';
+    var maxPop=300;
+    if(history2.length>1) maxPop=Math.max(300,Math.max.apply(null,history2.map(function(h2){return Math.max(h2.prey,h2.pred)})));
+    for(var yl=0;yl<=4;yl++){
+      var yVal=Math.round(maxPop*yl/4);
+      ctx.fillText(yVal,gx-4,gy+gh-gh*yl/4+3);
+    }
+    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText('Population over Time',gx+gw/2,gy-8);
+    // Population lines with area fills
     if(history2.length>1){
-      var maxPop=Math.max(300,Math.max.apply(null,history2.map(function(h2){return Math.max(h2.prey,h2.pred)})));
       var step2=gw/(history2.length-1);
+      // Prey area fill
+      ctx.beginPath();ctx.moveTo(gx,gy+gh);
+      for(var i=0;i<history2.length;i++){
+        var hx=gx+i*step2,hy=gy+gh-history2[i].prey/maxPop*gh;
+        ctx.lineTo(hx,hy);
+      }
+      ctx.lineTo(gx+(history2.length-1)*step2,gy+gh);ctx.closePath();
+      var preyGrad=ctx.createLinearGradient(0,gy,0,gy+gh);
+      preyGrad.addColorStop(0,'rgba(34,197,94,0.15)');preyGrad.addColorStop(1,'rgba(34,197,94,0.01)');
+      ctx.fillStyle=preyGrad;ctx.fill();
+      // Prey line
       ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.beginPath();
       for(var i=0;i<history2.length;i++){
         var hx=gx+i*step2,hy=gy+gh-history2[i].prey/maxPop*gh;
         if(i===0)ctx.moveTo(hx,hy);else ctx.lineTo(hx,hy);
       }
       ctx.stroke();
+      // Prey tracking dot
+      var lastPrey=history2[history2.length-1];
+      var dotPX=gx+(history2.length-1)*step2,dotPY=gy+gh-lastPrey.prey/maxPop*gh;
+      ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(dotPX,dotPY,4,0,Math.PI*2);ctx.fill();
+      var dotGlow=ctx.createRadialGradient(dotPX,dotPY,2,dotPX,dotPY,10);
+      dotGlow.addColorStop(0,'rgba(34,197,94,0.3)');dotGlow.addColorStop(1,'rgba(34,197,94,0)');
+      ctx.fillStyle=dotGlow;ctx.beginPath();ctx.arc(dotPX,dotPY,10,0,Math.PI*2);ctx.fill();
+      // Predator area fill
+      ctx.beginPath();ctx.moveTo(gx,gy+gh);
+      for(var i2=0;i2<history2.length;i2++){
+        var hx2=gx+i2*step2,hy2=gy+gh-history2[i2].pred/maxPop*gh;
+        ctx.lineTo(hx2,hy2);
+      }
+      ctx.lineTo(gx+(history2.length-1)*step2,gy+gh);ctx.closePath();
+      var predGrad=ctx.createLinearGradient(0,gy,0,gy+gh);
+      predGrad.addColorStop(0,'rgba(239,68,68,0.12)');predGrad.addColorStop(1,'rgba(239,68,68,0.01)');
+      ctx.fillStyle=predGrad;ctx.fill();
       // Predator line
-      ctx.strokeStyle='#ef4444';ctx.beginPath();
+      ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.beginPath();
       for(var i2=0;i2<history2.length;i2++){
         var hx2=gx+i2*step2,hy2=gy+gh-history2[i2].pred/maxPop*gh;
         if(i2===0)ctx.moveTo(hx2,hy2);else ctx.lineTo(hx2,hy2);
       }
       ctx.stroke();
+      // Predator tracking dot
+      var lastPred=history2[history2.length-1];
+      var dotRX=gx+(history2.length-1)*step2,dotRY=gy+gh-lastPred.pred/maxPop*gh;
+      ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(dotRX,dotRY,4,0,Math.PI*2);ctx.fill();
+      var dotGlow2=ctx.createRadialGradient(dotRX,dotRY,2,dotRX,dotRY,10);
+      dotGlow2.addColorStop(0,'rgba(239,68,68,0.3)');dotGlow2.addColorStop(1,'rgba(239,68,68,0)');
+      ctx.fillStyle=dotGlow2;ctx.beginPath();ctx.arc(dotRX,dotRY,10,0,Math.PI*2);ctx.fill();
     }
-    // Legend
-    ctx.fillStyle='#22c55e';ctx.font='11px Poppins';ctx.textAlign='left';
-    ctx.fillRect(gx+10,gy+10,12,3);ctx.fillText('Prey (🐇)',gx+26,gy+15);
-    ctx.fillStyle='#ef4444';ctx.fillRect(gx+10,gy+25,12,3);ctx.fillText('Predators (🐺)',gx+26,gy+30);
-    // Animated creatures below graph
+    // Legend with icons
+    ctx.fillStyle='#22c55e';ctx.font='bold 10px Poppins';ctx.textAlign='left';
+    ctx.fillRect(gx+10,gy+10,14,3);ctx.fillText('Prey (Rabbits)',gx+28,gy+14);
+    ctx.fillStyle='#ef4444';ctx.fillRect(gx+10,gy+24,14,3);ctx.fillText('Predators (Wolves)',gx+28,gy+28);
+    // Ecosystem field below graph
     var fieldY=h*0.68,fieldH=h*0.3;
-    ctx.fillStyle='rgba(34,197,94,0.05)';ctx.fillRect(0,fieldY,w,fieldH);
-    // Draw some prey icons
+    // Ground gradient
+    var groundGrad=ctx.createLinearGradient(0,fieldY,0,fieldY+fieldH);
+    groundGrad.addColorStop(0,'rgba(34,197,94,0.04)');groundGrad.addColorStop(1,'rgba(34,197,94,0.01)');
+    ctx.fillStyle=groundGrad;ctx.fillRect(0,fieldY,w,fieldH);
+    // Ground texture dots
+    ctx.fillStyle='rgba(34,197,94,0.08)';
+    for(var gt=0;gt<40;gt++){
+      ctx.beginPath();ctx.arc((gt*53)%w,fieldY+5+(gt*37)%fieldH,1,0,Math.PI*2);ctx.fill();
+    }
+    // Prey as rabbit-like shapes
     var nPrey=Math.min(30,Math.round(prey/5));
-    ctx.fillStyle='#22c55e';
     for(var p=0;p<nPrey;p++){
       var px2=((p*137+simTime*0.5)%(w-20))+10;
       var py=fieldY+10+(p*31)%(fieldH-20);
-      ctx.beginPath();ctx.arc(px2,py,4,0,Math.PI*2);ctx.fill();
+      // Body
+      ctx.fillStyle='rgba(34,197,94,0.6)';
+      ctx.beginPath();ctx.ellipse(px2,py,6,4,0,0,Math.PI*2);ctx.fill();
+      // Head
+      ctx.beginPath();ctx.arc(px2+5,py-2,3,0,Math.PI*2);ctx.fill();
+      // Ears
+      ctx.strokeStyle='rgba(34,197,94,0.5)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(px2+5,py-5);ctx.lineTo(px2+3,py-10);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(px2+6,py-5);ctx.lineTo(px2+8,py-10);ctx.stroke();
+      // Eye
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(px2+6,py-3,1,0,Math.PI*2);ctx.fill();
     }
-    // Draw predator icons
+    // Predators as wolf-like shapes
     var nPred2=Math.min(15,Math.round(pred/3));
-    ctx.fillStyle='#ef4444';
     for(var q=0;q<nPred2;q++){
       var qx=((q*193+simTime*0.3)%(w-20))+10;
       var qy=fieldY+10+(q*47)%(fieldH-20);
-      ctx.beginPath();ctx.moveTo(qx,qy-5);ctx.lineTo(qx+5,qy+5);ctx.lineTo(qx-5,qy+5);ctx.closePath();ctx.fill();
+      // Body
+      ctx.fillStyle='rgba(239,68,68,0.6)';
+      ctx.beginPath();ctx.ellipse(qx,qy,8,5,0,0,Math.PI*2);ctx.fill();
+      // Head
+      ctx.beginPath();ctx.arc(qx+7,qy-1,4,0,Math.PI*2);ctx.fill();
+      // Ears
+      ctx.beginPath();ctx.moveTo(qx+6,qy-5);ctx.lineTo(qx+4,qy-10);ctx.lineTo(qx+7,qy-5);ctx.fill();
+      ctx.beginPath();ctx.moveTo(qx+9,qy-5);ctx.lineTo(qx+11,qy-10);ctx.lineTo(qx+8,qy-5);ctx.fill();
+      // Eye
+      ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(qx+8,qy-2,1.2,0,Math.PI*2);ctx.fill();
     }
+    // Lotka-Volterra equations on canvas
+    ctx.fillStyle='rgba(148,163,184,0.25)';ctx.font='9px Poppins';ctx.textAlign='right';
+    ctx.fillText('dx/dt = \u03B1x \u2212 \u03B2xy',w-15,fieldY+fieldH-18);
+    ctx.fillText('dy/dt = \u03B4\u03B2xy \u2212 \u03B3y',w-15,fieldY+fieldH-6);
     requestAnimationFrame(draw);
   }
   upd();draw();

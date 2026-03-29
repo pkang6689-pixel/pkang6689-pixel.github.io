@@ -30,6 +30,7 @@
 <body class="dark-mode">
 <script src="../scripts/taskbar.js"></script>
 <div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
   <h1>🌱 Carbon Cycle</h1>
   <p class="subtitle">Visualize carbon flows between atmosphere, biosphere, ocean, and lithosphere.</p>
   <div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
@@ -67,116 +68,233 @@
     var deforest2=parseInt(document.getElementById('deforest').value);
     var ocean2=parseInt(document.getElementById('ocean').value);
     // CO2 dynamics
-    var netFlux=(fossil2+deforest2*0.5)-(ocean2*0.5+3);// 3 is natural absorption
+    var netFlux=(fossil2+deforest2*0.5)-(ocean2*0.5+3);
     co2Level+=netFlux*0.001;
     co2Level=Math.max(280,Math.min(800,co2Level));
-    // Atmosphere (top)
-    var skyAlpha=0.1+co2Level/800*0.2;
-    ctx.fillStyle='rgba(59,130,246,'+skyAlpha+')';ctx.fillRect(0,0,w,h*0.3);
-    // Sun & greenhouse effect visualization
-    ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(w*0.85,40,25,0,Math.PI*2);ctx.fill();
-    // Incoming solar rays
-    ctx.strokeStyle='rgba(251,191,36,0.3)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
-    ctx.beginPath();ctx.moveTo(w*0.85,65);ctx.lineTo(w*0.6,h*0.3);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(w*0.85,65);ctx.lineTo(w*0.4,h*0.3);ctx.stroke();
-    // Reflected/trapped IR
     var ghStrength=co2Level/800;
-    ctx.strokeStyle='rgba(239,68,68,'+(0.2+ghStrength*0.3)+')';
-    ctx.beginPath();ctx.moveTo(w*0.5,h*0.3);ctx.lineTo(w*0.3,h*0.1);ctx.stroke();
-    // Trapped heat arrows going back down
-    ctx.strokeStyle='rgba(239,68,68,'+(ghStrength*0.5)+')';
-    ctx.beginPath();ctx.moveTo(w*0.3,h*0.12);ctx.lineTo(w*0.45,h*0.28);ctx.stroke();
-    ctx.setLineDash([]);
-    // CO₂ label in atmosphere
-    ctx.fillStyle='#f1f5f9';ctx.font='bold 14px Poppins';ctx.textAlign='center';
-    ctx.fillText('ATMOSPHERE — CO₂: '+Math.round(co2Level)+' ppm',w/2,25);
-    // CO₂ molecules floating
-    ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='12px sans-serif';
-    for(var cm=0;cm<Math.min(15,co2Level/40);cm++){
-      var mx=(cm*97+Math.sin(t+cm)*20)%w;
-      var my=30+Math.cos(t*0.5+cm*2)*15+(cm%3)*20;
-      ctx.fillText('CO₂',mx,my);
+    // Atmosphere with gradient
+    var skyGrad=ctx.createLinearGradient(0,0,0,h*0.3);
+    var skyAlpha=0.08+ghStrength*0.18;
+    skyGrad.addColorStop(0,'rgba(30,58,138,'+skyAlpha+')');skyGrad.addColorStop(1,'rgba(59,130,246,'+(skyAlpha+0.05)+')');
+    ctx.fillStyle=skyGrad;ctx.fillRect(0,0,w,h*0.3);
+    // Greenhouse heat blanket overlay
+    if(ghStrength>0.4){
+      var heatOverlay=ctx.createLinearGradient(0,0,0,h*0.3);
+      heatOverlay.addColorStop(0,'rgba(239,68,68,'+(ghStrength*0.06)+')');heatOverlay.addColorStop(1,'rgba(239,68,68,0)');
+      ctx.fillStyle=heatOverlay;ctx.fillRect(0,0,w,h*0.3);
     }
-    // Land (middle)
-    ctx.fillStyle='#15803d30';ctx.fillRect(0,h*0.3,w*0.6,h*0.35);
-    ctx.fillStyle='#166534';ctx.font='bold 11px Poppins';ctx.textAlign='center';
-    ctx.fillText('BIOSPHERE',w*0.3,h*0.33);
-    // Trees
+    // Sun with glow
+    var sunGlow=ctx.createRadialGradient(w*0.87,35,0,w*0.87,35,50);
+    sunGlow.addColorStop(0,'#fbbf24');sunGlow.addColorStop(0.4,'rgba(251,191,36,0.3)');sunGlow.addColorStop(1,'rgba(251,191,36,0)');
+    ctx.fillStyle=sunGlow;ctx.beginPath();ctx.arc(w*0.87,35,50,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fef3c7';ctx.beginPath();ctx.arc(w*0.87,35,18,0,Math.PI*2);ctx.fill();
+    // Sun corona rays
+    ctx.strokeStyle='rgba(251,191,36,0.2)';ctx.lineWidth=1;
+    for(var sr=0;sr<8;sr++){
+      var sra=sr*Math.PI/4+t*0.3;
+      ctx.beginPath();ctx.moveTo(w*0.87+Math.cos(sra)*22,35+Math.sin(sra)*22);
+      ctx.lineTo(w*0.87+Math.cos(sra)*35,35+Math.sin(sra)*35);ctx.stroke();
+    }
+    // Solar radiation arrows
+    ctx.strokeStyle='rgba(251,191,36,0.25)';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
+    ctx.beginPath();ctx.moveTo(w*0.82,60);ctx.lineTo(w*0.6,h*0.3);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(w*0.82,60);ctx.lineTo(w*0.35,h*0.3);ctx.stroke();
+    // IR re-radiation (upward from surface)
+    ctx.strokeStyle='rgba(239,68,68,'+(0.15+ghStrength*0.25)+')';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(w*0.45,h*0.3);ctx.lineTo(w*0.3,h*0.08);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(w*0.55,h*0.3);ctx.lineTo(w*0.65,h*0.08);ctx.stroke();
+    // Trapped heat arrows curving back down
+    ctx.strokeStyle='rgba(239,68,68,'+(ghStrength*0.4)+')';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(w*0.3,h*0.1);ctx.quadraticCurveTo(w*0.35,h*0.05,w*0.42,h*0.15);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(w*0.65,h*0.1);ctx.quadraticCurveTo(w*0.62,h*0.04,w*0.55,h*0.15);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(239,68,68,'+(0.3+ghStrength*0.3)+')';ctx.font='8px Poppins';ctx.textAlign='center';
+    ctx.fillText('Trapped IR',w*0.37,h*0.06);
+    // CO₂ label in atmosphere
+    ctx.fillStyle='#e2e8f0';ctx.font='bold 13px Poppins';ctx.textAlign='center';
+    ctx.fillText('ATMOSPHERE \u2014 CO\u2082: '+Math.round(co2Level)+' ppm',w/2,18);
+    // CO₂ molecule shapes
+    for(var cm=0;cm<Math.min(12,co2Level/50);cm++){
+      var mx=(cm*83+Math.sin(t*0.7+cm)*25)%(w-20)+10;
+      var my=35+Math.cos(t*0.5+cm*2)*12+(cm%3)*18;
+      var mAlpha=0.15+Math.sin(t+cm)*0.05;
+      // O=C=O molecule
+      ctx.fillStyle='rgba(239,68,68,'+mAlpha+')';
+      ctx.beginPath();ctx.arc(mx-5,my,3,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(mx+5,my,3,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(148,163,184,'+mAlpha+')';
+      ctx.beginPath();ctx.arc(mx,my,3.5,0,Math.PI*2);ctx.fill();
+    }
+    // Land / Biosphere with gradient
+    var landGrad=ctx.createLinearGradient(0,h*0.3,0,h*0.65);
+    landGrad.addColorStop(0,'rgba(21,128,61,0.15)');landGrad.addColorStop(1,'rgba(21,128,61,0.25)');
+    ctx.fillStyle=landGrad;ctx.fillRect(0,h*0.3,w*0.6,h*0.35);
+    ctx.fillStyle='#22c55e';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText('BIOSPHERE',w*0.3,h*0.34);
+    // Trees with gradient canopy
     var numTrees=Math.max(2,8-deforest2);
     for(var tr=0;tr<numTrees;tr++){
-      var tx=w*0.05+tr*(w*0.55/numTrees);
-      var ty=h*0.55;
-      ctx.fillStyle='#7c3f00';ctx.fillRect(tx,ty-15,6,20);
-      ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(tx+3,ty-20,12,0,Math.PI*2);ctx.fill();
+      var tx2=w*0.05+tr*(w*0.52/numTrees)+10;
+      var ty2=h*0.56;
+      var treeH=15+tr%3*3;
+      // Trunk
+      ctx.fillStyle='#92400e';ctx.fillRect(tx2-2,ty2-treeH+5,5,treeH);
+      // Canopy gradient
+      var cGrad=ctx.createRadialGradient(tx2,ty2-treeH,0,tx2,ty2-treeH,14);
+      cGrad.addColorStop(0,'#4ade80');cGrad.addColorStop(1,'#16a34a');
+      ctx.fillStyle=cGrad;ctx.beginPath();ctx.arc(tx2,ty2-treeH,14,0,Math.PI*2);ctx.fill();
     }
-    // Photosynthesis arrows (CO₂ down, O₂ up)
+    // Dead tree stumps for deforestation
+    for(var ds=0;ds<Math.min(deforest2,5);ds++){
+      var dsx=w*0.35+ds*25;
+      ctx.fillStyle='#78350f';ctx.fillRect(dsx,h*0.56,4,8);
+      ctx.strokeStyle='rgba(120,53,15,0.3)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(dsx-4,h*0.56);ctx.lineTo(dsx+2,h*0.53);ctx.stroke();
+    }
+    // Photosynthesis arrows
     if(numTrees>3){
       ctx.strokeStyle='rgba(34,197,94,0.4)';ctx.lineWidth=2;
-      ctx.beginPath();ctx.moveTo(w*0.3,h*0.3);ctx.lineTo(w*0.3,h*0.4);ctx.stroke();
-      ctx.fillStyle='#22c55e';ctx.font='9px Poppins';
-      ctx.fillText('CO₂ ↓ Photosynthesis',w*0.3,h*0.38);
+      var phX=w*0.3;
+      ctx.beginPath();ctx.moveTo(phX,h*0.3);ctx.lineTo(phX,h*0.42);ctx.stroke();
+      ctx.fillStyle='rgba(34,197,94,0.5)';ctx.beginPath();
+      ctx.moveTo(phX-5,h*0.42);ctx.lineTo(phX,h*0.44);ctx.lineTo(phX+5,h*0.42);ctx.fill();
+      ctx.fillStyle='#22c55e';ctx.font='9px Poppins';ctx.textAlign='center';
+      ctx.fillText('CO\u2082 \u2193 Photosynthesis',phX,h*0.39);
     }
-    // Factory (fossil fuels)
-    ctx.fillStyle='#64748b';ctx.fillRect(w*0.08,h*0.48,30,20);
-    ctx.fillRect(w*0.08+5,h*0.43,6,10);ctx.fillRect(w*0.08+18,h*0.43,6,10);
-    // Smoke from factory
+    // Respiration arrow (up)
+    ctx.strokeStyle='rgba(148,163,184,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(w*0.42,h*0.45);ctx.lineTo(w*0.42,h*0.32);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.fillText('Respiration \u2191',w*0.42,h*0.44);
+    // Factory with gradient
+    var facGrad=ctx.createLinearGradient(w*0.06,h*0.43,w*0.06,h*0.52);
+    facGrad.addColorStop(0,'#94a3b8');facGrad.addColorStop(1,'#64748b');
+    ctx.fillStyle=facGrad;ctx.fillRect(w*0.06,h*0.47,35,22);
+    // Smokestacks
+    ctx.fillStyle='#78716c';ctx.fillRect(w*0.065,h*0.42,7,12);ctx.fillRect(w*0.085,h*0.42,7,12);
+    // Windows
+    ctx.fillStyle='#fbbf2440';ctx.fillRect(w*0.067,h*0.49,6,5);ctx.fillRect(w*0.08,h*0.49,6,5);
+    // Smoke with gradient particles
     if(fossil2>0){
-      ctx.fillStyle='rgba(100,100,100,0.3)';
       for(var sm=0;sm<fossil2;sm++){
-        var sx=w*0.1+Math.sin(t+sm)*5;
-        var sy=h*0.4-sm*8-t*5%30;
-        ctx.beginPath();ctx.arc(sx,sy,4+sm,0,Math.PI*2);ctx.fill();
+        var sx=w*0.08+Math.sin(t*1.5+sm*0.7)*8;
+        var sy=h*0.38-sm*6-(t*8%25);
+        var sr2=3+sm*0.8;
+        var smGrad=ctx.createRadialGradient(sx,sy,0,sx,sy,sr2);
+        smGrad.addColorStop(0,'rgba(120,113,108,0.25)');smGrad.addColorStop(1,'rgba(120,113,108,0)');
+        ctx.fillStyle=smGrad;ctx.beginPath();ctx.arc(sx,sy,sr2,0,Math.PI*2);ctx.fill();
       }
     }
-    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='left';
-    ctx.fillText('🏭 Emissions',w*0.01,h*0.52);
-    // Ocean (right & bottom)
-    ctx.fillStyle='rgba(37,99,235,0.2)';ctx.fillRect(w*0.6,h*0.3,w*0.4,h*0.35);
-    ctx.fillStyle='#2563eb';ctx.font='bold 11px Poppins';ctx.textAlign='center';
-    ctx.fillText('OCEAN',w*0.8,h*0.33);
-    // Ocean absorption arrow
-    ctx.strokeStyle='rgba(59,130,246,0.5)';ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(w*0.75,h*0.3);ctx.lineTo(w*0.75,h*0.42);ctx.stroke();
-    ctx.fillStyle='#3b82f6';ctx.font='9px Poppins';
-    ctx.fillText('CO₂ dissolves ↓',w*0.75,h*0.38);
-    // Ocean pH indicator
-    ctx.fillStyle=co2Level>500?'#ef4444':co2Level>400?'#f59e0b':'#22c55e';
-    ctx.font='10px Poppins';
-    var ph2=(8.3-co2Level/2000).toFixed(1);
-    ctx.fillText('pH: '+ph2,w*0.8,h*0.5);
-    // Lithosphere (bottom)
-    ctx.fillStyle='#44280e30';ctx.fillRect(0,h*0.65,w,h*0.35);
-    ctx.fillStyle='#92400e';ctx.font='bold 11px Poppins';ctx.textAlign='center';
-    ctx.fillText('LITHOSPHERE (Fossil Fuels, Rocks)',w/2,h*0.68);
-    // Coal/oil deposits
-    ctx.fillStyle='#1a1a1a';
-    ctx.beginPath();ctx.ellipse(w*0.3,h*0.8,40,15,0,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.fillText('Coal',w*0.3,h*0.84);
-    ctx.fillStyle='#422006';
-    ctx.beginPath();ctx.ellipse(w*0.6,h*0.8,30,12,0,0,Math.PI*2);ctx.fill();
-    ctx.font='9px Poppins';ctx.fillText('Oil',w*0.6,h*0.84);
-    // Carbon flow particles
-    if(Math.random()<0.1*fossil2){
-      carbonParts.push({x:w*0.1,y:h*0.45,targetX:w*0.2+Math.random()*w*0.3,targetY:20+Math.random()*30,life:1,type:'emission'});
+    ctx.fillStyle='#94a3b8';ctx.font='bold 9px Poppins';ctx.textAlign='left';
+    ctx.fillText('Emissions',w*0.01,h*0.54);
+    // Ocean with gradient
+    var oceanGrad=ctx.createLinearGradient(w*0.6,h*0.3,w*0.6,h*0.65);
+    oceanGrad.addColorStop(0,'rgba(37,99,235,0.15)');oceanGrad.addColorStop(1,'rgba(37,99,235,0.3)');
+    ctx.fillStyle=oceanGrad;ctx.fillRect(w*0.6,h*0.3,w*0.4,h*0.35);
+    // Wave surface
+    ctx.strokeStyle='rgba(96,165,250,0.2)';ctx.lineWidth=1;
+    ctx.beginPath();
+    for(var wx=w*0.6;wx<w;wx+=3){
+      var wy=h*0.3+Math.sin(wx*0.03+t*2)*3;
+      wx===w*0.6?ctx.moveTo(wx,wy):ctx.lineTo(wx,wy);
     }
-    if(Math.random()<0.05*ocean2){
-      carbonParts.push({x:w*0.75,y:h*0.3,targetX:w*0.75+Math.random()*40-20,targetY:h*0.5,life:1,type:'absorb'});
+    ctx.stroke();
+    ctx.fillStyle='#3b82f6';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText('OCEAN',w*0.8,h*0.34);
+    // Ocean absorption arrow
+    ctx.strokeStyle='rgba(59,130,246,0.4)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(w*0.75,h*0.3);ctx.lineTo(w*0.75,h*0.44);ctx.stroke();
+    ctx.fillStyle='rgba(59,130,246,0.5)';ctx.beginPath();
+    ctx.moveTo(w*0.75-5,h*0.44);ctx.lineTo(w*0.75,h*0.46);ctx.lineTo(w*0.75+5,h*0.44);ctx.fill();
+    ctx.fillStyle='#60a5fa';ctx.font='9px Poppins';
+    ctx.fillText('CO\u2082 dissolves \u2193',w*0.75,h*0.4);
+    // Dissolved CO₂ bubbles in ocean
+    for(var ob=0;ob<4;ob++){
+      var obx=w*0.65+ob*w*0.08;
+      var oby=h*0.5+Math.sin(t+ob*2)*10;
+      ctx.fillStyle='rgba(96,165,250,0.2)';ctx.beginPath();ctx.arc(obx,oby,4,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(96,165,250,0.15)';ctx.lineWidth=0.5;ctx.stroke();
+    }
+    // Ocean pH indicator with color coding
+    var ph2=(8.3-co2Level/2000).toFixed(1);
+    var phColor=ph2<7.8?'#ef4444':ph2<8.0?'#f59e0b':'#22c55e';
+    ctx.fillStyle='rgba(15,23,42,0.5)';ctx.beginPath();ctx.roundRect(w*0.72,h*0.52,70,20,4);ctx.fill();
+    ctx.fillStyle=phColor;ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('pH: '+ph2,w*0.78,h*0.565);
+    // Lithosphere with gradient
+    var lithGrad=ctx.createLinearGradient(0,h*0.65,0,h);
+    lithGrad.addColorStop(0,'rgba(68,40,14,0.2)');lithGrad.addColorStop(0.5,'rgba(68,40,14,0.3)');lithGrad.addColorStop(1,'rgba(68,40,14,0.4)');
+    ctx.fillStyle=lithGrad;ctx.fillRect(0,h*0.65,w,h*0.35);
+    // Rock texture
+    ctx.strokeStyle='rgba(146,64,14,0.15)';ctx.lineWidth=1;
+    for(var rl=0;rl<6;rl++){
+      var rly=h*0.7+rl*h*0.05;
+      ctx.beginPath();ctx.moveTo(0,rly);ctx.lineTo(w,rly+Math.sin(rl)*3);ctx.stroke();
+    }
+    ctx.fillStyle='#a16207';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText('LITHOSPHERE (Fossil Fuels, Rocks)',w/2,h*0.69);
+    // Coal deposit with gradient
+    var coalGrad=ctx.createRadialGradient(w*0.25,h*0.8,0,w*0.25,h*0.8,42);
+    coalGrad.addColorStop(0,'#27272a');coalGrad.addColorStop(1,'#18181b');
+    ctx.fillStyle=coalGrad;ctx.beginPath();ctx.ellipse(w*0.25,h*0.8,42,16,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(63,63,70,0.4)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#a1a1aa';ctx.font='9px Poppins';ctx.fillText('Coal',w*0.25,h*0.84);
+    // Oil deposit
+    var oilGrad=ctx.createRadialGradient(w*0.55,h*0.82,0,w*0.55,h*0.82,30);
+    oilGrad.addColorStop(0,'#451a03');oilGrad.addColorStop(1,'#27150a');
+    ctx.fillStyle=oilGrad;ctx.beginPath();ctx.ellipse(w*0.55,h*0.82,32,13,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#a1a1aa';ctx.font='9px Poppins';ctx.fillText('Oil & Gas',w*0.55,h*0.86);
+    // Limestone deposit
+    ctx.fillStyle='rgba(229,231,235,0.15)';ctx.beginPath();ctx.ellipse(w*0.8,h*0.82,28,11,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.fillText('CaCO\u2083',w*0.8,h*0.86);
+    // Carbon flow particles with trails
+    if(Math.random()<0.08*fossil2){
+      carbonParts.push({x:w*0.08,y:h*0.42,targetX:w*0.15+Math.random()*w*0.3,targetY:15+Math.random()*25,life:1,type:'emission'});
+    }
+    if(Math.random()<0.04*ocean2){
+      carbonParts.push({x:w*0.72+Math.random()*40,y:h*0.3,targetX:w*0.72+Math.random()*40,targetY:h*0.5+Math.random()*10,life:1,type:'absorb'});
+    }
+    if(numTrees>3&&Math.random()<0.03){
+      carbonParts.push({x:w*0.2+Math.random()*w*0.2,y:h*0.3,targetX:w*0.2+Math.random()*w*0.15,targetY:h*0.45,life:1,type:'photo'});
     }
     for(var ci=carbonParts.length-1;ci>=0;ci--){
       var cp=carbonParts[ci];
-      cp.life-=0.01;
+      cp.life-=0.008;
       if(cp.life<=0){carbonParts.splice(ci,1);continue;}
       var px=cp.x+(cp.targetX-cp.x)*(1-cp.life);
       var py=cp.y+(cp.targetY-cp.y)*(1-cp.life);
-      ctx.fillStyle=cp.type==='emission'?'rgba(148,163,184,'+cp.life+')':'rgba(59,130,246,'+cp.life+')';
+      var pColor=cp.type==='emission'?'148,163,184':cp.type==='absorb'?'59,130,246':'34,197,94';
+      // Trail
+      var prevPx=cp.x+(cp.targetX-cp.x)*(1-cp.life-0.05);
+      var prevPy=cp.y+(cp.targetY-cp.y)*(1-cp.life-0.05);
+      ctx.strokeStyle='rgba('+pColor+','+(cp.life*0.3)+')';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(prevPx,prevPy);ctx.lineTo(px,py);ctx.stroke();
+      // Particle with glow
+      ctx.fillStyle='rgba('+pColor+','+(cp.life*0.6)+')';
       ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba('+pColor+','+(cp.life*0.2)+')';
+      ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.fill();
     }
-    if(carbonParts.length>100)carbonParts.splice(0,20);
+    if(carbonParts.length>120)carbonParts.splice(0,25);
+    // Flow labels between reservoirs
+    ctx.fillStyle='rgba(15,23,42,0.5)';
+    // Reservoir connection arrows (dashed)
+    ctx.strokeStyle='rgba(148,163,184,0.15)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(w*0.3,h*0.65);ctx.lineTo(w*0.3,h*0.72);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(w*0.7,h*0.65);ctx.lineTo(w*0.7,h*0.72);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#64748b';ctx.font='8px Poppins';ctx.textAlign='center';
+    ctx.fillText('Burial',w*0.3,h*0.67);ctx.fillText('Sedimentation',w*0.7,h*0.67);
+    // Temperature indicator badge
+    var tAnom=((co2Level-280)/280)*3;
+    var tColor=tAnom>2?'#ef4444':tAnom>1?'#f59e0b':'#22c55e';
+    ctx.fillStyle='rgba(15,23,42,0.7)';ctx.beginPath();ctx.roundRect(8,h*0.3-22,90,18,4);ctx.fill();
+    ctx.fillStyle=tColor;ctx.font='bold 9px Poppins';ctx.textAlign='left';
+    ctx.fillText('\u0394T: +'+tAnom.toFixed(1)+'\u00b0C',14,h*0.3-10);
     // Stats
     document.getElementById('co2').textContent=Math.round(co2Level)+' ppm';
-    document.getElementById('tanom').textContent='+'+(((co2Level-280)/280)*3).toFixed(1)+'°C';
+    document.getElementById('tanom').textContent='+'+tAnom.toFixed(1)+'\u00b0C';
     document.getElementById('ph').textContent=ph2;
     document.getElementById('flux').textContent=(netFlux>0?'+':'')+netFlux.toFixed(1)+' GtC/yr';
+    document.getElementById('flux').style.color=netFlux>0?'#ef4444':'#22c55e';
     requestAnimationFrame(draw);
   }
   upd();draw();

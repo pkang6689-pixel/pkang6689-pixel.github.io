@@ -79,70 +79,176 @@
     document.getElementById('o2sat').textContent=o2sat.toFixed(0)+'%';
     document.getElementById('co2').textContent=co2lev.toFixed(0)+' mmHg';
     var cx=w/2,lungY=h*0.15;
-    // Trachea
-    ctx.fillStyle='rgba(148,163,184,0.15)';
-    ctx.fillRect(cx-15,lungY,30,60);
-    ctx.strokeStyle='#64748b';ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.moveTo(cx-15,lungY);ctx.lineTo(cx-15,lungY+60);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx+15,lungY);ctx.lineTo(cx+15,lungY+60);ctx.stroke();
-    // Bronchi (Y split)
-    ctx.beginPath();ctx.moveTo(cx-15,lungY+60);ctx.lineTo(cx-80,lungY+100);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx+15,lungY+60);ctx.lineTo(cx+80,lungY+100);ctx.stroke();
-    // Lungs
     var expand=breathCycle*tv2/2000;
     var lungR=70+expand*30;
+
+    // Trachea with gradient
+    var trGrad=ctx.createLinearGradient(cx-15,lungY,cx+15,lungY);
+    trGrad.addColorStop(0,'rgba(148,163,184,0.2)');trGrad.addColorStop(0.5,'rgba(148,163,184,0.08)');trGrad.addColorStop(1,'rgba(148,163,184,0.2)');
+    ctx.fillStyle=trGrad;ctx.fillRect(cx-15,lungY,30,60);
+    // Trachea cartilage rings
+    ctx.strokeStyle='rgba(148,163,184,0.25)';ctx.lineWidth=1;
+    for(var ring=0;ring<5;ring++){
+      var ry=lungY+8+ring*12;
+      ctx.beginPath();ctx.moveTo(cx-15,ry);ctx.lineTo(cx+15,ry);ctx.stroke();
+    }
+    ctx.strokeStyle='#94a3b8';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(cx-15,lungY);ctx.lineTo(cx-15,lungY+60);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+15,lungY);ctx.lineTo(cx+15,lungY+60);ctx.stroke();
+
+    // Bronchi (Y split) with gradient
+    ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(cx-15,lungY+60);ctx.quadraticCurveTo(cx-40,lungY+75,cx-80,lungY+100);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+15,lungY+60);ctx.quadraticCurveTo(cx+40,lungY+75,cx+80,lungY+100);ctx.stroke();
+    // Secondary bronchi
+    ctx.strokeStyle='rgba(148,163,184,0.4)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(cx-60,lungY+85);ctx.quadraticCurveTo(cx-90,lungY+100,cx-100,lungY+130);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+60,lungY+85);ctx.quadraticCurveTo(cx+90,lungY+100,cx+100,lungY+130);ctx.stroke();
+
+    // Lungs with gradient fill
     // Left lung
-    ctx.fillStyle='rgba(239,68,68,0.1)';ctx.beginPath();
+    var llGrad=ctx.createRadialGradient(cx-80,lungY+150,20,cx-80,lungY+160,lungR);
+    llGrad.addColorStop(0,'rgba(239,68,68,0.12)');llGrad.addColorStop(1,'rgba(239,68,68,0.03)');
+    ctx.fillStyle=llGrad;ctx.beginPath();
     ctx.ellipse(cx-80,lungY+160,lungR*0.7,lungR,0,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='#ef444480';ctx.lineWidth=1.5;ctx.stroke();
+    // Left lung glow
+    var llGlow=ctx.createRadialGradient(cx-80,lungY+160,lungR*0.8,cx-80,lungY+160,lungR*1.1);
+    llGlow.addColorStop(0,'rgba(239,68,68,0.05)');llGlow.addColorStop(1,'rgba(239,68,68,0)');
+    ctx.fillStyle=llGlow;ctx.beginPath();ctx.ellipse(cx-80,lungY+160,lungR*0.8,lungR*1.1,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=phase==='Inhale'?'rgba(34,197,94,0.5)':'rgba(239,68,68,0.4)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.ellipse(cx-80,lungY+160,lungR*0.7,lungR,0,0,Math.PI*2);ctx.stroke();
     // Right lung
-    ctx.beginPath();ctx.ellipse(cx+80,lungY+160,lungR*0.7,lungR,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-    // Diaphragm
-    var diaY=lungY+260+expand*20;
-    ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.beginPath();
-    ctx.moveTo(cx-120,diaY);ctx.quadraticCurveTo(cx,diaY-(breathCycle>0?20:5),cx+120,diaY);ctx.stroke();
-    ctx.fillStyle='#f59e0b';ctx.font='10px Poppins';ctx.textAlign='center';
-    ctx.fillText('Diaphragm',cx,diaY+15);
-    // Alveolus detail (bottom right)
-    var ax=w*0.75,ay=h*0.6,ar=50;
-    ctx.fillStyle='rgba(239,68,68,0.08)';ctx.beginPath();ctx.arc(ax,ay,ar,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='#ef4444';ctx.lineWidth=1.5;ctx.stroke();
-    ctx.fillStyle='#ef4444';ctx.font='10px Poppins';ctx.fillText('Alveolus',ax,ay-ar-8);
-    // Capillary
-    ctx.strokeStyle='#3b82f6';ctx.lineWidth=3;
-    ctx.beginPath();ctx.arc(ax,ay+ar+15,ar+15,Math.PI*1.2,Math.PI*1.8);ctx.stroke();
-    ctx.fillStyle='#3b82f6';ctx.font='9px Poppins';ctx.fillText('Capillary',ax,ay+ar+40);
-    // O2 arrows (into blood)
+    var rlGrad=ctx.createRadialGradient(cx+80,lungY+150,20,cx+80,lungY+160,lungR);
+    rlGrad.addColorStop(0,'rgba(239,68,68,0.12)');rlGrad.addColorStop(1,'rgba(239,68,68,0.03)');
+    ctx.fillStyle=rlGrad;ctx.beginPath();
+    ctx.ellipse(cx+80,lungY+160,lungR*0.7,lungR,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=phase==='Inhale'?'rgba(34,197,94,0.5)':'rgba(239,68,68,0.4)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.ellipse(cx+80,lungY+160,lungR*0.7,lungR,0,0,Math.PI*2);ctx.stroke();
+
+    // O₂ particles flowing in trachea during inhale
     if(phase==='Inhale'){
-      for(var i=0;i<3;i++){
-        var oAngle=-0.3+i*0.3;
-        var ox=ax+Math.cos(oAngle)*ar,oy=ay+Math.sin(oAngle)*ar;
-        ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;
-        ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox+10,oy+15);ctx.stroke();
-        ctx.fillStyle='#22c55e';ctx.font='8px Poppins';ctx.fillText('O₂',ox-5,oy-3);
+      ctx.fillStyle='rgba(34,197,94,0.5)';
+      for(var op=0;op<6;op++){
+        var opY=lungY+5+((time*80+op*15)%60);
+        var opX=cx-8+Math.sin(time*3+op)*5;
+        ctx.beginPath();ctx.arc(opX,opY,2,0,Math.PI*2);ctx.fill();
+      }
+    }else{
+      // CO₂ particles flowing out during exhale
+      ctx.fillStyle='rgba(148,163,184,0.4)';
+      for(var cp=0;cp<6;cp++){
+        var cpY=lungY+55-((time*80+cp*15)%60);
+        var cpX=cx+8+Math.sin(time*3+cp)*5;
+        ctx.beginPath();ctx.arc(cpX,cpY,2,0,Math.PI*2);ctx.fill();
       }
     }
-    // CO2 arrows (out of blood)
-    if(phase==='Exhale'){
-      for(var j=0;j<3;j++){
-        var cAngle=Math.PI+(-0.3+j*0.3);
-        var ccx=ax+Math.cos(cAngle)*ar,ccy=ay+Math.sin(cAngle)*ar;
-        ctx.strokeStyle='#94a3b8';ctx.lineWidth=1.5;
-        ctx.beginPath();ctx.moveTo(ccx,ccy+15);ctx.lineTo(ccx,ccy);ctx.stroke();
-        ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.fillText('CO₂',ccx-8,ccy+25);
-      }
+
+    // Diaphragm with gradient
+    var diaY=lungY+260+expand*20;
+    var diaGrad=ctx.createLinearGradient(cx-120,diaY,cx+120,diaY);
+    diaGrad.addColorStop(0,'rgba(245,158,11,0.2)');diaGrad.addColorStop(0.5,'rgba(245,158,11,0.5)');diaGrad.addColorStop(1,'rgba(245,158,11,0.2)');
+    ctx.strokeStyle=diaGrad;ctx.lineWidth=3;ctx.beginPath();
+    ctx.moveTo(cx-120,diaY);ctx.quadraticCurveTo(cx,diaY-(breathCycle>0?20:5),cx+120,diaY);ctx.stroke();
+    // Diaphragm fill
+    ctx.fillStyle='rgba(245,158,11,0.06)';
+    ctx.beginPath();ctx.moveTo(cx-120,diaY);
+    ctx.quadraticCurveTo(cx,diaY-(breathCycle>0?20:5),cx+120,diaY);
+    ctx.lineTo(cx+120,diaY+15);ctx.lineTo(cx-120,diaY+15);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#f59e0b';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Diaphragm'+(breathCycle>0?' (contracted)':' (relaxed)'),cx,diaY+28);
+
+    // Direction arrows for diaphragm
+    ctx.strokeStyle='rgba(245,158,11,0.4)';ctx.lineWidth=1.5;
+    if(breathCycle>0){
+      // Down arrow
+      ctx.beginPath();ctx.moveTo(cx,diaY+2);ctx.lineTo(cx,diaY+12);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx-4,diaY+9);ctx.lineTo(cx,diaY+13);ctx.lineTo(cx+4,diaY+9);ctx.stroke();
+    }else{
+      // Up arrow
+      ctx.beginPath();ctx.moveTo(cx,diaY+10);ctx.lineTo(cx,diaY);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx-4,diaY+3);ctx.lineTo(cx,diaY-1);ctx.lineTo(cx+4,diaY+3);ctx.stroke();
     }
+
+    // Alveolus detail (bottom right) with gradient
+    var ax=w*0.75,ay=h*0.6,ar=50;
+    // Alveolus glow
+    var alvGlow=ctx.createRadialGradient(ax,ay,ar*0.6,ax,ay,ar*1.2);
+    alvGlow.addColorStop(0,'rgba(239,68,68,0.06)');alvGlow.addColorStop(1,'rgba(239,68,68,0)');
+    ctx.fillStyle=alvGlow;ctx.beginPath();ctx.arc(ax,ay,ar*1.2,0,Math.PI*2);ctx.fill();
+    // Alveolus wall with cells pattern
+    ctx.fillStyle='rgba(239,68,68,0.06)';ctx.beginPath();ctx.arc(ax,ay,ar,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.stroke();
+    // Epithelial cell bumps
+    ctx.strokeStyle='rgba(239,68,68,0.3)';ctx.lineWidth=1;
+    for(var ec=0;ec<8;ec++){
+      var ea=ec*Math.PI/4;
+      ctx.beginPath();ctx.arc(ax+Math.cos(ea)*(ar-3),ay+Math.sin(ea)*(ar-3),4,0,Math.PI*2);ctx.stroke();
+    }
+    ctx.fillStyle='#ef4444';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Alveolus',ax,ay-ar-10);
+    // Air space label
+    ctx.fillStyle='rgba(239,68,68,0.3)';ctx.font='8px Poppins';
+    ctx.fillText('Air Space',ax,ay+3);
+
+    // Capillary with gradient
+    var capGrad=ctx.createLinearGradient(ax-ar-20,ay+ar+5,ax+ar+20,ay+ar+5);
+    capGrad.addColorStop(0,'rgba(59,130,246,0.3)');capGrad.addColorStop(0.5,'rgba(59,130,246,0.6)');capGrad.addColorStop(1,'rgba(59,130,246,0.3)');
+    ctx.strokeStyle=capGrad;ctx.lineWidth=4;
+    ctx.beginPath();ctx.arc(ax,ay+ar+15,ar+15,Math.PI*1.2,Math.PI*1.8);ctx.stroke();
+    // Red blood cells in capillary
+    ctx.fillStyle='rgba(239,68,68,0.5)';
+    for(var rbc=0;rbc<4;rbc++){
+      var rbcA=Math.PI*1.25+rbc*0.15+(time*0.5)%0.6;
+      var rbcX=ax+Math.cos(rbcA)*(ar+15);
+      var rbcY=ay+ar+15+Math.sin(rbcA)*(ar+15);
+      ctx.beginPath();ctx.ellipse(rbcX,rbcY,4,2.5,rbcA,0,Math.PI*2);ctx.fill();
+    }
+    ctx.fillStyle='#3b82f6';ctx.font='bold 9px Poppins';
+    ctx.fillText('Capillary',ax,ay+ar+42);
+
+    // O₂ diffusion arrows (always visible, strength varies)
+    var o2Opacity=phase==='Inhale'?0.7:0.3;
+    ctx.strokeStyle='rgba(34,197,94,'+o2Opacity+')';ctx.lineWidth=1.5;
+    for(var i=0;i<3;i++){
+      var oAngle=-0.3+i*0.3;
+      var ox=ax+Math.cos(oAngle)*ar,oy=ay+Math.sin(oAngle)*ar;
+      var ox2=ax+Math.cos(oAngle)*(ar+20),oy2=ay+Math.sin(oAngle)*(ar+20);
+      ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox2,oy2);ctx.stroke();
+      // Arrowhead
+      ctx.beginPath();ctx.moveTo(ox2-3,oy2-3);ctx.lineTo(ox2,oy2);ctx.lineTo(ox2+2,oy2-4);ctx.stroke();
+      ctx.fillStyle='rgba(34,197,94,'+o2Opacity+')';ctx.font='bold 8px Poppins';
+      ctx.fillText('O\u2082',ox-8,oy-4);
+    }
+    // CO₂ diffusion arrows
+    var co2Opacity=phase==='Exhale'?0.7:0.3;
+    ctx.strokeStyle='rgba(148,163,184,'+co2Opacity+')';
+    for(var j=0;j<3;j++){
+      var cAngle=Math.PI+(-0.3+j*0.3);
+      var ccx=ax+Math.cos(cAngle)*(ar+20),ccy=ay+Math.sin(cAngle)*(ar+20);
+      var ccx2=ax+Math.cos(cAngle)*ar,ccy2=ay+Math.sin(cAngle)*ar;
+      ctx.beginPath();ctx.moveTo(ccx,ccy);ctx.lineTo(ccx2,ccy2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(ccx2+3,ccy2+2);ctx.lineTo(ccx2,ccy2);ctx.lineTo(ccx2-2,ccy2+4);ctx.stroke();
+      ctx.fillStyle='rgba(148,163,184,'+co2Opacity+')';ctx.font='bold 8px Poppins';
+      ctx.fillText('CO\u2082',ccx-12,ccy+4);
+    }
+    // Diffusion gradient label
+    ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='8px Poppins';ctx.textAlign='center';
+    ctx.fillText('(partial pressure gradient)',ax,ay+ar+55);
+
     // Air flow arrows in trachea
-    ctx.strokeStyle=phase==='Inhale'?'#22c55e':'#94a3b8';ctx.lineWidth=1.5;
-    var arrowY=lungY+30+(time*50)%30*(phase==='Inhale'?1:-1);
+    ctx.strokeStyle=phase==='Inhale'?'#22c55e':'#94a3b8';ctx.lineWidth=2;
     ctx.beginPath();ctx.moveTo(cx,lungY+10);ctx.lineTo(cx,lungY+50);ctx.stroke();
-    if(phase==='Inhale'){ctx.beginPath();ctx.moveTo(cx-4,lungY+45);ctx.lineTo(cx,lungY+50);ctx.lineTo(cx+4,lungY+45);ctx.stroke();}
-    else{ctx.beginPath();ctx.moveTo(cx-4,lungY+15);ctx.lineTo(cx,lungY+10);ctx.lineTo(cx+4,lungY+15);ctx.stroke();}
+    if(phase==='Inhale'){ctx.beginPath();ctx.moveTo(cx-5,lungY+44);ctx.lineTo(cx,lungY+52);ctx.lineTo(cx+5,lungY+44);ctx.stroke();}
+    else{ctx.beginPath();ctx.moveTo(cx-5,lungY+16);ctx.lineTo(cx,lungY+8);ctx.lineTo(cx+5,lungY+16);ctx.stroke();}
+
     // Labels
-    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillStyle='#94a3b8';ctx.font='bold 10px Poppins';ctx.textAlign='center';
     ctx.fillText('Trachea',cx,lungY-5);
     ctx.fillText('Left Lung',cx-80,lungY+160);
     ctx.fillText('Right Lung',cx+80,lungY+160);
+    // Volume indicator
+    ctx.fillStyle='rgba(148,163,184,0.25)';ctx.font='9px Poppins';
+    ctx.fillText('V = '+(500+Math.round(expand*500))+' mL',cx,lungY+260);
     requestAnimationFrame(draw);
   }
   upd();draw();

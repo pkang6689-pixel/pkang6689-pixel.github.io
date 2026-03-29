@@ -65,6 +65,7 @@
     ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
     var speed=parseInt(document.getElementById('speed').value);
     if(playing){forkPos+=speed*0.0008;if(forkPos>1)forkPos=1;}
+    t+=0.016;
     var replicated=Math.floor(forkPos*bases.length);
     document.getElementById('bases').textContent=replicated;
     document.getElementById('forkpos').textContent=(forkPos*100).toFixed(0)+'%';
@@ -72,73 +73,117 @@
     var bpW=w/(bases.length+4);
     var cy1=h*0.35,cy2=h*0.65;
     var forkX=w*0.08+forkPos*(w*0.84);
-    // Draw double helix (unreplicated right side)
+    // Backbone glow (unreplicated double helix)
     for(var i=replicated;i<bases.length;i++){
       var x=w*0.08+(i+2)*bpW;
       if(x<forkX)continue;
-      // Top strand
+      // Backbone lines
+      if(i<bases.length-1){
+        var nx=w*0.08+(i+3)*bpW;
+        ctx.strokeStyle='rgba(168,85,247,0.15)';ctx.lineWidth=4;
+        ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy1);ctx.lineTo(nx+bpW*0.35,cy1);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy2);ctx.lineTo(nx+bpW*0.35,cy2);ctx.stroke();
+      }
+      // Top strand base with rounded rect
       ctx.fillStyle=baseColors[bases[i]];
-      ctx.fillRect(x,cy1-8,bpW*0.7,16);
+      ctx.beginPath();ctx.roundRect(x,cy1-9,bpW*0.75,18,3);ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=0.5;ctx.stroke();
       // Bottom strand (complement)
       ctx.fillStyle=baseColors[complement[bases[i]]];
-      ctx.fillRect(x,cy2-8,bpW*0.7,16);
-      // H-bond
-      ctx.strokeStyle='rgba(148,163,184,0.3)';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy1+8);ctx.lineTo(x+bpW*0.35,cy2-8);ctx.stroke();
-      // Labels
+      ctx.beginPath();ctx.roundRect(x,cy2-9,bpW*0.75,18,3);ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.stroke();
+      // H-bond (dashed)
+      ctx.strokeStyle='rgba(148,163,184,0.2)';ctx.lineWidth=1;ctx.setLineDash([2,3]);
+      ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy1+9);ctx.lineTo(x+bpW*0.35,cy2-9);ctx.stroke();
+      ctx.setLineDash([]);
+      // Base letters
       ctx.fillStyle='#fff';ctx.font='bold 9px Poppins';ctx.textAlign='center';
-      ctx.fillText(bases[i],x+bpW*0.35,cy1+4);
-      ctx.fillText(complement[bases[i]],x+bpW*0.35,cy2+4);
+      ctx.fillText(bases[i],x+bpW*0.37,cy1+4);
+      ctx.fillText(complement[bases[i]],x+bpW*0.37,cy2+4);
     }
-    // Draw replicated strands (separated, left of fork)
+    // Replicated strands (separated, left of fork)
     for(var i=0;i<replicated;i++){
       var x=w*0.08+(i+2)*bpW;
-      // Top: template + new complement above
-      var sep=30;
+      var sep=35;
+      // Top daughter: template (up) + new complement (below it)
       ctx.fillStyle=baseColors[bases[i]];
-      ctx.fillRect(x,cy1-sep-8,bpW*0.7,16);
+      ctx.beginPath();ctx.roundRect(x,cy1-sep-9,bpW*0.75,18,3);ctx.fill();
+      // New strand glow
+      var newGlow=ctx.createRadialGradient(x+bpW*0.37,cy1-sep+16,2,x+bpW*0.37,cy1-sep+16,12);
+      newGlow.addColorStop(0,'rgba(34,197,94,0.2)');newGlow.addColorStop(1,'rgba(34,197,94,0)');
+      ctx.fillStyle=newGlow;ctx.beginPath();ctx.arc(x+bpW*0.37,cy1-sep+16,12,0,Math.PI*2);ctx.fill();
       ctx.fillStyle=baseColors[complement[bases[i]]];
-      ctx.fillRect(x,cy1-sep+12,bpW*0.7,16);
+      ctx.beginPath();ctx.roundRect(x,cy1-sep+7,bpW*0.75,18,3);ctx.fill();
+      // New strand border highlight
+      ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;ctx.stroke();
       // Bond
-      ctx.strokeStyle='rgba(34,197,94,0.4)';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy1-sep+8);ctx.lineTo(x+bpW*0.35,cy1-sep+12);ctx.stroke();
-      // Bottom: template + new complement below
+      ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy1-sep+9);ctx.lineTo(x+bpW*0.35,cy1-sep+7);ctx.stroke();
+      // Bottom daughter
       ctx.fillStyle=baseColors[complement[bases[i]]];
-      ctx.fillRect(x,cy2+sep-8,bpW*0.7,16);
+      ctx.beginPath();ctx.roundRect(x,cy2+sep-9,bpW*0.75,18,3);ctx.fill();
       ctx.fillStyle=baseColors[bases[i]];
-      ctx.fillRect(x,cy2+sep-24,bpW*0.7,16);
-      ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy2+sep-8);ctx.lineTo(x+bpW*0.35,cy2+sep-12);ctx.stroke();
+      ctx.beginPath();ctx.roundRect(x,cy2+sep-25,bpW*0.75,18,3);ctx.fill();
+      ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x+bpW*0.35,cy2+sep-9);ctx.lineTo(x+bpW*0.35,cy2+sep-7);ctx.stroke();
       // Labels
       ctx.fillStyle='#fff';ctx.font='bold 8px Poppins';ctx.textAlign='center';
-      ctx.fillText(bases[i],x+bpW*0.35,cy1-sep+4);
-      ctx.fillText(complement[bases[i]],x+bpW*0.35,cy2+sep+4);
+      ctx.fillText(bases[i],x+bpW*0.37,cy1-sep+4);
+      ctx.fillText(complement[bases[i]],x+bpW*0.37,cy1-sep+20);
+      ctx.fillText(complement[bases[i]],x+bpW*0.37,cy2+sep+4);
+      ctx.fillText(bases[i],x+bpW*0.37,cy2+sep-12);
     }
-    // Replication fork Y-shape
+    // Replication fork Y-shape with glow
     if(forkPos>0&&forkPos<1){
-      ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;
-      // Top strand separating upward
-      ctx.beginPath();ctx.moveTo(forkX,cy1);ctx.lineTo(forkX-20,cy1-30);ctx.stroke();
-      // Bottom strand separating downward
-      ctx.beginPath();ctx.moveTo(forkX,cy2);ctx.lineTo(forkX-20,cy2+30);ctx.stroke();
-      // Helicase (yellow circle at fork)
-      ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(forkX,h/2,12,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#0f172a';ctx.font='bold 8px Poppins';ctx.textAlign='center';
+      // Fork lines
+      ctx.strokeStyle='#f59e0b';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(forkX,cy1);ctx.lineTo(forkX-25,cy1-35);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(forkX,cy2);ctx.lineTo(forkX-25,cy2+35);ctx.stroke();
+      // Helicase with glow halo
+      var helGlow=ctx.createRadialGradient(forkX,h/2,5,forkX,h/2,22);
+      helGlow.addColorStop(0,'rgba(245,158,11,0.3)');helGlow.addColorStop(1,'rgba(245,158,11,0)');
+      ctx.fillStyle=helGlow;ctx.beginPath();ctx.arc(forkX,h/2,22,0,Math.PI*2);ctx.fill();
+      // Helicase spinning effect
+      ctx.strokeStyle='rgba(245,158,11,0.4)';ctx.lineWidth=2;
+      for(var si=0;si<4;si++){
+        var sa=si*Math.PI/2+t*3;
+        ctx.beginPath();ctx.arc(forkX,h/2,14,sa,sa+0.5);ctx.stroke();
+      }
+      var helGrad=ctx.createRadialGradient(forkX-2,h/2-2,2,forkX,h/2,13);
+      helGrad.addColorStop(0,'#fbbf24');helGrad.addColorStop(1,'#d97706');
+      ctx.fillStyle=helGrad;ctx.beginPath();ctx.arc(forkX,h/2,13,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#0f172a';ctx.font='bold 7px Poppins';ctx.textAlign='center';
       ctx.fillText('HEL',forkX,h/2+3);
-      // Polymerase on leading strand
-      ctx.fillStyle='#a855f7';ctx.beginPath();ctx.arc(forkX-30,cy1-25,10,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#fff';ctx.font='bold 7px Poppins';
-      ctx.fillText('POL',forkX-30,cy1-22);
+      // Polymerase on leading strand with glow
+      var polGlow=ctx.createRadialGradient(forkX-35,cy1-28,3,forkX-35,cy1-28,16);
+      polGlow.addColorStop(0,'rgba(168,85,247,0.3)');polGlow.addColorStop(1,'rgba(168,85,247,0)');
+      ctx.fillStyle=polGlow;ctx.beginPath();ctx.arc(forkX-35,cy1-28,16,0,Math.PI*2);ctx.fill();
+      var polGrad=ctx.createRadialGradient(forkX-37,cy1-30,2,forkX-35,cy1-28,11);
+      polGrad.addColorStop(0,'#c084fc');polGrad.addColorStop(1,'#7c3aed');
+      ctx.fillStyle=polGrad;ctx.beginPath();ctx.arc(forkX-35,cy1-28,11,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fff';ctx.font='bold 6px Poppins';
+      ctx.fillText('POL III',forkX-35,cy1-26);
       // Polymerase on lagging strand
-      ctx.fillStyle='#a855f7';ctx.beginPath();ctx.arc(forkX-30,cy2+25,10,0,Math.PI*2);ctx.fill();
-      ctx.fillText('POL',forkX-30,cy2+28);
+      ctx.fillStyle=polGlow;ctx.beginPath();ctx.arc(forkX-35,cy2+28,16,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=polGrad;ctx.beginPath();ctx.arc(forkX-35,cy2+28,11,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fff';ctx.fillText('POL III',forkX-35,cy2+30);
+      // Direction labels
+      ctx.fillStyle='rgba(34,197,94,0.5)';ctx.font='bold 9px Poppins';
+      ctx.fillText("5' → 3' (leading)",forkX-80,cy1-50);
+      ctx.fillStyle='rgba(239,68,68,0.5)';
+      ctx.fillText("3' → 5' (lagging)",forkX-80,cy2+55);
     }
-    // Legend
+    // Legend with colored boxes
     ctx.font='10px Poppins';ctx.textAlign='left';
-    var ly=h-20;
+    var ly=h-22;
     ['A','T','C','G'].forEach(function(b,i){
-      ctx.fillStyle=baseColors[b];ctx.fillRect(10+i*50,ly-8,12,12);
-      ctx.fillStyle='#94a3b8';ctx.fillText(b,26+i*50,ly+2);
+      ctx.fillStyle=baseColors[b];
+      ctx.beginPath();ctx.roundRect(12+i*55,ly-9,14,14,2);ctx.fill();
+      ctx.fillStyle='#94a3b8';ctx.fillText(b==='A'?'Adenine':b==='T'?'Thymine':b==='C'?'Cytosine':'Guanine',30+i*55,ly+2);
     });
+    // Pairing rule on canvas
+    ctx.fillStyle='rgba(34,197,94,0.3)';ctx.font='bold 9px Poppins';ctx.textAlign='right';
+    ctx.fillText('A↔T  C↔G',w-15,h-12);
     requestAnimationFrame(draw);
   }
   calc();draw();

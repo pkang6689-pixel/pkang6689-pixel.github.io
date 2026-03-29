@@ -30,6 +30,7 @@
 <body class="dark-mode">
 <script src="../scripts/taskbar.js"></script>
 <div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
   <h1>🌞 Seasons Simulator</h1>
   <p class="subtitle">See how Earth's axial tilt creates seasons throughout the year.</p>
   <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
@@ -83,67 +84,110 @@
     var mo2=parseInt(document.getElementById('month').value);
     var tilt3=parseFloat(document.getElementById('tilt').value);
     var lat2=parseInt(document.getElementById('lat').value);
+    // Background stars
+    if(!draw._stars){draw._stars=[];for(var s=0;s<50;s++)draw._stars.push({x:Math.random()*1000,y:Math.random()*300,b:0.1+Math.random()*0.2});}
+    draw._stars.forEach(function(st){ctx.fillStyle='rgba(148,163,184,'+(st.b+Math.sin(t+st.x)*0.05)+')';ctx.beginPath();ctx.arc(st.x%w,st.y%(h*0.55),0.8,0,Math.PI*2);ctx.fill();});
     // Orbital view (top half)
     var orbitCX=w/2,orbitCY=h*0.35;
     var orbitRX=w*0.35,orbitRY=h*0.18;
-    // Sun at center
-    var sGrad=ctx.createRadialGradient(orbitCX,orbitCY,0,orbitCX,orbitCY,30);
-    sGrad.addColorStop(0,'#fef3c7');sGrad.addColorStop(0.6,'#fbbf24');sGrad.addColorStop(1,'#f59e0b00');
-    ctx.fillStyle=sGrad;ctx.beginPath();ctx.arc(orbitCX,orbitCY,30,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#fbbf24';ctx.font='12px sans-serif';ctx.textAlign='center';
-    ctx.fillText('☀',orbitCX,orbitCY+4);
-    // Orbit path
+    // Sun with layered glow + corona
+    var coronaR=50;
+    var corona=ctx.createRadialGradient(orbitCX,orbitCY,0,orbitCX,orbitCY,coronaR);
+    corona.addColorStop(0,'rgba(254,243,199,0.15)');corona.addColorStop(0.5,'rgba(251,191,36,0.06)');corona.addColorStop(1,'rgba(251,191,36,0)');
+    ctx.fillStyle=corona;ctx.beginPath();ctx.arc(orbitCX,orbitCY,coronaR,0,Math.PI*2);ctx.fill();
+    var sGrad=ctx.createRadialGradient(orbitCX-5,orbitCY-5,0,orbitCX,orbitCY,26);
+    sGrad.addColorStop(0,'#fffde7');sGrad.addColorStop(0.4,'#fef3c7');sGrad.addColorStop(0.8,'#fbbf24');sGrad.addColorStop(1,'#f59e0b');
+    ctx.fillStyle=sGrad;ctx.beginPath();ctx.arc(orbitCX,orbitCY,26,0,Math.PI*2);ctx.fill();
+    // Corona rays
+    for(var cr=0;cr<8;cr++){
+      var crA=cr*Math.PI/4+t*0.15;
+      ctx.strokeStyle='rgba(251,191,36,0.06)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(orbitCX+Math.cos(crA)*28,orbitCY+Math.sin(crA)*28);
+      ctx.lineTo(orbitCX+Math.cos(crA)*45,orbitCY+Math.sin(crA)*45);ctx.stroke();
+    }
+    // Orbit path with subtle glow
+    ctx.strokeStyle='rgba(148,163,184,0.08)';ctx.lineWidth=6;
+    ctx.beginPath();ctx.ellipse(orbitCX,orbitCY,orbitRX,orbitRY,0,0,Math.PI*2);ctx.stroke();
     ctx.strokeStyle='rgba(148,163,184,0.2)';ctx.lineWidth=1;
     ctx.beginPath();ctx.ellipse(orbitCX,orbitCY,orbitRX,orbitRY,0,0,Math.PI*2);ctx.stroke();
-    // Earth positions for solstices/equinoxes
+    // Season labels at 4 positions
     var positions=[
-      {mo:0,label:'Jan',ang:Math.PI},
-      {mo:3,label:'Mar Equinox',ang:Math.PI*0.5},
-      {mo:6,label:'Jun Solstice',ang:0},
-      {mo:9,label:'Sep Equinox',ang:Math.PI*1.5}
+      {mo:0,label:'Dec Solstice',ang:Math.PI,col:'#60a5fa'},
+      {mo:3,label:'Mar Equinox',ang:Math.PI*0.5,col:'#4ade80'},
+      {mo:6,label:'Jun Solstice',ang:0,col:'#fbbf24'},
+      {mo:9,label:'Sep Equinox',ang:Math.PI*1.5,col:'#fb923c'}
     ];
     positions.forEach(function(pos){
       var ex=orbitCX+Math.cos(pos.ang)*orbitRX;
       var ey=orbitCY+Math.sin(pos.ang)*orbitRY;
-      ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='9px Poppins';ctx.textAlign='center';
-      ctx.fillText(pos.label,ex,ey-18);
+      ctx.fillStyle='rgba(15,23,42,0.6)';
+      var lbW=ctx.measureText(pos.label).width+10;
+      ctx.beginPath();ctx.roundRect(ex-lbW/2,ey-28,lbW,16,4);ctx.fill();
+      ctx.fillStyle=pos.col;ctx.font='bold 9px Poppins';ctx.textAlign='center';
+      ctx.fillText(pos.label,ex,ey-16);
+      // Small dot marker
+      ctx.fillStyle=pos.col+'40';ctx.beginPath();ctx.arc(ex,ey,3,0,Math.PI*2);ctx.fill();
     });
     // Current Earth position
     var earthAng=(mo2/12)*Math.PI*2-Math.PI/2;
     var earthX=orbitCX+Math.cos(earthAng)*orbitRX;
     var earthY=orbitCY+Math.sin(earthAng)*orbitRY;
     var earthR=15;
-    // Draw Earth with tilt
-    var tiltRad=tilt3*Math.PI/180;
+    // Month indicator on orbit
+    ctx.fillStyle='rgba(245,158,11,0.15)';ctx.beginPath();ctx.arc(earthX,earthY,earthR+8,0,Math.PI*2);ctx.fill();
     var declination2=tilt3*Math.sin((mo2-2)/12*Math.PI*2);
-    ctx.save();ctx.translate(earthX,earthY);ctx.rotate(-tiltRad*Math.cos(earthAng));
-    // Earth circle
-    ctx.fillStyle='#1e40af';ctx.beginPath();ctx.arc(0,0,earthR,0,Math.PI*2);ctx.fill();
-    // Continents hint
-    ctx.fillStyle='#22c55e40';ctx.beginPath();ctx.arc(-3,-5,5,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(4,3,4,0,Math.PI*2);ctx.fill();
+    ctx.save();ctx.translate(earthX,earthY);
+    var tiltRad=tilt3*Math.PI/180;
+    ctx.rotate(-tiltRad*Math.cos(earthAng));
+    // Earth gradient
+    var eGrad=ctx.createRadialGradient(-3,-3,0,0,0,earthR);
+    eGrad.addColorStop(0,'#2563eb');eGrad.addColorStop(0.7,'#1e40af');eGrad.addColorStop(1,'#172554');
+    ctx.fillStyle=eGrad;ctx.beginPath();ctx.arc(0,0,earthR,0,Math.PI*2);ctx.fill();
+    // Better continents
+    ctx.fillStyle='#22c55e50';
+    ctx.beginPath();ctx.ellipse(-4,-6,5,3,0.3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(5,2,4,5,-0.2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(-2,8,3,2,0,0,Math.PI*2);ctx.fill();
+    // Ice caps
+    ctx.fillStyle='rgba(255,255,255,0.15)';
+    ctx.beginPath();ctx.ellipse(0,-earthR+3,6,3,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(0,earthR-3,5,2,0,0,Math.PI*2);ctx.fill();
+    // Day/night terminator
+    ctx.save();ctx.globalCompositeOperation='source-atop';
+    var sunDir=Math.atan2(orbitCY-earthY,orbitCX-earthX)+tiltRad*Math.cos(earthAng);
+    ctx.fillStyle='rgba(0,0,0,0.35)';
+    ctx.beginPath();ctx.arc(Math.cos(sunDir+Math.PI)*earthR*0.5,Math.sin(sunDir+Math.PI)*earthR*0.5,earthR*1.1,0,Math.PI*2);ctx.fill();
+    ctx.restore();
     // Axis line
-    ctx.strokeStyle='#f1f5f9';ctx.lineWidth=1;ctx.setLineDash([3,3]);
-    ctx.beginPath();ctx.moveTo(0,-earthR-10);ctx.lineTo(0,earthR+10);ctx.stroke();ctx.setLineDash([]);
+    ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(0,-earthR-12);ctx.lineTo(0,earthR+12);ctx.stroke();ctx.setLineDash([]);
     // N/S labels
-    ctx.fillStyle='#f1f5f9';ctx.font='8px Poppins';ctx.textAlign='center';
-    ctx.fillText('N',0,-earthR-13);ctx.fillText('S',0,earthR+17);
-    // Latitude marker
+    ctx.fillStyle='#e2e8f0';ctx.font='bold 8px Poppins';ctx.textAlign='center';
+    ctx.fillText('N',0,-earthR-15);ctx.fillText('S',0,earthR+19);
+    // Latitude marker with glow
     var latY=-lat2/90*earthR;
-    ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(0,latY,2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(239,68,68,0.3)';ctx.beginPath();ctx.arc(0,latY,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(0,latY,2.5,0,Math.PI*2);ctx.fill();
     ctx.restore();
     // Sun rays hitting Earth
-    ctx.strokeStyle='rgba(251,191,36,0.2)';ctx.lineWidth=1;
-    for(var ray=0;ray<5;ray++){
-      var ry=earthY-10+ray*5;
-      ctx.beginPath();ctx.moveTo(orbitCX+35,orbitCY-10+ray*5);ctx.lineTo(earthX-earthR,ry);ctx.stroke();
+    ctx.strokeStyle='rgba(251,191,36,0.15)';ctx.lineWidth=1.5;
+    for(var ray=0;ray<7;ray++){
+      var ry=earthY-15+ray*5;
+      ctx.beginPath();ctx.moveTo(orbitCX+32,orbitCY-15+ray*5);ctx.lineTo(earthX-earthR-2,ry);ctx.stroke();
     }
     // Insolation diagram (bottom half)
     var diagY=h*0.65,diagH=h*0.3;
-    ctx.fillStyle='#0a1628';ctx.fillRect(0,diagY-10,w,diagH+30);
-    // Ground line
+    // Background gradient
+    var diagBg=ctx.createLinearGradient(0,diagY-10,0,diagY+diagH+20);
+    diagBg.addColorStop(0,'#0a1628');diagBg.addColorStop(1,'#0f172a');
+    ctx.fillStyle=diagBg;ctx.fillRect(0,diagY-10,w,diagH+30);
+    // Ground with grass gradient
     var groundY=diagY+diagH-20;
-    ctx.fillStyle='#22c55e20';ctx.fillRect(w*0.1,groundY,w*0.8,20);
+    var grassGrad=ctx.createLinearGradient(0,groundY,0,groundY+20);
+    grassGrad.addColorStop(0,'rgba(34,197,94,0.15)');grassGrad.addColorStop(1,'rgba(34,197,94,0.05)');
+    ctx.fillStyle=grassGrad;ctx.fillRect(w*0.1,groundY,w*0.8,20);
+    ctx.strokeStyle='rgba(34,197,94,0.2)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(w*0.1,groundY);ctx.lineTo(w*0.9,groundY);ctx.stroke();
     // Sun angle visualization
     var sunAngle2=90-Math.abs(lat2-declination2);
     sunAngle2=Math.max(5,Math.min(90,sunAngle2));
@@ -151,20 +195,41 @@
     var rayLen=diagH*0.7;
     var sunRayX=w/2-Math.cos(sunAngRad)*rayLen;
     var sunRayY=groundY-Math.sin(sunAngRad)*rayLen;
-    // Sun rays
-    ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;
+    // Ray spread visualization (direct vs spread)
+    var spreadW=60/Math.sin(sunAngRad);
+    ctx.fillStyle='rgba(251,191,36,0.04)';
+    ctx.beginPath();ctx.moveTo(sunRayX,sunRayY);ctx.lineTo(w/2-spreadW/2,groundY);ctx.lineTo(w/2+spreadW/2,groundY);ctx.closePath();ctx.fill();
+    // Sun rays with gradient
     for(var sr=-2;sr<=2;sr++){
+      var rayGrad=ctx.createLinearGradient(sunRayX+sr*20,sunRayY,w/2+sr*20*Math.sin(sunAngRad),groundY);
+      rayGrad.addColorStop(0,'rgba(251,191,36,0.6)');rayGrad.addColorStop(1,'rgba(251,191,36,0.15)');
+      ctx.strokeStyle=rayGrad;ctx.lineWidth=2;
       ctx.beginPath();ctx.moveTo(sunRayX+sr*20,sunRayY);ctx.lineTo(w/2+sr*20*Math.sin(sunAngRad),groundY);ctx.stroke();
     }
-    // Angle arc
-    ctx.strokeStyle='#f59e0b';ctx.lineWidth=1;
+    // Angle arc with glow
+    ctx.strokeStyle='rgba(245,158,11,0.15)';ctx.lineWidth=4;
+    ctx.beginPath();ctx.arc(w/2,groundY,32,Math.PI*1.5,Math.PI*1.5+sunAngRad,true);ctx.stroke();
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;
     ctx.beginPath();ctx.arc(w/2,groundY,30,Math.PI*1.5,Math.PI*1.5+sunAngRad,true);ctx.stroke();
+    // Angle label with background
+    var angLbl=sunAngle2.toFixed(0)+'\u00b0';
+    ctx.fillStyle='rgba(15,23,42,0.6)';ctx.beginPath();ctx.roundRect(w/2+32,groundY-25,35,18,4);ctx.fill();
     ctx.fillStyle='#f59e0b';ctx.font='bold 11px Poppins';ctx.textAlign='center';
-    ctx.fillText(sunAngle2.toFixed(0)+'°',w/2+40,groundY-15);
-    // Labels
-    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';
-    ctx.fillText('Sun angle at '+Math.abs(lat2)+'°'+(lat2>=0?'N':'S')+' in '+months[mo2],w/2,diagY);
-    ctx.fillText(sunAngle2>60?'Direct sunlight → More heating':sunAngle2>30?'Moderate angle → Less heating':'Low angle → Minimal heating',w/2,groundY+30);
+    ctx.fillText(angLbl,w/2+49,groundY-12);
+    // Labels with backgrounds
+    var titleLbl='Sun angle at '+Math.abs(lat2)+'\u00b0'+(lat2>=0?'N':'S')+' in '+months[mo2];
+    var tlW=ctx.measureText(titleLbl).width+12;
+    ctx.fillStyle='rgba(15,23,42,0.5)';ctx.beginPath();ctx.roundRect(w/2-tlW/2,diagY-6,tlW,16,4);ctx.fill();
+    ctx.fillStyle='#cbd5e1';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText(titleLbl,w/2,diagY+6);
+    // Heating intensity badge
+    var heatLbl=sunAngle2>60?'High Heating \u2191':sunAngle2>30?'Moderate Heating':'Low Heating \u2193';
+    var heatCol=sunAngle2>60?'#ef4444':sunAngle2>30?'#f59e0b':'#3b82f6';
+    var hbW=ctx.measureText(heatLbl).width+14;
+    ctx.fillStyle=heatCol+'15';ctx.beginPath();ctx.roundRect(w/2-hbW/2,groundY+22,hbW,18,4);ctx.fill();
+    ctx.strokeStyle=heatCol+'40';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(w/2-hbW/2,groundY+22,hbW,18,4);ctx.stroke();
+    ctx.fillStyle=heatCol;ctx.font='bold 9px Poppins';
+    ctx.fillText(heatLbl,w/2,groundY+34);
     requestAnimationFrame(draw);
   }
   upd();draw();

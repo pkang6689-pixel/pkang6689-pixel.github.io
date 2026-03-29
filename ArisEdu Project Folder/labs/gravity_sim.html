@@ -31,6 +31,7 @@
 <body class="dark-mode">
 <script src="../scripts/taskbar.js"></script>
 <div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
   <h1>🌍 N-Body Gravity Simulator</h1>
   <p class="subtitle">Click to place bodies. Watch gravitational orbits emerge.</p>
   <div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
@@ -90,6 +91,13 @@
     ctx.fillStyle='rgba(2,6,23,0.2)';ctx.fillRect(0,0,w,h);
     t+=0.016;
     var G=parseInt(document.getElementById('grav').value)*0.5;
+    // Subtle grid
+    if(t<0.02){
+      ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);
+      ctx.strokeStyle='#0f172a';ctx.lineWidth=0.3;
+      for(var gx=0;gx<w;gx+=40){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,h);ctx.stroke();}
+      for(var gy=0;gy<h;gy+=40){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(w,gy);ctx.stroke();}
+    }
     // Physics step
     var dt=0.5;
     for(var i=0;i<bodies.length;i++){
@@ -99,7 +107,7 @@
         if(i===j)continue;
         var bj=bodies[j];
         var dx=bj.x-bi.x,dy=bj.y-bi.y;
-        var dist2=dx*dx+dy*dy+100;// softening
+        var dist2=dx*dx+dy*dy+100;
         var dist3=Math.sqrt(dist2);
         var force=G*bj.mass/dist2;
         ax+=force*dx/dist3;
@@ -111,41 +119,73 @@
     for(var k=0;k<bodies.length;k++){
       var bk=bodies[k];
       bk.x+=bk.vx*dt;bk.y+=bk.vy*dt;
-      // Trail
       bk.trail.push({x:bk.x,y:bk.y});
       if(bk.trail.length>150)bk.trail.shift();
-      // Boundary wrap
       if(bk.x<-50)bk.x=w+50;if(bk.x>w+50)bk.x=-50;
       if(bk.y<-50)bk.y=h+50;if(bk.y>h+50)bk.y=-50;
     }
-    // Draw trails
+    // Draw trails with gradient fade
     bodies.forEach(function(b){
       if(b.trail.length<2)return;
-      ctx.strokeStyle=b.color+'40';ctx.lineWidth=1;ctx.beginPath();
-      b.trail.forEach(function(tp,ti){
-        if(ti===0)ctx.moveTo(tp.x,tp.y);else ctx.lineTo(tp.x,tp.y);
-      });
-      ctx.stroke();
-    });
-    // Draw bodies
-    bodies.forEach(function(b){
-      ctx.fillStyle=b.color;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();
-      // Glow
-      if(b.mass>50){
-        var gGrd=ctx.createRadialGradient(b.x,b.y,b.r,b.x,b.y,b.r*3);
-        gGrd.addColorStop(0,b.color+'30');gGrd.addColorStop(1,b.color+'00');
-        ctx.fillStyle=gGrd;ctx.beginPath();ctx.arc(b.x,b.y,b.r*3,0,Math.PI*2);ctx.fill();
+      for(var ti=1;ti<b.trail.length;ti++){
+        var alpha=(ti/b.trail.length)*0.3;
+        ctx.strokeStyle=b.color.replace('60%)',alpha*100+'%)').replace('hsl','hsla').replace(')',','+alpha+')');
+        ctx.lineWidth=0.5+ti/b.trail.length;
+        ctx.beginPath();ctx.moveTo(b.trail[ti-1].x,b.trail[ti-1].y);ctx.lineTo(b.trail[ti].x,b.trail[ti].y);ctx.stroke();
       }
     });
-    // Drag indicator
+    // Draw bodies with glow proportional to mass
+    bodies.forEach(function(b){
+      // Glow for all bodies
+      var glowR=b.r*(2+b.mass*0.02);
+      var gGrd=ctx.createRadialGradient(b.x,b.y,b.r*0.5,b.x,b.y,glowR);
+      gGrd.addColorStop(0,b.color+'25');gGrd.addColorStop(1,b.color+'00');
+      ctx.fillStyle=gGrd;ctx.beginPath();ctx.arc(b.x,b.y,glowR,0,Math.PI*2);ctx.fill();
+      // Body gradient
+      var bGrad=ctx.createRadialGradient(b.x-b.r*0.3,b.y-b.r*0.3,0,b.x,b.y,b.r);
+      bGrad.addColorStop(0,'#fff8');bGrad.addColorStop(0.3,b.color);bGrad.addColorStop(1,b.color.replace('60%','30%'));
+      ctx.fillStyle=bGrad;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();
+      // Velocity vector
+      var vLen=Math.sqrt(b.vx*b.vx+b.vy*b.vy);
+      if(vLen>0.5){
+        var vScale=Math.min(30,vLen*3);
+        var vnx=b.vx/vLen*vScale,vny=b.vy/vLen*vScale;
+        ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(b.x+vnx,b.y+vny);ctx.stroke();
+        // Arrowhead
+        var aAngle=Math.atan2(vny,vnx);
+        ctx.fillStyle='rgba(34,197,94,0.3)';
+        ctx.beginPath();ctx.moveTo(b.x+vnx,b.y+vny);
+        ctx.lineTo(b.x+vnx-5*Math.cos(aAngle-0.4),b.y+vny-5*Math.sin(aAngle-0.4));
+        ctx.lineTo(b.x+vnx-5*Math.cos(aAngle+0.4),b.y+vny-5*Math.sin(aAngle+0.4));
+        ctx.closePath();ctx.fill();
+      }
+    });
+    // Drag indicator – enhanced
     if(dragging&&dragStart&&dragEnd){
-      ctx.strokeStyle='rgba(245,158,11,0.5)';ctx.lineWidth=1;ctx.setLineDash([5,5]);
+      // Velocity preview line
+      ctx.strokeStyle='rgba(245,158,11,0.5)';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);
       ctx.beginPath();ctx.moveTo(dragStart.x,dragStart.y);ctx.lineTo(dragEnd.x,dragEnd.y);ctx.stroke();
       ctx.setLineDash([]);
+      // Preview circle
+      var previewR=3+parseInt(document.getElementById('mass').value)*0.1;
+      ctx.strokeStyle='rgba(245,158,11,0.3)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(dragStart.x,dragStart.y,previewR,0,Math.PI*2);ctx.stroke();
+      // Velocity magnitude label
+      var dragDx=dragStart.x-dragEnd.x,dragDy=dragStart.y-dragEnd.y;
+      var dragV=Math.sqrt(dragDx*dragDx+dragDy*dragDy)*0.05;
+      ctx.fillStyle='rgba(245,158,11,0.6)';ctx.font='9px Poppins';ctx.textAlign='center';
+      ctx.fillText('v='+dragV.toFixed(1),(dragStart.x+dragEnd.x)/2,(dragStart.y+dragEnd.y)/2-8);
     }
+    // Force equation overlay (top-right)
+    ctx.fillStyle='rgba(15,23,42,0.6)';ctx.beginPath();ctx.roundRect(w-155,8,148,40,6);ctx.fill();
+    ctx.fillStyle='#f59e0b';ctx.font='bold 10px Poppins';ctx.textAlign='left';
+    ctx.fillText('F = G\u00b7m\u2081m\u2082/r\u00b2',w-148,24);
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';
+    ctx.fillText('G = '+G.toFixed(1)+' (scaled)',w-148,40);
     // Stats
     document.getElementById('nbodies').textContent=bodies.length;
-    var ke=0,pe=0;
+    var ke=0;
     bodies.forEach(function(b2){ke+=0.5*b2.mass*(b2.vx*b2.vx+b2.vy*b2.vy);});
     document.getElementById('ke').textContent=Math.round(ke);
     document.getElementById('pe').textContent='~'+Math.round(-ke*0.8);

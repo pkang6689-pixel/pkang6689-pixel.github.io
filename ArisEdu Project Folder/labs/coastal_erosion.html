@@ -31,6 +31,7 @@
 <body class="dark-mode">
 <script src="../scripts/taskbar.js"></script>
 <div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
   <h1>🏖️ Coastal Erosion</h1>
   <p class="subtitle">Watch waves reshape coastlines through hydraulic action and abrasion.</p>
   <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
@@ -70,7 +71,6 @@
   };
   function draw(){
     var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
-    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
     t+=0.016;years+=0.02;
     var power2=parseInt(document.getElementById('power').value);
     var hard2=parseInt(document.getElementById('hard').value);
@@ -79,54 +79,129 @@
     // Erode cliff
     var erodeRate=power2*0.003/(hard2*0.5);
     for(var y=0;y<h;y++){
-      // More erosion near water line
       var dist=Math.abs(y-waterLine);
       var factor=Math.max(0,1-dist/(h*0.2));
       cliffProfile[y]-=erodeRate*factor*(0.8+Math.random()*0.4);
       cliffProfile[y]=Math.max(w*0.2,cliffProfile[y]);
     }
-    // Sky
-    ctx.fillStyle='#1e293b';ctx.fillRect(0,0,w,waterLine);
-    // Land/cliff
+    // Sky gradient
+    var skyGrad=ctx.createLinearGradient(0,0,0,waterLine);
+    skyGrad.addColorStop(0,'#0f172a');skyGrad.addColorStop(0.5,'#1e293b');skyGrad.addColorStop(1,'#334155');
+    ctx.fillStyle=skyGrad;ctx.fillRect(0,0,w,waterLine);
+    // Clouds
+    ctx.fillStyle='rgba(148,163,184,0.08)';
+    for(var cl=0;cl<4;cl++){
+      var cx2=((cl*210+t*8)%(w+100))-50;var cy2=20+cl*25;
+      ctx.beginPath();ctx.arc(cx2,cy2,20,0,Math.PI*2);ctx.arc(cx2+18,cy2-5,15,0,Math.PI*2);ctx.arc(cx2+32,cy2,18,0,Math.PI*2);ctx.fill();
+    }
+    // Land/cliff with rock layers
     ctx.fillStyle='#92400e';ctx.beginPath();ctx.moveTo(w,0);
-    for(var y2=0;y2<h;y2++){
-      ctx.lineTo(cliffProfile[y2],y2);
-    }
+    for(var y2=0;y2<h;y2++){ctx.lineTo(cliffProfile[y2],y2);}
     ctx.lineTo(w,h);ctx.closePath();ctx.fill();
-    // Grass on top
-    ctx.fillStyle='#22c55e40';ctx.beginPath();ctx.moveTo(w,0);
-    for(var y3=0;y3<waterLine-20;y3++){
-      ctx.lineTo(cliffProfile[y3],y3);
+    // Rock strata layers
+    var strataColors=['rgba(120,80,40,0.3)','rgba(180,140,90,0.2)','rgba(100,60,30,0.25)','rgba(160,120,70,0.2)'];
+    for(var st=0;st<4;st++){
+      var layerY=waterLine-40+st*40;
+      ctx.fillStyle=strataColors[st];
+      ctx.beginPath();ctx.moveTo(w,layerY);
+      for(var sx=w;sx>=0;sx-=10){
+        var cpy=cliffProfile[Math.min(Math.floor(layerY),h-1)]||w*0.5;
+        if(sx>cpy-5)ctx.lineTo(sx,layerY+Math.sin(sx*0.05)*3);
+      }
+      ctx.lineTo(w,layerY+35);ctx.closePath();ctx.fill();
     }
+    // Cliff face shading (shadow on left edge)
+    ctx.strokeStyle='rgba(0,0,0,0.15)';ctx.lineWidth=3;
+    ctx.beginPath();
+    for(var y4=Math.floor(waterLine-30);y4<h;y4+=2){
+      var cx3=cliffProfile[y4];
+      if(y4===Math.floor(waterLine-30))ctx.moveTo(cx3,y4);else ctx.lineTo(cx3,y4);
+    }
+    ctx.stroke();
+    // Grass on top with blades
+    var grassGrad=ctx.createLinearGradient(0,0,0,waterLine-20);
+    grassGrad.addColorStop(0,'rgba(34,197,94,0.25)');grassGrad.addColorStop(1,'rgba(34,197,94,0.08)');
+    ctx.fillStyle=grassGrad;ctx.beginPath();ctx.moveTo(w,0);
+    for(var y3=0;y3<waterLine-20;y3++){ctx.lineTo(cliffProfile[y3],y3);}
     ctx.lineTo(w,waterLine-20);ctx.fill();
-    // Beach/sediment at bottom
-    ctx.fillStyle='#d4a574';
-    ctx.beginPath();ctx.moveTo(0,h*0.9);
+    // Grass blade details at edge
+    ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;
+    for(var gb=0;gb<12;gb++){
+      var gby=Math.floor(Math.random()*(waterLine-30));
+      var gbx=cliffProfile[gby];
+      ctx.beginPath();ctx.moveTo(gbx,gby);ctx.lineTo(gbx-5-Math.sin(t+gb)*2,gby-6);ctx.stroke();
+    }
+    // Beach/sediment with gradient
     var beachStart=Math.min.apply(null,cliffProfile.slice(Math.floor(waterLine),h))-30;
+    var beachGrad=ctx.createLinearGradient(beachStart-30,0,beachStart+40,0);
+    beachGrad.addColorStop(0,'#d4a574');beachGrad.addColorStop(1,'#c49564');
+    ctx.fillStyle=beachGrad;
+    ctx.beginPath();ctx.moveTo(0,h*0.9);
     ctx.lineTo(beachStart,h*0.9);ctx.quadraticCurveTo(beachStart-20,h*0.95,0,h);ctx.lineTo(0,h);ctx.fill();
-    // Water
-    ctx.fillStyle='rgba(37,99,235,0.5)';ctx.fillRect(0,waterLine,w,h-waterLine);
-    // Waves
-    ctx.strokeStyle='rgba(147,197,253,0.5)';ctx.lineWidth=2;
-    for(var wv=0;wv<3;wv++){
+    // Sand texture dots
+    ctx.fillStyle='rgba(180,150,100,0.2)';
+    for(var sd=0;sd<20;sd++){
+      var sdx=Math.random()*beachStart;var sdy=h*0.9+Math.random()*(h*0.1);
+      ctx.beginPath();ctx.arc(sdx,sdy,1,0,Math.PI*2);ctx.fill();
+    }
+    // Water with depth gradient
+    var waterGrad=ctx.createLinearGradient(0,waterLine,0,h);
+    waterGrad.addColorStop(0,'rgba(37,99,235,0.35)');waterGrad.addColorStop(0.5,'rgba(37,99,235,0.55)');waterGrad.addColorStop(1,'rgba(30,58,138,0.7)');
+    ctx.fillStyle=waterGrad;ctx.fillRect(0,waterLine,w,h-waterLine);
+    // Waves with curl
+    for(var wv=0;wv<4;wv++){
+      var wy2=waterLine+wv*18;
+      // Wave fill
+      ctx.fillStyle='rgba(147,197,253,'+(0.08-wv*0.015)+')';
       ctx.beginPath();
-      var wy2=waterLine+wv*20;
-      for(var wx=0;wx<w*0.6;wx+=3){
-        var wvy=wy2+Math.sin(wx*0.03+t*3+wv)*power2;
+      for(var wx=0;wx<w*0.65;wx+=3){
+        var wvy=wy2+Math.sin(wx*0.025+t*3+wv*0.8)*power2*(1.2-wv*0.2);
         if(wx===0)ctx.moveTo(wx,wvy);else ctx.lineTo(wx,wvy);
+      }
+      ctx.lineTo(w*0.65,wy2+15);ctx.lineTo(0,wy2+15);ctx.closePath();ctx.fill();
+      // Wave crest line
+      ctx.strokeStyle='rgba(147,197,253,'+(0.4-wv*0.08)+')';ctx.lineWidth=1.5;
+      ctx.beginPath();
+      for(var wx2=0;wx2<w*0.65;wx2+=3){
+        var wvy2=wy2+Math.sin(wx2*0.025+t*3+wv*0.8)*power2*(1.2-wv*0.2);
+        if(wx2===0)ctx.moveTo(wx2,wvy2);else ctx.lineTo(wx2,wvy2);
       }
       ctx.stroke();
     }
-    // Spray at impact
-    if(power2>3){
+    // White foam at wave crest
+    ctx.fillStyle='rgba(255,255,255,0.15)';
+    for(var fm=0;fm<8;fm++){
+      var fmx=((fm*80+t*50)%(w*0.55));
+      var fmy=waterLine+Math.sin(fmx*0.025+t*3)*power2;
+      ctx.beginPath();ctx.arc(fmx,fmy,3+Math.random()*2,0,Math.PI*2);ctx.fill();
+    }
+    // Spray at cliff impact
+    if(power2>2){
       var impactX=cliffProfile[Math.floor(waterLine)]||w*0.5;
-      ctx.fillStyle='rgba(147,197,253,0.3)';
-      for(var sp=0;sp<power2;sp++){
-        var spx=impactX-Math.random()*20;
-        var spy=waterLine-Math.random()*power2*5;
-        ctx.beginPath();ctx.arc(spx,spy,2,0,Math.PI*2);ctx.fill();
+      for(var sp=0;sp<power2*2;sp++){
+        var spx=impactX-Math.random()*25;
+        var spy=waterLine-Math.random()*power2*6;
+        var spSize=1+Math.random()*2;
+        // Spray with glow
+        var spGlow=ctx.createRadialGradient(spx,spy,0,spx,spy,spSize*2);
+        spGlow.addColorStop(0,'rgba(147,197,253,0.4)');spGlow.addColorStop(1,'rgba(147,197,253,0)');
+        ctx.fillStyle=spGlow;ctx.beginPath();ctx.arc(spx,spy,spSize*2,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='rgba(200,220,255,0.35)';
+        ctx.beginPath();ctx.arc(spx,spy,spSize,0,Math.PI*2);ctx.fill();
       }
     }
+    // Erosion process labels on cliff
+    var cliffX=cliffProfile[Math.floor(waterLine)]||w*0.5;
+    ctx.fillStyle='rgba(148,163,184,0.4)';ctx.font='8px Poppins';ctx.textAlign='right';
+    ctx.fillText('Hydraulic Action \u2192',cliffX-8,waterLine-5);
+    ctx.fillText('Abrasion \u2192',cliffX-8,waterLine+20);
+    ctx.fillText('Corrosion \u2192',cliffX-8,waterLine+38);
+    // Sea level indicator
+    ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(96,165,250,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(0,waterLine);ctx.lineTo(w*0.35,waterLine);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(96,165,250,0.35)';ctx.font='8px Poppins';ctx.textAlign='left';
+    ctx.fillText('Sea Level'+(slr2>0?' (+'+slr2+'cm)':''),5,waterLine-4);
     // Stats
     var initialCliff=w*0.6;
     var currentCliff=cliffProfile[Math.floor(waterLine)]||w*0.5;

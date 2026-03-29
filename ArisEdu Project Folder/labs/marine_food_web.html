@@ -31,6 +31,7 @@
 <body class="dark-mode">
 <script src="../scripts/taskbar.js"></script>
 <div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
   <h1>🐟 Marine Food Web</h1>
   <p class="subtitle">Explore trophic levels and energy flow in ocean ecosystems.</p>
   <div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
@@ -83,51 +84,104 @@
   };
   function draw(){
     var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
-    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    // Ocean gradient background
+    var bgGrad=ctx.createLinearGradient(0,0,0,h);
+    bgGrad.addColorStop(0,'#0c1929');bgGrad.addColorStop(1,'#0f172a');
+    ctx.fillStyle=bgGrad;ctx.fillRect(0,0,w,h);
     t+=0.016;
-    // Energy pyramid (left)
+    // Subtle water particles
+    ctx.fillStyle='rgba(59,130,246,0.04)';
+    for(var wp=0;wp<20;wp++){
+      ctx.beginPath();ctx.arc((wp*137+t*8)%w,(wp*97+t*3)%h,1.5,0,Math.PI*2);ctx.fill();
+    }
+    // Energy pyramid (left) with gradient fills
     var px=w*0.05,py=h*0.05,pw=w*0.4,ph=h*0.85;
     var numLevels=apexPresent?5:4;
     var layerH=ph/numLevels;
-    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';ctx.textAlign='center';
-    ctx.fillText('Energy Pyramid',px+pw/2,py-5);
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 12px Poppins';ctx.textAlign='center';
+    ctx.fillText('Energy Pyramid',px+pw/2,py-8);
+    ctx.strokeStyle='rgba(59,130,246,0.2)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(px+pw/2-50,py-4);ctx.lineTo(px+pw/2+50,py-4);ctx.stroke();
     for(var i=0;i<numLevels;i++){
       var idx=numLevels-1-i;
       var lw=pw*(0.3+levels[idx].pop/100*0.7);
       var lx=px+(pw-lw)/2;
       var ly=py+i*layerH;
-      ctx.fillStyle=levels[idx].color+'40';
-      ctx.fillRect(lx,ly,lw,layerH-4);
-      ctx.strokeStyle=levels[idx].color;ctx.lineWidth=1;ctx.strokeRect(lx,ly,lw,layerH-4);
+      // Gradient fill for each layer
+      var layerGrad=ctx.createLinearGradient(lx,ly,lx+lw,ly);
+      layerGrad.addColorStop(0,levels[idx].color+'15');layerGrad.addColorStop(0.5,levels[idx].color+'35');layerGrad.addColorStop(1,levels[idx].color+'15');
+      ctx.fillStyle=layerGrad;ctx.fillRect(lx,ly,lw,layerH-4);
+      ctx.strokeStyle=levels[idx].color+'80';ctx.lineWidth=1;ctx.strokeRect(lx,ly,lw,layerH-4);
+      // Text
       ctx.fillStyle=levels[idx].color;ctx.font='bold 11px Poppins';ctx.textAlign='center';
-      ctx.fillText(levels[idx].emoji+' '+levels[idx].name,px+pw/2,ly+layerH/2);
-      ctx.font='9px Poppins';ctx.fillText(levels[idx].pop+'% energy',px+pw/2,ly+layerH/2+14);
+      ctx.fillText(levels[idx].emoji+' '+levels[idx].name,px+pw/2,ly+layerH/2-2);
+      ctx.font='9px Poppins';ctx.fillText(levels[idx].pop+'% energy',px+pw/2,ly+layerH/2+12);
+      // Energy transfer arrow between levels
+      if(i<numLevels-1){
+        ctx.strokeStyle='rgba(148,163,184,0.2)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(px+pw/2,ly+layerH-4);ctx.lineTo(px+pw/2,ly+layerH);ctx.stroke();
+        // 10% label
+        ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='7px Poppins';
+        ctx.fillText('~10%',px+pw/2+30,ly+layerH-2);
+      }
     }
-    // Food web diagram (right)
+    // Food web diagram (right) with improved rendering
     var fwx=w*0.55,fwy=h*0.05,fww=w*0.4,fwh=h*0.85;
-    ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';ctx.textAlign='center';
-    ctx.fillText('Food Web Connections',fwx+fww/2,fwy-5);
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 12px Poppins';ctx.textAlign='center';
+    ctx.fillText('Food Web Connections',fwx+fww/2,fwy-8);
+    ctx.strokeStyle='rgba(59,130,246,0.2)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(fwx+fww/2-60,fwy-4);ctx.lineTo(fwx+fww/2+60,fwy-4);ctx.stroke();
     var nodes=[];
     for(var j=0;j<numLevels;j++){
       var ny=fwy+fwh*0.1+j*(fwh*0.8/(numLevels-1));
       var nx=fwx+fww/2+Math.sin(j*1.5)*fww*0.2;
       nodes.push({x:nx,y:ny,level:j});
-      // Draw node
-      ctx.fillStyle=levels[j].color;ctx.beginPath();ctx.arc(nx,ny,15+levels[j].pop*0.15,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.fillText(levels[j].emoji,nx,ny+5);
+      // Node glow
+      var nodeGlow=ctx.createRadialGradient(nx,ny,5,nx,ny,20+levels[j].pop*0.2);
+      nodeGlow.addColorStop(0,levels[j].color+'30');nodeGlow.addColorStop(1,levels[j].color+'00');
+      ctx.fillStyle=nodeGlow;ctx.beginPath();ctx.arc(nx,ny,20+levels[j].pop*0.2,0,Math.PI*2);ctx.fill();
+      // Node circle with gradient
+      var nodeGrad=ctx.createRadialGradient(nx-4,ny-4,2,nx,ny,15+levels[j].pop*0.15);
+      nodeGrad.addColorStop(0,levels[j].color);nodeGrad.addColorStop(1,levels[j].color+'aa');
+      ctx.fillStyle=nodeGrad;ctx.beginPath();ctx.arc(nx,ny,15+levels[j].pop*0.15,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;ctx.stroke();
+      // Emoji
+      ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.textAlign='center';
+      ctx.fillText(levels[j].emoji,nx,ny+5);
+      // Level name
+      ctx.fillStyle=levels[j].color;ctx.font='8px Poppins';
+      ctx.fillText(levels[j].name,nx,ny+28);
     }
-    // Arrows between levels
+    // Animated energy flow arrows between levels
     for(var k=0;k<nodes.length-1;k++){
-      ctx.strokeStyle=levels[k].color+'80';ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.moveTo(nodes[k].x,nodes[k].y+18);ctx.lineTo(nodes[k+1].x,nodes[k+1].y-18);ctx.stroke();
+      var fromN=nodes[k],toN=nodes[k+1];
+      // Arrow line with gradient
+      var arrowGrad=ctx.createLinearGradient(fromN.x,fromN.y,toN.x,toN.y);
+      arrowGrad.addColorStop(0,levels[k].color+'60');arrowGrad.addColorStop(1,levels[k+1].color+'40');
+      ctx.strokeStyle=arrowGrad;ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(fromN.x,fromN.y+20);ctx.lineTo(toN.x,toN.y-20);ctx.stroke();
       // Arrow head
-      var angle2=Math.atan2(nodes[k+1].y-nodes[k].y,nodes[k+1].x-nodes[k].x);
-      ctx.fillStyle=levels[k].color+'80';
+      var angle2=Math.atan2(toN.y-fromN.y,toN.x-fromN.x);
+      ctx.fillStyle=levels[k+1].color+'80';
       ctx.beginPath();
-      ctx.moveTo(nodes[k+1].x-18*Math.cos(angle2),nodes[k+1].y-18*Math.sin(angle2));
-      ctx.lineTo(nodes[k+1].x-25*Math.cos(angle2-0.3),nodes[k+1].y-25*Math.sin(angle2-0.3));
-      ctx.lineTo(nodes[k+1].x-25*Math.cos(angle2+0.3),nodes[k+1].y-25*Math.sin(angle2+0.3));
+      ctx.moveTo(toN.x-18*Math.cos(angle2),toN.y-18*Math.sin(angle2));
+      ctx.lineTo(toN.x-26*Math.cos(angle2-0.3),toN.y-26*Math.sin(angle2-0.3));
+      ctx.lineTo(toN.x-26*Math.cos(angle2+0.3),toN.y-26*Math.sin(angle2+0.3));
       ctx.closePath();ctx.fill();
+      // Animated energy particle flowing along arrow
+      var particleT=((t*0.5+k*0.3)%1);
+      var partX=fromN.x+(toN.x-fromN.x)*particleT;
+      var partY=(fromN.y+20)+(toN.y-20-fromN.y-20)*particleT;
+      var partGlow=ctx.createRadialGradient(partX,partY,1,partX,partY,6);
+      partGlow.addColorStop(0,levels[k].color+'80');partGlow.addColorStop(1,levels[k].color+'00');
+      ctx.fillStyle=partGlow;ctx.beginPath();ctx.arc(partX,partY,6,0,Math.PI*2);ctx.fill();
+    }
+    // Trophic cascade warning if apex removed
+    if(!apexPresent){
+      ctx.fillStyle='rgba(239,68,68,0.15)';
+      ctx.fillRect(fwx,fwy+fwh*0.85,fww,20);
+      ctx.fillStyle='#ef4444';ctx.font='bold 9px Poppins';ctx.textAlign='center';
+      ctx.fillText('\u26A0 Trophic Cascade in Progress',fwx+fww/2,fwy+fwh*0.85+14);
     }
     requestAnimationFrame(draw);
   }

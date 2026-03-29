@@ -33,6 +33,7 @@
 <body class="dark-mode">
 <script src="../scripts/taskbar.js"></script>
 <div class="sim-container">
+  <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
   <h1>🌊 Tide Simulator</h1>
   <p class="subtitle">Explore how the Moon and Sun create tidal bulges on Earth.</p>
   <div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
@@ -68,61 +69,124 @@
     t+=0.005*speed;
     var cx=w/2,cy=h*0.4;
     var earthR=50;
-    // Stars
-    ctx.fillStyle='#f1f5f920';
-    for(var s=0;s<30;s++){
-      ctx.fillRect((s*137)%w,(s*97)%h,1.5,1.5);
+    // Stars with twinkle
+    for(var s=0;s<40;s++){
+      var sx=(s*137)%w,sy=(s*97)%h;
+      var twinkle=0.1+0.15*Math.sin(t*2+s);
+      ctx.fillStyle='rgba(241,245,249,'+twinkle+')';
+      ctx.beginPath();ctx.arc(sx,sy,0.8+Math.sin(t+s)*0.3,0,Math.PI*2);ctx.fill();
     }
-    // Sun (far left or aligned)
+    // Sun with glow
     var sunAngle=tideMode==='spring'?0:Math.PI/2;
     var sunX=cx+Math.cos(sunAngle)*w*0.35,sunY=cy+Math.sin(sunAngle)*w*0.1;
-    ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(sunX,sunY,20,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#0f172a';ctx.font='bold 9px Poppins';ctx.textAlign='center';ctx.fillText('☀️',sunX,sunY+4);
-    ctx.fillStyle='#fbbf24';ctx.font='10px Poppins';ctx.fillText('Sun',sunX,sunY+32);
-    // Earth
-    ctx.fillStyle='#1e40af';ctx.beginPath();ctx.arc(cx,cy,earthR,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#22c55e30';
-    ctx.beginPath();ctx.arc(cx,cy,earthR,0,Math.PI*2);ctx.fill();
+    var sunGlow=ctx.createRadialGradient(sunX,sunY,12,sunX,sunY,40);
+    sunGlow.addColorStop(0,'rgba(251,191,36,0.4)');sunGlow.addColorStop(1,'rgba(251,191,36,0)');
+    ctx.fillStyle=sunGlow;ctx.beginPath();ctx.arc(sunX,sunY,40,0,Math.PI*2);ctx.fill();
+    var sunGrad=ctx.createRadialGradient(sunX-5,sunY-5,3,sunX,sunY,20);
+    sunGrad.addColorStop(0,'#fde68a');sunGrad.addColorStop(1,'#f59e0b');
+    ctx.fillStyle=sunGrad;ctx.beginPath();ctx.arc(sunX,sunY,20,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fbbf24';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Sun',sunX,sunY+32);
+    // Gravitational force line from sun
+    ctx.strokeStyle='rgba(251,191,36,0.12)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(sunX,sunY);ctx.lineTo(cx,cy);ctx.stroke();ctx.setLineDash([]);
+    // Earth with gradient
+    var earthGrad=ctx.createRadialGradient(cx-10,cy-10,5,cx,cy,earthR);
+    earthGrad.addColorStop(0,'#3b82f6');earthGrad.addColorStop(0.6,'#1e40af');earthGrad.addColorStop(1,'#1e3a5f');
+    ctx.fillStyle=earthGrad;ctx.beginPath();ctx.arc(cx,cy,earthR,0,Math.PI*2);ctx.fill();
+    // Continents hint
+    ctx.fillStyle='rgba(34,197,94,0.2)';
+    ctx.beginPath();ctx.ellipse(cx-15,cy-10,18,12,0.3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(cx+20,cy+5,12,20,0.5,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Poppins';ctx.fillText('Earth',cx,cy+4);
-    // Moon orbit
+    // Moon orbit with gradient
+    ctx.strokeStyle='rgba(100,116,139,0.15)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.ellipse(cx,cy,120,120*0.3,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    // Moon with glow
     var moonAngle=t;
     var moonDist=120;
     var moonX=cx+Math.cos(moonAngle)*moonDist;
     var moonY=cy+Math.sin(moonAngle)*moonDist*0.3;
-    ctx.strokeStyle='#64748b40';ctx.lineWidth=1;ctx.setLineDash([3,3]);
-    ctx.beginPath();ctx.ellipse(cx,cy,moonDist,moonDist*0.3,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-    // Moon
-    ctx.fillStyle='#d1d5db';ctx.beginPath();ctx.arc(moonX,moonY,12,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#0f172a';ctx.font='bold 8px Poppins';ctx.fillText('🌙',moonX,moonY+3);
-    ctx.fillStyle='#d1d5db';ctx.font='10px Poppins';ctx.fillText('Moon',moonX,moonY+24);
-    // Tidal bulge on Earth
+    var moonGlow=ctx.createRadialGradient(moonX,moonY,6,moonX,moonY,20);
+    moonGlow.addColorStop(0,'rgba(209,213,219,0.2)');moonGlow.addColorStop(1,'rgba(209,213,219,0)');
+    ctx.fillStyle=moonGlow;ctx.beginPath();ctx.arc(moonX,moonY,20,0,Math.PI*2);ctx.fill();
+    var moonGrad=ctx.createRadialGradient(moonX-3,moonY-3,2,moonX,moonY,12);
+    moonGrad.addColorStop(0,'#e5e7eb');moonGrad.addColorStop(1,'#9ca3af');
+    ctx.fillStyle=moonGrad;ctx.beginPath();ctx.arc(moonX,moonY,12,0,Math.PI*2);ctx.fill();
+    // Moon craters
+    ctx.fillStyle='rgba(107,114,128,0.3)';
+    ctx.beginPath();ctx.arc(moonX-3,moonY-2,3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(moonX+4,moonY+3,2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#d1d5db';ctx.font='bold 10px Poppins';ctx.fillText('Moon',moonX,moonY+24);
+    // Gravitational force line from moon
+    ctx.strokeStyle='rgba(209,213,219,0.15)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(moonX,moonY);ctx.lineTo(cx,cy);ctx.stroke();ctx.setLineDash([]);
+    // Tidal bulge on Earth with gradient
     var tidalAngle=moonAngle;
     var bulgeSize=tideMode==='spring'?18:8;
-    ctx.fillStyle='rgba(59,130,246,0.4)';
+    var bulgeGrad=ctx.createRadialGradient(cx,cy,earthR-5,cx,cy,earthR+bulgeSize+5);
+    bulgeGrad.addColorStop(0,'rgba(59,130,246,0.35)');bulgeGrad.addColorStop(1,'rgba(59,130,246,0.05)');
+    ctx.fillStyle=bulgeGrad;
     ctx.beginPath();ctx.ellipse(cx,cy,earthR+bulgeSize,earthR-bulgeSize*0.3,tidalAngle,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(96,165,250,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.ellipse(cx,cy,earthR+bulgeSize,earthR-bulgeSize*0.3,tidalAngle,0,Math.PI*2);ctx.stroke();
+    // Bulge labels
+    var bx1=cx+Math.cos(tidalAngle)*(earthR+bulgeSize+8);
+    var by1=cy+Math.sin(tidalAngle)*(earthR+bulgeSize+8)*0.3;
+    var bx2=cx+Math.cos(tidalAngle+Math.PI)*(earthR+bulgeSize+8);
+    var by2=cy+Math.sin(tidalAngle+Math.PI)*(earthR+bulgeSize+8)*0.3;
+    ctx.fillStyle='rgba(96,165,250,0.5)';ctx.font='7px Poppins';
+    ctx.fillText('HIGH',bx1,by1-8);ctx.fillText('HIGH',bx2,by2-8);
     // Force arrows
-    ctx.strokeStyle='#f59e0b80';ctx.lineWidth=1.5;
-    var arrowLen=25;
+    ctx.strokeStyle='rgba(245,158,11,0.3)';ctx.lineWidth=1.5;
+    var arrowLen=20;
     ctx.beginPath();ctx.moveTo(cx+Math.cos(tidalAngle)*earthR,cy+Math.sin(tidalAngle)*earthR*0.3);
     ctx.lineTo(cx+Math.cos(tidalAngle)*(earthR+arrowLen),cy+Math.sin(tidalAngle)*(earthR+arrowLen)*0.3);ctx.stroke();
-    // Tide level graph (bottom)
+    // Alignment label
+    ctx.fillStyle='rgba(148,163,184,0.4)';ctx.font='9px Poppins';
+    ctx.fillText(tideMode==='spring'?'Sun-Moon Aligned (Syzygy)':'Sun-Moon 90\u00B0 (Quadrature)',cx,h*0.08);
+    // Tide level graph (bottom) with gradient fill
     var gy=h*0.7,gw=w*0.8,gx=w*0.1,gh=h*0.25;
-    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(gx,gy,gw,gh);
-    ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.strokeRect(gx,gy,gw,gh);
-    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';
-    ctx.fillText('Tide Level over Time',gx+gw/2,gy-5);
-    // Draw tide wave
+    // Graph background
+    ctx.fillStyle='rgba(0,0,0,0.3)';
+    ctx.beginPath();ctx.moveTo(gx+5,gy);ctx.lineTo(gx+gw-5,gy);ctx.quadraticCurveTo(gx+gw,gy,gx+gw,gy+5);
+    ctx.lineTo(gx+gw,gy+gh-5);ctx.quadraticCurveTo(gx+gw,gy+gh,gx+gw-5,gy+gh);
+    ctx.lineTo(gx+5,gy+gh);ctx.quadraticCurveTo(gx,gy+gh,gx,gy+gh-5);
+    ctx.lineTo(gx,gy+5);ctx.quadraticCurveTo(gx,gy,gx+5,gy);ctx.fill();
+    // Grid lines
+    ctx.strokeStyle='rgba(51,65,85,0.3)';ctx.lineWidth=0.5;
+    for(var gridY=1;gridY<4;gridY++){ctx.beginPath();ctx.moveTo(gx,gy+gh*gridY/4);ctx.lineTo(gx+gw,gy+gh*gridY/4);ctx.stroke();}
+    ctx.strokeStyle='#475569';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(gx,gy+gh/2);ctx.lineTo(gx+gw,gy+gh/2);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='bold 10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Tide Level over Time',gx+gw/2,gy-8);
+    ctx.font='7px Poppins';ctx.textAlign='right';
+    ctx.fillText('High',gx-4,gy+8);ctx.fillText('Low',gx-4,gy+gh-4);
+    ctx.textAlign='center';
+    // Tide wave with area fill
     var amplitude=tideMode==='spring'?gh*0.4:gh*0.15;
-    ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;ctx.beginPath();
+    ctx.beginPath();ctx.moveTo(gx,gy+gh/2);
     for(var i=0;i<=gw;i++){
-      var tx=gx+i;
       var ty=gy+gh/2-Math.sin((i/gw)*Math.PI*4+t*2)*amplitude;
-      if(i===0)ctx.moveTo(tx,ty);else ctx.lineTo(tx,ty);
+      ctx.lineTo(gx+i,ty);
+    }
+    ctx.lineTo(gx+gw,gy+gh/2);ctx.closePath();
+    var waveGrad=ctx.createLinearGradient(0,gy,0,gy+gh);
+    waveGrad.addColorStop(0,'rgba(59,130,246,0.2)');waveGrad.addColorStop(0.5,'rgba(59,130,246,0.05)');waveGrad.addColorStop(1,'rgba(59,130,246,0)');
+    ctx.fillStyle=waveGrad;ctx.fill();
+    // Tide wave line
+    ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;ctx.beginPath();
+    for(var i2=0;i2<=gw;i2++){
+      var ty2=gy+gh/2-Math.sin((i2/gw)*Math.PI*4+t*2)*amplitude;
+      if(i2===0)ctx.moveTo(gx,ty2);else ctx.lineTo(gx+i2,ty2);
     }
     ctx.stroke();
-    // Current position marker
+    // Current position marker with glow
     var curX=gx+((t*2/(Math.PI*4))%1)*gw;
     var curLevel=Math.sin(t*2)*amplitude;
+    var dotGlow=ctx.createRadialGradient(curX,gy+gh/2-curLevel,2,curX,gy+gh/2-curLevel,10);
+    dotGlow.addColorStop(0,'rgba(251,191,36,0.4)');dotGlow.addColorStop(1,'rgba(251,191,36,0)');
+    ctx.fillStyle=dotGlow;ctx.beginPath();ctx.arc(curX,gy+gh/2-curLevel,10,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(curX,gy+gh/2-curLevel,4,0,Math.PI*2);ctx.fill();
     // Update readouts
     document.getElementById('ttype').textContent=tideMode==='spring'?'Spring':'Neap';
