@@ -25,101 +25,80 @@ canvas{display:block;width:100%}
 <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
 <h1>🌍 Soil Horizons</h1>
 <p class="subtitle">O, A, B, C, and R soil layers — composition and formation</p>
-<div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="450"></canvas><div id="tip" style="display:none;position:absolute;background:rgba(30,41,59,.92);color:#f1f5f9;padding:4px 10px;border-radius:6px;font-size:.75rem;pointer-events:none;border:1px solid #3b82f6;white-space:nowrap;z-index:5"></div></div>
 <div class="controls">
   <button class="toggle-btn" onclick="addRain()">🌧️ Add Rain</button>
   <button class="toggle-btn" onclick="addWorm()">🪱 Add Worm</button>
   <button class="toggle-btn" id="btn-labels" onclick="toggleLabels()">Show Details</button>
+  <button class="toggle-btn" id="btn-core" onclick="this.classList.toggle('active')">🔬 Core Sample</button>
 </div>
 <div class="readout">
-  <div class="datum">Hover a layer: <strong id="r-layer">—</strong></div>
+  <div class="datum">Layer: <strong id="r-layer">—</strong></div>
   <div class="datum">Depth: <strong id="r-depth">—</strong></div>
   <div class="datum">Composition: <strong id="r-comp">—</strong></div>
+  <div class="datum">pH: <strong id="r-ph">—</strong></div>
 </div>
+<p style="text-align:center;color:#475569;font-size:.7rem;margin-top:.35rem">Hover layer for info · Click to take soil sample</p>
 <div class="info-box"><h3>Soil Profile</h3><p><strong>O Horizon</strong>: Organic litter (leaves, decomposing material). <strong>A Horizon</strong> (Topsoil): Humus-rich, dark, root zone. <strong>B Horizon</strong> (Subsoil): Clay/mineral accumulation from leaching. <strong>C Horizon</strong>: Weathered parent material (rocks). <strong>R Horizon</strong>: Unweathered bedrock. Water percolates down, carrying minerals (eluviation → illuviation). Organisms mix organic matter into soil.</p></div>
 </div>
 <script>
 (function(){
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
 var layers=[
-  {name:'O Horizon',sub:'Organic/Litter',color:'#3f2c1a',depth:'0-5 cm',comp:'Decomposing leaves, twigs, humus',frac:0.08},
-  {name:'A Horizon',sub:'Topsoil',color:'#5c3d2e',depth:'5-30 cm',comp:'Dark humus, sand, clay, root zone',frac:0.18},
-  {name:'B Horizon',sub:'Subsoil',color:'#8b6c51',depth:'30-80 cm',comp:'Clay, iron oxides, mineral deposits',frac:0.25},
-  {name:'C Horizon',sub:'Parent Material',color:'#a09080',depth:'80-150 cm',comp:'Weathered rock, gravel, little organic',frac:0.28},
-  {name:'R Horizon',sub:'Bedrock',color:'#6b7280',depth:'150+ cm',comp:'Unweathered solid rock',frac:0.21}
+  {name:'O Horizon',sub:'Organic/Litter',color:'#3f2c1a',depth:'0-5 cm',comp:'Decomposing leaves, twigs, humus',frac:.08,ph:'5.5-6.5'},
+  {name:'A Horizon',sub:'Topsoil',color:'#5c3d2e',depth:'5-30 cm',comp:'Dark humus, sand, clay, root zone',frac:.18,ph:'5.5-7.0'},
+  {name:'B Horizon',sub:'Subsoil',color:'#8b6c51',depth:'30-80 cm',comp:'Clay, iron oxides, mineral deposits',frac:.25,ph:'6.0-7.5'},
+  {name:'C Horizon',sub:'Parent Material',color:'#a09080',depth:'80-150 cm',comp:'Weathered rock, gravel, little organic',frac:.28,ph:'7.0-8.0'},
+  {name:'R Horizon',sub:'Bedrock',color:'#6b7280',depth:'150+ cm',comp:'Unweathered solid rock',frac:.21,ph:'N/A'}
 ];
-var showLabels=false,rainDrops=[],worms=[],t=0,hoverIdx=-1;
+var showLabels=false,rainDrops=[],worms=[],t=0,hoverIdx=-1,samples=[];
 window.toggleLabels=function(){showLabels=!showLabels;document.getElementById('btn-labels').classList.toggle('active',showLabels);};
 window.addRain=function(){for(var i=0;i<20;i++)rainDrops.push({x:Math.random()*W,y:-10-Math.random()*50,vy:3+Math.random()*3,perc:0});};
-window.addWorm=function(){worms.push({x:W*0.3+Math.random()*W*0.4,y:H*0.1,vy:0.5+Math.random()*0.5,seg:[]});};
-cv.addEventListener('mousemove',function(e){
-  var rect=cv.getBoundingClientRect(),my=(e.clientY-rect.top)*(H/rect.height);
+window.addWorm=function(){worms.push({x:W*.3+Math.random()*W*.4,y:H*.1,vy:.5+Math.random()*.5,seg:[]});};
+cv.addEventListener('click',function(e){var rect=cv.getBoundingClientRect(),mx=e.clientX-rect.left,my=(e.clientY-rect.top)*(H/rect.height);
+  var cumY=0;for(var i=0;i<layers.length;i++){cumY+=layers[i].frac*H;if(my<cumY){samples.push({x:mx,layer:i,t:t});if(samples.length>5)samples.shift();break;}}});
+cv.addEventListener('mousemove',function(e){var rect=cv.getBoundingClientRect(),mx=e.clientX-rect.left,my=(e.clientY-rect.top)*(H/rect.height);
   var cumY=0;hoverIdx=-1;
   for(var i=0;i<layers.length;i++){cumY+=layers[i].frac*H;if(my<cumY){hoverIdx=i;break;}}
-  if(hoverIdx>=0){
-    document.getElementById('r-layer').textContent=layers[hoverIdx].name+' ('+layers[hoverIdx].sub+')';
-    document.getElementById('r-depth').textContent=layers[hoverIdx].depth;
-    document.getElementById('r-comp').textContent=layers[hoverIdx].comp;
-  }
-});
+  if(hoverIdx>=0){var l=layers[hoverIdx];tip.style.display='block';tip.style.left=(mx+12)+'px';tip.style.top=((e.clientY-rect.top)-28)+'px';
+    tip.textContent=l.name+' · '+l.depth+' · pH '+l.ph;
+    document.getElementById('r-layer').textContent=l.name+' ('+l.sub+')';document.getElementById('r-depth').textContent=l.depth;
+    document.getElementById('r-comp').textContent=l.comp;document.getElementById('r-ph').textContent=l.ph;}else tip.style.display='none';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
 function draw(){
-  ctx.clearRect(0,0,W,H);t+=0.016;
-  /* draw layers */
+  ctx.clearRect(0,0,W,H);t+=.016;
   var cumY=0;
-  layers.forEach(function(l,idx){
-    var ly=cumY,lh=l.frac*H;cumY+=lh;
-    ctx.fillStyle=l.color;ctx.fillRect(0,ly,W,lh);
-    /* texture */
-    if(idx===0){/* organic: scattered leaf shapes */
-      for(var i=0;i<15;i++){var lx=i*W/15+10,lly=ly+lh*0.4+Math.sin(i)*5;ctx.fillStyle='#2d5016';ctx.beginPath();ctx.ellipse(lx,lly,8,3,i*0.5,0,Math.PI*2);ctx.fill();}
-    }
-    if(idx===1){/* roots */
-      ctx.strokeStyle='rgba(139,92,42,0.4)';ctx.lineWidth=1;
-      for(var i=0;i<8;i++){ctx.beginPath();var rx=W*0.1+i*W*0.1;ctx.moveTo(rx,ly);ctx.quadraticCurveTo(rx+(Math.random()-0.5)*30,ly+lh*0.5,rx+(Math.random()-0.5)*20,ly+lh);ctx.stroke();}
-    }
-    if(idx===3){/* rocks */
-      for(var i=0;i<10;i++){var rx2=Math.random()*W,ry=ly+Math.random()*lh;ctx.fillStyle='#78716c';ctx.beginPath();ctx.ellipse(rx2,ry,8+Math.random()*10,5+Math.random()*5,Math.random(),0,Math.PI*2);ctx.fill();}
-    }
-    if(idx===4){/* bedrock cracks */
-      ctx.strokeStyle='#4b5563';ctx.lineWidth=2;
-      for(var i=0;i<6;i++){ctx.beginPath();var bx=Math.random()*W;ctx.moveTo(bx,ly);ctx.lineTo(bx+(Math.random()-0.5)*40,ly+lh);ctx.stroke();}
-    }
-    /* hover highlight */
-    if(idx===hoverIdx){ctx.fillStyle='rgba(59,130,246,0.1)';ctx.fillRect(0,ly,W,lh);}
-    /* boundary line */
-    if(idx>0){ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.beginPath();
-      for(var x=0;x<W;x+=3){ctx.lineTo(x,ly+Math.sin(x*0.05)*3);}ctx.stroke();}
-    /* labels */
-    if(showLabels){
-      ctx.fillStyle='#f1f5f9';ctx.font='bold 11px Poppins';ctx.textAlign='left';ctx.fillText(l.name,W-150,ly+lh/2-6);
-      ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.fillText(l.sub+' ('+l.depth+')',W-150,ly+lh/2+8);
-    }
-    /* letter label on left */
-    ctx.fillStyle='rgba(241,245,249,0.6)';ctx.font='bold 20px Poppins';ctx.textAlign='center';
-    ctx.fillText(l.name.charAt(0),25,ly+lh/2+7);
-  });
+  layers.forEach(function(l,idx){var ly=cumY,lh=l.frac*H;cumY+=lh;
+    var g=ctx.createLinearGradient(0,ly,0,ly+lh);g.addColorStop(0,l.color);g.addColorStop(1,idx<4?layers[Math.min(idx+1,4)].color:l.color);ctx.fillStyle=g;ctx.fillRect(0,ly,W,lh);
+    if(idx===0){for(var i=0;i<15;i++){var lx=i*W/15+10,lly=ly+lh*.4+Math.sin(i+t)*4;ctx.fillStyle='#2d5016';ctx.beginPath();ctx.ellipse(lx,lly,8,3,i*.5,0,Math.PI*2);ctx.fill();}}
+    if(idx===1){ctx.strokeStyle='rgba(139,92,42,0.4)';ctx.lineWidth=1;for(var i=0;i<8;i++){ctx.beginPath();var rx=W*.1+i*W*.1;ctx.moveTo(rx,ly);ctx.quadraticCurveTo(rx+(Math.random()-.5)*30,ly+lh*.5,rx+(Math.random()-.5)*20,ly+lh);ctx.stroke();}}
+    if(idx===3){for(var i=0;i<10;i++){var rx2=(i*97+23)%W,ry=ly+((i*53)%Math.floor(lh));ctx.fillStyle='#78716c';ctx.beginPath();ctx.ellipse(rx2,ry,8+((i*7)%10),5+((i*3)%5),i*.3,0,Math.PI*2);ctx.fill();}}
+    if(idx===4){ctx.strokeStyle='#4b5563';ctx.lineWidth=2;for(var i=0;i<6;i++){ctx.beginPath();var bx=(i*157+47)%W;ctx.moveTo(bx,ly);ctx.lineTo(bx+((i%2?1:-1)*20),ly+lh);ctx.stroke();}}
+    if(idx===hoverIdx){ctx.fillStyle='rgba(59,130,246,0.1)';ctx.fillRect(0,ly,W,lh);ctx.shadowColor='#3b82f6';ctx.shadowBlur=8;ctx.strokeStyle='rgba(59,130,246,0.4)';ctx.lineWidth=1;ctx.strokeRect(0,ly,W,lh);ctx.shadowBlur=0;}
+    if(idx>0){ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.beginPath();for(var x=0;x<W;x+=3)ctx.lineTo(x,ly+Math.sin(x*.05)*3);ctx.stroke();}
+    if(showLabels){ctx.fillStyle='#f1f5f9';ctx.font='bold 11px Poppins';ctx.textAlign='left';ctx.fillText(l.name,W-150,ly+lh/2-6);
+      ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.fillText(l.sub+' ('+l.depth+')',W-150,ly+lh/2+8);}
+    ctx.fillStyle='rgba(241,245,249,0.6)';ctx.font='bold 20px Poppins';ctx.textAlign='center';ctx.fillText(l.name.charAt(0),25,ly+lh/2+7);});
+  /* core sample view */
+  if(document.getElementById('btn-core').classList.contains('active')){var cx=W-40,cy=10,cw=25,ch=H-20;
+    ctx.fillStyle='rgba(15,23,42,0.85)';ctx.fillRect(cx-5,cy-5,cw+10,ch+10);ctx.strokeStyle='#3b82f6';ctx.lineWidth=1;ctx.strokeRect(cx-5,cy-5,cw+10,ch+10);
+    var cCum=0;layers.forEach(function(l){var lh2=l.frac*ch;ctx.fillStyle=l.color;ctx.fillRect(cx,cy+cCum,cw,lh2);cCum+=lh2;});
+    ctx.fillStyle='#94a3b8';ctx.font='7px Poppins';ctx.textAlign='center';ctx.fillText('Core',cx+cw/2,cy-8);}
+  /* sample markers */
+  samples.forEach(function(s){var cumS=0;for(var i=0;i<s.layer;i++)cumS+=layers[i].frac*H;var sy=cumS+layers[s.layer].frac*H/2;
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=1;ctx.beginPath();ctx.arc(s.x,sy,8,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#fbbf24';ctx.font='8px Poppins';ctx.textAlign='center';ctx.fillText(layers[s.layer].name.charAt(0)+' · pH '+layers[s.layer].ph,s.x,sy-12);});
   /* rain */
-  rainDrops=rainDrops.filter(function(r){
-    if(r.perc===0){r.y+=r.vy;ctx.fillStyle='rgba(56,189,248,0.6)';ctx.fillRect(r.x,r.y,1.5,8);
-      if(r.y>layers[0].frac*H){r.perc=1;r.vy=0.3;}return r.y<H;
-    }else{/* percolating */
-      r.y+=r.vy;r.x+=(Math.random()-0.5)*2;
-      ctx.fillStyle='rgba(56,189,248,0.3)';ctx.beginPath();ctx.arc(r.x,r.y,2,0,Math.PI*2);ctx.fill();
-      return r.y<H;
-    }
-  });
+  rainDrops=rainDrops.filter(function(r){if(r.perc===0){r.y+=r.vy;ctx.fillStyle='rgba(56,189,248,0.6)';ctx.fillRect(r.x,r.y,1.5,8);
+    if(r.y>layers[0].frac*H){r.perc=1;r.vy=.3;}return r.y<H;}else{r.y+=r.vy;r.x+=(Math.random()-.5)*2;
+    ctx.fillStyle='rgba(56,189,248,0.3)';ctx.shadowColor='#38bdf8';ctx.shadowBlur=3;ctx.beginPath();ctx.arc(r.x,r.y,2,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;return r.y<H;}});
   /* worms */
-  worms.forEach(function(w){
-    w.seg.push({x:w.x,y:w.y});if(w.seg.length>15)w.seg.shift();
-    w.x+=Math.sin(t*3+w.y*0.1)*1.5;w.y+=w.vy;
-    ctx.strokeStyle='#f87171';ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();
-    w.seg.forEach(function(s,i){i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});ctx.stroke();
-  });
+  worms.forEach(function(w){w.seg.push({x:w.x,y:w.y});if(w.seg.length>15)w.seg.shift();w.x+=Math.sin(t*3+w.y*.1)*1.5;w.y+=w.vy;
+    ctx.strokeStyle='#f87171';ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();w.seg.forEach(function(s,i){i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});ctx.stroke();});
   worms=worms.filter(function(w){return w.y<H;});
-  requestAnimationFrame(draw);
-}
+  requestAnimationFrame(draw);}
 draw();
 })();
 </script></body></html>

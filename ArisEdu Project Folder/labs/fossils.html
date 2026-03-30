@@ -25,23 +25,26 @@ input[type=range]{width:160px;accent-color:#3b82f6}
 <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
 <h1>🦴 Fossil Formation & Dating</h1>
 <p class="subtitle">Fossilization process, stratigraphy & index fossils</p>
-<div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="500"></canvas><div id="tip" style="position:absolute;display:none;pointer-events:none;background:rgba(15,23,42,.92);border:1px solid #3b82f6;border-radius:.5rem;padding:.35rem .65rem;font-size:.75rem;color:#e2e8f0;white-space:nowrap;z-index:10"></div><p style="text-align:center;font-size:.7rem;color:#475569;margin:.4rem 0 0">Hover for layer info · Click to excavate a layer</p></div>
 <div class="controls">
   <label>Time (Million Years Ago) <input type="range" id="time" min="0" max="500" value="0" step="5"></label>
+  <button class="toggle-btn" id="btn-dig" onclick="this.classList.toggle('active')" style="padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s">🔨 Excavate</button>
+  <button class="toggle-btn" id="btn-c14" onclick="this.classList.toggle('active')" style="padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s">☢ C-14 Mode</button>
 </div>
 <div class="readout">
   <div class="datum">Time: <strong id="r-time">Present</strong></div>
   <div class="datum">Era: <strong id="r-era">Cenozoic</strong></div>
   <div class="datum">Stage: <strong id="r-stage">Living Organisms</strong></div>
+  <div class="datum">¹⁴C Remaining: <strong id="r-c14">100 %</strong></div>
 </div>
 <div class="info-box"><h3>How Fossils Form</h3><p>1. <strong>Death & burial</strong>: Organism dies and is quickly buried by sediment. 2. <strong>Permineralization</strong>: Minerals in groundwater fill cellular spaces. 3. <strong>Lithification</strong>: Sediment compresses into rock. 4. <strong>Exposure</strong>: Erosion or uplift brings fossil to surface. <strong>Index fossils</strong> (widespread, short-lived species) help date rock layers. <strong>Radiometric dating</strong> uses decay of isotopes like ¹⁴C and ⁴⁰K.</p></div>
 </div>
 <script>
 (function(){
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
-var timeSlider=document.getElementById('time');
+var timeSlider=document.getElementById('time'),digLayer=-1,excavating=0;
 var layers=[
   {age:0,color:'#5a8040',name:'Topsoil',era:'Cenozoic',fossil:null},
   {age:5,color:'#8B7D4B',name:'Quaternary',era:'Cenozoic',fossil:'🐘'},
@@ -55,86 +58,89 @@ var layers=[
   {age:500,color:'#302820',name:'Cambrian',era:'Paleozoic',fossil:'🦑'}
 ];
 var stages=['Living Organisms','Death & Burial','Sediment Accumulation','Permineralization','Lithification','Erosion & Exposure'];
+/* seed-based pseudo-random for deterministic textures */
+function seeded(s){return function(){s=(s*9301+49297)%233280;return s/233280;};}
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),my=(e.clientY-r.top)*(H/r.height);
+  var surfaceY=60,layH=(H-surfaceY)/layers.length,idx=Math.floor((my-surfaceY)/layH);
+  if(idx>=0&&idx<layers.length){var l=layers[idx];
+    tip.style.display='block';tip.style.left=((e.clientX-r.left)+12)+'px';tip.style.top=((e.clientY-r.top)-28)+'px';
+    tip.textContent=l.name+' · '+l.era+' · '+(l.age===0?'Present':l.age+' MYA')+(l.fossil?' · Fossil: '+l.fossil:'');
+  }else tip.style.display='none';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+cv.addEventListener('click',function(e){if(!document.getElementById('btn-dig').classList.contains('active'))return;
+  var r=cv.getBoundingClientRect(),my=(e.clientY-r.top)*(H/r.height),surfaceY=60,layH=(H-surfaceY)/layers.length;
+  var idx=Math.floor((my-surfaceY)/layH);if(idx>=0&&idx<layers.length){digLayer=idx;excavating=1;}});
 function draw(){
   ctx.clearRect(0,0,W,H);
-  var mya=+timeSlider.value,surfaceY=60;
-  /* determine current stage */
+  var mya=+timeSlider.value,surfaceY=60,t=performance.now()/1000;
   var stageIdx=mya===0?0:mya<10?1:mya<50?2:mya<150?3:mya<300?4:5;
-  /* find which layer we're in */
   var curLayer=0;for(var i=layers.length-1;i>=0;i--)if(mya>=layers[i].age)curLayer=i;
-  /* draw layers */
   var layH=(H-surfaceY)/layers.length;
+  var c14mode=document.getElementById('btn-c14').classList.contains('active');
   for(var i=0;i<layers.length;i++){
     var l=layers[i],y=surfaceY+i*layH;
-    ctx.fillStyle=l.color;ctx.fillRect(0,y,W,layH+1);
-    /* grain texture */
-    ctx.fillStyle='rgba(0,0,0,0.05)';
-    for(var g=0;g<20;g++){ctx.beginPath();ctx.arc(Math.random()*W,y+Math.random()*layH,1.5,0,Math.PI*2);ctx.fill();}
+    /* gradient fill for layer */
+    var lg=ctx.createLinearGradient(0,y,0,y+layH);lg.addColorStop(0,l.color);lg.addColorStop(1,i<layers.length-1?layers[i+1].color:l.color);
+    ctx.fillStyle=lg;ctx.fillRect(0,y,W,layH+1);
+    /* deterministic grain texture */
+    var rng=seeded(i*1000+7);ctx.fillStyle='rgba(0,0,0,0.06)';
+    for(var g=0;g<25;g++){ctx.beginPath();ctx.arc(rng()*W,y+rng()*layH,1.5,0,Math.PI*2);ctx.fill();}
     /* layer label */
-    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='10px Poppins';ctx.textAlign='left';
+    ctx.fillStyle='rgba(255,255,255,0.55)';ctx.font='10px Poppins';ctx.textAlign='left';
     ctx.fillText(l.name+' ('+l.age+' MYA)',8,y+layH/2+3);
-    /* era label */
     ctx.textAlign='right';ctx.fillText(l.era,W-8,y+layH/2+3);
-    /* fossil icon in layer */
+    /* fossil icon */
     if(l.fossil&&mya>=l.age){
       ctx.font='20px serif';ctx.textAlign='center';
-      /* draw multiple fossils across the layer */
-      for(var f=0;f<3;f++){
-        var fx=W*0.3+f*W*0.2,fy=y+layH/2+6;
-        /* if deep enough, show as mineralized (darker) */
-        var depth=mya-l.age;
-        ctx.globalAlpha=depth>100?0.5:0.8;
-        ctx.fillText(l.fossil,fx,fy);
-        ctx.globalAlpha=1;
-      }
+      for(var f=0;f<3;f++){var fx=W*.3+f*W*.2,fy=y+layH/2+6,depth=mya-l.age;
+        ctx.globalAlpha=depth>100?.5:.8;ctx.fillText(l.fossil,fx,fy);ctx.globalAlpha=1;}
     }
     /* highlight current layer */
-    if(i===curLayer){
-      ctx.strokeStyle='rgba(59,130,246,0.8)';ctx.lineWidth=2;ctx.strokeRect(1,y+1,W-2,layH-2);
-      ctx.fillStyle='rgba(59,130,246,0.05)';ctx.fillRect(0,y,W,layH);
+    if(i===curLayer){ctx.strokeStyle='rgba(59,130,246,0.8)';ctx.lineWidth=2;ctx.strokeRect(1,y+1,W-2,layH-2);ctx.fillStyle='rgba(59,130,246,0.05)';ctx.fillRect(0,y,W,layH);}
+    /* excavation animation */
+    if(digLayer===i&&excavating>0){
+      excavating=Math.min(excavating+.02,1);
+      ctx.strokeStyle='rgba(251,191,36,'+(0.4+excavating*0.5)+')';ctx.lineWidth=3;ctx.strokeRect(3,y+3,W-6,layH-6);
+      /* crack lines */
+      ctx.strokeStyle='rgba(251,191,36,0.5)';ctx.lineWidth=1;
+      for(var c=0;c<6;c++){var cx=W*.15+c*W*.14,cy=y+layH*.3+c*3;
+        ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+15*excavating,cy+10*excavating);ctx.stroke();}
+      /* exposed fossil glow */
+      if(l.fossil&&excavating>.5){ctx.shadowColor='#fbbf24';ctx.shadowBlur=12;
+        ctx.font='28px serif';ctx.textAlign='center';ctx.fillText(l.fossil,W/2,y+layH/2+8);ctx.shadowBlur=0;}
+    }
+    /* C-14 mode: show decay bar */
+    if(c14mode&&l.age>0){
+      var halfLife=5730,c14pct=l.age>50000?0:Math.pow(.5,l.age*1e6/halfLife)*100;
+      var barW=60,barH=6,bx=W*.55,by=y+layH/2-3;
+      ctx.fillStyle='rgba(0,0,0,0.4)';ctx.fillRect(bx,by,barW,barH);
+      ctx.fillStyle=c14pct>50?'#22c55e':c14pct>10?'#f59e0b':'#ef4444';
+      ctx.fillRect(bx,by,barW*(c14pct/100),barH);
+      ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='8px Poppins';ctx.textAlign='left';
+      ctx.fillText(c14pct<.01?'≈0%':c14pct.toFixed(c14pct<1?2:0)+'%',bx+barW+4,by+5);
     }
   }
-  /* fossilization process animation at current depth */
+  /* fossilization process */
   if(mya>0){
-    var fossilX=W/2,fossilY=surfaceY+curLayer*layH+layH/2;
-    /* organism becoming fossil stages */
-    if(stageIdx===1){
-      /* recently died - draw organism outline */
-      ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=2;
-      ctx.beginPath();ctx.ellipse(fossilX,fossilY,20,12,0,0,Math.PI*2);ctx.stroke();
-      ctx.fillStyle='rgba(255,200,100,0.3)';ctx.fill();
-    }else if(stageIdx===2){
-      /* being buried - sediment particles */
-      ctx.fillStyle='rgba(139,125,75,0.5)';
-      var t=performance.now()/1000;
-      for(var p=0;p<8;p++){
-        var px=fossilX-15+p*4,py=fossilY-15+Math.sin(t+p)*5;
-        ctx.fillRect(px,py,3,3);
-      }
-    }else if(stageIdx>=3){
-      /* mineralized fossil */
-      ctx.fillStyle='rgba(150,130,100,0.8)';ctx.beginPath();ctx.ellipse(fossilX,fossilY,22,14,0,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle='rgba(200,180,140,0.6)';ctx.lineWidth=1;ctx.stroke();
-      /* mineral crystals */
-      ctx.fillStyle='rgba(161,218,255,0.4)';
-      for(var c=0;c<5;c++){ctx.beginPath();ctx.arc(fossilX-10+c*5,fossilY-5+c*2,2,0,Math.PI*2);ctx.fill();}
-    }
+    var fX=W/2,fY=surfaceY+curLayer*layH+layH/2;
+    if(stageIdx===1){ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(fX,fY,20,12,0,0,Math.PI*2);ctx.stroke();ctx.fillStyle='rgba(255,200,100,0.3)';ctx.fill();}
+    else if(stageIdx===2){ctx.fillStyle='rgba(139,125,75,0.5)';for(var p=0;p<8;p++){var px=fX-15+p*4,py=fY-15+Math.sin(t+p)*5;ctx.fillRect(px,py,3,3);}}
+    else if(stageIdx>=3){ctx.fillStyle='rgba(150,130,100,0.8)';ctx.beginPath();ctx.ellipse(fX,fY,22,14,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(200,180,140,0.6)';ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle='rgba(161,218,255,0.4)';for(var c=0;c<5;c++){ctx.beginPath();ctx.arc(fX-10+c*5,fY-5+c*2,2,0,Math.PI*2);ctx.fill();}}
   }
-  /* surface sky */
-  ctx.fillStyle='#1a3a5c';ctx.fillRect(0,0,W,surfaceY);
+  /* sky */
+  var skyG=ctx.createLinearGradient(0,0,0,surfaceY);skyG.addColorStop(0,'#0f1b2d');skyG.addColorStop(1,'#1a3a5c');ctx.fillStyle=skyG;ctx.fillRect(0,0,W,surfaceY);
   ctx.fillStyle='#5a8040';ctx.fillRect(0,surfaceY-5,W,5);
-  /* title on sky */
   ctx.fillStyle='#cbd5e1';ctx.font='bold 12px Poppins';ctx.textAlign='center';
   ctx.fillText('Geological Time Scale — Stratigraphy & Fossil Record',W/2,25);
-  /* dating scale bar */
-  ctx.fillStyle='rgba(59,130,246,0.8)';ctx.font='9px Poppins';ctx.textAlign='center';
-  ctx.fillText('↑ Younger                                                    Older ↓',W/2,45);
-  /* update readouts */
+  ctx.fillStyle='rgba(59,130,246,0.8)';ctx.font='9px Poppins';ctx.fillText('↑ Younger                                                    Older ↓',W/2,45);
+  /* C-14 readout */
+  var c14v=mya===0?100:mya>50?0:Math.pow(.5,mya*1e6/5730)*100;
+  document.getElementById('r-c14').textContent=c14v<.01?'≈ 0 %':c14v.toFixed(c14v<1?2:0)+' %';
   document.getElementById('r-time').textContent=mya===0?'Present':mya+' MYA';
   document.getElementById('r-era').textContent=layers[curLayer].era;
   document.getElementById('r-stage').textContent=stages[stageIdx];
-  requestAnimationFrame(draw);
-}
+  requestAnimationFrame(draw);}
 draw();
 })();
 </script></body></html>

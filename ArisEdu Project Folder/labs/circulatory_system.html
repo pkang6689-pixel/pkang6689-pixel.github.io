@@ -44,88 +44,55 @@ canvas{display:block;width:100%}
 </div>
 <script>
 (function(){
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
 var particles=[],t=0;
-/* circuit path: array of {x,y} as fraction of W,H */
 var pathPulm=[{x:.5,y:.45},{x:.5,y:.3},{x:.45,y:.2},{x:.35,y:.12},{x:.25,y:.12},{x:.2,y:.18},{x:.2,y:.28},{x:.3,y:.35},{x:.4,y:.4},{x:.45,y:.45}];
 var pathSyst=[{x:.55,y:.45},{x:.55,y:.35},{x:.6,y:.28},{x:.7,y:.25},{x:.8,y:.3},{x:.8,y:.5},{x:.75,y:.65},{x:.65,y:.75},{x:.55,y:.8},{x:.45,y:.8},{x:.35,y:.75},{x:.25,y:.65},{x:.2,y:.5},{x:.3,y:.45},{x:.4,y:.45},{x:.45,y:.45}];
 function lerp(a,b,t){return{x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};}
-function mkParticle(path,oxygenated){return{path:path,t:Math.random(),speed:0.003+Math.random()*0.002,oxy:oxygenated};}
-for(var i=0;i<25;i++)particles.push(mkParticle(pathPulm,false));
-for(var i=0;i<35;i++)particles.push(mkParticle(pathSyst,true));
-window.upd=function(){
-  var hr=+document.getElementById('phr').value;
-  document.getElementById('vhr').textContent=hr;
-  document.getElementById('r-bpm').textContent=hr;
+function mkP(path,oxy){return{path:path,t:Math.random(),speed:0.003+Math.random()*0.002,oxy:oxy};}
+for(var i=0;i<25;i++)particles.push(mkP(pathPulm,false));
+for(var i=0;i<35;i++)particles.push(mkP(pathSyst,true));
+var zones=[{name:'Right Atrium',x:.44,y:.42,r:25},{name:'Right Ventricle',x:.44,y:.48,r:25},{name:'Left Atrium',x:.52,y:.42,r:25},{name:'Left Ventricle',x:.52,y:.48,r:25},{name:'Lungs',x:.27,y:.12,r:30},{name:'Body',x:.7,y:.8,r:30}];
+cv.addEventListener('mousemove',function(e){var rr=cv.getBoundingClientRect(),mx=e.clientX-rr.left,my=e.clientY-rr.top;
+  var found=null;zones.forEach(function(z){if(Math.hypot(mx-z.x*W,my-z.y*H)<z.r)found=z.name;});
+  if(found){tip.style.display='block';tip.style.left=(mx+12)+'px';tip.style.top=(my-28)+'px';tip.textContent=found;}else tip.style.display='none';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+window.upd=function(){var hr=+document.getElementById('phr').value;
+  document.getElementById('vhr').textContent=hr;document.getElementById('r-bpm').textContent=hr;
   document.getElementById('r-co').textContent=(hr*0.07).toFixed(2)+' L/min';
-};upd();
-function getPos(path,tt){
-  tt=((tt%1)+1)%1;
-  var idx=tt*(path.length-1),i=Math.floor(idx),f=idx-i;
-  if(i>=path.length-1)i=path.length-2;
-  return lerp(path[i],path[i+1],f);
-}
-function drawPath(path,color){
-  ctx.strokeStyle=color;ctx.lineWidth=8;ctx.lineCap='round';ctx.lineJoin='round';
-  ctx.beginPath();
-  for(var i=0;i<path.length;i++){
-    var p={x:path[i].x*W,y:path[i].y*H};
-    i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);
-  }
-  ctx.stroke();
-}
-function drawHeart(beat){
-  var hx=W*0.47,hy=H*0.45,scale=1+beat*0.06;
-  ctx.save();ctx.translate(hx,hy);ctx.scale(scale,scale);
-  /* simplified 4-chamber heart */
-  ctx.fillStyle='rgba(220,38,38,0.3)';ctx.strokeStyle='#dc2626';ctx.lineWidth=2;
-  /* left ventricle */
-  ctx.beginPath();ctx.ellipse(15,-5,30,40,0.2,0,Math.PI*2);ctx.fill();ctx.stroke();
-  /* right ventricle */
-  ctx.fillStyle='rgba(59,130,246,0.3)';ctx.strokeStyle='#3b82f6';
-  ctx.beginPath();ctx.ellipse(-15,-5,25,35,-0.2,0,Math.PI*2);ctx.fill();ctx.stroke();
-  /* septum */
+  var sys=Math.round(90+hr*0.4),dia=Math.round(60+hr*0.15);
+  document.getElementById('r-bp').textContent=sys+'/'+dia;};upd();
+function getPos(path,tt){tt=((tt%1)+1)%1;var idx=tt*(path.length-1),i=Math.floor(idx),f=idx-i;if(i>=path.length-1)i=path.length-2;return lerp(path[i],path[i+1],f);}
+function drawPath(path,color){ctx.strokeStyle=color;ctx.lineWidth=8;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
+  for(var i=0;i<path.length;i++){var p={x:path[i].x*W,y:path[i].y*H};i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);}ctx.stroke();}
+function drawHeart(beat){var hx=W*0.47,hy=H*0.45,scale=1+beat*0.06;ctx.save();ctx.translate(hx,hy);ctx.scale(scale,scale);
+  ctx.fillStyle='rgba(220,38,38,0.3)';ctx.strokeStyle='#dc2626';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(15,-5,30,40,0.2,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(59,130,246,0.3)';ctx.strokeStyle='#3b82f6';ctx.beginPath();ctx.ellipse(-15,-5,25,35,-0.2,0,Math.PI*2);ctx.fill();ctx.stroke();
   ctx.strokeStyle='#475569';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-40);ctx.lineTo(0,35);ctx.stroke();
-  /* labels */
-  ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';
-  ctx.fillText('RA',-20,-20);ctx.fillText('RV',-15,15);ctx.fillText('LA',20,-20);ctx.fillText('LV',18,15);
-  ctx.restore();
-}
-function draw(){
-  ctx.clearRect(0,0,W,H);t+=0.016;
-  var hr=+document.getElementById('phr').value;
-  var beatPhase=((t*hr/60)%1);
-  var isSystole=beatPhase<0.35;
+  ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';ctx.fillText('RA',-20,-20);ctx.fillText('RV',-15,15);ctx.fillText('LA',20,-20);ctx.fillText('LV',18,15);
+  ctx.restore();}
+function draw(){ctx.clearRect(0,0,W,H);t+=0.016;var hr=+document.getElementById('phr').value;
+  var beatPhase=((t*hr/60)%1),isSystole=beatPhase<0.35;
   document.getElementById('r-phase').textContent=isSystole?'Systole':'Diastole';
-  /* draw vessels */
-  drawPath(pathPulm,'rgba(59,130,246,0.25)');
-  drawPath(pathSyst,'rgba(220,38,38,0.25)');
-  /* labels */
-  ctx.fillStyle='#94a3b8';ctx.font='11px Poppins';ctx.textAlign='center';
-  ctx.fillText('🫁 Lungs',W*0.27,H*0.08);
-  ctx.fillText('Body / Organs',W*0.7,H*0.85);
-  ctx.fillStyle='#3b82f6';ctx.fillText('Pulmonary (deoxygenated)',W*0.25,H*0.3);
-  ctx.fillStyle='#ef4444';ctx.fillText('Systemic (oxygenated)',W*0.75,H*0.4);
-  /* heart */
+  /* O2 colored background */
+  if(document.getElementById('btn-o2').classList.contains('active')){
+    ctx.fillStyle='rgba(59,130,246,0.04)';ctx.fillRect(0,0,W*0.45,H);ctx.fillStyle='rgba(220,38,38,0.04)';ctx.fillRect(W*0.45,0,W*0.55,H);
+    ctx.fillStyle='rgba(59,130,246,0.3)';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('Deoxygenated side',W*0.23,H*0.96);
+    ctx.fillStyle='rgba(220,38,38,0.3)';ctx.fillText('Oxygenated side',W*0.75,H*0.96);}
+  drawPath(pathPulm,'rgba(59,130,246,0.25)');drawPath(pathSyst,'rgba(220,38,38,0.25)');
+  ctx.fillStyle='#94a3b8';ctx.font='11px Poppins';ctx.textAlign='center';ctx.fillText('🫁 Lungs',W*0.27,H*0.08);ctx.fillText('Body / Organs',W*0.7,H*0.85);
+  ctx.fillStyle='#3b82f6';ctx.fillText('Pulmonary',W*0.25,H*0.3);ctx.fillStyle='#ef4444';ctx.fillText('Systemic',W*0.75,H*0.4);
   drawHeart(isSystole?1:0);
-  /* particles */
+  /* heartbeat pulse ring */
+  if(isSystole){var pr=beatPhase/0.35*40;ctx.strokeStyle='rgba(220,38,38,'+(1-beatPhase/0.35)*0.3+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(W*0.47,H*0.45,pr+30,0,Math.PI*2);ctx.stroke();}
   var speedMul=hr/72;
-  particles.forEach(function(p){
-    p.t+=p.speed*speedMul*(isSystole?1.5:0.7);
-    /* color transition: pulm goes from blue→red at midpoint, syst red→blue */
-    var pos=getPos(p.path,p.t);
-    var px=pos.x*W,py=pos.y*H;
-    var frac=((p.t%1)+1)%1;
-    var color;
-    if(p.path===pathPulm){color=frac<0.5?'#3b82f6':'#ef4444';}
-    else{color=frac<0.5?'#ef4444':'#3b82f6';}
-    ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=4;
-    ctx.beginPath();ctx.arc(px,py,3.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  });
-  requestAnimationFrame(draw);
-}
+  particles.forEach(function(p){p.t+=p.speed*speedMul*(isSystole?1.5:0.7);var pos=getPos(p.path,p.t);
+    var px=pos.x*W,py=pos.y*H,frac=((p.t%1)+1)%1;
+    var color;if(p.path===pathPulm)color=frac<0.5?'#3b82f6':'#ef4444';else color=frac<0.5?'#ef4444':'#3b82f6';
+    ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=4;ctx.beginPath();ctx.arc(px,py,3.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;});
+  requestAnimationFrame(draw);}
 draw();
 })();
 </script></body></html>
