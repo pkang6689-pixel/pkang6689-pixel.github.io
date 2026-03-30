@@ -32,9 +32,9 @@ canvas{display:block;width:100%}
 <div class="canvas-wrap"><canvas id="cv" height="450"></canvas><div class="tooltip" id="tip" style="position:absolute;background:#1e293b;border:1px solid #f59e0b;border-radius:.5rem;padding:.4rem .7rem;font-size:.78rem;color:#e2e8f0;pointer-events:none;display:none;white-space:nowrap;z-index:10"></div></div>
 <div class="controls">
   <div class="ctrl-group"><label>Half-life (s)</label>
-    <input type="range" id="phl" min="5" max="100" value="30" oninput="document.getElementById('vhl').textContent=this.value+' s'"><span class="val" id="vhl">30 s</span></div>
+    <input type="range" id="phl" min="5" max="100" value="30" oninput="document.getElementById('vhl').textContent=this.value+' s';resetDecay();startDecay()"><span class="val" id="vhl">30 s</span></div>
   <div class="ctrl-group"><label>Initial Atoms</label>
-    <input type="range" id="pn0" min="50" max="500" value="200" step="10" oninput="document.getElementById('vn0').textContent=this.value"><span class="val" id="vn0">200</span></div>
+    <input type="range" id="pn0" min="50" max="500" value="200" step="10" oninput="document.getElementById('vn0').textContent=this.value;resetDecay();startDecay()"><span class="val" id="vn0">200</span></div>
   <button class="toggle-btn" onclick="setPreset(0,this)">¹⁴C (5730y)</button>
   <button class="toggle-btn" onclick="setPreset(1,this)">²³⁸U (4.5By)</button>
   <button class="toggle-btn" onclick="setPreset(2,this)">¹³¹I (8d)</button>
@@ -62,7 +62,7 @@ var atoms=[],running=false,startTime=0,elapsed=0,history=[],emissions=[];
 var presetHL=[30,30,30];/* display only — actual sim uses slider */
 window.setPreset=function(i){var vals=[[50,200],[80,200],[20,200]];
   document.getElementById('phl').value=vals[i][0];document.getElementById('vhl').textContent=vals[i][0]+' s';
-  document.getElementById('pn0').value=vals[i][1];document.getElementById('vn0').textContent=vals[i][1];resetDecay();};
+  document.getElementById('pn0').value=vals[i][1];document.getElementById('vn0').textContent=vals[i][1];resetDecay();startDecay();};
 function initAtoms(){
   var n=+document.getElementById('pn0').value;atoms=[];emissions=[];
   var cols=Math.ceil(Math.sqrt(n*W*0.55/H)),rows=Math.ceil(n/cols);
