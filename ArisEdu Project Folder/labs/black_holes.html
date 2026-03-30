@@ -27,123 +27,94 @@ input[type=range]{width:120px;accent-color:#3b82f6}
 <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
 <h1>🕳️ Black Holes</h1>
 <p class="subtitle">Event horizon, accretion disk & gravitational lensing</p>
-<div class="canvas-wrap"><canvas id="cv" height="460"></canvas></div>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="460"></canvas><div id="tip" style="position:absolute;display:none;pointer-events:none;background:rgba(15,23,42,.92);border:1px solid #3b82f6;border-radius:.5rem;padding:.35rem .65rem;font-size:.75rem;color:#e2e8f0;white-space:nowrap;z-index:10"></div><p style="text-align:center;font-size:.7rem;color:#475569;margin:.4rem 0 0">Hover for distance info · Click to launch a probe</p></div>
 <div class="controls">
   <label>Mass (M☉) <input type="range" id="mass" min="3" max="100" value="10"></label>
   <label>Spin <input type="range" id="spin" min="0" max="100" value="50">%</label>
   <button class="toggle-btn" onclick="dropStar()">Drop Star ★</button>
   <button class="toggle-btn" onclick="toggleGrid()">Toggle Grid</button>
+  <button class="toggle-btn" id="btn-gw" onclick="this.classList.toggle('active')">Grav Waves</button>
 </div>
 <div class="readout">
   <div class="datum">Mass: <strong id="r-mass">10</strong> M☉</div>
   <div class="datum">Rs: <strong id="r-rs">29.5</strong> km</div>
   <div class="datum">Photon Sphere: <strong id="r-ps">44.3</strong> km</div>
   <div class="datum">Tidal Force: <strong id="r-tidal">—</strong></div>
+  <div class="datum">Time Dilation: <strong id="r-td">—</strong></div>
 </div>
 <div class="info-box"><h3>Black Hole Anatomy</h3><p>The <strong>event horizon</strong> (Schwarzschild radius Rs = 2GM/c²) is the point of no return. The <strong>photon sphere</strong> (1.5 Rs) is where light orbits. An <strong>accretion disk</strong> of superheated matter spirals inward, glowing in X-rays. <strong>Gravitational lensing</strong> bends light from behind. <strong>Spaghettification</strong> occurs from extreme tidal forces near the singularity.</p></div>
 </div>
 <script>
 (function(){
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
 var massSlider=document.getElementById('mass'),spinSlider=document.getElementById('spin');
-var t=0,showGrid=false,fallingStars=[];
-var diskParticles=[];for(var i=0;i<200;i++)diskParticles.push({a:Math.random()*Math.PI*2,r:0.5+Math.random()*0.5,speed:0.3+Math.random()*0.7});
+var t=0,showGrid=false,fallingStars=[],probes=[];
+var diskParticles=[];for(var i=0;i<200;i++)diskParticles.push({a:Math.random()*Math.PI*2,r:.5+Math.random()*.5,speed:.3+Math.random()*.7});
 window.dropStar=function(){fallingStars.push({x:Math.random()*W,y:0,vx:0,vy:0,alive:true,stretch:1});};
 window.toggleGrid=function(){showGrid=!showGrid;};
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  probes.push({x:mx,y:my,vx:0,vy:0,trail:[]});if(probes.length>3)probes.shift();});
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  var mass=+massSlider.value,Rs=mass*.3,cx=W/2,cy=H/2,dx=mx-cx,dy=my-cy,dist=Math.sqrt(dx*dx+dy*dy);
+  var distRs=(dist/Rs).toFixed(1),zone=dist<Rs?'Inside EH':dist<Rs*1.5?'Photon Sphere':dist<Rs*3?'ISCO':'Safe';
+  var td=dist>Rs?Math.sqrt(1-Rs/dist).toFixed(3):'0.000';
+  tip.style.display='block';tip.style.left=((e.clientX-r.left)+12)+'px';tip.style.top=((e.clientY-r.top)-28)+'px';
+  tip.textContent=distRs+' Rs · '+zone+' · Δt='+td;
+  document.getElementById('r-td').textContent=dist>Rs?td+'x':'0 (frozen)';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
 function draw(){
-  ctx.clearRect(0,0,W,H);t+=0.016;
+  ctx.clearRect(0,0,W,H);t+=.016;
   var mass=+massSlider.value,spin=+spinSlider.value/100,cx=W/2,cy=H/2;
-  var Rs=mass*0.3;/* scaled Schwarzschild radius */
-  var photonR=Rs*1.5,iscoR=Rs*3;
-  /* starfield */
-  for(var i=0;i<80;i++){
-    var sx=(i*137)%W,sy=(i*89)%H,dx=sx-cx,dy=sy-cy,dist=Math.sqrt(dx*dx+dy*dy);
-    /* gravitational lensing effect */
-    if(dist<photonR*3&&dist>Rs){
-      var lensStr=Rs*2/dist;
-      sx+=dx*lensStr*0.3;sy+=dy*lensStr*0.3;
-    }
-    ctx.fillStyle=dist<Rs?'transparent':'rgba(255,255,255,'+(0.3+Math.random()*0.3)+')';
-    ctx.fillRect(sx,sy,1.5,1.5);
-  }
-  /* spacetime grid */
-  if(showGrid){
-    ctx.strokeStyle='rgba(59,130,246,0.15)';ctx.lineWidth=0.5;
-    for(var gy=-10;gy<=10;gy++){
-      ctx.beginPath();
-      for(var gx=0;gx<=W;gx+=5){
-        var dx=gx-cx,dy=gy*25+cy-cy,dist=Math.sqrt(dx*dx+dy*dy);
-        var warp=dist>Rs?Rs*50/(dist*dist):20;
-        ctx.lineTo(gx,cy+gy*25+warp*(dy>0?1:-1));
-      }ctx.stroke();
-    }
-  }
-  /* accretion disk (ellipse seen at angle) */
+  var Rs=mass*.3,photonR=Rs*1.5,iscoR=Rs*3;
+  /* starfield with lensing */
+  for(var i=0;i<80;i++){var sx=(i*137)%W,sy=(i*89)%H,dx=sx-cx,dy=sy-cy,dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<photonR*3&&dist>Rs){var lensStr=Rs*2/dist;sx+=dx*lensStr*.3;sy+=dy*lensStr*.3;}
+    ctx.fillStyle=dist<Rs?'transparent':'rgba(255,255,255,'+(0.3+((i*3)%10)/20)+')';ctx.fillRect(sx,sy,1.5,1.5);}
+  /* grid */
+  if(showGrid){ctx.strokeStyle='rgba(59,130,246,0.15)';ctx.lineWidth=.5;
+    for(var gy=-10;gy<=10;gy++){ctx.beginPath();for(var gx=0;gx<=W;gx+=5){var ddx=gx-cx,ddy=gy*25,dd=Math.sqrt(ddx*ddx+ddy*ddy);var warp=dd>Rs?Rs*50/(dd*dd):20;ctx.lineTo(gx,cy+gy*25+warp*(ddy>0?1:-1));}ctx.stroke();}}
+  /* grav waves */
+  if(document.getElementById('btn-gw').classList.contains('active')){for(var w=0;w<5;w++){var wr=50+w*40+((t*30)%40);ctx.strokeStyle='rgba(139,92,246,'+(0.15-w*.025)+')';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx,cy,wr,0,Math.PI*2);ctx.stroke();}}
+  /* accretion disk back */
   var diskRad=iscoR*2.5;
-  /* back half of disk (behind BH) */
   ctx.save();ctx.beginPath();ctx.rect(0,0,W,cy);ctx.clip();
-  for(var i=0;i<diskParticles.length;i++){
-    var p=diskParticles[i];p.a+=p.speed*0.02*(1+spin);
-    var r=diskRad*p.r,x=cx+r*Math.cos(p.a),y=cy+r*0.25*Math.sin(p.a);
-    var temp=1-p.r;/* inner = hotter */
-    var red=Math.floor(255),green=Math.floor(100+temp*155),blue=Math.floor(temp*100);
-    ctx.fillStyle='rgba('+red+','+green+','+blue+',0.5)';
-    ctx.beginPath();ctx.arc(x,y,1.5+temp,0,Math.PI*2);ctx.fill();
-  }
-  ctx.restore();
-  /* event horizon (black sphere) with slight glow edge */
-  var ehGrad=ctx.createRadialGradient(cx,cy,Rs*0.8,cx,cy,Rs*1.3);
-  ehGrad.addColorStop(0,'#000000');ehGrad.addColorStop(0.7,'#000000');ehGrad.addColorStop(1,'rgba(255,120,30,0.1)');
+  for(var i=0;i<diskParticles.length;i++){var p=diskParticles[i];p.a+=p.speed*.02*(1+spin);var r2=diskRad*p.r,x=cx+r2*Math.cos(p.a),y=cy+r2*.25*Math.sin(p.a);var tmp=1-p.r;
+    ctx.fillStyle='rgba(255,'+(100+Math.floor(tmp*155))+','+(Math.floor(tmp*100))+',0.5)';ctx.beginPath();ctx.arc(x,y,1.5+tmp,0,Math.PI*2);ctx.fill();}ctx.restore();
+  /* event horizon */
+  var ehGrad=ctx.createRadialGradient(cx,cy,Rs*.8,cx,cy,Rs*1.3);ehGrad.addColorStop(0,'#000');ehGrad.addColorStop(.7,'#000');ehGrad.addColorStop(1,'rgba(255,120,30,0.1)');
   ctx.fillStyle=ehGrad;ctx.beginPath();ctx.arc(cx,cy,Rs*1.1,0,Math.PI*2);ctx.fill();
-  /* inner black */
   ctx.fillStyle='#000';ctx.beginPath();ctx.arc(cx,cy,Rs,0,Math.PI*2);ctx.fill();
-  /* photon sphere ring */
-  ctx.strokeStyle='rgba(255,200,50,0.15)';ctx.lineWidth=1;ctx.setLineDash([3,5]);
-  ctx.beginPath();ctx.arc(cx,cy,photonR,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-  /* front half of disk */
+  /* photon sphere */
+  ctx.strokeStyle='rgba(255,200,50,0.15)';ctx.lineWidth=1;ctx.setLineDash([3,5]);ctx.beginPath();ctx.arc(cx,cy,photonR,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+  /* front disk */
   ctx.save();ctx.beginPath();ctx.rect(0,cy,W,H-cy);ctx.clip();
-  for(var i=0;i<diskParticles.length;i++){
-    var p=diskParticles[i];
-    var r=diskRad*p.r,x=cx+r*Math.cos(p.a),y=cy+r*0.25*Math.sin(p.a);
-    var temp=1-p.r;
-    ctx.fillStyle='rgba(255,'+(100+Math.floor(temp*155))+','+(Math.floor(temp*100))+',0.7)';
-    ctx.beginPath();ctx.arc(x,y,1.5+temp,0,Math.PI*2);ctx.fill();
-  }
-  ctx.restore();
-  /* relativistic jets */
-  if(spin>0.3){
-    var jetAlpha=spin*0.3;
-    ctx.strokeStyle='rgba(100,150,255,'+jetAlpha+')';ctx.lineWidth=2+spin*3;
+  for(var i=0;i<diskParticles.length;i++){var p=diskParticles[i];var r2=diskRad*p.r,x=cx+r2*Math.cos(p.a),y=cy+r2*.25*Math.sin(p.a);var tmp=1-p.r;
+    ctx.fillStyle='rgba(255,'+(100+Math.floor(tmp*155))+','+(Math.floor(tmp*100))+',0.7)';ctx.beginPath();ctx.arc(x,y,1.5+tmp,0,Math.PI*2);ctx.fill();}ctx.restore();
+  /* jets */
+  if(spin>.3){var ja=spin*.3;ctx.strokeStyle='rgba(100,150,255,'+ja+')';ctx.lineWidth=2+spin*3;
     ctx.beginPath();ctx.moveTo(cx,cy-Rs);ctx.lineTo(cx+3*Math.sin(t*2),cy-Rs-80*spin);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx,cy+Rs);ctx.lineTo(cx-3*Math.sin(t*2),cy+Rs+80*spin);ctx.stroke();
-  }
-  /* falling stars / spaghettification */
-  for(var i=fallingStars.length-1;i>=0;i--){
-    var s=fallingStars[i],dx=cx-s.x,dy=cy-s.y,dist=Math.sqrt(dx*dx+dy*dy);
-    if(dist<Rs){fallingStars.splice(i,1);continue;}
-    var F=mass*300/(dist*dist);
-    s.vx+=dx/dist*F*0.016;s.vy+=dy/dist*F*0.016;
-    s.x+=s.vx*0.016;s.y+=s.vy*0.016;
-    /* spaghettification stretch */
-    s.stretch=1+Rs*3/Math.max(dist,Rs);
-    ctx.fillStyle='#ffdd44';ctx.save();ctx.translate(s.x,s.y);ctx.scale(1/s.stretch,s.stretch);
-    ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();ctx.restore();
-    /* update tidal readout for closest star */
-    document.getElementById('r-tidal').textContent=(F).toFixed(1)+' g';
-  }
+    ctx.beginPath();ctx.moveTo(cx,cy+Rs);ctx.lineTo(cx-3*Math.sin(t*2),cy+Rs+80*spin);ctx.stroke();}
+  /* falling stars */
+  for(var i=fallingStars.length-1;i>=0;i--){var s=fallingStars[i],ddx=cx-s.x,ddy=cy-s.y,dd=Math.sqrt(ddx*ddx+ddy*ddy);
+    if(dd<Rs){fallingStars.splice(i,1);continue;}var F=mass*300/(dd*dd);s.vx+=ddx/dd*F*.016;s.vy+=ddy/dd*F*.016;s.x+=s.vx*.016;s.y+=s.vy*.016;
+    s.stretch=1+Rs*3/Math.max(dd,Rs);ctx.fillStyle='#ffdd44';ctx.save();ctx.translate(s.x,s.y);ctx.scale(1/s.stretch,s.stretch);ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();ctx.restore();
+    document.getElementById('r-tidal').textContent=F.toFixed(1)+' g';}
+  /* probes */
+  probes.forEach(function(pr){var ddx=cx-pr.x,ddy=cy-pr.y,dd=Math.sqrt(ddx*ddx+ddy*ddy);
+    if(dd>Rs){var F2=mass*200/(dd*dd);pr.vx+=ddx/dd*F2*.016;pr.vy+=ddy/dd*F2*.016;pr.x+=pr.vx*.016;pr.y+=pr.vy*.016;
+      pr.trail.push({x:pr.x,y:pr.y});if(pr.trail.length>120)pr.trail.shift();
+      ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;ctx.beginPath();pr.trail.forEach(function(pt,j){j===0?ctx.moveTo(pt.x,pt.y):ctx.lineTo(pt.x,pt.y);});ctx.stroke();
+      ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(pr.x,pr.y,3,0,Math.PI*2);ctx.fill();}});
   /* labels */
   ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font='9px Poppins';ctx.textAlign='center';
-  ctx.fillText('Event Horizon',cx,cy+Rs+14);
-  ctx.fillText('Photon Sphere',cx+photonR+5,cy-8);
-  /* readouts */
+  ctx.fillText('Event Horizon',cx,cy+Rs+14);ctx.fillText('Photon Sphere',cx+photonR+5,cy-8);
   var rsKm=(mass*2.95).toFixed(1);
   document.getElementById('r-mass').textContent=mass;
   document.getElementById('r-rs').textContent=rsKm;
   document.getElementById('r-ps').textContent=(mass*2.95*1.5).toFixed(1);
-  requestAnimationFrame(draw);
-}
+  requestAnimationFrame(draw);}
 draw();
 })();
 </script></body></html>

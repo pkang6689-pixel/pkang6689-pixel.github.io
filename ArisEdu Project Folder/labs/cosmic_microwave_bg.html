@@ -27,29 +27,30 @@ input[type=range]{width:140px;accent-color:#3b82f6}
 <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
 <h1>📡 Cosmic Microwave Background</h1>
 <p class="subtitle">CMB temperature map & early universe</p>
-<div class="canvas-wrap"><canvas id="cv" height="460"></canvas></div>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="460"></canvas><div id="tip" style="position:absolute;display:none;pointer-events:none;background:rgba(15,23,42,.92);border:1px solid #3b82f6;border-radius:.5rem;padding:.35rem .65rem;font-size:.75rem;color:#e2e8f0;white-space:nowrap;z-index:10"></div><p style="text-align:center;font-size:.7rem;color:#475569;margin:.4rem 0 0">Hover for temperature · Click to measure a spot</p></div>
 <div class="controls">
   <label>Epoch (years after Big Bang) <input type="range" id="epoch" min="0" max="100" value="100"></label>
   <label>Anisotropy Scale <input type="range" id="scale" min="1" max="50" value="10"></label>
   <button class="toggle-btn active" id="btn-map" onclick="setView(0)">CMB Map</button>
   <button class="toggle-btn" id="btn-spec" onclick="setView(1)">Blackbody Spectrum</button>
   <button class="toggle-btn" id="btn-timeline" onclick="setView(2)">Timeline</button>
+  <button class="toggle-btn" id="btn-power" onclick="this.classList.toggle('active')">Power Spectrum</button>
 </div>
 <div class="readout">
   <div class="datum">CMB Temp: <strong id="r-temp">2.725</strong> K</div>
   <div class="datum">Redshift: <strong id="r-z">1089</strong></div>
   <div class="datum">Age: <strong id="r-age">13.8 Byr</strong></div>
+  <div class="datum">Spot ΔT: <strong id="r-dt">—</strong> µK</div>
 </div>
 <div class="info-box"><h3>The Cosmic Microwave Background</h3><p>The CMB is thermal radiation from ~380,000 years after the Big Bang, when the universe cooled enough for atoms to form (<strong>recombination</strong>). Originally ~3000 K, it has redshifted to <strong>2.725 K</strong> today — the most perfect blackbody spectrum ever measured. Tiny temperature fluctuations (~1 part in 100,000) are the seeds of all cosmic structure.</p></div>
 </div>
 <script>
 (function(){
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
 var epochSlider=document.getElementById('epoch'),scaleSlider=document.getElementById('scale');
-var view=0;
-/* Precompute noise */
+var view=0,markers=[];
 var noiseW=200,noiseH=100,noise=[];
 for(var y=0;y<noiseH;y++){noise[y]=[];for(var x=0;x<noiseW;x++)noise[y][x]=Math.random();}
 function smoothNoise(x,y){var ix=Math.floor(x)%noiseW,iy=Math.floor(y)%noiseH,fx=x-Math.floor(x),fy=y-Math.floor(y);
@@ -57,99 +58,90 @@ function smoothNoise(x,y){var ix=Math.floor(x)%noiseW,iy=Math.floor(y)%noiseH,fx
   var i1=v00*(1-fx)+v10*fx,i2=v01*(1-fx)+v11*fx;return i1*(1-fy)+i2*fy;}
 function fractalNoise(x,y,oct){var v=0,a=1,f=1,max=0;for(var o=0;o<oct;o++){v+=a*smoothNoise(x*f,y*f);max+=a;a*=0.5;f*=2;}return v/max;}
 window.setView=function(v){view=v;['map','spec','timeline'].forEach(function(s,i){document.getElementById('btn-'+s).classList.toggle('active',i===v);});};
-function tempColor(v){/* v: 0-1, maps cold (blue) through green to hot (red) */
-  if(v<0.25)return'rgb('+Math.floor(v*4*50)+','+Math.floor(v*4*50)+','+Math.floor(128+v*4*127)+')';
-  if(v<0.5)return'rgb(0,'+Math.floor((v-0.25)*4*255)+','+Math.floor(255-(v-0.25)*4*255)+')';
-  if(v<0.75)return'rgb('+Math.floor((v-0.5)*4*255)+',255,0)';
-  return'rgb(255,'+Math.floor(255-(v-0.75)*4*255)+',0)';}
+function tempColor(v){if(v<0.25)return'rgb('+Math.floor(v*4*50)+','+Math.floor(v*4*50)+','+Math.floor(128+v*4*127)+')';if(v<0.5)return'rgb(0,'+Math.floor((v-0.25)*4*255)+','+Math.floor(255-(v-0.25)*4*255)+')';if(v<0.75)return'rgb('+Math.floor((v-0.5)*4*255)+',255,0)';return'rgb(255,'+Math.floor(255-(v-0.75)*4*255)+',0)';}
+function noiseAt(px,py,cols,rows,anScale){return fractalNoise(px*anScale/cols,py*anScale/rows,4);}
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  if(view===0){var anScale=+scaleSlider.value,pixW=4,cols=Math.ceil(W/pixW),rows=Math.ceil(H/pixW);
+    var cpx=Math.floor(mx/pixW),cpy=Math.floor(my/pixW),fx=cpx/cols*2-1,fy=cpy/rows*2-1;
+    if(fx*fx+fy*fy/(0.64)<=1){var val=noiseAt(cpx,cpy,cols,rows,anScale),dT=((val-0.5)*60).toFixed(1);
+      tip.textContent='T=2.725 K + '+dT+' µK';}
+    else tip.textContent='Outside projection';
+  }else{tip.textContent='';}
+  tip.style.display='block';tip.style.left=((e.clientX-r.left)+12)+'px';tip.style.top=((e.clientY-r.top)-28)+'px';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  if(view===0){var anScale=+scaleSlider.value,pixW=4,cols=Math.ceil(W/pixW),rows=Math.ceil(H/pixW);
+    var cpx=Math.floor(mx/pixW),cpy=Math.floor(my/pixW),fx=cpx/cols*2-1,fy=cpy/rows*2-1;
+    if(fx*fx+fy*fy/(0.64)<=1){var val=noiseAt(cpx,cpy,cols,rows,anScale),dT=((val-0.5)*60).toFixed(1);
+      markers.push({x:mx,y:my,dT:dT});if(markers.length>5)markers.shift();
+      document.getElementById('r-dt').textContent=dT;}}});
 function draw(){
   ctx.clearRect(0,0,W,H);
   var epoch=+epochSlider.value/100,anScale=+scaleSlider.value;
-  /* epoch: 0 = Big Bang, 1 = now (13.8Byr). CMB at epoch ~0.003 (380k yr) */
   var ageYr=epoch*13.8e9,tempNow=2.725,z=epoch<0.003?1089:1089*(0.003/Math.max(epoch,0.001));
   var temp=epoch<0.003?3000*(0.003/Math.max(0.001,epoch)):tempNow;
   if(view===0){/* CMB temperature map */
     var pixW=4,cols=Math.ceil(W/pixW),rows=Math.ceil(H/pixW);
-    for(var py=0;py<rows;py++){
-      for(var px=0;px<cols;px++){
-        var nx=px*anScale/cols,ny=py*anScale/rows;
-        var val=fractalNoise(nx,ny,4);
-        /* Mollweide projection mask */
-        var fx=px/cols*2-1,fy=py/rows*2-1;
-        var r2=fx*fx/(1*1)+fy*fy/(0.8*0.8);
-        if(r2>1){ctx.fillStyle='#020617';ctx.fillRect(px*pixW,py*pixW,pixW,pixW);continue;}
-        ctx.fillStyle=tempColor(val);
-        ctx.fillRect(px*pixW,py*pixW,pixW,pixW);
-      }
-    }
-    /* CMB label */
+    for(var py=0;py<rows;py++){for(var px=0;px<cols;px++){
+      var nx=px*anScale/cols,ny=py*anScale/rows,val=fractalNoise(nx,ny,4);
+      var fx=px/cols*2-1,fy=py/rows*2-1,r2=fx*fx+fy*fy/0.64;
+      if(r2>1){ctx.fillStyle='#020617';ctx.fillRect(px*pixW,py*pixW,pixW,pixW);continue;}
+      ctx.fillStyle=tempColor(val);ctx.fillRect(px*pixW,py*pixW,pixW,pixW);}}
+    /* markers */
+    for(var i=0;i<markers.length;i++){var m=markers[i];ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.beginPath();ctx.arc(m.x,m.y,6,0,Math.PI*2);ctx.stroke();
+      ctx.fillStyle='#fff';ctx.font='7px Poppins';ctx.textAlign='center';ctx.fillText(m.dT+'µK',m.x,m.y-9);}
     ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font='bold 12px Poppins';ctx.textAlign='center';
     ctx.fillText('CMB Temperature Anisotropy Map (ΔT/T ≈ 10⁻⁵)',W/2,H-15);
-    /* color scale bar */
-    var barW=200,barH=12,barX=W/2-barW/2,barY=15;
-    for(var i=0;i<barW;i++){ctx.fillStyle=tempColor(i/barW);ctx.fillRect(barX+i,barY,1,barH);}
-    ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.fillText('Cold',barX-15,barY+10);ctx.fillText('Hot',barX+barW+15,barY+10);
-    ctx.fillText('2.725 K ± 0.00003 K',W/2,barY+25);
+    var barW=200,barH=12,barX=W/2-barW/2,barY=15;for(var i=0;i<barW;i++){ctx.fillStyle=tempColor(i/barW);ctx.fillRect(barX+i,barY,1,barH);}
+    ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.fillText('Cold',barX-15,barY+10);ctx.fillText('Hot',barX+barW+15,barY+10);ctx.fillText('2.725 K ± 0.00003 K',W/2,barY+25);
   }else if(view===1){/* Blackbody spectrum */
     var padL=60,padR=20,padT=30,padB=40,gW=W-padL-padR,gH=H-padT-padB;
     ctx.fillStyle='#0a0f1a';ctx.fillRect(padL,padT,gW,gH);ctx.strokeStyle='#334155';ctx.strokeRect(padL,padT,gW,gH);
-    /* Planck function B(ν,T) */
-    var T=temp,h=6.626e-34,k=1.381e-23,c=3e8;
-    var maxFreq=1e12,maxB=0;
-    /* find peak */
-    for(var i=1;i<=100;i++){var freq=i*maxFreq/100;var x2=h*freq/(k*T);var B=freq*freq*freq/(Math.exp(x2)-1);if(B>maxB)maxB=B;}
-    /* draw curve */
+    var T=temp,h=6.626e-34,k=1.381e-23,c=3e8,maxFreq=1e12,maxB=0;
+    for(var i=1;i<=100;i++){var freq=i*maxFreq/100,x2=h*freq/(k*T),B=freq*freq*freq/(Math.exp(x2)-1);if(B>maxB)maxB=B;}
     ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.beginPath();
-    for(var i=1;i<=200;i++){
-      var freq=i*maxFreq/200,x2=h*freq/(k*T),B=freq*freq*freq/(Math.exp(Math.min(x2,500))-1);
-      var px=padL+(freq/maxFreq)*gW,py=padT+gH-(B/maxB)*gH*0.9;
-      if(i===1)ctx.moveTo(px,py);else ctx.lineTo(px,py);
-    }ctx.stroke();
-    /* perfect blackbody label */
+    for(var i=1;i<=200;i++){var freq=i*maxFreq/200,x2=h*freq/(k*T),B=freq*freq*freq/(Math.exp(Math.min(x2,500))-1);
+      var px=padL+(freq/maxFreq)*gW,py=padT+gH-(B/maxB)*gH*0.9;if(i===1)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.stroke();
+    /* fill under curve */
+    ctx.lineTo(padL+gW,padT+gH);ctx.lineTo(padL,padT+gH);ctx.closePath();ctx.fillStyle='rgba(245,158,11,0.08)';ctx.fill();
     ctx.fillStyle='#f59e0b';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('T = '+temp.toFixed(temp>100?0:3)+' K',W/2,padT+20);
-    /* axes */
     ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';ctx.fillText('Frequency (GHz)',W/2,H-8);
     ctx.save();ctx.translate(15,padT+gH/2);ctx.rotate(-Math.PI/2);ctx.fillText('Intensity',0,0);ctx.restore();
-    /* Wien peak */
-    var peakFreq=2.82*k*T/h;
-    if(peakFreq<maxFreq){var peakX=padL+(peakFreq/maxFreq)*gW;
+    var peakFreq=2.82*k*T/h;if(peakFreq<maxFreq){var peakX=padL+(peakFreq/maxFreq)*gW;
       ctx.strokeStyle='rgba(59,130,246,0.4)';ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(peakX,padT);ctx.lineTo(peakX,padT+gH);ctx.stroke();ctx.setLineDash([]);
-      ctx.fillStyle='#3b82f6';ctx.font='8px Poppins';ctx.fillText('Wien Peak',(peakX),padT-5);
-    }
+      ctx.fillStyle='#3b82f6';ctx.font='8px Poppins';ctx.fillText('Wien Peak',peakX,padT-5);}
   }else{/* Timeline */
     var timeY=H/2,startX=40,endX=W-40,lineW=endX-startX;
     ctx.strokeStyle='#334155';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(startX,timeY);ctx.lineTo(endX,timeY);ctx.stroke();
-    var events=[
-      {t:0,label:'Big Bang',color:'#ef4444'},
-      {t:0.00003,label:'Inflation',color:'#f59e0b'},
-      {t:0.003,label:'CMB (380k yr)',color:'#22c55e'},
-      {t:0.03,label:'First Stars',color:'#3b82f6'},
-      {t:0.07,label:'First Galaxies',color:'#8b5cf6'},
-      {t:0.35,label:'Solar System',color:'#f59e0b'},
-      {t:1,label:'Today (13.8 Byr)',color:'#ef4444'}
-    ];
-    for(var i=0;i<events.length;i++){
-      var e=events[i],ex=startX+Math.pow(e.t,0.3)*lineW;
-      ctx.fillStyle=e.color;ctx.beginPath();ctx.arc(ex,timeY,6,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#f1f5f9';ctx.font='bold 9px Poppins';ctx.textAlign='center';
-      ctx.fillText(e.label,ex,timeY+(i%2===0?-18:24));
-    }
-    /* current epoch marker */
+    var events=[{t:0,label:'Big Bang',color:'#ef4444'},{t:0.00003,label:'Inflation',color:'#f59e0b'},{t:0.003,label:'CMB (380k yr)',color:'#22c55e'},{t:0.03,label:'First Stars',color:'#3b82f6'},{t:0.07,label:'First Galaxies',color:'#8b5cf6'},{t:0.35,label:'Solar System',color:'#f59e0b'},{t:1,label:'Today (13.8 Byr)',color:'#ef4444'}];
+    for(var i=0;i<events.length;i++){var ev=events[i],ex=startX+Math.pow(ev.t,0.3)*lineW;
+      ctx.fillStyle=ev.color;ctx.beginPath();ctx.arc(ex,timeY,6,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#f1f5f9';ctx.font='bold 9px Poppins';ctx.textAlign='center';ctx.fillText(ev.label,ex,timeY+(i%2===0?-18:24));}
     var curX=startX+Math.pow(epoch,0.3)*lineW;
     ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(curX,timeY-12);ctx.lineTo(curX-5,timeY-20);ctx.lineTo(curX+5,timeY-20);ctx.closePath();ctx.fill();
-    /* expansion visualization */
-    ctx.fillStyle='rgba(255,255,255,0.1)';ctx.font='10px Poppins';ctx.textAlign='center';
-    ctx.fillText('← Universe Expansion →',W/2,timeY+50);
-    var circR=20+epoch*100;
-    ctx.strokeStyle='rgba(59,130,246,0.15)';ctx.lineWidth=1;
-    for(var r=0;r<4;r++)ctx.beginPath(),ctx.arc(W/2,timeY+100+circR,circR*(r+1)*0.3,0,Math.PI*2),ctx.stroke();
-  }
-  /* readouts */
+    ctx.fillStyle='rgba(255,255,255,0.1)';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('← Universe Expansion →',W/2,timeY+50);
+    var circR=20+epoch*100;ctx.strokeStyle='rgba(59,130,246,0.15)';ctx.lineWidth=1;
+    for(var r=0;r<4;r++){ctx.beginPath();ctx.arc(W/2,timeY+100+circR,circR*(r+1)*0.3,0,Math.PI*2);ctx.stroke();}}
+  /* Power Spectrum overlay */
+  if(document.getElementById('btn-power').classList.contains('active')){
+    ctx.fillStyle='rgba(15,23,42,0.9)';ctx.fillRect(W*0.08,H*0.06,W*0.84,H*0.42);
+    ctx.strokeStyle='#334155';ctx.strokeRect(W*0.08,H*0.06,W*0.84,H*0.42);
+    var sx=W*0.12,sy=H*0.1,sw=W*0.76,sh=H*0.34;
+    ctx.strokeStyle='#475569';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(sx,sy+sh);ctx.lineTo(sx+sw,sy+sh);ctx.stroke();ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx,sy+sh);ctx.stroke();
+    ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;ctx.beginPath();
+    for(var i=0;i<200;i++){var l=2+i*15,x=sx+(i/200)*sw;
+      var peak1=Math.exp(-((l-220)*(l-220))/(2*80*80))*1.0,peak2=Math.exp(-((l-550)*(l-550))/(2*100*100))*0.45,peak3=Math.exp(-((l-800)*(l-800))/(2*120*120))*0.25;
+      var power=peak1+peak2+peak3+0.02;var y=sy+sh-power*sh*0.85;
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.textAlign='center';ctx.fillText('Multipole moment ℓ',sx+sw/2,sy+sh+12);
+    ctx.save();ctx.translate(sx-10,sy+sh/2);ctx.rotate(-Math.PI/2);ctx.fillText('Power',0,0);ctx.restore();
+    ctx.fillStyle='#3b82f6';ctx.font='9px Poppins';ctx.fillText('CMB Angular Power Spectrum',sx+sw/2,sy-6);
+    ctx.fillStyle='rgba(59,130,246,0.3)';ctx.font='7px Poppins';ctx.fillText('1st acoustic peak (ℓ≈220)',sx+sw*0.15,sy+15);ctx.fillText('2nd peak',sx+sw*0.38,sy+25);ctx.fillText('3rd peak',sx+sw*0.55,sy+30);
+    ctx.lineWidth=1;}
   document.getElementById('r-temp').textContent=temp>100?temp.toFixed(0):temp.toFixed(3);
   document.getElementById('r-z').textContent=Math.max(0,z).toFixed(0);
   document.getElementById('r-age').textContent=epoch<0.001?((epoch*13.8e9)/1000).toFixed(0)+' kyr':(epoch*13.8).toFixed(1)+' Byr';
-  requestAnimationFrame(draw);
-}
+  requestAnimationFrame(draw);}
 draw();
 })();
 </script></body></html>

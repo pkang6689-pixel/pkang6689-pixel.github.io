@@ -27,124 +27,94 @@ input[type=range]{width:110px;accent-color:#3b82f6}
 <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
 <h1>🚀 Rocket Science & Orbital Mechanics</h1>
 <p class="subtitle">Thrust, orbits & Hohmann transfer</p>
-<div class="canvas-wrap"><canvas id="cv" height="460"></canvas></div>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="460"></canvas><div id="tip" style="position:absolute;display:none;pointer-events:none;background:rgba(15,23,42,.92);border:1px solid #3b82f6;border-radius:.5rem;padding:.35rem .65rem;font-size:.75rem;color:#e2e8f0;white-space:nowrap;z-index:10"></div><p style="text-align:center;font-size:.7rem;color:#475569;margin:.4rem 0 0">Hover for orbit info · Click to set waypoint</p></div>
 <div class="controls">
   <label>Thrust <input type="range" id="thrust" min="0" max="100" value="0"></label>
   <label>Thrust Angle <input type="range" id="angle" min="0" max="360" value="90">°</label>
   <button class="toggle-btn" onclick="launch()">🚀 Launch</button>
   <button class="toggle-btn" onclick="resetSim()">Reset</button>
   <button class="toggle-btn" onclick="hohmann()">Hohmann Transfer</button>
+  <button class="toggle-btn" id="btn-pred" onclick="this.classList.toggle('active')">Predict Path</button>
 </div>
 <div class="readout">
   <div class="datum">Altitude: <strong id="r-alt">0</strong> km</div>
   <div class="datum">Velocity: <strong id="r-vel">0</strong> km/s</div>
   <div class="datum">Orbit: <strong id="r-orb">Ground</strong></div>
   <div class="datum">Fuel: <strong id="r-fuel">100</strong>%</div>
+  <div class="datum">ΔV Used: <strong id="r-dv">0</strong> km/s</div>
 </div>
 <div class="info-box"><h3>Orbital Mechanics</h3><p><strong>Orbital velocity</strong>: v = √(GM/r). To go higher, burn <strong>prograde</strong> (forward). To go lower, burn <strong>retrograde</strong>. A <strong>Hohmann transfer</strong> uses two burns to move between circular orbits — it's the most fuel-efficient method. <strong>Escape velocity</strong> = √(2GM/r).</p></div>
 </div>
 <script>
 (function(){
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
 var thrustSlider=document.getElementById('thrust'),angleSlider=document.getElementById('angle');
-var planetR=50,G=500,planetM=1;
+var planetR=50,G=500,planetM=1,dvUsed=0,waypoints=[];
 var ship={x:0,y:0,vx:0,vy:0,fuel:100,launched:false,trail:[]};
 var cx,cy,t=0,doHohmann=false,hohPhase=0;
-function resetShip(){
-  cx=W/2;cy=H/2;
-  ship.x=cx;ship.y=cy-planetR-10;ship.vx=0;ship.vy=0;ship.fuel=100;ship.launched=false;ship.trail=[];
-  doHohmann=false;hohPhase=0;thrustSlider.value=0;
-}
+function resetShip(){cx=W/2;cy=H/2;ship.x=cx;ship.y=cy-planetR-10;ship.vx=0;ship.vy=0;ship.fuel=100;ship.launched=false;ship.trail=[];doHohmann=false;hohPhase=0;dvUsed=0;thrustSlider.value=0;}
 resetShip();
-window.launch=function(){
-  if(!ship.launched){
-    ship.launched=true;ship.vy=-3;ship.vx=2.5;
-    ship.x=cx+planetR+30;ship.y=cy;
-  }
-};
-window.resetSim=function(){resetShip();};
-window.hohmann=function(){
-  if(!ship.launched){window.launch();}
-  doHohmann=true;hohPhase=0;
-};
+window.launch=function(){if(!ship.launched){ship.launched=true;ship.vy=-3;ship.vx=2.5;ship.x=cx+planetR+30;ship.y=cy;}};
+window.resetSim=function(){resetShip();waypoints=[];};
+window.hohmann=function(){if(!ship.launched)window.launch();doHohmann=true;hohPhase=0;};
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  waypoints.push({x:mx,y:my});if(waypoints.length>4)waypoints.shift();});
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  var ddx=mx-W/2,ddy=my-H/2,dist=Math.sqrt(ddx*ddx+ddy*ddy);
+  var alt=Math.max(0,(dist-planetR)*10).toFixed(0),orbSpd=Math.sqrt(G*planetM/Math.max(dist,planetR+1)),escSpd=orbSpd*1.414;
+  tip.style.display='block';tip.style.left=((e.clientX-r.left)+12)+'px';tip.style.top=((e.clientY-r.top)-28)+'px';
+  tip.textContent='Alt: '+alt+' km · v_orb: '+(orbSpd*2).toFixed(1)+' · v_esc: '+(escSpd*2).toFixed(1);});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
 function draw(){
-  ctx.clearRect(0,0,W,H);t+=0.016;cx=W/2;cy=H/2;
-  /* starfield */
+  ctx.clearRect(0,0,W,H);t+=.016;cx=W/2;cy=H/2;
   for(var i=0;i<40;i++){ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillRect((i*97)%W,(i*53)%H,1,1);}
   /* planet */
-  var grad=ctx.createRadialGradient(cx-10,cy-10,5,cx,cy,planetR);
-  grad.addColorStop(0,'#4a90d0');grad.addColorStop(1,'#1a3a6c');
+  var grad=ctx.createRadialGradient(cx-10,cy-10,5,cx,cy,planetR);grad.addColorStop(0,'#4a90d0');grad.addColorStop(1,'#1a3a6c');
   ctx.fillStyle=grad;ctx.beginPath();ctx.arc(cx,cy,planetR,0,Math.PI*2);ctx.fill();
-  /* atmosphere glow */
   ctx.strokeStyle='rgba(100,180,255,0.15)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,planetR+5,0,Math.PI*2);ctx.stroke();
+  /* waypoints */
+  waypoints.forEach(function(wp){ctx.strokeStyle='rgba(245,158,11,0.5)';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(wp.x,wp.y,6,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#f59e0b';ctx.font='7px Poppins';ctx.textAlign='center';ctx.fillText('⌖',wp.x,wp.y+3);});
   if(ship.launched){
     var dx=cx-ship.x,dy=cy-ship.y,dist=Math.sqrt(dx*dx+dy*dy);
-    /* gravity */
-    var gForce=G*planetM/(dist*dist);
-    ship.vx+=dx/dist*gForce*0.016;
-    ship.vy+=dy/dist*gForce*0.016;
-    /* thrust */
+    var gForce=G*planetM/(dist*dist);ship.vx+=dx/dist*gForce*.016;ship.vy+=dy/dist*gForce*.016;
     var thr=+thrustSlider.value/100;
-    if(thr>0&&ship.fuel>0){
-      var ang=(+angleSlider.value)*Math.PI/180;
-      ship.vx+=Math.cos(ang)*thr*0.5*0.016;
-      ship.vy+=Math.sin(ang)*thr*0.5*0.016;
-      ship.fuel=Math.max(0,ship.fuel-thr*0.1);
-    }
-    /* hohmann auto-burns */
-    if(doHohmann){
-      if(hohPhase===0&&dist<planetR+35){
-        ship.vx*=1.3;ship.vy*=1.3;hohPhase=1;/* first burn prograde */
-      }
-      if(hohPhase===1&&dist>planetR+100){
-        /* circularize */
-        var speed=Math.sqrt(ship.vx*ship.vx+ship.vy*ship.vy);
-        var orbSpeed=Math.sqrt(G*planetM/dist);
-        var tangX=-dy/dist,tangY=dx/dist;
-        ship.vx=tangX*orbSpeed;ship.vy=tangY*orbSpeed;
-        hohPhase=2;doHohmann=false;
-      }
-    }
+    if(thr>0&&ship.fuel>0){var ang=(+angleSlider.value)*Math.PI/180;
+      ship.vx+=Math.cos(ang)*thr*.5*.016;ship.vy+=Math.sin(ang)*thr*.5*.016;ship.fuel=Math.max(0,ship.fuel-thr*.1);dvUsed+=thr*.5*.016*2;}
+    if(doHohmann){if(hohPhase===0&&dist<planetR+35){ship.vx*=1.3;ship.vy*=1.3;hohPhase=1;dvUsed+=1;}
+      if(hohPhase===1&&dist>planetR+100){var speed=Math.sqrt(ship.vx*ship.vx+ship.vy*ship.vy);var orbSpeed=Math.sqrt(G*planetM/dist);var tangX=-dy/dist,tangY=dx/dist;
+        ship.vx=tangX*orbSpeed;ship.vy=tangY*orbSpeed;hohPhase=2;doHohmann=false;dvUsed+=.5;}}
     ship.x+=ship.vx;ship.y+=ship.vy;
-    /* trail */
     ship.trail.push({x:ship.x,y:ship.y});if(ship.trail.length>200)ship.trail.shift();
-    /* draw trail */
     ctx.strokeStyle='rgba(59,130,246,0.3)';ctx.lineWidth=1;ctx.beginPath();
-    for(var i=0;i<ship.trail.length;i++){
-      if(i===0)ctx.moveTo(ship.trail[i].x,ship.trail[i].y);else ctx.lineTo(ship.trail[i].x,ship.trail[i].y);
-    }ctx.stroke();
-    /* collision check */
+    for(var i=0;i<ship.trail.length;i++){if(i===0)ctx.moveTo(ship.trail[i].x,ship.trail[i].y);else ctx.lineTo(ship.trail[i].x,ship.trail[i].y);}ctx.stroke();
+    /* path prediction */
+    if(document.getElementById('btn-pred').classList.contains('active')){
+      var px=ship.x,py=ship.y,pvx=ship.vx,pvy=ship.vy;
+      ctx.strokeStyle='rgba(34,197,94,0.25)';ctx.lineWidth=1;ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(px,py);
+      for(var s=0;s<200;s++){var pdx=cx-px,pdy=cy-py,pd=Math.sqrt(pdx*pdx+pdy*pdy);if(pd<planetR)break;var pf=G*planetM/(pd*pd);
+        pvx+=pdx/pd*pf*.016;pvy+=pdy/pd*pf*.016;px+=pvx;py+=pvy;ctx.lineTo(px,py);}ctx.stroke();ctx.setLineDash([]);}
     if(dist<planetR){resetShip();document.getElementById('r-orb').textContent='Crashed!';return requestAnimationFrame(draw);}
-    /* draw ship */
-    ctx.fillStyle='#e0e0e0';ctx.save();ctx.translate(ship.x,ship.y);
-    var heading=Math.atan2(ship.vy,ship.vx);ctx.rotate(heading);
+    /* ship */
+    ctx.fillStyle='#e0e0e0';ctx.save();ctx.translate(ship.x,ship.y);var heading=Math.atan2(ship.vy,ship.vx);ctx.rotate(heading);
     ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(-5,-4);ctx.lineTo(-3,0);ctx.lineTo(-5,4);ctx.closePath();ctx.fill();
-    /* thrust flame */
-    if(thr>0&&ship.fuel>0){
-      ctx.fillStyle='rgba(255,150,30,0.7)';ctx.beginPath();ctx.moveTo(-3,0);ctx.lineTo(-8-thr*8,-2);ctx.lineTo(-8-thr*8,2);ctx.closePath();ctx.fill();
-    }
+    if(thr>0&&ship.fuel>0){ctx.fillStyle='rgba(255,150,30,0.7)';ctx.beginPath();ctx.moveTo(-3,0);ctx.lineTo(-8-thr*8,-2);ctx.lineTo(-8-thr*8,2);ctx.closePath();ctx.fill();}
     ctx.restore();
-    /* readouts */
-    var alt=Math.max(0,(dist-planetR)*10).toFixed(0);
-    var vel=Math.sqrt(ship.vx*ship.vx+ship.vy*ship.vy);
-    var orbSpeed=Math.sqrt(G*planetM/dist);
-    var orbType=dist<planetR+5?'Ground':vel>orbSpeed*1.41?'Escape':vel>orbSpeed*0.9?'Orbit':'Suborbital';
-    document.getElementById('r-alt').textContent=alt;
-    document.getElementById('r-vel').textContent=(vel*2).toFixed(1);
-    document.getElementById('r-orb').textContent=orbType;
-    document.getElementById('r-fuel').textContent=ship.fuel.toFixed(0);
-  }
+    var alt=Math.max(0,(dist-planetR)*10).toFixed(0),vel=Math.sqrt(ship.vx*ship.vx+ship.vy*ship.vy),orbSpeed=Math.sqrt(G*planetM/dist);
+    var orbType=dist<planetR+5?'Ground':vel>orbSpeed*1.41?'Escape':vel>orbSpeed*.9?'Orbit':'Suborbital';
+    document.getElementById('r-alt').textContent=alt;document.getElementById('r-vel').textContent=(vel*2).toFixed(1);
+    document.getElementById('r-orb').textContent=orbType;document.getElementById('r-fuel').textContent=ship.fuel.toFixed(0);
+    document.getElementById('r-dv').textContent=dvUsed.toFixed(1);}
   /* reference orbits */
-  ctx.strokeStyle='rgba(59,130,246,0.08)';ctx.lineWidth=0.5;ctx.setLineDash([3,5]);
+  ctx.strokeStyle='rgba(59,130,246,0.08)';ctx.lineWidth=.5;ctx.setLineDash([3,5]);
   ctx.beginPath();ctx.arc(cx,cy,planetR+30,0,Math.PI*2);ctx.stroke();
   ctx.beginPath();ctx.arc(cx,cy,planetR+80,0,Math.PI*2);ctx.stroke();
   ctx.beginPath();ctx.arc(cx,cy,planetR+140,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
   ctx.fillStyle='rgba(255,255,255,0.1)';ctx.font='8px Poppins';ctx.textAlign='left';
   ctx.fillText('LEO',cx+planetR+32,cy);ctx.fillText('MEO',cx+planetR+82,cy);ctx.fillText('GEO',cx+planetR+142,cy);
-  requestAnimationFrame(draw);
-}
+  requestAnimationFrame(draw);}
 draw();
 })();
 </script></body></html>

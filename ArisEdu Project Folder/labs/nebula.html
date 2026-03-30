@@ -27,12 +27,13 @@ input[type=range]{width:110px;accent-color:#3b82f6}
 <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
 <h1>🌌 Nebula — Star Forming Regions</h1>
 <p class="subtitle">Emission, reflection & dark nebulae</p>
-<div class="canvas-wrap"><canvas id="cv" height="460"></canvas></div>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="460"></canvas><div id="tip" style="position:absolute;display:none;pointer-events:none;background:rgba(15,23,42,.92);border:1px solid #3b82f6;border-radius:.5rem;padding:.35rem .65rem;font-size:.75rem;color:#e2e8f0;white-space:nowrap;z-index:10"></div><p style="text-align:center;font-size:.7rem;color:#475569;margin:.4rem 0 0">Hover for gas info · Click to seed a protostar</p></div>
 <div class="controls">
   <button class="toggle-btn active" id="btn-emission" onclick="setType(0)">Emission</button>
   <button class="toggle-btn" id="btn-reflection" onclick="setType(1)">Reflection</button>
   <button class="toggle-btn" id="btn-dark" onclick="setType(2)">Dark</button>
   <button class="toggle-btn" id="btn-planetary" onclick="setType(3)">Planetary</button>
+  <button class="toggle-btn" id="btn-spec" onclick="this.classList.toggle('active')">Spectrum</button>
   <label>Density <input type="range" id="density" min="10" max="100" value="50"></label>
   <label>UV Intensity <input type="range" id="uv" min="0" max="100" value="50"></label>
 </div>
@@ -40,109 +41,94 @@ input[type=range]{width:110px;accent-color:#3b82f6}
   <div class="datum">Type: <strong id="r-type">Emission Nebula</strong></div>
   <div class="datum">Gas Temp: <strong id="r-temp">10,000</strong> K</div>
   <div class="datum">Protostars: <strong id="r-proto">0</strong></div>
+  <div class="datum">Peak λ: <strong id="r-lam">656</strong> nm</div>
 </div>
 <div class="info-box"><h3>Types of Nebulae</h3><p><strong>Emission nebulae</strong> glow red (Hα) when ionized by nearby hot stars. <strong>Reflection nebulae</strong> scatter blue light from nearby stars. <strong>Dark nebulae</strong> are dense clouds that block background light. <strong>Planetary nebulae</strong> are shells ejected by dying low-mass stars. Star formation begins when dense clumps (Jeans mass) in molecular clouds collapse under gravity.</p></div>
 </div>
 <script>
 (function(){
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
 var nebType=0,t=0;
 var clouds=[],protostars=[];
+function seededRand(s){s=(s*9301+49297)%233280;return s/233280;}
 function initClouds(){
   clouds=[];protostars=[];
   var n=80+Math.floor(+document.getElementById('density').value*1.5);
-  for(var i=0;i<n;i++)clouds.push({x:Math.random()*W,y:Math.random()*H,r:15+Math.random()*40,dx:(Math.random()-0.5)*0.2,dy:(Math.random()-0.5)*0.2,seed:Math.random()});
+  for(var i=0;i<n;i++){var s=i*137+nebType*1000;clouds.push({x:seededRand(s)*W,y:seededRand(s+1)*H,r:15+seededRand(s+2)*40,dx:(seededRand(s+3)-0.5)*0.2,dy:(seededRand(s+4)-0.5)*0.2,seed:seededRand(s+5)});}
 }
 initClouds();
 window.setType=function(t2){nebType=t2;initClouds();['emission','reflection','dark','planetary'].forEach(function(s,i){document.getElementById('btn-'+s).classList.toggle('active',i===t2);});};
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  if(protostars.length<12)protostars.push({x:mx,y:my,age:0,r:1,manual:true});});
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  var nearCloud=null,best=Infinity;for(var i=0;i<clouds.length;i++){var c=clouds[i],d=Math.sqrt((mx-c.x)*(mx-c.x)+(my-c.y)*(my-c.y));if(d<c.r&&d<best){best=d;nearCloud=c;}}
+  if(nearCloud){var zoneName=nebType===0?'Ionized H\u03b1 region':nebType===1?'Reflecting dust':nebType===2?'Dense molecular cloud':'Expanding shell';
+    tip.textContent='Gas cloud r='+nearCloud.r.toFixed(0)+' \u00b7 '+zoneName;tip.style.display='block';
+  }else{tip.textContent='Interstellar medium';tip.style.display='block';}
+  tip.style.left=((e.clientX-r.left)+12)+'px';tip.style.top=((e.clientY-r.top)-28)+'px';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
 function draw(){
   ctx.clearRect(0,0,W,H);t+=0.008;
   var density=+document.getElementById('density').value/100,uv=+document.getElementById('uv').value/100;
-  /* background stars */
-  for(var i=0;i<100;i++){
-    var sx=(i*137)%W,sy=(i*89)%H;
-    ctx.fillStyle='rgba(255,255,255,'+(0.2+Math.random()*0.3)+')';ctx.fillRect(sx,sy,1,1);
-  }
+  /* deterministic starfield */
+  for(var i=0;i<100;i++){var sx=(i*137)%W,sy=(i*89)%H,bright=0.15+seededRand(i)*0.35;
+    ctx.fillStyle='rgba(255,255,255,'+bright+')';ctx.fillRect(sx,sy,1,1);}
+  var peakLam=656;
   if(nebType===0){/* Emission nebula */
-    document.getElementById('r-type').textContent='Emission Nebula';
-    document.getElementById('r-temp').textContent='10,000';
-    /* central hot star */
-    ctx.fillStyle='#aaccff';ctx.shadowColor='#aaccff';ctx.shadowBlur=30;
-    ctx.beginPath();ctx.arc(W/2,H/2,6,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-    /* ionized gas (red Hα) */
-    for(var i=0;i<clouds.length;i++){
-      var c=clouds[i];c.x+=c.dx;c.y+=c.dy;
-      if(c.x<-50)c.x=W+50;if(c.x>W+50)c.x=-50;if(c.y<-50)c.y=H+50;if(c.y>W+50)c.y=-50;
-      var dist=Math.sqrt((c.x-W/2)*(c.x-W/2)+(c.y-H/2)*(c.y-H/2));
-      var bright=uv*Math.max(0,1-dist/(W*0.4));
-      ctx.fillStyle='rgba(220,50,50,'+bright*0.12+')';
-      ctx.beginPath();ctx.arc(c.x,c.y,c.r*(0.8+0.2*Math.sin(t+c.seed*6)),0,Math.PI*2);ctx.fill();
-      /* some green [OIII] emission */
-      if(c.seed>0.7){ctx.fillStyle='rgba(50,200,100,'+bright*0.05+')';ctx.beginPath();ctx.arc(c.x+5,c.y-3,c.r*0.5,0,Math.PI*2);ctx.fill();}
-    }
+    document.getElementById('r-type').textContent='Emission Nebula';document.getElementById('r-temp').textContent='10,000';peakLam=656;
+    ctx.fillStyle='#aaccff';ctx.shadowColor='#aaccff';ctx.shadowBlur=30;ctx.beginPath();ctx.arc(W/2,H/2,6,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    for(var i=0;i<clouds.length;i++){var c=clouds[i];c.x+=c.dx;c.y+=c.dy;
+      if(c.x<-50)c.x=W+50;if(c.x>W+50)c.x=-50;if(c.y<-50)c.y=H+50;if(c.y>H+50)c.y=-50;
+      var dist=Math.sqrt((c.x-W/2)*(c.x-W/2)+(c.y-H/2)*(c.y-H/2)),bright=uv*Math.max(0,1-dist/(W*0.4));
+      var g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,c.r);g.addColorStop(0,'rgba(220,50,50,'+bright*0.18+')');g.addColorStop(1,'rgba(220,50,50,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(c.x,c.y,c.r*(0.8+0.2*Math.sin(t+c.seed*6)),0,Math.PI*2);ctx.fill();
+      if(c.seed>0.7){ctx.fillStyle='rgba(50,200,100,'+bright*0.06+')';ctx.beginPath();ctx.arc(c.x+5,c.y-3,c.r*0.5,0,Math.PI*2);ctx.fill();}}
   }else if(nebType===1){/* Reflection nebula */
-    document.getElementById('r-type').textContent='Reflection Nebula';
-    document.getElementById('r-temp').textContent='100 (dust)';
-    ctx.fillStyle='#ffffff';ctx.shadowColor='#fff';ctx.shadowBlur=15;
-    ctx.beginPath();ctx.arc(W*0.4,H*0.4,5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-    for(var i=0;i<clouds.length;i++){
-      var c=clouds[i];c.x+=c.dx*0.5;c.y+=c.dy*0.5;
-      var dist=Math.sqrt((c.x-W*0.4)*(c.x-W*0.4)+(c.y-H*0.4)*(c.y-H*0.4));
-      var bright=uv*Math.max(0,1-dist/(W*0.5));
-      ctx.fillStyle='rgba(80,130,220,'+bright*0.1+')';
-      ctx.beginPath();ctx.arc(c.x,c.y,c.r*(0.9+0.1*Math.sin(t+c.seed*4)),0,Math.PI*2);ctx.fill();
-    }
+    document.getElementById('r-type').textContent='Reflection Nebula';document.getElementById('r-temp').textContent='100 (dust)';peakLam=450;
+    ctx.fillStyle='#ffffff';ctx.shadowColor='#fff';ctx.shadowBlur=15;ctx.beginPath();ctx.arc(W*0.4,H*0.4,5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    for(var i=0;i<clouds.length;i++){var c=clouds[i];c.x+=c.dx*0.5;c.y+=c.dy*0.5;
+      var dist=Math.sqrt((c.x-W*0.4)*(c.x-W*0.4)+(c.y-H*0.4)*(c.y-H*0.4)),bright=uv*Math.max(0,1-dist/(W*0.5));
+      var g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,c.r);g.addColorStop(0,'rgba(80,130,220,'+bright*0.15+')');g.addColorStop(1,'rgba(80,130,220,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(c.x,c.y,c.r*(0.9+0.1*Math.sin(t+c.seed*4)),0,Math.PI*2);ctx.fill();}
   }else if(nebType===2){/* Dark nebula */
-    document.getElementById('r-type').textContent='Dark Nebula';
-    document.getElementById('r-temp').textContent='10-20';
-    /* more background stars to block */
+    document.getElementById('r-type').textContent='Dark Nebula';document.getElementById('r-temp').textContent='10-20';peakLam=0;
     for(var i=0;i<200;i++){ctx.fillStyle='rgba(255,255,255,0.3)';ctx.fillRect((i*73+37)%W,(i*41+19)%H,1.5,1.5);}
-    /* dark clouds block light */
-    for(var i=0;i<clouds.length;i++){
-      var c=clouds[i];
-      ctx.fillStyle='rgba(2,6,23,'+density*0.85+')';
-      ctx.beginPath();ctx.arc(c.x,c.y,c.r*(0.9+0.1*Math.sin(t+c.seed*3)),0,Math.PI*2);ctx.fill();
-    }
-    /* faint IR glow from cores */
+    for(var i=0;i<clouds.length;i++){var c=clouds[i];
+      ctx.fillStyle='rgba(2,6,23,'+density*0.85+')';ctx.beginPath();ctx.arc(c.x,c.y,c.r*(0.9+0.1*Math.sin(t+c.seed*3)),0,Math.PI*2);ctx.fill();}
     for(var i=0;i<5;i++){var px=W*0.3+i*W*0.1,py=H*0.4+Math.sin(i)*30;
       ctx.fillStyle='rgba(150,50,50,0.06)';ctx.beginPath();ctx.arc(px,py,20,0,Math.PI*2);ctx.fill();}
   }else{/* Planetary nebula */
-    document.getElementById('r-type').textContent='Planetary Nebula';
-    document.getElementById('r-temp').textContent='100,000';
+    document.getElementById('r-type').textContent='Planetary Nebula';document.getElementById('r-temp').textContent='100,000';peakLam=501;
     var cx2=W/2,cy2=H/2;
-    /* central white dwarf */
-    ctx.fillStyle='#ddeeff';ctx.shadowColor='#ddeeff';ctx.shadowBlur=20;
-    ctx.beginPath();ctx.arc(cx2,cy2,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-    /* expanding shells */
-    var shells=3+Math.floor(density*3);
-    for(var s=0;s<shells;s++){
-      var r=30+s*25+5*Math.sin(t+s);
-      var hue=s%2===0?'0,200,100':'100,50,200';
-      ctx.strokeStyle='rgba('+hue+','+(0.15-s*0.02)+')';ctx.lineWidth=8-s;
-      ctx.beginPath();ctx.arc(cx2,cy2,r,0,Math.PI*2);ctx.stroke();
-    }
-    /* bipolar lobes */
-    ctx.fillStyle='rgba(100,200,255,0.05)';
-    ctx.beginPath();ctx.ellipse(cx2,cy2-60,30,50,0,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.ellipse(cx2,cy2+60,30,50,0,0,Math.PI*2);ctx.fill();
-  }
-  /* protostar formation: dense regions collapse */
-  if(nebType<2&&uv>0.5&&density>0.4){
-    /* check for dense clumps */
-    if(Math.random()<0.001*density*uv&&protostars.length<8){
-      protostars.push({x:W*0.3+Math.random()*W*0.4,y:H*0.3+Math.random()*H*0.4,age:0,r:1});
-    }
-  }
-  for(var i=0;i<protostars.length;i++){
-    var p=protostars[i];p.age+=0.016;p.r=Math.min(4,p.age*2);
-    ctx.fillStyle='rgba(255,200,100,'+Math.min(0.8,p.age*0.3)+')';ctx.shadowColor='#ffc864';ctx.shadowBlur=10;
+    ctx.fillStyle='#ddeeff';ctx.shadowColor='#ddeeff';ctx.shadowBlur=20;ctx.beginPath();ctx.arc(cx2,cy2,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    var shells=3+Math.floor(density*3);for(var s=0;s<shells;s++){var r=30+s*25+5*Math.sin(t+s),hue=s%2===0?'0,200,100':'100,50,200';
+      ctx.strokeStyle='rgba('+hue+','+(0.15-s*0.02)+')';ctx.lineWidth=8-s;ctx.beginPath();ctx.arc(cx2,cy2,r,0,Math.PI*2);ctx.stroke();}
+    ctx.fillStyle='rgba(100,200,255,0.05)';ctx.beginPath();ctx.ellipse(cx2,cy2-60,30,50,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(cx2,cy2+60,30,50,0,0,Math.PI*2);ctx.fill();}
+  /* protostar formation */
+  if(nebType<2&&uv>0.5&&density>0.4){if(Math.random()<0.001*density*uv&&protostars.length<12)protostars.push({x:W*0.3+Math.random()*W*0.4,y:H*0.3+Math.random()*H*0.4,age:0,r:1});}
+  for(var i=0;i<protostars.length;i++){var p=protostars[i];p.age+=0.016;p.r=Math.min(5,p.age*2);
+    ctx.fillStyle='rgba(255,200,100,'+Math.min(0.8,p.age*0.3)+')';ctx.shadowColor='#ffc864';ctx.shadowBlur=12;
     ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  }
+    if(p.manual){ctx.strokeStyle='rgba(245,158,11,0.35)';ctx.lineWidth=.5;ctx.setLineDash([2,3]);ctx.beginPath();ctx.arc(p.x,p.y,p.r+6,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);}}
   document.getElementById('r-proto').textContent=protostars.length;
-  requestAnimationFrame(draw);
-}
+  document.getElementById('r-lam').textContent=peakLam>0?peakLam:'N/A';
+  /* spectrum overlay */
+  if(document.getElementById('btn-spec').classList.contains('active')){
+    ctx.fillStyle='rgba(15,23,42,0.88)';ctx.fillRect(W*0.1,H*0.08,W*0.8,H*0.38);
+    ctx.strokeStyle='#334155';ctx.strokeRect(W*0.1,H*0.08,W*0.8,H*0.38);
+    var sx=W*0.12,sy=H*0.12,sw=W*0.76,sh=H*0.3;
+    ctx.strokeStyle='#475569';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(sx,sy+sh);ctx.lineTo(sx+sw,sy+sh);ctx.stroke();ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx,sy+sh);ctx.stroke();
+    var lines=nebType===0?[{w:656,c:'#ff4444',l:'H\u03b1'},{w:486,c:'#44aaff',l:'H\u03b2'},{w:501,c:'#44ff88',l:'[OIII]'}]:nebType===1?[{w:450,c:'#5588dd',l:'Scattered blue'}]:nebType===3?[{w:501,c:'#44ff88',l:'[OIII]'},{w:656,c:'#ff4444',l:'H\u03b1'},{w:372,c:'#aa66ff',l:'[OII]'}]:[];
+    for(var i=0;i<lines.length;i++){var l=lines[i],lx=sx+(l.w-350)/(800-350)*sw;
+      ctx.strokeStyle=l.c;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(lx,sy);ctx.lineTo(lx,sy+sh);ctx.stroke();
+      ctx.fillStyle=l.c;ctx.font='8px Poppins';ctx.textAlign='center';ctx.fillText(l.l+' '+l.w+'nm',lx,sy-4);}
+    ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.textAlign='left';ctx.fillText('350 nm',sx,sy+sh+10);ctx.textAlign='right';ctx.fillText('800 nm',sx+sw,sy+sh+10);
+    ctx.textAlign='center';ctx.fillText('Nebula Emission Spectrum',sx+sw/2,sy-14);
+    ctx.lineWidth=1;}
+  requestAnimationFrame(draw);}
 draw();
 })();
 </script></body></html>
