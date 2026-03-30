@@ -1,0 +1,115 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Derivatives Visualizer</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:130px;accent-color:#a855f7}
+.ctrl-group .val{font-size:.8rem;color:#a855f7;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#a855f7}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>📉 Derivatives Visualizer</h1>
+<p class="subtitle">Tangent lines, slopes, and the derivative curve for common functions</p>
+<div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+<div class="controls">
+  <button class="toggle-btn active" onclick="setFn(0,this)">x²</button>
+  <button class="toggle-btn" onclick="setFn(1,this)">x³</button>
+  <button class="toggle-btn" onclick="setFn(2,this)">sin(x)</button>
+  <button class="toggle-btn" onclick="setFn(3,this)">eˣ</button>
+  <button class="toggle-btn" onclick="setFn(4,this)">ln(x)</button>
+  <button class="toggle-btn" onclick="setFn(5,this)">1/x</button>
+  <div class="ctrl-group"><label>x position</label>
+    <input type="range" id="px" min="-40" max="40" value="10" oninput="document.getElementById('vx').textContent=(this.value/10).toFixed(1)"><span class="val" id="vx">1.0</span></div>
+  <button class="toggle-btn active" id="btn-tan" onclick="this.classList.toggle('active')">Tangent</button>
+  <button class="toggle-btn active" id="btn-der" onclick="this.classList.toggle('active')">f'(x) curve</button>
+</div>
+<div class="readout">
+  <div class="datum">f(x): <strong id="r-fx">1.00</strong></div>
+  <div class="datum">f'(x): <strong id="r-dfx">2.00</strong></div>
+  <div class="datum">Slope: <strong id="r-slope">2.00</strong></div>
+  <div class="datum">Tangent: <strong id="r-tang">y = 2x − 1</strong></div>
+</div>
+<div class="info-box"><h3>The Derivative</h3><p>The <strong>derivative</strong> f'(x) gives the <strong>slope of the tangent line</strong> at any point. It measures how fast f changes with x. Where f'(x)=0, f has a horizontal tangent (possible max/min). The derivative curve shows slopes everywhere: positive slope → increasing, negative slope → decreasing. Key rules: d/dx[xⁿ] = nxⁿ⁻¹, d/dx[sin x] = cos x, d/dx[eˣ] = eˣ.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,cx,cy,sx,sy;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;cx=W/2;cy=H/2;sx=W/14;sy=H/14;}
+window.addEventListener('resize',resize);resize();
+var fnIdx=0;
+var fns=[
+  function(x){return x*x;},function(x){return x*x*x;},function(x){return Math.sin(x)*3;},
+  function(x){return Math.exp(x);},function(x){return x>0?Math.log(x)*2:NaN;},function(x){return Math.abs(x)>0.1?1/x:NaN;}
+];
+var dfs=[
+  function(x){return 2*x;},function(x){return 3*x*x;},function(x){return Math.cos(x)*3;},
+  function(x){return Math.exp(x);},function(x){return x>0?2/x:NaN;},function(x){return-1/(x*x);}
+];
+window.setFn=function(i,el){fnIdx=i;document.querySelectorAll('.toggle-btn').forEach(function(b,idx){if(idx<6)b.classList.toggle('active',idx===i);});};
+function toS(mx,my){return{x:cx+mx*sx,y:cy-my*sy};}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  var f=fns[fnIdx],df=dfs[fnIdx],xp=+document.getElementById('px').value/10;
+  /* grid */
+  ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+  for(var g=-7;g<=7;g++){var p=toS(g,0);ctx.beginPath();ctx.moveTo(p.x,0);ctx.lineTo(p.x,H);ctx.stroke();p=toS(0,g);ctx.beginPath();ctx.moveTo(0,p.y);ctx.lineTo(W,p.y);ctx.stroke();}
+  ctx.strokeStyle='#475569';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
+  ctx.fillStyle='#64748b';ctx.font='10px Poppins';ctx.textAlign='center';
+  for(var lb=-6;lb<=6;lb++)if(lb!==0)ctx.fillText(lb.toString(),cx+lb*sx,cy+14);
+  /* f(x) curve */
+  ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.shadowColor='#a855f7';ctx.shadowBlur=6;ctx.beginPath();
+  var first=true;
+  for(var px=-7;px<=7;px+=0.03){var y=f(px);if(isNaN(y)||Math.abs(y)>20){first=true;continue;}var s=toS(px,y);first?(ctx.moveTo(s.x,s.y),first=false):ctx.lineTo(s.x,s.y);}
+  ctx.stroke();ctx.shadowBlur=0;
+  /* f'(x) curve */
+  if(document.getElementById('btn-der').classList.contains('active')){
+    ctx.strokeStyle='#22c55e';ctx.lineWidth=1.8;ctx.setLineDash([4,3]);ctx.beginPath();first=true;
+    for(var px=-7;px<=7;px+=0.03){var y=df(px);if(isNaN(y)||Math.abs(y)>20){first=true;continue;}var s=toS(px,y);first?(ctx.moveTo(s.x,s.y),first=false):ctx.lineTo(s.x,s.y);}
+    ctx.stroke();ctx.setLineDash([]);
+  }
+  /* tangent line at xp */
+  var fv=f(xp),dfv=df(xp);
+  if(!isNaN(fv)&&!isNaN(dfv)){
+    var pt=toS(xp,fv);
+    if(document.getElementById('btn-tan').classList.contains('active')){
+      ctx.strokeStyle='#f472b6';ctx.lineWidth=1.8;ctx.beginPath();
+      var t1=toS(xp-4,fv-dfv*4),t2=toS(xp+4,fv+dfv*4);
+      ctx.moveTo(t1.x,t1.y);ctx.lineTo(t2.x,t2.y);ctx.stroke();
+    }
+    ctx.fillStyle='#f472b6';ctx.beginPath();ctx.arc(pt.x,pt.y,6,0,Math.PI*2);ctx.fill();
+  }
+  document.getElementById('r-fx').textContent=isNaN(fv)?'undef':fv.toFixed(3);
+  document.getElementById('r-dfx').textContent=isNaN(dfv)?'undef':dfv.toFixed(3);
+  document.getElementById('r-slope').textContent=isNaN(dfv)?'undef':dfv.toFixed(3);
+  var b=isNaN(fv)||isNaN(dfv)?'—':(fv-dfv*xp).toFixed(2);
+  document.getElementById('r-tang').textContent=isNaN(dfv)?'—':('y = '+dfv.toFixed(2)+'x '+(b>=0?'+ ':'')+b);
+  /* legend */
+  ctx.fillStyle='#a855f7';ctx.font='bold 11px Poppins';ctx.textAlign='left';ctx.fillText('— f(x)',10,20);
+  ctx.fillStyle='#22c55e';ctx.fillText('--- f\'(x)',10,36);
+  ctx.fillStyle='#f472b6';ctx.fillText('— tangent',10,52);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

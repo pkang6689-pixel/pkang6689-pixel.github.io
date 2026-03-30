@@ -1,0 +1,113 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Integrals Visualizer</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#a855f7}
+.ctrl-group .val{font-size:.8rem;color:#a855f7;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#a855f7}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>📊 Integrals Visualizer</h1>
+<p class="subtitle">Riemann sums — left, right, midpoint — approximate the area under a curve</p>
+<div class="canvas-wrap"><canvas id="cv" height="480"></canvas></div>
+<div class="controls">
+  <button class="toggle-btn active" onclick="setFn(0,this)">x²</button>
+  <button class="toggle-btn" onclick="setFn(1,this)">sin(x)+1</button>
+  <button class="toggle-btn" onclick="setFn(2,this)">eˣ</button>
+  <button class="toggle-btn" onclick="setFn(3,this)">√x</button>
+  <button class="toggle-btn active" id="btn-left" onclick="this.classList.toggle('active')">Left</button>
+  <button class="toggle-btn" id="btn-mid" onclick="this.classList.toggle('active')">Midpoint</button>
+  <button class="toggle-btn" id="btn-right" onclick="this.classList.toggle('active')">Right</button>
+  <div class="ctrl-group"><label>Rectangles n</label>
+    <input type="range" id="pn" min="1" max="100" value="8" oninput="document.getElementById('vn').textContent=this.value"><span class="val" id="vn">8</span></div>
+  <div class="ctrl-group"><label>a (lower)</label>
+    <input type="range" id="pa" min="0" max="40" value="0" oninput="document.getElementById('vla').textContent=(this.value/10).toFixed(1)"><span class="val" id="vla">0.0</span></div>
+  <div class="ctrl-group"><label>b (upper)</label>
+    <input type="range" id="pb" min="5" max="50" value="30" oninput="document.getElementById('vlb').textContent=(this.value/10).toFixed(1)"><span class="val" id="vlb">3.0</span></div>
+</div>
+<div class="readout">
+  <div class="datum">Left Sum: <strong id="r-left">—</strong></div>
+  <div class="datum">Mid Sum: <strong id="r-mid">—</strong></div>
+  <div class="datum">Right Sum: <strong id="r-right">—</strong></div>
+  <div class="datum">Exact: <strong id="r-exact">—</strong></div>
+</div>
+<div class="info-box"><h3>Riemann Sums & Integrals</h3><p>The <strong>definite integral</strong> ∫ₐᵇ f(x) dx gives the exact area under the curve from a to b. <strong>Riemann sums</strong> approximate this with rectangles. Left sums use the left endpoint of each sub-interval; right sums use the right; midpoint uses the center. As n → ∞ all three converge to the exact integral. This is the foundation of the Fundamental Theorem of Calculus.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var fnIdx=0;
+var fns=[function(x){return x*x;},function(x){return Math.sin(x)+1;},function(x){return Math.exp(x/2);},function(x){return x>=0?Math.sqrt(x)*2:0;}];
+var exacts=[function(a,b){return(b*b*b-a*a*a)/3;},function(a,b){return-Math.cos(b)+Math.cos(a)+(b-a);},function(a,b){return 2*(Math.exp(b/2)-Math.exp(a/2));},function(a,b){return(4/3)*(Math.pow(Math.max(b,0),1.5)-Math.pow(Math.max(a,0),1.5));}];
+window.setFn=function(i,el){fnIdx=i;document.querySelectorAll('.toggle-btn').forEach(function(b,idx){if(idx<4)b.classList.toggle('active',idx===i);});};
+function toS(mx,my,ys){var xMin=+document.getElementById('pa').value/10-0.5,xMax=+document.getElementById('pb').value/10+0.5;
+  return{x:60+(mx-xMin)/(xMax-xMin)*(W-80),y:H-50-my*ys};}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  var f=fns[fnIdx],exact=exacts[fnIdx];
+  var n=+document.getElementById('pn').value,a=+document.getElementById('pa').value/10,b=+document.getElementById('pb').value/10;
+  if(a>=b)b=a+0.1;
+  var dx=(b-a)/n;
+  /* find y scale */
+  var yMax=0;for(var x=a;x<=b;x+=0.05){var y=f(x);if(y>yMax)yMax=y;}yMax=Math.max(yMax*1.2,1);
+  var ys=(H-100)/yMax;
+  /* axes */
+  var o=toS(a<0?0:a,0,ys);
+  ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(40,H-50);ctx.lineTo(W-10,H-50);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(60,H-40);ctx.lineTo(60,10);ctx.stroke();
+  /* draw rectangles */
+  function drawRects(mode,color,alpha){
+    var sum=0;
+    for(var i=0;i<n;i++){
+      var xSamp=mode==='left'?a+i*dx:mode==='right'?a+(i+1)*dx:a+(i+0.5)*dx;
+      var yv=f(xSamp);sum+=yv*dx;
+      var s1=toS(a+i*dx,0,ys),s2=toS(a+(i+1)*dx,yv,ys);
+      ctx.fillStyle=color.replace('A',alpha.toString());
+      ctx.fillRect(s1.x,s2.y,s2.x-s1.x,s1.y-s2.y);
+      ctx.strokeStyle=color.replace('A','0.8');ctx.lineWidth=0.8;ctx.strokeRect(s1.x,s2.y,s2.x-s1.x,s1.y-s2.y);
+    }
+    return sum;
+  }
+  var ls=0,ms=0,rs=0;
+  if(document.getElementById('btn-left').classList.contains('active'))ls=drawRects('left','rgba(168,85,247,A)',0.25);
+  if(document.getElementById('btn-mid').classList.contains('active'))ms=drawRects('mid','rgba(34,197,94,A)',0.2);
+  if(document.getElementById('btn-right').classList.contains('active'))rs=drawRects('right','rgba(251,146,60,A)',0.2);
+  /* curve */
+  ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.shadowColor='#a855f7';ctx.shadowBlur=5;ctx.beginPath();
+  var first=true;
+  for(var x=a-0.5;x<=b+0.5;x+=0.02){var y=f(x);var s=toS(x,y,ys);if(isNaN(y)){first=true;continue;}first?(ctx.moveTo(s.x,s.y),first=false):ctx.lineTo(s.x,s.y);}
+  ctx.stroke();ctx.shadowBlur=0;
+  /* x labels */
+  ctx.fillStyle='#64748b';ctx.font='10px Poppins';ctx.textAlign='center';
+  var step=Math.ceil((b-a)/8*10)/10;for(var xl=a;xl<=b;xl+=step){var sp=toS(xl,0,ys);ctx.fillText(xl.toFixed(1),sp.x,H-36);}
+  document.getElementById('r-left').textContent=ls.toFixed(4);
+  document.getElementById('r-mid').textContent=ms.toFixed(4);
+  document.getElementById('r-right').textContent=rs.toFixed(4);
+  document.getElementById('r-exact').textContent=exact(a,b).toFixed(4);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

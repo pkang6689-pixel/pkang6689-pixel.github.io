@@ -1,0 +1,140 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Fluid Dynamics</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#3b82f6}
+.ctrl-group .val{font-size:.8rem;color:#3b82f6;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>💧 Fluid Dynamics</h1>
+<p class="subtitle">Bernoulli's principle — see how pipe width affects pressure and velocity</p>
+<div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Flow Speed</label>
+    <input type="range" id="pflow" min="10" max="100" value="50" oninput="upd()"><span class="val" id="vflow">50</span></div>
+  <div class="ctrl-group"><label>Constriction</label>
+    <input type="range" id="pcon" min="20" max="90" value="50" oninput="upd()"><span class="val" id="vcon">50%</span></div>
+  <button class="toggle-btn active" id="btn-press" onclick="this.classList.toggle('active')">Pressure</button>
+  <button class="toggle-btn active" id="btn-vel" onclick="this.classList.toggle('active')">Velocity</button>
+  <button class="toggle-btn active" id="btn-stream" onclick="this.classList.toggle('active')">Streamlines</button>
+</div>
+<div class="readout">
+  <div class="datum">v₁ (wide): <strong id="r-v1">2.5 m/s</strong></div>
+  <div class="datum">v₂ (narrow): <strong id="r-v2">5.0 m/s</strong></div>
+  <div class="datum">P₁: <strong id="r-p1">—</strong></div>
+  <div class="datum">P₂: <strong id="r-p2">—</strong></div>
+</div>
+<div class="info-box"><h3>Bernoulli's Principle</h3><p>In a flowing fluid, where velocity <strong>increases</strong>, pressure <strong>decreases</strong> (and vice versa). Bernoulli's equation: P + ½ρv² + ρgh = constant. The <strong>continuity equation</strong> A₁v₁ = A₂v₂ means fluid speeds up in a constriction. This explains airplane lift, Venturi tubes, and why shower curtains get sucked inward.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var particles=[];
+for(var i=0;i<150;i++)particles.push({x:Math.random()*1.0,y:Math.random()});
+window.upd=function(){
+  document.getElementById('vflow').textContent=document.getElementById('pflow').value;
+  document.getElementById('vcon').textContent=document.getElementById('pcon').value+'%';
+};upd();
+function pipeY(x,con){
+  /* pipe narrows in the middle */
+  var cx=0.5,w=0.15;
+  var narrowFactor=con/100;
+  if(Math.abs(x-cx)<w){var t=1-Math.abs(x-cx)/w;return narrowFactor*t*(1-narrowFactor)*0.5;}
+  return 0;
+}
+function getVel(x,con){
+  var narrowing=pipeY(x,con);
+  var areaRatio=1/(1-narrowing*2);
+  return areaRatio;
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  var flow=+document.getElementById('pflow').value/100;
+  var con=+document.getElementById('pcon').value;
+  /* pipe walls */
+  var pipeTop=H*0.2,pipeBot=H*0.8;
+  ctx.fillStyle='#1e293b';
+  ctx.beginPath();ctx.moveTo(0,0);
+  for(var x=0;x<=1;x+=0.005){var ny=pipeY(x,con);ctx.lineTo(x*W,pipeTop+ny*H);}
+  ctx.lineTo(W,0);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(0,H);
+  for(var x=0;x<=1;x+=0.005){var ny=pipeY(x,con);ctx.lineTo(x*W,pipeBot-ny*H);}
+  ctx.lineTo(W,H);ctx.closePath();ctx.fill();
+  /* pipe edges */
+  ctx.strokeStyle='#475569';ctx.lineWidth=2;
+  ctx.beginPath();for(var x=0;x<=1;x+=0.005){var ny=pipeY(x,con);x===0?ctx.moveTo(0,pipeTop+ny*H):ctx.lineTo(x*W,pipeTop+ny*H);}ctx.stroke();
+  ctx.beginPath();for(var x=0;x<=1;x+=0.005){var ny=pipeY(x,con);x===0?ctx.moveTo(0,pipeBot-ny*H):ctx.lineTo(x*W,pipeBot-ny*H);}ctx.stroke();
+  /* particles */
+  particles.forEach(function(p){
+    var vel=getVel(p.x,con)*flow*0.005;
+    p.x+=vel;if(p.x>1.05){p.x=-0.05;p.y=Math.random();}
+    var ny=pipeY(p.x,con);
+    var top=pipeTop+ny*H,bot=pipeBot-ny*H;
+    var py=top+(bot-top)*p.y;
+    var speed=getVel(p.x,con);
+    var hue=240-speed*60;
+    ctx.fillStyle='hsla('+Math.max(0,hue)+',70%,60%,0.7)';
+    ctx.beginPath();ctx.arc(p.x*W,py,2.5,0,Math.PI*2);ctx.fill();
+  });
+  /* streamlines */
+  if(document.getElementById('btn-stream').classList.contains('active')){
+    for(var sy=0.15;sy<0.9;sy+=0.1){
+      ctx.strokeStyle='rgba(59,130,246,0.15)';ctx.lineWidth=1;ctx.beginPath();
+      for(var x=0;x<=1;x+=0.005){
+        var ny=pipeY(x,con);var top=pipeTop+ny*H,bot=pipeBot-ny*H;
+        var py=top+(bot-top)*sy;
+        x===0?ctx.moveTo(0,py):ctx.lineTo(x*W,py);
+      }ctx.stroke();
+    }
+  }
+  /* pressure/velocity bars */
+  var v1=flow,areaR=getVel(0.5,con),v2=flow*areaR;
+  var p0=1e5,rho=1000;/* nominal P and density */
+  var p1=p0,p2=p0+0.5*rho*(v1*v1-v2*v2);
+  if(document.getElementById('btn-vel').classList.contains('active')){
+    ctx.fillStyle='#3b82f6';ctx.font='bold 11px monospace';ctx.textAlign='center';
+    ctx.fillText('v₁='+v1.toFixed(1),W*0.15,pipeTop-8);
+    ctx.fillText('v₂='+(v2).toFixed(1),W*0.5,pipeTop-8);
+  }
+  if(document.getElementById('btn-press').classList.contains('active')){
+    /* pressure gauge tubes */
+    var g1h=30,g2h=30*p2/p1;
+    ctx.fillStyle='rgba(239,68,68,0.5)';
+    ctx.fillRect(W*0.15-5,pipeTop-g1h-20,10,g1h);
+    ctx.fillRect(W*0.5-5,pipeTop-Math.abs(g2h)-20,10,Math.abs(g2h));
+    ctx.fillStyle='#ef4444';ctx.font='9px Poppins';
+    ctx.fillText('P high',W*0.15,pipeTop-g1h-24);
+    ctx.fillText('P low',W*0.5,pipeTop-Math.abs(g2h)-24);
+  }
+  document.getElementById('r-v1').textContent=v1.toFixed(2)+' m/s';
+  document.getElementById('r-v2').textContent=v2.toFixed(2)+' m/s';
+  document.getElementById('r-p1').textContent=(p1/1000).toFixed(1)+' kPa';
+  document.getElementById('r-p2').textContent=(p2/1000).toFixed(1)+' kPa';
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

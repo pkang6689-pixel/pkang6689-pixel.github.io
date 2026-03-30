@@ -1,0 +1,124 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Whale Migration</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#22c55e}
+.ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600;font-family:monospace}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#22c55e}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🐋 Whale Migration</h1>
+<p class="subtitle">Seasonal migration routes, ocean temperature, and feeding grounds</p>
+<div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Month</label><input type="range" id="pmonth" min="1" max="12" value="1" oninput="upd()"><span class="val" id="vmonth">January</span></div>
+  <div class="ctrl-group"><label>Speed (×)</label><input type="range" id="pspeed" min="1" max="10" value="3" oninput="upd()"><span class="val" id="vspeed">3</span></div>
+</div>
+<div class="readout">
+  <div class="datum">Month: <strong id="r-month">January</strong></div>
+  <div class="datum">Location: <strong id="r-loc">Feeding Grounds</strong></div>
+  <div class="datum">Water Temp: <strong id="r-temp">2°C</strong></div>
+  <div class="datum">Distance: <strong id="r-dist">0 km</strong></div>
+</div>
+<div class="info-box"><h3>Great Whale Migration</h3><p>Many whale species undertake <strong>annual migrations</strong> of 10,000-20,000 km — the longest of any mammal. Gray whales travel from cold Arctic <strong>feeding grounds</strong> (rich in krill) to warm tropical <strong>breeding grounds</strong>. Migration is driven by <strong>water temperature</strong>, food availability, and reproductive needs. Whales follow coastlines and ocean currents. Calves are born in warm waters where survival rates are higher.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+/* migration path: N (feeding) to S (breeding) */
+var path=[{x:0.5,y:0.08},{x:0.45,y:0.15},{x:0.4,y:0.25},{x:0.35,y:0.35},{x:0.3,y:0.45},{x:0.28,y:0.55},{x:0.3,y:0.65},{x:0.35,y:0.75},{x:0.4,y:0.85},{x:0.45,y:0.92}];
+var t=0,whales=[];
+for(var i=0;i<5;i++)whales.push({progress:Math.random()*0.1,offset:(Math.random()-0.5)*30});
+window.upd=function(){
+  var m=+document.getElementById('pmonth').value;
+  document.getElementById('vmonth').textContent=months[m-1];
+  document.getElementById('vspeed').textContent=document.getElementById('pspeed').value;
+  document.getElementById('r-month').textContent=months[m-1];
+};upd();
+function lerp(a,b,t){return{x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};}
+function getPathPos(frac){
+  frac=Math.max(0,Math.min(1,frac));
+  var idx=frac*(path.length-1),i=Math.floor(idx),f=idx-i;
+  if(i>=path.length-1)return{x:path[path.length-1].x*W,y:path[path.length-1].y*H};
+  var p=lerp(path[i],path[i+1],f);return{x:p.x*W,y:p.y*H};
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);t+=0.016;
+  var month=+document.getElementById('pmonth').value,speed=+document.getElementById('pspeed').value;
+  /* ocean temperature gradient (cold=blue top, warm=cyan bottom) */
+  var grd=ctx.createLinearGradient(0,0,0,H);
+  grd.addColorStop(0,'#0c2461');grd.addColorStop(0.5,'#0c4a6e');grd.addColorStop(1,'#155e75');
+  ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
+  /* temperature bands */
+  ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='right';
+  var temps=[2,5,10,15,20,24];
+  for(var i=0;i<6;i++){
+    var y=H*i/5;
+    ctx.strokeStyle='rgba(148,163,184,0.1)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+    ctx.fillText(temps[i]+'°C',W-5,y+12);
+  }
+  /* land masses (simplified coastline) */
+  ctx.fillStyle='#44403c';
+  ctx.beginPath();ctx.moveTo(W*0.65,0);ctx.quadraticCurveTo(W*0.7,H*0.3,W*0.75,H*0.5);ctx.quadraticCurveTo(W*0.8,H*0.7,W*0.85,H);ctx.lineTo(W,H);ctx.lineTo(W,0);ctx.fill();
+  /* route line */
+  ctx.strokeStyle='rgba(250,204,21,0.3)';ctx.lineWidth=2;ctx.setLineDash([5,5]);ctx.beginPath();
+  path.forEach(function(p,i){var px=p.x*W,py=p.y*H;i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);});
+  ctx.stroke();ctx.setLineDash([]);
+  /* zone labels */
+  ctx.fillStyle='#94a3b8';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+  ctx.fillText('🦐 Feeding Grounds (Arctic)',W*0.4,H*0.05);
+  ctx.fillText('🐣 Breeding Grounds (Tropics)',W*0.35,H*0.95);
+  /* migration progress based on month: Jan=south(1), June=north(0), Dec=south(1) */
+  var targetFrac;
+  if(month<=6)targetFrac=1-(month-1)/5; /* Jan(1)→Jun(0) heading north */
+  else targetFrac=(month-6)/6; /* Jul(0)→Dec(1) heading south */
+  /* move whales */
+  whales.forEach(function(w){
+    var diff=targetFrac-w.progress;
+    w.progress+=diff*0.01*speed;
+    var pos=getPathPos(w.progress);
+    var wx=pos.x+w.offset+Math.sin(t*2+w.offset)*5;
+    var wy=pos.y+Math.cos(t*1.5+w.offset)*4;
+    /* whale body */
+    var heading=diff>0?1:-1;
+    ctx.fillStyle='#475569';ctx.save();ctx.translate(wx,wy);
+    ctx.scale(1,heading);
+    ctx.beginPath();ctx.ellipse(0,0,10,20,0,0,Math.PI*2);ctx.fill();
+    /* tail */
+    ctx.fillStyle='#334155';ctx.beginPath();ctx.moveTo(-5,18);ctx.lineTo(0,28);ctx.lineTo(5,18);ctx.fill();
+    ctx.beginPath();ctx.moveTo(-10,25);ctx.lineTo(0,28);ctx.lineTo(10,25);ctx.fill();
+    ctx.restore();
+  });
+  /* readout */
+  var loc=targetFrac<0.3?'Feeding Grounds (N)':targetFrac>0.7?'Breeding Grounds (S)':'Migrating...';
+  var waterTemp=2+targetFrac*22;
+  var dist=Math.round(targetFrac*16000);
+  document.getElementById('r-loc').textContent=loc;
+  document.getElementById('r-temp').textContent=waterTemp.toFixed(0)+'°C';
+  document.getElementById('r-dist').textContent=dist+' km from Arctic';
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

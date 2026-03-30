@@ -1,0 +1,164 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Stellar Evolution</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+label{font-size:.78rem;color:#94a3b8;white-space:nowrap}
+input[type=range]{width:150px;accent-color:#3b82f6}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>⭐ Stellar Evolution</h1>
+<p class="subtitle">Star lifecycle — from nebula to remnant</p>
+<div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
+<div class="controls">
+  <label>Initial Mass (M☉) <input type="range" id="mass" min="0.5" max="25" value="1" step="0.5"></label>
+  <label>Life Stage <input type="range" id="stage" min="0" max="100" value="0"></label>
+</div>
+<div class="readout">
+  <div class="datum">Mass: <strong id="r-mass">1.0</strong> M☉</div>
+  <div class="datum">Phase: <strong id="r-phase">Nebula</strong></div>
+  <div class="datum">Temp: <strong id="r-temp">—</strong></div>
+  <div class="datum">Luminosity: <strong id="r-lum">—</strong></div>
+</div>
+<div class="info-box"><h3>Star Lifecycle</h3><p>Stars begin in <strong>molecular clouds</strong> (nebulae). Gravity pulls gas into a <strong>protostar</strong>, then nuclear fusion ignites the <strong>main sequence</strong> phase. Low-mass stars (≤8 M☉) become <strong>red giants</strong> → <strong>planetary nebulae</strong> → <strong>white dwarfs</strong>. High-mass stars (>8 M☉) become <strong>supergiants</strong> → <strong>supernovae</strong> → <strong>neutron stars</strong> or <strong>black holes</strong>.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var massSlider=document.getElementById('mass'),stageSlider=document.getElementById('stage');
+var t=0;
+function starColor(temp){
+  if(temp>20000)return'#aaccff';if(temp>10000)return'#ffffff';if(temp>7000)return'#fff4e0';
+  if(temp>5000)return'#ffd080';if(temp>3500)return'#ff9050';return'#ff5030';
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);t+=0.016;
+  /* star field bg */
+  ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  for(var i=0;i<60;i++){ctx.fillStyle='rgba(255,255,255,'+(0.2+Math.random()*0.3)+')';ctx.fillRect((i*97)%W,(i*53)%H,1,1);}
+  var mass=+massSlider.value,pct=+stageSlider.value/100;
+  var highMass=mass>8,cx=W/2,cy=H/2;
+  /* phases: 0-15 nebula, 15-25 protostar, 25-60 main sequence, 60-75 giant/supergiant, 75-90 death, 90-100 remnant */
+  var phase,temp,lum,radius,col;
+  if(pct<0.15){
+    phase='Molecular Cloud';temp=10;lum=0;radius=80+40*Math.sin(t*0.5);
+    col='rgba(80,40,120,0.4)';
+    /* nebula cloud */
+    for(var i=0;i<20;i++){
+      ctx.fillStyle='rgba('+(80+i*3)+','+(30+i*2)+','+(120+i*2)+','+(0.1+0.05*Math.sin(t+i))+')';
+      ctx.beginPath();ctx.arc(cx+Math.cos(i*1.3)*radius*0.5,cy+Math.sin(i*1.7)*radius*0.4,20+i*3,0,Math.PI*2);ctx.fill();
+    }
+  }else if(pct<0.25){
+    phase='Protostar';temp=3000;lum=mass*5;radius=30+15*Math.sin(t);
+    col=starColor(temp);
+    /* accreting gas */
+    for(var i=0;i<12;i++){
+      var a=t*0.5+i*Math.PI*2/12,r=radius+20+10*Math.sin(t*2+i);
+      ctx.fillStyle='rgba(255,150,50,0.15)';ctx.beginPath();ctx.arc(cx+r*Math.cos(a),cy+r*Math.sin(a),8,0,Math.PI*2);ctx.fill();
+    }
+    /* core */
+    ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=20;ctx.beginPath();ctx.arc(cx,cy,radius*0.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  }else if(pct<0.6){
+    phase='Main Sequence';
+    temp=mass<0.8?3500:mass<2?5800:mass<8?10000:25000;
+    lum=Math.pow(mass,3.5);radius=12+mass*3;
+    col=starColor(temp);
+    ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=30;
+    ctx.beginPath();ctx.arc(cx,cy,radius,0,Math.PI*2);ctx.fill();
+    /* corona */
+    ctx.strokeStyle=col.replace(')',',0.15)').replace('rgb','rgba');ctx.lineWidth=2;
+    for(var i=0;i<8;i++){var a=t+i*Math.PI/4;ctx.beginPath();ctx.moveTo(cx+radius*Math.cos(a),cy+radius*Math.sin(a));ctx.lineTo(cx+(radius+10)*Math.cos(a),cy+(radius+10)*Math.sin(a));ctx.stroke();}
+    ctx.shadowBlur=0;
+  }else if(pct<0.75){
+    if(highMass){phase='Red Supergiant';temp=3000;lum=100000;radius=60+10*Math.sin(t*0.3);}
+    else{phase='Red Giant';temp=3500;lum=mass*200;radius=40+8*Math.sin(t*0.5);}
+    col=starColor(temp);
+    ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=40;
+    ctx.beginPath();ctx.arc(cx,cy,radius,0,Math.PI*2);ctx.fill();
+    /* pulsing outer layer */
+    ctx.strokeStyle='rgba(255,100,50,0.2)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,radius+5+3*Math.sin(t*2),0,Math.PI*2);ctx.stroke();
+    ctx.shadowBlur=0;
+  }else if(pct<0.9){
+    if(highMass){
+      phase='Supernova!';temp=100000;lum=1e10;
+      /* explosion */
+      var ex=(pct-0.75)/0.15;
+      for(var i=0;i<30;i++){
+        var a=i*Math.PI*2/30,r=ex*150+Math.sin(t*3+i)*10;
+        ctx.fillStyle='rgba(255,'+(200-i*5)+','+(50+i*3)+','+(1-ex*0.7)+')';
+        ctx.beginPath();ctx.arc(cx+r*Math.cos(a),cy+r*Math.sin(a),4+ex*3,0,Math.PI*2);ctx.fill();
+      }
+      ctx.fillStyle='#fff';ctx.shadowColor='#fff';ctx.shadowBlur=50;ctx.beginPath();ctx.arc(cx,cy,10*(1-ex),0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    }else{
+      phase='Planetary Nebula';temp=100000;lum=mass*50;
+      /* expanding shell */
+      var ex=(pct-0.75)/0.15;
+      ctx.strokeStyle='rgba(100,200,255,0.4)';ctx.lineWidth=8;ctx.beginPath();ctx.arc(cx,cy,30+ex*60,0,Math.PI*2);ctx.stroke();
+      ctx.strokeStyle='rgba(255,100,200,0.2)';ctx.lineWidth=4;ctx.beginPath();ctx.arc(cx,cy,20+ex*40,0,Math.PI*2);ctx.stroke();
+      /* central white dwarf forming */
+      ctx.fillStyle='#aaccff';ctx.shadowColor='#aaccff';ctx.shadowBlur=15;ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    }
+  }else{
+    if(highMass&&mass>20){
+      phase='Black Hole';temp=0;lum=0;
+      /* event horizon */
+      ctx.fillStyle='#000';ctx.beginPath();ctx.arc(cx,cy,20,0,Math.PI*2);ctx.fill();
+      /* accretion disk */
+      ctx.strokeStyle='rgba(255,180,50,0.4)';ctx.lineWidth=3;
+      ctx.beginPath();ctx.ellipse(cx,cy,50,15,t*0.2,0,Math.PI*2);ctx.stroke();
+      ctx.strokeStyle='rgba(255,200,100,0.2)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(cx,cy,60,18,t*0.2,0,Math.PI*2);ctx.stroke();
+      /* Hawking radiation */
+      ctx.fillStyle='rgba(255,255,255,0.1)';
+      for(var i=0;i<6;i++){var a=t+i;ctx.beginPath();ctx.arc(cx+22*Math.cos(a),cy+22*Math.sin(a),1.5,0,Math.PI*2);ctx.fill();}
+    }else if(highMass){
+      phase='Neutron Star';temp=600000;lum=0.001;
+      ctx.fillStyle='#aae';ctx.shadowColor='#aae';ctx.shadowBlur=20;ctx.beginPath();ctx.arc(cx,cy,6,0,Math.PI*2);ctx.fill();
+      /* pulsar beams */
+      ctx.strokeStyle='rgba(170,170,238,0.3)';ctx.lineWidth=4;var ba=t*5;
+      ctx.beginPath();ctx.moveTo(cx+8*Math.cos(ba),cy+8*Math.sin(ba));ctx.lineTo(cx+80*Math.cos(ba),cy+80*Math.sin(ba));ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx-8*Math.cos(ba),cy-8*Math.sin(ba));ctx.lineTo(cx-80*Math.cos(ba),cy-80*Math.sin(ba));ctx.stroke();
+      ctx.shadowBlur=0;
+    }else{
+      phase='White Dwarf';temp=15000;lum=0.01;
+      ctx.fillStyle='#ddeeff';ctx.shadowColor='#ddeeff';ctx.shadowBlur=15;ctx.beginPath();ctx.arc(cx,cy,6,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      ctx.fillStyle='rgba(200,220,255,0.03)';ctx.beginPath();ctx.arc(cx,cy,30,0,Math.PI*2);ctx.fill();
+    }
+  }
+  /* phase label on canvas */
+  ctx.fillStyle='#3b82f6';ctx.font='bold 14px Poppins';ctx.textAlign='center';ctx.fillText(phase,cx,30);
+  /* lifecycle path at bottom */
+  var pathY=H-30;
+  ctx.fillStyle='#1e293b';ctx.fillRect(30,pathY-5,W-60,10);
+  var dotX=30+pct*(W-60);
+  ctx.fillStyle='#3b82f6';ctx.beginPath();ctx.arc(dotX,pathY,6,0,Math.PI*2);ctx.fill();
+  var labels=['Nebula','Proto','Main Seq','Giant','Death','Remnant'];
+  ctx.font='8px Poppins';ctx.textAlign='center';ctx.fillStyle='#94a3b8';
+  for(var i=0;i<6;i++)ctx.fillText(labels[i],30+i*(W-60)/5,pathY+18);
+  /* readouts */
+  document.getElementById('r-mass').textContent=mass.toFixed(1);
+  document.getElementById('r-phase').textContent=phase;
+  document.getElementById('r-temp').textContent=temp>1000?(temp/1000).toFixed(0)+'k K':temp+' K';
+  document.getElementById('r-lum').textContent=lum>1000?(lum/1000).toFixed(0)+'k L☉':lum>0?lum.toFixed(1)+' L☉':'—';
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

@@ -1,0 +1,115 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Linear Equations</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#a855f7}
+.ctrl-group .val{font-size:.8rem;color:#a855f7;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#a855f7}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>📏 Linear Equations</h1>
+<p class="subtitle">Slope-intercept form, systems of equations &amp; intersection</p>
+<div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
+<div class="controls">
+  <div class="ctrl-group"><label style="color:#f472b6">m₁ (slope)</label>
+    <input type="range" id="m1" min="-30" max="30" value="10" oninput="upd()"><span class="val" id="vm1">1.0</span></div>
+  <div class="ctrl-group"><label style="color:#f472b6">b₁ (intercept)</label>
+    <input type="range" id="b1" min="-50" max="50" value="10" oninput="upd()"><span class="val" id="vb1">1.0</span></div>
+  <div class="ctrl-group"><label style="color:#38bdf8">m₂</label>
+    <input type="range" id="m2" min="-30" max="30" value="-5" oninput="upd()"><span class="val" id="vm2">-0.5</span></div>
+  <div class="ctrl-group"><label style="color:#38bdf8">b₂</label>
+    <input type="range" id="b2" min="-50" max="50" value="20" oninput="upd()"><span class="val" id="vb2">2.0</span></div>
+  <button class="toggle-btn active" id="btn-line2" onclick="togLine2()">Show 2nd Line</button>
+</div>
+<div class="readout">
+  <div class="datum" style="border-left:3px solid #f472b6">y = <strong id="r-eq1">1.0x + 1.0</strong></div>
+  <div class="datum" style="border-left:3px solid #38bdf8">y = <strong id="r-eq2">-0.5x + 2.0</strong></div>
+  <div class="datum">Intersection: <strong id="r-int">—</strong></div>
+  <div class="datum">Relationship: <strong id="r-rel">—</strong></div>
+</div>
+<div class="info-box"><h3>Linear Equations</h3><p><strong>y = mx + b</strong> is slope-intercept form. The slope <strong>m</strong> is rise/run — how steep the line is. The y-intercept <strong>b</strong> is where the line crosses the y-axis. Two lines can be <strong>parallel</strong> (same slope, no intersection), <strong>perpendicular</strong> (slopes multiply to −1), or <strong>intersecting</strong> (different slopes, one solution). A system of two linear equations has exactly one solution, infinitely many, or none.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var showLine2=true;
+window.togLine2=function(){showLine2=!showLine2;document.getElementById('btn-line2').classList.toggle('active');};
+window.upd=function(){
+  document.getElementById('vm1').textContent=(+document.getElementById('m1').value/10).toFixed(1);
+  document.getElementById('vb1').textContent=(+document.getElementById('b1').value/10).toFixed(1);
+  document.getElementById('vm2').textContent=(+document.getElementById('m2').value/10).toFixed(1);
+  document.getElementById('vb2').textContent=(+document.getElementById('b2').value/10).toFixed(1);
+};upd();
+function toS(mx,my){return{x:W/2+mx*(W/20),y:H/2-my*(H/20)};}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  /* grid */
+  ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+  for(var g=-10;g<=10;g++){var p=toS(g,0),p2=toS(0,g);ctx.beginPath();ctx.moveTo(p.x,0);ctx.lineTo(p.x,H);ctx.stroke();ctx.beginPath();ctx.moveTo(0,p2.y);ctx.lineTo(W,p2.y);ctx.stroke();}
+  ctx.strokeStyle='#475569';ctx.lineWidth=1.5;var o=toS(0,0);
+  ctx.beginPath();ctx.moveTo(o.x,0);ctx.lineTo(o.x,H);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,o.y);ctx.lineTo(W,o.y);ctx.stroke();
+  /* tick labels */
+  ctx.fillStyle='#334155';ctx.font='9px Poppins';ctx.textAlign='center';
+  for(var t=-10;t<=10;t+=2){if(!t)continue;var tp=toS(t,0);ctx.fillText(t,tp.x,tp.y+14);}
+  var m1=+document.getElementById('m1').value/10,b1v=+document.getElementById('b1').value/10;
+  var m2=+document.getElementById('m2').value/10,b2v=+document.getElementById('b2').value/10;
+  /* line 1 */
+  ctx.strokeStyle='#f472b6';ctx.lineWidth=2.5;ctx.shadowColor='#f472b6';ctx.shadowBlur=6;
+  ctx.beginPath();var p1a=toS(-12,m1*-12+b1v),p1b=toS(12,m1*12+b1v);ctx.moveTo(p1a.x,p1a.y);ctx.lineTo(p1b.x,p1b.y);ctx.stroke();ctx.shadowBlur=0;
+  /* y-intercept dot */
+  var yi1=toS(0,b1v);ctx.fillStyle='#f472b6';ctx.beginPath();ctx.arc(yi1.x,yi1.y,5,0,Math.PI*2);ctx.fill();
+  /* slope triangle */
+  if(Math.abs(m1)>0.05){
+    var sx=2,sy=m1*2;var triS=toS(0,b1v),triE=toS(sx,b1v+sy),triM=toS(sx,b1v);
+    ctx.strokeStyle='rgba(244,114,182,0.4)';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(triS.x,triS.y);ctx.lineTo(triM.x,triM.y);ctx.lineTo(triE.x,triE.y);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(244,114,182,0.6)';ctx.font='9px Poppins';ctx.textAlign='center';
+    ctx.fillText('run',(triS.x+triM.x)/2,triS.y+12);ctx.textAlign='left';ctx.fillText('rise',triM.x+4,(triM.y+triE.y)/2+3);
+  }
+  if(showLine2){
+    ctx.strokeStyle='#38bdf8';ctx.lineWidth=2.5;ctx.shadowColor='#38bdf8';ctx.shadowBlur=6;
+    ctx.beginPath();var p2a=toS(-12,m2*-12+b2v),p2b=toS(12,m2*12+b2v);ctx.moveTo(p2a.x,p2a.y);ctx.lineTo(p2b.x,p2b.y);ctx.stroke();ctx.shadowBlur=0;
+    var yi2=toS(0,b2v);ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(yi2.x,yi2.y,5,0,Math.PI*2);ctx.fill();
+    /* intersection */
+    if(Math.abs(m1-m2)>0.001){
+      var ix=(b2v-b1v)/(m1-m2),iy=m1*ix+b1v;
+      var iS=toS(ix,iy);
+      ctx.fillStyle='#a855f7';ctx.shadowColor='#a855f7';ctx.shadowBlur=10;
+      ctx.beginPath();ctx.arc(iS.x,iS.y,7,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      ctx.fillStyle='#e2e8f0';ctx.font='bold 11px monospace';ctx.textAlign='left';
+      ctx.fillText('('+ix.toFixed(2)+', '+iy.toFixed(2)+')',iS.x+10,iS.y-8);
+      document.getElementById('r-int').textContent='('+ix.toFixed(2)+', '+iy.toFixed(2)+')';
+    }else{document.getElementById('r-int').textContent=Math.abs(b1v-b2v)<0.01?'∞ (same line)':'None (parallel)';}
+    var rel=Math.abs(m1-m2)<0.01?(Math.abs(b1v-b2v)<0.01?'Same line':'Parallel'):Math.abs(m1*m2+1)<0.1?'Perpendicular':'Intersecting';
+    document.getElementById('r-rel').textContent=rel;
+  }
+  document.getElementById('r-eq1').textContent=m1.toFixed(1)+'x + '+b1v.toFixed(1);
+  document.getElementById('r-eq2').textContent=m2.toFixed(1)+'x + '+b2v.toFixed(1);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

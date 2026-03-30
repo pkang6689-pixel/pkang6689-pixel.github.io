@@ -1,0 +1,140 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Fossil Formation</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+label{font-size:.78rem;color:#94a3b8;white-space:nowrap}
+input[type=range]{width:160px;accent-color:#3b82f6}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🦴 Fossil Formation & Dating</h1>
+<p class="subtitle">Fossilization process, stratigraphy & index fossils</p>
+<div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+<div class="controls">
+  <label>Time (Million Years Ago) <input type="range" id="time" min="0" max="500" value="0" step="5"></label>
+</div>
+<div class="readout">
+  <div class="datum">Time: <strong id="r-time">Present</strong></div>
+  <div class="datum">Era: <strong id="r-era">Cenozoic</strong></div>
+  <div class="datum">Stage: <strong id="r-stage">Living Organisms</strong></div>
+</div>
+<div class="info-box"><h3>How Fossils Form</h3><p>1. <strong>Death & burial</strong>: Organism dies and is quickly buried by sediment. 2. <strong>Permineralization</strong>: Minerals in groundwater fill cellular spaces. 3. <strong>Lithification</strong>: Sediment compresses into rock. 4. <strong>Exposure</strong>: Erosion or uplift brings fossil to surface. <strong>Index fossils</strong> (widespread, short-lived species) help date rock layers. <strong>Radiometric dating</strong> uses decay of isotopes like ¹⁴C and ⁴⁰K.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var timeSlider=document.getElementById('time');
+var layers=[
+  {age:0,color:'#5a8040',name:'Topsoil',era:'Cenozoic',fossil:null},
+  {age:5,color:'#8B7D4B',name:'Quaternary',era:'Cenozoic',fossil:'🐘'},
+  {age:25,color:'#9B8B5B',name:'Neogene',era:'Cenozoic',fossil:'🐴'},
+  {age:66,color:'#A89060',name:'Paleogene',era:'Cenozoic',fossil:'🐟'},
+  {age:145,color:'#7A6B50',name:'Cretaceous',era:'Mesozoic',fossil:'🦕'},
+  {age:200,color:'#6B5D44',name:'Jurassic',era:'Mesozoic',fossil:'🦴'},
+  {age:252,color:'#5C4E38',name:'Triassic',era:'Mesozoic',fossil:'🐚'},
+  {age:360,color:'#4D4030',name:'Carboniferous',era:'Paleozoic',fossil:'🌿'},
+  {age:420,color:'#3E3228',name:'Silurian',era:'Paleozoic',fossil:'🐚'},
+  {age:500,color:'#302820',name:'Cambrian',era:'Paleozoic',fossil:'🦑'}
+];
+var stages=['Living Organisms','Death & Burial','Sediment Accumulation','Permineralization','Lithification','Erosion & Exposure'];
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  var mya=+timeSlider.value,surfaceY=60;
+  /* determine current stage */
+  var stageIdx=mya===0?0:mya<10?1:mya<50?2:mya<150?3:mya<300?4:5;
+  /* find which layer we're in */
+  var curLayer=0;for(var i=layers.length-1;i>=0;i--)if(mya>=layers[i].age)curLayer=i;
+  /* draw layers */
+  var layH=(H-surfaceY)/layers.length;
+  for(var i=0;i<layers.length;i++){
+    var l=layers[i],y=surfaceY+i*layH;
+    ctx.fillStyle=l.color;ctx.fillRect(0,y,W,layH+1);
+    /* grain texture */
+    ctx.fillStyle='rgba(0,0,0,0.05)';
+    for(var g=0;g<20;g++){ctx.beginPath();ctx.arc(Math.random()*W,y+Math.random()*layH,1.5,0,Math.PI*2);ctx.fill();}
+    /* layer label */
+    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='10px Poppins';ctx.textAlign='left';
+    ctx.fillText(l.name+' ('+l.age+' MYA)',8,y+layH/2+3);
+    /* era label */
+    ctx.textAlign='right';ctx.fillText(l.era,W-8,y+layH/2+3);
+    /* fossil icon in layer */
+    if(l.fossil&&mya>=l.age){
+      ctx.font='20px serif';ctx.textAlign='center';
+      /* draw multiple fossils across the layer */
+      for(var f=0;f<3;f++){
+        var fx=W*0.3+f*W*0.2,fy=y+layH/2+6;
+        /* if deep enough, show as mineralized (darker) */
+        var depth=mya-l.age;
+        ctx.globalAlpha=depth>100?0.5:0.8;
+        ctx.fillText(l.fossil,fx,fy);
+        ctx.globalAlpha=1;
+      }
+    }
+    /* highlight current layer */
+    if(i===curLayer){
+      ctx.strokeStyle='rgba(59,130,246,0.8)';ctx.lineWidth=2;ctx.strokeRect(1,y+1,W-2,layH-2);
+      ctx.fillStyle='rgba(59,130,246,0.05)';ctx.fillRect(0,y,W,layH);
+    }
+  }
+  /* fossilization process animation at current depth */
+  if(mya>0){
+    var fossilX=W/2,fossilY=surfaceY+curLayer*layH+layH/2;
+    /* organism becoming fossil stages */
+    if(stageIdx===1){
+      /* recently died - draw organism outline */
+      ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.ellipse(fossilX,fossilY,20,12,0,0,Math.PI*2);ctx.stroke();
+      ctx.fillStyle='rgba(255,200,100,0.3)';ctx.fill();
+    }else if(stageIdx===2){
+      /* being buried - sediment particles */
+      ctx.fillStyle='rgba(139,125,75,0.5)';
+      var t=performance.now()/1000;
+      for(var p=0;p<8;p++){
+        var px=fossilX-15+p*4,py=fossilY-15+Math.sin(t+p)*5;
+        ctx.fillRect(px,py,3,3);
+      }
+    }else if(stageIdx>=3){
+      /* mineralized fossil */
+      ctx.fillStyle='rgba(150,130,100,0.8)';ctx.beginPath();ctx.ellipse(fossilX,fossilY,22,14,0,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(200,180,140,0.6)';ctx.lineWidth=1;ctx.stroke();
+      /* mineral crystals */
+      ctx.fillStyle='rgba(161,218,255,0.4)';
+      for(var c=0;c<5;c++){ctx.beginPath();ctx.arc(fossilX-10+c*5,fossilY-5+c*2,2,0,Math.PI*2);ctx.fill();}
+    }
+  }
+  /* surface sky */
+  ctx.fillStyle='#1a3a5c';ctx.fillRect(0,0,W,surfaceY);
+  ctx.fillStyle='#5a8040';ctx.fillRect(0,surfaceY-5,W,5);
+  /* title on sky */
+  ctx.fillStyle='#cbd5e1';ctx.font='bold 12px Poppins';ctx.textAlign='center';
+  ctx.fillText('Geological Time Scale — Stratigraphy & Fossil Record',W/2,25);
+  /* dating scale bar */
+  ctx.fillStyle='rgba(59,130,246,0.8)';ctx.font='9px Poppins';ctx.textAlign='center';
+  ctx.fillText('↑ Younger                                                    Older ↓',W/2,45);
+  /* update readouts */
+  document.getElementById('r-time').textContent=mya===0?'Present':mya+' MYA';
+  document.getElementById('r-era').textContent=layers[curLayer].era;
+  document.getElementById('r-stage').textContent=stages[stageIdx];
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

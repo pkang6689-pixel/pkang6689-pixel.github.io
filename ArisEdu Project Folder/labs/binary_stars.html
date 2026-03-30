@@ -1,0 +1,124 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Binary Stars</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+label{font-size:.78rem;color:#94a3b8;white-space:nowrap}
+input[type=range]{width:110px;accent-color:#3b82f6}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>⭐⭐ Binary Star System</h1>
+<p class="subtitle">Eclipsing binaries, mass transfer & light curves</p>
+<div class="canvas-wrap"><canvas id="cv" height="460"></canvas></div>
+<div class="controls">
+  <label>Mass A (M☉) <input type="range" id="mA" min="0.5" max="10" value="3" step="0.5"></label>
+  <label>Mass B (M☉) <input type="range" id="mB" min="0.5" max="10" value="1" step="0.5"></label>
+  <label>Separation <input type="range" id="sep" min="30" max="100" value="60"></label>
+  <label>Inclination <input type="range" id="inc" min="0" max="90" value="85">°</label>
+</div>
+<div class="readout">
+  <div class="datum">Period: <strong id="r-period">0</strong> days</div>
+  <div class="datum">Phase: <strong id="r-phase">0.00</strong></div>
+  <div class="datum">Combined Brightness: <strong id="r-bright">100</strong>%</div>
+</div>
+<div class="info-box"><h3>Binary Star Systems</h3><p>Over half of all stars are in <strong>binary</strong> or multiple systems. <strong>Eclipsing binaries</strong> show periodic dips in brightness when one star passes in front of the other. The <strong>light curve</strong> reveals star sizes, masses, and temperatures. <strong>Mass transfer</strong> occurs when one star overflows its Roche lobe.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var mASlider=document.getElementById('mA'),mBSlider=document.getElementById('mB'),
+    sepSlider=document.getElementById('sep'),incSlider=document.getElementById('inc');
+var t=0,lightCurve=[];
+function starColorFromMass(m){if(m>5)return'#aaccff';if(m>2)return'#ffffff';if(m>1)return'#fff4e0';return'#ffa060';}
+function draw(){
+  ctx.clearRect(0,0,W,H);t+=0.012;
+  var mA=+mASlider.value,mB=+mBSlider.value,sep=+sepSlider.value,inc=+incSlider.value*Math.PI/180;
+  var cx=W/2,cy=H*0.35,totalM=mA+mB;
+  /* star field */
+  for(var i=0;i<50;i++){ctx.fillStyle='rgba(255,255,255,'+(0.15+Math.random()*0.2)+')';ctx.fillRect((i*137)%W,(i*89)%(H*0.6),1,1);}
+  /* orbital positions (barycenter) */
+  var rA=sep*mB/totalM,rB=sep*mA/totalM;
+  var xA=cx+rA*Math.cos(t),yA=cy+rA*Math.sin(t)*Math.sin(inc);
+  var xB=cx-rB*Math.cos(t),yB=cy-rB*Math.sin(t)*Math.sin(inc);
+  var sizeA=6+mA*2,sizeB=6+mB*2;
+  var colA=starColorFromMass(mA),colB=starColorFromMass(mB);
+  /* draw stars with depth ordering */
+  var aFront=Math.sin(t)*Math.sin(inc)>0;
+  function drawStar(x,y,r,col){
+    ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=20;
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  }
+  /* orbit trails */
+  ctx.strokeStyle='rgba(59,130,246,0.1)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.ellipse(cx,cy,rA,rA*Math.sin(inc),0,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(cx,cy,rB,rB*Math.sin(inc),0,0,Math.PI*2);ctx.stroke();
+  /* barycenter */
+  ctx.fillStyle='rgba(255,255,255,0.2)';ctx.beginPath();ctx.arc(cx,cy,2,0,Math.PI*2);ctx.fill();
+  if(aFront){drawStar(xB,yB,sizeB,colB);drawStar(xA,yA,sizeA,colA);}
+  else{drawStar(xA,yA,sizeA,colA);drawStar(xB,yB,sizeB,colB);}
+  /* mass transfer stream if close enough */
+  if(sep<50){
+    ctx.strokeStyle='rgba(255,150,50,0.3)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(xA,yA);ctx.quadraticCurveTo((xA+xB)/2,cy-15,xB,yB);ctx.stroke();
+  }
+  /* compute brightness (eclipsing) */
+  var lumA=Math.pow(mA,3.5),lumB=Math.pow(mB,3.5),totalLum=lumA+lumB;
+  var brightness=100;
+  /* check eclipse: stars overlapping in projected x */
+  var dx=xA-xB,dy=yA-yB,projDist=Math.sqrt(dx*dx+dy*dy);
+  if(projDist<sizeA+sizeB){
+    var overlap=1-(projDist/(sizeA+sizeB));
+    if(aFront)brightness=100*(1-overlap*lumB/totalLum*0.8);
+    else brightness=100*(1-overlap*lumA/totalLum*0.8);
+  }
+  /* light curve (bottom half) */
+  lightCurve.push(brightness);if(lightCurve.length>300)lightCurve.shift();
+  var lcY=H*0.65,lcH=H*0.28,lcW=W-80;
+  /* light curve background */
+  ctx.fillStyle='#0a0f1a';ctx.fillRect(40,lcY,lcW,lcH);ctx.strokeStyle='#334155';ctx.strokeRect(40,lcY,lcW,lcH);
+  /* grid */
+  ctx.strokeStyle='rgba(59,130,246,0.1)';ctx.lineWidth=0.5;
+  for(var g=0;g<5;g++){var gy=lcY+g*lcH/4;ctx.beginPath();ctx.moveTo(40,gy);ctx.lineTo(40+lcW,gy);ctx.stroke();}
+  /* plot */
+  ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;ctx.beginPath();
+  for(var i=0;i<lightCurve.length;i++){
+    var px=40+i*lcW/300,py=lcY+lcH-(lightCurve[i]/100)*lcH;
+    if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+  }ctx.stroke();
+  /* labels */
+  ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';
+  ctx.fillText('Time →',40+lcW/2,lcY+lcH+14);
+  ctx.save();ctx.translate(20,lcY+lcH/2);ctx.rotate(-Math.PI/2);ctx.fillText('Brightness',0,0);ctx.restore();
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Poppins';ctx.fillText('Light Curve',40+lcW/2,lcY-6);
+  /* Y-axis labels */
+  ctx.textAlign='right';ctx.font='8px Poppins';ctx.fillStyle='#94a3b8';
+  ctx.fillText('100%',38,lcY+8);ctx.fillText('50%',38,lcY+lcH/2);ctx.fillText('0%',38,lcY+lcH);
+  /* period estimate (Kepler's 3rd) */
+  var period=(sep*0.15*Math.sqrt(sep*0.15/totalM)*10).toFixed(1);
+  var phase=((t%(Math.PI*2))/(Math.PI*2)).toFixed(2);
+  document.getElementById('r-period').textContent=period;
+  document.getElementById('r-phase').textContent=phase;
+  document.getElementById('r-bright').textContent=brightness.toFixed(1);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

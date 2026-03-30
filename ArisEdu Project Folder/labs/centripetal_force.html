@@ -1,0 +1,108 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Centripetal Force</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:110px;accent-color:#3b82f6}
+.ctrl-group .val{font-size:.8rem;color:#3b82f6;font-weight:600;font-family:monospace}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🎯 Centripetal Force</h1>
+<p class="subtitle">Circular motion — centripetal acceleration, force, and period</p>
+<div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Radius (m)</label><input type="range" id="pr" min="30" max="150" value="90" oninput="upd()"><span class="val" id="vr">90</span></div>
+  <div class="ctrl-group"><label>Speed (m/s)</label><input type="range" id="pv" min="5" max="80" value="30" oninput="upd()"><span class="val" id="vv">30</span></div>
+  <div class="ctrl-group"><label>Mass (kg)</label><input type="range" id="pm" min="1" max="20" value="5" oninput="upd()"><span class="val" id="vmm">5</span></div>
+</div>
+<div class="readout">
+  <div class="datum">Fₓ: <strong id="r-fc">50.0 N</strong></div>
+  <div class="datum">aₓ: <strong id="r-ac">10.0 m/s²</strong></div>
+  <div class="datum">T: <strong id="r-t">18.85 s</strong></div>
+  <div class="datum">ω: <strong id="r-w">0.33 rad/s</strong></div>
+</div>
+<div class="info-box"><h3>Circular Motion</h3><p>An object moving in a circle at constant speed experiences <strong>centripetal acceleration</strong> directed toward the center: a = v²/r. The required centripetal force is F = mv²/r. The period T = 2πr/v is the time for one full revolution. Angular velocity ω = v/r = 2π/T.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var angle=0,trail=[];
+window.upd=function(){
+  document.getElementById('vr').textContent=document.getElementById('pr').value;
+  document.getElementById('vv').textContent=document.getElementById('pv').value;
+  document.getElementById('vmm').textContent=document.getElementById('pm').value;
+  var r=+document.getElementById('pr').value,v=+document.getElementById('pv').value,m=+document.getElementById('pm').value;
+  var ac=v*v/r,fc=m*ac,T=2*Math.PI*r/v,w=v/r;
+  document.getElementById('r-fc').textContent=fc.toFixed(1)+' N';
+  document.getElementById('r-ac').textContent=ac.toFixed(1)+' m/s²';
+  document.getElementById('r-t').textContent=T.toFixed(2)+' s';
+  document.getElementById('r-w').textContent=w.toFixed(2)+' rad/s';
+  trail=[];
+};upd();
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  var cx=W/2,cy=H/2;
+  var R=+document.getElementById('pr').value,v=+document.getElementById('pv').value,m=+document.getElementById('pm').value;
+  var omega=v/R;angle+=omega*0.03;
+  var bx=cx+R*Math.cos(angle),by=cy+R*Math.sin(angle);
+  trail.push({x:bx,y:by});if(trail.length>200)trail.shift();
+  /* orbit line */
+  ctx.strokeStyle='#1e3a5f';ctx.lineWidth=1;ctx.setLineDash([5,5]);
+  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+  /* trail */
+  if(trail.length>1){ctx.strokeStyle='rgba(59,130,246,0.3)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(trail[0].x,trail[0].y);for(var i=1;i<trail.length;i++)ctx.lineTo(trail[i].x,trail[i].y);ctx.stroke();}
+  /* radius line */
+  ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(bx,by);ctx.stroke();
+  /* center */
+  ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();
+  /* centripetal force arrow (toward center) */
+  var fc=m*v*v/R,fScale=Math.min(fc/50,80);
+  var dx=(cx-bx),dy=(cy-by),d=Math.sqrt(dx*dx+dy*dy);
+  dx/=d;dy/=d;
+  ctx.strokeStyle='#ef4444';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+dx*fScale,by+dy*fScale);ctx.stroke();
+  var ax2=bx+dx*fScale,ay2=by+dy*fScale;
+  ctx.fillStyle='#ef4444';ctx.beginPath();ctx.moveTo(ax2,ay2);
+  ctx.lineTo(ax2-dx*8+dy*5,ay2-dy*8-dx*5);ctx.lineTo(ax2-dx*8-dy*5,ay2-dy*8+dx*5);ctx.fill();
+  /* velocity arrow (tangent) */
+  var tx=-Math.sin(angle),ty=Math.cos(angle);
+  var vScale=Math.min(v*0.8,60);
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+tx*vScale,by+ty*vScale);ctx.stroke();
+  var vx2=bx+tx*vScale,vy2=by+ty*vScale;
+  ctx.fillStyle='#22c55e';ctx.beginPath();ctx.moveTo(vx2,vy2);
+  ctx.lineTo(vx2-tx*8+ty*5,vy2-ty*8-tx*5);ctx.lineTo(vx2-tx*8-ty*5,vy2-ty*8+tx*5);ctx.fill();
+  /* ball */
+  ctx.fillStyle='#3b82f6';ctx.shadowColor='#3b82f6';ctx.shadowBlur=12;
+  ctx.beginPath();ctx.arc(bx,by,10+m*0.6,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(m+'kg',bx,by);
+  /* legend */
+  ctx.font='11px Poppins';ctx.textAlign='left';
+  ctx.fillStyle='#ef4444';ctx.fillText('→ Fc (centripetal)',10,20);
+  ctx.fillStyle='#22c55e';ctx.fillText('→ v (velocity)',10,36);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

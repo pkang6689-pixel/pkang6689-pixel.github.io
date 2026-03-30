@@ -1,0 +1,143 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Magnetism & Fields</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#3b82f6}
+.ctrl-group .val{font-size:.8rem;color:#3b82f6;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🧲 Magnetism & Fields</h1>
+<p class="subtitle">Visualize magnetic field lines from bar magnets and wire loops</p>
+<div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
+<div class="controls">
+  <button class="toggle-btn active" onclick="setMode(0,this)">Bar Magnet</button>
+  <button class="toggle-btn" onclick="setMode(1,this)">Two Magnets</button>
+  <button class="toggle-btn" onclick="setMode(2,this)">Wire Loop</button>
+  <div class="ctrl-group"><label>Strength</label>
+    <input type="range" id="pstr" min="10" max="100" value="50" oninput="document.getElementById('vstr').textContent=this.value"><span class="val" id="vstr">50</span></div>
+  <button class="toggle-btn active" id="btn-compass" onclick="this.classList.toggle('active')">Compass Grid</button>
+  <button class="toggle-btn" id="btn-attract" onclick="this.classList.toggle('active')">Attract</button>
+</div>
+<div class="readout">
+  <div class="datum">Mode: <strong id="r-mode">Bar Magnet</strong></div>
+  <div class="datum">B at cursor: <strong id="r-b">—</strong></div>
+</div>
+<div class="info-box"><h3>Magnetic Fields</h3><p>Magnetic field lines emerge from the <strong>north pole</strong> and enter the <strong>south pole</strong>, forming closed loops. Two bar magnets can <strong>attract</strong> (opposite poles) or <strong>repel</strong> (same poles). A current-carrying wire produces circular field lines (right-hand rule). Field strength B decreases with distance. The compass grid shows field direction at each point.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var mode=0;
+window.setMode=function(i,el){mode=i;document.querySelectorAll('.toggle-btn').forEach(function(b,idx){if(idx<3)b.classList.toggle('active',idx===i);});
+  document.getElementById('r-mode').textContent=['Bar Magnet','Two Magnets','Wire Loop'][i];};
+/* dipole field at (x,y) from dipole at (dx,dy) pointing in direction (mx,my) */
+function dipoleB(px,py,dx,dy,mx,my,str){
+  var rx=px-dx,ry=py-dy,r2=rx*rx+ry*ry+100;var r=Math.sqrt(r2);
+  var dot=mx*rx+my*ry;
+  var bx=str*(3*dot*rx/Math.pow(r,5)-mx/Math.pow(r,3));
+  var by=str*(3*dot*ry/Math.pow(r,5)-my/Math.pow(r,3));
+  return{bx:bx,by:by};
+}
+cv.addEventListener('mousemove',function(e){
+  var r=cv.getBoundingClientRect();var mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  var b=getField(mx,my);var mag=Math.sqrt(b.bx*b.bx+b.by*b.by);
+  document.getElementById('r-b').textContent=mag.toFixed(4)+' T';
+});
+function getField(px,py){
+  var str=+document.getElementById('pstr').value;
+  var bx=0,by=0;
+  if(mode===0){
+    var d=dipoleB(px,py,W/2,H/2,1,0,str*500);bx+=d.bx;by+=d.by;
+  }else if(mode===1){
+    var attract=document.getElementById('btn-attract').classList.contains('active');
+    var d1=dipoleB(px,py,W/3,H/2,1,0,str*500);bx+=d1.bx;by+=d1.by;
+    var d2=dipoleB(px,py,W*2/3,H/2,attract?-1:1,0,str*500);bx+=d2.bx;by+=d2.by;
+  }else{
+    /* solenoid approx */
+    var d=dipoleB(px,py,W/2,H/2,0,1,str*500);bx+=d.bx;by+=d.by;
+  }
+  return{bx:bx,by:by};
+}
+function drawMagnet(cx,cy,dir){
+  var w=60,h=25;
+  ctx.fillStyle='#ef4444';ctx.fillRect(cx-w/2,cy-h/2,w/2,h);
+  ctx.fillStyle='#3b82f6';ctx.fillRect(cx,cy-h/2,w/2,h);
+  ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.strokeRect(cx-w/2,cy-h/2,w,h);
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 11px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';
+  if(dir>0){ctx.fillText('N',cx+w/4,cy);ctx.fillText('S',cx-w/4,cy);}
+  else{ctx.fillText('S',cx+w/4,cy);ctx.fillText('N',cx-w/4,cy);}
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  /* compass grid */
+  if(document.getElementById('btn-compass').classList.contains('active')){
+    var step=28;
+    for(var gx=step;gx<W;gx+=step){for(var gy=step;gy<H;gy+=step){
+      var b=getField(gx,gy);var mag=Math.sqrt(b.bx*b.bx+b.by*b.by);
+      if(mag<0.00001)continue;
+      var ang=Math.atan2(b.by,b.bx);var len=Math.min(12,mag*8000);
+      var alpha=Math.min(1,mag*3000);
+      ctx.strokeStyle='rgba(59,130,246,'+alpha+')';ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.moveTo(gx-Math.cos(ang)*len,gy-Math.sin(ang)*len);ctx.lineTo(gx+Math.cos(ang)*len,gy+Math.sin(ang)*len);ctx.stroke();
+      /* arrowhead */
+      ctx.fillStyle='rgba(59,130,246,'+alpha+')';ctx.beginPath();
+      ctx.moveTo(gx+Math.cos(ang)*len,gy+Math.sin(ang)*len);
+      ctx.lineTo(gx+Math.cos(ang+2.7)*4,gy+Math.sin(ang+2.7)*4);
+      ctx.lineTo(gx+Math.cos(ang-2.7)*4,gy+Math.sin(ang-2.7)*4);ctx.fill();
+    }}
+  }
+  /* field lines (streamlines) */
+  ctx.lineWidth=1;
+  var starts=[];
+  if(mode===0){for(var a=0;a<Math.PI*2;a+=Math.PI/8)starts.push({x:W/2+20*Math.cos(a),y:H/2+20*Math.sin(a)});}
+  else if(mode===1){
+    for(var a=0;a<Math.PI*2;a+=Math.PI/6){starts.push({x:W/3+20*Math.cos(a),y:H/2+20*Math.sin(a)});starts.push({x:W*2/3+20*Math.cos(a),y:H/2+20*Math.sin(a)});}
+  }else{for(var a=0;a<Math.PI*2;a+=Math.PI/8)starts.push({x:W/2+20*Math.cos(a),y:H/2+20*Math.sin(a)});}
+  starts.forEach(function(s){
+    ctx.strokeStyle='rgba(245,158,11,0.25)';ctx.beginPath();ctx.moveTo(s.x,s.y);
+    var px=s.x,py=s.y;
+    for(var step=0;step<400;step++){
+      var b=getField(px,py);var mag=Math.sqrt(b.bx*b.bx+b.by*b.by);if(mag<0.000001)break;
+      px+=b.bx/mag*3;py+=b.by/mag*3;
+      if(px<0||px>W||py<0||py>H)break;
+      ctx.lineTo(px,py);
+    }ctx.stroke();
+  });
+  /* magnets */
+  if(mode===0)drawMagnet(W/2,H/2,1);
+  else if(mode===1){
+    var attract=document.getElementById('btn-attract').classList.contains('active');
+    drawMagnet(W/3,H/2,1);drawMagnet(W*2/3,H/2,attract?-1:1);
+  }else{
+    /* wire loop */
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=3;ctx.beginPath();ctx.arc(W/2,H/2,25,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#f59e0b';ctx.font='bold 10px Poppins';ctx.textAlign='center';ctx.fillText('I →',W/2,H/2-30);
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

@@ -1,0 +1,139 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Standing Waves</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:110px;accent-color:#3b82f6}
+.ctrl-group .val{font-size:.8rem;color:#3b82f6;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🎵 Standing Waves</h1>
+<p class="subtitle">Harmonics, nodes, antinodes — on strings and in pipes</p>
+<div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Harmonic n</label><input type="range" id="pn" min="1" max="8" value="1" oninput="upd()"><span class="val" id="vn">1</span></div>
+  <div class="ctrl-group"><label>Amplitude</label><input type="range" id="pa" min="10" max="80" value="50" oninput="upd()"><span class="val" id="va">50</span></div>
+  <div class="ctrl-group"><label>Speed</label><input type="range" id="ps" min="1" max="10" value="4" oninput="upd()"><span class="val" id="vs">4</span></div>
+  <button class="toggle-btn active" id="btn-string" onclick="setMode(0)">String (both ends fixed)</button>
+  <button class="toggle-btn" id="btn-open" onclick="setMode(1)">Open Pipe</button>
+  <button class="toggle-btn" id="btn-closed" onclick="setMode(2)">Closed Pipe</button>
+</div>
+<div class="readout">
+  <div class="datum">Nodes: <strong id="r-nodes">2</strong></div>
+  <div class="datum">Antinodes: <strong id="r-anti">1</strong></div>
+  <div class="datum">λ: <strong id="r-lam">2L</strong></div>
+  <div class="datum">f: <strong id="r-freq">1·f₁</strong></div>
+</div>
+<div class="info-box"><h3>Standing Wave Patterns</h3><p>A standing wave forms when two waves of equal frequency travel in opposite directions and interfere. <strong>Nodes</strong> (zero displacement) and <strong>antinodes</strong> (max displacement) form at fixed positions. For a string (both ends fixed): λₙ = 2L/n, fₙ = n·f₁. For an open pipe: same pattern. For a closed pipe (one end closed): only odd harmonics exist — λₙ = 4L/n, n = 1,3,5…</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var mode=0,t=0;
+window.setMode=function(m){mode=m;['string','open','closed'].forEach(function(s,i){document.getElementById('btn-'+s).classList.toggle('active',i===m);});upd();};
+window.upd=function(){
+  var n=+document.getElementById('pn').value,A=+document.getElementById('pa').value;
+  document.getElementById('vn').textContent=n;
+  document.getElementById('va').textContent=A;
+  document.getElementById('vs').textContent=document.getElementById('ps').value;
+  /* wavelength & freq */
+  if(mode===0||mode===1){
+    document.getElementById('r-lam').textContent='2L/'+n;
+    document.getElementById('r-freq').textContent=n+'·f₁';
+    document.getElementById('r-nodes').textContent=(n+1);
+    document.getElementById('r-anti').textContent=n;
+  }else{
+    var no=mode===2?(n%2===1?n:null):n;
+    if(no===null){document.getElementById('r-lam').textContent='N/A (even)';document.getElementById('r-freq').textContent='N/A';document.getElementById('r-nodes').textContent='—';document.getElementById('r-anti').textContent='—';return;}
+    document.getElementById('r-lam').textContent='4L/'+no;
+    document.getElementById('r-freq').textContent=no+'·f₁';
+    var nodes=Math.floor(no/2)+1,anti=Math.ceil(no/2);
+    document.getElementById('r-nodes').textContent=nodes;
+    document.getElementById('r-anti').textContent=anti;
+  }
+};upd();
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  var n=+document.getElementById('pn').value,A=+document.getElementById('pa').value,spd=+document.getElementById('ps').value;
+  t+=spd*0.03;
+  var margin=60,L=W-2*margin,cy=H/2;
+  /* boundaries */
+  ctx.strokeStyle='#475569';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(margin,cy-100);ctx.lineTo(margin,cy+100);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(margin+L,cy-100);ctx.lineTo(margin+L,cy+100);ctx.stroke();
+  /* zero line */
+  ctx.strokeStyle='#1e3a5f';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(margin,cy);ctx.lineTo(margin+L,cy);ctx.stroke();ctx.setLineDash([]);
+  /* standing wave */
+  ctx.strokeStyle='#3b82f6';ctx.lineWidth=2.5;ctx.shadowColor='#3b82f6';ctx.shadowBlur=6;
+  ctx.beginPath();
+  for(var i=0;i<=L;i++){
+    var x=margin+i,frac=i/L;
+    var y;
+    if(mode===0||mode===1){
+      y=cy-A*Math.sin(n*Math.PI*frac)*Math.cos(t);
+    }else{
+      if(n%2===0){y=cy;}
+      else{y=cy-A*Math.cos(n*Math.PI*frac/2)*Math.cos(t);}
+    }
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();ctx.shadowBlur=0;
+  /* forward wave (faded) */
+  ctx.strokeStyle='rgba(34,197,94,0.3)';ctx.lineWidth=1;ctx.setLineDash([3,4]);ctx.beginPath();
+  for(var i=0;i<=L;i++){var x=margin+i,frac=i/L;var y;
+    if(mode===0||mode===1){y=cy-A*0.5*Math.sin(n*Math.PI*frac-t);}
+    else{y=cy-A*0.5*Math.cos(n*Math.PI*frac/2-t);}
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();ctx.setLineDash([]);
+  /* backward wave (faded) */
+  ctx.strokeStyle='rgba(239,68,68,0.3)';ctx.lineWidth=1;ctx.setLineDash([3,4]);ctx.beginPath();
+  for(var i=0;i<=L;i++){var x=margin+i,frac=i/L;var y;
+    if(mode===0||mode===1){y=cy-A*0.5*Math.sin(n*Math.PI*frac+t);}
+    else{y=cy-A*0.5*Math.cos(n*Math.PI*frac/2+t);}
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();ctx.setLineDash([]);
+  /* nodes & antinodes */
+  if(mode===0||mode===1){
+    for(var k=0;k<=n;k++){var nx=margin+k*L/n;ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(nx,cy,5,0,Math.PI*2);ctx.fill();}
+    for(var k=0;k<n;k++){var ax=margin+(k+0.5)*L/n;ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(ax,cy,5,0,Math.PI*2);ctx.fill();}
+  }else if(n%2===1){
+    for(var k=0;k<Math.floor(n/2)+1;k++){var nx=margin+(2*k+1)*L/n;if(nx<=margin+L){ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(nx,cy,5,0,Math.PI*2);ctx.fill();}}
+    ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(margin,cy,5,0,Math.PI*2);ctx.fill();
+    for(var k=1;k<=Math.floor(n/2);k++){var ax=margin+2*k*L/n;ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(ax,cy,5,0,Math.PI*2);ctx.fill();}
+  }
+  /* legend */
+  ctx.font='11px Poppins';ctx.textAlign='left';
+  ctx.fillStyle='#ef4444';ctx.fillText('● Nodes',10,20);
+  ctx.fillStyle='#22c55e';ctx.fillText('● Antinodes',10,36);
+  ctx.fillStyle='rgba(34,197,94,0.5)';ctx.fillText('--- Forward wave',10,52);
+  ctx.fillStyle='rgba(239,68,68,0.5)';ctx.fillText('--- Backward wave',10,68);
+  /* harmonic label */
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 14px Poppins';ctx.textAlign='center';
+  var name=n===1?'Fundamental (1st)':n===2?'2nd Harmonic':n===3?'3rd Harmonic':n+'th Harmonic';
+  ctx.fillText(name,W/2,30);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

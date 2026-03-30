@@ -1,0 +1,149 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Statistics Visualizer</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.tab-btn{padding:.45rem 1rem;border-radius:.5rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.82rem;transition:all .2s}
+.tab-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.12)}
+.action-btn{padding:.5rem 1.2rem;border-radius:.5rem;border:none;font-weight:600;cursor:pointer;font-size:.85rem;background:linear-gradient(135deg,#a855f7,#7c3aed);color:white}
+.action-btn.secondary{background:#334155;color:#cbd5e1}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:140px;accent-color:#a855f7}
+.ctrl-group .val{font-size:.8rem;color:#a855f7;font-weight:600}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8}
+.readout .datum strong{color:#a855f7}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>📊 Statistics Visualizer</h1>
+<p class="subtitle">Histograms, box plots, mean, median &amp; standard deviation</p>
+<div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+<div class="controls">
+  <button class="tab-btn active" id="tab-histogram" onclick="setViz('histogram')">Histogram</button>
+  <button class="tab-btn" id="tab-boxplot" onclick="setViz('boxplot')">Box Plot</button>
+  <button class="tab-btn" id="tab-normal" onclick="setViz('normal')">Normal Curve</button>
+  <div class="ctrl-group"><label>Data Size</label>
+    <input type="range" id="sz" min="10" max="500" value="50" oninput="upd()"><span class="val" id="vsz">50</span></div>
+  <div class="ctrl-group"><label>Spread</label>
+    <input type="range" id="spread" min="5" max="50" value="15" oninput="upd()"><span class="val" id="vspread">15</span></div>
+  <button class="action-btn" onclick="generate()">Generate Data</button>
+  <button class="action-btn secondary" onclick="addOutlier()">Add Outlier</button>
+</div>
+<div class="readout">
+  <div class="datum">n = <strong id="r-n">0</strong></div>
+  <div class="datum">Mean: <strong id="r-mean">—</strong></div>
+  <div class="datum">Median: <strong id="r-med">—</strong></div>
+  <div class="datum">σ: <strong id="r-sd">—</strong></div>
+  <div class="datum">Q1: <strong id="r-q1">—</strong> Q3: <strong id="r-q3">—</strong></div>
+</div>
+<div class="info-box"><h3>Descriptive Statistics</h3><p>The <strong>mean</strong> is the average, sensitive to outliers. The <strong>median</strong> is the middle value, more robust. <strong>Standard deviation (σ)</strong> measures spread. A <strong>box plot</strong> shows the five-number summary: min, Q1, median, Q3, max. The <strong>normal distribution</strong> (bell curve) appears when many independent factors combine — the central limit theorem guarantees this.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var data=[],viz='histogram';
+window.setViz=function(v){viz=v;document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});document.getElementById('tab-'+v).classList.add('active');};
+window.upd=function(){document.getElementById('vsz').textContent=document.getElementById('sz').value;document.getElementById('vspread').textContent=document.getElementById('spread').value;};
+window.generate=function(){
+  var n=+document.getElementById('sz').value,sp=+document.getElementById('spread').value;
+  data=[];for(var i=0;i<n;i++){var v=50;for(var j=0;j<6;j++)v+=(Math.random()-0.5)*sp;data.push(Math.round(v*10)/10);}
+  calcStats();
+};
+window.addOutlier=function(){if(data.length)data.push(data[0]+80+Math.random()*20);calcStats();};
+function calcStats(){
+  if(!data.length)return;
+  var s=data.slice().sort(function(a,b){return a-b;});
+  var sum=0;for(var i=0;i<s.length;i++)sum+=s[i];
+  var mean=sum/s.length;
+  var med=s.length%2?s[Math.floor(s.length/2)]:(s[s.length/2-1]+s[s.length/2])/2;
+  var v=0;for(var i2=0;i2<s.length;i2++)v+=(s[i2]-mean)**2;
+  var sd=Math.sqrt(v/s.length);
+  var q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];
+  document.getElementById('r-n').textContent=data.length;
+  document.getElementById('r-mean').textContent=mean.toFixed(2);
+  document.getElementById('r-med').textContent=med.toFixed(2);
+  document.getElementById('r-sd').textContent=sd.toFixed(2);
+  document.getElementById('r-q1').textContent=q1.toFixed(1);
+  document.getElementById('r-q3').textContent=q3.toFixed(1);
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  if(!data.length){ctx.fillStyle='#475569';ctx.font='16px Poppins';ctx.textAlign='center';ctx.fillText('Click "Generate Data" to begin',W/2,H/2);requestAnimationFrame(draw);return;}
+  var s=data.slice().sort(function(a,b){return a-b;});
+  var mn=s[0],mx=s[s.length-1],range=mx-mn||1;
+  var pad=60;
+  if(viz==='histogram'){
+    var numBins=Math.min(25,Math.max(8,Math.ceil(Math.sqrt(data.length))));
+    var binW=range/numBins,bins=new Array(numBins).fill(0);
+    for(var i=0;i<data.length;i++){var bi=Math.min(numBins-1,Math.floor((data[i]-mn)/binW));bins[bi]++;}
+    var maxB=Math.max.apply(null,bins);
+    var bw=(W-pad*2)/numBins;
+    for(var b=0;b<numBins;b++){
+      var bh=bins[b]/maxB*(H-100);
+      var grd=ctx.createLinearGradient(0,H-40-bh,0,H-40);grd.addColorStop(0,'#a855f7');grd.addColorStop(1,'#6d28d9');
+      ctx.fillStyle=grd;ctx.fillRect(pad+b*bw+1,H-40-bh,bw-2,bh);
+      if(bins[b])({});
+    }
+    /* x labels */
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';
+    for(var l=0;l<=numBins;l+=Math.max(1,Math.floor(numBins/8)))ctx.fillText((mn+l*binW).toFixed(0),pad+l*bw,H-24);
+    /* mean & median lines */
+    var sum2=0;for(var i2=0;i2<data.length;i2++)sum2+=data[i2];var mean2=sum2/data.length;
+    var meanX=pad+(mean2-mn)/range*(W-pad*2);
+    ctx.strokeStyle='#f472b6';ctx.lineWidth=2;ctx.setLineDash([6,3]);ctx.beginPath();ctx.moveTo(meanX,20);ctx.lineTo(meanX,H-40);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#f472b6';ctx.font='bold 10px Poppins';ctx.fillText('Mean',meanX,16);
+  }else if(viz==='boxplot'){
+    var q1=s[Math.floor(s.length*0.25)],med=s.length%2?s[Math.floor(s.length/2)]:(s[s.length/2-1]+s[s.length/2])/2,q3=s[Math.floor(s.length*0.75)];
+    var iqr=q3-q1,lo=Math.max(mn,q1-1.5*iqr),hi=Math.min(mx,q3+1.5*iqr);
+    function xOf(v){return pad+(v-mn)/range*(W-pad*2);}
+    var cy=H/2,bh=80;
+    /* whiskers */
+    ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(xOf(lo),cy);ctx.lineTo(xOf(q1),cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(xOf(q3),cy);ctx.lineTo(xOf(hi),cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(xOf(lo),cy-20);ctx.lineTo(xOf(lo),cy+20);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(xOf(hi),cy-20);ctx.lineTo(xOf(hi),cy+20);ctx.stroke();
+    /* box */
+    ctx.fillStyle='rgba(168,85,247,0.2)';ctx.strokeStyle='#a855f7';ctx.lineWidth=2;
+    ctx.fillRect(xOf(q1),cy-bh/2,xOf(q3)-xOf(q1),bh);ctx.strokeRect(xOf(q1),cy-bh/2,xOf(q3)-xOf(q1),bh);
+    /* median */
+    ctx.strokeStyle='#f472b6';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(xOf(med),cy-bh/2);ctx.lineTo(xOf(med),cy+bh/2);ctx.stroke();
+    /* outliers */
+    for(var oi=0;oi<s.length;oi++){if(s[oi]<lo||s[oi]>hi){ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(xOf(s[oi]),cy,4,0,Math.PI*2);ctx.fill();}}
+    /* labels */
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';
+    ctx.fillText('Q1='+q1.toFixed(1),xOf(q1),cy+bh/2+16);ctx.fillText('Med='+med.toFixed(1),xOf(med),cy-bh/2-8);ctx.fillText('Q3='+q3.toFixed(1),xOf(q3),cy+bh/2+16);
+  }else{
+    var sum3=0;for(var i3=0;i3<data.length;i3++)sum3+=data[i3];var mu=sum3/data.length;
+    var v2=0;for(var i4=0;i4<data.length;i4++)v2+=(data[i4]-mu)**2;var sigma=Math.sqrt(v2/data.length);
+    ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.beginPath();
+    for(var px=pad;px<=W-pad;px++){
+      var x=mn+(px-pad)/(W-pad*2)*range;
+      var y=Math.exp(-0.5*((x-mu)/sigma)**2)/(sigma*Math.sqrt(2*Math.PI));
+      var sy=H-40-y*(H-80)*(sigma*Math.sqrt(2*Math.PI));
+      px===pad?ctx.moveTo(px,sy):ctx.lineTo(px,sy);
+    }
+    ctx.stroke();
+    ctx.fillStyle='#a855f7';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText('μ='+mu.toFixed(1)+', σ='+sigma.toFixed(1),W/2,30);
+  }
+  requestAnimationFrame(draw);
+}
+generate();draw();
+})();
+</script></body></html>

@@ -1,0 +1,98 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Periodic Table Explorer</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1100px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#f59e0b}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>⚗️ Periodic Table Explorer</h1>
+<p class="subtitle">Interactive periodic table — hover to see element details, color by category or property</p>
+<div class="canvas-wrap"><canvas id="cv" height="480"></canvas></div>
+<div class="controls">
+  <button class="toggle-btn active" onclick="setMode(0,this)">Category</button>
+  <button class="toggle-btn" onclick="setMode(1,this)">Electronegativity</button>
+  <button class="toggle-btn" onclick="setMode(2,this)">Atomic Mass</button>
+  <button class="toggle-btn" onclick="setMode(3,this)">State at RT</button>
+</div>
+<div class="readout">
+  <div class="datum">Element: <strong id="r-name">Hover an element</strong></div>
+  <div class="datum">Symbol: <strong id="r-sym">—</strong></div>
+  <div class="datum">Z: <strong id="r-z">—</strong></div>
+  <div class="datum">Mass: <strong id="r-mass">—</strong></div>
+  <div class="datum">Category: <strong id="r-cat">—</strong></div>
+</div>
+<div class="info-box"><h3>The Periodic Table</h3><p>Elements are arranged by <strong>atomic number</strong> (Z) in rows (periods) and columns (groups). Elements in the same group share similar chemical properties. The table reveals trends: <strong>electronegativity</strong> increases left→right and bottom→top; <strong>atomic radius</strong> increases top→bottom and right→left; <strong>ionization energy</strong> generally mirrors electronegativity trends.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var mode=0,hovered=-1;
+/* Compact element data: [symbol, name, mass, category(0-9), electronegativity, state(0=solid,1=liquid,2=gas), row, col] */
+var C=['Alkali Metal','Alkaline Earth','Transition Metal','Post-transition','Metalloid','Nonmetal','Halogen','Noble Gas','Lanthanide','Actinide'];
+var CC=['#ef4444','#f59e0b','#3b82f6','#6366f1','#8b5cf6','#22c55e','#06b6d4','#ec4899','#14b8a6','#f97316'];
+var E=[
+['H','Hydrogen',1.008,5,2.2,2,0,0],['He','Helium',4.003,7,0,2,0,17],
+['Li','Lithium',6.941,0,0.98,0,1,0],['Be','Beryllium',9.012,1,1.57,0,1,1],['B','Boron',10.81,4,2.04,0,1,12],['C','Carbon',12.01,5,2.55,0,1,13],['N','Nitrogen',14.01,5,3.04,2,1,14],['O','Oxygen',16.00,5,3.44,2,1,15],['F','Fluorine',19.00,6,3.98,2,1,16],['Ne','Neon',20.18,7,0,2,1,17],
+['Na','Sodium',22.99,0,0.93,0,2,0],['Mg','Magnesium',24.31,1,1.31,0,2,1],['Al','Aluminium',26.98,3,1.61,0,2,12],['Si','Silicon',28.09,4,1.9,0,2,13],['P','Phosphorus',30.97,5,2.19,0,2,14],['S','Sulfur',32.07,5,2.58,0,2,15],['Cl','Chlorine',35.45,6,3.16,2,2,16],['Ar','Argon',39.95,7,0,2,2,17],
+['K','Potassium',39.10,0,0.82,0,3,0],['Ca','Calcium',40.08,1,1.0,0,3,1],['Sc','Scandium',44.96,2,1.36,0,3,2],['Ti','Titanium',47.87,2,1.54,0,3,3],['V','Vanadium',50.94,2,1.63,0,3,4],['Cr','Chromium',52.00,2,1.66,0,3,5],['Mn','Manganese',54.94,2,1.55,0,3,6],['Fe','Iron',55.85,2,1.83,0,3,7],['Co','Cobalt',58.93,2,1.88,0,3,8],['Ni','Nickel',58.69,2,1.91,0,3,9],['Cu','Copper',63.55,2,1.9,0,3,10],['Zn','Zinc',65.38,2,1.65,0,3,11],['Ga','Gallium',69.72,3,1.81,0,3,12],['Ge','Germanium',72.63,4,2.01,0,3,13],['As','Arsenic',74.92,4,2.18,0,3,14],['Se','Selenium',78.97,5,2.55,0,3,15],['Br','Bromine',79.90,6,2.96,1,3,16],['Kr','Krypton',83.80,7,3.0,2,3,17],
+['Rb','Rubidium',85.47,0,0.82,0,4,0],['Sr','Strontium',87.62,1,0.95,0,4,1],['Y','Yttrium',88.91,2,1.22,0,4,2],['Zr','Zirconium',91.22,2,1.33,0,4,3],['Nb','Niobium',92.91,2,1.6,0,4,4],['Mo','Molybdenum',95.95,2,2.16,0,4,5],['Tc','Technetium',98,2,1.9,0,4,6],['Ru','Ruthenium',101.1,2,2.2,0,4,7],['Rh','Rhodium',102.9,2,2.28,0,4,8],['Pd','Palladium',106.4,2,2.2,0,4,9],['Ag','Silver',107.9,2,1.93,0,4,10],['Cd','Cadmium',112.4,2,1.69,0,4,11],['In','Indium',114.8,3,1.78,0,4,12],['Sn','Tin',118.7,3,1.96,0,4,13],['Sb','Antimony',121.8,4,2.05,0,4,14],['Te','Tellurium',127.6,4,2.1,0,4,15],['I','Iodine',126.9,6,2.66,0,4,16],['Xe','Xenon',131.3,7,2.6,2,4,17]
+];
+var cellW,cellH,offX=10,offY=30;
+function calcSizes(){cellW=(W-20)/18;cellH=(H-80)/10;}
+function getCell(mx,my){
+  calcSizes();
+  for(var i=0;i<E.length;i++){var e=E[i],x=offX+e[7]*cellW,y=offY+e[6]*cellH;if(mx>=x&&mx<x+cellW-2&&my>=y&&my<y+cellH-2)return i;}return-1;
+}
+cv.addEventListener('mousemove',function(ev){
+  var r=cv.getBoundingClientRect(),mx=(ev.clientX-r.left)*(W/r.width),my=(ev.clientY-r.top)*(H/r.height);
+  hovered=getCell(mx,my);
+  if(hovered>=0){var e=E[hovered];document.getElementById('r-name').textContent=e[1];document.getElementById('r-sym').textContent=e[0];document.getElementById('r-z').textContent=hovered+1;document.getElementById('r-mass').textContent=e[2];document.getElementById('r-cat').textContent=C[e[3]];}
+});
+window.setMode=function(m,el){mode=m;document.querySelectorAll('.toggle-btn').forEach(function(b,idx){b.classList.toggle('active',idx===m);});};
+function getColor(i){
+  var e=E[i];
+  if(mode===0)return CC[e[3]];
+  if(mode===1){var en=e[4];return en===0?'#334155':'hsl('+(120-en*30)+',70%,50%)';}
+  if(mode===2){var t=Math.min(e[2]/200,1);return'hsl('+(240-t*240)+',70%,50%)';}
+  return['#3b82f6','#ef4444','#22c55e'][e[5]];
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  calcSizes();
+  for(var i=0;i<E.length;i++){
+    var e=E[i],x=offX+e[7]*cellW,y=offY+e[6]*cellH,w=cellW-2,h=cellH-2;
+    var col=getColor(i);ctx.fillStyle=i===hovered?col:col.replace(')',',0.6)').replace('hsl','hsla').replace('#','#');
+    if(col[0]==='#'){var alpha=i===hovered?'cc':'88';ctx.fillStyle=col+alpha;}
+    else{ctx.fillStyle=i===hovered?col:col.replace('50%)','50%,0.5)');}
+    ctx.beginPath();ctx.roundRect(x,y,w,h,3);ctx.fill();
+    if(i===hovered){ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.stroke();}
+    ctx.fillStyle='#f1f5f9';ctx.font='bold '+Math.min(cellW*0.35,12)+'px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(e[0],x+w/2,y+h*0.45);
+    ctx.font=Math.min(cellW*0.22,8)+'px Poppins';ctx.fillStyle='#94a3b8';
+    ctx.fillText(i+1,x+w/2,y+h*0.78);
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

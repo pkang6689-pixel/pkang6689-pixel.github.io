@@ -1,0 +1,116 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Fractals Explorer</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#a855f7}
+.ctrl-group .val{font-size:.8rem;color:#a855f7;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#a855f7}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🌀 Fractals Explorer</h1>
+<p class="subtitle">Mandelbrot set, Sierpinski triangle, Koch snowflake — self-similar patterns at every scale</p>
+<div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+<div class="controls">
+  <button class="toggle-btn active" onclick="setType(0,this)">Mandelbrot</button>
+  <button class="toggle-btn" onclick="setType(1,this)">Sierpinski</button>
+  <button class="toggle-btn" onclick="setType(2,this)">Koch Snowflake</button>
+  <button class="toggle-btn" onclick="setType(3,this)">Fern</button>
+  <div class="ctrl-group"><label>Iterations</label>
+    <input type="range" id="piter" min="1" max="200" value="50" oninput="document.getElementById('viter').textContent=this.value;needRedraw=true"><span class="val" id="viter">50</span></div>
+  <div class="ctrl-group"><label>Depth/Detail</label>
+    <input type="range" id="pdepth" min="0" max="7" value="4" oninput="document.getElementById('vdepth').textContent=this.value;needRedraw=true"><span class="val" id="vdepth">4</span></div>
+</div>
+<div class="readout">
+  <div class="datum">Type: <strong id="r-type">Mandelbrot</strong></div>
+  <div class="datum">Iterations: <strong id="r-iter">50</strong></div>
+</div>
+<div class="info-box"><h3>Fractals</h3><p><strong>Fractals</strong> are infinitely complex patterns that are self-similar across different scales. The <strong>Mandelbrot set</strong> tests whether the iteration z → z² + c stays bounded — boundary points create the famous shape. The <strong>Sierpinski triangle</strong> recursively removes central triangles. The <strong>Koch snowflake</strong> recursively adds triangles to each edge, creating infinite perimeter with finite area. <strong>Barnsley's fern</strong> uses an iterated function system (IFS).</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;needRedraw=true;}
+window.addEventListener('resize',resize);resize();
+var fracType=0;window.needRedraw=true;
+var names=['Mandelbrot','Sierpinski Triangle','Koch Snowflake','Barnsley Fern'];
+window.setType=function(i,el){fracType=i;document.querySelectorAll('.toggle-btn').forEach(function(b,idx){if(idx<4)b.classList.toggle('active',idx===i);});needRedraw=true;
+  document.getElementById('r-type').textContent=names[i];};
+function mandelbrot(){
+  var maxIter=+document.getElementById('piter').value;
+  var imgData=ctx.createImageData(W,H);
+  for(var px=0;px<W;px++){for(var py=0;py<H;py++){
+    var x0=(px/W)*3.5-2.5,y0=(py/H)*2.4-1.2;
+    var x=0,y=0,iter=0;
+    while(x*x+y*y<=4&&iter<maxIter){var xt=x*x-y*y+x0;y=2*x*y+y0;x=xt;iter++;}
+    var idx=(py*W+px)*4;
+    if(iter===maxIter){imgData.data[idx]=0;imgData.data[idx+1]=0;imgData.data[idx+2]=0;}
+    else{var t=iter/maxIter;imgData.data[idx]=Math.floor(9*(1-t)*t*t*t*255);imgData.data[idx+1]=Math.floor(15*(1-t)*(1-t)*t*t*255);imgData.data[idx+2]=Math.floor(8.5*(1-t)*(1-t)*(1-t)*t*255);}
+    imgData.data[idx+3]=255;
+  }}
+  ctx.putImageData(imgData,0,0);
+}
+function sierpinski(ax,ay,bx,by,cx,cyy,d){
+  if(d===0){ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.lineTo(cx,cyy);ctx.closePath();ctx.fill();return;}
+  var mx1=(ax+bx)/2,my1=(ay+by)/2,mx2=(bx+cx)/2,my2=(by+cyy)/2,mx3=(ax+cx)/2,my3=(ay+cyy)/2;
+  sierpinski(ax,ay,mx1,my1,mx3,my3,d-1);sierpinski(mx1,my1,bx,by,mx2,my2,d-1);sierpinski(mx3,my3,mx2,my2,cx,cyy,d-1);
+}
+function koch(x1,y1,x2,y2,d){
+  if(d===0){ctx.lineTo(x2,y2);return;}
+  var dx=(x2-x1)/3,dy=(y2-y1)/3;
+  var ax=x1+dx,ay=y1+dy,bx=x1+2*dx,by=y1+2*dy;
+  var px=(ax+bx)/2-Math.sqrt(3)/2*(by-ay),py=(ay+by)/2+Math.sqrt(3)/2*(bx-ax);
+  koch(x1,y1,ax,ay,d-1);koch(ax,ay,px,py,d-1);koch(px,py,bx,by,d-1);koch(bx,by,x2,y2,d-1);
+}
+function fern(){
+  var x=0,y=0,pts=50000;
+  ctx.fillStyle='rgba(34,197,94,0.3)';
+  for(var i=0;i<pts;i++){
+    var r=Math.random(),nx,ny;
+    if(r<0.01){nx=0;ny=0.16*y;}
+    else if(r<0.86){nx=0.85*x+0.04*y;ny=-0.04*x+0.85*y+1.6;}
+    else if(r<0.93){nx=0.2*x-0.26*y;ny=0.23*x+0.22*y+1.6;}
+    else{nx=-0.15*x+0.28*y;ny=0.26*x+0.24*y+0.44;}
+    x=nx;y=ny;
+    var sx=W/2+x*W/12,sy=H-y*H/12;
+    ctx.fillRect(sx,sy,1.5,1.5);
+  }
+}
+function render(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  var depth=+document.getElementById('pdepth').value;
+  document.getElementById('r-iter').textContent=document.getElementById('piter').value;
+  if(fracType===0){mandelbrot();}
+  else if(fracType===1){ctx.fillStyle='#a855f7';sierpinski(W/2,30,30,H-30,W-30,H-30,depth);}
+  else if(fracType===2){
+    ctx.strokeStyle='#a855f7';ctx.lineWidth=1.5;
+    var r=Math.min(W,H)*0.4,cx2=W/2,cy2=H/2;
+    var pts=[];for(var i=0;i<3;i++){var a=i*Math.PI*2/3-Math.PI/2;pts.push([cx2+r*Math.cos(a),cy2+r*Math.sin(a)]);}
+    ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+    for(var i=0;i<3;i++){koch(pts[i][0],pts[i][1],pts[(i+1)%3][0],pts[(i+1)%3][1],depth);}
+    ctx.stroke();
+  }else{fern();}
+}
+function loop(){if(needRedraw){render();needRedraw=false;}requestAnimationFrame(loop);}
+loop();
+})();
+</script></body></html>

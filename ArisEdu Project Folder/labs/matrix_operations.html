@@ -1,0 +1,112 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Matrix Operations</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+.mat-input{display:flex;gap:.5rem;justify-content:center;margin-top:.75rem;flex-wrap:wrap}
+.mat-input .mat{display:grid;grid-template-columns:repeat(2,60px);gap:3px;background:#1e293b;padding:.5rem;border-radius:.5rem;border:1px solid #334155}
+.mat-input .mat input{width:56px;background:#0f172a;border:1px solid #475569;color:#f1f5f9;text-align:center;font-family:monospace;font-size:.85rem;padding:.25rem;border-radius:.25rem}
+.mat-input .mat input:focus{border-color:#a855f7;outline:none}
+.mat-input .mlabel{text-align:center;font-size:.75rem;color:#94a3b8;margin-bottom:.25rem}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#a855f7}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🔢 Matrix Operations</h1>
+<p class="subtitle">Multiply, add, find determinants & inverses of 2×2 matrices — see the geometric transformation</p>
+<div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
+<div class="controls">
+  <button class="toggle-btn active" id="btn-mult" onclick="setOp(0)">A × B</button>
+  <button class="toggle-btn" id="btn-add" onclick="setOp(1)">A + B</button>
+  <button class="toggle-btn" id="btn-det" onclick="setOp(2)">det(A)</button>
+  <button class="toggle-btn" id="btn-inv" onclick="setOp(3)">A⁻¹</button>
+  <button class="toggle-btn" onclick="randomize()">🎲 Random</button>
+</div>
+<div class="mat-input">
+  <div><div class="mlabel">Matrix A</div>
+    <div class="mat" id="matA"><input value="1" oninput="calc()"><input value="0" oninput="calc()"><input value="0" oninput="calc()"><input value="1" oninput="calc()"></div></div>
+  <div style="display:flex;align-items:center;font-size:1.5rem;color:#a855f7;padding:0 .5rem" id="opSym">×</div>
+  <div id="matB-wrap"><div class="mlabel">Matrix B</div>
+    <div class="mat" id="matB"><input value="2" oninput="calc()"><input value="0" oninput="calc()"><input value="0" oninput="calc()"><input value="2" oninput="calc()"></div></div>
+  <div style="display:flex;align-items:center;font-size:1.5rem;color:#94a3b8;padding:0 .5rem">=</div>
+  <div><div class="mlabel">Result</div>
+    <div class="mat" id="matR" style="opacity:.8"><input readonly><input readonly><input readonly><input readonly></div></div>
+</div>
+<div class="readout">
+  <div class="datum">det(A): <strong id="r-deta">1</strong></div>
+  <div class="datum">det(B): <strong id="r-detb">4</strong></div>
+  <div class="datum">det(Result): <strong id="r-detr">4</strong></div>
+</div>
+<div class="info-box"><h3>Matrix Algebra</h3><p>A <strong>2×2 matrix</strong> can represent a linear transformation of the plane: rotation, scaling, reflection, shearing. The <strong>determinant</strong> tells how areas scale (det=0 means the transformation collapses space). <strong>Matrix multiplication</strong> composes transformations. The <strong>inverse</strong> A⁻¹ undoes A's transformation (exists only when det ≠ 0). The canvas shows a unit square transformed by each matrix.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var op=0;
+function getM(id){var inp=document.querySelectorAll('#'+id+' input');return[[+inp[0].value,+inp[1].value],[+inp[2].value,+inp[3].value]];}
+function setM(id,m){var inp=document.querySelectorAll('#'+id+' input');inp[0].value=m[0][0].toFixed(2);inp[1].value=m[0][1].toFixed(2);inp[2].value=m[1][0].toFixed(2);inp[3].value=m[1][1].toFixed(2);}
+function det(m){return m[0][0]*m[1][1]-m[0][1]*m[1][0];}
+function mul(a,b){return[[a[0][0]*b[0][0]+a[0][1]*b[1][0],a[0][0]*b[0][1]+a[0][1]*b[1][1]],[a[1][0]*b[0][0]+a[1][1]*b[1][0],a[1][0]*b[0][1]+a[1][1]*b[1][1]]];}
+function add(a,b){return[[a[0][0]+b[0][0],a[0][1]+b[0][1]],[a[1][0]+b[1][0],a[1][1]+b[1][1]]];}
+function inv(m){var d=det(m);if(Math.abs(d)<1e-8)return null;return[[m[1][1]/d,-m[0][1]/d],[-m[1][0]/d,m[0][0]/d]];}
+window.setOp=function(i){op=i;['btn-mult','btn-add','btn-det','btn-inv'].forEach(function(id,idx){document.getElementById(id).classList.toggle('active',idx===i);});
+  document.getElementById('opSym').textContent=['\u00d7','+','det','inv'][i];
+  document.getElementById('matB-wrap').style.display=i>=2?'none':'';calc();};
+window.randomize=function(){function r(){return Math.round((Math.random()*6-3)*10)/10;}
+  var inp=document.querySelectorAll('#matA input, #matB input');inp.forEach(function(el){el.value=r();});calc();};
+window.calc=function(){
+  var A=getM('matA'),B=getM('matB'),R;
+  if(op===0)R=mul(A,B);else if(op===1)R=add(A,B);else if(op===2)R=A;else{R=inv(A);if(!R)R=[[NaN,NaN],[NaN,NaN]];}
+  setM('matR',R);
+  document.getElementById('r-deta').textContent=det(A).toFixed(3);
+  document.getElementById('r-detb').textContent=det(B).toFixed(3);
+  document.getElementById('r-detr').textContent=det(R).toFixed(3);
+};calc();
+function toS(x,y){return{x:W/2+x*60,y:H/2-y*60};}
+function drawPoly(mat,color,label){
+  var pts=[[0,0],[1,0],[1,1],[0,1]];
+  ctx.beginPath();
+  pts.forEach(function(p,i){
+    var tx=mat[0][0]*p[0]+mat[0][1]*p[1],ty=mat[1][0]*p[0]+mat[1][1]*p[1];
+    var s=toS(tx,ty);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);
+  });
+  ctx.closePath();ctx.fillStyle=color.replace('1)','0.15)');ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle=color;ctx.font='bold 11px Poppins';var c=toS(mat[0][0]*0.5+mat[0][1]*0.5,mat[1][0]*0.5+mat[1][1]*0.5);ctx.fillText(label,c.x-8,c.y+4);
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  /* grid */
+  ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+  for(var g=-6;g<=6;g++){var p=toS(g,0);ctx.beginPath();ctx.moveTo(p.x,0);ctx.lineTo(p.x,H);ctx.stroke();p=toS(0,g);ctx.beginPath();ctx.moveTo(0,p.y);ctx.lineTo(W,p.y);ctx.stroke();}
+  ctx.strokeStyle='#475569';ctx.lineWidth=1;var o=toS(0,0);
+  ctx.beginPath();ctx.moveTo(0,o.y);ctx.lineTo(W,o.y);ctx.stroke();ctx.beginPath();ctx.moveTo(o.x,0);ctx.lineTo(o.x,H);ctx.stroke();
+  var A=getM('matA'),B=getM('matB'),R;
+  if(op===0)R=mul(A,B);else if(op===1)R=add(A,B);else if(op===2)R=A;else{R=inv(A);if(!R)R=[[0,0],[0,0]];}
+  /* identity square */
+  drawPoly([[1,0],[0,1]],'rgba(100,116,139,0.5)','I');
+  drawPoly(A,'rgba(168,85,247,1)','A');
+  if(op<2)drawPoly(B,'rgba(34,197,94,1)','B');
+  drawPoly(R,'rgba(251,146,60,1)',op===3?'A⁻¹':'R');
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

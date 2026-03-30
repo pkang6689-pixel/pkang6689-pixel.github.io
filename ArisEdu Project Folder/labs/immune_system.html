@@ -1,0 +1,136 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Immune System</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#22c55e;color:#22c55e;background:rgba(34,197,94,.1)}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:110px;accent-color:#22c55e}
+.ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600;font-family:monospace}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#22c55e}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🛡️ Immune System</h1>
+<p class="subtitle">White blood cells, antibodies, and pathogen defense</p>
+<div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Pathogen Rate</label><input type="range" id="prate" min="1" max="10" value="3" oninput="upd()"><span class="val" id="vrate">3</span></div>
+  <div class="ctrl-group"><label>WBC Count</label><input type="range" id="pwbc" min="2" max="15" value="6" oninput="upd()"><span class="val" id="vwbc">6</span></div>
+  <button class="toggle-btn" id="btn-vax" onclick="toggleVax()">💉 Vaccinate</button>
+  <button class="toggle-btn" onclick="resetSim()">↺ Reset</button>
+</div>
+<div class="readout">
+  <div class="datum">Pathogens: <strong id="r-path">0</strong></div>
+  <div class="datum">WBCs: <strong id="r-wbc">6</strong></div>
+  <div class="datum">Antibodies: <strong id="r-ab">0</strong></div>
+  <div class="datum">Eliminated: <strong id="r-elim">0</strong></div>
+</div>
+<div class="info-box"><h3>Immune Response</h3><p><strong>White blood cells (WBCs)</strong> patrol the body. When they detect a pathogen, they pursue and engulf it (phagocytosis). <strong>B-cells</strong> produce antibodies that bind to specific antigens (Y-shaped markers shown). <strong>Vaccination</strong> pre-arms the immune system with memory cells so response is faster. Watch how more WBCs and vaccination reduce infection time!</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var pathogens=[],wbcs=[],antibodies=[],eliminated=0,vaccinated=false,frame=0;
+function mkP(){return{x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*1.5,vy:(Math.random()-0.5)*1.5,r:8,hp:3,marked:false};}
+function mkW(x,y){return{x:x||Math.random()*W,y:y||Math.random()*H,vx:(Math.random()-0.5)*0.8,vy:(Math.random()-0.5)*0.8,r:14,target:null};}
+function init(){
+  pathogens=[];wbcs=[];antibodies=[];eliminated=0;vaccinated=false;
+  document.getElementById('btn-vax').classList.remove('active');
+  for(var i=0;i<+document.getElementById('pwbc').value;i++)wbcs.push(mkW());
+}
+init();
+window.upd=function(){document.getElementById('vrate').textContent=document.getElementById('prate').value;document.getElementById('vwbc').textContent=document.getElementById('pwbc').value;
+  while(wbcs.length<+document.getElementById('pwbc').value)wbcs.push(mkW());
+  while(wbcs.length>+document.getElementById('pwbc').value)wbcs.pop();
+};
+window.toggleVax=function(){vaccinated=!vaccinated;document.getElementById('btn-vax').classList.toggle('active',vaccinated);};
+window.resetSim=init;
+function dist(a,b){return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2);}
+function draw(){
+  ctx.clearRect(0,0,W,H);frame++;
+  var rate=+document.getElementById('prate').value;
+  /* spawn pathogens */
+  if(frame%Math.max(5,40-rate*4)===0&&pathogens.length<50){pathogens.push(mkP());}
+  /* move pathogens */
+  pathogens.forEach(function(p){
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+  });
+  /* antibodies: if vaccinated, spawn targeting unmarked pathogens */
+  if(vaccinated&&frame%20===0){
+    pathogens.forEach(function(p){
+      if(!p.marked&&Math.random()<0.3){p.marked=true;antibodies.push({x:p.x,y:p.y,target:p,life:120});}
+    });
+  }
+  antibodies=antibodies.filter(function(a){a.life--;return a.life>0;});
+  /* WBC AI: find nearest pathogen, pursue */
+  wbcs.forEach(function(w){
+    var closest=null,minD=Infinity;
+    pathogens.forEach(function(p){var d=dist(w,p);if(d<minD){minD=d;closest=p;}});
+    if(closest){
+      var dx=closest.x-w.x,dy=closest.y-w.y,d=Math.sqrt(dx*dx+dy*dy);
+      var spd=vaccinated&&closest.marked?3:1.5;
+      w.vx+=(dx/d)*spd*0.1;w.vy+=(dy/d)*spd*0.1;
+      w.vx*=0.95;w.vy*=0.95;
+      /* engulf */
+      if(d<w.r+closest.r){closest.hp--;if(closest.hp<=0){pathogens.splice(pathogens.indexOf(closest),1);eliminated++;}}
+    }
+    w.x+=w.vx;w.y+=w.vy;
+    if(w.x<w.r)w.x=w.r;if(w.x>W-w.r)w.x=W-w.r;if(w.y<w.r)w.y=w.r;if(w.y>H-w.r)w.y=H-w.r;
+  });
+  /* draw pathogens (red spiky) */
+  pathogens.forEach(function(p){
+    ctx.fillStyle=p.marked?'#f59e0b':'#ef4444';ctx.beginPath();
+    for(var a=0;a<Math.PI*2;a+=Math.PI/5){
+      var r1=p.r,r2=p.r*1.5;
+      ctx.lineTo(p.x+r1*Math.cos(a),p.y+r1*Math.sin(a));
+      ctx.lineTo(p.x+r2*Math.cos(a+Math.PI/10),p.y+r2*Math.sin(a+Math.PI/10));
+    }
+    ctx.closePath();ctx.fill();
+    if(p.marked){
+      /* Y antibody marker */
+      ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(p.x,p.y-p.r-2);ctx.lineTo(p.x,p.y-p.r-8);ctx.moveTo(p.x,p.y-p.r-6);ctx.lineTo(p.x-4,p.y-p.r-10);ctx.moveTo(p.x,p.y-p.r-6);ctx.lineTo(p.x+4,p.y-p.r-10);ctx.stroke();
+    }
+  });
+  /* draw WBCs (white/blue blobs) */
+  wbcs.forEach(function(w){
+    ctx.fillStyle='rgba(34,197,94,0.25)';ctx.strokeStyle='#22c55e';ctx.lineWidth=2;
+    ctx.beginPath();for(var a=0;a<Math.PI*2;a+=0.3){var r=w.r+3*Math.sin(a*3+frame*0.1);ctx.lineTo(w.x+r*Math.cos(a),w.y+r*Math.sin(a));}
+    ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#f1f5f9';ctx.font='8px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('WBC',w.x,w.y);
+  });
+  /* readout */
+  document.getElementById('r-path').textContent=pathogens.length;
+  document.getElementById('r-wbc').textContent=wbcs.length;
+  document.getElementById('r-ab').textContent=antibodies.length;
+  document.getElementById('r-elim').textContent=eliminated;
+  /* legend */
+  ctx.font='11px Poppins';ctx.textAlign='left';
+  ctx.fillStyle='#ef4444';ctx.fillText('★ Pathogen',10,20);
+  ctx.fillStyle='#f59e0b';ctx.fillText('★ Marked (antibody)',10,36);
+  ctx.fillStyle='#22c55e';ctx.fillText('○ White Blood Cell',10,52);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

@@ -1,0 +1,125 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Projectile Motion</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#3b82f6}
+.ctrl-group .val{font-size:.8rem;color:#3b82f6;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🎯 Projectile Motion</h1>
+<p class="subtitle">Launch projectiles — explore angle, velocity, and gravity effects on trajectory</p>
+<div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Angle (°)</label>
+    <input type="range" id="pang" min="5" max="85" value="45" oninput="upd()"><span class="val" id="vang">45°</span></div>
+  <div class="ctrl-group"><label>Velocity (m/s)</label>
+    <input type="range" id="pvel" min="10" max="100" value="50" oninput="upd()"><span class="val" id="vvel">50</span></div>
+  <div class="ctrl-group"><label>Gravity (m/s²)</label>
+    <input type="range" id="pg" min="16" max="200" value="98" oninput="upd()"><span class="val" id="vg">9.8</span></div>
+  <button class="toggle-btn" onclick="launch()">🚀 Launch</button>
+  <button class="toggle-btn" onclick="clearTrails()">↺ Clear</button>
+  <button class="toggle-btn active" id="btn-vec" onclick="this.classList.toggle('active')">Vectors</button>
+</div>
+<div class="readout">
+  <div class="datum">Range: <strong id="r-range">—</strong></div>
+  <div class="datum">Max Height: <strong id="r-hmax">—</strong></div>
+  <div class="datum">Time: <strong id="r-time">—</strong></div>
+  <div class="datum">v₀ₓ: <strong id="r-vx">—</strong></div>
+  <div class="datum">v₀ᵧ: <strong id="r-vy">—</strong></div>
+</div>
+<div class="info-box"><h3>Projectile Motion</h3><p>A projectile follows a <strong>parabolic path</strong> under constant gravity. Horizontal velocity vₓ = v₀·cosθ stays constant (no air resistance). Vertical velocity vᵧ = v₀·sinθ − gt changes due to gravity. <strong>Range</strong> R = v₀²·sin(2θ)/g is maximized at 45°. <strong>Max height</strong> H = v₀²·sin²θ/(2g). Time of flight T = 2v₀·sinθ/g.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var trails=[],active=null,t=0;
+window.upd=function(){
+  document.getElementById('vang').textContent=document.getElementById('pang').value+'°';
+  document.getElementById('vvel').textContent=document.getElementById('pvel').value;
+  document.getElementById('vg').textContent=(+document.getElementById('pg').value/10).toFixed(1);
+};upd();
+window.launch=function(){
+  var ang=+document.getElementById('pang').value*Math.PI/180,v0=+document.getElementById('pvel').value,g=+document.getElementById('pg').value/10;
+  var vx=v0*Math.cos(ang),vy=v0*Math.sin(ang);
+  var tFlight=2*vy/g,range=vx*tFlight,hMax=vy*vy/(2*g);
+  document.getElementById('r-range').textContent=range.toFixed(1)+' m';
+  document.getElementById('r-hmax').textContent=hMax.toFixed(1)+' m';
+  document.getElementById('r-time').textContent=tFlight.toFixed(2)+' s';
+  document.getElementById('r-vx').textContent=vx.toFixed(1)+' m/s';
+  document.getElementById('r-vy').textContent=vy.toFixed(1)+' m/s';
+  active={vx:vx,vy:vy,g:g,tFlight:tFlight,range:range,hMax:hMax,trail:[],color:'hsl('+(Math.random()*360)+',70%,60%)'};t=0;
+};
+window.clearTrails=function(){trails=[];active=null;};
+var ground=0.88;
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  /* ground */
+  ctx.fillStyle='#1e293b';ctx.fillRect(0,H*ground,W,H*(1-ground));
+  ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,H*ground);ctx.lineTo(W,H*ground);ctx.stroke();
+  /* scale - find max range to auto-scale */
+  var maxR=200;if(active)maxR=Math.max(maxR,active.range*1.2);
+  trails.forEach(function(tr){maxR=Math.max(maxR,tr.range*1.2);});
+  var sx=W*0.9/maxR,maxH=100;if(active)maxH=Math.max(maxH,active.hMax*1.2);
+  trails.forEach(function(tr){maxH=Math.max(maxH,tr.hMax*1.2);});
+  var sy=(H*ground-20)/maxH;
+  function toS(x,y){return{x:30+x*sx,y:H*ground-y*sy};}
+  /* grid */
+  ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;ctx.fillStyle='#475569';ctx.font='8px Poppins';ctx.textAlign='center';
+  var step=Math.pow(10,Math.floor(Math.log10(maxR/5)));
+  for(var gx=0;gx<=maxR;gx+=step){var p=toS(gx,0);ctx.beginPath();ctx.moveTo(p.x,20);ctx.lineTo(p.x,H*ground);ctx.stroke();ctx.fillText(gx.toFixed(0)+'m',p.x,H*ground+12);}
+  /* old trails */
+  trails.forEach(function(tr){
+    ctx.strokeStyle=tr.color;ctx.lineWidth=1.5;ctx.globalAlpha=0.4;ctx.beginPath();
+    tr.trail.forEach(function(p,i){var s=toS(p.x,p.y);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});ctx.stroke();ctx.globalAlpha=1;
+  });
+  /* active projectile */
+  if(active){
+    t+=0.02;if(t>active.tFlight){trails.push(active);active=null;}
+    else{
+      var px=active.vx*t,py=active.vy*t-0.5*active.g*t*t;
+      active.trail.push({x:px,y:py});
+      ctx.strokeStyle=active.color;ctx.lineWidth=2;ctx.beginPath();
+      active.trail.forEach(function(p,i){var s=toS(p.x,p.y);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});ctx.stroke();
+      var sp=toS(px,py);
+      ctx.fillStyle=active.color;ctx.shadowColor=active.color;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(sp.x,sp.y,6,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      /* velocity vectors */
+      if(document.getElementById('btn-vec').classList.contains('active')){
+        var cvx=active.vx,cvy=active.vy-active.g*t,scale=0.5;
+        ctx.strokeStyle='#ef4444';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(sp.x,sp.y);ctx.lineTo(sp.x+cvx*scale,sp.y);ctx.stroke();
+        ctx.strokeStyle='#22c55e';ctx.beginPath();ctx.moveTo(sp.x,sp.y);ctx.lineTo(sp.x,sp.y-cvy*scale);ctx.stroke();
+        ctx.strokeStyle='#f59e0b';ctx.beginPath();ctx.moveTo(sp.x,sp.y);ctx.lineTo(sp.x+cvx*scale,sp.y-cvy*scale);ctx.stroke();
+      }
+    }
+  }
+  /* launcher */
+  var ang=+document.getElementById('pang').value*Math.PI/180;
+  var lx=30,ly=H*ground;
+  ctx.strokeStyle='#64748b';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(lx+40*Math.cos(-ang),ly+40*Math.sin(-ang));ctx.stroke();
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

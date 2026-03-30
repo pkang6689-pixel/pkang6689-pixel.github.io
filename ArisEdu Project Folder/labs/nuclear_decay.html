@@ -1,0 +1,114 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Nuclear Decay Simulator</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#f59e0b}
+.ctrl-group .val{font-size:.8rem;color:#f59e0b;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#f59e0b}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>☢️ Nuclear Decay Simulator</h1>
+<p class="subtitle">Visualize radioactive decay — half-life, decay curves, and particle emission</p>
+<div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Half-life (s)</label>
+    <input type="range" id="phl" min="5" max="100" value="30" oninput="document.getElementById('vhl').textContent=this.value+' s'"><span class="val" id="vhl">30 s</span></div>
+  <div class="ctrl-group"><label>Initial Atoms</label>
+    <input type="range" id="pn0" min="50" max="500" value="200" step="10" oninput="document.getElementById('vn0').textContent=this.value"><span class="val" id="vn0">200</span></div>
+  <button class="toggle-btn" onclick="startDecay()">▶ Start</button>
+  <button class="toggle-btn" onclick="resetDecay()">↺ Reset</button>
+  <button class="toggle-btn active" id="btn-curve" onclick="this.classList.toggle('active')">Decay Curve</button>
+</div>
+<div class="readout">
+  <div class="datum">Time: <strong id="r-time">0.0 s</strong></div>
+  <div class="datum">Remaining: <strong id="r-rem">200</strong></div>
+  <div class="datum">Decayed: <strong id="r-dec">0</strong></div>
+  <div class="datum">Half-lives: <strong id="r-hl">0.0</strong></div>
+  <div class="datum">% Remaining: <strong id="r-pct">100%</strong></div>
+</div>
+<div class="info-box"><h3>Radioactive Decay</h3><p>Radioactive atoms decay randomly, but statistically follow N(t) = N₀·(½)^(t/t½). The <strong>half-life</strong> t½ is the time for half the atoms to decay. After 1 half-life: 50% remain. After 2: 25%. After 3: 12.5%. This exponential decay is used in <strong>carbon dating</strong>, nuclear medicine, and understanding reactor safety. Each dot represents an atom — orange = undecayed, dark = decayed.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var atoms=[],running=false,startTime=0,elapsed=0,history=[];
+function initAtoms(){
+  var n=+document.getElementById('pn0').value;atoms=[];
+  var cols=Math.ceil(Math.sqrt(n*W/H)),rows=Math.ceil(n/cols);
+  var cw=W*0.55/cols,ch=H*0.9/rows;
+  for(var i=0;i<n;i++){
+    var r=Math.floor(i/cols),c=i%cols;
+    atoms.push({x:20+c*cw+cw/2,y:20+r*ch+ch/2,alive:true,decayTime:Infinity,radius:Math.min(cw,ch)*0.35});
+  }history=[];elapsed=0;
+}
+initAtoms();
+window.startDecay=function(){
+  if(running)return;running=true;startTime=performance.now()-elapsed*1000;
+  var hl=+document.getElementById('phl').value;
+  var lambda=Math.log(2)/hl;
+  atoms.forEach(function(a){if(a.alive&&a.decayTime===Infinity)a.decayTime=-Math.log(Math.random())/lambda;});
+};
+window.resetDecay=function(){running=false;elapsed=0;initAtoms();};
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  if(running)elapsed=(performance.now()-startTime)/1000;
+  var hl=+document.getElementById('phl').value;
+  var alive=0;
+  atoms.forEach(function(a){
+    if(a.alive&&elapsed>=a.decayTime)a.alive=false;
+    if(a.alive)alive++;
+    ctx.fillStyle=a.alive?'#f59e0b':'#334155';
+    ctx.beginPath();ctx.arc(a.x,a.y,a.radius,0,Math.PI*2);ctx.fill();
+    if(a.alive){ctx.shadowColor='#f59e0b';ctx.shadowBlur=4;ctx.fill();ctx.shadowBlur=0;}
+  });
+  /* decay curve */
+  if(document.getElementById('btn-curve').classList.contains('active')&&history.length>1){
+    var gx=W*0.6,gw=W*0.38,gy=10,gh=H*0.4;
+    ctx.fillStyle='rgba(15,23,42,0.85)';ctx.fillRect(gx,gy,gw,gh);ctx.strokeStyle='#334155';ctx.strokeRect(gx,gy,gw,gh);
+    /* theoretical curve */
+    var n0=+document.getElementById('pn0').value,maxT=Math.max(elapsed,hl*4);
+    ctx.strokeStyle='rgba(245,158,11,0.3)';ctx.lineWidth=1;ctx.beginPath();
+    for(var t=0;t<=maxT;t+=maxT/200){var ny=n0*Math.pow(0.5,t/hl);ctx.lineTo(gx+t/maxT*gw,gy+gh-ny/n0*gh);}ctx.stroke();
+    /* actual data */
+    if(history.length>0){ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.beginPath();
+    history.forEach(function(h,i){var px=gx+h.t/maxT*gw,py=gy+gh-h.n/n0*gh;i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);});ctx.stroke();}
+    /* labels */
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';
+    ctx.fillText('Time',gx+gw/2,gy+gh+12);ctx.fillText('0',gx,gy+gh+12);ctx.fillText(maxT.toFixed(0)+'s',gx+gw,gy+gh+12);
+    ctx.textAlign='right';ctx.fillText('N₀',gx-4,gy+8);ctx.fillText('0',gx-4,gy+gh);
+    /* half-life markers */
+    for(var m=1;m<=4;m++){var tx=gx+(m*hl)/maxT*gw;if(tx<gx+gw){ctx.strokeStyle='rgba(245,158,11,0.15)';ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(tx,gy);ctx.lineTo(tx,gy+gh);ctx.stroke();ctx.setLineDash([]);}}
+  }
+  if(running&&Math.floor(elapsed*10)%3===0)history.push({t:elapsed,n:alive});
+  document.getElementById('r-time').textContent=elapsed.toFixed(1)+' s';
+  document.getElementById('r-rem').textContent=alive;
+  document.getElementById('r-dec').textContent=atoms.length-alive;
+  document.getElementById('r-hl').textContent=(elapsed/hl).toFixed(2);
+  document.getElementById('r-pct').textContent=(alive/atoms.length*100).toFixed(1)+'%';
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

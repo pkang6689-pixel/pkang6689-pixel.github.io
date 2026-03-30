@@ -1,0 +1,118 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Pendulum Lab</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#3b82f6}
+.ctrl-group .val{font-size:.8rem;color:#3b82f6;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🔔 Pendulum Lab</h1>
+<p class="subtitle">Simple pendulum — explore period, length, gravity, and damping</p>
+<div class="canvas-wrap"><canvas id="cv" height="450"></canvas></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Length (m)</label>
+    <input type="range" id="plen" min="5" max="40" value="20" oninput="upd()"><span class="val" id="vlen">2.0</span></div>
+  <div class="ctrl-group"><label>Initial angle (°)</label>
+    <input type="range" id="pth" min="5" max="90" value="30" oninput="upd()"><span class="val" id="vth">30°</span></div>
+  <div class="ctrl-group"><label>Gravity</label>
+    <input type="range" id="pg" min="10" max="200" value="98" oninput="upd()"><span class="val" id="vg">9.8</span></div>
+  <div class="ctrl-group"><label>Damping</label>
+    <input type="range" id="pdamp" min="0" max="50" value="2" oninput="upd()"><span class="val" id="vdamp">0.02</span></div>
+  <button class="toggle-btn" onclick="resetPend()">↺ Reset</button>
+  <button class="toggle-btn active" id="btn-trail" onclick="this.classList.toggle('active')">Trail</button>
+  <button class="toggle-btn active" id="btn-energy" onclick="this.classList.toggle('active')">Energy</button>
+</div>
+<div class="readout">
+  <div class="datum">θ: <strong id="r-theta">30.0°</strong></div>
+  <div class="datum">ω: <strong id="r-omega">0.00</strong></div>
+  <div class="datum">Period T: <strong id="r-period">2.84 s</strong></div>
+  <div class="datum">KE: <strong id="r-ke">0.00</strong></div>
+  <div class="datum">PE: <strong id="r-pe">0.00</strong></div>
+</div>
+<div class="info-box"><h3>Simple Pendulum</h3><p>For small angles, the period T = 2π√(L/g) depends only on length and gravity — <strong>not mass or amplitude</strong>. The angular equation of motion is θ'' = −(g/L)sin(θ) − b·θ'. Damping b causes the amplitude to decay exponentially. Energy oscillates between <strong>kinetic</strong> (max at bottom) and <strong>potential</strong> (max at extremes). Galileo noticed this isochronism property of pendulums.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var theta,omega,trail=[];
+function init(){theta=+document.getElementById('pth').value*Math.PI/180;omega=0;trail=[];}
+init();
+window.upd=function(){
+  document.getElementById('vlen').textContent=(+document.getElementById('plen').value/10).toFixed(1);
+  document.getElementById('vth').textContent=document.getElementById('pth').value+'°';
+  document.getElementById('vg').textContent=(+document.getElementById('pg').value/10).toFixed(1);
+  document.getElementById('vdamp').textContent=(+document.getElementById('pdamp').value/1000).toFixed(3);
+};upd();
+window.resetPend=init;
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  var L=+document.getElementById('plen').value/10,g=+document.getElementById('pg').value/10;
+  var damp=+document.getElementById('pdamp').value/1000;
+  var dt=0.016;
+  /* Euler-Cromer integration */
+  var alpha=-(g/L)*Math.sin(theta)-damp*omega;
+  omega+=alpha*dt;theta+=omega*dt;
+  var period=2*Math.PI*Math.sqrt(L/g);
+  var pxScale=Math.min(W,H)*0.7/4;
+  var pivotX=W/2,pivotY=60;
+  var bobX=pivotX+Math.sin(theta)*L*pxScale/2;
+  var bobY=pivotY+Math.cos(theta)*L*pxScale/2;
+  /* trail */
+  trail.push({x:bobX,y:bobY});if(trail.length>300)trail.shift();
+  if(document.getElementById('btn-trail').classList.contains('active')){
+    ctx.strokeStyle='rgba(59,130,246,0.2)';ctx.lineWidth=1;ctx.beginPath();
+    trail.forEach(function(p,i){i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);});ctx.stroke();
+  }
+  /* pivot */
+  ctx.fillStyle='#475569';ctx.fillRect(pivotX-30,pivotY-4,60,8);
+  /* string */
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pivotX,pivotY);ctx.lineTo(bobX,bobY);ctx.stroke();
+  /* bob */
+  var bobR=15;ctx.fillStyle='#3b82f6';ctx.shadowColor='#3b82f6';ctx.shadowBlur=12;
+  ctx.beginPath();ctx.arc(bobX,bobY,bobR,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  /* angle arc */
+  ctx.strokeStyle='rgba(59,130,246,0.4)';ctx.lineWidth=1;ctx.beginPath();
+  ctx.arc(pivotX,pivotY,40,Math.PI/2-Math.abs(theta),Math.PI/2,theta>0);ctx.stroke();
+  /* energy bars */
+  if(document.getElementById('btn-energy').classList.contains('active')){
+    var h=L*(1-Math.cos(theta));var pe=g*h;var ke=0.5*L*L*omega*omega;
+    var total=Math.max(pe+ke,0.01);var barW=20,barH=150,bx=W-60,by=80;
+    ctx.fillStyle='#1e293b';ctx.fillRect(bx,by,barW,barH);ctx.fillRect(bx+30,by,barW,barH);
+    ctx.fillStyle='#ef4444';ctx.fillRect(bx,by+barH*(1-ke/total),barW,barH*(ke/total));
+    ctx.fillStyle='#22c55e';ctx.fillRect(bx+30,by+barH*(1-pe/total),barW,barH*(pe/total));
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';
+    ctx.fillText('KE',bx+barW/2,by+barH+14);ctx.fillText('PE',bx+30+barW/2,by+barH+14);
+    document.getElementById('r-ke').textContent=ke.toFixed(3);
+    document.getElementById('r-pe').textContent=pe.toFixed(3);
+  }
+  document.getElementById('r-theta').textContent=(theta*180/Math.PI).toFixed(1)+'°';
+  document.getElementById('r-omega').textContent=omega.toFixed(3)+' rad/s';
+  document.getElementById('r-period').textContent=period.toFixed(3)+' s';
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

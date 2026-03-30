@@ -1,0 +1,112 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Complex Numbers</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:100px;accent-color:#a855f7}
+.ctrl-group .val{font-size:.8rem;color:#a855f7;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#a855f7}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🌐 Complex Numbers</h1>
+<p class="subtitle">Visualize z = a + bi on the complex plane — addition, multiplication, powers</p>
+<div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+<div class="controls">
+  <button class="toggle-btn active" id="btn-add" onclick="setOp(0)">z₁ + z₂</button>
+  <button class="toggle-btn" id="btn-mul" onclick="setOp(1)">z₁ × z₂</button>
+  <button class="toggle-btn" id="btn-pow" onclick="setOp(2)">zⁿ</button>
+  <button class="toggle-btn" id="btn-conj" onclick="setOp(3)">Conjugate</button>
+  <div class="ctrl-group"><label>z₁ real</label><input type="range" id="p1r" min="-30" max="30" value="20" oninput="upd()"><span class="val" id="v1r">2.0</span></div>
+  <div class="ctrl-group"><label>z₁ imag</label><input type="range" id="p1i" min="-30" max="30" value="10" oninput="upd()"><span class="val" id="v1i">1.0</span></div>
+  <div class="ctrl-group"><label>z₂ real</label><input type="range" id="p2r" min="-30" max="30" value="-10" oninput="upd()"><span class="val" id="v2r">-1.0</span></div>
+  <div class="ctrl-group"><label>z₂ imag</label><input type="range" id="p2i" min="-30" max="30" value="15" oninput="upd()"><span class="val" id="v2i">1.5</span></div>
+  <div class="ctrl-group"><label>n (power)</label><input type="range" id="ppn" min="1" max="8" value="2" oninput="upd()"><span class="val" id="vpn">2</span></div>
+</div>
+<div class="readout">
+  <div class="datum">z₁: <strong id="r-z1">2 + i</strong></div>
+  <div class="datum">z₂: <strong id="r-z2">-1 + 1.5i</strong></div>
+  <div class="datum">Result: <strong id="r-res">1 + 2.5i</strong></div>
+  <div class="datum">|z₁|: <strong id="r-mod">2.236</strong></div>
+  <div class="datum">arg(z₁): <strong id="r-arg">26.6°</strong></div>
+</div>
+<div class="info-box"><h3>Complex Number Plane</h3><p>Complex numbers z = a + bi are plotted on the <strong>Argand plane</strong> (real axis horizontal, imaginary vertical). <strong>Addition</strong> is vector addition. <strong>Multiplication</strong> multiplies magnitudes and adds angles: z₁z₂ = |z₁||z₂|∠(θ₁+θ₂). The <strong>conjugate</strong> z̄ = a − bi reflects across the real axis. Powers follow De Moivre: zⁿ = rⁿ(cos nθ + i sin nθ).</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,cx,cy,sc;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;cx=W/2;cy=H/2;sc=Math.min(W,H)/12;}
+window.addEventListener('resize',resize);resize();
+var op=0;
+window.setOp=function(i){op=i;['btn-add','btn-mul','btn-pow','btn-conj'].forEach(function(id,idx){document.getElementById(id).classList.toggle('active',idx===i);});};
+window.upd=function(){['1r','1i','2r','2i'].forEach(function(k){document.getElementById('v'+k).textContent=(+document.getElementById('p'+k).value/10).toFixed(1);});
+  document.getElementById('vpn').textContent=document.getElementById('ppn').value;};upd();
+function fmt(a,b){var s=a.toFixed(2);return b>=0?s+' + '+b.toFixed(2)+'i':s+' − '+(-b).toFixed(2)+'i';}
+function toS(a,b){return{x:cx+a*sc,y:cy-b*sc};}
+function arrow(x1,y1,x2,y2,col){
+  ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  var ang=Math.atan2(y1-y2,x1-x2),hl=10;
+  ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2+hl*Math.cos(ang+0.35),y2+hl*Math.sin(ang+0.35));ctx.lineTo(x2+hl*Math.cos(ang-0.35),y2+hl*Math.sin(ang-0.35));ctx.closePath();ctx.fillStyle=col;ctx.fill();
+}
+function dot(a,b,col,label){var s=toS(a,b);ctx.fillStyle=col;ctx.beginPath();ctx.arc(s.x,s.y,5,0,Math.PI*2);ctx.fill();
+  ctx.font='bold 10px monospace';ctx.textAlign='left';ctx.fillText(label,s.x+8,s.y-6);}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  var z1r=+document.getElementById('p1r').value/10,z1i=+document.getElementById('p1i').value/10;
+  var z2r=+document.getElementById('p2r').value/10,z2i=+document.getElementById('p2i').value/10;
+  var n=+document.getElementById('ppn').value;
+  /* grid */
+  ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+  for(var g=-6;g<=6;g++){var p=toS(g,0);ctx.beginPath();ctx.moveTo(p.x,0);ctx.lineTo(p.x,H);ctx.stroke();p=toS(0,g);ctx.beginPath();ctx.moveTo(0,p.y);ctx.lineTo(W,p.y);ctx.stroke();}
+  ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
+  ctx.fillStyle='#64748b';ctx.font='10px Poppins';ctx.textAlign='center';
+  for(var lb=-5;lb<=5;lb++)if(lb!==0){ctx.fillText(lb.toString(),cx+lb*sc,cy+14);ctx.fillText(lb+'i',cx-18,cy-lb*sc+4);}
+  ctx.fillText('Re',W-20,cy-6);ctx.fillText('Im',cx+8,16);
+  /* z1 arrow */
+  var o=toS(0,0),s1=toS(z1r,z1i);arrow(o.x,o.y,s1.x,s1.y,'#a855f7');dot(z1r,z1i,'#a855f7','z₁');
+  /* z2 arrow (if needed) */
+  if(op<2){var s2=toS(z2r,z2i);arrow(o.x,o.y,s2.x,s2.y,'#22c55e');dot(z2r,z2i,'#22c55e','z₂');}
+  /* result */
+  var rr,ri;
+  if(op===0){rr=z1r+z2r;ri=z1i+z2i;/* parallelogram */
+    ctx.strokeStyle='rgba(251,146,60,0.3)';ctx.setLineDash([4,3]);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(s1.x,s1.y);var sr=toS(rr,ri);ctx.lineTo(sr.x,sr.y);ctx.stroke();
+    var s2=toS(z2r,z2i);ctx.beginPath();ctx.moveTo(s2.x,s2.y);ctx.lineTo(sr.x,sr.y);ctx.stroke();ctx.setLineDash([]);
+  }else if(op===1){rr=z1r*z2r-z1i*z2i;ri=z1r*z2i+z1i*z2r;
+  }else if(op===2){var r=Math.sqrt(z1r*z1r+z1i*z1i),th=Math.atan2(z1i,z1r);
+    var rn=Math.pow(r,n);rr=rn*Math.cos(n*th);ri=rn*Math.sin(n*th);
+    /* draw intermediate powers */
+    ctx.strokeStyle='rgba(168,85,247,0.2)';ctx.lineWidth=1;
+    for(var k=1;k<n;k++){var rk=Math.pow(r,k),sk=toS(rk*Math.cos(k*th),rk*Math.sin(k*th));
+      ctx.beginPath();ctx.arc(sk.x,sk.y,3,0,Math.PI*2);ctx.fillStyle='rgba(168,85,247,0.4)';ctx.fill();}
+  }else{rr=z1r;ri=-z1i;}
+  var sR=toS(rr,ri);arrow(o.x,o.y,sR.x,sR.y,'#fb923c');dot(rr,ri,'#fb923c',['z₁+z₂','z₁z₂','z^'+n,'z̄'][op]);
+  document.getElementById('r-z1').textContent=fmt(z1r,z1i);
+  document.getElementById('r-z2').textContent=fmt(z2r,z2i);
+  document.getElementById('r-res').textContent=fmt(rr,ri);
+  document.getElementById('r-mod').textContent=Math.sqrt(z1r*z1r+z1i*z1i).toFixed(3);
+  document.getElementById('r-arg').textContent=(Math.atan2(z1i,z1r)*180/Math.PI).toFixed(1)+'°';
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

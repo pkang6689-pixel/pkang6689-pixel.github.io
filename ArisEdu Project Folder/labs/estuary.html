@@ -1,0 +1,128 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Estuary Mixing</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:110px;accent-color:#22c55e}
+.ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600;font-family:monospace}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#22c55e}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🏞️ Estuary Mixing Zones</h1>
+<p class="subtitle">Freshwater-saltwater mixing, salinity gradients, and brackish habitats</p>
+<div class="canvas-wrap"><canvas id="cv" height="380"></canvas></div>
+<div class="controls">
+  <div class="ctrl-group"><label>River Flow</label><input type="range" id="priv" min="1" max="10" value="5" oninput="upd()"><span class="val" id="vriv">5</span></div>
+  <div class="ctrl-group"><label>Tide Level</label><input type="range" id="ptide" min="0" max="10" value="5" oninput="upd()"><span class="val" id="vtide">5</span></div>
+  <div class="ctrl-group"><label>Ocean Salinity (ppt)</label><input type="range" id="psal" min="25" max="40" value="35" oninput="upd()"><span class="val" id="vsal">35</span></div>
+</div>
+<div class="readout">
+  <div class="datum">River zone: <strong id="r-riv">0 ppt</strong></div>
+  <div class="datum">Mixing zone: <strong id="r-mix">~15 ppt</strong></div>
+  <div class="datum">Ocean zone: <strong id="r-oc">35 ppt</strong></div>
+  <div class="datum">Type: <strong id="r-type">Partially mixed</strong></div>
+</div>
+<div class="info-box"><h3>Estuary Dynamics</h3><p>An <strong>estuary</strong> is where rivers meet the sea, creating a salinity gradient from fresh (0 ppt) to marine (~35 ppt). <strong>Brackish water</strong> (0.5-30 ppt) supports unique species. High river flow pushes the mixing zone seaward (salt wedge estuary). Strong tides create well-mixed conditions. The halocline marks the boundary between fresh and salt layers. Estuaries are critical nursery habitats for fish.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var particles=[],t=0;
+for(var i=0;i<150;i++)particles.push({x:Math.random(),y:0.3+Math.random()*0.6,vx:(Math.random()-0.5)*0.001,vy:(Math.random()-0.5)*0.001});
+window.upd=function(){
+  document.getElementById('vriv').textContent=document.getElementById('priv').value;
+  document.getElementById('vtide').textContent=document.getElementById('ptide').value;
+  document.getElementById('vsal').textContent=document.getElementById('psal').value;
+  var riv=+document.getElementById('priv').value,tide=+document.getElementById('ptide').value,sal=+document.getElementById('psal').value;
+  var mixSal=sal*(0.3+tide*0.04-riv*0.02);
+  document.getElementById('r-riv').textContent='0 ppt';
+  document.getElementById('r-mix').textContent='~'+Math.max(0,mixSal).toFixed(0)+' ppt';
+  document.getElementById('r-oc').textContent=sal+' ppt';
+  document.getElementById('r-type').textContent=tide>7?'Well-mixed':riv>7?'Salt wedge':'Partially mixed';
+};upd();
+function getSalinity(frac,riv,tide,sal){
+  var mixPoint=0.3+riv*0.04-tide*0.02;
+  if(frac<mixPoint-0.1)return 0;
+  if(frac>mixPoint+0.2)return sal;
+  return sal*((frac-(mixPoint-0.1))/0.3);
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);t+=0.016;
+  var riv=+document.getElementById('priv').value,tide=+document.getElementById('ptide').value,sal=+document.getElementById('psal').value;
+  var waterTop=H*0.25,floorY=H-20;
+  /* land banks */
+  ctx.fillStyle='#44403c';
+  ctx.fillRect(0,0,W,waterTop);ctx.fillRect(0,floorY,W,H-floorY);
+  /* labels on land */
+  ctx.fillStyle='#22c55e';ctx.font='11px Poppins';ctx.textAlign='left';ctx.fillText('← River (freshwater)',10,15);
+  ctx.textAlign='right';ctx.fillStyle='#3b82f6';ctx.fillText('Ocean (saltwater) →',W-10,15);
+  /* water with salinity gradient */
+  for(var x=0;x<W;x++){
+    var frac=x/W,s=getSalinity(frac,riv,tide,sal);
+    var sFrac=s/sal;
+    var r=34*(1-sFrac)+14*sFrac,g=197*(1-sFrac)+116*sFrac,b=94*(1-sFrac)+144*sFrac;
+    ctx.fillStyle='rgba('+Math.round(r)+','+Math.round(g)+','+Math.round(b)+',0.6)';
+    ctx.fillRect(x,waterTop,1,floorY-waterTop);
+  }
+  /* halocline boundary line */
+  var mixPoint=0.3+riv*0.04-tide*0.02;
+  var haloX=mixPoint*W;
+  ctx.strokeStyle='rgba(250,204,21,0.5)';ctx.lineWidth=2;ctx.setLineDash([5,5]);
+  ctx.beginPath();ctx.moveTo(haloX,waterTop);ctx.lineTo(haloX,floorY);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#facc15';ctx.font='9px Poppins';ctx.textAlign='center';ctx.fillText('Halocline',haloX,waterTop+15);
+  /* salt wedge (if river dominant) */
+  if(riv>tide){
+    ctx.fillStyle='rgba(59,130,246,0.15)';ctx.beginPath();
+    ctx.moveTo(haloX,floorY);ctx.lineTo(haloX-W*0.15,floorY);ctx.lineTo(haloX,waterTop+(floorY-waterTop)*0.5);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.fillText('Salt wedge',haloX-W*0.08,floorY-10);
+  }
+  /* particles flowing */
+  particles.forEach(function(p){
+    var s=getSalinity(p.x,riv,tide,sal);
+    /* river pushes right, tide pushes left at bottom */
+    p.vx+=riv*0.00003-tide*0.00002*(p.y>0.5?1:0);
+    p.vx*=0.99;p.vy*=0.98;
+    p.x+=p.vx;p.y+=p.vy+(Math.random()-0.5)*0.002;
+    if(p.x<0){p.x=0;p.vx=Math.abs(p.vx);}if(p.x>1){p.x=1;p.vx=-Math.abs(p.vx);}
+    if(p.y<0.3)p.y=0.3;if(p.y>0.95)p.y=0.95;
+    var px=p.x*W,py=waterTop+(floorY-waterTop)*(p.y-0.25)/0.75;
+    var sFrac=s/sal;
+    ctx.fillStyle=sFrac<0.3?'rgba(34,197,94,0.5)':sFrac<0.7?'rgba(250,204,21,0.5)':'rgba(59,130,246,0.5)';
+    ctx.beginPath();ctx.arc(px,py,2,0,Math.PI*2);ctx.fill();
+  });
+  /* zone labels */
+  ctx.font='bold 12px Poppins';ctx.textAlign='center';
+  ctx.fillStyle='#22c55e';ctx.fillText('Fresh',W*0.1,(waterTop+floorY)/2);
+  ctx.fillStyle='#f59e0b';ctx.fillText('Brackish',haloX,(waterTop+floorY)/2);
+  ctx.fillStyle='#3b82f6';ctx.fillText('Marine',W*0.85,(waterTop+floorY)/2);
+  /* salinity bar at bottom */
+  for(var x=0;x<W;x++){
+    var s=getSalinity(x/W,riv,tide,sal)/sal;
+    ctx.fillStyle='hsl('+(120-120*s)+',60%,40%)';
+    ctx.fillRect(x,floorY+2,1,8);
+  }
+  ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.textAlign='center';ctx.fillText('Salinity gradient (0→'+sal+' ppt)',W/2,floorY+18);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

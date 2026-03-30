@@ -1,0 +1,121 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Acid-Base pH Simulator</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:150px;accent-color:#f59e0b}
+.ctrl-group .val{font-size:.8rem;color:#f59e0b;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#f59e0b}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🧪 Acid-Base pH Simulator</h1>
+<p class="subtitle">Explore the pH scale — acids, bases, indicators, and buffer solutions</p>
+<div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+<div class="controls">
+  <div class="ctrl-group"><label>pH</label>
+    <input type="range" id="pph" min="0" max="140" value="70" oninput="upd()"><span class="val" id="vph">7.0</span></div>
+  <button class="toggle-btn active" onclick="setPreset(0,this)">Pure Water</button>
+  <button class="toggle-btn" onclick="setPreset(1,this)">Lemon Juice</button>
+  <button class="toggle-btn" onclick="setPreset(2,this)">Vinegar</button>
+  <button class="toggle-btn" onclick="setPreset(3,this)">Blood</button>
+  <button class="toggle-btn" onclick="setPreset(4,this)">Baking Soda</button>
+  <button class="toggle-btn" onclick="setPreset(5,this)">Bleach</button>
+  <button class="toggle-btn active" id="btn-ions" onclick="this.classList.toggle('active')">Show Ions</button>
+</div>
+<div class="readout">
+  <div class="datum">pH: <strong id="r-ph">7.0</strong></div>
+  <div class="datum">pOH: <strong id="r-poh">7.0</strong></div>
+  <div class="datum">[H⁺]: <strong id="r-h">1.0×10⁻⁷ M</strong></div>
+  <div class="datum">[OH⁻]: <strong id="r-oh">1.0×10⁻⁷ M</strong></div>
+  <div class="datum">Type: <strong id="r-type">Neutral</strong></div>
+</div>
+<div class="info-box"><h3>pH Scale</h3><p>pH = −log[H⁺] measures how acidic or basic a solution is. <strong>pH &lt; 7</strong> = acidic (more H⁺ ions), <strong>pH = 7</strong> = neutral, <strong>pH &gt; 7</strong> = basic (more OH⁻ ions). Each pH unit represents a <strong>10× change</strong> in ion concentration. pH + pOH = 14. Common acids: HCl, H₂SO₄, citric acid. Common bases: NaOH, NH₃, Ca(OH)₂.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var presets=[[70,'Pure Water'],[23,'Lemon Juice'],[28,'Vinegar'],[74,'Blood'],[84,'Baking Soda'],[125,'Bleach']];
+var ions=[];for(var i=0;i<60;i++)ions.push({x:Math.random(),y:Math.random(),vx:(Math.random()-0.5)*0.003,vy:(Math.random()-0.5)*0.003,type:Math.random()<0.5?0:1});
+window.setPreset=function(i,el){document.getElementById('pph').value=presets[i][0];upd();
+  document.querySelectorAll('.toggle-btn').forEach(function(b,idx){if(idx>=1&&idx<=6)b.classList.toggle('active',idx-1===i);});};
+window.upd=function(){
+  var ph=(+document.getElementById('pph').value/10);
+  document.getElementById('vph').textContent=ph.toFixed(1);
+  document.getElementById('r-ph').textContent=ph.toFixed(1);
+  document.getElementById('r-poh').textContent=(14-ph).toFixed(1);
+  document.getElementById('r-h').textContent=Math.pow(10,-ph).toExponential(1)+' M';
+  document.getElementById('r-oh').textContent=Math.pow(10,-(14-ph)).toExponential(1)+' M';
+  document.getElementById('r-type').textContent=ph<6.5?'Acidic':ph>7.5?'Basic':'Neutral';
+};upd();
+function phColor(ph){
+  if(ph<=1)return'#ff0000';if(ph<=3)return'#ff6600';if(ph<=5)return'#ffcc00';
+  if(ph<=6)return'#ccff00';if(ph<7.5)return'#00cc00';if(ph<=9)return'#0066ff';
+  if(ph<=11)return'#3300cc';if(ph<=13)return'#660099';return'#330066';
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);var ph=+document.getElementById('pph').value/10;
+  /* beaker */
+  var bx=W*0.1,by=40,bw=W*0.35,bh=H-80;
+  var col=phColor(ph);
+  var grad=ctx.createLinearGradient(bx,by,bx,by+bh);
+  grad.addColorStop(0,col+'44');grad.addColorStop(1,col+'cc');
+  ctx.fillStyle=grad;ctx.beginPath();ctx.roundRect(bx,by,bw,bh,8);ctx.fill();
+  ctx.strokeStyle='#475569';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(bx,by,bw,bh,8);ctx.stroke();
+  /* pH label on beaker */
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 36px Poppins';ctx.textAlign='center';ctx.fillText(ph.toFixed(1),bx+bw/2,by+bh/2);
+  ctx.font='14px Poppins';ctx.fillText(ph<6.5?'ACIDIC':ph>7.5?'BASIC':'NEUTRAL',bx+bw/2,by+bh/2+30);
+  /* ions animation */
+  if(document.getElementById('btn-ions').classList.contains('active')){
+    var hCount=Math.round(Math.max(1,30*(1-ph/14))),ohCount=Math.round(Math.max(1,30*(ph/14)));
+    ions.forEach(function(ion,i){
+      ion.x+=ion.vx;ion.y+=ion.vy;
+      if(ion.x<0||ion.x>1)ion.vx*=-1;if(ion.y<0||ion.y>1)ion.vy*=-1;
+      var px=bx+10+ion.x*(bw-20),py=by+10+ion.y*(bh-20);
+      var isH=i<hCount;
+      if(i>=hCount+ohCount)return;
+      ctx.fillStyle=isH?'#ef4444':'#3b82f6';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=4;
+      ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      ctx.fillStyle='#f1f5f9';ctx.font='bold 6px monospace';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(isH?'H⁺':'OH⁻',px,py);
+    });
+  }
+  /* pH scale bar on right */
+  var sx=W*0.55,sy=30,sw=40,sh=H-60;
+  for(var py=0;py<sh;py++){var p=py/sh*14;ctx.fillStyle=phColor(p);ctx.fillRect(sx,sy+py,sw,1);}
+  ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.strokeRect(sx,sy,sw,sh);
+  /* marker */
+  var my=sy+ph/14*sh;ctx.fillStyle='#f1f5f9';ctx.beginPath();ctx.moveTo(sx-8,my);ctx.lineTo(sx,my-5);ctx.lineTo(sx,my+5);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(sx+sw+8,my);ctx.lineTo(sx+sw,my-5);ctx.lineTo(sx+sw,my+5);ctx.closePath();ctx.fill();
+  /* labels */
+  ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='left';
+  for(var l=0;l<=14;l++){var ly=sy+l/14*sh;ctx.fillText(l.toString(),sx+sw+12,ly+3);}
+  /* common substances */
+  var subs=[{ph:0,name:'Battery Acid'},{ph:1,name:'HCl'},{ph:2.3,name:'Lemon'},{ph:2.8,name:'Vinegar'},{ph:4.5,name:'Coffee'},{ph:7,name:'Water'},{ph:7.4,name:'Blood'},{ph:8.4,name:'Baking Soda'},{ph:10,name:'Milk of Mag.'},{ph:11,name:'Ammonia'},{ph:12.5,name:'Bleach'},{ph:14,name:'NaOH'}];
+  ctx.font='9px Poppins';ctx.textAlign='left';
+  subs.forEach(function(s){var ly=sy+s.ph/14*sh;ctx.fillStyle='#64748b';ctx.fillText(s.name,sx+sw+30,ly+3);});
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

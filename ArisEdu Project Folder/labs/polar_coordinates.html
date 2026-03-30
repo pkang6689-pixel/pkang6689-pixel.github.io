@@ -1,0 +1,114 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Polar Coordinates</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:130px;accent-color:#a855f7}
+.ctrl-group .val{font-size:.8rem;color:#a855f7;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#a855f7}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🌀 Polar Coordinates</h1>
+<p class="subtitle">Convert between polar (r, θ) and Cartesian (x, y), plot classic polar curves</p>
+<div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
+<div class="controls">
+  <button class="toggle-btn active" onclick="setCurve(0,this)">r = a</button>
+  <button class="toggle-btn" onclick="setCurve(1,this)">r = a·cos(nθ)</button>
+  <button class="toggle-btn" onclick="setCurve(2,this)">r = a·sin(nθ)</button>
+  <button class="toggle-btn" onclick="setCurve(3,this)">r = a(1+cos θ)</button>
+  <button class="toggle-btn" onclick="setCurve(4,this)">Spiral r = aθ</button>
+  <button class="toggle-btn" onclick="setCurve(5,this)">Lemniscate</button>
+  <div class="ctrl-group"><label>a</label>
+    <input type="range" id="pa" min="5" max="40" value="20" oninput="document.getElementById('va').textContent=(this.value/10).toFixed(1)"><span class="val" id="va">2.0</span></div>
+  <div class="ctrl-group"><label>n (petals)</label>
+    <input type="range" id="pn" min="1" max="8" value="3" oninput="document.getElementById('vn').textContent=this.value"><span class="val" id="vn">3</span></div>
+</div>
+<div class="readout">
+  <div class="datum">Curve: <strong id="r-name">r = a (circle)</strong></div>
+  <div class="datum">Mouse (r,θ): <strong id="r-polar">—</strong></div>
+  <div class="datum">Mouse (x,y): <strong id="r-cart">—</strong></div>
+</div>
+<div class="info-box"><h3>Polar Coordinate System</h3><p>Instead of (x, y), polar coordinates use (r, θ) where r is the distance from the origin and θ is the angle from the positive x-axis. Classic polar curves include the <strong>cardioid</strong> r = a(1+cosθ), <strong>rose curves</strong> r = a·cos(nθ) with n petals, the <strong>Archimedean spiral</strong> r = aθ, and the <strong>lemniscate</strong> r² = a²·cos(2θ). Conversions: x = r·cosθ, y = r·sinθ.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,cx,cy,scale;
+var curveType=0;
+var names=['r = a (circle)','r = a·cos(nθ)','r = a·sin(nθ)','r = a(1+cosθ) cardioid','r = aθ spiral','r² = a²cos(2θ) lemniscate'];
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;cx=W/2;cy=H/2;scale=Math.min(W,H)/10;}
+window.addEventListener('resize',resize);resize();
+window.setCurve=function(i,el){curveType=i;document.querySelectorAll('.toggle-btn').forEach(function(b,idx){if(idx<6)b.classList.toggle('active',idx===i)});
+  document.getElementById('r-name').textContent=names[i];};
+cv.addEventListener('mousemove',function(e){
+  var r2=e.getBoundingClientRect?e.target.getBoundingClientRect():cv.getBoundingClientRect();
+  var mx=(e.clientX-r2.left)*(W/r2.width)-cx,my=cy-(e.clientY-r2.top)*(H/r2.height);
+  var r=Math.sqrt(mx*mx+my*my)/scale,th=Math.atan2(my,mx);if(th<0)th+=Math.PI*2;
+  document.getElementById('r-polar').textContent='('+r.toFixed(2)+', '+(th*180/Math.PI).toFixed(1)+'°)';
+  document.getElementById('r-cart').textContent='('+(mx/scale).toFixed(2)+', '+(my/scale).toFixed(2)+')';
+});
+function rFunc(theta){
+  var a=+document.getElementById('pa').value/10,n=+document.getElementById('pn').value;
+  switch(curveType){
+    case 0:return a;
+    case 1:return a*Math.cos(n*theta);
+    case 2:return a*Math.sin(n*theta);
+    case 3:return a*(1+Math.cos(theta));
+    case 4:return a*theta/6;
+    case 5:var v=a*a*Math.cos(2*theta);return v>=0?Math.sqrt(v):NaN;
+  }
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  /* polar grid */
+  ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+  for(var gr=1;gr<=5;gr++){ctx.beginPath();ctx.arc(cx,cy,gr*scale,0,Math.PI*2);ctx.stroke();}
+  for(var ga=0;ga<12;ga++){var ang=ga*Math.PI/6;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(ang)*5*scale,cy-Math.sin(ang)*5*scale);ctx.stroke();}
+  /* axes */
+  ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
+  ctx.fillStyle='#64748b';ctx.font='10px Poppins';
+  for(var lb=1;lb<=4;lb++){ctx.fillText(lb.toString(),cx+lb*scale+2,cy-4);ctx.fillText('-'+lb,cx-lb*scale+2,cy-4);}
+  ctx.fillText('0°',cx+5*scale+4,cy+4);ctx.fillText('90°',cx+2,cy-5*scale-4);
+  /* draw curve */
+  ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.shadowColor='#a855f7';ctx.shadowBlur=5;ctx.beginPath();
+  var first=true;var steps=curveType===4?3000:2000;var maxTh=curveType===4?Math.PI*10:Math.PI*2;
+  for(var i=0;i<=steps;i++){
+    var th=i/steps*maxTh;var r=rFunc(th);
+    if(isNaN(r)||r<0){first=true;continue;}
+    var px=cx+r*scale*Math.cos(th),py=cy-r*scale*Math.sin(th);
+    if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
+  }
+  if(curveType===5){/* negative branch of lemniscate */
+    first=true;
+    for(var i=0;i<=steps;i++){
+      var th=i/steps*Math.PI*2;var v=(+document.getElementById('pa').value/10);v=v*v*Math.cos(2*th);
+      if(v<0){first=true;continue;}var r=-Math.sqrt(v);
+      var px=cx+r*scale*Math.cos(th),py=cy-r*scale*Math.sin(th);
+      if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
+    }
+  }
+  ctx.stroke();ctx.shadowBlur=0;
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

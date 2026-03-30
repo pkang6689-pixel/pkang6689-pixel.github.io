@@ -1,0 +1,149 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mineral Identification</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>💎 Mineral Identification</h1>
+<p class="subtitle">Mohs hardness, luster, streak, cleavage — identify unknown minerals</p>
+<div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+<div class="controls">
+  <button class="toggle-btn active" id="btn-scratch" onclick="setTest(0)">Scratch Test</button>
+  <button class="toggle-btn" id="btn-luster" onclick="setTest(1)">Luster</button>
+  <button class="toggle-btn" id="btn-streak" onclick="setTest(2)">Streak Test</button>
+  <button class="toggle-btn" id="btn-cleave" onclick="setTest(3)">Cleavage</button>
+  <button class="toggle-btn" onclick="nextMineral()">Next Mineral →</button>
+</div>
+<div class="readout">
+  <div class="datum">Mineral: <strong id="r-name">Quartz</strong></div>
+  <div class="datum">Hardness: <strong id="r-hard">7</strong></div>
+  <div class="datum">Luster: <strong id="r-luster">Vitreous</strong></div>
+  <div class="datum">Streak: <strong id="r-streak">White</strong></div>
+</div>
+<div class="info-box"><h3>Mineral Properties</h3><p><strong>Mohs Hardness</strong> (1-10): Scratch resistance (talc=1, diamond=10). <strong>Luster</strong>: How light reflects (metallic, vitreous, pearly, earthy). <strong>Streak</strong>: Color of powder on porcelain plate — often different from mineral color. <strong>Cleavage</strong>: How the mineral breaks along planes. These properties help geologists identify minerals in the field.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var minerals=[
+  {name:'Quartz',hardness:7,luster:'Vitreous',streak:'White',cleavage:'Conchoidal fracture',color:'#e0e0ff',shape:'hex'},
+  {name:'Feldspar',hardness:6,luster:'Vitreous to pearly',streak:'White',cleavage:'2-plane (90°)',color:'#f0d0b0',shape:'rect'},
+  {name:'Calcite',hardness:3,luster:'Vitreous',streak:'White',cleavage:'3-plane rhombohedral',color:'#f5f5e8',shape:'rhomb'},
+  {name:'Pyrite',hardness:6.5,luster:'Metallic',streak:'Greenish-black',cleavage:'Conchoidal fracture',color:'#c5a832',shape:'cube'},
+  {name:'Talc',hardness:1,luster:'Pearly to greasy',streak:'White',cleavage:'1-plane basal',color:'#b8d8b8',shape:'flat'},
+  {name:'Hematite',hardness:5.5,luster:'Metallic to earthy',streak:'Reddish-brown',cleavage:'None (uneven)',color:'#5a3a3a',shape:'blob'},
+  {name:'Fluorite',hardness:4,luster:'Vitreous',streak:'White',cleavage:'4-plane octahedral',color:'#b060d0',shape:'cube'},
+  {name:'Mica',hardness:2.5,luster:'Pearly/silky',streak:'White',cleavage:'1-plane (perfect sheets)',color:'#c8b898',shape:'flat'}
+];
+var curIdx=0,test=0,t=0,scratchX=-1;
+function upd(){var m=minerals[curIdx];
+  document.getElementById('r-name').textContent=m.name;
+  document.getElementById('r-hard').textContent=m.hardness;
+  document.getElementById('r-luster').textContent=m.luster;
+  document.getElementById('r-streak').textContent=m.streak;scratchX=-1;
+}
+window.setTest=function(t2){test=t2;['scratch','luster','streak','cleave'].forEach(function(s,i){document.getElementById('btn-'+s).classList.toggle('active',i===t2);});};
+window.nextMineral=function(){curIdx=(curIdx+1)%minerals.length;upd();};
+upd();
+cv.addEventListener('mousemove',function(e){var rect=cv.getBoundingClientRect();scratchX=(e.clientX-rect.left)*(W/rect.width);});
+function drawMineral(cx,cy,m){
+  ctx.fillStyle=m.color;ctx.shadowColor=m.color;ctx.shadowBlur=12;
+  if(m.shape==='hex'){
+    ctx.beginPath();for(var i=0;i<6;i++){var a=i*Math.PI/3-Math.PI/6;ctx.lineTo(cx+50*Math.cos(a),cy+50*Math.sin(a));}ctx.closePath();ctx.fill();
+  }else if(m.shape==='rect'){
+    ctx.fillRect(cx-45,cy-35,90,70);
+  }else if(m.shape==='rhomb'){
+    ctx.beginPath();ctx.moveTo(cx,cy-50);ctx.lineTo(cx+40,cy);ctx.lineTo(cx,cy+50);ctx.lineTo(cx-40,cy);ctx.closePath();ctx.fill();
+  }else if(m.shape==='cube'){
+    ctx.fillRect(cx-35,cy-35,70,70);ctx.fillStyle=m.color+'cc';
+    ctx.beginPath();ctx.moveTo(cx-35,cy-35);ctx.lineTo(cx-20,cy-50);ctx.lineTo(cx+50,cy-50);ctx.lineTo(cx+35,cy-35);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(cx+35,cy-35);ctx.lineTo(cx+50,cy-50);ctx.lineTo(cx+50,cy+20);ctx.lineTo(cx+35,cy+35);ctx.closePath();ctx.fill();
+  }else if(m.shape==='flat'){
+    for(var i=0;i<4;i++){ctx.globalAlpha=0.5+i*0.1;ctx.fillRect(cx-50+i*5,cy-10+i*8,100,12);ctx.globalAlpha=1;}
+  }else{
+    ctx.beginPath();for(var a=0;a<Math.PI*2;a+=0.1){var r=40+10*Math.sin(a*3)+5*Math.cos(a*5);ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}ctx.closePath();ctx.fill();
+  }
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 14px Poppins';ctx.textAlign='center';ctx.fillText(m.name,cx,cy+80);
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);t+=0.016;
+  var m=minerals[curIdx],cx=W/2,cy=H*0.35;
+  if(test===0){
+    /* scratch test */
+    drawMineral(cx,cy,m);
+    /* Mohs scale bar */
+    var barY=H*0.72,barW=W*0.7,barX=(W-barW)/2;
+    ctx.fillStyle='#1e293b';ctx.fillRect(barX,barY,barW,30);
+    for(var i=1;i<=10;i++){
+      var x=barX+(i-1)*barW/10;
+      ctx.fillStyle=i<=m.hardness?'#3b82f6':'#334155';ctx.fillRect(x+2,barY+2,barW/10-4,26);
+      ctx.fillStyle='#f1f5f9';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText(i,x+barW/20,barY+18);
+    }
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('← Soft   Mohs Hardness Scale   Hard →',W/2,barY+50);
+    /* scratch line if hovering */
+    if(scratchX>cx-50&&scratchX<cx+50){ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(scratchX,cy-40);ctx.lineTo(scratchX,cy+40);ctx.stroke();ctx.setLineDash([]);}
+  }else if(test===1){
+    /* luster */
+    drawMineral(cx,cy,m);
+    /* simulate luster with shine */
+    var shine=m.luster.includes('Metallic')?0.8:m.luster.includes('Vitreous')?0.5:m.luster.includes('Pearly')?0.3:0.1;
+    ctx.fillStyle='rgba(255,255,255,'+shine*Math.abs(Math.sin(t*2))+')';
+    ctx.beginPath();ctx.arc(cx-10,cy-15,15,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f1f5f9';ctx.font='16px Poppins';ctx.textAlign='center';ctx.fillText('Luster: '+m.luster,cx,H*0.7);
+  }else if(test===2){
+    /* streak test - porcelain plate */
+    drawMineral(cx-80,cy,m);
+    /* plate */
+    ctx.fillStyle='#f5f5f5';ctx.fillRect(cx+20,cy-40,120,80);ctx.strokeStyle='#d4d4d4';ctx.strokeRect(cx+20,cy-40,120,80);
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';ctx.fillText('Porcelain plate',cx+80,cy+55);
+    /* streak color */
+    var streakColor=m.streak==='White'?'rgba(180,180,180,0.5)':m.streak==='Reddish-brown'?'rgba(160,60,30,0.7)':m.streak==='Greenish-black'?'rgba(40,60,30,0.7)':'rgba(100,100,100,0.5)';
+    ctx.strokeStyle=streakColor;ctx.lineWidth=8;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(cx+35,cy-20);ctx.quadraticCurveTo(cx+60,cy+10,cx+125,cy+10);ctx.stroke();
+    ctx.fillStyle='#f1f5f9';ctx.font='12px Poppins';ctx.textAlign='center';ctx.fillText('Streak: '+m.streak,cx+80,H*0.72);
+  }else{
+    /* cleavage */
+    drawMineral(cx,cy,m);
+    ctx.fillStyle='#f1f5f9';ctx.font='14px Poppins';ctx.textAlign='center';ctx.fillText('Cleavage: '+m.cleavage,cx,H*0.7);
+    /* break lines */
+    if(m.cleavage.includes('1-plane')){
+      ctx.strokeStyle='rgba(239,68,68,0.6)';ctx.lineWidth=2;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(cx-60,cy);ctx.lineTo(cx+60,cy);ctx.stroke();ctx.setLineDash([]);
+    }else if(m.cleavage.includes('2-plane')){
+      ctx.strokeStyle='rgba(239,68,68,0.6)';ctx.lineWidth=2;ctx.setLineDash([5,5]);
+      ctx.beginPath();ctx.moveTo(cx-60,cy);ctx.lineTo(cx+60,cy);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx,cy-60);ctx.lineTo(cx,cy+60);ctx.stroke();ctx.setLineDash([]);
+    }else if(m.cleavage.includes('3-plane')){
+      ctx.strokeStyle='rgba(239,68,68,0.6)';ctx.lineWidth=2;ctx.setLineDash([5,5]);
+      for(var a=0;a<3;a++){var ang=a*Math.PI/3;ctx.beginPath();ctx.moveTo(cx+60*Math.cos(ang),cy+60*Math.sin(ang));ctx.lineTo(cx-60*Math.cos(ang),cy-60*Math.sin(ang));ctx.stroke();}
+      ctx.setLineDash([]);
+    }
+  }
+  /* test label */
+  var testNames=['Scratch Test (hardness)','Luster Test','Streak Test','Cleavage/Fracture'];
+  ctx.fillStyle='#3b82f6';ctx.font='bold 12px Poppins';ctx.textAlign='center';ctx.fillText(testNames[test],W/2,25);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

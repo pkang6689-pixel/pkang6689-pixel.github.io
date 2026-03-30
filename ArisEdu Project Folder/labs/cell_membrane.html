@@ -1,0 +1,153 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cell Membrane Transport</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#22c55e;color:#22c55e;background:rgba(34,197,94,.1)}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:110px;accent-color:#22c55e}
+.ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600;font-family:monospace}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#22c55e}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🔬 Cell Membrane Transport</h1>
+<p class="subtitle">Osmosis, diffusion, and active transport across the phospholipid bilayer</p>
+<div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+<div class="controls">
+  <button class="toggle-btn active" id="btn-diffusion" onclick="setMode(0)">Diffusion</button>
+  <button class="toggle-btn" id="btn-osmosis" onclick="setMode(1)">Osmosis</button>
+  <button class="toggle-btn" id="btn-active" onclick="setMode(2)">Active Transport</button>
+  <div class="ctrl-group"><label>Ext. Concentration</label><input type="range" id="pconc" min="10" max="90" value="70" oninput="upd()"><span class="val" id="vconc">70%</span></div>
+</div>
+<div class="readout">
+  <div class="datum">Mode: <strong id="r-mode">Diffusion</strong></div>
+  <div class="datum">Outside: <strong id="r-out">70%</strong></div>
+  <div class="datum">Inside: <strong id="r-in">30%</strong></div>
+  <div class="datum">Net flow: <strong id="r-flow">→ In</strong></div>
+</div>
+<div class="info-box"><h3>Membrane Transport</h3><p><strong>Diffusion</strong>: Solute molecules move from high → low concentration (passive, no ATP). <strong>Osmosis</strong>: Water moves from low solute → high solute across a semi-permeable membrane. <strong>Active transport</strong>: Molecules pumped against their gradient using ATP energy (e.g., Na⁺/K⁺ pump). The membrane's phospholipid bilayer selectively controls what passes through.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var mode=0,particles=[],t=0;
+function initParticles(){
+  particles=[];
+  var extC=+document.getElementById('pconc').value;
+  var nOut=Math.round(extC*0.6),nIn=Math.round((100-extC)*0.6);
+  for(var i=0;i<nOut;i++)particles.push({x:Math.random()*W*0.4+10,y:50+Math.random()*(H-100),vx:(Math.random()-0.5)*1.5,vy:(Math.random()-0.5)*1.5,side:'out',type:'solute'});
+  for(var i=0;i<nIn;i++)particles.push({x:W*0.6+Math.random()*W*0.35,y:50+Math.random()*(H-100),vx:(Math.random()-0.5)*1.5,vy:(Math.random()-0.5)*1.5,side:'in',type:'solute'});
+  if(mode===1){
+    for(var i=0;i<20;i++){particles.push({x:Math.random()*W*0.4+10,y:50+Math.random()*(H-100),vx:(Math.random()-0.5)*1,vy:(Math.random()-0.5)*1,side:'out',type:'water'});
+      particles.push({x:W*0.6+Math.random()*W*0.35,y:50+Math.random()*(H-100),vx:(Math.random()-0.5)*1,vy:(Math.random()-0.5)*1,side:'in',type:'water'});}
+  }
+}
+var modes=['Diffusion','Osmosis','Active Transport'];
+window.setMode=function(m){mode=m;['diffusion','osmosis','active'].forEach(function(s,i){document.getElementById('btn-'+s).classList.toggle('active',i===m);});initParticles();upd();};
+window.upd=function(){document.getElementById('vconc').textContent=document.getElementById('pconc').value+'%';
+  var ec=+document.getElementById('pconc').value,ic=100-ec;
+  document.getElementById('r-mode').textContent=modes[mode];
+  document.getElementById('r-out').textContent=ec+'%';
+  document.getElementById('r-in').textContent=ic+'%';
+  document.getElementById('r-flow').textContent=ec>ic?'→ In (high→low)':ec<ic?'← Out (high→low)':'Equilibrium';
+  initParticles();
+};upd();
+var memX;
+function drawMembrane(){
+  memX=W*0.5;
+  /* bilayer */
+  ctx.fillStyle='rgba(34,197,94,0.15)';ctx.fillRect(memX-12,30,24,H-60);
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(memX-12,30);ctx.lineTo(memX-12,H-30);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(memX+12,30);ctx.lineTo(memX+12,H-30);ctx.stroke();
+  /* phospholipid heads */
+  for(var y=40;y<H-30;y+=20){
+    ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(memX-12,y,4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(memX+12,y,4,0,Math.PI*2);ctx.fill();
+    /* tails */
+    ctx.strokeStyle='#166534';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(memX-8,y);ctx.lineTo(memX-2,y+5);ctx.lineTo(memX-6,y+10);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(memX+8,y);ctx.lineTo(memX+2,y+5);ctx.lineTo(memX+6,y+10);ctx.stroke();
+  }
+  /* channel pore */
+  ctx.fillStyle='#020617';ctx.fillRect(memX-6,H/2-15,12,30);
+  ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;
+  ctx.strokeRect(memX-6,H/2-15,12,30);
+  ctx.fillStyle='#f59e0b';ctx.font='8px Poppins';ctx.textAlign='center';ctx.fillText('pore',memX,H/2+25);
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);t+=0.016;
+  /* labels */
+  ctx.fillStyle='#94a3b8';ctx.font='12px Poppins';ctx.textAlign='center';
+  ctx.fillText('Outside Cell',W*0.25,25);ctx.fillText('Inside Cell',W*0.75,25);
+  drawMembrane();
+  /* move particles */
+  var extC=+document.getElementById('pconc').value;
+  particles.forEach(function(p){
+    p.x+=p.vx;p.y+=p.vy;
+    /* bounce off walls */
+    if(p.y<40){p.y=40;p.vy*=-1;}if(p.y>H-40){p.y=H-40;p.vy*=-1;}
+    if(p.side==='out'){
+      if(p.x<5){p.x=5;p.vx*=-1;}
+      /* try to cross membrane (pore region) */
+      if(p.x>memX-6){
+        if(p.y>H/2-15&&p.y<H/2+15){
+          /* can pass through pore */
+          if(mode===0&&p.type==='solute'){p.side='in';}
+          else if(mode===1&&p.type==='water'){p.side='in';}
+          else if(mode===2&&Math.random()<0.02){p.side='in';}
+          else{p.x=memX-7;p.vx*=-1;}
+        }else{p.x=memX-13;p.vx*=-1;}
+      }
+    }else{
+      if(p.x>W-5){p.x=W-5;p.vx*=-1;}
+      if(p.x<memX+6){
+        if(p.y>H/2-15&&p.y<H/2+15){
+          if(mode===0&&p.type==='solute'&&Math.random()<0.3){p.side='out';}
+          else if(mode===1&&p.type==='water'&&Math.random()<0.3){p.side='out';}
+          else{p.x=memX+7;p.vx*=-1;}
+        }else{p.x=memX+13;p.vx*=-1;}
+      }
+    }
+    /* draw */
+    if(p.type==='solute'){ctx.fillStyle=p.side==='out'?'#ef4444':'#3b82f6';}
+    else{ctx.fillStyle='#38bdf8';}
+    ctx.beginPath();ctx.arc(p.x,p.y,p.type==='water'?3:5,0,Math.PI*2);ctx.fill();
+  });
+  /* active transport ATP arrow */
+  if(mode===2){
+    ctx.fillStyle='#f59e0b';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+    ctx.fillText('ATP ⚡',memX,H/2-25);
+    var ay=H/2+Math.sin(t*3)*8;
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(memX+20,ay);ctx.lineTo(memX-20,ay);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(memX-20,ay);ctx.lineTo(memX-14,ay-5);ctx.moveTo(memX-20,ay);ctx.lineTo(memX-14,ay+5);ctx.stroke();
+  }
+  /* legend in bottom */
+  ctx.font='10px Poppins';ctx.textAlign='left';
+  ctx.fillStyle='#ef4444';ctx.fillText('● Solute (outside)',10,H-10);
+  ctx.fillStyle='#3b82f6';ctx.fillText('● Solute (inside)',140,H-10);
+  if(mode===1){ctx.fillStyle='#38bdf8';ctx.fillText('● Water',270,H-10);}
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

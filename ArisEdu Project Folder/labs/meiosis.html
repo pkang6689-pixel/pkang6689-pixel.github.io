@@ -1,0 +1,156 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Meiosis Simulator</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#22c55e;color:#22c55e;background:rgba(34,197,94,.1)}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:110px;accent-color:#22c55e}
+.ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600;font-family:monospace}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#22c55e}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🧫 Meiosis</h1>
+<p class="subtitle">Reduction division — producing haploid gametes with genetic variation</p>
+<div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Stage</label><input type="range" id="pstage" min="0" max="8" value="0" oninput="upd()"><span class="val" id="vstage">Interphase</span></div>
+  <button class="toggle-btn" onclick="autoPlay()">▶ Auto Play</button>
+  <button class="toggle-btn" id="btn-cross" onclick="toggleCross()">Crossing Over</button>
+</div>
+<div class="readout">
+  <div class="datum">Phase: <strong id="r-phase">Interphase</strong></div>
+  <div class="datum">Ploidy: <strong id="r-ploidy">2n = 4</strong></div>
+  <div class="datum">Cells: <strong id="r-cells">1</strong></div>
+</div>
+<div class="info-box"><h3>Meiosis: Two Divisions</h3><p><strong>Meiosis I</strong> separates homologous pairs (reduction division): Prophase I (crossing over), Metaphase I (alignment), Anaphase I (homologs separate), Telophase I (2 cells). <strong>Meiosis II</strong> separates sister chromatids: Prophase II → Metaphase II → Anaphase II → Telophase II, yielding <strong>4 haploid cells</strong>. Crossing over in Prophase I generates genetic diversity.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var stages=['Interphase','Prophase I','Metaphase I','Anaphase I','Telophase I','Prophase II','Metaphase II','Anaphase II','Telophase II'];
+var ploidies=['2n = 4','2n = 4','2n = 4','2n = 4','n = 2 (×2)','n = 2 (×2)','n = 2 (×2)','n = 2 (×2)','n = 1 (×4)'];
+var cellCounts=[1,1,1,1,2,2,2,2,4];
+var crossingOver=false,autoId=null,t=0;
+window.upd=function(){
+  var s=+document.getElementById('pstage').value;
+  document.getElementById('vstage').textContent=stages[s];
+  document.getElementById('r-phase').textContent=stages[s];
+  document.getElementById('r-ploidy').textContent=ploidies[s];
+  document.getElementById('r-cells').textContent=cellCounts[s];
+};upd();
+window.autoPlay=function(){if(autoId)return;autoId=setInterval(function(){var s=+document.getElementById('pstage').value;s=(s+1)%9;document.getElementById('pstage').value=s;upd();if(s===0){clearInterval(autoId);autoId=null;}},1200);};
+window.toggleCross=function(){crossingOver=!crossingOver;document.getElementById('btn-cross').classList.toggle('active',crossingOver);};
+function drawChrom(cx,cy,angle,color,len){
+  len=len||30;
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(angle);
+  ctx.strokeStyle=color;ctx.lineWidth=6;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(-4,-len);ctx.lineTo(-4,0);ctx.lineTo(-4,len);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(4,-len);ctx.lineTo(4,0);ctx.lineTo(4,len);ctx.stroke();
+  /* centromere */
+  ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+function drawCell(cx,cy,r){
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.fillStyle='rgba(34,197,94,0.08)';
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();ctx.stroke();
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);t+=0.02;
+  var s=+document.getElementById('pstage').value;
+  var cx=W/2,cy=H/2;
+  if(s===0){
+    drawCell(cx,cy,80);
+    /* loose chromatin */
+    for(var i=0;i<8;i++){
+      var a=i*Math.PI/4+t*0.3,r=30+10*Math.sin(t+i);
+      ctx.fillStyle=i<4?'#3b82f6':'#ef4444';ctx.globalAlpha=0.5;
+      ctx.beginPath();ctx.arc(cx+r*Math.cos(a),cy+r*Math.sin(a),4,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+    }
+    ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(cx,cy,8,0,Math.PI*2);ctx.fill();
+  }else if(s===1){
+    drawCell(cx,cy,80);
+    drawChrom(cx-20,cy-15,0.1,'#3b82f6');drawChrom(cx-12,cy-15,-0.1,'#ef4444');
+    drawChrom(cx+15,cy+15,0.2,'#3b82f6',20);drawChrom(cx+22,cy+15,-0.15,'#ef4444',20);
+    if(crossingOver){ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(cx-16,cy-30);ctx.lineTo(cx-16,cy);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='#f59e0b';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('Crossing over',cx,cy+70);
+    }
+  }else if(s===2){
+    drawCell(cx,cy,80);
+    /* metaphase plate */
+    ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(cx,cy-70);ctx.lineTo(cx,cy+70);ctx.stroke();ctx.setLineDash([]);
+    drawChrom(cx-15,cy-20,0,'#3b82f6');drawChrom(cx+15,cy-20,0,'#ef4444');
+    drawChrom(cx-10,cy+20,0,'#3b82f6',20);drawChrom(cx+10,cy+20,0,'#ef4444',20);
+    /* spindle fibers */
+    ctx.strokeStyle='rgba(148,163,184,0.3)';ctx.lineWidth=1;
+    [-20,20,-10,10].forEach(function(dy){ctx.beginPath();ctx.moveTo(cx-80,cy);ctx.lineTo(cx-15,cy+dy);ctx.stroke();ctx.beginPath();ctx.moveTo(cx+80,cy);ctx.lineTo(cx+15,cy+dy);ctx.stroke();});
+  }else if(s===3){
+    drawCell(cx,cy,90);
+    var sep=30+Math.sin(t*2)*5;
+    drawChrom(cx-sep,cy-15,0,'#3b82f6');drawChrom(cx+sep,cy-15,0,'#ef4444');
+    drawChrom(cx-sep+5,cy+20,0,'#3b82f6',20);drawChrom(cx+sep-5,cy+20,0,'#ef4444',20);
+  }else if(s===4){
+    drawCell(cx-60,cy,55);drawCell(cx+60,cy,55);
+    drawChrom(cx-60,cy-10,0,'#3b82f6');drawChrom(cx-60,cy+15,0,'#3b82f6',18);
+    drawChrom(cx+60,cy-10,0,'#ef4444');drawChrom(cx+60,cy+15,0,'#ef4444',18);
+  }else if(s===5){
+    drawCell(cx-70,cy,55);drawCell(cx+70,cy,55);
+    drawChrom(cx-70,cy,0.1,'#3b82f6');drawChrom(cx-70,cy+18,0.1,'#3b82f6',16);
+    drawChrom(cx+70,cy,-0.1,'#ef4444');drawChrom(cx+70,cy+18,-0.1,'#ef4444',16);
+  }else if(s===6){
+    drawCell(cx-70,cy,55);drawCell(cx+70,cy,55);
+    ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(cx-70,cy-45);ctx.lineTo(cx-70,cy+45);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+70,cy-45);ctx.lineTo(cx+70,cy+45);ctx.stroke();ctx.setLineDash([]);
+    drawChrom(cx-70,cy-8,0,'#3b82f6');drawChrom(cx-70,cy+15,0,'#3b82f6',16);
+    drawChrom(cx+70,cy-8,0,'#ef4444');drawChrom(cx+70,cy+15,0,'#ef4444',16);
+  }else if(s===7){
+    drawCell(cx-70,cy,55);drawCell(cx+70,cy,55);
+    var sp=20+Math.sin(t*2)*4;
+    ctx.strokeStyle='#3b82f6';ctx.lineWidth=4;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(cx-70-sp,cy-8);ctx.lineTo(cx-70-sp,cy-28);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx-70+sp,cy-8);ctx.lineTo(cx-70+sp,cy-28);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx-70-sp+3,cy+15);ctx.lineTo(cx-70-sp+3,cy+28);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx-70+sp-3,cy+15);ctx.lineTo(cx-70+sp-3,cy+28);ctx.stroke();
+    ctx.strokeStyle='#ef4444';
+    ctx.beginPath();ctx.moveTo(cx+70-sp,cy-8);ctx.lineTo(cx+70-sp,cy-28);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+70+sp,cy-8);ctx.lineTo(cx+70+sp,cy-28);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+70-sp+3,cy+15);ctx.lineTo(cx+70-sp+3,cy+28);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+70+sp-3,cy+15);ctx.lineTo(cx+70+sp-3,cy+28);ctx.stroke();
+  }else if(s===8){
+    var pos=[{x:cx-100,y:cy-50},{x:cx+100,y:cy-50},{x:cx-100,y:cy+60},{x:cx+100,y:cy+60}];
+    var cols=['#3b82f6','#3b82f6','#ef4444','#ef4444'];
+    pos.forEach(function(p,i){
+      drawCell(p.x,p.y,38);
+      ctx.strokeStyle=cols[i];ctx.lineWidth=3;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(p.x,p.y-12);ctx.lineTo(p.x,p.y+5);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(p.x-5,p.y+8);ctx.lineTo(p.x+5,p.y+18);ctx.stroke();
+    });
+    ctx.fillStyle='#22c55e';ctx.font='bold 12px Poppins';ctx.textAlign='center';ctx.fillText('4 Haploid Gametes (n)',cx,cy+120);
+  }
+  /* stage label */
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 16px Poppins';ctx.textAlign='center';ctx.fillText(stages[s],cx,30);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

@@ -1,0 +1,114 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Crystal Structures</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1)}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#f59e0b}
+.ctrl-group .val{font-size:.8rem;color:#f59e0b;font-weight:600;font-family:monospace}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#f59e0b}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>💎 Crystal Structures</h1>
+<p class="subtitle">Explore unit cells — SC, BCC, FCC, and HCP lattice types in 3D</p>
+<div class="canvas-wrap"><canvas id="cv" height="480"></canvas></div>
+<div class="controls">
+  <button class="toggle-btn active" onclick="setType(0,this)">Simple Cubic</button>
+  <button class="toggle-btn" onclick="setType(1,this)">BCC</button>
+  <button class="toggle-btn" onclick="setType(2,this)">FCC</button>
+  <button class="toggle-btn" onclick="setType(3,this)">Diamond</button>
+  <div class="ctrl-group"><label>Y Rotation</label>
+    <input type="range" id="pry" min="0" max="360" value="30"><span class="val" id="vry">30°</span></div>
+  <div class="ctrl-group"><label>X Tilt</label>
+    <input type="range" id="prx" min="-90" max="90" value="20"><span class="val" id="vrx">20°</span></div>
+  <button class="toggle-btn active" id="btn-spin" onclick="this.classList.toggle('active')">Auto-Spin</button>
+  <button class="toggle-btn active" id="btn-bonds" onclick="this.classList.toggle('active')">Bonds</button>
+</div>
+<div class="readout">
+  <div class="datum">Type: <strong id="r-type">Simple Cubic</strong></div>
+  <div class="datum">Atoms/Cell: <strong id="r-atoms">1</strong></div>
+  <div class="datum">Coord. #: <strong id="r-cn">6</strong></div>
+  <div class="datum">Packing: <strong id="r-pack">52%</strong></div>
+  <div class="datum">Example: <strong id="r-ex">Po</strong></div>
+</div>
+<div class="info-box"><h3>Crystal Lattice Structures</h3><p>Metals and ionic compounds form regular <strong>crystal lattices</strong>. The <strong>Simple Cubic</strong> (SC) has atoms only at corners (52% packing). <strong>Body-Centered Cubic</strong> (BCC) adds a center atom (68%). <strong>Face-Centered Cubic</strong> (FCC) has atoms on each face center (74% — highest for cubic). <strong>Diamond cubic</strong> is FCC with an interpenetrating sublattice (34%). Coordination number tells how many nearest neighbors each atom has.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var typeIdx=0,autoAngle=0;
+var data=[
+  {name:'Simple Cubic',atoms:1,cn:6,pack:'52%',ex:'Po',pts:[[0,0,0],[1,0,0],[0,1,0],[0,0,1],[1,1,0],[1,0,1],[0,1,1],[1,1,1]]},
+  {name:'BCC',atoms:2,cn:8,pack:'68%',ex:'Fe, W',pts:[[0,0,0],[1,0,0],[0,1,0],[0,0,1],[1,1,0],[1,0,1],[0,1,1],[1,1,1],[.5,.5,.5]]},
+  {name:'FCC',atoms:4,cn:12,pack:'74%',ex:'Cu, Al, Au',pts:[[0,0,0],[1,0,0],[0,1,0],[0,0,1],[1,1,0],[1,0,1],[0,1,1],[1,1,1],[.5,.5,0],[.5,0,.5],[0,.5,.5],[1,.5,.5],[.5,1,.5],[.5,.5,1]]},
+  {name:'Diamond Cubic',atoms:8,cn:4,pack:'34%',ex:'C, Si, Ge',pts:[[0,0,0],[1,0,0],[0,1,0],[0,0,1],[1,1,0],[1,0,1],[0,1,1],[1,1,1],[.5,.5,0],[.5,0,.5],[0,.5,.5],[1,.5,.5],[.5,1,.5],[.5,.5,1],[.25,.25,.25],[.75,.75,.25],[.75,.25,.75],[.25,.75,.75]]}
+];
+window.setType=function(i,el){typeIdx=i;document.querySelectorAll('.toggle-btn').forEach(function(b,idx){if(idx<4)b.classList.toggle('active',idx===i);});
+  var d=data[i];document.getElementById('r-type').textContent=d.name;document.getElementById('r-atoms').textContent=d.atoms;document.getElementById('r-cn').textContent=d.cn;document.getElementById('r-pack').textContent=d.pack;document.getElementById('r-ex').textContent=d.ex;};
+setType(0,null);
+function rot3(p,ry,rx){
+  var cy=Math.cos(ry),sy=Math.sin(ry),x=p[0]*cy-p[2]*sy,z=p[0]*sy+p[2]*cy;
+  var cx2=Math.cos(rx),sx2=Math.sin(rx),y=p[1]*cx2-z*sx2,z2=p[1]*sx2+z*cx2;
+  return[x,y,z2];
+}
+function proj(p3){var s=Math.min(W,H)*0.3;return{x:W/2+p3[0]*s,y:H/2-p3[1]*s,z:p3[2]};}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  if(document.getElementById('btn-spin').classList.contains('active'))autoAngle+=0.005;
+  var ry=autoAngle+(+document.getElementById('pry').value)*Math.PI/180;
+  var rx=(+document.getElementById('prx').value)*Math.PI/180;
+  document.getElementById('vry').textContent=Math.round(+document.getElementById('pry').value)+'°';
+  document.getElementById('vrx').textContent=Math.round(+document.getElementById('prx').value)+'°';
+  var d=data[typeIdx],pts=d.pts;
+  /* edges of unit cell */
+  var edges=[[0,1],[0,2],[0,3],[1,4],[1,5],[2,4],[2,6],[3,5],[3,6],[4,7],[5,7],[6,7]];
+  var centered=pts.map(function(p){return[p[0]-0.5,p[1]-0.5,p[2]-0.5];});
+  var projected=centered.map(function(p){return proj(rot3(p,ry,rx));});
+  /* sort by z for depth */
+  var indices=[];for(var i=0;i<projected.length;i++)indices.push(i);
+  indices.sort(function(a,b){return projected[a].z-projected[b].z;});
+  /* draw edges */
+  ctx.strokeStyle='rgba(245,158,11,0.15)';ctx.lineWidth=1;
+  edges.forEach(function(e){if(e[0]<projected.length&&e[1]<projected.length){var a=projected[e[0]],b=projected[e[1]];ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}});
+  /* draw bonds if enabled */
+  if(document.getElementById('btn-bonds').classList.contains('active')){
+    ctx.strokeStyle='rgba(59,130,246,0.3)';ctx.lineWidth=1.5;
+    for(var i=0;i<pts.length;i++){for(var j=i+1;j<pts.length;j++){
+      var dx=pts[i][0]-pts[j][0],dy=pts[i][1]-pts[j][1],dz=pts[i][2]-pts[j][2];
+      var dist=Math.sqrt(dx*dx+dy*dy+dz*dz);
+      if(dist<0.75){ctx.beginPath();ctx.moveTo(projected[i].x,projected[i].y);ctx.lineTo(projected[j].x,projected[j].y);ctx.stroke();}
+    }}
+  }
+  /* draw atoms */
+  indices.forEach(function(i){
+    var p=projected[i],isCorner=pts[i][0]%1===0&&pts[i][1]%1===0&&pts[i][2]%1===0;
+    var r=isCorner?10:8;var alpha=0.5+0.5*(p.z+1)/2;
+    ctx.fillStyle='rgba(245,158,11,'+alpha+')';ctx.shadowColor='#f59e0b';ctx.shadowBlur=8*alpha;
+    ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    if(!isCorner){ctx.strokeStyle='rgba(245,158,11,0.5)';ctx.lineWidth=1;ctx.stroke();}
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>
