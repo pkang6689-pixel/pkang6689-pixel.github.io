@@ -1,0 +1,138 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Evolution &amp; Phylogenetic Tree</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#22c55e;color:#22c55e;background:rgba(34,197,94,.1)}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:110px;accent-color:#22c55e}
+.ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600;font-family:monospace}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#22c55e}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🌳 Evolution & Phylogenetic Tree</h1>
+<p class="subtitle">Common ancestry, branching evolution, and speciation</p>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="450"></canvas><div id="tip" style="position:absolute;pointer-events:none;display:none;background:rgba(30,41,59,.92);color:#f1f5f9;font-size:.75rem;padding:4px 10px;border-radius:6px;border:1px solid #334155;white-space:nowrap;z-index:5"></div></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Mutation Rate</label><input type="range" id="pmut" min="1" max="10" value="5" oninput="upd()"><span class="val" id="vmut">5</span></div>
+  <button class="toggle-btn active" id="btn-cladogram" onclick="setView(0)">Cladogram</button>
+  <button class="toggle-btn" id="btn-sim" onclick="setView(1)">Population Sim</button>
+  <button class="toggle-btn" id="btn-time" onclick="this.classList.toggle('active')">⏱ Time Scale</button>
+</div>
+<div class="readout">
+  <div class="datum">Species: <strong id="r-sp">8</strong></div>
+  <div class="datum">Common Ancestor: <strong id="r-ca">~600 MYA</strong></div>
+  <div class="datum">Generations: <strong id="r-gen">0</strong></div>
+  <div class="datum">Selected: <strong id="r-sel">—</strong></div>
+</div>
+<p style="text-align:center;font-size:.7rem;color:#64748b;margin-top:.25rem">Click a species to highlight its lineage · Hover nodes for details</p>
+<div class="info-box"><h3>Phylogenetic Trees</h3><p>A <strong>phylogenetic tree</strong> (cladogram) shows evolutionary relationships. Branch points (<strong>nodes</strong>) represent common ancestors. Species at branch tips share descent. Closer branches = more recent common ancestor. In the <strong>population sim</strong>, random mutations cause organisms to diverge over generations, demonstrating how speciation occurs through accumulated differences.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var viewMode=0,gen=0,t=0,selectedSp=null;
+var species=[
+  {name:'🐟 Fish',color:'#3b82f6',mya:530},
+  {name:'🐸 Amphibian',color:'#22c55e',mya:370},
+  {name:'🦎 Reptile',color:'#84cc16',mya:312},
+  {name:'🐦 Bird',color:'#f59e0b',mya:160},
+  {name:'🐱 Mammal',color:'#ef4444',mya:200},
+  {name:'🐒 Primate',color:'#a855f7',mya:65},
+  {name:'🧑 Human',color:'#ec4899',mya:0.3},
+  {name:'🐋 Whale',color:'#06b6d4',mya:50}
+];
+var tree={d:0,children:[
+  {d:1,name:'🐟 Fish',color:'#3b82f6',mya:530,children:[]},
+  {d:1,children:[
+    {d:2,name:'🐸 Amphibian',color:'#22c55e',mya:370,children:[]},
+    {d:2,children:[
+      {d:3,children:[
+        {d:4,name:'🦎 Reptile',color:'#84cc16',mya:312,children:[]},
+        {d:4,children:[{d:5,name:'🐦 Bird',color:'#f59e0b',mya:160,children:[]}]}
+      ]},
+      {d:3,children:[
+        {d:4,name:'🐋 Whale',color:'#06b6d4',mya:50,children:[]},
+        {d:4,children:[
+          {d:5,name:'🐱 Mammal',color:'#ef4444',mya:200,children:[]},
+          {d:5,children:[
+            {d:6,name:'🐒 Primate',color:'#a855f7',mya:65,children:[]},
+            {d:6,name:'🧑 Human',color:'#ec4899',mya:0.3,children:[]}
+          ]}
+        ]}
+      ]}
+    ]}
+  ]}
+]};
+var leafPositions=[];
+var pop=[];
+function initPop(){pop=[];gen=0;for(var i=0;i<40;i++)pop.push({x:W/2+(Math.random()-.5)*60,y:H-60,color:'hsl('+(Math.random()*360)+',70%,60%)',vx:(Math.random()-.5)*2,vy:-.5-Math.random()*.5,gen:0});}
+initPop();
+window.setView=function(v){viewMode=v;['cladogram','sim'].forEach(function(s,i){document.getElementById('btn-'+s).classList.toggle('active',i===v);});if(v===1)initPop();};
+window.upd=function(){document.getElementById('vmut').textContent=document.getElementById('pmut').value;};upd();
+/* click to select species */
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+  if(viewMode!==0)return;var found=null;
+  leafPositions.forEach(function(lp){if(Math.hypot(mx-lp.x,my-lp.y)<16)found=lp.name;});
+  selectedSp=found===selectedSp?null:found;document.getElementById('r-sel').textContent=selectedSp||'—';});
+/* tooltip */
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;var found=null;
+  if(viewMode===0){leafPositions.forEach(function(lp){if(Math.hypot(mx-lp.x,my-lp.y)<16)found=lp.name+(lp.mya!==undefined?' · ~'+lp.mya+' MYA':'');});}
+  if(found){tip.style.display='block';tip.style.left=(mx+12)+'px';tip.style.top=(my-28)+'px';tip.textContent=found;}else tip.style.display='none';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+function countLeaves(n){if(!n.children||!n.children.length)return 1;var c=0;n.children.forEach(function(ch){c+=countLeaves(ch);});return c;}
+function hasLeaf(node,name){if(node.name===name)return true;if(!node.children)return false;for(var i=0;i<node.children.length;i++)if(hasLeaf(node.children[i],name))return true;return false;}
+function drawTree(node,x,y,w,depth){
+  var isHighlighted=selectedSp&&hasLeaf(node,selectedSp);
+  if(!node.children||!node.children.length){
+    var g=ctx.createRadialGradient(x,y,0,x,y,10);g.addColorStop(0,node.color||'#94a3b8');g.addColorStop(1,(node.color||'#94a3b8')+'80');
+    ctx.fillStyle=g;ctx.shadowColor=isHighlighted?node.color:'transparent';ctx.shadowBlur=isHighlighted?14:0;ctx.beginPath();ctx.arc(x,y,isHighlighted?11:8,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    if(isHighlighted){ctx.strokeStyle=node.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,14,0,Math.PI*2);ctx.stroke();}
+    ctx.fillStyle='#f1f5f9';ctx.font=(isHighlighted?'bold ':'')+' 10px Poppins';ctx.textAlign='center';ctx.fillText(node.name||'',x,y+24);
+    if(document.getElementById('btn-time').classList.contains('active')&&node.mya!==undefined){ctx.fillStyle='#64748b';ctx.font='8px Poppins';ctx.fillText('~'+node.mya+' MYA',x,y+35);}
+    leafPositions.push({x:x,y:y,name:node.name,mya:node.mya});return;}
+  var totalLeaves=countLeaves(node),startX=x-w/2;
+  node.children.forEach(function(ch){var leaves=countLeaves(ch),childX=startX+w*leaves/totalLeaves/2,childY=y+55;
+    var hl=selectedSp&&hasLeaf(ch,selectedSp);
+    ctx.strokeStyle=hl?'#f59e0b':'#475569';ctx.lineWidth=hl?3:2;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+25);ctx.lineTo(childX,y+25);ctx.lineTo(childX,childY);ctx.stroke();
+    ctx.fillStyle=hl?'#f59e0b':'#94a3b8';ctx.beginPath();ctx.arc(x,y+25,hl?4:3,0,Math.PI*2);ctx.fill();
+    drawTree(ch,childX,childY,w*leaves/totalLeaves,depth+1);startX+=w*leaves/totalLeaves;});}
+function draw(){ctx.clearRect(0,0,W,H);t+=0.016;
+  if(viewMode===0){leafPositions=[];
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 14px Poppins';ctx.textAlign='center';ctx.fillText('Phylogenetic Tree of Vertebrates',W/2,25);
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.fillText('~600 MYA (common ancestor)',W/2,42);
+    drawTree(tree,W/2,55,W*0.85,0);
+    document.getElementById('r-sp').textContent='8';document.getElementById('r-ca').textContent='~600 MYA';document.getElementById('r-gen').textContent='—';
+  }else{var mut=+document.getElementById('pmut').value;gen++;
+    pop.forEach(function(p){p.x+=p.vx+(Math.random()-.5)*mut*0.3;p.y+=p.vy;if(p.x<10)p.x=10;if(p.x>W-10)p.x=W-10;
+      if(Math.random()<mut*0.01){var hsl=p.color.match(/\d+/g);if(hsl){hsl[0]=(+hsl[0]+Math.round((Math.random()-.5)*30)+360)%360;p.color='hsl('+hsl[0]+',70%,60%)';}}
+      ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=3;ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;});
+    if(gen%60===0&&pop.length<200){var np=[];pop.forEach(function(p){if(Math.random()<0.1)np.push({x:p.x+(Math.random()-.5)*10,y:p.y,color:p.color,vx:p.vx+(Math.random()-.5)*.5,vy:p.vy,gen:gen});});pop=pop.concat(np);}
+    pop=pop.filter(function(p){return p.y>-10&&p.y<H+10;});if(pop.length<5)initPop();
+    ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(20,H-50);ctx.lineTo(20,50);ctx.stroke();ctx.beginPath();ctx.moveTo(20,50);ctx.lineTo(15,60);ctx.moveTo(20,50);ctx.lineTo(25,60);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('Time ↑',20,40);
+    document.getElementById('r-sp').textContent=new Set(pop.map(function(p){return p.color;})).size;document.getElementById('r-gen').textContent=gen;document.getElementById('r-ca').textContent='Gen 0';}
+  requestAnimationFrame(draw);}
+draw();
+})();
+</script></body></html>

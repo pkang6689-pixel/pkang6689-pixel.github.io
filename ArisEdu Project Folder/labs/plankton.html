@@ -1,0 +1,96 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Plankton Bloom</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:110px;accent-color:#22c55e}
+.ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600;font-family:monospace}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#22c55e}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🦠 Plankton Bloom Dynamics</h1>
+<p class="subtitle">Phytoplankton & zooplankton populations — Lotka-Volterra model</p>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="400"></canvas><div id="tip" style="position:absolute;pointer-events:none;display:none;background:rgba(30,41,59,.92);color:#f1f5f9;font-size:.75rem;padding:4px 10px;border-radius:6px;border:1px solid #334155;white-space:nowrap;z-index:5"></div></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Sunlight</label><input type="range" id="psun" min="1" max="10" value="6" oninput="upd()"><span class="val" id="vsun">6</span></div>
+  <div class="ctrl-group"><label>Nutrients</label><input type="range" id="pnut" min="1" max="10" value="5" oninput="upd()"><span class="val" id="vnut">5</span></div>
+  <div class="ctrl-group"><label>Grazing Rate</label><input type="range" id="pgrz" min="1" max="10" value="4" oninput="upd()"><span class="val" id="vgrz">4</span></div>
+  <button class="toggle-btn" id="btn-phase" onclick="this.classList.toggle('active')">🔄 Phase Space</button>
+</div>
+<div class="readout">
+  <div class="datum">Phyto: <strong id="r-phyto">500</strong></div>
+  <div class="datum">Zoo: <strong id="r-zoo">100</strong></div>
+  <div class="datum">O₂ Output: <strong id="r-o2">High</strong></div>
+  <div class="datum">Phase: <strong id="r-phase">Growing</strong></div>
+</div>
+<p style="text-align:center;font-size:.7rem;color:#64748b;margin-top:.25rem">Click water to add nutrient pulse · Hover organisms for info</p>
+<div class="info-box"><h3>Plankton Dynamics</h3><p><strong>Phytoplankton</strong> (green) photosynthesize — they need sunlight + nutrients and produce ~50% of Earth's oxygen. <strong>Zooplankton</strong> (blue) graze on phytoplankton. Their populations follow <strong>Lotka-Volterra</strong> predator-prey cycles: phyto bloom → zoo increase → phyto crash → zoo crash → repeat. Excess nutrients (eutrophication) cause harmful algal blooms.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var phyto=500,zoo=100,t=0,history=[],phaseHist=[],nutBoost=0;
+var phytoP=[],zooP=[];
+for(var i=0;i<60;i++)phytoP.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.002,vy:(Math.random()-.5)*.002});
+for(var i=0;i<15;i++)zooP.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.003,vy:(Math.random()-.5)*.003});
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),my=e.clientY-r.top;if(my<H*.6)nutBoost+=200;});
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+  if(my<H*.6){var found=false;
+    for(var i=0;i<Math.min(phytoP.length,Math.floor(phyto/10));i++){if(Math.hypot(mx-phytoP[i].x*W,my-phytoP[i].y*H*.6)<8){tip.style.display='block';tip.style.left=(mx+12)+'px';tip.style.top=(my-28)+'px';tip.textContent='Phytoplankton · pop '+Math.round(phyto);found=true;break;}}
+    if(!found){for(var i=0;i<Math.min(zooP.length,Math.floor(zoo/10));i++){if(Math.hypot(mx-zooP[i].x*W,my-zooP[i].y*H*.6)<10){tip.style.display='block';tip.style.left=(mx+12)+'px';tip.style.top=(my-28)+'px';tip.textContent='Zooplankton · pop '+Math.round(zoo);found=true;break;}}}
+    if(!found)tip.style.display='none';}else tip.style.display='none';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+window.upd=function(){document.getElementById('vsun').textContent=document.getElementById('psun').value;document.getElementById('vnut').textContent=document.getElementById('pnut').value;document.getElementById('vgrz').textContent=document.getElementById('pgrz').value;};upd();
+function draw(){ctx.clearRect(0,0,W,H);t+=.016;
+  var sun=+document.getElementById('psun').value,nut=+document.getElementById('pnut').value+nutBoost*.001,grz=+document.getElementById('pgrz').value;
+  if(nutBoost>0)nutBoost*=.98;
+  var a=sun*nut*.0003,b=grz*.00002,c=.0001*grz,d=.05;var dP=a*phyto-b*phyto*zoo,dZ=c*phyto*zoo-d*zoo;
+  phyto+=dP;zoo+=dZ;if(phyto<10)phyto=10;if(phyto>2000)phyto=2000;if(zoo<5)zoo=5;if(zoo>1000)zoo=1000;
+  history.push({p:phyto,z:zoo});if(history.length>300)history.shift();
+  phaseHist.push({p:phyto,z:zoo});if(phaseHist.length>200)phaseHist.shift();
+  var ba=Math.min(.4,phyto/2000*.4);ctx.fillStyle='hsl(200,60%,'+(12+ba*20)+'%)';ctx.fillRect(0,0,W,H*.6);
+  ctx.fillStyle='rgba(34,197,94,'+ba+')';ctx.fillRect(0,0,W,H*.6);
+  var pVis=Math.min(phytoP.length,Math.floor(phyto/10));
+  for(var i=0;i<pVis;i++){var p=phytoP[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>1)p.vx*=-1;if(p.y<0||p.y>1)p.vy*=-1;
+    ctx.fillStyle='rgba(34,197,94,0.7)';ctx.shadowColor='#22c55e';ctx.shadowBlur=3;ctx.beginPath();ctx.arc(p.x*W,p.y*H*.6,2+phyto/500,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
+  var zVis=Math.min(zooP.length,Math.floor(zoo/10));
+  for(var i=0;i<zVis;i++){var z=zooP[i];z.x+=z.vx;z.y+=z.vy;if(z.x<0||z.x>1)z.vx*=-1;if(z.y<0||z.y>1)z.vy*=-1;
+    ctx.fillStyle='rgba(96,165,250,0.8)';ctx.shadowColor='#60a5fa';ctx.shadowBlur=3;ctx.beginPath();ctx.arc(z.x*W,z.y*H*.6,3+zoo/200,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    ctx.strokeStyle='rgba(96,165,250,0.3)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(z.x*W,z.y*H*.6);ctx.lineTo(z.x*W-z.vx*1500,z.y*H*.6-z.vy*1500);ctx.stroke();}
+  /* time series graph */
+  var gx=30,gy=H*.65,gw=W-60,gh=H*.3;ctx.fillStyle='#0f172a';ctx.fillRect(gx,gy,gw,gh);ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.strokeRect(gx,gy,gw,gh);
+  ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';ctx.fillText('Population over time',gx+gw/2,gy-5);
+  if(history.length>1){ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;ctx.beginPath();history.forEach(function(h,i){var x=gx+i*(gw/300),y=gy+gh-h.p/2000*gh;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();
+    ctx.strokeStyle='#60a5fa';ctx.lineWidth=1.5;ctx.beginPath();history.forEach(function(h,i){var x=gx+i*(gw/300),y=gy+gh-h.z/1000*gh;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();}
+  ctx.font='10px Poppins';ctx.textAlign='left';ctx.fillStyle='#22c55e';ctx.fillText('— Phytoplankton',gx+10,gy+15);ctx.fillStyle='#60a5fa';ctx.fillText('— Zooplankton',gx+140,gy+15);
+  /* phase space plot */
+  if(document.getElementById('btn-phase').classList.contains('active')&&phaseHist.length>2){var px2=W-160,py2=10,pw=140,ph2=100;
+    ctx.fillStyle='rgba(15,23,42,0.9)';ctx.fillRect(px2,py2,pw,ph2);ctx.strokeStyle='#334155';ctx.strokeRect(px2,py2,pw,ph2);ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.textAlign='left';ctx.fillText('Phase Space (P vs Z)',px2+4,py2+10);
+    ctx.fillText('Phyto →',px2+4,py2+ph2-3);ctx.save();ctx.translate(px2+10,py2+ph2-10);ctx.rotate(-Math.PI/2);ctx.fillText('Zoo →',0,0);ctx.restore();
+    ctx.strokeStyle='rgba(250,204,21,0.5)';ctx.lineWidth=1;ctx.beginPath();phaseHist.forEach(function(h,i){var x=px2+5+h.p/2000*(pw-10),y=py2+ph2-5-h.z/1000*(ph2-15);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();
+    var last=phaseHist[phaseHist.length-1];ctx.fillStyle='#facc15';ctx.beginPath();ctx.arc(px2+5+last.p/2000*(pw-10),py2+ph2-5-last.z/1000*(ph2-15),3,0,Math.PI*2);ctx.fill();}
+  document.getElementById('r-phyto').textContent=Math.round(phyto);document.getElementById('r-zoo').textContent=Math.round(zoo);
+  document.getElementById('r-o2').textContent=phyto>800?'Very High':phyto>400?'High':phyto>200?'Moderate':'Low';document.getElementById('r-phase').textContent=dP>0?'Bloom ↑':'Decline ↓';
+  requestAnimationFrame(draw);}
+draw();
+})();
+</script></body></html>

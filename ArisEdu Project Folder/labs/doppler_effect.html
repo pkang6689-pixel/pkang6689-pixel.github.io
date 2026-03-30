@@ -1,0 +1,154 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Doppler Effect</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#3b82f6}
+.ctrl-group .val{font-size:.8rem;color:#3b82f6;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🔊 Doppler Effect</h1>
+<p class="subtitle">See how a moving source compresses and stretches wavefronts</p>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="450"></canvas>
+  <div id="tip" style="position:absolute;pointer-events:none;display:none;background:rgba(15,23,42,.92);border:1px solid #3b82f6;border-radius:6px;padding:4px 10px;font-size:.75rem;color:#f1f5f9;white-space:nowrap;z-index:10"></div></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Source Speed</label>
+    <input type="range" id="pvs" min="0" max="95" value="40" oninput="upd()"><span class="val" id="vvs">0.40c</span></div>
+  <div class="ctrl-group"><label>Wave Speed</label>
+    <input type="range" id="pvw" min="20" max="100" value="80" oninput="upd()"><span class="val" id="vvw">80</span></div>
+  <div class="ctrl-group"><label>Frequency</label>
+    <input type="range" id="pf" min="5" max="30" value="12" oninput="upd()"><span class="val" id="vf">12 Hz</span></div>
+  <button class="toggle-btn" onclick="resetSim()">↺ Reset</button>
+  <button class="toggle-btn active" id="btn-obs" onclick="this.classList.toggle('active')">Observers</button>
+  <button class="toggle-btn" id="btn-cone" onclick="this.classList.toggle('active')">Mach Cone</button>
+  <button class="toggle-btn" id="btn-spec" onclick="this.classList.toggle('active')">Spectrum</button>
+</div>
+<p style="text-align:center;color:#64748b;font-size:.72rem;margin-top:.25rem">🖱️ Click to place observer anywhere</p>
+<div class="readout">
+  <div class="datum">Source f₀: <strong id="r-f0">12 Hz</strong></div>
+  <div class="datum">f (approach): <strong id="r-fa">20.0 Hz</strong></div>
+  <div class="datum">f (recede): <strong id="r-fr">8.6 Hz</strong></div>
+  <div class="datum">Mach #: <strong id="r-mach">0.50</strong></div>
+  <div class="datum">λ ahead: <strong id="r-la">—</strong></div>
+</div>
+<div class="info-box"><h3>Doppler Effect</h3><p>When a wave source moves toward you, wavefronts are <strong>compressed</strong> → higher frequency (blue-shift). Moving away → <strong>stretched</strong> → lower frequency (red-shift). Formula: f = f₀ × v/(v ± vₛ). When vₛ = v (Mach 1), wavefronts pile up into a <strong>shock wave</strong> (sonic boom). This applies to sound, light (used to measure stellar velocities), and radar (speed guns).</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var waves=[],srcX,tick=0,customObs=null;
+function reset(){waves=[];srcX=50;tick=0;}reset();
+window.resetSim=reset;
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect();customObs={x:e.clientX-r.left,y:e.clientY-r.top};});
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect();tip.style.display='block';tip.style.left=(e.clientX-r.left+12)+'px';tip.style.top=(e.clientY-r.top-28)+'px';
+  var vs2=+document.getElementById('pvs').value/100*+document.getElementById('pvw').value,vw2=+document.getElementById('pvw').value;
+  tip.textContent='Mach '+(vs2/vw2).toFixed(2)+' | Click to place observer';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+window.upd=function(){
+  document.getElementById('vvs').textContent=(+document.getElementById('pvs').value/100).toFixed(2)+'c';
+  document.getElementById('vvw').textContent=document.getElementById('pvw').value;
+  document.getElementById('vf').textContent=document.getElementById('pf').value+' Hz';
+};upd();
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  var vs=+document.getElementById('pvs').value/100*+document.getElementById('pvw').value;
+  var vw=+document.getElementById('pvw').value,f0=+document.getElementById('pf').value;
+  var period=60/f0;
+  srcX+=vs*0.3;if(srcX>W-50)srcX=50;
+  tick++;
+  if(tick%Math.max(1,Math.round(period))===0)waves.push({cx:srcX,cy:H/2,r:0});
+  waves.forEach(function(w){w.r+=vw*0.3;});
+  waves=waves.filter(function(w){return w.r<W*1.2;});
+  /* color-coded wavefronts */
+  waves.forEach(function(w){
+    var alpha=Math.max(0,1-w.r/(W*0.6));
+    var ahead=w.cx+w.r<srcX;var behind=w.cx-w.r>srcX;
+    var col=ahead?'59,130,246':behind?'239,68,68':'59,130,246';
+    ctx.strokeStyle='rgba('+col+','+alpha+')';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(w.cx,w.cy,w.r,0,Math.PI*2);ctx.stroke();
+  });
+  /* Mach cone */
+  if(document.getElementById('btn-cone').classList.contains('active')&&vs>=vw){
+    var machAngle=Math.asin(vw/vs);
+    ctx.strokeStyle='rgba(245,158,11,0.4)';ctx.lineWidth=2;ctx.setLineDash([6,4]);
+    ctx.beginPath();ctx.moveTo(srcX,H/2);ctx.lineTo(srcX-300,H/2-300*Math.tan(machAngle));ctx.stroke();
+    ctx.beginPath();ctx.moveTo(srcX,H/2);ctx.lineTo(srcX-300,H/2+300*Math.tan(machAngle));ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#f59e0b';ctx.font='10px Poppins';ctx.textAlign='left';
+    ctx.fillText('Mach angle: '+(machAngle*180/Math.PI).toFixed(1)+'°',srcX-280,H/2-300*Math.tan(machAngle)-8);
+  }
+  /* source */
+  ctx.fillStyle='#ef4444';ctx.shadowColor='#ef4444';ctx.shadowBlur=12;
+  ctx.beginPath();ctx.arc(srcX,H/2,10,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 8px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('S',srcX,H/2);
+  ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(srcX+15,H/2);ctx.lineTo(srcX+30,H/2);ctx.lineTo(srcX+25,H/2-5);ctx.moveTo(srcX+30,H/2);ctx.lineTo(srcX+25,H/2+5);ctx.stroke();
+  /* observers */
+  if(document.getElementById('btn-obs').classList.contains('active')){
+    var obsL={x:30,y:H/2},obsR={x:W-30,y:H/2};
+    ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(obsL.x,obsL.y,8,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(obsR.x,obsR.y,8,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 7px Poppins';
+    ctx.fillText('O',obsL.x,obsL.y);ctx.fillText('O',obsR.x,obsR.y);
+    var fa=f0*vw/(vw-vs),fr=f0*vw/(vw+vs);
+    ctx.font='11px monospace';ctx.fillStyle='#3b82f6';
+    ctx.textAlign='right';ctx.fillText('f='+((vs>=vw)?'∞':fa.toFixed(1))+' Hz',obsR.x-14,obsR.y-16);
+    ctx.textAlign='left';ctx.fillText('f='+fr.toFixed(1)+' Hz',obsL.x+14,obsL.y-16);
+  }
+  /* custom observer with live freq */
+  if(customObs){
+    ctx.fillStyle='#a855f7';ctx.shadowColor='#a855f7';ctx.shadowBlur=6;
+    ctx.beginPath();ctx.arc(customObs.x,customObs.y,8,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    var dx=customObs.x-srcX,dy=customObs.y-H/2,dist=Math.sqrt(dx*dx+dy*dy);
+    var cosA=dx/Math.max(dist,1);
+    var fObs=f0*vw/(vw-vs*(-cosA));
+    if(vs>=vw&&cosA<0)fObs=Infinity;
+    ctx.fillStyle='#a855f7';ctx.font='11px monospace';ctx.textAlign='center';
+    ctx.fillText('f='+(isFinite(fObs)?fObs.toFixed(1):'∞')+' Hz',customObs.x,customObs.y-14);
+  }
+  /* frequency spectrum bar */
+  if(document.getElementById('btn-spec').classList.contains('active')){
+    var bx=20,by=H-40,bw=W-40,bh=16;
+    var grd=ctx.createLinearGradient(bx,0,bx+bw,0);grd.addColorStop(0,'#ef4444');grd.addColorStop(0.5,'#22c55e');grd.addColorStop(1,'#3b82f6');
+    ctx.fillStyle=grd;ctx.beginPath();ctx.roundRect(bx,by,bw,bh,4);ctx.fill();
+    ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.textAlign='center';
+    ctx.fillText('Low f (receding)',bx+40,by-4);ctx.fillText('f₀',bx+bw/2,by-4);ctx.fillText('High f (approaching)',bx+bw-60,by-4);
+    var fa2=vs>=vw?f0*4:f0*vw/(vw-vs),fr2=f0*vw/(vw+vs);
+    var fMax=f0*3;
+    var xfa=bx+Math.min(1,fa2/fMax)*bw,xfr=bx+Math.min(1,fr2/fMax)*bw;
+    ctx.fillStyle='#f1f5f9';ctx.beginPath();ctx.moveTo(xfa,by);ctx.lineTo(xfa-4,by-6);ctx.lineTo(xfa+4,by-6);ctx.fill();
+    ctx.beginPath();ctx.moveTo(xfr,by);ctx.lineTo(xfr-4,by-6);ctx.lineTo(xfr+4,by-6);ctx.fill();
+  }
+  var fa=f0*vw/(vw-vs),fr=f0*vw/(vw+vs);
+  document.getElementById('r-f0').textContent=f0+' Hz';
+  document.getElementById('r-fa').textContent=vs>=vw?'∞ (shock)':fa.toFixed(1)+' Hz';
+  document.getElementById('r-fr').textContent=fr.toFixed(1)+' Hz';
+  document.getElementById('r-mach').textContent=(vs/vw).toFixed(2);
+  var la=vs>=vw?'0':(vw-vs)/f0;
+  document.getElementById('r-la').textContent=(typeof la==='number'?la.toFixed(2)+'m':la);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

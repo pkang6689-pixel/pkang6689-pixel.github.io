@@ -1,0 +1,170 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Projectile Motion</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#3b82f6}
+.ctrl-group .val{font-size:.8rem;color:#3b82f6;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🎯 Projectile Motion</h1>
+<p class="subtitle">Launch projectiles — explore angle, velocity, and gravity effects on trajectory</p>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="420"></canvas>
+  <div id="tip" style="position:absolute;pointer-events:none;display:none;background:rgba(15,23,42,.92);border:1px solid #3b82f6;border-radius:6px;padding:4px 10px;font-size:.75rem;color:#f1f5f9;white-space:nowrap;z-index:10"></div></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Angle (°)</label>
+    <input type="range" id="pang" min="5" max="85" value="45" oninput="upd()"><span class="val" id="vang">45°</span></div>
+  <div class="ctrl-group"><label>Velocity (m/s)</label>
+    <input type="range" id="pvel" min="10" max="100" value="50" oninput="upd()"><span class="val" id="vvel">50</span></div>
+  <div class="ctrl-group"><label>Gravity (m/s²)</label>
+    <input type="range" id="pg" min="16" max="200" value="98" oninput="upd()"><span class="val" id="vg">9.8</span></div>
+  <button class="toggle-btn" onclick="launch()">🚀 Launch</button>
+  <button class="toggle-btn" onclick="clearTrails()">↺ Clear</button>
+  <button class="toggle-btn active" id="btn-vec" onclick="this.classList.toggle('active')">Vectors</button>
+  <button class="toggle-btn" id="btn-air" onclick="this.classList.toggle('active')">Air Resist.</button>
+  <button class="toggle-btn" id="btn-dots" onclick="this.classList.toggle('active')">Time Dots</button>
+  <button class="toggle-btn" onclick="setPlanet(0)">🌍 Earth</button>
+  <button class="toggle-btn" onclick="setPlanet(1)">🌙 Moon</button>
+  <button class="toggle-btn" onclick="setPlanet(2)">🔴 Mars</button>
+</div>
+<p style="text-align:center;color:#64748b;font-size:.72rem;margin-top:.25rem">🖱️ Hover trajectory for coordinates</p>
+<div class="readout">
+  <div class="datum">Range: <strong id="r-range">—</strong></div>
+  <div class="datum">Max Height: <strong id="r-hmax">—</strong></div>
+  <div class="datum">Time: <strong id="r-time">—</strong></div>
+  <div class="datum">v₀ₓ: <strong id="r-vx">—</strong></div>
+  <div class="datum">v₀ᵧ: <strong id="r-vy">—</strong></div>
+  <div class="datum">KE/PE: <strong id="r-energy">—</strong></div>
+</div>
+<div class="info-box"><h3>Projectile Motion</h3><p>A projectile follows a <strong>parabolic path</strong> under constant gravity. Horizontal velocity vₓ = v₀·cosθ stays constant (no air resistance). Vertical velocity vᵧ = v₀·sinθ − gt changes due to gravity. <strong>Range</strong> R = v₀²·sin(2θ)/g is maximized at 45°. <strong>Max height</strong> H = v₀²·sin²θ/(2g). Time of flight T = 2v₀·sinθ/g.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var trails=[],active=null,t=0,splashes=[];
+var planets=[[98,'Earth 🌍'],[16,'Moon 🌙'],[37,'Mars 🔴']];
+window.setPlanet=function(i){document.getElementById('pg').value=planets[i][0];upd();};
+cv.addEventListener('mousemove',function(e){
+  var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+  if(active&&active.trail.length>0){
+    tip.style.display='block';tip.style.left=(mx+12)+'px';tip.style.top=(my-28)+'px';
+    var best=null,bd=1e9;
+    active.trail.forEach(function(p){var s=toS(p.x,p.y);var d2=(s.x-mx)*(s.x-mx)+(s.y-my)*(s.y-my);if(d2<bd){bd=d2;best=p;}});
+    if(best&&bd<900)tip.textContent='('+best.x.toFixed(1)+'m, '+best.y.toFixed(1)+'m) t='+best.t.toFixed(2)+'s';
+    else tip.textContent='Hover trajectory';
+  }else{tip.style.display='none';}
+});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+window.upd=function(){
+  document.getElementById('vang').textContent=document.getElementById('pang').value+'°';
+  document.getElementById('vvel').textContent=document.getElementById('pvel').value;
+  document.getElementById('vg').textContent=(+document.getElementById('pg').value/10).toFixed(1);
+};upd();
+window.launch=function(){
+  var ang=+document.getElementById('pang').value*Math.PI/180,v0=+document.getElementById('pvel').value,g=+document.getElementById('pg').value/10;
+  var vx=v0*Math.cos(ang),vy=v0*Math.sin(ang);
+  var tFlight=2*vy/g,range=vx*tFlight,hMax=vy*vy/(2*g);
+  document.getElementById('r-range').textContent=range.toFixed(1)+' m';
+  document.getElementById('r-hmax').textContent=hMax.toFixed(1)+' m';
+  document.getElementById('r-time').textContent=tFlight.toFixed(2)+' s';
+  document.getElementById('r-vx').textContent=vx.toFixed(1)+' m/s';
+  document.getElementById('r-vy').textContent=vy.toFixed(1)+' m/s';
+  var ke=0.5*v0*v0;document.getElementById('r-energy').textContent=ke.toFixed(0)+' J/kg';
+  active={vx:vx,vy:vy,vx0:vx,vy0:vy,g:g,tFlight:tFlight,range:range,hMax:hMax,trail:[],color:'hsl('+(Math.random()*360)+',70%,60%)',air:document.getElementById('btn-air').classList.contains('active')};t=0;
+};
+window.clearTrails=function(){trails=[];active=null;splashes=[];};
+var ground=0.88;var maxR=200,maxH2=100;
+function toS(x,y){return{x:30+x*sx,y:H*ground-y*sy};}
+var sx=1,sy=1;
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  /* ground with gradient */
+  var gg=ctx.createLinearGradient(0,H*ground,0,H);gg.addColorStop(0,'#1e293b');gg.addColorStop(1,'#0f172a');
+  ctx.fillStyle=gg;ctx.fillRect(0,H*ground,W,H*(1-ground));
+  ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,H*ground);ctx.lineTo(W,H*ground);ctx.stroke();
+  maxR=200;maxH2=100;if(active){maxR=Math.max(maxR,active.range*1.2);maxH2=Math.max(maxH2,active.hMax*1.2);}
+  trails.forEach(function(tr){maxR=Math.max(maxR,tr.range*1.2);maxH2=Math.max(maxH2,tr.hMax*1.2);});
+  sx=W*0.9/maxR;sy=(H*ground-20)/maxH2;
+  /* grid */
+  ctx.fillStyle='#475569';ctx.font='8px Poppins';ctx.textAlign='center';
+  var step=Math.pow(10,Math.floor(Math.log10(maxR/5)));
+  for(var gx=0;gx<=maxR;gx+=step){var p=toS(gx,0);ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(p.x,20);ctx.lineTo(p.x,H*ground);ctx.stroke();ctx.fillText(gx.toFixed(0)+'m',p.x,H*ground+12);}
+  /* old trails */
+  trails.forEach(function(tr){
+    ctx.strokeStyle=tr.color;ctx.lineWidth=1.5;ctx.globalAlpha=0.35;ctx.beginPath();
+    tr.trail.forEach(function(p,i){var s=toS(p.x,p.y);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});ctx.stroke();ctx.globalAlpha=1;
+  });
+  /* active projectile */
+  if(active){
+    t+=0.02;
+    var done=false;
+    if(active.air){
+      var k=0.02,dt2=0.02;
+      active.vx-=k*active.vx*dt2;active.vy-=active.g*dt2+k*active.vy*dt2;
+      var px2=(active.trail.length>0?active.trail[active.trail.length-1].x:0)+active.vx*dt2;
+      var py2=(active.trail.length>0?active.trail[active.trail.length-1].y:0)+active.vy*dt2;
+      if(py2<=0){py2=0;done=true;}
+      active.trail.push({x:px2,y:py2,t:t});
+    }else{
+      if(t>active.tFlight){done=true;t=active.tFlight;}
+      var px=active.vx0*t,py=active.vy0*t-0.5*active.g*t*t;if(py<0)py=0;
+      active.trail.push({x:px,y:py,t:t});
+    }
+    ctx.strokeStyle=active.color;ctx.lineWidth=2;ctx.beginPath();
+    active.trail.forEach(function(p,i){var s=toS(p.x,p.y);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});ctx.stroke();
+    var last=active.trail[active.trail.length-1];var sp=toS(last.x,last.y);
+    ctx.fillStyle=active.color;ctx.shadowColor=active.color;ctx.shadowBlur=10;ctx.beginPath();ctx.arc(sp.x,sp.y,6,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    /* time dots */
+    if(document.getElementById('btn-dots').classList.contains('active')){
+      var interval=Math.max(1,Math.floor(active.trail.length/20));
+      active.trail.forEach(function(p,i){if(i%interval===0){var s=toS(p.x,p.y);ctx.fillStyle='rgba(255,255,255,0.4)';ctx.beginPath();ctx.arc(s.x,s.y,3,0,Math.PI*2);ctx.fill();}});
+    }
+    /* max height dashed line */
+    var hmS=toS(0,active.hMax);
+    ctx.strokeStyle='rgba(245,158,11,0.3)';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(30,hmS.y);ctx.lineTo(W-10,hmS.y);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#f59e0b';ctx.font='9px Poppins';ctx.textAlign='right';ctx.fillText('H='+active.hMax.toFixed(1)+'m',W-14,hmS.y-4);
+    /* velocity vectors */
+    if(document.getElementById('btn-vec').classList.contains('active')&&!done){
+      var cvx=active.vx,cvy=active.air?active.vy:(active.vy0-active.g*t),scale=0.5;
+      ctx.strokeStyle='#ef4444';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(sp.x,sp.y);ctx.lineTo(sp.x+cvx*scale,sp.y);ctx.stroke();
+      ctx.strokeStyle='#22c55e';ctx.beginPath();ctx.moveTo(sp.x,sp.y);ctx.lineTo(sp.x,sp.y-cvy*scale);ctx.stroke();
+      ctx.strokeStyle='#f59e0b';ctx.beginPath();ctx.moveTo(sp.x,sp.y);ctx.lineTo(sp.x+cvx*scale,sp.y-cvy*scale);ctx.stroke();
+    }
+    if(done){splashes.push({x:sp.x,y:sp.y,r:0,color:active.color});trails.push(active);active=null;}
+  }
+  /* splashes */
+  splashes.forEach(function(s){s.r+=1.5;ctx.strokeStyle=s.color;ctx.globalAlpha=Math.max(0,1-s.r/40);ctx.lineWidth=2;ctx.beginPath();ctx.arc(s.x,s.y,s.r,Math.PI,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;});
+  splashes=splashes.filter(function(s){return s.r<40;});
+  /* launcher */
+  var ang=+document.getElementById('pang').value*Math.PI/180;
+  ctx.strokeStyle='#64748b';ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(30,H*ground);ctx.lineTo(30+40*Math.cos(-ang),H*ground+40*Math.sin(-ang));ctx.stroke();ctx.lineCap='butt';
+  /* angle arc */
+  ctx.strokeStyle='rgba(59,130,246,0.4)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(30,H*ground,25,0,-ang,true);ctx.stroke();
+  ctx.fillStyle='#3b82f6';ctx.font='10px Poppins';ctx.textAlign='left';ctx.fillText(document.getElementById('pang').value+'°',56,H*ground-8);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

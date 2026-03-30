@@ -1,0 +1,183 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Fractals Explorer</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden;position:relative}
+canvas{display:block;width:100%;cursor:crosshair}
+.tooltip{position:absolute;background:#1e293b;border:1px solid #a855f7;border-radius:.5rem;padding:.4rem .7rem;font-size:.78rem;color:#e2e8f0;pointer-events:none;display:none;white-space:nowrap;z-index:10}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#a855f7}
+.ctrl-group .val{font-size:.8rem;color:#a855f7;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#a855f7}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🌀 Fractals Explorer</h1>
+<p class="subtitle">Click to zoom Mandelbrot — Julia sets, color palettes &amp; more</p>
+<div class="canvas-wrap"><canvas id="cv" height="500"></canvas><div class="tooltip" id="tip"></div></div>
+<div class="controls">
+  <button class="toggle-btn active" id="tb0" onclick="setType(0)">Mandelbrot</button>
+  <button class="toggle-btn" id="tb1" onclick="setType(1)">Julia Set</button>
+  <button class="toggle-btn" id="tb2" onclick="setType(2)">Sierpinski</button>
+  <button class="toggle-btn" id="tb3" onclick="setType(3)">Koch Snowflake</button>
+  <button class="toggle-btn" id="tb4" onclick="setType(4)">Fern</button>
+  <button class="toggle-btn" id="tb5" onclick="setType(5)">Burning Ship</button>
+  <div class="ctrl-group"><label>Iterations</label>
+    <input type="range" id="piter" min="10" max="500" value="80" oninput="document.getElementById('viter').textContent=this.value;needRedraw=true"><span class="val" id="viter">80</span></div>
+  <div class="ctrl-group"><label>Depth</label>
+    <input type="range" id="pdepth" min="0" max="7" value="4" oninput="document.getElementById('vdepth').textContent=this.value;needRedraw=true"><span class="val" id="vdepth">4</span></div>
+  <button class="toggle-btn" id="btn-pal" onclick="cyclePalette()">Palette: Ultra</button>
+  <button class="toggle-btn" onclick="resetZoom()">Reset Zoom</button>
+</div>
+<div class="readout">
+  <div class="datum">Type: <strong id="r-type">Mandelbrot</strong></div>
+  <div class="datum">Zoom: <strong id="r-zoom">1×</strong></div>
+  <div class="datum">Center: <strong id="r-center">−0.5 + 0i</strong></div>
+  <div class="datum">Cursor: <strong id="r-cursor">—</strong></div>
+  <div class="datum">Iterations: <strong id="r-iter">80</strong></div>
+</div>
+<div class="info-box"><h3>Fractals</h3><p><strong>Click</strong> on the Mandelbrot / Julia / Burning Ship to zoom 3× into that point. <strong>Right-click</strong> to zoom out. The <strong>Julia set</strong> uses the Mandelbrot cursor position as its c parameter — hover over the Mandelbrot view then switch to Julia to explore. The <strong>Burning Ship</strong> fractal uses |Re|, |Im| before squaring, producing its distinctive shape. Cycle color palettes with the Palette button.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;needRedraw=true;}
+window.addEventListener('resize',resize);resize();
+var fracType=0;window.needRedraw=true;
+var names=['Mandelbrot','Julia Set','Sierpinski Triangle','Koch Snowflake','Barnsley Fern','Burning Ship'];
+/* zoom state for Mandelbrot/Julia/Ship */
+var vCx=-0.5,vCy=0,vScale=3.5;
+var juliaR=-0.7,juliaI=0.27015;
+var palIdx=0;
+var palNames=['Ultra','Fire','Ice','Grayscale','Electric'];
+function pal(iter,maxI){
+  if(iter===maxI)return[0,0,0];
+  var t=iter/maxI;
+  if(palIdx===0){return[Math.floor(9*(1-t)*t*t*t*255),Math.floor(15*(1-t)*(1-t)*t*t*255),Math.floor(8.5*(1-t)*(1-t)*(1-t)*t*255)];}
+  if(palIdx===1){return[Math.floor(255*Math.min(1,t*3)),Math.floor(255*Math.max(0,t*3-1)),Math.floor(255*Math.max(0,t*3-2))];}
+  if(palIdx===2){var s=Math.sin(t*Math.PI);return[Math.floor(30+60*s),Math.floor(80+175*t),Math.floor(180+75*s)];}
+  if(palIdx===3){var v=Math.floor(255*t);return[v,v,v];}
+  var h=(t*360)%360,s2=1,v2=t<1?1:0;var c=v2*s2,x=c*(1-Math.abs((h/60)%2-1)),m=v2-c;var r1,g1,b1;
+  if(h<60){r1=c;g1=x;b1=0;}else if(h<120){r1=x;g1=c;b1=0;}else if(h<180){r1=0;g1=c;b1=x;}else if(h<240){r1=0;g1=x;b1=c;}else if(h<300){r1=x;g1=0;b1=c;}else{r1=c;g1=0;b1=x;}
+  return[Math.floor((r1+m)*255),Math.floor((g1+m)*255),Math.floor((b1+m)*255)];
+}
+window.cyclePalette=function(){palIdx=(palIdx+1)%palNames.length;document.getElementById('btn-pal').textContent='Palette: '+palNames[palIdx];needRedraw=true;};
+window.resetZoom=function(){vCx=-0.5;vCy=0;vScale=3.5;needRedraw=true;};
+window.setType=function(i){fracType=i;for(var k=0;k<6;k++)document.getElementById('tb'+k).classList.toggle('active',k===i);
+  document.getElementById('r-type').textContent=names[i];if(i===0){vCx=-0.5;vCy=0;vScale=3.5;}else if(i===1||i===5){vCx=0;vCy=0;vScale=3.5;}needRedraw=true;};
+function pxToC(px,py){return{r:vCx+(px/W-0.5)*vScale,i:vCy+(py/H-0.5)*vScale*(H/W)};}
+/* click to zoom */
+cv.addEventListener('click',function(e){
+  if(fracType>=2&&fracType<=4)return;
+  var rect=cv.getBoundingClientRect(),px=(e.clientX-rect.left)*(W/rect.width),py=(e.clientY-rect.top)*(H/rect.height);
+  var c=pxToC(px,py);vCx=c.r;vCy=c.i;vScale/=3;needRedraw=true;
+});
+cv.addEventListener('contextmenu',function(e){
+  e.preventDefault();if(fracType>=2&&fracType<=4)return;vScale*=3;needRedraw=true;
+});
+cv.addEventListener('mousemove',function(e){
+  var rect=cv.getBoundingClientRect(),px=(e.clientX-rect.left)*(W/rect.width),py=(e.clientY-rect.top)*(H/rect.height);
+  var c=pxToC(px,py);
+  document.getElementById('r-cursor').textContent=c.r.toFixed(4)+' + '+c.i.toFixed(4)+'i';
+  if(fracType===0){juliaR=c.r;juliaI=c.i;}
+  tip.style.display='block';tip.style.left=(e.clientX-rect.left+12)+'px';tip.style.top=(e.clientY-rect.top-28)+'px';
+  tip.textContent=c.r.toFixed(4)+' + '+c.i.toFixed(4)+'i';
+});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+function renderMB(isJulia,isBurning){
+  var maxIter=+document.getElementById('piter').value;
+  var imgData=ctx.createImageData(W,H);
+  var asp=H/W;
+  for(var px=0;px<W;px++){for(var py=0;py<H;py++){
+    var cr,ci,zr,zi;
+    if(isJulia){zr=vCx+(px/W-0.5)*vScale;zi=vCy+(py/H-0.5)*vScale*asp;cr=juliaR;ci=juliaI;}
+    else{cr=vCx+(px/W-0.5)*vScale;ci=vCy+(py/H-0.5)*vScale*asp;zr=0;zi=0;}
+    var iter=0;
+    if(isBurning){
+      while(zr*zr+zi*zi<=4&&iter<maxIter){var xt=zr*zr-zi*zi+cr;zi=Math.abs(2*zr*zi)+ci;zr=xt;iter++;}
+    }else{
+      while(zr*zr+zi*zi<=4&&iter<maxIter){var xt=zr*zr-zi*zi+cr;zi=2*zr*zi+ci;zr=xt;iter++;}
+    }
+    var idx=(py*W+px)*4;var rgb=pal(iter,maxIter);
+    imgData.data[idx]=rgb[0];imgData.data[idx+1]=rgb[1];imgData.data[idx+2]=rgb[2];imgData.data[idx+3]=255;
+  }}
+  ctx.putImageData(imgData,0,0);
+  /* crosshair at center */
+  ctx.strokeStyle='rgba(168,85,247,0.35)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(W/2-20,H/2);ctx.lineTo(W/2+20,H/2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(W/2,H/2-20);ctx.lineTo(W/2,H/2+20);ctx.stroke();ctx.setLineDash([]);
+}
+function sierpinski(ax,ay,bx,by,cxp,cyp,d){
+  if(d===0){ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.lineTo(cxp,cyp);ctx.closePath();ctx.fill();return;}
+  var mx1=(ax+bx)/2,my1=(ay+by)/2,mx2=(bx+cxp)/2,my2=(by+cyp)/2,mx3=(ax+cxp)/2,my3=(ay+cyp)/2;
+  sierpinski(ax,ay,mx1,my1,mx3,my3,d-1);sierpinski(mx1,my1,bx,by,mx2,my2,d-1);sierpinski(mx3,my3,mx2,my2,cxp,cyp,d-1);
+}
+function koch(x1,y1,x2,y2,d){
+  if(d===0){ctx.lineTo(x2,y2);return;}
+  var dx=(x2-x1)/3,dy=(y2-y1)/3;
+  var ax=x1+dx,ay=y1+dy,bx=x1+2*dx,by=y1+2*dy;
+  var ppx=(ax+bx)/2-Math.sqrt(3)/2*(by-ay),ppy=(ay+by)/2+Math.sqrt(3)/2*(bx-ax);
+  koch(x1,y1,ax,ay,d-1);koch(ax,ay,ppx,ppy,d-1);koch(ppx,ppy,bx,by,d-1);koch(bx,by,x2,y2,d-1);
+}
+function fern(){
+  var x=0,y=0,pts=60000;
+  for(var i=0;i<pts;i++){
+    var r=Math.random(),nx,ny;
+    if(r<0.01){nx=0;ny=0.16*y;}
+    else if(r<0.86){nx=0.85*x+0.04*y;ny=-0.04*x+0.85*y+1.6;}
+    else if(r<0.93){nx=0.2*x-0.26*y;ny=0.23*x+0.22*y+1.6;}
+    else{nx=-0.15*x+0.28*y;ny=0.26*x+0.24*y+0.44;}
+    x=nx;y=ny;
+    var sx=W/2+x*W/12,sy=H-y*H/12;
+    var t=i/pts;
+    ctx.fillStyle='rgba('+(20+Math.floor(60*t))+','+(160+Math.floor(80*(1-t)))+','+Math.floor(80+40*t)+',0.4)';
+    ctx.fillRect(sx,sy,1.5,1.5);
+  }
+  /* stem glow */
+  ctx.fillStyle='rgba(34,197,94,0.08)';ctx.beginPath();ctx.ellipse(W/2,H*0.55,W*0.12,H*0.38,0,0,Math.PI*2);ctx.fill();
+}
+function render(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  var depth=+document.getElementById('pdepth').value;
+  document.getElementById('r-iter').textContent=document.getElementById('piter').value;
+  var zm=3.5/vScale;
+  document.getElementById('r-zoom').textContent=zm.toFixed(zm>100?0:1)+'×';
+  document.getElementById('r-center').textContent=vCx.toFixed(4)+' + '+vCy.toFixed(4)+'i';
+  if(fracType===0){renderMB(false,false);}
+  else if(fracType===1){renderMB(true,false);}
+  else if(fracType===2){
+    /* gradient fill instead of solid */
+    var grd=ctx.createLinearGradient(0,30,0,H-30);grd.addColorStop(0,'#a855f7');grd.addColorStop(1,'#6366f1');ctx.fillStyle=grd;
+    sierpinski(W/2,30,30,H-30,W-30,H-30,depth);
+  }else if(fracType===3){
+    ctx.strokeStyle='#a855f7';ctx.lineWidth=1.5;ctx.shadowColor='#a855f7';ctx.shadowBlur=4;
+    var rad=Math.min(W,H)*0.4,cx2=W/2,cy2=H/2;
+    var pts=[];for(var i=0;i<3;i++){var a=i*Math.PI*2/3-Math.PI/2;pts.push([cx2+rad*Math.cos(a),cy2+rad*Math.sin(a)]);}
+    ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+    for(var i=0;i<3;i++){koch(pts[i][0],pts[i][1],pts[(i+1)%3][0],pts[(i+1)%3][1],depth);}
+    ctx.stroke();ctx.shadowBlur=0;
+    /* fill interior lightly */
+    ctx.fillStyle='rgba(168,85,247,0.05)';ctx.fill();
+  }else if(fracType===4){fern();}
+  else if(fracType===5){renderMB(false,true);}
+}
+function loop(){if(needRedraw){render();needRedraw=false;}requestAnimationFrame(loop);}
+loop();
+})();
+</script></body></html>

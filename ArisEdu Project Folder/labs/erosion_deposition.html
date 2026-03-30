@@ -1,0 +1,148 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Erosion & Deposition</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+label{font-size:.78rem;color:#94a3b8;white-space:nowrap}
+input[type=range]{width:110px;accent-color:#3b82f6}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🏔️ Erosion & Deposition</h1>
+<p class="subtitle">River, wind & glacial erosion — delta formation</p>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="460"></canvas><div id="tip" style="position:absolute;display:none;pointer-events:none;background:rgba(15,23,42,.92);border:1px solid #3b82f6;border-radius:.5rem;padding:.35rem .65rem;font-size:.75rem;color:#e2e8f0;white-space:nowrap;z-index:10"></div><p style="text-align:center;font-size:.7rem;color:#475569;margin:.4rem 0 0">Hover for terrain info · Click to drop a boulder</p></div>
+<div class="controls">
+  <button class="toggle-btn active" id="btn-river" onclick="setMode(0)">River Erosion</button>
+  <button class="toggle-btn" id="btn-wind" onclick="setMode(1)">Wind Erosion</button>
+  <button class="toggle-btn" id="btn-glacier" onclick="setMode(2)">Glacial Erosion</button>
+  <button class="toggle-btn" id="btn-profile" onclick="this.classList.toggle('active')">Cross-Section</button>
+  <label>Intensity <input type="range" id="intensity" min="1" max="100" value="50"></label>
+  <label>Time Speed <input type="range" id="speed" min="1" max="10" value="3"></label>
+</div>
+<div class="readout">
+  <div class="datum">Mode: <strong id="r-mode">River</strong></div>
+  <div class="datum">Material Eroded: <strong id="r-eroded">0</strong> tons</div>
+  <div class="datum">Delta Size: <strong id="r-delta">0</strong></div>
+  <div class="datum">Deposited: <strong id="r-dep">0</strong> tons</div>
+</div>
+<div class="info-box"><h3>Erosion Processes</h3><p><strong>River</strong>: Water carries sediment downstream, eroding V-shaped valleys and depositing deltas at the mouth. <strong>Wind</strong>: Abrasion carves desert features; sand accumulates as dunes. <strong>Glacial</strong>: Ice grinds U-shaped valleys, leaving moraines. All three transport and deposit material — erosion and deposition are linked.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var mode=0,eroded=0,deposited=0,t=0,boulders=[],terrain=[],origTerrain=[];
+function initTerrain(){
+  terrain=[];origTerrain=[];boulders=[];eroded=0;deposited=0;
+  for(var i=0;i<=100;i++){
+    var v;if(mode===0)v=H*.3+Math.abs(i-50)*H*.004+Math.sin(i*.3)*8;
+    else if(mode===1)v=H*.55+Math.sin(i*.15)*20+(((i*7+13)%17)/17)*5;
+    else v=H*.25+Math.abs(i-50)*H*.005+Math.sin(i*.2)*10;
+    terrain[i]=v;origTerrain[i]=v;
+  }
+}
+initTerrain();
+window.setMode=function(m){mode=m;initTerrain();['river','wind','glacier'].forEach(function(s,i){document.getElementById('btn-'+s).classList.toggle('active',i===m);});
+  document.getElementById('r-mode').textContent=['River','Wind','Glacial'][m];};
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width);
+  var idx=Math.round(mx*100/W);idx=Math.max(0,Math.min(100,idx));boulders.push({idx:idx,h:15+Math.random()*10});if(boulders.length>6)boulders.shift();});
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width);
+  var idx=Math.round(mx*100/W);idx=Math.max(0,Math.min(100,idx));
+  var elev=((H-terrain[idx])/H*100).toFixed(0),diff=((terrain[idx]-origTerrain[idx])).toFixed(1);
+  var label=diff>2?'Deposited':diff<-2?'Eroded':'Stable';
+  tip.style.display='block';tip.style.left=((e.clientX-r.left)+12)+'px';tip.style.top=((e.clientY-r.top)-28)+'px';
+  tip.textContent='Elev: '+elev+'% · Change: '+diff+' · '+label;});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  var intensity=+document.getElementById('intensity').value/100,spd=+document.getElementById('speed').value;
+  t+=.016*spd;
+  var showProfile=document.getElementById('btn-profile').classList.contains('active');
+  /* boulder terrain modification */
+  boulders.forEach(function(b){var bi=b.idx;if(bi>0&&bi<100){terrain[bi]=Math.min(terrain[bi],terrain[bi]-b.h*.01);}});
+  if(mode===0){/* River */
+    var skyG=ctx.createLinearGradient(0,0,0,H*.3);skyG.addColorStop(0,'#0f1b2d');skyG.addColorStop(1,'#1a3a5c');ctx.fillStyle=skyG;ctx.fillRect(0,0,W,H*.3);
+    var tg=ctx.createLinearGradient(0,H*.3,0,H);tg.addColorStop(0,'#7A6B50');tg.addColorStop(1,'#5C4E38');ctx.fillStyle=tg;ctx.beginPath();ctx.moveTo(0,H);
+    for(var i=0;i<=100;i++)ctx.lineTo(i*W/100,terrain[i]);
+    ctx.lineTo(W,H);ctx.closePath();ctx.fill();
+    var riverPath=50+Math.sin(t*.3)*5;
+    for(var i=0;i<=100;i++){var dist=Math.abs(i-riverPath);if(dist<8){var amt=.02*intensity*(1-dist/8)*spd;if(terrain[i]<H*.8){terrain[i]+=amt;eroded+=amt*.01;}}}
+    ctx.strokeStyle='rgba(59,130,246,0.7)';ctx.lineWidth=3+intensity*4;ctx.shadowColor='#3b82f6';ctx.shadowBlur=6;
+    ctx.beginPath();ctx.moveTo(W*.5,terrain[50]-2);for(var i=50;i<=100;i++)ctx.lineTo(i*W/100,terrain[i]-2);ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle='rgba(139,100,50,0.6)';for(var p=0;p<15;p++){var px=W*.5+((t*30+p*20)%(W*.5)),py=terrain[Math.min(100,Math.floor(px*100/W))]||H*.6;ctx.beginPath();ctx.arc(px,py-3,2,0,Math.PI*2);ctx.fill();}
+    var deltaSize=Math.min(eroded*.5,60);deposited=deltaSize*.8;
+    ctx.fillStyle='#8B7D4B';ctx.beginPath();ctx.moveTo(W-10,terrain[100]);ctx.lineTo(W-10-deltaSize,terrain[100]+deltaSize*.5);ctx.lineTo(W,terrain[100]+deltaSize*.5);ctx.closePath();ctx.fill();
+    document.getElementById('r-delta').textContent=deltaSize.toFixed(0);
+    ctx.fillStyle='rgba(59,130,246,0.3)';ctx.fillRect(W*.85,terrain[100],W*.15,H-terrain[100]);
+  }else if(mode===1){/* Wind */
+    ctx.fillStyle='#4a3520';ctx.fillRect(0,0,W,H*.35);
+    var sg=ctx.createLinearGradient(0,H*.35,0,H);sg.addColorStop(0,'#C4A35A');sg.addColorStop(1,'#A08040');ctx.fillStyle=sg;ctx.beginPath();ctx.moveTo(0,H);
+    for(var i=0;i<=100;i++)ctx.lineTo(i*W/100,terrain[i]);
+    ctx.lineTo(W,H);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(194,163,90,'+intensity*.6+')';ctx.shadowColor='#C4A35A';ctx.shadowBlur=3;
+    for(var p=0;p<30;p++){var px=((t*40+p*35)%W),py=H*.3+p*4+Math.sin(t+p)*10;ctx.beginPath();ctx.arc(px,py,1.5,0,Math.PI*2);ctx.fill();}ctx.shadowBlur=0;
+    for(var i=10;i<50;i++){terrain[i]+=.005*intensity*spd;eroded+=.0001*intensity*spd;}
+    for(var i=60;i<90;i++){terrain[i]-=.003*intensity*spd;terrain[i]=Math.max(H*.4,terrain[i]);deposited+=.00005*intensity*spd;}
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;
+    for(var a=0;a<5;a++){var ax=W*.1+a*W*.18,ay=H*.25;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ax+30,ay);ctx.lineTo(ax+25,ay-5);ctx.moveTo(ax+30,ay);ctx.lineTo(ax+25,ay+5);ctx.stroke();}
+    ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('Wind Direction →',W/2,H*.2);
+    document.getElementById('r-delta').textContent='N/A';
+  }else{/* Glacial */
+    var skyG=ctx.createLinearGradient(0,0,0,H*.2);skyG.addColorStop(0,'#0a1428');skyG.addColorStop(1,'#1a2a4c');ctx.fillStyle=skyG;ctx.fillRect(0,0,W,H*.2);
+    ctx.fillStyle='#5C4E38';ctx.beginPath();ctx.moveTo(0,H);for(var i=0;i<=100;i++)ctx.lineTo(i*W/100,terrain[i]);ctx.lineTo(W,H);ctx.closePath();ctx.fill();
+    var glacierLen=30+intensity*40;
+    var ig=ctx.createLinearGradient(0,0,0,H);ig.addColorStop(0,'rgba(180,220,255,0.6)');ig.addColorStop(1,'rgba(140,180,220,0.3)');
+    ctx.fillStyle=ig;ctx.beginPath();ctx.moveTo(W*.1,terrain[10]-5);
+    for(var i=10;i<10+glacierLen/2;i++){var x=i*W/100;ctx.lineTo(x,terrain[i]-10-Math.sin(i*.5)*3);}
+    for(var i=Math.floor(10+glacierLen/2);i>=10;i--)ctx.lineTo(i*W/100,terrain[i]-2);ctx.closePath();ctx.fill();
+    for(var i=20;i<60;i++){var cd=Math.abs(i-40);if(cd<15){var amt=.008*intensity*spd*(1-cd/15);terrain[i]+=amt;eroded+=amt*.005;}}
+    var morX=W*.6;deposited=eroded*.3;
+    ctx.fillStyle='rgba(100,80,50,0.6)';ctx.beginPath();ctx.arc(morX,terrain[60]+5,8+eroded*.1,0,Math.PI);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='9px Poppins';ctx.textAlign='center';ctx.fillText('Moraine',morX,terrain[60]+20);
+    document.getElementById('r-delta').textContent='N/A';
+  }
+  /* boulders */
+  boulders.forEach(function(b){var bx=b.idx*W/100,by=terrain[b.idx]-b.h/2;
+    ctx.fillStyle='#888';ctx.shadowColor='rgba(0,0,0,0.4)';ctx.shadowBlur=4;
+    ctx.beginPath();ctx.arc(bx,by,b.h/2,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    ctx.strokeStyle='#666';ctx.lineWidth=1;ctx.stroke();});
+  /* cross-section overlay */
+  if(showProfile){
+    ctx.fillStyle='rgba(15,23,42,0.85)';ctx.fillRect(W-160,10,150,H-20);
+    ctx.strokeStyle='#334155';ctx.strokeRect(W-160,10,150,H-20);
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';ctx.fillText('Cross-Section Profile',W-85,28);
+    ctx.strokeStyle='#3b82f6';ctx.lineWidth=1.5;ctx.beginPath();
+    for(var i=0;i<=100;i++){var px=W-155+i*1.4,py=20+(terrain[i]-H*.2)*(H-40)/(H*.8);
+      if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.stroke();
+    ctx.strokeStyle='rgba(239,68,68,0.4)';ctx.setLineDash([3,3]);ctx.beginPath();
+    for(var i=0;i<=100;i++){var px=W-155+i*1.4,py=20+(origTerrain[i]-H*.2)*(H-40)/(H*.8);
+      if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(59,130,246,0.5)';ctx.font='8px Poppins';ctx.fillText('Current',W-120,H-15);
+    ctx.fillStyle='rgba(239,68,68,0.4)';ctx.fillText('Original',W-60,H-15);
+  }
+  document.getElementById('r-eroded').textContent=eroded.toFixed(0);
+  document.getElementById('r-dep').textContent=deposited.toFixed(0);
+  ctx.fillStyle='#3b82f6';ctx.font='bold 11px Poppins';ctx.textAlign='center';
+  ctx.fillText(['River Erosion & Delta Formation','Wind Erosion & Dune Formation','Glacial Erosion & Moraine'][mode],W/2,20);
+  requestAnimationFrame(draw);}
+draw();
+})();
+</script></body></html>

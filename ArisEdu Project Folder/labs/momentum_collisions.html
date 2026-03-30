@@ -1,0 +1,145 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Momentum & Collisions</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:100px;accent-color:#3b82f6}
+.ctrl-group .val{font-size:.8rem;color:#3b82f6;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>💥 Momentum & Collisions</h1>
+<p class="subtitle">Elastic and inelastic collisions — conservation of momentum and energy</p>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="350"></canvas>
+  <div id="tip" style="position:absolute;pointer-events:none;display:none;background:rgba(15,23,42,.92);border:1px solid #3b82f6;border-radius:6px;padding:4px 10px;font-size:.75rem;color:#f1f5f9;white-space:nowrap;z-index:10"></div></div>
+<div class="controls">
+  <div class="ctrl-group"><label>m₁ (kg)</label><input type="range" id="pm1" min="5" max="50" value="20" oninput="upd()"><span class="val" id="vm1">2.0</span></div>
+  <div class="ctrl-group"><label>v₁ (m/s)</label><input type="range" id="pv1" min="-50" max="50" value="30" oninput="upd()"><span class="val" id="vv1">3.0</span></div>
+  <div class="ctrl-group"><label>m₂ (kg)</label><input type="range" id="pm2" min="5" max="50" value="10" oninput="upd()"><span class="val" id="vm2">1.0</span></div>
+  <div class="ctrl-group"><label>v₂ (m/s)</label><input type="range" id="pv2" min="-50" max="50" value="-20" oninput="upd()"><span class="val" id="vv2">-2.0</span></div>
+  <button class="toggle-btn active" id="btn-elastic" onclick="setType(0)">Elastic</button>
+  <button class="toggle-btn" id="btn-inelastic" onclick="setType(1)">Inelastic</button>
+  <button class="toggle-btn" onclick="launchSim()">▶ Launch</button>
+  <button class="toggle-btn" onclick="resetSim()">↺ Reset</button>
+  <button class="toggle-btn active" id="btn-pbar" onclick="this.classList.toggle('active')">p Bars</button>
+  <button class="toggle-btn" id="btn-trace" onclick="this.classList.toggle('active')">Trails</button>
+</div>
+<div class="readout">
+  <div class="datum">p₁ᵢ: <strong id="r-p1i">6.0</strong></div>
+  <div class="datum">p₂ᵢ: <strong id="r-p2i">-2.0</strong></div>
+  <div class="datum">p_total: <strong id="r-pt">4.0</strong></div>
+  <div class="datum">KE_before: <strong id="r-keb">11.0</strong></div>
+  <div class="datum">KE_after: <strong id="r-kea">—</strong></div>
+  <div class="datum">ΔKE: <strong id="r-dke">—</strong></div>
+</div>
+<div class="info-box"><h3>Conservation of Momentum</h3><p>Total momentum p = m₁v₁ + m₂v₂ is <strong>always conserved</strong> in collisions. In <strong>elastic</strong> collisions, kinetic energy is also conserved. In <strong>perfectly inelastic</strong> collisions, the objects stick together and KE is lost (converted to heat/sound). After elastic collision: v₁' = (m₁−m₂)v₁/(m₁+m₂) + 2m₂v₂/(m₁+m₂).</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var b1,b2,running=false,collided=false,elastic=true,flash={r:0,x:0,y:0,active:false},trail1=[],trail2=[];
+function init(){
+  var m1=+document.getElementById('pm1').value/10,v1=+document.getElementById('pv1').value/10;
+  var m2=+document.getElementById('pm2').value/10,v2=+document.getElementById('pv2').value/10;
+  b1={x:W*0.25,y:H/2,vx:v1,m:m1,r:15+m1*4,color:'#3b82f6'};
+  b2={x:W*0.75,y:H/2,vx:v2,m:m2,r:15+m2*4,color:'#ef4444'};
+  running=false;collided=false;flash.active=false;trail1=[];trail2=[];
+}
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect();tip.style.display='block';
+  tip.style.left=(e.clientX-r.left+12)+'px';tip.style.top=(e.clientY-r.top-28)+'px';
+  var p1=b1.m*b1.vx,p2=b2.m*b2.vx;tip.textContent='p₁='+p1.toFixed(2)+' p₂='+p2.toFixed(2)+' Σp='+(p1+p2).toFixed(2);});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+window.upd=function(){
+  ['m1','v1','m2','v2'].forEach(function(k){document.getElementById('v'+k).textContent=(+document.getElementById('p'+k).value/10).toFixed(1);});
+  init();running=true;calcReadout();
+};upd();
+window.setType=function(t){elastic=t===0;document.getElementById('btn-elastic').classList.toggle('active',t===0);document.getElementById('btn-inelastic').classList.toggle('active',t===1);};
+window.launchSim=function(){init();running=true;};
+window.resetSim=function(){init();};
+function calcReadout(){
+  var p1=b1.m*b1.vx,p2=b2.m*b2.vx;
+  document.getElementById('r-p1i').textContent=p1.toFixed(2)+' kg·m/s';
+  document.getElementById('r-p2i').textContent=p2.toFixed(2)+' kg·m/s';
+  document.getElementById('r-pt').textContent=(p1+p2).toFixed(2)+' kg·m/s';
+  document.getElementById('r-keb').textContent=(0.5*b1.m*b1.vx*b1.vx+0.5*b2.m*b2.vx*b2.vx).toFixed(2)+' J';
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,H/2+50);ctx.lineTo(W,H/2+50);ctx.stroke();
+  if(running){
+    var speed=3;b1.x+=b1.vx*speed;b2.x+=b2.vx*speed;
+    trail1.push(b1.x);trail2.push(b2.x);if(trail1.length>300)trail1.shift();if(trail2.length>300)trail2.shift();
+    if(!collided&&Math.abs(b1.x-b2.x)<b1.r+b2.r){
+      collided=true;flash={r:0,x:(b1.x+b2.x)/2,y:H/2,active:true};
+      var keBefore=0.5*b1.m*b1.vx*b1.vx+0.5*b2.m*b2.vx*b2.vx;
+      if(elastic){var v1f=((b1.m-b2.m)*b1.vx+2*b2.m*b2.vx)/(b1.m+b2.m);var v2f=((b2.m-b1.m)*b2.vx+2*b1.m*b1.vx)/(b1.m+b2.m);b1.vx=v1f;b2.vx=v2f;}
+      else{var vf=(b1.m*b1.vx+b2.m*b2.vx)/(b1.m+b2.m);b1.vx=vf;b2.vx=vf;}
+      var keAfter=0.5*b1.m*b1.vx*b1.vx+0.5*b2.m*b2.vx*b2.vx;
+      document.getElementById('r-kea').textContent=keAfter.toFixed(2)+' J';
+      document.getElementById('r-dke').textContent=(keAfter-keBefore).toFixed(2)+' J';
+    }
+    if(b1.x<b1.r){b1.x=b1.r;b1.vx*=-1;}if(b1.x>W-b1.r){b1.x=W-b1.r;b1.vx*=-1;}
+    if(b2.x<b2.r){b2.x=b2.r;b2.vx*=-1;}if(b2.x>W-b2.r){b2.x=W-b2.r;b2.vx*=-1;}
+  }
+  /* trails */
+  if(document.getElementById('btn-trace').classList.contains('active')){
+    ctx.globalAlpha=0.3;trail1.forEach(function(x,i){ctx.fillStyle='#3b82f6';ctx.beginPath();ctx.arc(x,H/2,2,0,Math.PI*2);ctx.fill();});
+    trail2.forEach(function(x,i){ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(x,H/2,2,0,Math.PI*2);ctx.fill();});ctx.globalAlpha=1;
+  }
+  /* collision flash */
+  if(flash.active){flash.r+=2;ctx.fillStyle='rgba(245,158,11,'+(1-flash.r/50)+')';ctx.beginPath();ctx.arc(flash.x,flash.y,flash.r,0,Math.PI*2);ctx.fill();if(flash.r>50)flash.active=false;}
+  /* velocity arrows */
+  [b1,b2].forEach(function(b){
+    if(Math.abs(b.vx)>0.01){ctx.strokeStyle=b.color;ctx.lineWidth=2;
+      var ax=b.x+b.vx*20;ctx.beginPath();ctx.moveTo(b.x,b.y-b.r-10);ctx.lineTo(ax,b.y-b.r-10);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(ax,b.y-b.r-10);ctx.lineTo(ax-(b.vx>0?8:-8),b.y-b.r-15);ctx.moveTo(ax,b.y-b.r-10);ctx.lineTo(ax-(b.vx>0?8:-8),b.y-b.r-5);ctx.stroke();}
+  });
+  /* balls with gradient */
+  [b1,b2].forEach(function(b){
+    var grad=ctx.createRadialGradient(b.x-b.r*0.3,b.y-b.r*0.3,b.r*0.1,b.x,b.y,b.r);
+    grad.addColorStop(0,'#f1f5f9');grad.addColorStop(1,b.color);
+    ctx.fillStyle=grad;ctx.shadowColor=b.color;ctx.shadowBlur=12;
+    ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle='#0f172a';ctx.font='bold 10px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(b.m.toFixed(1)+'kg',b.x,b.y);
+  });
+  /* momentum bars */
+  if(document.getElementById('btn-pbar').classList.contains('active')){
+    var p12=b1.m*b1.vx,p22=b2.m*b2.vx,pmax=Math.max(Math.abs(p12),Math.abs(p22),1);
+    var barY=H/2+70,barH=12;
+    ctx.fillStyle='rgba(59,130,246,0.6)';ctx.fillRect(W/2,barY,p12/pmax*W*0.3,barH);
+    ctx.fillStyle='rgba(239,68,68,0.6)';ctx.fillRect(W/2,barY+18,p22/pmax*W*0.3,barH);
+    ctx.fillStyle='#94a3b8';ctx.font='9px monospace';ctx.textAlign='left';
+    ctx.fillText('p₁='+p12.toFixed(2),W/2+p12/pmax*W*0.3+4,barY+10);
+    ctx.fillText('p₂='+p22.toFixed(2),W/2+p22/pmax*W*0.3+4,barY+28);
+    ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2,barY-4);ctx.lineTo(W/2,barY+34);ctx.stroke();
+  }
+  var ptot=b1.m*b1.vx+b2.m*b2.vx;
+  ctx.fillStyle='#94a3b8';ctx.font='10px monospace';ctx.textAlign='center';
+  ctx.fillText('p_total = '+(ptot).toFixed(2)+' kg·m/s',W/2,H-14);
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

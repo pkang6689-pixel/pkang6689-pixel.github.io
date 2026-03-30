@@ -1,0 +1,100 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Digestive System</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#22c55e;color:#22c55e;background:rgba(34,197,94,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#22c55e}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🍽️ Digestive System</h1>
+<p class="subtitle">Journey of food from mouth to absorption — enzymes and organs</p>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="450"></canvas><div id="tip" style="position:absolute;pointer-events:none;display:none;background:rgba(30,41,59,.92);color:#f1f5f9;font-size:.75rem;padding:4px 10px;border-radius:6px;border:1px solid #334155;white-space:nowrap;z-index:5"></div></div>
+<div class="controls">
+  <button class="toggle-btn" onclick="dropFood()">🍎 Drop Food</button>
+  <button class="toggle-btn" onclick="resetSim()">↺ Reset</button>
+  <button class="toggle-btn" id="btn-carb" onclick="setFood(0)" style="border-color:#f59e0b;color:#f59e0b">Carbs</button>
+  <button class="toggle-btn" id="btn-prot" onclick="setFood(1)">Protein</button>
+  <button class="toggle-btn" id="btn-fat" onclick="setFood(2)">Fat</button>
+  <button class="toggle-btn" id="btn-peristalsis" onclick="this.classList.toggle('active')">🌊 Peristalsis</button>
+</div>
+<div class="readout">
+  <div class="datum">Stage: <strong id="r-stage">Waiting...</strong></div>
+  <div class="datum">Enzyme: <strong id="r-enzyme">—</strong></div>
+  <div class="datum">pH: <strong id="r-ph">—</strong></div>
+  <div class="datum">Absorption: <strong id="r-absorb">0%</strong></div>
+  <div class="datum">Transit: <strong id="r-transit">0 s</strong></div>
+</div>
+<p style="text-align:center;font-size:.7rem;color:#64748b;margin-top:.25rem">Hover organs for details · Choose food type before dropping</p>
+<div class="info-box"><h3>Digestive Pathway</h3><p><strong>Mouth</strong>: Mechanical + salivary amylase (starch→maltose, pH 7). <strong>Esophagus</strong>: Peristalsis pushes food. <strong>Stomach</strong>: Pepsin breaks protein (pH 2, HCl). <strong>Small intestine</strong>: Bile + pancreatic enzymes, nutrient absorption via villi (pH 8). <strong>Large intestine</strong>: Water absorption, bacteria. Food particles shrink as nutrients are extracted.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var foodType=0,foodNames=['Carbohydrate','Protein','Fat'],foodColors=[['#f59e0b','#fbbf24'],['#ef4444','#fca5a5'],['#a855f7','#c084fc']];
+var organs=[
+  {name:'Mouth',x:.5,y:.06,w:.12,h:.06,color:'#f87171',enzyme:'Amylase',ph:'7.0',info:'Mechanical + chemical digestion begins. Amylase breaks starch.'},
+  {name:'Esophagus',x:.5,y:.16,w:.04,h:.10,color:'#fb923c',enzyme:'—',ph:'7.0',info:'Peristalsis pushes food bolus downward.'},
+  {name:'Stomach',x:.45,y:.32,w:.14,h:.12,color:'#fbbf24',enzyme:'Pepsin + HCl',ph:'2.0',info:'Acidic environment (pH 2). Pepsin denatures proteins.'},
+  {name:'Small Intestine',x:.5,y:.52,w:.25,h:.12,color:'#34d399',enzyme:'Lipase, Trypsin, Bile',ph:'8.0',info:'Main absorption site. Villi increase surface area 600×.'},
+  {name:'Large Intestine',x:.5,y:.72,w:.22,h:.10,color:'#60a5fa',enzyme:'Bacteria',ph:'6.5',info:'Water reabsorption. Gut bacteria ferment remaining fiber.'},
+  {name:'Rectum',x:.5,y:.88,w:.06,h:.05,color:'#94a3b8',enzyme:'—',ph:'—',info:'Stores waste before excretion.'}
+];
+var food=null,t=0,absorbed=0,startT=0;
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,found=null;
+  organs.forEach(function(o){var ox=o.x*W,oy=o.y*H,ow=o.w*W/2,oh=o.h*H/2;if(Math.abs(mx-ox)<ow&&Math.abs(my-oy)<oh)found=o;});
+  if(found){tip.style.display='block';tip.style.left=(mx+12)+'px';tip.style.top=(my-28)+'px';tip.textContent=found.name+': '+found.info;}else tip.style.display='none';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+window.setFood=function(f){foodType=f;['carb','prot','fat'].forEach(function(s,i){document.getElementById('btn-'+s).classList.toggle('active',i===f);
+  if(i===f){document.getElementById('btn-'+s).style.borderColor=foodColors[f][0];document.getElementById('btn-'+s).style.color=foodColors[f][0];}
+  else{document.getElementById('btn-'+s).style.borderColor='#475569';document.getElementById('btn-'+s).style.color='#94a3b8';}});};
+window.dropFood=function(){food={stage:0,progress:0,size:14,particles:[]};absorbed=0;startT=t;
+  for(var i=0;i<10;i++)food.particles.push({dx:(Math.random()-.5)*22,dy:(Math.random()-.5)*12,r:2.5+Math.random()*3,color:foodColors[foodType][Math.random()<.5?0:1]});};
+window.resetSim=function(){food=null;absorbed=0;document.getElementById('r-stage').textContent='Waiting...';document.getElementById('r-enzyme').textContent='—';document.getElementById('r-ph').textContent='—';document.getElementById('r-absorb').textContent='0%';document.getElementById('r-transit').textContent='0 s';};
+window.setFood(0);
+function draw(){ctx.clearRect(0,0,W,H);t+=0.016;
+  var showP=document.getElementById('btn-peristalsis').classList.contains('active');
+  organs.forEach(function(o,idx){var ox=o.x*W,oy=o.y*H,ow=o.w*W,oh=o.h*H;
+    var active=food&&food.stage===idx;var glow=active?0.5:0.15;
+    ctx.fillStyle=o.color+(active?'60':'30');ctx.strokeStyle=o.color;ctx.lineWidth=active?3:2;
+    if(o.name==='Stomach'){ctx.beginPath();ctx.ellipse(ox,oy,ow/2,oh/2,0.2,0,Math.PI*2);ctx.fill();ctx.stroke();
+    }else if(o.name==='Small Intestine'){ctx.beginPath();for(var i=0;i<ow;i++){var sx=ox-ow/2+i,sy=oy+Math.sin(i*0.08+t*(showP?3:0))*oh*0.3;i===0?ctx.moveTo(sx,sy):ctx.lineTo(sx,sy);}ctx.lineWidth=oh*0.5;ctx.strokeStyle=o.color+'40';ctx.stroke();ctx.lineWidth=active?3:2;ctx.strokeStyle=o.color;ctx.stroke();
+      /* villi */
+      if(active){for(var v=0;v<8;v++){var vx=ox-ow/2+ow*0.15+v*ow*0.1,vy=oy+Math.sin(vx*0.08+t*(showP?3:0))*oh*0.3+oh*0.25;ctx.fillStyle='rgba(52,211,153,0.4)';ctx.beginPath();ctx.ellipse(vx,vy,3,8,0,0,Math.PI*2);ctx.fill();}}
+    }else if(o.name==='Large Intestine'){ctx.beginPath();ctx.moveTo(ox-ow/2,oy-oh/2);ctx.quadraticCurveTo(ox,oy-oh/2-8,ox+ow/2,oy-oh/2);ctx.lineTo(ox+ow/2,oy+oh/2);ctx.quadraticCurveTo(ox,oy+oh/2+8,ox-ow/2,oy+oh/2);ctx.closePath();ctx.fill();ctx.stroke();
+    }else{ctx.fillRect(ox-ow/2,oy-oh/2,ow,oh);ctx.strokeRect(ox-ow/2,oy-oh/2,ow,oh);}
+    /* peristalsis wave */
+    if(showP&&(o.name==='Esophagus'||o.name==='Small Intestine')){var pw=Math.sin(t*4-idx)*4;ctx.strokeStyle='rgba(251,191,36,0.4)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(ox,oy,Math.max(5,ow/2+pw),0,Math.PI*2);ctx.stroke();}
+    if(active){ctx.shadowColor=o.color;ctx.shadowBlur=12;ctx.strokeStyle=o.color;ctx.lineWidth=1;ctx.beginPath();ctx.arc(ox,oy,Math.max(ow,oh)/2+4,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;}
+    ctx.fillStyle=o.color;ctx.font='10px Poppins';ctx.textAlign='left';ctx.fillText(o.name,ox+ow/2+5,oy+4);});
+  if(food){food.progress+=0.004;
+    if(food.progress>=1&&food.stage<organs.length-1){food.progress=0;food.stage++;
+      if(food.stage>=3){food.size=Math.max(3,food.size-2.5);absorbed=Math.min(100,absorbed+25);food.particles=food.particles.filter(function(){return Math.random()>0.3;});}}
+    var cur=organs[food.stage],next=organs[Math.min(food.stage+1,organs.length-1)];
+    var fx=cur.x*W+(next.x*W-cur.x*W)*food.progress,fy=cur.y*H+(next.y*H-cur.y*H)*food.progress;
+    food.particles.forEach(function(p){ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(fx+p.dx*(food.size/14),fy+p.dy*(food.size/14),p.r*(food.size/14),0,Math.PI*2);ctx.fill();});
+    var fg=ctx.createRadialGradient(fx,fy,0,fx,fy,food.size);fg.addColorStop(0,foodColors[foodType][1]);fg.addColorStop(1,foodColors[foodType][0]);ctx.fillStyle=fg;ctx.shadowColor=foodColors[foodType][0];ctx.shadowBlur=10;ctx.beginPath();ctx.arc(fx,fy,food.size,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    document.getElementById('r-stage').textContent=cur.name;document.getElementById('r-enzyme').textContent=cur.enzyme;document.getElementById('r-ph').textContent=cur.ph;document.getElementById('r-absorb').textContent=absorbed+'%';document.getElementById('r-transit').textContent=(t-startT).toFixed(1)+' s';}
+  ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.setLineDash([3,3]);for(var i=0;i<organs.length-1;i++){ctx.beginPath();ctx.moveTo(organs[i].x*W,organs[i].y*H+organs[i].h*H/2);ctx.lineTo(organs[i+1].x*W,organs[i+1].y*H-organs[i+1].h*H/2);ctx.stroke();}ctx.setLineDash([]);
+  requestAnimationFrame(draw);}
+draw();
+})();
+</script></body></html>

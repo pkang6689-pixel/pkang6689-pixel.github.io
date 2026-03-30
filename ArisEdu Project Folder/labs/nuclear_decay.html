@@ -1,0 +1,156 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Nuclear Decay Simulator</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#f59e0b}
+.ctrl-group .val{font-size:.8rem;color:#f59e0b;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#f59e0b}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>☢️ Nuclear Decay Simulator</h1>
+<p class="subtitle">Visualize radioactive decay — half-life, decay curves, and particle emission</p>
+<div class="canvas-wrap"><canvas id="cv" height="450"></canvas><div class="tooltip" id="tip" style="position:absolute;background:#1e293b;border:1px solid #f59e0b;border-radius:.5rem;padding:.4rem .7rem;font-size:.78rem;color:#e2e8f0;pointer-events:none;display:none;white-space:nowrap;z-index:10"></div></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Half-life (s)</label>
+    <input type="range" id="phl" min="5" max="100" value="30" oninput="document.getElementById('vhl').textContent=this.value+' s';resetDecay();startDecay()"><span class="val" id="vhl">30 s</span></div>
+  <div class="ctrl-group"><label>Initial Atoms</label>
+    <input type="range" id="pn0" min="50" max="500" value="200" step="10" oninput="document.getElementById('vn0').textContent=this.value;resetDecay();startDecay()"><span class="val" id="vn0">200</span></div>
+  <button class="toggle-btn" onclick="setPreset(0,this)">¹⁴C (5730y)</button>
+  <button class="toggle-btn" onclick="setPreset(1,this)">²³⁸U (4.5By)</button>
+  <button class="toggle-btn" onclick="setPreset(2,this)">¹³¹I (8d)</button>
+  <button class="toggle-btn" onclick="startDecay()">▶ Start</button>
+  <button class="toggle-btn" onclick="resetDecay()">↺ Reset</button>
+  <button class="toggle-btn active" id="btn-curve" onclick="this.classList.toggle('active')">Decay Curve</button>
+  <button class="toggle-btn" id="btn-log" onclick="this.classList.toggle('active')">Log Scale</button>
+</div>
+<div class="readout">
+  <div class="datum">Time: <strong id="r-time">0.0 s</strong></div>
+  <div class="datum">Remaining: <strong id="r-rem">200</strong></div>
+  <div class="datum">Decayed: <strong id="r-dec">0</strong></div>
+  <div class="datum">Half-lives: <strong id="r-hl">0.0</strong></div>
+  <div class="datum">% Remaining: <strong id="r-pct">100%</strong></div>
+  <div class="datum">Activity: <strong id="r-act">0 dps</strong></div>
+</div>
+<div class="info-box"><h3>Radioactive Decay</h3><p>Radioactive atoms decay randomly, but statistically follow N(t) = N₀·(½)^(t/t½). The <strong>half-life</strong> t½ is the time for half the atoms to decay. After 1 half-life: 50% remain. After 2: 25%. After 3: 12.5%. This exponential decay is used in <strong>carbon dating</strong>, nuclear medicine, and understanding reactor safety. Each dot represents an atom — orange = undecayed, dark = decayed.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var atoms=[],running=false,startTime=0,elapsed=0,history=[],emissions=[];
+var presetHL=[30,30,30];/* display only — actual sim uses slider */
+window.setPreset=function(i){var vals=[[50,200],[80,200],[20,200]];
+  document.getElementById('phl').value=vals[i][0];document.getElementById('vhl').textContent=vals[i][0]+' s';
+  document.getElementById('pn0').value=vals[i][1];document.getElementById('vn0').textContent=vals[i][1];resetDecay();startDecay();};
+function initAtoms(){
+  var n=+document.getElementById('pn0').value;atoms=[];emissions=[];
+  var cols=Math.ceil(Math.sqrt(n*W*0.55/H)),rows=Math.ceil(n/cols);
+  var cw=W*0.52/cols,ch=H*0.9/rows;
+  for(var i=0;i<n;i++){
+    var r=Math.floor(i/cols),c=i%cols;
+    atoms.push({x:20+c*cw+cw/2,y:20+r*ch+ch/2,alive:true,decayTime:Infinity,radius:Math.min(cw,ch)*0.35});
+  }history=[];elapsed=0;
+}
+initAtoms();
+cv.addEventListener('mousemove',function(e){
+  var r=cv.getBoundingClientRect();tip.style.display='block';tip.style.left=(e.clientX-r.left+12)+'px';tip.style.top=(e.clientY-r.top-28)+'px';
+  var alive=atoms.filter(function(a){return a.alive;}).length;
+  tip.textContent='Remaining: '+alive+' / '+atoms.length;
+});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+/* click atom to force decay */
+cv.addEventListener('click',function(e){
+  if(!running)return;
+  var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  for(var i=0;i<atoms.length;i++){var a=atoms[i];if(a.alive&&Math.hypot(mx-a.x,my-a.y)<a.radius+4){a.alive=false;spawnEmission(a.x,a.y);break;}}
+});
+function spawnEmission(x,y){
+  var ang=Math.random()*Math.PI*2,sp=1.5+Math.random()*2;
+  emissions.push({x:x,y:y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,life:1,type:Math.random()<0.5?'α':'β'});
+}
+window.startDecay=function(){
+  if(running)return;running=true;startTime=performance.now()-elapsed*1000;
+  var hl=+document.getElementById('phl').value,lambda=Math.log(2)/hl;
+  atoms.forEach(function(a){if(a.alive&&a.decayTime===Infinity)a.decayTime=-Math.log(Math.random())/lambda;});
+};
+window.resetDecay=function(){running=false;elapsed=0;initAtoms();};
+var prevAlive=0,activity=0,actTimer=0;
+function draw(now){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  if(running)elapsed=(performance.now()-startTime)/1000;
+  var hl=+document.getElementById('phl').value,alive=0;
+  atoms.forEach(function(a){
+    if(a.alive&&elapsed>=a.decayTime){a.alive=false;spawnEmission(a.x,a.y);}
+    if(a.alive)alive++;
+    ctx.fillStyle=a.alive?'#f59e0b':'#1e293b';
+    if(a.alive){ctx.shadowColor='#f59e0b';ctx.shadowBlur=4;}
+    ctx.beginPath();ctx.arc(a.x,a.y,a.radius,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    /* daughter nucleus color for decayed */
+    if(!a.alive){ctx.fillStyle='rgba(59,130,246,0.25)';ctx.beginPath();ctx.arc(a.x,a.y,a.radius*0.6,0,Math.PI*2);ctx.fill();}
+  });
+  /* emission particles */
+  for(var i=emissions.length-1;i>=0;i--){
+    var em=emissions[i];em.x+=em.vx;em.y+=em.vy;em.life-=0.015;
+    if(em.life<=0){emissions.splice(i,1);continue;}
+    ctx.globalAlpha=em.life;ctx.fillStyle=em.type==='α'?'#ef4444':'#a855f7';
+    ctx.beginPath();ctx.arc(em.x,em.y,em.type==='α'?3:2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 6px monospace';ctx.textAlign='center';ctx.fillText(em.type,em.x,em.y+2);
+    ctx.globalAlpha=1;
+  }
+  /* activity calc */
+  if(now-actTimer>500){activity=Math.abs(alive-prevAlive)*2;prevAlive=alive;actTimer=now;}
+  /* decay curve */
+  if(document.getElementById('btn-curve').classList.contains('active')&&history.length>1){
+    var gx=W*0.58,gw=W*0.4,gy=10,gh=H*0.45;
+    var isLog=document.getElementById('btn-log').classList.contains('active');
+    ctx.fillStyle='rgba(15,23,42,0.9)';ctx.beginPath();ctx.roundRect(gx,gy,gw,gh,6);ctx.fill();ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.stroke();
+    var n0=+document.getElementById('pn0').value,maxT=Math.max(elapsed,hl*4);
+    /* theoretical curve */
+    ctx.strokeStyle='rgba(245,158,11,0.3)';ctx.lineWidth=1;ctx.beginPath();
+    for(var t=0;t<=maxT;t+=maxT/200){var ny=n0*Math.pow(0.5,t/hl);
+      var py2=isLog?(ny>0?gy+gh-Math.log(ny)/Math.log(n0)*gh:gy+gh):gy+gh-ny/n0*gh;
+      t===0?ctx.moveTo(gx+t/maxT*gw,py2):ctx.lineTo(gx+t/maxT*gw,py2);}ctx.stroke();
+    /* actual data */
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.beginPath();
+    history.forEach(function(h,i){var px=gx+h.t/maxT*gw;
+      var py2=isLog?(h.n>0?gy+gh-Math.log(h.n)/Math.log(n0)*gh:gy+gh):gy+gh-h.n/n0*gh;
+      i===0?ctx.moveTo(px,py2):ctx.lineTo(px,py2);});ctx.stroke();
+    /* half-life markers */
+    for(var m=1;m<=4;m++){var tx=gx+(m*hl)/maxT*gw;if(tx<gx+gw){ctx.strokeStyle='rgba(245,158,11,0.15)';ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(tx,gy);ctx.lineTo(tx,gy+gh);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='#64748b';ctx.font='8px Poppins';ctx.textAlign='center';ctx.fillText(m+'t½',tx,gy+gh+10);}}
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';ctx.fillText(isLog?'ln(N) vs Time':'N vs Time',gx+gw/2,gy-2);
+    ctx.textAlign='right';ctx.fillText(isLog?'ln(N₀)':'N₀',gx-4,gy+8);ctx.fillText('0',gx-4,gy+gh);
+  }
+  if(running&&Math.floor(elapsed*10)%3===0)history.push({t:elapsed,n:alive});
+  document.getElementById('r-time').textContent=elapsed.toFixed(1)+' s';
+  document.getElementById('r-rem').textContent=alive;
+  document.getElementById('r-dec').textContent=atoms.length-alive;
+  document.getElementById('r-hl').textContent=(elapsed/hl).toFixed(2);
+  document.getElementById('r-pct').textContent=(alive/atoms.length*100).toFixed(1)+'%';
+  document.getElementById('r-act').textContent=activity+' dps';
+  requestAnimationFrame(draw);
+}
+draw(performance.now());
+})();
+</script></body></html>

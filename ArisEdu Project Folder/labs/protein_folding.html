@@ -1,0 +1,157 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Protein Folding</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#22c55e;color:#22c55e;background:rgba(34,197,94,.1)}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:110px;accent-color:#22c55e}
+.ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600;font-family:monospace}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#22c55e}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🧬 Protein Folding</h1>
+<p class="subtitle">Primary → secondary → tertiary → quaternary structure</p>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="420"></canvas><div id="tip" style="position:absolute;display:none;background:rgba(15,23,42,.92);color:#f1f5f9;font:11px monospace;padding:4px 8px;border-radius:6px;pointer-events:none;border:1px solid #334155;white-space:nowrap;z-index:5"></div><p style="text-align:center;font-size:.7rem;color:#475569;margin:.3rem 0 0">Click an amino acid to highlight · Adjust pH to test stability</p></div>
+<div class="controls">
+  <button class="toggle-btn active" id="btn-primary" onclick="setLevel(0)">Primary</button>
+  <button class="toggle-btn" id="btn-secondary" onclick="setLevel(1)">Secondary</button>
+  <button class="toggle-btn" id="btn-tertiary" onclick="setLevel(2)">Tertiary</button>
+  <button class="toggle-btn" id="btn-quaternary" onclick="setLevel(3)">Quaternary</button>
+  <div class="ctrl-group"><label>Temperature</label><input type="range" id="ptemp" min="0" max="100" value="37" oninput="upd()"><span class="val" id="vtemp">37°C</span></div>
+  <div class="ctrl-group"><label>pH</label><input type="range" id="pph" min="0" max="14" value="7" step="0.5" oninput="upd()"><span class="val" id="vph">7.0</span></div>
+  <button class="toggle-btn" id="btn-energy" onclick="this.classList.toggle('active')">Energy Plot</button>
+</div>
+<div class="readout">
+  <div class="datum">Level: <strong id="r-level">Primary</strong></div>
+  <div class="datum">Bonds: <strong id="r-bonds">Peptide</strong></div>
+  <div class="datum">Shape: <strong id="r-shape">Linear chain</strong></div>
+  <div class="datum">Stability: <strong id="r-stab">Stable</strong></div>
+</div>
+<div class="info-box"><h3>Protein Structure Levels</h3><p><strong>Primary</strong>: Linear sequence of amino acids linked by peptide bonds. <strong>Secondary</strong>: Local folding into α-helices and β-sheets via hydrogen bonds. <strong>Tertiary</strong>: 3D folding driven by R-group interactions (hydrophobic, ionic, disulfide). <strong>Quaternary</strong>: Multiple polypeptide subunits assembled together. High temperature causes <strong>denaturation</strong> — unfolding of the structure.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var level=0,t=0,selAA=-1;
+var amino=['Ala','Gly','Val','Leu','Ile','Pro','Phe','Trp','Met','Ser','Thr','Cys','Tyr','Asp','Glu','Lys','Arg','His','Asn','Gln'];
+var colors=['#ef4444','#f59e0b','#22c55e','#3b82f6','#a855f7','#ec4899','#14b8a6','#f97316','#8b5cf6','#06b6d4','#ef4444','#f59e0b','#22c55e','#3b82f6','#a855f7','#ec4899','#14b8a6','#f97316','#8b5cf6','#06b6d4'];
+var polar=[0,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1];
+var names=['Primary','Secondary','Tertiary','Quaternary'];
+var bonds=['Peptide','H-bonds (α-helix, β-sheet)','Hydrophobic, ionic, disulfide, H-bonds','Subunit interactions'];
+var shapes=['Linear chain','α-helix / β-sheet','Globular fold','Multi-subunit complex'];
+var aaPos=[];
+cv.addEventListener('mousemove',function(e){var rr=cv.getBoundingClientRect(),mx=e.clientX-rr.left,my=e.clientY-rr.top;
+  var found=-1;aaPos.forEach(function(p,i){if(Math.hypot(mx-p.x,my-p.y)<14)found=i;});
+  if(found>=0){tip.style.display='block';tip.style.left=(mx+12)+'px';tip.style.top=(my-28)+'px';
+    tip.textContent=amino[found%20]+' (#'+(found+1)+') '+(polar[found%20]?'polar':'nonpolar');}
+  else tip.style.display='none';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+cv.addEventListener('click',function(e){var rr=cv.getBoundingClientRect(),mx=e.clientX-rr.left,my=e.clientY-rr.top;
+  selAA=-1;aaPos.forEach(function(p,i){if(Math.hypot(mx-p.x,my-p.y)<14)selAA=i;});});
+window.setLevel=function(l){level=l;selAA=-1;['primary','secondary','tertiary','quaternary'].forEach(function(s,i){document.getElementById('btn-'+s).classList.toggle('active',i===l);});upd();};
+window.upd=function(){document.getElementById('vtemp').textContent=document.getElementById('ptemp').value+'°C';
+  document.getElementById('vph').textContent=(+document.getElementById('pph').value).toFixed(1);
+  document.getElementById('r-level').textContent=names[level];
+  document.getElementById('r-bonds').textContent=bonds[level];
+  document.getElementById('r-shape').textContent=shapes[level];
+  var temp=+document.getElementById('ptemp').value,ph=+document.getElementById('pph').value;
+  var stable=temp<70&&ph>4&&ph<10;
+  document.getElementById('r-stab').textContent=stable?'Stable':'Denatured!';
+  document.getElementById('r-stab').style.color=stable?'#22c55e':'#ef4444';};upd();
+function drawAA(x,y,i,r){
+  r=r||12;aaPos[i]={x:x,y:y};
+  var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
+  grad.addColorStop(0,'#f1f5f9');grad.addColorStop(1,colors[i%20]);
+  ctx.fillStyle=grad;
+  if(i===selAA){ctx.shadowColor='#f59e0b';ctx.shadowBlur=16;}
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  if(i===selAA){ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.stroke();}
+  ctx.fillStyle='#0f172a';ctx.font='bold 7px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(amino[i%20],x,y);
+}
+function drawPrimary(){
+  aaPos=[];var n=16,cx=W/2,cy=H/2,spacing=40,sx=cx-(n-1)*spacing/2;
+  for(var i=0;i<n;i++){
+    var x=sx+i*spacing,y=cy+Math.sin(t*0.5+i*0.3)*5;
+    if(i>0){ctx.strokeStyle='#475569';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx+(i-1)*spacing,cy+Math.sin(t*0.5+(i-1)*0.3)*5);ctx.lineTo(x,y);ctx.stroke();}
+    drawAA(x,y,i);
+  }
+}
+function drawSecondary(){
+  aaPos=[];var cx=W/2,cy=H/2,idx=0;
+  ctx.fillStyle='#94a3b8';ctx.font='12px Poppins';ctx.textAlign='center';ctx.fillText('α-helix',cx-120,cy-120);
+  for(var i=0;i<40;i++){var a=i*0.35+t*0.8,r=30,x=cx-120+r*Math.cos(a),y=cy-80+i*4;
+    drawAA(x,y,idx++,6);}
+  for(var i=4;i<40;i+=4){var a1=i*0.35+t*0.8,a2=(i-4)*0.35+t*0.8;
+    ctx.strokeStyle='rgba(239,68,68,0.5)';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();
+    ctx.moveTo(cx-120+30*Math.cos(a1),cy-80+i*4);ctx.lineTo(cx-120+30*Math.cos(a2),cy-80+(i-4)*4);ctx.stroke();ctx.setLineDash([]);}
+  ctx.fillStyle='#94a3b8';ctx.fillText('β-sheet',cx+100,cy-120);
+  for(var s=0;s<3;s++){for(var i=0;i<10;i++){
+    var x=cx+60+s*40,y=cy-80+i*20;drawAA(x,y,idx++,5);
+    if(i<9){ctx.strokeStyle=colors[idx%20];ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+20);ctx.stroke();}}}
+  for(var i=0;i<10;i+=2){ctx.strokeStyle='rgba(239,68,68,0.5)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(cx+60,cy-80+i*20);ctx.lineTo(cx+100,cy-80+i*20);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+100,cy-80+i*20);ctx.lineTo(cx+140,cy-80+i*20);ctx.stroke();ctx.setLineDash([]);}
+}
+function drawTertiary(){
+  aaPos=[];var cx=W/2,cy=H/2,pts=[];
+  for(var i=0;i<30;i++){var a=i*0.45+0.5,r=60+40*Math.sin(i*0.7)+20*Math.cos(i*0.3);pts.push({x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)});}
+  ctx.strokeStyle='rgba(34,197,94,0.6)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  for(var i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);ctx.stroke();
+  var pairs=[[3,18],[7,25],[12,28]];
+  pairs.forEach(function(p){ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(pts[p[0]].x,pts[p[0]].y);ctx.lineTo(pts[p[1]].x,pts[p[1]].y);ctx.stroke();ctx.setLineDash([]);});
+  pts.forEach(function(p,i){drawAA(p.x+Math.sin(t+i)*3,p.y+Math.cos(t+i*0.7)*3,i,7);});
+  ctx.fillStyle='#f59e0b';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('S—S bond',cx-80,cy+110);
+}
+function drawQuaternary(){
+  aaPos=[];var cx=W/2,cy=H/2;
+  var subs=[{x:cx-50,y:cy-40,c:'#3b82f6',l:'α₁'},{x:cx+50,y:cy-40,c:'#ef4444',l:'α₂'},{x:cx-50,y:cy+40,c:'#22c55e',l:'β₁'},{x:cx+50,y:cy+40,c:'#a855f7',l:'β₂'}];
+  subs.forEach(function(s){var sx=s.x+Math.sin(t*0.7)*4,sy=s.y+Math.cos(t*0.5)*4;
+    ctx.fillStyle=s.c+'30';ctx.beginPath();for(var a=0;a<Math.PI*2;a+=0.1){var r=45+8*Math.sin(a*3+t);ctx.lineTo(sx+r*Math.cos(a),sy+r*Math.sin(a));}ctx.closePath();ctx.fill();
+    ctx.strokeStyle=s.c;ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 14px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(s.l,sx,sy);});
+  ctx.fillStyle='#94a3b8';ctx.font='12px Poppins';ctx.textAlign='center';ctx.fillText('Hemoglobin (4 subunits)',cx,cy+120);
+}
+function drawEnergyPlot(){
+  var px=W-170,py=10,pw=155,ph=80;
+  ctx.fillStyle='rgba(15,23,42,0.85)';ctx.fillRect(px,py,pw,ph);ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.strokeRect(px,py,pw,ph);
+  ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';ctx.fillText('Free Energy Landscape',px+pw/2,py+10);
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;ctx.beginPath();
+  for(var i=0;i<=pw-20;i++){var x=px+10+i,f=i/(pw-20);
+    var e=30*Math.sin(f*Math.PI*3)*Math.exp(-f*2)+10;
+    ctx.lineTo(x,py+ph-10-e);}ctx.stroke();
+  ctx.fillStyle='#f59e0b';var nf=level/3;ctx.beginPath();ctx.arc(px+10+nf*(pw-20),py+ph-10-(30*Math.sin(nf*Math.PI*3)*Math.exp(-nf*2)+10),4,0,Math.PI*2);ctx.fill();
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  var temp=+document.getElementById('ptemp').value,ph=+document.getElementById('pph').value;t+=0.02;
+  var jit=(temp>70?(temp-70)*0.3:0)+(ph<4||ph>10?Math.abs(ph-7)*1.5:0);
+  ctx.save();if(jit>0)ctx.translate((Math.random()-0.5)*jit,(Math.random()-0.5)*jit);
+  if(level===0)drawPrimary();else if(level===1)drawSecondary();else if(level===2)drawTertiary();else drawQuaternary();
+  ctx.restore();
+  if(jit>3){ctx.fillStyle='rgba(239,68,68,0.7)';ctx.font='bold 16px Poppins';ctx.textAlign='center';ctx.fillText('⚠ DENATURATION — protein unfolding!',W/2,30);}
+  if(document.getElementById('btn-energy').classList.contains('active'))drawEnergyPlot();
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

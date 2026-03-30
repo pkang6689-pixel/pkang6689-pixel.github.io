@@ -1,0 +1,94 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ocean Acidification</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:120px;accent-color:#22c55e}
+.ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600;font-family:monospace}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#22c55e}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🌊 Ocean Acidification</h1>
+<p class="subtitle">CO₂ absorption, pH drop, and impact on marine shells</p>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="420"></canvas><div id="tip" style="position:absolute;pointer-events:none;display:none;background:rgba(30,41,59,.92);color:#f1f5f9;font-size:.75rem;padding:4px 10px;border-radius:6px;border:1px solid #334155;white-space:nowrap;z-index:5"></div></div>
+<div class="controls">
+  <div class="ctrl-group"><label>CO₂ Emissions (ppm)</label><input type="range" id="pco2" min="280" max="800" value="415" oninput="upd()"><span class="val" id="vco2">415</span></div>
+  <div class="ctrl-group"><label>Year</label><input type="range" id="pyear" min="1800" max="2100" value="2024" oninput="upd()"><span class="val" id="vyear">2024</span></div>
+  <button class="toggle-btn" id="btn-graph" onclick="this.classList.toggle('active')">📊 pH History</button>
+</div>
+<div class="readout">
+  <div class="datum">CO₂: <strong id="r-co2">415 ppm</strong></div>
+  <div class="datum">Ocean pH: <strong id="r-ph">8.07</strong></div>
+  <div class="datum">Shell Health: <strong id="r-shell">Good</strong></div>
+  <div class="datum">Coral: <strong id="r-coral">Healthy</strong></div>
+  <div class="datum">[CO₃²⁻]: <strong id="r-carb">Normal</strong></div>
+</div>
+<p style="text-align:center;font-size:.7rem;color:#64748b;margin-top:.25rem">Hover ocean to see local pH · Adjust CO₂ to see ecosystem effects</p>
+<div class="info-box"><h3>Ocean Acidification</h3><p>Oceans absorb ~30% of atmospheric CO₂. CO₂ + H₂O → H₂CO₃ (carbonic acid), lowering pH. Pre-industrial ocean pH was ~8.2; today it's ~8.07. Even small pH drops reduce carbonate ions (CO₃²⁻) that shellfish and corals need to build CaCO₃ skeletons. Below pH 7.8, dissolution of shells accelerates. Coral bleaching increases with acidification and warming.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var t=0,bubbles=[],phHist=[];
+for(var i=0;i<25;i++)bubbles.push({x:Math.random(),y:Math.random(),s:1+Math.random()*3,sp:.001+Math.random()*.002});
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;var wl=H*.3;
+  if(my>wl&&my<H-40){var depth=((my-wl)/(H-40-wl)*100).toFixed(0);var co2=+document.getElementById('pco2').value;var ph=8.35-co2*.0004;var localPh=(ph+depth*.0001).toFixed(2);
+    tip.style.display='block';tip.style.left=(mx+12)+'px';tip.style.top=(my-28)+'px';tip.textContent='Depth ~'+depth+'m · pH '+localPh;}else tip.style.display='none';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+window.upd=function(){var co2=+document.getElementById('pco2').value,year=+document.getElementById('pyear').value;
+  document.getElementById('vco2').textContent=co2;document.getElementById('vyear').textContent=year;
+  var ph=8.35-co2*.0004;document.getElementById('r-co2').textContent=co2+' ppm';document.getElementById('r-ph').textContent=ph.toFixed(2);
+  document.getElementById('r-shell').textContent=ph>8.05?'Good':ph>7.9?'Thinning':ph>7.8?'Dissolving':'Critical';
+  document.getElementById('r-coral').textContent=ph>8.05?'Healthy':ph>7.9?'Stressed':ph>7.8?'Bleaching':'Dead';
+  document.getElementById('r-carb').textContent=ph>8.05?'Normal':ph>7.9?'Low':ph>7.8?'Very Low':'Depleted';};upd();
+function draw(){ctx.clearRect(0,0,W,H);t+=.016;var co2=+document.getElementById('pco2').value,ph=8.35-co2*.0004,wl=H*.3;
+  if(t%1<.02)phHist.push(ph);if(phHist.length>120)phHist.shift();
+  var skyA=Math.min(1,co2/800);ctx.fillStyle='hsl(210,20%,'+(15+skyA*15)+'%)';ctx.fillRect(0,0,W,wl);
+  var nC=Math.floor((co2-280)/80);ctx.fillStyle='rgba(148,163,184,'+(0.1+skyA*.3)+')';
+  for(var i=0;i<nC;i++){var cx2=((i*137+t*20)%W),cy2=20+i*15%50;ctx.beginPath();ctx.ellipse(cx2,cy2,30+i*5,12,0,0,Math.PI*2);ctx.fill();}
+  ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('CO₂: '+co2+' ppm',W/2,15);
+  ctx.strokeStyle='rgba(148,163,184,0.5)';ctx.lineWidth=1;for(var i=0;i<Math.min(8,nC);i++){var ax=W*.2+i*(W*.6)/8,ay=wl-15+Math.sin(t*2+i)*5;ctx.beginPath();ctx.moveTo(ax,wl-30);ctx.lineTo(ax,ay);ctx.stroke();}
+  var wHue=ph>8?200:ph>7.9?180:160,wSat=ph>8?70:ph>7.9?50:30;
+  var wg=ctx.createLinearGradient(0,wl,0,H);wg.addColorStop(0,'hsl('+wHue+','+wSat+'%,30%)');wg.addColorStop(1,'hsl('+wHue+','+wSat+'%,15%)');ctx.fillStyle=wg;ctx.fillRect(0,wl,W,H-wl);
+  bubbles.forEach(function(b){b.y-=b.sp*(co2/400);if(b.y<0){b.y=1;b.x=Math.random();}
+    var bx=b.x*W,by=wl+(H-wl)*b.y;ctx.strokeStyle='rgba(148,163,184,0.35)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(bx,by,b.s,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(148,163,184,0.08)';ctx.fill();});
+  ctx.fillStyle='#44403c';ctx.fillRect(0,H-40,W,40);
+  var sh=ph>8.05?1:ph>7.9?.7:ph>7.8?.4:.1;
+  for(var i=0;i<5;i++){var sx=W*.15+i*W*.17,sy=H-45;ctx.globalAlpha=sh;
+    var sg=ctx.createRadialGradient(sx,sy-3,1,sx,sy,12);sg.addColorStop(0,'#fef08a');sg.addColorStop(1,'#92400e');ctx.fillStyle=sg;ctx.beginPath();ctx.arc(sx,sy,10,Math.PI,0);ctx.fill();
+    ctx.strokeStyle='#92400e';ctx.lineWidth=.7;for(var r2=0;r2<5;r2++){ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+10*Math.cos(Math.PI+r2*Math.PI/5),sy-10*Math.sin(Math.PI+r2*Math.PI/5));ctx.stroke();}ctx.globalAlpha=1;}
+  var ch=ph>8.05?1:ph>7.9?.6:ph>7.8?.3:0;
+  for(var i=0;i<3;i++){var cx3=W*.3+i*W*.2,cy3=H-45,cc=ch>.5?'#f87171':ch>.2?'#fbbf24':'#94a3b8';ctx.globalAlpha=.4+ch*.6;
+    for(var b2=0;b2<6;b2++){var g2=ctx.createRadialGradient(cx3+(b2-2.5)*7,cy3-b2*5-5,1,cx3+(b2-2.5)*7,cy3-b2*5-5,7+b2*2);g2.addColorStop(0,cc);g2.addColorStop(1,cc+'40');ctx.fillStyle=g2;ctx.beginPath();ctx.arc(cx3+(b2-2.5)*7,cy3-b2*5-5,6+b2*2,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;}
+  /* pH scale */
+  var scX=W-30,scT=wl+10,scB=H-50;for(var y=scT;y<scB;y++){var frac=(y-scT)/(scB-scT);ctx.fillStyle='hsl('+120*(1-frac)+',70%,50%)';ctx.fillRect(scX-5,y,10,1);}
+  var phF=1-(ph-7.5)/.9,mY=scT+(scB-scT)*Math.max(0,Math.min(1,phF));ctx.fillStyle='#f1f5f9';ctx.beginPath();ctx.moveTo(scX-10,mY);ctx.lineTo(scX-18,mY-4);ctx.lineTo(scX-18,mY+4);ctx.fill();
+  ctx.font='9px Poppins';ctx.textAlign='right';ctx.fillText('pH '+ph.toFixed(2),scX-20,mY+3);ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.textAlign='center';ctx.fillText('8.4',scX,scT-5);ctx.fillText('7.5',scX,scB+10);
+  /* pH history graph */
+  if(document.getElementById('btn-graph').classList.contains('active')&&phHist.length>2){var gx2=10,gy2=wl+10,gw2=140,gh2=70;
+    ctx.fillStyle='rgba(15,23,42,0.85)';ctx.fillRect(gx2,gy2,gw2,gh2);ctx.strokeStyle='#334155';ctx.strokeRect(gx2,gy2,gw2,gh2);ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.textAlign='left';ctx.fillText('pH over time',gx2+4,gy2+10);
+    ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;ctx.beginPath();phHist.forEach(function(v,i){var px=gx2+5+i*(gw2-10)/phHist.length,py=gy2+gh2-5-(v-7.5)/.9*(gh2-15);i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);});ctx.stroke();}
+  requestAnimationFrame(draw);}
+draw();
+})();
+</script></body></html>

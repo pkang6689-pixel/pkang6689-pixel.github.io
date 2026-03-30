@@ -1,0 +1,102 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Kelp Forest Ecosystem</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:110px;accent-color:#22c55e}
+.ctrl-group .val{font-size:.8rem;color:#22c55e;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#22c55e;color:#22c55e;background:rgba(34,197,94,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#22c55e}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#22c55e;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🌿 Kelp Forest Ecosystem</h1>
+<p class="subtitle">Trophic cascade: otters, urchins, and kelp balance</p>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="420"></canvas><div id="tip" style="position:absolute;pointer-events:none;display:none;background:rgba(30,41,59,.92);color:#f1f5f9;font-size:.75rem;padding:4px 10px;border-radius:6px;border:1px solid #334155;white-space:nowrap;z-index:5"></div></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Otter Population</label><input type="range" id="potter" min="0" max="20" value="8" oninput="upd()"><span class="val" id="votter">8</span></div>
+  <div class="ctrl-group"><label>Urchin Spawn Rate</label><input type="range" id="purch" min="1" max="10" value="4" oninput="upd()"><span class="val" id="vurch">4</span></div>
+  <div class="ctrl-group"><label>Water Temp (°C)</label><input type="range" id="ptemp" min="8" max="22" value="12" oninput="upd()"><span class="val" id="vtemp">12</span></div>
+  <button class="toggle-btn" id="btn-graph" onclick="this.classList.toggle('active')">📊 Pop. Graph</button>
+</div>
+<div class="readout">
+  <div class="datum">Kelp: <strong id="r-kelp">10</strong></div>
+  <div class="datum">Urchins: <strong id="r-urch">0</strong></div>
+  <div class="datum">Otters: <strong id="r-otter">8</strong></div>
+  <div class="datum">Status: <strong id="r-status">Balanced</strong></div>
+  <div class="datum">Biodiversity: <strong id="r-bio">High</strong></div>
+</div>
+<p style="text-align:center;font-size:.7rem;color:#64748b;margin-top:.25rem">Hover organisms for info · Watch the trophic cascade unfold</p>
+<div class="info-box"><h3>Trophic Cascade</h3><p><strong>Kelp forests</strong> are underwater ecosystems anchored by giant kelp. <strong>Sea urchins</strong> graze on kelp holdfasts. <strong>Sea otters</strong> are a keystone predator — they eat urchins, keeping populations in check. Without otters, urchins overgraze kelp, creating "urchin barrens." Warmer waters stress kelp and promote disease. This demonstrates a classic <strong>trophic cascade</strong>.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var kelps=[],urchins=[],t=0,frame=0,popHist=[];
+for(var i=0;i<10;i++)kelps.push({x:W*.1+i*W*.08,h:150+Math.random()*100,health:1,sway:Math.random()*Math.PI*2});
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;var found=null;var otterN=+document.getElementById('potter').value;
+  for(var i=0;i<otterN;i++){var ox=W*.1+i*(W*.8)/Math.max(1,otterN-1),oy=25;if(Math.hypot(mx-ox,my-oy)<15){found='Sea Otter – keystone predator';break;}}
+  if(!found){for(var i=0;i<urchins.length;i++){if(Math.hypot(mx-urchins[i].x,my-urchins[i].y)<10){found='Sea Urchin – kelp grazer';break;}}}
+  if(!found){for(var i=0;i<kelps.length;i++){if(Math.abs(mx-kelps[i].x)<15&&my>H-30-kelps[i].h*kelps[i].health){found='Giant Kelp – health '+(kelps[i].health*100).toFixed(0)+'%';break;}}}
+  if(found){tip.style.display='block';tip.style.left=(mx+12)+'px';tip.style.top=(my-28)+'px';tip.textContent=found;}else tip.style.display='none';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+window.upd=function(){document.getElementById('votter').textContent=document.getElementById('potter').value;document.getElementById('vurch').textContent=document.getElementById('purch').value;document.getElementById('vtemp').textContent=document.getElementById('ptemp').value;};upd();
+function draw(){ctx.clearRect(0,0,W,H);t+=.016;frame++;
+  var otterN=+document.getElementById('potter').value,urchRate=+document.getElementById('purch').value,temp=+document.getElementById('ptemp').value;var floorY=H-30;
+  var grd=ctx.createLinearGradient(0,0,0,H);grd.addColorStop(0,'#0c4a6e');grd.addColorStop(1,'#082f49');ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
+  /* light rays with shimmer */
+  for(var i=0;i<6;i++){var lx=W*.15+i*W*.14;ctx.strokeStyle='rgba(250,204,21,'+(0.03+Math.sin(t+i)*.015)+')';ctx.lineWidth=25;ctx.beginPath();ctx.moveTo(lx,-10);ctx.lineTo(lx+20+Math.sin(t*.5+i)*10,H);ctx.stroke();}
+  /* floating particles (detritus) */
+  for(var i=0;i<12;i++){var dx=(i*97+t*15)%W,dy=(i*73+t*8)%H;ctx.fillStyle='rgba(148,163,184,0.15)';ctx.beginPath();ctx.arc(dx,dy,1.5,0,Math.PI*2);ctx.fill();}
+  ctx.fillStyle='#44403c';ctx.fillRect(0,floorY,W,H-floorY);
+  if(frame%Math.max(10,80-urchRate*8)===0&&urchins.length<60)urchins.push({x:Math.random()*W*.8+W*.1,y:floorY-5,vx:(Math.random()-.5)*.5});
+  var eaten=0;for(var i=urchins.length-1;i>=0;i--){if(eaten<otterN*.05&&Math.random()<.02){urchins.splice(i,1);eaten++;continue;}urchins[i].x+=urchins[i].vx;if(urchins[i].x<10||urchins[i].x>W-10)urchins[i].vx*=-1;}
+  urchins.forEach(function(u){kelps.forEach(function(k){if(Math.abs(u.x-k.x)<20&&k.health>0)k.health-=.0003*Math.max(1,urchins.length/10);});});
+  kelps.forEach(function(k){if(temp>16)k.health-=.0001*(temp-16);if(k.health<0)k.health=0;if(otterN>5&&urchins.length<15&&k.health<1)k.health+=.0005;});
+  /* draw kelp with gradient strands */
+  kelps.forEach(function(k){var kh=k.h*k.health;if(kh<5)return;
+    var kg=ctx.createLinearGradient(k.x,floorY,k.x,floorY-kh);kg.addColorStop(0,'hsla(120,60%,'+(20+k.health*25)+'%,'+(0.4+k.health*.6)+')');kg.addColorStop(1,'hsla(120,60%,'+(35+k.health*20)+'%,'+(0.3+k.health*.7)+')');
+    ctx.strokeStyle=kg;ctx.lineWidth=4;ctx.beginPath();
+    for(var y=0;y<kh;y+=5){var sw=Math.sin(t*1.5+k.sway+y*.02)*8*k.health;ctx.lineTo(k.x+sw,floorY-y);}ctx.stroke();
+    for(var y=20;y<kh;y+=25){var sw2=Math.sin(t*1.5+k.sway+y*.02)*8;
+      var lg=ctx.createRadialGradient(k.x+sw2+10,floorY-y,1,k.x+sw2+10,floorY-y,13*k.health);lg.addColorStop(0,'hsla(120,50%,'+(35+k.health*25)+'%,'+(0.6+k.health*.4)+')');lg.addColorStop(1,'hsla(120,50%,30%,0)');ctx.fillStyle=lg;
+      ctx.beginPath();ctx.ellipse(k.x+sw2+10,floorY-y,12*k.health,4,.3,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(k.x+sw2-10,floorY-y,12*k.health,4,-.3,0,Math.PI*2);ctx.fill();}});
+  /* urchins with glow */
+  urchins.forEach(function(u){ctx.fillStyle='#a855f7';ctx.shadowColor='#a855f7';ctx.shadowBlur=4;ctx.beginPath();ctx.arc(u.x,u.y,5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    for(var a=0;a<Math.PI*2;a+=Math.PI/4){ctx.strokeStyle='#7c3aed';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(u.x,u.y);ctx.lineTo(u.x+Math.cos(a)*8,u.y+Math.sin(a)*8);ctx.stroke();}});
+  /* otters */
+  for(var i=0;i<otterN;i++){var ox=W*.1+i*(W*.8)/Math.max(1,otterN-1),oy=25+Math.sin(t*2+i)*5;
+    ctx.fillStyle='#92400e';ctx.shadowColor='#92400e';ctx.shadowBlur=3;ctx.beginPath();ctx.ellipse(ox,oy,12,7,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle='#f5f5dc';ctx.beginPath();ctx.arc(ox,oy-2,4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#000';ctx.beginPath();ctx.arc(ox-2,oy-3,1,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(ox+2,oy-3,1,0,Math.PI*2);ctx.fill();}
+  var kelpAlive=kelps.filter(function(k){return k.health>.1;}).length;
+  document.getElementById('r-kelp').textContent=kelpAlive;document.getElementById('r-urch').textContent=urchins.length;document.getElementById('r-otter').textContent=otterN;
+  document.getElementById('r-status').textContent=kelpAlive>6?'Balanced':kelpAlive>3?'Stressed':'Urchin Barren!';
+  document.getElementById('r-bio').textContent=kelpAlive>6&&otterN>3?'High':kelpAlive>3?'Medium':'Low';
+  if(frame%30===0)popHist.push({k:kelpAlive,u:urchins.length});if(popHist.length>100)popHist.shift();
+  if(document.getElementById('btn-graph').classList.contains('active')&&popHist.length>2){var gx=10,gy=10,gw=150,gh=70;
+    ctx.fillStyle='rgba(15,23,42,0.85)';ctx.fillRect(gx,gy,gw,gh);ctx.strokeStyle='#334155';ctx.strokeRect(gx,gy,gw,gh);ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.textAlign='left';ctx.fillText('Kelp / Urchins',gx+4,gy+10);
+    ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;ctx.beginPath();popHist.forEach(function(h,i){var px=gx+5+i*(gw-10)/popHist.length,py=gy+gh-5-h.k/10*(gh-15);i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);});ctx.stroke();
+    ctx.strokeStyle='#a855f7';ctx.beginPath();popHist.forEach(function(h,i){var px=gx+5+i*(gw-10)/popHist.length,py=gy+gh-5-h.u/60*(gh-15);i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);});ctx.stroke();}
+  requestAnimationFrame(draw);}
+draw();
+})();
+</script></body></html>

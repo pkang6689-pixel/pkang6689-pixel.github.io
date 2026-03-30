@@ -1,0 +1,184 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Reaction Rates</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:110px;accent-color:#f59e0b}
+.ctrl-group .val{font-size:.8rem;color:#f59e0b;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#f59e0b}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#f59e0b;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>⚡ Reaction Rates</h1>
+<p class="subtitle">Collision theory — temperature, concentration, and activation energy affect reaction speed</p>
+<div class="canvas-wrap"><canvas id="cv" height="450"></canvas><div class="tooltip" id="tip" style="position:absolute;background:#1e293b;border:1px solid #f59e0b;border-radius:.5rem;padding:.4rem .7rem;font-size:.78rem;color:#e2e8f0;pointer-events:none;display:none;white-space:nowrap;z-index:10"></div></div>
+<div class="controls">
+  <div class="ctrl-group"><label>Temperature (K)</label>
+    <input type="range" id="ptemp" min="200" max="600" value="300" oninput="upd()"><span class="val" id="vtemp">300 K</span></div>
+  <div class="ctrl-group"><label>Concentration</label>
+    <input type="range" id="pconc" min="10" max="80" value="30" oninput="upd()"><span class="val" id="vconc">30</span></div>
+  <div class="ctrl-group"><label>Activation E</label>
+    <input type="range" id="pea" min="10" max="100" value="50" oninput="upd()"><span class="val" id="vea">50 kJ</span></div>
+  <button class="toggle-btn active" id="btn-cat" onclick="this.classList.toggle('active');upd()">Catalyst</button>
+  <button class="toggle-btn" id="btn-mb" onclick="this.classList.toggle('active')">MB Distribution</button>
+  <button class="toggle-btn" id="btn-trails" onclick="this.classList.toggle('active')">Trails</button>
+  <button class="toggle-btn" onclick="resetSim()">↺ Reset</button>
+</div>
+<div class="readout">
+  <div class="datum">Collisions: <strong id="r-col">0</strong></div>
+  <div class="datum">Reactions: <strong id="r-rxn">0</strong></div>
+  <div class="datum">Rate: <strong id="r-rate">0/s</strong></div>
+  <div class="datum">Ea (eff): <strong id="r-ea">50 kJ</strong></div>
+  <div class="datum">k (Arrhenius): <strong id="r-k">—</strong></div>
+</div>
+<div class="info-box"><h3>Collision Theory</h3><p>For a reaction to occur, molecules must <strong>collide</strong> with sufficient energy (≥ activation energy Eₐ) and proper orientation. Higher <strong>temperature</strong> means faster molecules → more collisions above Eₐ. Higher <strong>concentration</strong> → more frequent collisions. A <strong>catalyst</strong> lowers Eₐ, allowing more collisions to succeed without being used up.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var particles=[],collisions=0,reactions=0,lastTime=0,rateCount=0,rate=0,flashes=[];
+cv.addEventListener('mousemove',function(e){
+  var r=cv.getBoundingClientRect();tip.style.display='block';tip.style.left=(e.clientX-r.left+12)+'px';tip.style.top=(e.clientY-r.top-28)+'px';
+  tip.textContent='Particles: '+particles.filter(function(p){return!p.reacted;}).length+' | Reactions: '+reactions;
+});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+function genParticles(){
+  var n=+document.getElementById('pconc').value;particles=[];collisions=0;reactions=0;flashes=[];
+  for(var i=0;i<n;i++){
+    particles.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*2,vy:(Math.random()-0.5)*2,type:i<n/2?0:1,r:5,reacted:false,trail:[]});
+  }
+}
+genParticles();
+window.upd=function(){
+  document.getElementById('vtemp').textContent=document.getElementById('ptemp').value+' K';
+  document.getElementById('vconc').textContent=document.getElementById('pconc').value;
+  document.getElementById('vea').textContent=document.getElementById('pea').value+' kJ';
+  var ea=+document.getElementById('pea').value;
+  if(document.getElementById('btn-cat').classList.contains('active'))ea*=0.5;
+  document.getElementById('r-ea').textContent=Math.round(ea)+' kJ';
+  var T=+document.getElementById('ptemp').value,R=8.314;
+  var k=1e10*Math.exp(-ea*1000/(R*T));
+  document.getElementById('r-k').textContent=k.toExponential(2)+' s⁻¹';
+};upd();
+window.resetSim=function(){genParticles();collisions=0;reactions=0;rateCount=0;rate=0;lastTime=performance.now();flashes=[];};
+function draw(now){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  var T=+document.getElementById('ptemp').value,ea=+document.getElementById('pea').value;
+  if(document.getElementById('btn-cat').classList.contains('active'))ea*=0.5;
+  var speedMult=T/300,showTrails=document.getElementById('btn-trails').classList.contains('active');
+  /* temperature gradient background */
+  var tGrad=ctx.createLinearGradient(0,H,0,0);
+  var tAlpha=Math.min((T-200)/400*0.08,0.08);
+  tGrad.addColorStop(0,'rgba(239,68,68,'+tAlpha+')');tGrad.addColorStop(1,'transparent');
+  ctx.fillStyle=tGrad;ctx.fillRect(0,0,W,H);
+  /* move particles */
+  particles.forEach(function(p){
+    if(p.reacted)return;
+    p.x+=p.vx*speedMult*2;p.y+=p.vy*speedMult*2;
+    if(p.x<p.r||p.x>W-p.r){p.vx*=-1;p.x=Math.max(p.r,Math.min(W-p.r,p.x));}
+    if(p.y<p.r||p.y>H-p.r){p.vy*=-1;p.y=Math.max(p.r,Math.min(H-p.r,p.y));}
+    if(showTrails){p.trail.push({x:p.x,y:p.y});if(p.trail.length>12)p.trail.shift();}
+  });
+  /* collisions */
+  for(var i=0;i<particles.length;i++){
+    if(particles[i].reacted)continue;
+    for(var j=i+1;j<particles.length;j++){
+      if(particles[j].reacted||particles[i].type===particles[j].type)continue;
+      var dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<particles[i].r+particles[j].r+2){
+        collisions++;
+        var ke=0.5*(particles[i].vx*particles[i].vx+particles[i].vy*particles[i].vy+particles[j].vx*particles[j].vx+particles[j].vy*particles[j].vy)*speedMult*speedMult;
+        if(ke*1000>ea){particles[i].reacted=true;particles[j].reacted=true;reactions++;rateCount++;
+          /* flash effect */
+          flashes.push({x:(particles[i].x+particles[j].x)/2,y:(particles[i].y+particles[j].y)/2,life:1});
+        }else{
+          var nx=dx/dist,ny=dy/dist,dv=((particles[i].vx-particles[j].vx)*nx+(particles[i].vy-particles[j].vy)*ny);
+          particles[i].vx-=dv*nx;particles[i].vy-=dv*ny;particles[j].vx+=dv*nx;particles[j].vy+=dv*ny;
+        }
+      }
+    }
+  }
+  if(now-lastTime>1000){rate=rateCount;rateCount=0;lastTime=now;}
+  /* draw trails */
+  if(showTrails){particles.forEach(function(p){
+    if(p.reacted||p.trail.length<2)return;
+    ctx.strokeStyle=p.type===0?'rgba(245,158,11,0.15)':'rgba(59,130,246,0.15)';ctx.lineWidth=1;ctx.beginPath();
+    p.trail.forEach(function(t,k){k===0?ctx.moveTo(t.x,t.y):ctx.lineTo(t.x,t.y);});ctx.stroke();
+  });}
+  /* draw flashes */
+  for(var f=flashes.length-1;f>=0;f--){
+    var fl=flashes[f];fl.life-=0.03;
+    if(fl.life<=0){flashes.splice(f,1);continue;}
+    ctx.globalAlpha=fl.life;ctx.fillStyle='#fbbf24';ctx.shadowColor='#fbbf24';ctx.shadowBlur=20*fl.life;
+    ctx.beginPath();ctx.arc(fl.x,fl.y,12*fl.life,0,Math.PI*2);ctx.fill();
+    /* product particle */
+    ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(fl.x,fl.y,4,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;ctx.globalAlpha=1;
+  }
+  /* draw particles */
+  particles.forEach(function(p){
+    if(p.reacted){ctx.fillStyle='rgba(34,197,94,0.2)';ctx.beginPath();ctx.arc(p.x,p.y,p.r-1,0,Math.PI*2);ctx.fill();return;}
+    ctx.fillStyle=p.type===0?'#f59e0b':'#3b82f6';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=6;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  });
+  /* energy diagram */
+  var gx=W-180,gy=20,gw=160,gh=120;
+  ctx.fillStyle='rgba(15,23,42,0.92)';ctx.beginPath();ctx.roundRect(gx,gy,gw,gh,6);ctx.fill();ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.stroke();
+  ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.beginPath();
+  ctx.moveTo(gx+10,gy+gh-20);ctx.lineTo(gx+40,gy+gh-20);ctx.quadraticCurveTo(gx+gw/2,gy+10,gx+gw-40,gy+gh-40);ctx.lineTo(gx+gw-10,gy+gh-40);ctx.stroke();
+  if(document.getElementById('btn-cat').classList.contains('active')){
+    ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.beginPath();
+    ctx.moveTo(gx+10,gy+gh-20);ctx.lineTo(gx+40,gy+gh-20);ctx.quadraticCurveTo(gx+gw/2,gy+gh*0.4,gx+gw-40,gy+gh-40);ctx.lineTo(gx+gw-10,gy+gh-40);ctx.stroke();ctx.setLineDash([]);
+  }
+  ctx.strokeStyle='#ef4444';ctx.lineWidth=1;ctx.setLineDash([3,2]);ctx.beginPath();ctx.moveTo(gx+40,gy+gh-20);ctx.lineTo(gx+40,gy+25);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#ef4444';ctx.font='9px Poppins';ctx.textAlign='left';ctx.fillText('Eₐ='+Math.round(ea)+'kJ',gx+44,gy+28);
+  ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.fillText('Reactants',gx+5,gy+gh-6);ctx.fillText('Products',gx+gw-50,gy+gh-28);
+  /* Maxwell-Boltzmann distribution */
+  if(document.getElementById('btn-mb').classList.contains('active')){
+    var mbx=10,mby=20,mbw=150,mbh=100;
+    ctx.fillStyle='rgba(15,23,42,0.92)';ctx.beginPath();ctx.roundRect(mbx,mby,mbw,mbh,6);ctx.fill();ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='8px Poppins';ctx.textAlign='center';ctx.fillText('Maxwell-Boltzmann',mbx+mbw/2,mby+10);
+    ctx.fillText('KE →',mbx+mbw/2,mby+mbh-2);
+    var kB=1.38e-23,m=4.65e-26;/* approx N₂ */
+    var maxV=1200*(T/300);
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;ctx.beginPath();
+    for(var v=0;v<maxV;v+=maxV/100){
+      var fv=4*Math.PI*(m/(2*Math.PI*kB*T))**1.5*v*v*Math.exp(-m*v*v/(2*kB*T));
+      var px=mbx+5+v/maxV*(mbw-10),py=mby+mbh-15-fv/(4e-4)*mbh*0.7;
+      v===0?ctx.moveTo(px,Math.max(py,mby+12)):ctx.lineTo(px,Math.max(py,mby+12));
+    }ctx.stroke();
+    /* Ea threshold line */
+    var eaFrac=ea*0.015/maxV;if(eaFrac<1){
+      var eaX=mbx+5+eaFrac*(mbw-10);
+      ctx.strokeStyle='#ef4444';ctx.lineWidth=1;ctx.setLineDash([2,2]);ctx.beginPath();ctx.moveTo(eaX,mby+12);ctx.lineTo(eaX,mby+mbh-15);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='#ef4444';ctx.font='7px Poppins';ctx.textAlign='center';ctx.fillText('Eₐ',eaX,mby+mbh-17);
+    }
+  }
+  document.getElementById('r-col').textContent=collisions;
+  document.getElementById('r-rxn').textContent=reactions;
+  document.getElementById('r-rate').textContent=rate+'/s';
+  requestAnimationFrame(draw);
+}
+draw(performance.now());
+})();
+</script></body></html>

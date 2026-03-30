@@ -1,0 +1,182 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Matrix Operations</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden;position:relative}
+canvas{display:block;width:100%;cursor:crosshair}
+.tooltip{position:absolute;background:#1e293b;border:1px solid #a855f7;border-radius:.5rem;padding:.4rem .7rem;font-size:.78rem;color:#e2e8f0;pointer-events:none;display:none;white-space:nowrap;z-index:10}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+.mat-input{display:flex;gap:.5rem;justify-content:center;margin-top:.75rem;flex-wrap:wrap}
+.mat-input .mat{display:grid;grid-template-columns:repeat(2,60px);gap:3px;background:#1e293b;padding:.5rem;border-radius:.5rem;border:1px solid #334155}
+.mat-input .mat input{width:56px;background:#0f172a;border:1px solid #475569;color:#f1f5f9;text-align:center;font-family:monospace;font-size:.85rem;padding:.25rem;border-radius:.25rem}
+.mat-input .mat input:focus{border-color:#a855f7;outline:none}
+.mat-input .mlabel{text-align:center;font-size:.75rem;color:#94a3b8;margin-bottom:.25rem}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#a855f7}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🔢 Matrix Operations</h1>
+<p class="subtitle">Animated transformation, eigenvectors &amp; geometric visualization</p>
+<div class="canvas-wrap"><canvas id="cv" height="450"></canvas><div class="tooltip" id="tip"></div></div>
+<div class="controls">
+  <button class="toggle-btn active" id="btn-mult" onclick="setOp(0)">A × B</button>
+  <button class="toggle-btn" id="btn-add" onclick="setOp(1)">A + B</button>
+  <button class="toggle-btn" id="btn-det" onclick="setOp(2)">det(A)</button>
+  <button class="toggle-btn" id="btn-inv" onclick="setOp(3)">A⁻¹</button>
+  <button class="toggle-btn" onclick="randomize()">🎲 Random</button>
+  <button class="toggle-btn" id="btn-eigen" onclick="this.classList.toggle('active')">Eigenvectors</button>
+  <button class="toggle-btn" id="btn-anim" onclick="this.classList.toggle('active');if(this.classList.contains('active'))animT=0;">▶ Animate</button>
+  <button class="toggle-btn" id="btn-grid" onclick="this.classList.toggle('active')">Transform Grid</button>
+</div>
+<div class="mat-input">
+  <div><div class="mlabel">Matrix A</div>
+    <div class="mat" id="matA"><input value="1" oninput="calc()"><input value="0" oninput="calc()"><input value="0" oninput="calc()"><input value="1" oninput="calc()"></div></div>
+  <div style="display:flex;align-items:center;font-size:1.5rem;color:#a855f7;padding:0 .5rem" id="opSym">×</div>
+  <div id="matB-wrap"><div class="mlabel">Matrix B</div>
+    <div class="mat" id="matB"><input value="2" oninput="calc()"><input value="0" oninput="calc()"><input value="0" oninput="calc()"><input value="2" oninput="calc()"></div></div>
+  <div style="display:flex;align-items:center;font-size:1.5rem;color:#94a3b8;padding:0 .5rem">=</div>
+  <div><div class="mlabel">Result</div>
+    <div class="mat" id="matR" style="opacity:.8"><input readonly><input readonly><input readonly><input readonly></div></div>
+</div>
+<div class="readout">
+  <div class="datum">det(A): <strong id="r-deta">1</strong></div>
+  <div class="datum">det(B): <strong id="r-detb">4</strong></div>
+  <div class="datum">det(R): <strong id="r-detr">4</strong></div>
+  <div class="datum">Trace(A): <strong id="r-trace">—</strong></div>
+  <div class="datum">Eigenvalues: <strong id="r-eigen">—</strong></div>
+</div>
+<div class="info-box"><h3>Matrix Algebra</h3><p>A <strong>2×2 matrix</strong> represents a linear transformation: rotation, scaling, reflection, shearing. The <strong>determinant</strong> tells area scaling (det=0 collapses space). <strong>Eigenvectors</strong> are directions unchanged by the transformation — they only get scaled by the eigenvalue. Toggle <em>Eigenvectors</em> to see them, <em>Transform Grid</em> to see the full plane transformation, or <em>Animate</em> to watch the unit square smoothly morph.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+var animT=0;
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var op=0;
+function getM(id){var inp=document.querySelectorAll('#'+id+' input');return[[+inp[0].value,+inp[1].value],[+inp[2].value,+inp[3].value]];}
+function setM(id,m){var inp=document.querySelectorAll('#'+id+' input');inp[0].value=m[0][0].toFixed(2);inp[1].value=m[0][1].toFixed(2);inp[2].value=m[1][0].toFixed(2);inp[3].value=m[1][1].toFixed(2);}
+function det(m){return m[0][0]*m[1][1]-m[0][1]*m[1][0];}
+function mul(a,b){return[[a[0][0]*b[0][0]+a[0][1]*b[1][0],a[0][0]*b[0][1]+a[0][1]*b[1][1]],[a[1][0]*b[0][0]+a[1][1]*b[1][0],a[1][0]*b[0][1]+a[1][1]*b[1][1]]];}
+function add(a,b){return[[a[0][0]+b[0][0],a[0][1]+b[0][1]],[a[1][0]+b[1][0],a[1][1]+b[1][1]]];}
+function inv(m){var d=det(m);if(Math.abs(d)<1e-8)return null;return[[m[1][1]/d,-m[0][1]/d],[-m[1][0]/d,m[0][0]/d]];}
+function lerp(a,b,t){return a+(b-a)*t;}
+function lerpM(I,M,t){return[[lerp(I[0][0],M[0][0],t),lerp(I[0][1],M[0][1],t)],[lerp(I[1][0],M[1][0],t),lerp(I[1][1],M[1][1],t)]];}
+window.setOp=function(i){op=i;['btn-mult','btn-add','btn-det','btn-inv'].forEach(function(id,idx){document.getElementById(id).classList.toggle('active',idx===i);});
+  document.getElementById('opSym').textContent=['\u00d7','+','det','inv'][i];
+  document.getElementById('matB-wrap').style.display=i>=2?'none':'';calc();};
+window.randomize=function(){function r(){return Math.round((Math.random()*6-3)*10)/10;}
+  var inp=document.querySelectorAll('#matA input, #matB input');inp.forEach(function(el){el.value=r();});calc();};
+window.calc=function(){
+  var A=getM('matA'),B=getM('matB'),R;
+  if(op===0)R=mul(A,B);else if(op===1)R=add(A,B);else if(op===2)R=A;else{R=inv(A);if(!R)R=[[NaN,NaN],[NaN,NaN]];}
+  setM('matR',R);
+  document.getElementById('r-deta').textContent=det(A).toFixed(3);
+  document.getElementById('r-detb').textContent=det(B).toFixed(3);
+  document.getElementById('r-detr').textContent=det(R).toFixed(3);
+  document.getElementById('r-trace').textContent=(A[0][0]+A[1][1]).toFixed(2);
+  /* eigenvalues of A */
+  var tr=A[0][0]+A[1][1],d=det(A),disc=tr*tr-4*d;
+  if(disc>=0){var e1=(tr+Math.sqrt(disc))/2,e2=(tr-Math.sqrt(disc))/2;
+    document.getElementById('r-eigen').textContent='λ₁='+e1.toFixed(2)+', λ₂='+e2.toFixed(2);
+  }else{var re=tr/2,im=Math.sqrt(-disc)/2;
+    document.getElementById('r-eigen').textContent=re.toFixed(2)+'±'+im.toFixed(2)+'i';}
+};calc();
+
+cv.addEventListener('mousemove',function(e){
+  var rect=cv.getBoundingClientRect();var sx=(e.clientX-rect.left)*(W/rect.width),sy=(e.clientY-rect.top)*(H/rect.height);
+  var x=(sx-W/2)/60,y=(H/2-sy)/60;
+  tip.style.display='block';tip.style.left=(e.clientX-rect.left+12)+'px';tip.style.top=(e.clientY-rect.top-28)+'px';
+  tip.innerHTML='('+x.toFixed(2)+', '+y.toFixed(2)+')';
+});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+
+function toS(x,y){return{x:W/2+x*60,y:H/2-y*60};}
+function arrow(x1,y1,x2,y2,col,w){
+  ctx.strokeStyle=col;ctx.lineWidth=w||2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  var ang=Math.atan2(y1-y2,x1-x2),hl=8;
+  ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2+hl*Math.cos(ang+0.35),y2+hl*Math.sin(ang+0.35));ctx.lineTo(x2+hl*Math.cos(ang-0.35),y2+hl*Math.sin(ang-0.35));ctx.closePath();ctx.fillStyle=col;ctx.fill();
+}
+function drawPoly(mat,color,label){
+  var pts=[[0,0],[1,0],[1,1],[0,1]];ctx.beginPath();
+  pts.forEach(function(p,i){var tx=mat[0][0]*p[0]+mat[0][1]*p[1],ty=mat[1][0]*p[0]+mat[1][1]*p[1];
+    var s=toS(tx,ty);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});
+  ctx.closePath();ctx.fillStyle=color.replace('1)','0.15)');ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();
+  var cx2=mat[0][0]*0.5+mat[0][1]*0.5,cy2=mat[1][0]*0.5+mat[1][1]*0.5;var c=toS(cx2,cy2);
+  ctx.fillStyle=color;ctx.font='bold 11px Poppins';ctx.textAlign='center';ctx.fillText(label,c.x,c.y+4);
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  /* grid */
+  ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+  for(var g=-6;g<=6;g++){var p=toS(g,0);ctx.beginPath();ctx.moveTo(p.x,0);ctx.lineTo(p.x,H);ctx.stroke();p=toS(0,g);ctx.beginPath();ctx.moveTo(0,p.y);ctx.lineTo(W,p.y);ctx.stroke();}
+  ctx.strokeStyle='#475569';ctx.lineWidth=1;var o=toS(0,0);
+  ctx.beginPath();ctx.moveTo(0,o.y);ctx.lineTo(W,o.y);ctx.stroke();ctx.beginPath();ctx.moveTo(o.x,0);ctx.lineTo(o.x,H);ctx.stroke();
+  var A=getM('matA'),B=getM('matB'),R;
+  if(op===0)R=mul(A,B);else if(op===1)R=add(A,B);else if(op===2)R=A;else{R=inv(A);if(!R)R=[[0,0],[0,0]];}
+  
+  /* transform grid */
+  if(document.getElementById('btn-grid').classList.contains('active')){
+    ctx.strokeStyle='rgba(168,85,247,0.08)';ctx.lineWidth=0.5;
+    var M=A;
+    for(var g=-6;g<=6;g++){ctx.beginPath();
+      for(var t=-6;t<=6;t+=0.2){var tx=M[0][0]*g+M[0][1]*t,ty=M[1][0]*g+M[1][1]*t;var s=toS(tx,ty);t===-6?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);}ctx.stroke();
+      ctx.beginPath();for(var t=-6;t<=6;t+=0.2){var tx=M[0][0]*t+M[0][1]*g,ty=M[1][0]*t+M[1][1]*g;var s=toS(tx,ty);t===-6?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);}ctx.stroke();}
+  }
+  
+  /* animated transformation */
+  var isAnim=document.getElementById('btn-anim').classList.contains('active');
+  var t=isAnim?Math.min(animT,1):1;
+  var I=[[1,0],[0,1]];
+  var animA=lerpM(I,A,t);
+  
+  drawPoly(I,'rgba(100,116,139,0.5)','I');
+  drawPoly(isAnim?animA:A,'rgba(168,85,247,1)',isAnim?'A(t)':'A');
+  if(op<2)drawPoly(B,'rgba(34,197,94,1)','B');
+  drawPoly(isAnim?lerpM(I,R,t):R,'rgba(251,146,60,1)',op===3?'A⁻¹':'R');
+  
+  /* unit basis vectors */
+  var e1=toS(animA[0][0],animA[1][0]),e2=toS(animA[0][1],animA[1][1]);
+  arrow(o.x,o.y,e1.x,e1.y,'#f472b6',2);arrow(o.x,o.y,e2.x,e2.y,'#38bdf8',2);
+  ctx.fillStyle='#f472b6';ctx.font='bold 10px Poppins';ctx.fillText('ê₁',e1.x+8,e1.y-6);
+  ctx.fillStyle='#38bdf8';ctx.fillText('ê₂',e2.x+8,e2.y-6);
+  
+  /* eigenvectors */
+  if(document.getElementById('btn-eigen').classList.contains('active')){
+    var tr2=A[0][0]+A[1][1],dA=det(A),disc2=tr2*tr2-4*dA;
+    if(disc2>=0){
+      var ev1=(tr2+Math.sqrt(disc2))/2,ev2=(tr2-Math.sqrt(disc2))/2;
+      function drawEigenvec(lam,col){
+        var a11=A[0][0]-lam,a12=A[0][1];var vx,vy;
+        if(Math.abs(a12)>1e-6){vx=1;vy=-a11/a12;}else if(Math.abs(A[1][0])>1e-6){vx=-(A[1][1]-lam)/A[1][0];vy=1;}else{vx=1;vy=0;}
+        var len=Math.sqrt(vx*vx+vy*vy);vx/=len;vy/=len;
+        var s1=toS(vx*5,vy*5),s2=toS(-vx*5,-vy*5);
+        ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.setLineDash([6,3]);ctx.beginPath();ctx.moveTo(s1.x,s1.y);ctx.lineTo(s2.x,s2.y);ctx.stroke();ctx.setLineDash([]);
+        arrow(o.x,o.y,toS(vx*2,vy*2).x,toS(vx*2,vy*2).y,col,2.5);
+        ctx.fillStyle=col;ctx.font='bold 10px Poppins';ctx.textAlign='left';
+        ctx.fillText('λ='+lam.toFixed(2),toS(vx*2.2,vy*2.2).x,toS(vx*2.2,vy*2.2).y-8);
+      }
+      drawEigenvec(ev1,'#22c55e');if(Math.abs(ev1-ev2)>0.01)drawEigenvec(ev2,'#f59e0b');
+    }
+  }
+  
+  if(isAnim){animT+=0.008;if(animT>1.5)animT=0;}
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

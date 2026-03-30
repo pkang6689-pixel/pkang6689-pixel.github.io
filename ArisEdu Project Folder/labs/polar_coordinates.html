@@ -1,0 +1,159 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Polar Coordinates</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden;position:relative}
+canvas{display:block;width:100%;cursor:crosshair}
+.tooltip{position:absolute;background:#1e293b;border:1px solid #a855f7;border-radius:.5rem;padding:.4rem .7rem;font-size:.78rem;color:#e2e8f0;pointer-events:none;display:none;white-space:nowrap;z-index:10}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.ctrl-group label{font-size:.75rem;color:#94a3b8}
+.ctrl-group input[type=range]{width:130px;accent-color:#a855f7}
+.ctrl-group .val{font-size:.8rem;color:#a855f7;font-weight:600;font-family:monospace}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn.active{border-color:#a855f7;color:#a855f7;background:rgba(168,85,247,.1)}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#a855f7}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#a855f7;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>🌀 Polar Coordinates</h1>
+<p class="subtitle">Animated tracing, area shading &amp; coordinate conversion</p>
+<div class="canvas-wrap"><canvas id="cv" height="500"></canvas><div class="tooltip" id="tip"></div></div>
+<div class="controls">
+  <button class="toggle-btn active" onclick="setCurve(0,this)">r = a</button>
+  <button class="toggle-btn" onclick="setCurve(1,this)">r = a·cos(nθ)</button>
+  <button class="toggle-btn" onclick="setCurve(2,this)">r = a·sin(nθ)</button>
+  <button class="toggle-btn" onclick="setCurve(3,this)">r = a(1+cos θ)</button>
+  <button class="toggle-btn" onclick="setCurve(4,this)">Spiral r = aθ</button>
+  <button class="toggle-btn" onclick="setCurve(5,this)">Lemniscate</button>
+  <button class="toggle-btn" onclick="setCurve(6,this)">Limaçon</button>
+  <div class="ctrl-group"><label>a</label>
+    <input type="range" id="pa" min="5" max="40" value="20" oninput="document.getElementById('va').textContent=(this.value/10).toFixed(1)"><span class="val" id="va">2.0</span></div>
+  <div class="ctrl-group"><label>n (petals)</label>
+    <input type="range" id="pn" min="1" max="8" value="3" oninput="document.getElementById('vn').textContent=this.value"><span class="val" id="vn">3</span></div>
+  <button class="toggle-btn" id="btn-animate" onclick="this.classList.toggle('active');animating=this.classList.contains('active');if(animating)animTheta=0;">▶ Animate</button>
+  <button class="toggle-btn" id="btn-area" onclick="this.classList.toggle('active')">Shade Area</button>
+</div>
+<div class="readout">
+  <div class="datum">Curve: <strong id="r-name">r = a (circle)</strong></div>
+  <div class="datum">Mouse (r,θ): <strong id="r-polar">—</strong></div>
+  <div class="datum">Mouse (x,y): <strong id="r-cart">—</strong></div>
+  <div class="datum">Area: <strong id="r-area">—</strong></div>
+</div>
+<div class="info-box"><h3>Polar Coordinate System</h3><p>Polar coordinates use (r, θ) where r is the distance from the origin and θ is the angle from the positive x-axis. Classic polar curves include the <strong>cardioid</strong> r = a(1+cosθ), <strong>rose curves</strong> r = a·cos(nθ), the <strong>Archimedean spiral</strong> r = aθ, the <strong>lemniscate</strong> r² = a²·cos(2θ), and the <strong>limaçon</strong> r = 1+a·cosθ. Press <em>Animate</em> to watch the tracing dot draw the curve!</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,cx,cy,scale,tip=document.getElementById('tip');
+var curveType=0;window.animating=false;window.animTheta=0;var mxS=0,myS=0;
+var names=['r = a (circle)','r = a·cos(nθ)','r = a·sin(nθ)','r = a(1+cosθ) cardioid','r = aθ spiral','r² = a²cos(2θ) lemniscate','r = 1+a·cosθ limaçon'];
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;cx=W/2;cy=H/2;scale=Math.min(W,H)/10;}
+window.addEventListener('resize',resize);resize();
+window.setCurve=function(i,el){curveType=i;animTheta=0;document.querySelectorAll('.toggle-btn').forEach(function(b,idx){if(idx<7)b.classList.toggle('active',idx===i)});
+  document.getElementById('r-name').textContent=names[i];};
+
+cv.addEventListener('mousemove',function(e){
+  var r2=cv.getBoundingClientRect();mxS=(e.clientX-r2.left)*(W/r2.width);myS=(e.clientY-r2.top)*(H/r2.height);
+  var mx=mxS-cx,my=cy-myS;
+  var r=Math.sqrt(mx*mx+my*my)/scale,th=Math.atan2(my,mx);if(th<0)th+=Math.PI*2;
+  document.getElementById('r-polar').textContent='('+r.toFixed(2)+', '+(th*180/Math.PI).toFixed(1)+'°)';
+  document.getElementById('r-cart').textContent='('+(mx/scale).toFixed(2)+', '+(my/scale).toFixed(2)+')';
+  tip.style.display='block';tip.style.left=(e.clientX-r2.left+14)+'px';tip.style.top=(e.clientY-r2.top-28)+'px';
+  tip.innerHTML='r='+r.toFixed(2)+' θ='+(th*180/Math.PI).toFixed(1)+'°';
+});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+
+function rFunc(theta){
+  var a=+document.getElementById('pa').value/10,n=+document.getElementById('pn').value;
+  switch(curveType){
+    case 0:return a;
+    case 1:return a*Math.cos(n*theta);
+    case 2:return a*Math.sin(n*theta);
+    case 3:return a*(1+Math.cos(theta));
+    case 4:return a*theta/6;
+    case 5:var v=a*a*Math.cos(2*theta);return v>=0?Math.sqrt(v):NaN;
+    case 6:return 1+a*Math.cos(theta);
+  }
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  /* polar grid */
+  ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+  for(var gr=1;gr<=5;gr++){ctx.beginPath();ctx.arc(cx,cy,gr*scale,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#334155';ctx.font='9px Poppins';ctx.fillText(gr.toString(),cx+gr*scale+2,cy-4);}
+  for(var ga=0;ga<12;ga++){var ang=ga*Math.PI/6;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(ang)*5*scale,cy-Math.sin(ang)*5*scale);ctx.stroke();}
+  /* angle labels */
+  ctx.fillStyle='#475569';ctx.font='10px Poppins';ctx.textAlign='center';
+  var degLabels=['0°','30°','60°','90°','120°','150°','180°','210°','240°','270°','300°','330°'];
+  for(var ga=0;ga<12;ga++){var ang=ga*Math.PI/6;ctx.fillText(degLabels[ga],cx+Math.cos(ang)*5.3*scale,cy-Math.sin(ang)*5.3*scale+4);}
+  /* axes */
+  ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
+  ctx.fillStyle='#64748b';ctx.font='10px Poppins';ctx.fillText('Re',W-20,cy-6);ctx.fillText('Im',cx+8,16);
+  
+  var maxTh=curveType===4?Math.PI*10:Math.PI*2,steps=curveType===4?3000:2000;
+  var drawTo=animating?Math.min(animTheta,maxTh):maxTh;
+  
+  /* area shading */
+  if(document.getElementById('btn-area').classList.contains('active')){
+    ctx.fillStyle='rgba(168,85,247,0.08)';ctx.beginPath();ctx.moveTo(cx,cy);
+    var areaSum=0;
+    for(var i=0;i<=Math.floor(drawTo/maxTh*steps);i++){
+      var th=i/steps*maxTh;var r=rFunc(th);if(isNaN(r)||r<0)continue;
+      areaSum+=0.5*r*r*(maxTh/steps);
+      ctx.lineTo(cx+r*scale*Math.cos(th),cy-r*scale*Math.sin(th));
+    }
+    ctx.closePath();ctx.fill();
+    document.getElementById('r-area').textContent=areaSum.toFixed(3);
+  }else{document.getElementById('r-area').textContent='—';}
+
+  /* draw curve trail */
+  ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.shadowColor='#a855f7';ctx.shadowBlur=5;ctx.beginPath();
+  var first=true;var endPx=cx,endPy=cy;
+  for(var i=0;i<=Math.floor(drawTo/maxTh*steps);i++){
+    var th=i/steps*maxTh;var r=rFunc(th);
+    if(isNaN(r)||r<0){first=true;continue;}
+    var px=cx+r*scale*Math.cos(th),py=cy-r*scale*Math.sin(th);
+    if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
+    endPx=px;endPy=py;
+  }
+  if(curveType===5){/* negative branch of lemniscate */
+    first=true;
+    for(var i=0;i<=steps;i++){var th=i/steps*Math.PI*2;var v=(+document.getElementById('pa').value/10);v=v*v*Math.cos(2*th);
+      if(v<0){first=true;continue;}var r=-Math.sqrt(v);
+      var px=cx+r*scale*Math.cos(th),py=cy-r*scale*Math.sin(th);
+      if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);}
+  }
+  ctx.stroke();ctx.shadowBlur=0;
+  
+  /* tracing dot */
+  if(animating){
+    ctx.fillStyle='#f472b6';ctx.shadowColor='#f472b6';ctx.shadowBlur=12;
+    ctx.beginPath();ctx.arc(endPx,endPy,6,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    /* radius line from origin to dot */
+    ctx.strokeStyle='rgba(244,114,182,0.4)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(endPx,endPy);ctx.stroke();ctx.setLineDash([]);
+    animTheta+=0.03;if(animTheta>maxTh)animTheta=0;
+  }
+  
+  /* mouse radius line */
+  ctx.strokeStyle='rgba(148,163,184,0.2)';ctx.lineWidth=0.8;ctx.setLineDash([2,2]);
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(mxS,myS);ctx.stroke();ctx.setLineDash([]);
+  
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script></body></html>

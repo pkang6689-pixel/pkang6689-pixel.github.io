@@ -227,7 +227,7 @@
       document.getElementById('proj-angle-val').textContent = document.getElementById('proj-angle').value + '°';
       document.getElementById('proj-vel-val').textContent = document.getElementById('proj-vel').value + ' m/s';
       document.getElementById('proj-g-val').textContent = document.getElementById('proj-g').value + ' m/s²';
-      drawStatic();
+      launchProjectile();
     };
 
     window.launchProjectile = function() {
@@ -361,7 +361,8 @@
       document.getElementById('pend-len-val').textContent = document.getElementById('pend-len').value + ' m';
       document.getElementById('pend-ang-val').textContent = document.getElementById('pend-ang').value + '°';
       document.getElementById('pend-damp-val').textContent = document.getElementById('pend-damp').value;
-      if (!running) { initPend(); drawPend(); }
+      initPend();
+      if (!running) { running = true; stepPend(); }
       var L = parseFloat(document.getElementById('pend-len').value);
       document.getElementById('pend-period').textContent = (2 * Math.PI * Math.sqrt(L / 9.8)).toFixed(3) + ' s';
     };
@@ -453,7 +454,9 @@
       document.getElementById('c-v1-val').textContent = document.getElementById('c-v1').value + ' m/s';
       document.getElementById('c-m2-val').textContent = document.getElementById('c-m2').value + ' kg';
       document.getElementById('c-e-val').textContent = document.getElementById('c-e').value;
-      if (!running) { resetCollisionState(); drawColl(); }
+      if (animId) cancelAnimationFrame(animId);
+      running = false;
+      startCollision();
     };
 
     window.startCollision = function() {

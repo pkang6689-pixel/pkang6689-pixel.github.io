@@ -1,0 +1,113 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Groundwater Simulation</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+label{font-size:.78rem;color:#94a3b8;white-space:nowrap}
+input[type=range]{width:110px;accent-color:#3b82f6}
+.toggle-btn{padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.toggle-btn:hover{border-color:#3b82f6;color:#3b82f6}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>💧 Groundwater Simulation</h1>
+<p class="subtitle">Aquifers, water table, wells & percolation</p>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="480"></canvas><div id="tip" style="display:none;position:absolute;background:rgba(30,41,59,.92);color:#f1f5f9;padding:4px 10px;border-radius:6px;font-size:.75rem;pointer-events:none;border:1px solid #3b82f6;white-space:nowrap;z-index:5"></div></div>
+<div class="controls">
+  <label>Rainfall <input type="range" id="rain" min="0" max="100" value="50"></label>
+  <label>Porosity <input type="range" id="porosity" min="10" max="60" value="35">%</label>
+  <label>Pump Rate <input type="range" id="pump" min="0" max="100" value="30"></label>
+  <button class="toggle-btn" onclick="addRain()">🌧 Rain Burst</button>
+  <button class="toggle-btn" id="btn-contam" onclick="this.classList.toggle('active')">☢️ Contaminant</button>
+</div>
+<div class="readout">
+  <div class="datum">Water Table: <strong id="r-wt">0</strong> m depth</div>
+  <div class="datum">Aquifer Level: <strong id="r-aq">80</strong>%</div>
+  <div class="datum">Well Output: <strong id="r-well">0</strong> L/min</div>
+  <div class="datum">Quality: <strong id="r-qual">Clean</strong></div>
+</div>
+<p style="text-align:center;color:#475569;font-size:.7rem;margin-top:.35rem">Hover for depth info · Click to place a monitoring well</p>
+<div class="info-box"><h3>Groundwater Systems</h3><p><strong>Aquifers</strong> are underground layers of permeable rock or sediment that hold water. The <strong>water table</strong> marks the upper boundary of the saturated zone. Wells pump water from the aquifer, creating a <strong>cone of depression</strong>. Rainfall recharges the aquifer through <strong>percolation</strong>.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var rainSlider=document.getElementById('rain'),porositySlider=document.getElementById('porosity'),pumpSlider=document.getElementById('pump');
+var waterLevel=.55,rainDrops=[],monWells=[],contamT=0;
+var wellX=.65,wellW=8;
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+  var surfaceY=H*.25;if(my>surfaceY*.8){monWells.push({x:mx*(W/r.width)/W});if(monWells.length>4)monWells.shift();}});
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=(e.clientY-r.top)*(H/r.height);
+  var surfaceY=H*.25,bedrockY=H*.9,aquiferTop=surfaceY+(bedrockY-surfaceY)*waterLevel;
+  if(my>surfaceY&&my<bedrockY){var depth=((my-surfaceY)/(bedrockY-surfaceY)*50).toFixed(1);
+    var zone=my<aquiferTop?'Unsaturated (Vadose)':'Saturated (Aquifer)';
+    tip.style.display='block';tip.style.left=((e.clientX-r.left)+12)+'px';tip.style.top=((e.clientY-r.top)-28)+'px';
+    tip.textContent='Depth: '+depth+' m · '+zone;}else tip.style.display='none';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+window.addRain=function(){for(var i=0;i<40;i++)rainDrops.push({x:Math.random()*W,y:Math.random()*-50,vy:2+Math.random()*3,phase:'falling'});};
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  var surfaceY=H*.25,bedrockY=H*.9,pRate=+pumpSlider.value/100,rRate=+rainSlider.value/100,porosity=+porositySlider.value/100;
+  waterLevel+=pRate*.0005;waterLevel-=rRate*.0003;waterLevel=Math.max(.15,Math.min(.85,waterLevel));
+  var aqPct=Math.round((1-waterLevel)*100/.85),aquiferTop=surfaceY+(bedrockY-surfaceY)*waterLevel;
+  if(document.getElementById('btn-contam').classList.contains('active'))contamT+=.016;else contamT=Math.max(0,contamT-.008);
+  /* sky */
+  var skyGrad=ctx.createLinearGradient(0,0,0,surfaceY);skyGrad.addColorStop(0,'#1a3a5c');skyGrad.addColorStop(1,'#3b6a8c');ctx.fillStyle=skyGrad;ctx.fillRect(0,0,W,surfaceY);
+  ctx.fillStyle='rgba(200,200,220,0.3)';ctx.beginPath();ctx.arc(W*.3,40,25,0,Math.PI*2);ctx.arc(W*.35,35,20,0,Math.PI*2);ctx.arc(W*.25,42,18,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#5a8040';ctx.fillRect(0,surfaceY-5,W,10);
+  /* unsaturated */
+  ctx.fillStyle='#8B6914';ctx.fillRect(0,surfaceY,W,aquiferTop-surfaceY);
+  ctx.fillStyle='rgba(139,105,20,0.6)';for(var i=0;i<60;i++){var px=((i*37)%W),py=surfaceY+10+((i*23)%Math.max(1,Math.floor(aquiferTop-surfaceY-10)));ctx.beginPath();ctx.arc(px,py,2+porosity*3,0,Math.PI*2);ctx.fill();}
+  /* saturated */
+  var satGrad=ctx.createLinearGradient(0,aquiferTop,0,bedrockY);satGrad.addColorStop(0,'#1a5276');satGrad.addColorStop(1,'#154360');ctx.fillStyle=satGrad;ctx.fillRect(0,aquiferTop,W,bedrockY-aquiferTop);
+  /* contaminant plume */
+  if(contamT>0){var plX=W*.3,plY=surfaceY+10,plR=Math.min(contamT*15,80);
+    var cg=ctx.createRadialGradient(plX,plY+plR*.5,0,plX,plY+plR*.5,plR);cg.addColorStop(0,'rgba(239,68,68,0.35)');cg.addColorStop(1,'rgba(239,68,68,0)');ctx.fillStyle=cg;ctx.beginPath();ctx.arc(plX,plY+plR*.5,plR,0,Math.PI*2);ctx.fill();
+    document.getElementById('r-qual').textContent=contamT>3?'Contaminated':'At Risk';}else document.getElementById('r-qual').textContent='Clean';
+  /* water table line */
+  ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(0,aquiferTop);ctx.lineTo(W,aquiferTop);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#3b82f6';ctx.font='bold 10px Poppins';ctx.textAlign='left';ctx.fillText('— Water Table',5,aquiferTop-6);
+  /* bedrock */
+  ctx.fillStyle='#4a4a4a';ctx.fillRect(0,bedrockY,W,H-bedrockY);ctx.fillStyle='#3a3a3a';for(var i=0;i<12;i++)ctx.fillRect(i*W/12,bedrockY,2,H-bedrockY);
+  ctx.fillStyle='rgba(255,255,255,0.15)';ctx.font='10px Poppins';ctx.textAlign='center';ctx.fillText('Bedrock (Impermeable)',W/2,bedrockY+15);
+  /* well */
+  var wx=W*wellX,wellTop=surfaceY-30,wellBot=bedrockY-10;ctx.fillStyle='#555';ctx.fillRect(wx-wellW/2,wellTop,wellW,wellBot-wellTop);
+  ctx.fillStyle='#666';ctx.fillRect(wx-15,wellTop-10,30,15);ctx.fillStyle='#888';ctx.beginPath();ctx.moveTo(wx-18,wellTop-10);ctx.lineTo(wx,wellTop-25);ctx.lineTo(wx+18,wellTop-10);ctx.closePath();ctx.fill();
+  if(pRate>0){var coneR=pRate*W*.15;ctx.strokeStyle='rgba(59,130,246,0.4)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(wx-coneR,aquiferTop);ctx.quadraticCurveTo(wx,aquiferTop+pRate*30,wx+coneR,aquiferTop);ctx.stroke();
+    ctx.fillStyle='rgba(59,130,246,0.08)';ctx.beginPath();ctx.moveTo(wx-coneR,aquiferTop);ctx.quadraticCurveTo(wx,aquiferTop+pRate*30,wx+coneR,aquiferTop);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(59,130,246,0.6)';var tt=performance.now()/1000;for(var i=0;i<5;i++){var py=wellBot-(((tt*50+i*40)%(wellBot-wellTop)));ctx.fillRect(wx-2,py,4,6);}}
+  /* monitoring wells */
+  monWells.forEach(function(mw){var mwx=mw.x*W;ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(mwx,surfaceY);ctx.lineTo(mwx,bedrockY-5);ctx.stroke();
+    ctx.fillStyle='#fbbf24';ctx.font='8px Poppins';ctx.textAlign='center';var wtD=((aquiferTop-surfaceY)/(bedrockY-surfaceY)*50).toFixed(1);
+    ctx.fillText('WT: '+wtD+'m',mwx,surfaceY-5);});
+  /* rain */
+  for(var i=rainDrops.length-1;i>=0;i--){var d=rainDrops[i];
+    if(d.phase==='falling'){d.y+=d.vy;ctx.fillStyle='rgba(100,160,255,0.6)';ctx.fillRect(d.x,d.y,2,6);if(d.y>surfaceY){d.phase='percolate';d.vy=.3+porosity*.5;}}
+    else{d.y+=d.vy;ctx.fillStyle='rgba(59,130,246,0.5)';ctx.shadowColor='#3b82f6';ctx.shadowBlur=3;ctx.beginPath();ctx.arc(d.x,d.y,2,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      if(d.y>aquiferTop){rainDrops.splice(i,1);waterLevel=Math.max(.15,waterLevel-.002);}}}
+  if(rRate>.2&&Math.random()<rRate*.1)rainDrops.push({x:Math.random()*W,y:-5,vy:2+Math.random()*3,phase:'falling'});
+  ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font='11px Poppins';ctx.textAlign='center';
+  ctx.fillText('Unsaturated Zone (Vadose)',W*.25,(surfaceY+aquiferTop)/2);ctx.fillText('Saturated Zone (Aquifer)',W*.25,(aquiferTop+bedrockY)/2);
+  var wtDepth=((aquiferTop-surfaceY)/((bedrockY-surfaceY))*50).toFixed(1),wellOut=pRate>0?(pRate*aqPct*.5).toFixed(0):0;
+  document.getElementById('r-wt').textContent=wtDepth;document.getElementById('r-aq').textContent=aqPct;document.getElementById('r-well').textContent=wellOut;
+  requestAnimationFrame(draw);}
+draw();
+})();
+</script></body></html>

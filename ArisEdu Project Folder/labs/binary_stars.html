@@ -1,0 +1,127 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Binary Stars</title>
+<script src="../../_sdk/element_sdk.js"></script><script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/main.css"><script src="../theme_manager.js"></script>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
+.sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
+h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+canvas{display:block;width:100%}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
+label{font-size:.78rem;color:#94a3b8;white-space:nowrap}
+input[type=range]{width:110px;accent-color:#3b82f6}
+.readout{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.readout .datum{background:#1e293b;padding:.4rem .8rem;border-radius:.5rem;border:1px solid #334155;font-size:.8rem;color:#94a3b8;font-family:monospace}
+.readout .datum strong{color:#3b82f6}
+.info-box{margin-top:1rem;background:#1e293b;border:1px solid #334155;border-radius:.75rem;padding:1rem;font-size:.85rem;color:#cbd5e1;line-height:1.7}
+.info-box h3{color:#3b82f6;margin:0 0 .5rem;font-size:.95rem}
+</style></head>
+<body class="dark-mode"><script src="../scripts/taskbar.js"></script>
+<div class="sim-container">
+<a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
+<h1>⭐⭐ Binary Star System</h1>
+<p class="subtitle">Eclipsing binaries, mass transfer & light curves</p>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="460"></canvas><div id="tip" style="position:absolute;display:none;pointer-events:none;background:rgba(15,23,42,.92);border:1px solid #3b82f6;border-radius:.5rem;padding:.35rem .65rem;font-size:.75rem;color:#e2e8f0;white-space:nowrap;z-index:10"></div><p style="text-align:center;font-size:.7rem;color:#475569;margin:.4rem 0 0">Hover for star info · Click to place observation point</p></div>
+<div class="controls">
+  <label>Mass A (M☉) <input type="range" id="mA" min="0.5" max="10" value="3" step="0.5"></label>
+  <label>Mass B (M☉) <input type="range" id="mB" min="0.5" max="10" value="1" step="0.5"></label>
+  <label>Separation <input type="range" id="sep" min="30" max="100" value="60"></label>
+  <label>Inclination <input type="range" id="inc" min="0" max="90" value="85">°</label>
+  <button class="toggle-btn" id="btn-roche" onclick="this.classList.toggle('active')" style="padding:.4rem .8rem;border-radius:.4rem;border:2px solid #475569;background:transparent;color:#94a3b8;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s">Roche Lobes</button>
+</div>
+<div class="readout">
+  <div class="datum">Period: <strong id="r-period">0</strong> days</div>
+  <div class="datum">Phase: <strong id="r-phase">0.00</strong></div>
+  <div class="datum">Combined Brightness: <strong id="r-bright">100</strong>%</div>
+  <div class="datum">Radial Vel: <strong id="r-rv">0</strong> km/s</div>
+</div>
+<div class="info-box"><h3>Binary Star Systems</h3><p>Over half of all stars are in <strong>binary</strong> or multiple systems. <strong>Eclipsing binaries</strong> show periodic dips in brightness when one star passes in front of the other. The <strong>light curve</strong> reveals star sizes, masses, and temperatures. <strong>Mass transfer</strong> occurs when one star overflows its Roche lobe.</p></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
+window.addEventListener('resize',resize);resize();
+var mASlider=document.getElementById('mA'),mBSlider=document.getElementById('mB'),
+    sepSlider=document.getElementById('sep'),incSlider=document.getElementById('inc');
+var t=0,lightCurve=[],obsPoints=[];
+function starColorFromMass(m){if(m>5)return'#aaccff';if(m>2)return'#ffffff';if(m>1)return'#fff4e0';return'#ffa060';}
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  var mA=+mASlider.value,mB=+mBSlider.value,sep=+sepSlider.value,inc=+incSlider.value*Math.PI/180,totalM=mA+mB;
+  var cx2=W/2,cy2=H*.35,rA=sep*mB/totalM,rB=sep*mA/totalM;
+  var xA=cx2+rA*Math.cos(t),yA=cy2+rA*Math.sin(t)*Math.sin(inc);
+  var xB=cx2-rB*Math.cos(t),yB=cy2-rB*Math.sin(t)*Math.sin(inc);
+  var dA=Math.sqrt((mx-xA)*(mx-xA)+(my-yA)*(my-yA)),dB=Math.sqrt((mx-xB)*(mx-xB)+(my-yB)*(my-yB));
+  if(dA<20){tip.style.display='block';tip.style.left=((e.clientX-r.left)+12)+'px';tip.style.top=((e.clientY-r.top)-28)+'px';
+    tip.textContent='Star A · '+mA+' M☉ · L='+(Math.pow(mA,3.5)).toFixed(1)+' L☉';}
+  else if(dB<20){tip.style.display='block';tip.style.left=((e.clientX-r.left)+12)+'px';tip.style.top=((e.clientY-r.top)-28)+'px';
+    tip.textContent='Star B · '+mB+' M☉ · L='+(Math.pow(mB,3.5)).toFixed(1)+' L☉';}
+  else tip.style.display='none';});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  obsPoints.push({x:mx,y:my});if(obsPoints.length>4)obsPoints.shift();});
+function draw(){
+  ctx.clearRect(0,0,W,H);t+=.012;
+  var mA=+mASlider.value,mB=+mBSlider.value,sep=+sepSlider.value,inc=+incSlider.value*Math.PI/180;
+  var cx2=W/2,cy2=H*.35,totalM=mA+mB;
+  /* starfield */
+  for(var i=0;i<50;i++){ctx.fillStyle='rgba(255,255,255,'+(0.15+((i*3)%10)/50)+')';ctx.fillRect((i*137)%W,(i*89)%(H*.6),1,1);}
+  var rA=sep*mB/totalM,rB=sep*mA/totalM;
+  var xA=cx2+rA*Math.cos(t),yA=cy2+rA*Math.sin(t)*Math.sin(inc);
+  var xB=cx2-rB*Math.cos(t),yB=cy2-rB*Math.sin(t)*Math.sin(inc);
+  var sizeA=6+mA*2,sizeB=6+mB*2,colA=starColorFromMass(mA),colB=starColorFromMass(mB);
+  var aFront=Math.sin(t)*Math.sin(inc)>0;
+  function drawStar(x,y,r,col,m){var rg=ctx.createRadialGradient(x-r*.3,y-r*.3,1,x,y,r*1.4);rg.addColorStop(0,'#fff');rg.addColorStop(.3,col);rg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=rg;ctx.shadowColor=col;ctx.shadowBlur=20;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
+  /* orbit trails */
+  ctx.strokeStyle='rgba(59,130,246,0.1)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.ellipse(cx2,cy2,rA,rA*Math.sin(inc),0,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(cx2,cy2,rB,rB*Math.sin(inc),0,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.2)';ctx.beginPath();ctx.arc(cx2,cy2,2,0,Math.PI*2);ctx.fill();
+  /* Roche lobes */
+  if(document.getElementById('btn-roche').classList.contains('active')){
+    var rocheA=sep*.462*Math.pow(mA/totalM,.33),rocheB=sep*.462*Math.pow(mB/totalM,.33);
+    ctx.strokeStyle='rgba(139,92,246,0.25)';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.ellipse(xA,yA,rocheA,rocheA*.7,0,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.ellipse(xB,yB,rocheB,rocheB*.7,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(139,92,246,0.3)';ctx.font='8px Poppins';ctx.textAlign='center';
+    ctx.fillText('L1',cx2,cy2-3);}
+  if(aFront){drawStar(xB,yB,sizeB,colB,mB);drawStar(xA,yA,sizeA,colA,mA);}
+  else{drawStar(xA,yA,sizeA,colA,mA);drawStar(xB,yB,sizeB,colB,mB);}
+  /* mass transfer */
+  if(sep<50){ctx.strokeStyle='rgba(255,150,50,0.3)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(xA,yA);ctx.quadraticCurveTo((xA+xB)/2,cy2-15,xB,yB);ctx.stroke();}
+  /* observation points */
+  obsPoints.forEach(function(o){ctx.strokeStyle='#f59e0b';ctx.lineWidth=1;ctx.beginPath();ctx.arc(o.x,o.y,5,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#fbbf24';ctx.font='7px Poppins';ctx.textAlign='center';ctx.fillText('⌖',o.x,o.y+3);});
+  /* brightness */
+  var lumA=Math.pow(mA,3.5),lumB=Math.pow(mB,3.5),totalLum=lumA+lumB,brightness=100;
+  var dx=xA-xB,dy=yA-yB,projDist=Math.sqrt(dx*dx+dy*dy);
+  if(projDist<sizeA+sizeB){var overlap=1-(projDist/(sizeA+sizeB));
+    if(aFront)brightness=100*(1-overlap*lumB/totalLum*.8);else brightness=100*(1-overlap*lumA/totalLum*.8);}
+  /* radial velocity */
+  var rvA=rA*Math.sin(inc)*Math.sin(t)*50,rvB=-rB*Math.sin(inc)*Math.sin(t)*50;
+  /* light curve */
+  lightCurve.push(brightness);if(lightCurve.length>300)lightCurve.shift();
+  var lcY=H*.65,lcH=H*.28,lcW=W-80;
+  ctx.fillStyle='#0a0f1a';ctx.fillRect(40,lcY,lcW,lcH);ctx.strokeStyle='#334155';ctx.strokeRect(40,lcY,lcW,lcH);
+  ctx.strokeStyle='rgba(59,130,246,0.1)';ctx.lineWidth=.5;
+  for(var g=0;g<5;g++){var gy=lcY+g*lcH/4;ctx.beginPath();ctx.moveTo(40,gy);ctx.lineTo(40+lcW,gy);ctx.stroke();}
+  ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;ctx.beginPath();
+  for(var i=0;i<lightCurve.length;i++){var px=40+i*lcW/300,py=lcY+lcH-(lightCurve[i]/100)*lcH;if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.stroke();
+  ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';ctx.fillText('Time →',40+lcW/2,lcY+lcH+14);
+  ctx.save();ctx.translate(20,lcY+lcH/2);ctx.rotate(-Math.PI/2);ctx.fillText('Brightness',0,0);ctx.restore();
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Poppins';ctx.fillText('Light Curve',40+lcW/2,lcY-6);
+  ctx.textAlign='right';ctx.font='8px Poppins';ctx.fillStyle='#94a3b8';ctx.fillText('100%',38,lcY+8);ctx.fillText('50%',38,lcY+lcH/2);ctx.fillText('0%',38,lcY+lcH);
+  var period=(sep*.15*Math.sqrt(sep*.15/totalM)*10).toFixed(1),phase=((t%(Math.PI*2))/(Math.PI*2)).toFixed(2);
+  document.getElementById('r-period').textContent=period;
+  document.getElementById('r-phase').textContent=phase;
+  document.getElementById('r-bright').textContent=brightness.toFixed(1);
+  document.getElementById('r-rv').textContent=rvA.toFixed(1);
+  requestAnimationFrame(draw);}
+draw();
+})();
+</script></body></html>
