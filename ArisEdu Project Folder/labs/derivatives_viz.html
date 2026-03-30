@@ -9,7 +9,7 @@ body{margin:0;font-family:'Poppins',sans-serif;background:#0f172a;color:#f1f5f9}
 .sim-container{max-width:1000px;margin:5rem auto 2rem;padding:1rem 2rem}
 h1{text-align:center;font-size:1.8rem;margin-bottom:.25rem}
 .subtitle{text-align:center;color:#94a3b8;margin-bottom:1.5rem}
-.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden}
+.canvas-wrap{background:#020617;border:1px solid #334155;border-radius:1rem;overflow:hidden;cursor:crosshair}
 canvas{display:block;width:100%}
 .controls{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;align-items:center;justify-content:center}
 .ctrl-group{display:flex;flex-direction:column;gap:.25rem;align-items:center}
@@ -28,7 +28,7 @@ canvas{display:block;width:100%}
 <div class="sim-container">
 <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
 <h1>📉 Derivatives Visualizer</h1>
-<p class="subtitle">Tangent lines, slopes, and the derivative curve for common functions</p>
+<p class="subtitle">Drag on the graph to move the tangent point — see how the slope changes</p>
 <div class="canvas-wrap"><canvas id="cv" height="500"></canvas></div>
 <div class="controls">
   <button class="toggle-btn active" onclick="setFn(0,this)">x²</button>
@@ -36,39 +36,68 @@ canvas{display:block;width:100%}
   <button class="toggle-btn" onclick="setFn(2,this)">sin(x)</button>
   <button class="toggle-btn" onclick="setFn(3,this)">eˣ</button>
   <button class="toggle-btn" onclick="setFn(4,this)">ln(x)</button>
-  <button class="toggle-btn" onclick="setFn(5,this)">1/x</button>
+  <button class="toggle-btn" onclick="setFn(5,this)">x³−3x</button>
   <div class="ctrl-group"><label>x position</label>
     <input type="range" id="px" min="-40" max="40" value="10" oninput="document.getElementById('vx').textContent=(this.value/10).toFixed(1)"><span class="val" id="vx">1.0</span></div>
   <button class="toggle-btn active" id="btn-tan" onclick="this.classList.toggle('active')">Tangent</button>
-  <button class="toggle-btn active" id="btn-der" onclick="this.classList.toggle('active')">f'(x) curve</button>
+  <button class="toggle-btn active" id="btn-der" onclick="this.classList.toggle('active')">f'(x)</button>
+  <button class="toggle-btn" id="btn-d2" onclick="this.classList.toggle('active')">f''(x)</button>
+  <button class="toggle-btn" id="btn-crit" onclick="this.classList.toggle('active')">Critical Pts</button>
+  <button class="toggle-btn" id="btn-conc" onclick="this.classList.toggle('active')">Concavity</button>
 </div>
 <div class="readout">
   <div class="datum">f(x): <strong id="r-fx">1.00</strong></div>
   <div class="datum">f'(x): <strong id="r-dfx">2.00</strong></div>
-  <div class="datum">Slope: <strong id="r-slope">2.00</strong></div>
+  <div class="datum">f''(x): <strong id="r-d2fx">2.00</strong></div>
   <div class="datum">Tangent: <strong id="r-tang">y = 2x − 1</strong></div>
+  <div class="datum">Behavior: <strong id="r-behav">Increasing, Concave Up</strong></div>
 </div>
-<div class="info-box"><h3>The Derivative</h3><p>The <strong>derivative</strong> f'(x) gives the <strong>slope of the tangent line</strong> at any point. It measures how fast f changes with x. Where f'(x)=0, f has a horizontal tangent (possible max/min). The derivative curve shows slopes everywhere: positive slope → increasing, negative slope → decreasing. Key rules: d/dx[xⁿ] = nxⁿ⁻¹, d/dx[sin x] = cos x, d/dx[eˣ] = eˣ.</p></div>
+<div class="info-box"><h3>The Derivative</h3><p>The <strong>derivative</strong> f'(x) gives the <strong>slope of the tangent line</strong>. Where f'(x)=0, the function has a <strong>critical point</strong> (possible max/min). The <strong>second derivative</strong> f''(x) tells us about <strong>concavity</strong>: f''&gt;0 → concave up (cup shape), f''&lt;0 → concave down (cap shape). Where f''=0 is a potential <strong>inflection point</strong> where concavity changes. Drag on the graph or use the slider to explore!</p></div>
 </div>
 <script>
 (function(){
 var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,cx,cy,sx,sy;
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;cx=W/2;cy=H/2;sx=W/14;sy=H/14;}
 window.addEventListener('resize',resize);resize();
-var fnIdx=0;
+var fnIdx=0,mouseDown=false;
+var fnNames=['x²','x³','sin(x)','eˣ','ln(x)','x³−3x'];
 var fns=[
   function(x){return x*x;},function(x){return x*x*x;},function(x){return Math.sin(x)*3;},
-  function(x){return Math.exp(x);},function(x){return x>0?Math.log(x)*2:NaN;},function(x){return Math.abs(x)>0.1?1/x:NaN;}
+  function(x){return Math.exp(x);},function(x){return x>0?Math.log(x)*2:NaN;},function(x){return x*x*x-3*x;}
 ];
 var dfs=[
   function(x){return 2*x;},function(x){return 3*x*x;},function(x){return Math.cos(x)*3;},
-  function(x){return Math.exp(x);},function(x){return x>0?2/x:NaN;},function(x){return-1/(x*x);}
+  function(x){return Math.exp(x);},function(x){return x>0?2/x:NaN;},function(x){return 3*x*x-3;}
+];
+var d2fs=[
+  function(x){return 2;},function(x){return 6*x;},function(x){return-Math.sin(x)*3;},
+  function(x){return Math.exp(x);},function(x){return x>0?-2/(x*x):NaN;},function(x){return 6*x;}
 ];
 window.setFn=function(i,el){fnIdx=i;document.querySelectorAll('.toggle-btn').forEach(function(b,idx){if(idx<6)b.classList.toggle('active',idx===i);});};
+
+/* mouse drag to move x position */
+cv.addEventListener('mousedown',function(){mouseDown=true;});
+cv.addEventListener('mouseup',function(){mouseDown=false;});
+cv.addEventListener('mousemove',function(e){
+  if(!mouseDown)return;
+  var rect=cv.getBoundingClientRect();
+  var mx=(e.clientX-rect.left)*(W/rect.width);
+  var xVal=(mx-cx)/sx;
+  xVal=Math.max(-4,Math.min(4,xVal));
+  document.getElementById('px').value=Math.round(xVal*10);
+  document.getElementById('vx').textContent=xVal.toFixed(1);
+});
+
 function toS(mx,my){return{x:cx+mx*sx,y:cy-my*sy};}
 function draw(){
   ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
-  var f=fns[fnIdx],df=dfs[fnIdx],xp=+document.getElementById('px').value/10;
+  var f=fns[fnIdx],df=dfs[fnIdx],d2f=d2fs[fnIdx],xp=+document.getElementById('px').value/10;
+  var showTan=document.getElementById('btn-tan').classList.contains('active');
+  var showDer=document.getElementById('btn-der').classList.contains('active');
+  var showD2=document.getElementById('btn-d2').classList.contains('active');
+  var showCrit=document.getElementById('btn-crit').classList.contains('active');
+  var showConc=document.getElementById('btn-conc').classList.contains('active');
+  
   /* grid */
   ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
   for(var g=-7;g<=7;g++){var p=toS(g,0);ctx.beginPath();ctx.moveTo(p.x,0);ctx.lineTo(p.x,H);ctx.stroke();p=toS(0,g);ctx.beginPath();ctx.moveTo(0,p.y);ctx.lineTo(W,p.y);ctx.stroke();}
@@ -76,38 +105,115 @@ function draw(){
   ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
   ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
   ctx.fillStyle='#64748b';ctx.font='10px Poppins';ctx.textAlign='center';
-  for(var lb=-6;lb<=6;lb++)if(lb!==0)ctx.fillText(lb.toString(),cx+lb*sx,cy+14);
+  for(var lb=-6;lb<=6;lb++)if(lb!==0){ctx.fillText(lb.toString(),cx+lb*sx,cy+14);ctx.fillText(lb.toString(),cx-16,cy-lb*sy+4);}
+
+  /* concavity shading */
+  if(showConc){
+    for(var cpx=-7;cpx<=7;cpx+=0.05){
+      var d2v=d2f(cpx);
+      if(isNaN(d2v))continue;
+      var s0=toS(cpx,0);
+      ctx.fillStyle=d2v>0?'rgba(34,197,94,0.04)':'rgba(239,68,68,0.04)';
+      ctx.fillRect(s0.x,0,sx*0.05,H);
+    }
+  }
+
   /* f(x) curve */
   ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.shadowColor='#a855f7';ctx.shadowBlur=6;ctx.beginPath();
   var first=true;
-  for(var px=-7;px<=7;px+=0.03){var y=f(px);if(isNaN(y)||Math.abs(y)>20){first=true;continue;}var s=toS(px,y);first?(ctx.moveTo(s.x,s.y),first=false):ctx.lineTo(s.x,s.y);}
+  for(var px2=-7;px2<=7;px2+=0.03){var y=f(px2);if(isNaN(y)||Math.abs(y)>20){first=true;continue;}var s=toS(px2,y);first?(ctx.moveTo(s.x,s.y),first=false):ctx.lineTo(s.x,s.y);}
   ctx.stroke();ctx.shadowBlur=0;
+  
   /* f'(x) curve */
-  if(document.getElementById('btn-der').classList.contains('active')){
+  if(showDer){
     ctx.strokeStyle='#22c55e';ctx.lineWidth=1.8;ctx.setLineDash([4,3]);ctx.beginPath();first=true;
-    for(var px=-7;px<=7;px+=0.03){var y=df(px);if(isNaN(y)||Math.abs(y)>20){first=true;continue;}var s=toS(px,y);first?(ctx.moveTo(s.x,s.y),first=false):ctx.lineTo(s.x,s.y);}
+    for(var px3=-7;px3<=7;px3+=0.03){var y2=df(px3);if(isNaN(y2)||Math.abs(y2)>20){first=true;continue;}var s2=toS(px3,y2);first?(ctx.moveTo(s2.x,s2.y),first=false):ctx.lineTo(s2.x,s2.y);}
     ctx.stroke();ctx.setLineDash([]);
   }
+  
+  /* f''(x) curve */
+  if(showD2){
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;ctx.setLineDash([2,3]);ctx.beginPath();first=true;
+    for(var px4=-7;px4<=7;px4+=0.03){var y3=d2f(px4);if(isNaN(y3)||Math.abs(y3)>20){first=true;continue;}var s3=toS(px4,y3);first?(ctx.moveTo(s3.x,s3.y),first=false):ctx.lineTo(s3.x,s3.y);}
+    ctx.stroke();ctx.setLineDash([]);
+  }
+  
+  /* critical points — where f'(x) ≈ 0 */
+  if(showCrit){
+    for(var cpx2=-6;cpx2<=6;cpx2+=0.02){
+      var dv1=df(cpx2),dv2=df(cpx2+0.02);
+      if(!isNaN(dv1)&&!isNaN(dv2)&&dv1*dv2<0){
+        var cx2=cpx2+0.01;var fy2=f(cx2);var d2v2=d2f(cx2);
+        if(!isNaN(fy2)){
+          var cs=toS(cx2,fy2);
+          ctx.fillStyle=d2v2>0?'#22c55e':'#ef4444';
+          ctx.beginPath();ctx.arc(cs.x,cs.y,7,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#e2e8f0';ctx.font='bold 9px Poppins';ctx.textAlign='center';
+          ctx.fillText(d2v2>0?'min':'max',cs.x,cs.y-12);
+          ctx.fillText('('+cx2.toFixed(1)+','+fy2.toFixed(1)+')',cs.x,cs.y+16);
+        }
+      }
+      /* inflection points — where f''(x) ≈ 0 */
+      var d2v1=d2f(cpx2),d2v2b=d2f(cpx2+0.02);
+      if(!isNaN(d2v1)&&!isNaN(d2v2b)&&d2v1*d2v2b<0){
+        var ix=cpx2+0.01;var iy=f(ix);
+        if(!isNaN(iy)){
+          var is2=toS(ix,iy);
+          ctx.fillStyle='#f59e0b';ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;
+          ctx.beginPath();ctx.moveTo(is2.x-6,is2.y-6);ctx.lineTo(is2.x+6,is2.y+6);ctx.stroke();
+          ctx.beginPath();ctx.moveTo(is2.x+6,is2.y-6);ctx.lineTo(is2.x-6,is2.y+6);ctx.stroke();
+          ctx.font='bold 9px Poppins';ctx.fillText('inflection',is2.x,is2.y-12);
+        }
+      }
+    }
+  }
+  
   /* tangent line at xp */
-  var fv=f(xp),dfv=df(xp);
+  var fv=f(xp),dfv=df(xp),d2fv=d2f(xp);
   if(!isNaN(fv)&&!isNaN(dfv)){
     var pt=toS(xp,fv);
-    if(document.getElementById('btn-tan').classList.contains('active')){
+    if(showTan){
       ctx.strokeStyle='#f472b6';ctx.lineWidth=1.8;ctx.beginPath();
       var t1=toS(xp-4,fv-dfv*4),t2=toS(xp+4,fv+dfv*4);
       ctx.moveTo(t1.x,t1.y);ctx.lineTo(t2.x,t2.y);ctx.stroke();
     }
-    ctx.fillStyle='#f472b6';ctx.beginPath();ctx.arc(pt.x,pt.y,6,0,Math.PI*2);ctx.fill();
+    /* point with glow */
+    ctx.shadowColor='#f472b6';ctx.shadowBlur=12;
+    ctx.fillStyle='#f472b6';ctx.beginPath();ctx.arc(pt.x,pt.y,7,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    /* dashed lines to axes */
+    ctx.strokeStyle='rgba(244,114,182,0.3)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(pt.x,pt.y);ctx.lineTo(pt.x,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(pt.x,pt.y);ctx.lineTo(cx,pt.y);ctx.stroke();
+    ctx.setLineDash([]);
+    /* slope angle arc */
+    if(showTan&&Math.abs(dfv)<10){
+      var ang=Math.atan(dfv);
+      ctx.strokeStyle='rgba(244,114,182,0.5)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(pt.x,pt.y,30,0,-ang,ang>0);ctx.stroke();
+      ctx.fillStyle='#f472b6';ctx.font='9px Poppins';ctx.textAlign='left';
+      ctx.fillText((ang*180/Math.PI).toFixed(1)+'°',pt.x+34,pt.y+4);
+    }
   }
+  
+  /* readouts */
   document.getElementById('r-fx').textContent=isNaN(fv)?'undef':fv.toFixed(3);
   document.getElementById('r-dfx').textContent=isNaN(dfv)?'undef':dfv.toFixed(3);
-  document.getElementById('r-slope').textContent=isNaN(dfv)?'undef':dfv.toFixed(3);
+  document.getElementById('r-d2fx').textContent=isNaN(d2fv)?'undef':d2fv.toFixed(3);
   var b=isNaN(fv)||isNaN(dfv)?'—':(fv-dfv*xp).toFixed(2);
   document.getElementById('r-tang').textContent=isNaN(dfv)?'—':('y = '+dfv.toFixed(2)+'x '+(b>=0?'+ ':'')+b);
+  var inc=isNaN(dfv)?'':dfv>0.01?'Increasing':dfv<-0.01?'Decreasing':'Flat';
+  var conc=isNaN(d2fv)?'':d2fv>0.01?'Concave Up':d2fv<-0.01?'Concave Down':'Inflection';
+  document.getElementById('r-behav').textContent=inc+(inc&&conc?', ':'')+conc;
+  
   /* legend */
-  ctx.fillStyle='#a855f7';ctx.font='bold 11px Poppins';ctx.textAlign='left';ctx.fillText('— f(x)',10,20);
-  ctx.fillStyle='#22c55e';ctx.fillText('--- f\'(x)',10,36);
-  ctx.fillStyle='#f472b6';ctx.fillText('— tangent',10,52);
+  var ly=16;
+  ctx.font='bold 10px Poppins';ctx.textAlign='left';
+  ctx.fillStyle='#a855f7';ctx.fillText('— f(x) = '+fnNames[fnIdx],10,ly);ly+=14;
+  if(showDer){ctx.fillStyle='#22c55e';ctx.fillText('--- f\'(x)',10,ly);ly+=14;}
+  if(showD2){ctx.fillStyle='#f59e0b';ctx.fillText('··· f\'\'(x)',10,ly);ly+=14;}
+  ctx.fillStyle='#f472b6';ctx.fillText('— tangent',10,ly);
+  
   requestAnimationFrame(draw);
 }
 draw();

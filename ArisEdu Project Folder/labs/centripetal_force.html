@@ -27,38 +27,61 @@ canvas{display:block;width:100%}
 <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
 <h1>🎯 Centripetal Force</h1>
 <p class="subtitle">Circular motion — centripetal acceleration, force, and period</p>
-<div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
+<div class="canvas-wrap" style="position:relative"><canvas id="cv" height="400"></canvas><div id="tip" style="position:absolute;display:none;background:rgba(15,23,42,.92);color:#f1f5f9;font:11px monospace;padding:4px 8px;border-radius:6px;pointer-events:none;border:1px solid #334155;white-space:nowrap;z-index:5"></div><p style="text-align:center;font-size:.7rem;color:#475569;margin:.3rem 0 0">Drag ball to resize orbit · Click Release to launch tangent</p></div>
 <div class="controls">
   <div class="ctrl-group"><label>Radius (m)</label><input type="range" id="pr" min="30" max="150" value="90" oninput="upd()"><span class="val" id="vr">90</span></div>
   <div class="ctrl-group"><label>Speed (m/s)</label><input type="range" id="pv" min="5" max="80" value="30" oninput="upd()"><span class="val" id="vv">30</span></div>
   <div class="ctrl-group"><label>Mass (kg)</label><input type="range" id="pm" min="1" max="20" value="5" oninput="upd()"><span class="val" id="vmm">5</span></div>
+  <button class="toggle-btn" id="btn-release" onclick="doRelease()" style="border-color:#f59e0b;color:#f59e0b">Release</button>
+  <button class="toggle-btn" id="btn-multi" onclick="this.classList.toggle('active')">Multi-Orbit</button>
 </div>
 <div class="readout">
   <div class="datum">Fₓ: <strong id="r-fc">50.0 N</strong></div>
   <div class="datum">aₓ: <strong id="r-ac">10.0 m/s²</strong></div>
   <div class="datum">T: <strong id="r-t">18.85 s</strong></div>
   <div class="datum">ω: <strong id="r-w">0.33 rad/s</strong></div>
+  <div class="datum">g-force: <strong id="r-gf">1.02</strong></div>
 </div>
 <div class="info-box"><h3>Circular Motion</h3><p>An object moving in a circle at constant speed experiences <strong>centripetal acceleration</strong> directed toward the center: a = v²/r. The required centripetal force is F = mv²/r. The period T = 2πr/v is the time for one full revolution. Angular velocity ω = v/r = 2π/T.</p></div>
 </div>
 <script>
 (function(){
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
-var angle=0,trail=[];
+var angle=0,trail=[],released=false,relPt=null,relTrail=[],dragging=false;
+var orbits=[{color:'#3b82f6',R:90,v:30,ang:0,trail:[]}];
+cv.addEventListener('mousemove',function(e){var rr=cv.getBoundingClientRect(),mx=e.clientX-rr.left,my=e.clientY-rr.top;
+  tip.style.display='block';tip.style.left=(mx+12)+'px';tip.style.top=(my-28)+'px';
+  var R=+document.getElementById('pr').value,v=+document.getElementById('pv').value,m=+document.getElementById('pm').value;
+  var ac=v*v/R;tip.textContent='θ='+((angle*180/Math.PI)%360).toFixed(0)+'° Fc='+(m*ac).toFixed(1)+'N v='+v;
+  if(dragging){var cx2=W/2,cy2=H/2,dx=mx-cx2,dy=my-cy2,nr=Math.max(30,Math.min(150,Math.sqrt(dx*dx+dy*dy)));
+    document.getElementById('pr').value=Math.round(nr);upd();}
+});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';dragging=false;});
+cv.addEventListener('mousedown',function(e){var rr=cv.getBoundingClientRect(),mx=e.clientX-rr.left,my=e.clientY-rr.top;
+  var R=+document.getElementById('pr').value,bx=W/2+R*Math.cos(angle),by=H/2+R*Math.sin(angle);
+  if(Math.hypot(mx-bx,my-by)<25)dragging=true;});
+cv.addEventListener('mouseup',function(){dragging=false;});
 window.upd=function(){
   document.getElementById('vr').textContent=document.getElementById('pr').value;
   document.getElementById('vv').textContent=document.getElementById('pv').value;
   document.getElementById('vmm').textContent=document.getElementById('pm').value;
   var r=+document.getElementById('pr').value,v=+document.getElementById('pv').value,m=+document.getElementById('pm').value;
-  var ac=v*v/r,fc=m*ac,T=2*Math.PI*r/v,w=v/r;
+  var ac=v*v/r,fc=m*ac,T=2*Math.PI*r/v,w=v/r,gf=ac/9.8;
   document.getElementById('r-fc').textContent=fc.toFixed(1)+' N';
   document.getElementById('r-ac').textContent=ac.toFixed(1)+' m/s²';
   document.getElementById('r-t').textContent=T.toFixed(2)+' s';
   document.getElementById('r-w').textContent=w.toFixed(2)+' rad/s';
-  trail=[];
+  document.getElementById('r-gf').textContent=gf.toFixed(2);
+  trail=[];released=false;relTrail=[];
 };upd();
+window.doRelease=function(){
+  var R=+document.getElementById('pr').value,v=+document.getElementById('pv').value;
+  var bx=W/2+R*Math.cos(angle),by=H/2+R*Math.sin(angle);
+  var tx=-Math.sin(angle),ty=Math.cos(angle);
+  relPt={x:bx,y:by,vx:tx*v*0.8,vy:ty*v*0.8};released=true;relTrail=[{x:bx,y:by}];
+};
 function draw(){
   ctx.clearRect(0,0,W,H);
   var cx=W/2,cy=H/2;
@@ -66,41 +89,59 @@ function draw(){
   var omega=v/R;angle+=omega*0.03;
   var bx=cx+R*Math.cos(angle),by=cy+R*Math.sin(angle);
   trail.push({x:bx,y:by});if(trail.length>200)trail.shift();
+  /* multi-orbit ghosts */
+  if(document.getElementById('btn-multi').classList.contains('active')){
+    orbits.forEach(function(o){o.ang+=o.v/o.R*0.03;var ox=cx+o.R*Math.cos(o.ang),oy=cy+o.R*Math.sin(o.ang);
+      o.trail.push({x:ox,y:oy});if(o.trail.length>200)o.trail.shift();
+      ctx.strokeStyle='rgba(168,85,247,0.2)';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.beginPath();ctx.arc(cx,cy,o.R,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+      if(o.trail.length>1){ctx.strokeStyle='rgba(168,85,247,0.25)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(o.trail[0].x,o.trail[0].y);for(var j=1;j<o.trail.length;j++)ctx.lineTo(o.trail[j].x,o.trail[j].y);ctx.stroke();}
+      ctx.fillStyle='#a855f7';ctx.globalAlpha=0.5;ctx.beginPath();ctx.arc(ox,oy,7,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;});
+  }
   /* orbit line */
   ctx.strokeStyle='#1e3a5f';ctx.lineWidth=1;ctx.setLineDash([5,5]);
   ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
   /* trail */
-  if(trail.length>1){ctx.strokeStyle='rgba(59,130,246,0.3)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(trail[0].x,trail[0].y);for(var i=1;i<trail.length;i++)ctx.lineTo(trail[i].x,trail[i].y);ctx.stroke();}
+  if(trail.length>1){ctx.strokeStyle='rgba(59,130,246,0.35)';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(trail[0].x,trail[0].y);for(var i=1;i<trail.length;i++)ctx.lineTo(trail[i].x,trail[i].y);ctx.stroke();}
   /* radius line */
   ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(bx,by);ctx.stroke();
   /* center */
   ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();
   /* centripetal force arrow (toward center) */
   var fc=m*v*v/R,fScale=Math.min(fc/50,80);
-  var dx=(cx-bx),dy=(cy-by),d=Math.sqrt(dx*dx+dy*dy);
-  dx/=d;dy/=d;
-  ctx.strokeStyle='#ef4444';ctx.lineWidth=2.5;
-  ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+dx*fScale,by+dy*fScale);ctx.stroke();
+  var dx=(cx-bx),dy=(cy-by),d=Math.sqrt(dx*dx+dy*dy);dx/=d;dy/=d;
+  ctx.strokeStyle='#ef4444';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+dx*fScale,by+dy*fScale);ctx.stroke();
   var ax2=bx+dx*fScale,ay2=by+dy*fScale;
-  ctx.fillStyle='#ef4444';ctx.beginPath();ctx.moveTo(ax2,ay2);
-  ctx.lineTo(ax2-dx*8+dy*5,ay2-dy*8-dx*5);ctx.lineTo(ax2-dx*8-dy*5,ay2-dy*8+dx*5);ctx.fill();
+  ctx.fillStyle='#ef4444';ctx.beginPath();ctx.moveTo(ax2,ay2);ctx.lineTo(ax2-dx*8+dy*5,ay2-dy*8-dx*5);ctx.lineTo(ax2-dx*8-dy*5,ay2-dy*8+dx*5);ctx.fill();
   /* velocity arrow (tangent) */
-  var tx=-Math.sin(angle),ty=Math.cos(angle);
-  var vScale=Math.min(v*0.8,60);
-  ctx.strokeStyle='#22c55e';ctx.lineWidth=2.5;
-  ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+tx*vScale,by+ty*vScale);ctx.stroke();
+  var tx=-Math.sin(angle),ty=Math.cos(angle),vScale=Math.min(v*0.8,60);
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+tx*vScale,by+ty*vScale);ctx.stroke();
   var vx2=bx+tx*vScale,vy2=by+ty*vScale;
-  ctx.fillStyle='#22c55e';ctx.beginPath();ctx.moveTo(vx2,vy2);
-  ctx.lineTo(vx2-tx*8+ty*5,vy2-ty*8-tx*5);ctx.lineTo(vx2-tx*8-ty*5,vy2-ty*8+tx*5);ctx.fill();
-  /* ball */
-  ctx.fillStyle='#3b82f6';ctx.shadowColor='#3b82f6';ctx.shadowBlur=12;
-  ctx.beginPath();ctx.arc(bx,by,10+m*0.6,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(m+'kg',bx,by);
+  ctx.fillStyle='#22c55e';ctx.beginPath();ctx.moveTo(vx2,vy2);ctx.lineTo(vx2-tx*8+ty*5,vy2-ty*8-tx*5);ctx.lineTo(vx2-tx*8-ty*5,vy2-ty*8+tx*5);ctx.fill();
+  /* ball with gradient */
+  var br=10+m*0.6;
+  var grad=ctx.createRadialGradient(bx-br*0.3,by-br*0.3,br*0.1,bx,by,br);
+  grad.addColorStop(0,'#f1f5f9');grad.addColorStop(1,'#3b82f6');
+  ctx.fillStyle=grad;ctx.shadowColor='#3b82f6';ctx.shadowBlur=14;
+  ctx.beginPath();ctx.arc(bx,by,br,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle='#0f172a';ctx.font='bold 10px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(m+'kg',bx,by);
+  /* angle arc */
+  ctx.strokeStyle='rgba(241,245,249,0.25)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,cy,22,0,angle%(2*Math.PI));ctx.stroke();
+  ctx.fillStyle='#94a3b8';ctx.font='9px monospace';ctx.fillText(((angle*180/Math.PI)%360).toFixed(0)+'°',cx+28,cy-4);
+  /* released projectile */
+  if(released&&relPt){
+    relPt.vy+=0.15;relPt.x+=relPt.vx;relPt.y+=relPt.vy;
+    relTrail.push({x:relPt.x,y:relPt.y});if(relTrail.length>300)relTrail.shift();
+    ctx.strokeStyle='rgba(245,158,11,0.5)';ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.beginPath();
+    for(var j=0;j<relTrail.length;j++){j===0?ctx.moveTo(relTrail[j].x,relTrail[j].y):ctx.lineTo(relTrail[j].x,relTrail[j].y);}
+    ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(relPt.x,relPt.y,5,0,Math.PI*2);ctx.fill();
+    if(relPt.x<0||relPt.x>W||relPt.y>H)released=false;
+  }
   /* legend */
   ctx.font='11px Poppins';ctx.textAlign='left';
   ctx.fillStyle='#ef4444';ctx.fillText('→ Fc (centripetal)',10,20);
   ctx.fillStyle='#22c55e';ctx.fillText('→ v (velocity)',10,36);
+  ctx.fillStyle='#f59e0b';ctx.fillText('- - Released path',10,52);
   requestAnimationFrame(draw);
 }
 draw();

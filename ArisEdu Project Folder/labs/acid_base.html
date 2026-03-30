@@ -29,7 +29,7 @@ canvas{display:block;width:100%}
 <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
 <h1>🧪 Acid-Base pH Simulator</h1>
 <p class="subtitle">Explore the pH scale — acids, bases, indicators, and buffer solutions</p>
-<div class="canvas-wrap"><canvas id="cv" height="420"></canvas></div>
+<div class="canvas-wrap"><canvas id="cv" height="420"></canvas><div class="tooltip" id="tip" style="position:absolute;background:#1e293b;border:1px solid #f59e0b;border-radius:.5rem;padding:.4rem .7rem;font-size:.78rem;color:#e2e8f0;pointer-events:none;display:none;white-space:nowrap;z-index:10"></div></div>
 <div class="controls">
   <div class="ctrl-group"><label>pH</label>
     <input type="range" id="pph" min="0" max="140" value="70" oninput="upd()"><span class="val" id="vph">7.0</span></div>
@@ -40,6 +40,8 @@ canvas{display:block;width:100%}
   <button class="toggle-btn" onclick="setPreset(4,this)">Baking Soda</button>
   <button class="toggle-btn" onclick="setPreset(5,this)">Bleach</button>
   <button class="toggle-btn active" id="btn-ions" onclick="this.classList.toggle('active')">Show Ions</button>
+  <button class="toggle-btn" id="btn-titr" onclick="this.classList.toggle('active')">Titration Curve</button>
+  <button class="toggle-btn" id="btn-ind" onclick="this.classList.toggle('active')">Indicators</button>
 </div>
 <div class="readout">
   <div class="datum">pH: <strong id="r-ph">7.0</strong></div>
@@ -47,16 +49,23 @@ canvas{display:block;width:100%}
   <div class="datum">[H⁺]: <strong id="r-h">1.0×10⁻⁷ M</strong></div>
   <div class="datum">[OH⁻]: <strong id="r-oh">1.0×10⁻⁷ M</strong></div>
   <div class="datum">Type: <strong id="r-type">Neutral</strong></div>
+  <div class="datum">Strength: <strong id="r-str">—</strong></div>
 </div>
 <div class="info-box"><h3>pH Scale</h3><p>pH = −log[H⁺] measures how acidic or basic a solution is. <strong>pH &lt; 7</strong> = acidic (more H⁺ ions), <strong>pH = 7</strong> = neutral, <strong>pH &gt; 7</strong> = basic (more OH⁻ ions). Each pH unit represents a <strong>10× change</strong> in ion concentration. pH + pOH = 14. Common acids: HCl, H₂SO₄, citric acid. Common bases: NaOH, NH₃, Ca(OH)₂.</p></div>
 </div>
 <script>
 (function(){
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
 var presets=[[70,'Pure Water'],[23,'Lemon Juice'],[28,'Vinegar'],[74,'Blood'],[84,'Baking Soda'],[125,'Bleach']];
 var ions=[];for(var i=0;i<60;i++)ions.push({x:Math.random(),y:Math.random(),vx:(Math.random()-0.5)*0.003,vy:(Math.random()-0.5)*0.003,type:Math.random()<0.5?0:1});
+var bubbles=[];for(var i=0;i<20;i++)bubbles.push({x:Math.random(),y:Math.random(),r:1+Math.random()*3,vy:-0.001-Math.random()*0.003});
+cv.addEventListener('mousemove',function(e){
+  var r=cv.getBoundingClientRect();tip.style.display='block';tip.style.left=(e.clientX-r.left+12)+'px';tip.style.top=(e.clientY-r.top-28)+'px';
+  var ph=+document.getElementById('pph').value/10;tip.textContent='pH '+ph.toFixed(1)+' | [H⁺]='+Math.pow(10,-ph).toExponential(1)+' M';
+});
+cv.addEventListener('mouseleave',function(){tip.style.display='none';});
 window.setPreset=function(i,el){document.getElementById('pph').value=presets[i][0];upd();
   document.querySelectorAll('.toggle-btn').forEach(function(b,idx){if(idx>=1&&idx<=6)b.classList.toggle('active',idx-1===i);});};
 window.upd=function(){
@@ -67,6 +76,7 @@ window.upd=function(){
   document.getElementById('r-h').textContent=Math.pow(10,-ph).toExponential(1)+' M';
   document.getElementById('r-oh').textContent=Math.pow(10,-(14-ph)).toExponential(1)+' M';
   document.getElementById('r-type').textContent=ph<6.5?'Acidic':ph>7.5?'Basic':'Neutral';
+  document.getElementById('r-str').textContent=ph<2?'Strong Acid':ph<5?'Weak Acid':ph<6.5?'Mild Acid':ph<7.5?'Neutral':ph<10?'Weak Base':ph<12?'Mild Base':'Strong Base';
 };upd();
 function phColor(ph){
   if(ph<=1)return'#ff0000';if(ph<=3)return'#ff6600';if(ph<=5)return'#ffcc00';
@@ -75,16 +85,29 @@ function phColor(ph){
 }
 function draw(){
   ctx.clearRect(0,0,W,H);var ph=+document.getElementById('pph').value/10;
-  /* beaker */
   var bx=W*0.1,by=40,bw=W*0.35,bh=H-80;
   var col=phColor(ph);
+  /* beaker gradient */
   var grad=ctx.createLinearGradient(bx,by,bx,by+bh);
   grad.addColorStop(0,col+'44');grad.addColorStop(1,col+'cc');
   ctx.fillStyle=grad;ctx.beginPath();ctx.roundRect(bx,by,bw,bh,8);ctx.fill();
+  /* beaker rim highlight */
+  ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(bx+4,by);ctx.lineTo(bx+bw-4,by);ctx.stroke();
   ctx.strokeStyle='#475569';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(bx,by,bw,bh,8);ctx.stroke();
-  /* pH label on beaker */
+  /* meniscus */
+  ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;ctx.beginPath();
+  ctx.moveTo(bx+4,by+10);ctx.quadraticCurveTo(bx+bw/2,by+16,bx+bw-4,by+10);ctx.stroke();
+  /* pH label */
   ctx.fillStyle='#f1f5f9';ctx.font='bold 36px Poppins';ctx.textAlign='center';ctx.fillText(ph.toFixed(1),bx+bw/2,by+bh/2);
   ctx.font='14px Poppins';ctx.fillText(ph<6.5?'ACIDIC':ph>7.5?'BASIC':'NEUTRAL',bx+bw/2,by+bh/2+30);
+  /* bubbles for acidic solutions */
+  if(ph<5){bubbles.forEach(function(b){
+    b.y+=b.vy*(1+(5-ph)*0.5);b.x+=Math.sin(b.y*20)*0.001;
+    if(b.y<0)b.y=1;
+    var px=bx+10+b.x*(bw-20),py=by+10+b.y*(bh-20);
+    ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=0.5;ctx.beginPath();ctx.arc(px,py,b.r,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.03)';ctx.fill();
+  });}
   /* ions animation */
   if(document.getElementById('btn-ions').classList.contains('active')){
     var hCount=Math.round(Math.max(1,30*(1-ph/14))),ohCount=Math.round(Math.max(1,30*(ph/14)));
@@ -92,28 +115,58 @@ function draw(){
       ion.x+=ion.vx;ion.y+=ion.vy;
       if(ion.x<0||ion.x>1)ion.vx*=-1;if(ion.y<0||ion.y>1)ion.vy*=-1;
       var px=bx+10+ion.x*(bw-20),py=by+10+ion.y*(bh-20);
-      var isH=i<hCount;
-      if(i>=hCount+ohCount)return;
+      var isH=i<hCount;if(i>=hCount+ohCount)return;
       ctx.fillStyle=isH?'#ef4444':'#3b82f6';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=4;
       ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
       ctx.fillStyle='#f1f5f9';ctx.font='bold 6px monospace';ctx.textAlign='center';ctx.textBaseline='middle';
       ctx.fillText(isH?'H⁺':'OH⁻',px,py);
     });
   }
-  /* pH scale bar on right */
-  var sx=W*0.55,sy=30,sw=40,sh=H-60;
+  /* pH scale bar */
+  var sx=W*0.52,sy=30,sw=40,sh=H-60;
   for(var py=0;py<sh;py++){var p=py/sh*14;ctx.fillStyle=phColor(p);ctx.fillRect(sx,sy+py,sw,1);}
   ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.strokeRect(sx,sy,sw,sh);
-  /* marker */
-  var my=sy+ph/14*sh;ctx.fillStyle='#f1f5f9';ctx.beginPath();ctx.moveTo(sx-8,my);ctx.lineTo(sx,my-5);ctx.lineTo(sx,my+5);ctx.closePath();ctx.fill();
+  var my=sy+ph/14*sh;ctx.fillStyle='#f1f5f9';
+  ctx.beginPath();ctx.moveTo(sx-8,my);ctx.lineTo(sx,my-5);ctx.lineTo(sx,my+5);ctx.closePath();ctx.fill();
   ctx.beginPath();ctx.moveTo(sx+sw+8,my);ctx.lineTo(sx+sw,my-5);ctx.lineTo(sx+sw,my+5);ctx.closePath();ctx.fill();
-  /* labels */
   ctx.fillStyle='#94a3b8';ctx.font='10px Poppins';ctx.textAlign='left';
   for(var l=0;l<=14;l++){var ly=sy+l/14*sh;ctx.fillText(l.toString(),sx+sw+12,ly+3);}
-  /* common substances */
+  /* substances */
   var subs=[{ph:0,name:'Battery Acid'},{ph:1,name:'HCl'},{ph:2.3,name:'Lemon'},{ph:2.8,name:'Vinegar'},{ph:4.5,name:'Coffee'},{ph:7,name:'Water'},{ph:7.4,name:'Blood'},{ph:8.4,name:'Baking Soda'},{ph:10,name:'Milk of Mag.'},{ph:11,name:'Ammonia'},{ph:12.5,name:'Bleach'},{ph:14,name:'NaOH'}];
-  ctx.font='9px Poppins';ctx.textAlign='left';
-  subs.forEach(function(s){var ly=sy+s.ph/14*sh;ctx.fillStyle='#64748b';ctx.fillText(s.name,sx+sw+30,ly+3);});
+  ctx.font='9px Poppins';subs.forEach(function(s){var ly=sy+s.ph/14*sh;ctx.fillStyle='#64748b';ctx.fillText(s.name,sx+sw+30,ly+3);});
+  /* indicator strips */
+  if(document.getElementById('btn-ind').classList.contains('active')){
+    var indicators=[{name:'Litmus',range:[4.5,8.3],acidCol:'#ef4444',baseCol:'#3b82f6'},{name:'Phenolphthalein',range:[8.2,10],acidCol:'transparent',baseCol:'#ec4899'},{name:'Methyl Orange',range:[3.1,4.4],acidCol:'#ef4444',baseCol:'#f59e0b'},{name:'Bromothymol Blue',range:[6,7.6],acidCol:'#f59e0b',baseCol:'#3b82f6'}];
+    var ix=W*0.52,iy=H-50;
+    ctx.font='8px Poppins';ctx.textAlign='left';
+    indicators.forEach(function(ind,idx){
+      var y2=iy+idx*12;
+      var inRange=ph>=ind.range[0]&&ph<=ind.range[1];
+      var t=ph<ind.range[0]?0:ph>ind.range[1]?1:(ph-ind.range[0])/(ind.range[1]-ind.range[0]);
+      ctx.fillStyle=t<0.5?ind.acidCol:ind.baseCol;
+      if(ctx.fillStyle==='transparent')ctx.fillStyle='rgba(255,255,255,0.1)';
+      ctx.fillRect(ix,y2,12,8);ctx.fillStyle='#94a3b8';ctx.fillText(ind.name,ix+16,y2+7);
+    });
+  }
+  /* titration curve */
+  if(document.getElementById('btn-titr').classList.contains('active')){
+    var tx=W*0.73,ty2=30,tw=W*0.25,th2=H*0.5;
+    ctx.fillStyle='rgba(15,23,42,0.92)';ctx.beginPath();ctx.roundRect(tx,ty2,tw,th2,6);ctx.fill();ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';ctx.fillText('Strong Acid + NaOH Titration',tx+tw/2,ty2+12);
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;ctx.beginPath();
+    for(var v=0;v<=1;v+=0.005){
+      var titrPH;
+      if(v<0.49)titrPH=1+v*6;else if(v<0.51)titrPH=3+((v-0.49)/0.02)*8;else titrPH=11+(v-0.51)*3;
+      titrPH=Math.min(14,Math.max(0,titrPH));
+      var px2=tx+5+v*(tw-10),py2=ty2+th2-15-titrPH/14*(th2-25);
+      v===0?ctx.moveTo(px2,py2):ctx.lineTo(px2,py2);
+    }ctx.stroke();
+    /* equivalence point */
+    ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(tx+5+0.5*(tw-10),ty2+th2-15-7/14*(th2-25),4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ef4444';ctx.font='8px Poppins';ctx.fillText('Eq. Point',tx+5+0.5*(tw-10),ty2+th2-15-7/14*(th2-25)-8);
+    ctx.fillStyle='#64748b';ctx.font='8px Poppins';ctx.textAlign='left';ctx.fillText('Vol NaOH →',tx+10,ty2+th2-2);
+    ctx.save();ctx.translate(tx+2,ty2+th2/2);ctx.rotate(-Math.PI/2);ctx.fillText('pH',0,0);ctx.restore();
+  }
   requestAnimationFrame(draw);
 }
 draw();

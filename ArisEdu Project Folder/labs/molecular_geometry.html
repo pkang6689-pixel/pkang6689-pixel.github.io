@@ -29,7 +29,7 @@ canvas{display:block;width:100%}
 <a href="../lab_simulations.html" style="display:inline-flex;align-items:center;gap:.4rem;color:#94a3b8;font-size:.85rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">&#8592; Back to Labs</a>
 <h1>🧬 Molecular Geometry</h1>
 <p class="subtitle">VSEPR shapes — see how bonding pairs and lone pairs determine 3D geometry</p>
-<div class="canvas-wrap"><canvas id="cv" height="480"></canvas></div>
+<div class="canvas-wrap"><canvas id="cv" height="480"></canvas><div class="tooltip" id="tip" style="position:absolute;background:#1e293b;border:1px solid #f59e0b;border-radius:.5rem;padding:.4rem .7rem;font-size:.78rem;color:#e2e8f0;pointer-events:none;display:none;white-space:nowrap;z-index:10"></div></div>
 <div class="controls">
   <div class="ctrl-group"><label>Bonding Pairs</label>
     <input type="range" id="pbp" min="1" max="6" value="4" oninput="upd()"><span class="val" id="vbp">4</span></div>
@@ -39,41 +39,54 @@ canvas{display:block;width:100%}
     <input type="range" id="prot" min="0" max="360" value="0"><span class="val" id="vrot">0°</span></div>
   <button class="toggle-btn active" id="btn-spin" onclick="this.classList.toggle('active')">Auto-Spin</button>
   <button class="toggle-btn active" id="btn-angles" onclick="this.classList.toggle('active')">Show Angles</button>
+  <button class="toggle-btn" id="btn-cloud" onclick="this.classList.toggle('active')">e⁻ Cloud</button>
+  <button class="toggle-btn" id="btn-labels" onclick="this.classList.toggle('active')">Atom Labels</button>
 </div>
 <div class="readout">
   <div class="datum">Shape: <strong id="r-shape">Tetrahedral</strong></div>
   <div class="datum">Bond Angle: <strong id="r-angle">109.5°</strong></div>
   <div class="datum">Steric #: <strong id="r-sn">4</strong></div>
   <div class="datum">Example: <strong id="r-ex">CH₄</strong></div>
+  <div class="datum">Polarity: <strong id="r-pol">Nonpolar</strong></div>
 </div>
 <div class="info-box"><h3>VSEPR Theory</h3><p><strong>Valence Shell Electron Pair Repulsion</strong> predicts molecular shape by minimizing repulsion between electron groups. Bonding pairs (BP) and lone pairs (LP) arrange themselves in 3D. Lone pairs occupy more space than bonding pairs, compressing bond angles. The <strong>steric number</strong> (BP+LP) determines the electron geometry, while the <strong>molecular geometry</strong> describes only atom positions.</p></div>
 </div>
 <script>
 (function(){
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
-var angle=0;
-/* Geometry data: [name, bond_angle, example, positions_3d_for_bp, lp_positions] */
+var angle=0,dragX=0,dragAngle=0,dragging=false,tiltAngle=0.3;
+/* mouse drag rotation */
+cv.addEventListener('mousedown',function(e){dragging=true;dragX=e.clientX;dragAngle=angle;});
+cv.addEventListener('mousemove',function(e){
+  if(dragging){angle=dragAngle+(e.clientX-dragX)*0.008;}
+  var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  tip.style.display='block';tip.style.left=(e.clientX-r.left+12)+'px';tip.style.top=(e.clientY-r.top-28)+'px';
+  var key=document.getElementById('pbp').value+'-'+document.getElementById('plp').value;
+  var s=shapes[key];tip.textContent=s?s.name+' ('+s.angle+'°)':'N/A';
+});
+cv.addEventListener('mouseup',function(){dragging=false;});
+cv.addEventListener('mouseleave',function(){dragging=false;tip.style.display='none';});
 var shapes={
-  '1-0':{name:'Linear',angle:180,ex:'HF',pos:[[0,0,1]]},
-  '2-0':{name:'Linear',angle:180,ex:'CO₂',pos:[[0,0,1],[0,0,-1]]},
-  '2-1':{name:'Bent',angle:120,ex:'SO₂',pos:[[0.866,0,0.5],[-0.866,0,0.5]],lp:[[0,0,-1]]},
-  '3-0':{name:'Trigonal Planar',angle:120,ex:'BF₃',pos:[[0,0,1],[-0.866,0,-0.5],[0.866,0,-0.5]]},
-  '3-1':{name:'Trigonal Pyramidal',angle:107,ex:'NH₃',pos:[[0,0.816,0.577],[-0.816,-0.333,0.577],[0.816,-0.333,0.577]],lp:[[0,0,-1]]},
-  '4-0':{name:'Tetrahedral',angle:109.5,ex:'CH₄',pos:[[0,1,0],[-0.943,-0.333,0],[0.471,-0.333,0.816],[0.471,-0.333,-0.816]]},
-  '4-1':{name:'Seesaw',angle:90,ex:'SF₄',pos:[[0,1,0],[0,-1,0],[1,0,0],[-1,0,0]],lp:[[0,0,1]]},
-  '4-2':{name:'Square Planar',angle:90,ex:'XeF₄',pos:[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0]],lp:[[0,0,1],[0,0,-1]]},
-  '5-0':{name:'Trigonal Bipyramidal',angle:90,ex:'PCl₅',pos:[[0,1,0],[0,-1,0],[1,0,0],[-0.5,0,0.866],[-0.5,0,-0.866]]},
-  '6-0':{name:'Octahedral',angle:90,ex:'SF₆',pos:[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]]}
+  '1-0':{name:'Linear',angle:180,ex:'HF',polar:true,pos:[[0,0,1]]},
+  '2-0':{name:'Linear',angle:180,ex:'CO₂',polar:false,pos:[[0,0,1],[0,0,-1]]},
+  '2-1':{name:'Bent',angle:120,ex:'SO₂',polar:true,pos:[[0.866,0,0.5],[-0.866,0,0.5]],lp:[[0,0,-1]]},
+  '3-0':{name:'Trigonal Planar',angle:120,ex:'BF₃',polar:false,pos:[[0,0,1],[-0.866,0,-0.5],[0.866,0,-0.5]]},
+  '3-1':{name:'Trigonal Pyramidal',angle:107,ex:'NH₃',polar:true,pos:[[0,0.816,0.577],[-0.816,-0.333,0.577],[0.816,-0.333,0.577]],lp:[[0,-0.8,-0.6]]},
+  '4-0':{name:'Tetrahedral',angle:109.5,ex:'CH₄',polar:false,pos:[[0,1,0],[-0.943,-0.333,0],[0.471,-0.333,0.816],[0.471,-0.333,-0.816]]},
+  '4-1':{name:'Seesaw',angle:90,ex:'SF₄',polar:true,pos:[[0,1,0],[0,-1,0],[1,0,0],[-1,0,0]],lp:[[0,0,1]]},
+  '4-2':{name:'Square Planar',angle:90,ex:'XeF₄',polar:false,pos:[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0]],lp:[[0,0,1],[0,0,-1]]},
+  '5-0':{name:'Trigonal Bipyramidal',angle:90,ex:'PCl₅',polar:false,pos:[[0,1,0],[0,-1,0],[1,0,0],[-0.5,0,0.866],[-0.5,0,-0.866]]},
+  '6-0':{name:'Octahedral',angle:90,ex:'SF₆',polar:false,pos:[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]]}
 };
 window.upd=function(){
   document.getElementById('vbp').textContent=document.getElementById('pbp').value;
   document.getElementById('vlp').textContent=document.getElementById('plp').value;
   var key=document.getElementById('pbp').value+'-'+document.getElementById('plp').value;
   var s=shapes[key];
-  if(s){document.getElementById('r-shape').textContent=s.name;document.getElementById('r-angle').textContent=s.angle+'°';document.getElementById('r-sn').textContent=(+document.getElementById('pbp').value+(+document.getElementById('plp').value));document.getElementById('r-ex').textContent=s.ex;}
-  else{document.getElementById('r-shape').textContent='N/A';document.getElementById('r-angle').textContent='—';document.getElementById('r-ex').textContent='—';}
+  if(s){document.getElementById('r-shape').textContent=s.name;document.getElementById('r-angle').textContent=s.angle+'°';document.getElementById('r-sn').textContent=(+document.getElementById('pbp').value+(+document.getElementById('plp').value));document.getElementById('r-ex').textContent=s.ex;document.getElementById('r-pol').textContent=s.polar?'Polar':'Nonpolar';}
+  else{document.getElementById('r-shape').textContent='N/A';document.getElementById('r-angle').textContent='—';document.getElementById('r-ex').textContent='—';document.getElementById('r-pol').textContent='—';}
 };upd();
 function rot3d(p,ay,ax){
   var c=Math.cos(ay),s=Math.sin(ay),x=p[0]*c-p[2]*s,z=p[0]*s+p[2]*c;
@@ -83,37 +96,80 @@ function rot3d(p,ay,ax){
 function proj(p3){var sc=150;return{x:W/2+p3[0]*sc,y:H/2-p3[1]*sc,z:p3[2]};}
 function draw(){
   ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
-  if(document.getElementById('btn-spin').classList.contains('active'))angle+=0.008;
+  if(!dragging&&document.getElementById('btn-spin').classList.contains('active'))angle+=0.008;
   var rotY=angle+(+document.getElementById('prot').value)*Math.PI/180;
-  document.getElementById('vrot').textContent=Math.round((+document.getElementById('prot').value))+'°';
+  document.getElementById('vrot').textContent=Math.round(+document.getElementById('prot').value)+'°';
   var key=document.getElementById('pbp').value+'-'+document.getElementById('plp').value;
   var s=shapes[key];
-  /* center atom */
+  /* center atom with gradient */
   var cp=proj([0,0,0]);
-  ctx.fillStyle='#f59e0b';ctx.shadowColor='#f59e0b';ctx.shadowBlur=15;ctx.beginPath();ctx.arc(cp.x,cp.y,18,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  ctx.fillStyle='#0f172a';ctx.font='bold 12px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('C',cp.x,cp.y);
-  if(!s){requestAnimationFrame(draw);return;}
+  var grad=ctx.createRadialGradient(cp.x-4,cp.y-4,2,cp.x,cp.y,20);
+  grad.addColorStop(0,'#fbbf24');grad.addColorStop(1,'#b45309');
+  ctx.fillStyle=grad;ctx.shadowColor='#f59e0b';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(cp.x,cp.y,18,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle='#0f172a';ctx.font='bold 12px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';
+  if(s)ctx.fillText(s.ex.charAt(0)==='['?'C':s.ex.match(/^[A-Z][a-z]?/)?s.ex.match(/^[A-Z][a-z]?/)[0]:'C',cp.x,cp.y);
+  else ctx.fillText('C',cp.x,cp.y);
+  if(!s){ctx.fillStyle='#94a3b8';ctx.font='14px Poppins';ctx.textAlign='center';ctx.fillText('Invalid BP/LP combination',W/2,H/2+60);requestAnimationFrame(draw);return;}
+  /* electron density cloud */
+  if(document.getElementById('btn-cloud').classList.contains('active')){
+    s.pos.forEach(function(p){
+      var r=rot3d(p,rotY,tiltAngle);var sp=proj(r);
+      var cg=ctx.createRadialGradient(sp.x,sp.y,0,sp.x,sp.y,60);
+      cg.addColorStop(0,'rgba(59,130,246,0.12)');cg.addColorStop(0.5,'rgba(59,130,246,0.04)');cg.addColorStop(1,'transparent');
+      ctx.fillStyle=cg;ctx.beginPath();ctx.arc(sp.x,sp.y,60,0,Math.PI*2);ctx.fill();
+    });
+    if(s.lp)s.lp.forEach(function(p){
+      var r=rot3d(p,rotY,tiltAngle);var sp=proj(r);
+      var cg=ctx.createRadialGradient(sp.x,sp.y,0,sp.x,sp.y,50);
+      cg.addColorStop(0,'rgba(148,163,184,0.15)');cg.addColorStop(1,'transparent');
+      ctx.fillStyle=cg;ctx.beginPath();ctx.arc(sp.x,sp.y,50,0,Math.PI*2);ctx.fill();
+    });
+  }
   /* bonds */
   s.pos.forEach(function(p,i){
-    var r=rot3d(p,rotY,0.3);var sp=proj(r);
-    ctx.strokeStyle='rgba(245,158,11,0.6)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cp.x,cp.y);ctx.lineTo(sp.x,sp.y);ctx.stroke();
-    ctx.fillStyle='#3b82f6';ctx.shadowColor='#3b82f6';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(sp.x,sp.y,12,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-    ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Poppins';ctx.fillText('X',sp.x,sp.y);
+    var r=rot3d(p,rotY,tiltAngle);var sp=proj(r);
+    /* bond cylinder gradient */
+    ctx.strokeStyle='rgba(245,158,11,0.6)';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(cp.x,cp.y);ctx.lineTo(sp.x,sp.y);ctx.stroke();
+    ctx.strokeStyle='rgba(245,158,11,0.2)';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(cp.x,cp.y);ctx.lineTo(sp.x,sp.y);ctx.stroke();
+    /* outer atom sphere gradient */
+    var ag=ctx.createRadialGradient(sp.x-3,sp.y-3,1,sp.x,sp.y,14);
+    ag.addColorStop(0,'#60a5fa');ag.addColorStop(1,'#1e40af');
+    ctx.fillStyle=ag;ctx.shadowColor='#3b82f6';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(sp.x,sp.y,12,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    if(document.getElementById('btn-labels').classList.contains('active')){
+      ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Poppins';ctx.fillText('X'+(i+1),sp.x,sp.y);
+    }
   });
   /* lone pairs */
   if(s.lp)s.lp.forEach(function(p){
-    var r=rot3d(p,rotY,0.3);var sp=proj(r);
+    var r=rot3d(p,rotY,tiltAngle);var sp=proj(r);
     ctx.strokeStyle='rgba(148,163,184,0.3)';ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(cp.x,cp.y);ctx.lineTo(sp.x,sp.y);ctx.stroke();ctx.setLineDash([]);
-    ctx.fillStyle='rgba(148,163,184,0.5)';ctx.beginPath();ctx.arc(sp.x,sp.y,8,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.fillText('LP',sp.x,sp.y);
+    /* lobe shape */
+    ctx.fillStyle='rgba(148,163,184,0.3)';
+    ctx.beginPath();ctx.ellipse(sp.x,sp.y,12,8,Math.atan2(sp.y-cp.y,sp.x-cp.x),0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#94a3b8';ctx.font='9px Poppins';ctx.textAlign='center';ctx.fillText('LP',sp.x,sp.y+3);
   });
   /* angle arcs */
   if(document.getElementById('btn-angles').classList.contains('active')&&s.pos.length>=2){
-    var p0=proj(rot3d(s.pos[0],rotY,0.3)),p1=proj(rot3d(s.pos[1],rotY,0.3));
-    var a0=Math.atan2(cp.y-p0.y,p0.x-cp.x),a1=Math.atan2(cp.y-p1.y,p1.x-cp.x);
-    ctx.strokeStyle='rgba(245,158,11,0.4)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cp.x,cp.y,35,-a0,-a1,a0>a1);ctx.stroke();
-    ctx.fillStyle='#f59e0b';ctx.font='10px monospace';var am=(a0+a1)/2;ctx.fillText(s.angle+'°',cp.x+45*Math.cos(-am),cp.y+45*Math.sin(-am));
+    for(var i=0;i<s.pos.length;i++){
+      var j=(i+1)%s.pos.length;
+      var p0=proj(rot3d(s.pos[i],rotY,tiltAngle)),p1=proj(rot3d(s.pos[j],rotY,tiltAngle));
+      var a0=Math.atan2(cp.y-p0.y,p0.x-cp.x),a1=Math.atan2(cp.y-p1.y,p1.x-cp.x);
+      ctx.strokeStyle='rgba(245,158,11,0.3)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cp.x,cp.y,35+i*5,-a0,-a1,a0>a1);ctx.stroke();
+      if(i===0){ctx.fillStyle='#f59e0b';ctx.font='10px monospace';var am=(a0+a1)/2;ctx.fillText(s.angle+'°',cp.x+50*Math.cos(-am),cp.y+50*Math.sin(-am));}
+    }
   }
+  /* polarity arrow for polar molecules */
+  if(s.polar){
+    var dx=0,dy=0;s.pos.forEach(function(p){var r=rot3d(p,rotY,tiltAngle);dx+=r[0];dy-=r[1];});
+    var mag=Math.sqrt(dx*dx+dy*dy);
+    if(mag>0.01){dx/=mag;dy/=mag;
+      var ax1=cp.x+dx*80,ay1=cp.y+dy*80;
+      ctx.strokeStyle='rgba(239,68,68,0.5)';ctx.lineWidth=2;ctx.setLineDash([6,3]);ctx.beginPath();ctx.moveTo(cp.x,cp.y);ctx.lineTo(ax1,ay1);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='#ef4444';ctx.font='bold 10px Poppins';ctx.fillText('δ',ax1+8,ay1);
+    }
+  }
+  /* shape name watermark */
+  ctx.fillStyle='rgba(245,158,11,0.08)';ctx.font='bold 28px Poppins';ctx.textAlign='center';ctx.fillText(s.name,W/2,H-30);
   requestAnimationFrame(draw);
 }
 draw();
