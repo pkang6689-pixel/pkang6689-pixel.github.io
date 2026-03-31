@@ -141,6 +141,8 @@
     document.getElementById('panel-' + tab).classList.add('active');
     btn.classList.add('active');
     window.dispatchEvent(new Event('resize'));
+    if (tab === 'pendulum') { if (typeof startPendulum === 'function') startPendulum(); }
+    if (tab === 'collision') { if (typeof startCollision === 'function') startCollision(); }
   };
 
   // Auto-select tab from URL hash
@@ -363,7 +365,7 @@
       document.getElementById('pend-ang-val').textContent = document.getElementById('pend-ang').value + '°';
       document.getElementById('pend-damp-val').textContent = document.getElementById('pend-damp').value;
       initPend();
-      if (!running) { running = true; stepPend(); }
+      if (!running && canvas.width > 0) { running = true; stepPend(); }
       var L = parseFloat(document.getElementById('pend-len').value);
       document.getElementById('pend-period').textContent = (2 * Math.PI * Math.sqrt(L / 9.8)).toFixed(3) + ' s';
     };
@@ -457,11 +459,12 @@
       document.getElementById('c-e-val').textContent = document.getElementById('c-e').value;
       if (animId) cancelAnimationFrame(animId);
       running = false;
-      startCollision();
+      if (canvas.width > 0) startCollision();
     };
 
     window.startCollision = function() {
       if (running) return;
+      if (canvas.width === 0) return;
       resetCollisionState();
       running = true;
 
