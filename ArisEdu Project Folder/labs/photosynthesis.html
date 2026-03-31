@@ -110,7 +110,7 @@
     document.getElementById('glucose-out').textContent = (rate * 1).toFixed(2) + ' units/s';
     document.getElementById('rate-out').textContent = (rate * 100).toFixed(0) + '%';
 
-    ctx.clearRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);ctx.lineCap='round';ctx.lineJoin='round';
 
     // Sky background (changes with light)
     var skyBright = light / 100;
@@ -125,8 +125,10 @@
       var sunR = 20 + light * 0.3;
       ctx.fillStyle = 'rgba(251,191,36,' + (0.3 + skyBright * 0.7) + ')';
       ctx.beginPath(); ctx.arc(w * 0.85, h * 0.12, sunR + 15, 0, Math.PI * 2); ctx.fill();
+      ctx.save();ctx.shadowColor='#fbbf24';ctx.shadowBlur=25;
       ctx.fillStyle = '#fbbf24';
       ctx.beginPath(); ctx.arc(w * 0.85, h * 0.12, sunR, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
 
       // Sun rays hitting leaf
       if (rate > 0.05) {

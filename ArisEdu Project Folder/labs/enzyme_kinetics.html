@@ -164,7 +164,7 @@
   function drawChart() {
     mmCanvas.width = mmCanvas.parentElement.clientWidth;
     var w = mmCanvas.width, h = mmCanvas.height;
-    mmCtx.clearRect(0, 0, w, h);
+    mmCtx.clearRect(0, 0, w, h);ctx.lineCap='round';ctx.lineJoin='round';
 
     var eff = getEffective();
     var maxS = 20, maxV = 22;
@@ -255,11 +255,13 @@
     // Enzyme (pac-man shape)
     var ex = w * 0.5, ey = h * 0.5;
     var mouthAngle = enzyme.bound ? 0.05 : 0.3;
+    animCtx.save();animCtx.shadowColor=enzyme.bound?'#fbbf24':'#4ade80';animCtx.shadowBlur=18;
     animCtx.fillStyle = enzyme.bound ? '#fbbf24' : '#4ade80';
     animCtx.beginPath();
     animCtx.arc(ex, ey, 30, mouthAngle * Math.PI, (2 - mouthAngle) * Math.PI);
     animCtx.lineTo(ex, ey);
     animCtx.fill();
+    animCtx.restore();
     animCtx.fillStyle = '#0f172a';
     animCtx.beginPath(); animCtx.arc(ex - 5, ey - 12, 4, 0, Math.PI * 2); animCtx.fill();
 

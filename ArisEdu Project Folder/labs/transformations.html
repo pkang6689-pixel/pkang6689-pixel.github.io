@@ -48,9 +48,9 @@
   </div>
   <div class="controls" id="translate-ctrls">
     <div class="ctrl-group"><label>Δx</label>
-      <input type="range" id="tx" min="-200" max="200" value="80" oninput="upd()"><span class="val" id="vtx">80</span></div>
+      <input type="range" id="tx" min="-400" max="400" value="80" oninput="upd()"><span class="val" id="vtx">80</span></div>
     <div class="ctrl-group"><label>Δy</label>
-      <input type="range" id="ty" min="-200" max="200" value="-60" oninput="upd()"><span class="val" id="vty">-60</span></div>
+      <input type="range" id="ty" min="-400" max="400" value="-60" oninput="upd()"><span class="val" id="vty">-60</span></div>
   </div>
   <div class="controls" id="rotate-ctrls" style="display:none">
     <div class="ctrl-group"><label>Angle (°)</label>
@@ -64,20 +64,21 @@
   </div>
   <div class="controls" id="dilate-ctrls" style="display:none">
     <div class="ctrl-group"><label>Scale Factor k</label>
-      <input type="range" id="dk" min="10" max="300" value="150" oninput="upd()"><span class="val" id="vdk">1.50</span></div>
+      <input type="range" id="dk" min="5" max="500" value="150" oninput="upd()"><span class="val" id="vdk">1.50</span></div>
   </div>
   <div class="controls" id="compose-ctrls" style="display:none">
     <div class="ctrl-group"><label>Rotate (°)</label>
       <input type="range" id="cra" min="-180" max="180" value="30" oninput="upd()"><span class="val" id="vcra">30°</span></div>
     <div class="ctrl-group"><label>Scale k</label>
-      <input type="range" id="cdk" min="20" max="300" value="120" oninput="upd()"><span class="val" id="vcdk">1.20</span></div>
+      <input type="range" id="cdk" min="5" max="500" value="120" oninput="upd()"><span class="val" id="vcdk">1.20</span></div>
     <div class="ctrl-group"><label>Δx</label>
-      <input type="range" id="ctx2" min="-200" max="200" value="60" oninput="upd()"><span class="val" id="vctx">60</span></div>
+      <input type="range" id="ctx2" min="-400" max="400" value="60" oninput="upd()"><span class="val" id="vctx">60</span></div>
     <div class="ctrl-group"><label>Δy</label>
-      <input type="range" id="cty" min="-200" max="200" value="-40" oninput="upd()"><span class="val" id="vcty">-40</span></div>
+      <input type="range" id="cty" min="-400" max="400" value="-40" oninput="upd()"><span class="val" id="vcty">-40</span></div>
   </div>
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-top:.5rem">
     <button class="action-btn" onclick="resetParams()">Reset</button>
+    <button class="action-btn" onclick="resetView()">Reset View</button>
     <button class="toggle-btn active" id="btn-labels" onclick="togLabels()">Labels</button>
     <button class="toggle-btn active" id="btn-grid" onclick="togGrid()">Grid</button>
   </div>
@@ -98,6 +99,11 @@
 
   /* original shape: a pentagon in math coords */
   var origShape=[{x:-40,y:-50},{x:40,y:-50},{x:60,y:10},{x:0,y:50},{x:-60,y:10}];
+
+  /* viewport pan/zoom */
+  var viewScale=1,viewPanX=0,viewPanY=0;
+  function niceStep(range){var raw=range/10,mag=Math.pow(10,Math.floor(Math.log10(raw))),n=raw/mag;return(n<1.5?1:n<3?2:n<7?5:10)*mag;}
+  window.resetView=function(){viewScale=1;viewPanX=0;viewPanY=0;};
 
   window.setMode=function(m){
     mode=m;
@@ -135,7 +141,8 @@
     upd();
   };
 
-  function toScreen(mx,my){return{x:W/2+mx,y:H/2-my};}
+  function toScreen(mx,my){return{x:(W/2+mx)*viewScale+viewPanX,y:(H/2-my)*viewScale+viewPanY};}
+  function fromScreen(sx,sy){return{x:(sx-viewPanX)/viewScale-W/2,y:H/2-(sy-viewPanY)/viewScale};}
 
   function transform(pts){
     if(mode==='translate'){
@@ -199,13 +206,18 @@
 
   function draw(){
     ctx.clearRect(0,0,W,H);
-    ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);ctx.lineCap='round';ctx.lineJoin='round';
 
-    /* grid */
+    /* adaptive grid */
     if(showGridB){
+      var fTL=fromScreen(0,0),fBR=fromScreen(W,H);
+      var mxMin=fTL.x,mxMax=fBR.x,myMin=fBR.y,myMax=fTL.y;
+      var gs=niceStep(Math.max(mxMax-mxMin,myMax-myMin));
       ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
-      for(var g=-400;g<=400;g+=50){
+      for(var g=Math.floor(mxMin/gs)*gs;g<=mxMax;g+=gs){
         var p=toScreen(g,0);ctx.beginPath();ctx.moveTo(p.x,0);ctx.lineTo(p.x,H);ctx.stroke();
+      }
+      for(var g=Math.floor(myMin/gs)*gs;g<=myMax;g+=gs){
         var p2=toScreen(0,g);ctx.beginPath();ctx.moveTo(0,p2.y);ctx.lineTo(W,p2.y);ctx.stroke();
       }
     }
@@ -221,7 +233,7 @@
       ctx.strokeStyle='rgba(56,189,248,0.5)';ctx.lineWidth=2;ctx.setLineDash([8,4]);
       if(refAxis==='x'){ctx.beginPath();ctx.moveTo(0,o.y);ctx.lineTo(W,o.y);ctx.stroke();}
       else if(refAxis==='y'){ctx.beginPath();ctx.moveTo(o.x,0);ctx.lineTo(o.x,H);ctx.stroke();}
-      else if(refAxis==='yx'){ctx.beginPath();ctx.moveTo(o.x-300,o.y+300);ctx.lineTo(o.x+300,o.y-300);ctx.stroke();}
+      else if(refAxis==='yx'){var rd=Math.sqrt(W*W+H*H);ctx.beginPath();ctx.moveTo(o.x-rd,o.y+rd);ctx.lineTo(o.x+rd,o.y-rd);ctx.stroke();}
       else{ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(o.x,o.y,6,0,Math.PI*2);ctx.fill();}
       ctx.setLineDash([]);
     }
@@ -249,6 +261,20 @@
 
     requestAnimationFrame(draw);
   }
+  /* pan */
+  var isPanning=false,panSX=0,panSY=0,panOX=0,panOY=0;
+  cv.addEventListener('mousedown',function(e){isPanning=true;panSX=e.clientX;panSY=e.clientY;panOX=viewPanX;panOY=viewPanY;cv.style.cursor='grabbing';});
+  window.addEventListener('mousemove',function(e){if(!isPanning)return;viewPanX=panOX+(e.clientX-panSX);viewPanY=panOY+(e.clientY-panSY);});
+  window.addEventListener('mouseup',function(){if(isPanning){isPanning=false;cv.style.cursor='grab';}});
+  /* wheel zoom */
+  cv.addEventListener('wheel',function(e){
+    e.preventDefault();var rect=cv.getBoundingClientRect();
+    var sx=(e.clientX-rect.left)*(W/rect.width),sy=(e.clientY-rect.top)*(H/rect.height);
+    var f=e.deltaY<0?1.15:1/1.15;
+    viewPanX=sx-(sx-viewPanX)*f;viewPanY=sy-(sy-viewPanY)*f;viewScale*=f;
+  },{passive:false});
+  cv.style.cursor='grab';
+
   upd();draw();
 })();
 </script>

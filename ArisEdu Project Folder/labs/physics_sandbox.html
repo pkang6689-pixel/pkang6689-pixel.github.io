@@ -175,7 +175,7 @@
     window.addEventListener('resize', resize);
 
     function drawStatic() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);ctx.lineCap='round';ctx.lineJoin='round';
       // Ground
       ctx.fillStyle = '#334155';
       ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
@@ -215,10 +215,12 @@
 
       // Current ball
       if (ball) {
+        ctx.save();ctx.shadowColor='#fbbf24';ctx.shadowBlur=15;
         ctx.beginPath();
         ctx.arc(ball.sx, ball.sy, 6, 0, Math.PI * 2);
         ctx.fillStyle = '#fbbf24';
         ctx.fill();
+        ctx.restore();
         ctx.beginPath();
         ctx.arc(ball.sx, ball.sy, 10, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(251,191,36,0.2)';

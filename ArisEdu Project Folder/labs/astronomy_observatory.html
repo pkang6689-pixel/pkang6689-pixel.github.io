@@ -125,6 +125,7 @@
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.lineCap='round';ctx.lineJoin='round';
 
       // Milky Way glow
       var grd = ctx.createRadialGradient(canvas.width * 0.5, canvas.height * 0.4, 0, canvas.width * 0.5, canvas.height * 0.4, canvas.width * 0.5);
@@ -173,10 +174,12 @@
         ctx.fillStyle = s.color.replace(')', ',0.15)').replace('rgb', 'rgba');
         ctx.fill();
         // Star
+        ctx.save();ctx.shadowColor=s.color;ctx.shadowBlur=15;
         ctx.beginPath();
         ctx.arc(p.x, p.y, s.radius, 0, Math.PI * 2);
         ctx.fillStyle = s.color;
         ctx.fill();
+        ctx.restore();
         // Label
         if (showLabels) {
           ctx.font = '11px Poppins, sans-serif';

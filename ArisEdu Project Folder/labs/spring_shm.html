@@ -74,7 +74,7 @@
   };
   function draw(){
     var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
-    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
     var k=parseInt(document.getElementById('k').value);
     var m=parseInt(document.getElementById('mass').value);
     var A=parseInt(document.getElementById('amp').value)/100;
@@ -149,10 +149,12 @@
       ctx.fillText('x='+(x*100).toFixed(1)+'cm',(eqX+massX)/2,cy+60);
     }
     // Mass block with gradient
+    ctx.save();ctx.shadowColor='#f59e0b';ctx.shadowBlur=18;
     var blkGrad=ctx.createLinearGradient(massX-22,cy-22,massX+22,cy+22);
     blkGrad.addColorStop(0,'#fbbf24');blkGrad.addColorStop(0.5,'#f59e0b');blkGrad.addColorStop(1,'#d97706');
     ctx.fillStyle=blkGrad;ctx.fillRect(massX-22,cy-22,44,44);
     ctx.strokeStyle='rgba(217,119,6,0.5)';ctx.lineWidth=1;ctx.strokeRect(massX-22,cy-22,44,44);
+    ctx.restore();
     ctx.fillStyle='#0f172a';ctx.font='bold 12px Poppins';ctx.textAlign='center';
     ctx.fillText(m+'kg',massX,cy+5);
     // Velocity indicator on block

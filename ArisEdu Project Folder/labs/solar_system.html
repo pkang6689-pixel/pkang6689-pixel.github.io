@@ -152,7 +152,7 @@
     var speed = parseInt(document.getElementById('speed').value);
     document.getElementById('speed-val').textContent = speed + '×';
 
-    ctx.clearRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);ctx.lineCap='round';ctx.lineJoin='round';
 
     // Starfield background
     ctx.fillStyle = '#020617';
@@ -175,10 +175,12 @@
     ctx.fillStyle = sunGlow;
     ctx.beginPath(); ctx.arc(cx, cy, sunR * 3, 0, Math.PI * 2); ctx.fill();
 
+    ctx.save();ctx.shadowColor='#fbbf24';ctx.shadowBlur=30;
     ctx.fillStyle = '#fbbf24';
     ctx.beginPath(); ctx.arc(cx, cy, sunR, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#fef3c7';
     ctx.beginPath(); ctx.arc(cx, cy, sunR * 0.5, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
 
     // Orbit lines and planets
     for (var i = 0; i < planets.length; i++) {

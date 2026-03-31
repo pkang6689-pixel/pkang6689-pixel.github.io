@@ -67,7 +67,8 @@
       <label>Scalar k</label>
       <input type="range" id="sk" min="-30" max="30" value="15" oninput="upd()"><span class="val" id="vsk">1.5</span>
     </div>
-    <button class="action-btn" onclick="resetV()">Reset</button>
+    <button class="action-btn" onclick="resetV()">Reset Vectors</button>
+    <button class="tab-btn" onclick="resetView()" style="border-color:#22c55e;color:#22c55e">⟳ Reset View</button>
   </div>
   <div class="readout">
     <div class="datum"><span style="color:#f472b6;font-weight:700">u</span> = <strong id="r-u">(3, 4)</strong></div>
@@ -88,6 +89,8 @@
 
   var op='add';
   var SCALE;
+  var viewX=-10,viewY=-10,viewW=20,viewH=20;
+  var panning=false,panStart,panViewStart;
 
   window.setOp=function(o){
     op=o;
@@ -107,8 +110,15 @@
     document.getElementById('vx').value=5;document.getElementById('vy').value=1;
     document.getElementById('sk').value=15;upd();
   };
+  function fromScreen(px,py){return{x:viewX+px/W*viewW,y:viewY+(H-py)/H*viewH};}
+  function niceStep(range){var raw=range/10,mag=Math.pow(10,Math.floor(Math.log10(raw))),norm=raw/mag;return(norm<1.5?1:norm<3?2:norm<7?5:10)*mag;}
+  window.resetView=function(){viewX=-10;viewY=-10;viewW=20;viewH=20;};
+  cv.addEventListener('wheel',function(e){e.preventDefault();var r=cv.getBoundingClientRect();var mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);var mp=fromScreen(mx,my);var factor=e.deltaY>0?1.15:1/1.15;viewX=mp.x-(mp.x-viewX)*factor;viewY=mp.y-(mp.y-viewY)*factor;viewW*=factor;viewH*=factor;},{passive:false});
+  cv.addEventListener('mousedown',function(e){panning=true;panStart={x:e.clientX,y:e.clientY};panViewStart={x:viewX,y:viewY};});
+  cv.addEventListener('mousemove',function(e){if(!panning||!panStart)return;var r=cv.getBoundingClientRect();var dx=(e.clientX-panStart.x)/r.width*viewW;var dy=(e.clientY-panStart.y)/r.height*viewH;viewX=panViewStart.x-dx;viewY=panViewStart.y+dy;});
+  cv.addEventListener('mouseup',function(){panning=false;});
 
-  function toScreen(mx,my){return{x:W/2+mx*SCALE,y:H/2-my*SCALE};}
+  function toScreen(mx,my){return{x:(mx-viewX)/viewW*W,y:H-(my-viewY)/viewH*H};}
 
   function drawArrow(fx,fy,tx,ty,color,lw,label,labelSide){
     var s1=toScreen(fx,fy),s2=toScreen(tx,ty);
@@ -117,8 +127,8 @@
     if(len<2)return;
     var nx=dx/len,ny=dy/len;
     /* shaft */
-    ctx.strokeStyle=color;ctx.lineWidth=lw||2.5;
-    ctx.beginPath();ctx.moveTo(s1.x,s1.y);ctx.lineTo(s2.x,s2.y);ctx.stroke();
+    ctx.strokeStyle=color;ctx.lineWidth=lw||2.5;ctx.shadowColor=color;ctx.shadowBlur=6;
+    ctx.beginPath();ctx.moveTo(s1.x,s1.y);ctx.lineTo(s2.x,s2.y);ctx.stroke();ctx.shadowBlur=0;
     /* arrowhead */
     var hs=12;
     ctx.fillStyle=color;ctx.beginPath();
@@ -144,31 +154,25 @@
 
   function draw(){
     ctx.clearRect(0,0,W,H);
-    ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
-    SCALE=Math.min(W,H)/20;
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);ctx.lineCap='round';ctx.lineJoin='round';
+    SCALE=W/viewW;
 
     var ux=+document.getElementById('ux').value,uy=+document.getElementById('uy').value;
     var vx2=+document.getElementById('vx').value,vy2=+document.getElementById('vy').value;
     var sk=(+document.getElementById('sk').value)/10;
 
-    /* grid */
+    /* adaptive grid */
+    var step=niceStep(viewW);
     ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
-    for(var g=-10;g<=10;g++){
-      var p1=toScreen(g,0),p2=toScreen(0,g);
-      ctx.beginPath();ctx.moveTo(p1.x,0);ctx.lineTo(p1.x,H);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(0,p2.y);ctx.lineTo(W,p2.y);ctx.stroke();
-    }
+    var gx0=Math.floor(viewX/step)*step;
+    for(var gx=gx0;gx<=viewX+viewW;gx+=step){var p1=toScreen(gx,0);ctx.beginPath();ctx.moveTo(p1.x,0);ctx.lineTo(p1.x,H);ctx.stroke();}
+    var gy0=Math.floor(viewY/step)*step;
+    for(var gy=gy0;gy<=viewY+viewH;gy+=step){var p2=toScreen(0,gy);ctx.beginPath();ctx.moveTo(0,p2.y);ctx.lineTo(W,p2.y);ctx.stroke();}
     /* tick labels */
     ctx.font='9px Poppins';ctx.fillStyle='#334155';ctx.textAlign='center';
-    for(var t=-10;t<=10;t++){
-      if(t===0)continue;
-      var tp=toScreen(t,0);ctx.fillText(t,tp.x,tp.y+14);
-    }
+    for(var gx2=gx0;gx2<=viewX+viewW;gx2+=step){if(Math.abs(gx2)<step*0.1)continue;var tp=toScreen(gx2,0);if(tp.x>20&&tp.x<W-20)ctx.fillText(parseFloat(gx2.toFixed(6)),tp.x,tp.y+14);}
     ctx.textAlign='right';
-    for(var t2=-10;t2<=10;t2++){
-      if(t2===0)continue;
-      var tp2=toScreen(0,t2);ctx.fillText(t2,tp2.x-6,tp2.y+3);
-    }
+    for(var gy2=gy0;gy2<=viewY+viewH;gy2+=step){if(Math.abs(gy2)<step*0.1)continue;var tp2=toScreen(0,gy2);if(tp2.y>10&&tp2.y<H-10)ctx.fillText(parseFloat(gy2.toFixed(6)),tp2.x-6,tp2.y+3);}
 
     /* axes */
     var o=toScreen(0,0);

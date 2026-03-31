@@ -43,7 +43,8 @@
     <button class="ctrl-btn" onclick="clearCharges()">Clear All</button>
     <div class="ctrl-group"><label>Show</label>
       <div style="display:flex;gap:.5rem"><button class="ctrl-btn active" id="btn-lines" onclick="toggleShow('lines',this)">Field Lines</button>
-      <button class="ctrl-btn" id="btn-pot" onclick="toggleShow('potential',this)">Potential</button></div></div>
+      <button class="ctrl-btn" id="btn-pot" onclick="toggleShow('potential',this)">Potential</button>
+      <button class="ctrl-btn" onclick="resetView()" style="border-color:#22c55e;color:#22c55e">⟳ Reset View</button></div></div>
   </div>
   <div class="readout">
     <div class="datum">Charges placed: <strong id="ncharges">0</strong></div>
@@ -55,15 +56,24 @@
 (function(){
   var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
   var charges=[],placeSign=1,showLines=true,showPot=false,t=0;
+  var viewScale=1,viewOffX=0,viewOffY=0;
+  var panning=false,panStart,panViewStart;
   function resize(){cv.width=cv.parentElement.clientWidth}
   window.addEventListener('resize',resize);resize();
   cv.addEventListener('click',function(e){
+    if(panning)return;
     var r=cv.getBoundingClientRect();
-    var x=(e.clientX-r.left)*(cv.width/r.width);
-    var y=(e.clientY-r.top)*(cv.height/r.height);
+    var x=((e.clientX-r.left)*(cv.width/r.width)-viewOffX)/viewScale;
+    var y=((e.clientY-r.top)*(cv.height/r.height)-viewOffY)/viewScale;
     charges.push({x:x,y:y,q:placeSign});
     document.getElementById('ncharges').textContent=charges.length;
   });
+  window.resetView=function(){viewScale=1;viewOffX=0;viewOffY=0;};
+  cv.addEventListener('wheel',function(e){e.preventDefault();var r=cv.getBoundingClientRect();var mx=(e.clientX-r.left)*(cv.width/r.width),my=(e.clientY-r.top)*(cv.height/r.height);var factor=e.deltaY>0?1/1.15:1.15;viewOffX=mx-(mx-viewOffX)*factor;viewOffY=my-(my-viewOffY)*factor;viewScale*=factor;},{passive:false});
+  var panMoved=false;
+  cv.addEventListener('mousedown',function(e){panning=true;panMoved=false;panStart={x:e.clientX,y:e.clientY};panViewStart={x:viewOffX,y:viewOffY};});
+  cv.addEventListener('mousemove',function(e){if(!panning||!panStart)return;var r=cv.getBoundingClientRect();var dx=e.clientX-panStart.x,dy=e.clientY-panStart.y;if(Math.abs(dx)>3||Math.abs(dy)>3)panMoved=true;viewOffX=panViewStart.x+dx*(cv.width/r.width);viewOffY=panViewStart.y+dy*(cv.height/r.height);});
+  cv.addEventListener('mouseup',function(){if(panMoved)setTimeout(function(){panning=false;},0);else panning=false;});
   window.setPlace=function(s,btn){
     placeSign=s;
     document.getElementById('btn-pos').classList.toggle('active',s===1);
@@ -96,7 +106,8 @@
   }
   function draw(){
     var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
-    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.save();ctx.translate(viewOffX,viewOffY);ctx.scale(viewScale,viewScale);
     t+=0.016;
     // Subtle grid
     ctx.strokeStyle='rgba(51,65,85,0.2)';ctx.lineWidth=0.5;
@@ -221,6 +232,7 @@
       ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='14px Poppins';ctx.textAlign='center';
       ctx.fillText('Click anywhere to place a charge',w/2,h/2);
     }
+    ctx.restore();
     requestAnimationFrame(draw);
   }
   draw();

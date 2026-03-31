@@ -65,7 +65,7 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=
   document.getElementById('r-td').textContent=dist>Rs?td+'x':'0 (frozen)';});
 cv.addEventListener('mouseleave',function(){tip.style.display='none';});
 function draw(){
-  ctx.clearRect(0,0,W,H);t+=.016;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);ctx.lineCap='round';ctx.lineJoin='round';t+=.016;
   var mass=+massSlider.value,spin=+spinSlider.value/100,cx=W/2,cy=H/2;
   var Rs=mass*.3,photonR=Rs*1.5,iscoR=Rs*3;
   /* starfield with lensing */
@@ -83,9 +83,11 @@ function draw(){
   for(var i=0;i<diskParticles.length;i++){var p=diskParticles[i];p.a+=p.speed*.02*(1+spin);var r2=diskRad*p.r,x=cx+r2*Math.cos(p.a),y=cy+r2*.25*Math.sin(p.a);var tmp=1-p.r;
     ctx.fillStyle='rgba(255,'+(100+Math.floor(tmp*155))+','+(Math.floor(tmp*100))+',0.5)';ctx.beginPath();ctx.arc(x,y,1.5+tmp,0,Math.PI*2);ctx.fill();}ctx.restore();
   /* event horizon */
+  ctx.save();ctx.shadowColor='#ff6600';ctx.shadowBlur=25;
   var ehGrad=ctx.createRadialGradient(cx,cy,Rs*.8,cx,cy,Rs*1.3);ehGrad.addColorStop(0,'#000');ehGrad.addColorStop(.7,'#000');ehGrad.addColorStop(1,'rgba(255,120,30,0.1)');
   ctx.fillStyle=ehGrad;ctx.beginPath();ctx.arc(cx,cy,Rs*1.1,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#000';ctx.beginPath();ctx.arc(cx,cy,Rs,0,Math.PI*2);ctx.fill();
+  ctx.restore();
   /* photon sphere */
   ctx.strokeStyle='rgba(255,200,50,0.15)';ctx.lineWidth=1;ctx.setLineDash([3,5]);ctx.beginPath();ctx.arc(cx,cy,photonR,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
   /* front disk */

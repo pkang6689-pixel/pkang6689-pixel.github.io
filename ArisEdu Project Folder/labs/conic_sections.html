@@ -55,6 +55,7 @@
     <button class="toggle-btn active" id="btn-foci" onclick="togO('foci')">Foci</button>
     <button class="toggle-btn active" id="btn-dir" onclick="togO('dir')">Directrix</button>
     <button class="toggle-btn" id="btn-asym" onclick="togO('asym')">Asymptotes</button>
+    <button class="toggle-btn" onclick="resetView()" style="border-color:#22c55e;color:#22c55e">⟳ Reset View</button>
   </div>
   <div class="readout">
     <div class="datum">Equation: <strong id="eq">—</strong></div>
@@ -72,6 +73,8 @@
 
   var type='ellipse';
   var showO={foci:true,dir:true,asym:false};
+  var viewScale=1,viewOffX=0,viewOffY=0;
+  var panning=false,panStart,panViewStart;
 
   window.setType=function(t){
     type=t;
@@ -83,6 +86,11 @@
     upd();
   };
   window.togO=function(k){showO[k]=!showO[k];document.getElementById('btn-'+k).classList.toggle('active');};
+  window.resetView=function(){viewScale=1;viewOffX=0;viewOffY=0;};
+  cv.addEventListener('wheel',function(e){e.preventDefault();var r=cv.getBoundingClientRect();var mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);var factor=e.deltaY>0?1/1.15:1.15;viewOffX=mx-(mx-viewOffX)*factor;viewOffY=my-(my-viewOffY)*factor;viewScale*=factor;},{passive:false});
+  cv.addEventListener('mousedown',function(e){panning=true;panStart={x:e.clientX,y:e.clientY};panViewStart={x:viewOffX,y:viewOffY};});
+  cv.addEventListener('mousemove',function(e){if(!panning||!panStart)return;var r=cv.getBoundingClientRect();viewOffX=panViewStart.x+(e.clientX-panStart.x)*(W/r.width);viewOffY=panViewStart.y+(e.clientY-panStart.y)*(H/r.height);});
+  cv.addEventListener('mouseup',function(){panning=false;});
   window.upd=function(){
     document.getElementById('va').textContent=document.getElementById('param-a').value;
     document.getElementById('vb').textContent=document.getElementById('param-b').value;
@@ -91,15 +99,19 @@
 
   function draw(){
     ctx.clearRect(0,0,W,H);
-    ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.save();ctx.translate(viewOffX,viewOffY);ctx.scale(viewScale,viewScale);
     var cx=W/2,cy=H/2;
 
-    /* grid */
+    /* adaptive grid */
+    var rawStep=50/viewScale,gmag=Math.pow(10,Math.floor(Math.log10(rawStep))),gnorm=rawStep/gmag;
+    var gridStep=(gnorm<1.5?1:gnorm<3?2:gnorm<7?5:10)*gmag;
+    var visL=-viewOffX/viewScale,visT=-viewOffY/viewScale,visR=(W-viewOffX)/viewScale,visB=(H-viewOffY)/viewScale;
     ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
-    for(var g=-300;g<=300;g+=50){
-      ctx.beginPath();ctx.moveTo(cx+g,0);ctx.lineTo(cx+g,H);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(0,cy+g);ctx.lineTo(W,cy+g);ctx.stroke();
-    }
+    var gxS=Math.floor((visL-cx)/gridStep)*gridStep;
+    for(var g=gxS;g<=visR-cx+gridStep;g+=gridStep){ctx.beginPath();ctx.moveTo(cx+g,visT);ctx.lineTo(cx+g,visB);ctx.stroke();}
+    var gyS=Math.floor((visT-cy)/gridStep)*gridStep;
+    for(var g=gyS;g<=visB-cy+gridStep;g+=gridStep){ctx.beginPath();ctx.moveTo(visL,cy+g);ctx.lineTo(visR,cy+g);ctx.stroke();}
 
     /* axes */
     ctx.strokeStyle='#475569';ctx.lineWidth=1.5;
@@ -245,6 +257,7 @@
     ctx.fillStyle='#475569';ctx.font='10px Poppins';ctx.textAlign='left';
     ctx.fillText('O',cx+4,cy+14);
 
+    ctx.restore();
     requestAnimationFrame(draw);
   }
   draw();

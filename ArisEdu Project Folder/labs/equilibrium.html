@@ -82,7 +82,7 @@
   window.resetSim=function(){cA=0.5;cB=0.5;targetA=0.5;targetB=0.5;document.getElementById('temp').value=300;document.getElementById('press').value=5;calcEq()};
   function draw(){
     var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
-    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
     // Smooth approach
     cA+=(targetA-cA)*0.02;cB+=(targetB-cB)*0.02;
     document.getElementById('conc-a').textContent=cA.toFixed(2)+' M';
@@ -132,8 +132,10 @@
         ctx.fillStyle=p.type==='A'?'rgba(59,130,246,'+p.glow*0.3+')':'rgba(239,68,68,'+p.glow*0.3+')';
         ctx.beginPath();ctx.arc(px,py,12,0,Math.PI*2);ctx.fill();
       }
+      ctx.save();ctx.shadowColor=col;ctx.shadowBlur=12;
       ctx.fillStyle=col;
       ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fill();
+      ctx.restore();
       // Tiny label
       ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='bold 7px Poppins';ctx.textAlign='center';
       ctx.fillText(p.type,px,py+2.5);

@@ -98,7 +98,7 @@
   };
   function draw(){
     var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
-    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
     var angle=parseInt(document.getElementById('angle').value);
     var param=parseInt(document.getElementById('param').value);
     var cx=w/2,cy=h/2;
@@ -132,7 +132,9 @@
       // Animated photon pulse along incident ray
       var pulseT=(t*0.8)%1;
       var px=ix+(cx-ix)*pulseT,py=iy+(cy-iy)*pulseT;
+      ctx.save();ctx.shadowColor='#fbbf24';ctx.shadowBlur=20;
       ctx.fillStyle='rgba(251,191,36,0.6)';ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fill();
+      ctx.restore();
       // Incident angle arc
       ctx.strokeStyle='#fbbf24';ctx.lineWidth=1.5;
       ctx.beginPath();ctx.arc(cx,cy,35,-Math.PI/2,-Math.PI/2+rad,false);ctx.stroke();

@@ -124,7 +124,7 @@ function drawContainer(canvas, volFrac, speed) {
   var ctx = canvas.getContext('2d');
   canvas.width = canvas.parentElement.clientWidth;
   var w = canvas.width, h = canvas.height;
-  ctx.clearRect(0,0,w,h);
+ctx.clearRect(0,0,w,h);ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
 
   var boxW = w * 0.6 * Math.max(0.2, Math.min(1, volFrac));
   var boxH = h * 0.7;
@@ -150,7 +150,9 @@ function drawContainer(canvas, volFrac, speed) {
     if (p.y < 0.02){p.y=0.02;p.vy*=-1;} if (p.y>0.98){p.y=0.98;p.vy*=-1;}
     var px = bx + p.x * boxW;
     var py = by + p.y * boxH;
+    ctx.save();ctx.shadowColor='#fbbf24';ctx.shadowBlur=10;
     ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
   }
 }
 

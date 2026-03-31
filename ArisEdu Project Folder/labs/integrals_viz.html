@@ -44,11 +44,11 @@ canvas{display:block;width:100%}
   <button class="toggle-btn" id="btn-trap" onclick="this.classList.toggle('active')">Trapezoidal</button>
   <button class="toggle-btn" id="btn-simp" onclick="this.classList.toggle('active')">Simpson's</button>
   <div class="ctrl-group"><label>Rectangles n</label>
-    <input type="range" id="pn" min="1" max="100" value="8" oninput="document.getElementById('vn').textContent=this.value"><span class="val" id="vn">8</span></div>
+    <input type="range" id="pn" min="1" max="500" value="8" oninput="document.getElementById('vn').textContent=this.value"><span class="val" id="vn">8</span></div>
   <div class="ctrl-group"><label>a (lower)</label>
-    <input type="range" id="pa" min="0" max="40" value="0" oninput="document.getElementById('vla').textContent=(this.value/10).toFixed(1)"><span class="val" id="vla">0.0</span></div>
+    <input type="range" id="pa" min="-30" max="80" value="0" oninput="document.getElementById('vla').textContent=(this.value/10).toFixed(1)"><span class="val" id="vla">0.0</span></div>
   <div class="ctrl-group"><label>b (upper)</label>
-    <input type="range" id="pb" min="5" max="50" value="30" oninput="document.getElementById('vlb').textContent=(this.value/10).toFixed(1)"><span class="val" id="vlb">3.0</span></div>
+    <input type="range" id="pb" min="-20" max="100" value="30" oninput="document.getElementById('vlb').textContent=(this.value/10).toFixed(1)"><span class="val" id="vlb">3.0</span></div>
 </div>
 <div class="readout">
   <div class="datum">Left: <strong id="r-left">—</strong> <span class="err" id="e-left"></span></div>
@@ -87,7 +87,7 @@ cv.addEventListener('mouseleave',function(){hoverRect=-1;tip.style.display='none
 
 function toS(mx,my,xMin,xMax,ys){return{x:60+(mx-xMin)/(xMax-xMin)*(W-80),y:H-50-my*ys};}
 function draw(){
-  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);ctx.lineCap='round';ctx.lineJoin='round';
   var f=fns[fnIdx],exact=exacts[fnIdx];
   var n=+document.getElementById('pn').value,a=+document.getElementById('pa').value/10,b=+document.getElementById('pb').value/10;
   if(a>=b)b=a+0.1;var dx=(b-a)/n;
