@@ -140,6 +140,7 @@
     document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
     document.getElementById('panel-' + tab).classList.add('active');
     btn.classList.add('active');
+    window.dispatchEvent(new Event('resize'));
   };
 
   // Auto-select tab from URL hash
@@ -499,6 +500,7 @@
           animId = requestAnimationFrame(step);
         } else {
           running = false;
+          setTimeout(function() { if (!running) startCollision(); }, 800);
         }
       }
       step();
