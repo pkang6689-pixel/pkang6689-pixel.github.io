@@ -36,6 +36,7 @@ canvas{display:block;width:100%}
   <button class="toggle-btn" id="btn-vax" onclick="toggleVax()">💉 Vaccinate</button>
   <button class="toggle-btn" id="btn-graph" onclick="this.classList.toggle('active')">📊 Graph</button>
   <button class="toggle-btn" onclick="resetSim()">↺ Reset</button>
+  <button class="toggle-btn active" id="btn-pause" onclick="paused=!paused;this.textContent=paused?'\u25b6 Play':'\u23f8 Pause';this.classList.toggle('active',!paused)">⏸ Pause</button>
 </div>
 <div class="readout">
   <div class="datum">Pathogens: <strong id="r-path">0</strong></div>
@@ -51,7 +52,7 @@ canvas{display:block;width:100%}
 var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
-var pathogens=[],wbcs=[],antibodies=[],eliminated=0,vaccinated=false,frame=0,history=[],flashes=[];
+var pathogens=[],wbcs=[],antibodies=[],eliminated=0,vaccinated=false,frame=0,history=[],flashes=[],paused=false;
 function mkP(x,y){return{x:x||Math.random()*W,y:y||Math.random()*H,vx:(Math.random()-0.5)*1.5,vy:(Math.random()-0.5)*1.5,r:8,hp:3,marked:false};}
 function mkW(){return{x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.8,vy:(Math.random()-0.5)*0.8,r:14,target:null};}
 function init(){pathogens=[];wbcs=[];antibodies=[];eliminated=0;vaccinated=false;frame=0;history=[];flashes=[];
@@ -70,13 +71,13 @@ window.toggleVax=function(){vaccinated=!vaccinated;document.getElementById('btn-
 window.resetSim=init;
 function dist(a,b){return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2);}
 function draw(){
-  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);ctx.lineCap='round';ctx.lineJoin='round';frame++;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);ctx.lineCap='round';ctx.lineJoin='round';if(!paused)frame++;
   var rate=+document.getElementById('prate').value;
-  if(frame%Math.max(5,40-rate*4)===0&&pathogens.length<50)pathogens.push(mkP());
-  pathogens.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;});
-  if(vaccinated&&frame%20===0){pathogens.forEach(function(p){if(!p.marked&&Math.random()<0.3){p.marked=true;antibodies.push({x:p.x,y:p.y,target:p,life:120});}});}
-  antibodies=antibodies.filter(function(a){a.life--;return a.life>0;});
-  wbcs.forEach(function(w){var closest=null,minD=Infinity;
+  if(!paused&&frame%Math.max(5,40-rate*4)===0&&pathogens.length<50)pathogens.push(mkP());
+  if(!paused)pathogens.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;});
+  if(!paused&&vaccinated&&frame%20===0){pathogens.forEach(function(p){if(!p.marked&&Math.random()<0.3){p.marked=true;antibodies.push({x:p.x,y:p.y,target:p,life:120});}});}
+  if(!paused)antibodies=antibodies.filter(function(a){a.life--;return a.life>0;});
+  if(!paused)wbcs.forEach(function(w){var closest=null,minD=Infinity;
     pathogens.forEach(function(p){var d=dist(w,p);if(d<minD){minD=d;closest=p;}});
     if(closest){var dx=closest.x-w.x,dy=closest.y-w.y,d=Math.sqrt(dx*dx+dy*dy),spd=vaccinated&&closest.marked?3:1.5;
       w.vx+=(dx/d)*spd*0.1;w.vy+=(dy/d)*spd*0.1;w.vx*=0.95;w.vy*=0.95;
@@ -95,9 +96,9 @@ function draw(){
     ctx.fillStyle=p.hp>2?'#22c55e':p.hp>1?'#f59e0b':'#ef4444';ctx.fillRect(p.x-8,p.y+p.r+2,16*(p.hp/3),3);
   });
   /* draw WBCs */
-  wbcs.forEach(function(w){ctx.fillStyle='rgba(34,197,94,0.25)';ctx.strokeStyle='#22c55e';ctx.lineWidth=2;
+  wbcs.forEach(function(w){ctx.save();ctx.shadowColor='#22c55e';ctx.shadowBlur=12;ctx.fillStyle='rgba(34,197,94,0.25)';ctx.strokeStyle='#22c55e';ctx.lineWidth=2;
     ctx.beginPath();for(var a=0;a<Math.PI*2;a+=0.3){var r=w.r+3*Math.sin(a*3+frame*0.1);ctx.lineTo(w.x+r*Math.cos(a),w.y+r*Math.sin(a));}ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.fillStyle='#f1f5f9';ctx.font='8px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('WBC',w.x,w.y);});
+    ctx.restore();ctx.fillStyle='#f1f5f9';ctx.font='8px Poppins';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('WBC',w.x,w.y);});
   /* history graph */
   if(frame%10===0)history.push({p:pathogens.length,e:eliminated});if(history.length>100)history.shift();
   document.getElementById('r-resp').textContent=vaccinated?'Adaptive (fast)':'Innate';

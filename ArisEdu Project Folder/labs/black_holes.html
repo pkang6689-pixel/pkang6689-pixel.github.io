@@ -33,8 +33,7 @@ input[type=range]{width:120px;accent-color:#3b82f6}
   <label>Spin <input type="range" id="spin" min="0" max="100" value="50">%</label>
   <button class="toggle-btn" onclick="dropStar()">Drop Star ★</button>
   <button class="toggle-btn" onclick="toggleGrid()">Toggle Grid</button>
-  <button class="toggle-btn" id="btn-gw" onclick="this.classList.toggle('active')">Grav Waves</button>
-</div>
+  <button class="toggle-btn" id="btn-gw" onclick="this.classList.toggle('active')">Grav Waves</button>    <button class="toggle-btn active" id="btn-pause" onclick="paused=!paused;this.textContent=paused?'\u25b6 Play':'\u23f8 Pause';this.classList.toggle('active',!paused)">⏸ Pause</button></div>
 <div class="readout">
   <div class="datum">Mass: <strong id="r-mass">10</strong> M☉</div>
   <div class="datum">Rs: <strong id="r-rs">29.5</strong> km</div>
@@ -50,7 +49,7 @@ var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.ge
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
 var massSlider=document.getElementById('mass'),spinSlider=document.getElementById('spin');
-var t=0,showGrid=false,fallingStars=[],probes=[];
+  var t=0,showGrid=false,fallingStars=[],probes=[],paused=false;
 var diskParticles=[];for(var i=0;i<200;i++)diskParticles.push({a:Math.random()*Math.PI*2,r:.5+Math.random()*.5,speed:.3+Math.random()*.7});
 window.dropStar=function(){fallingStars.push({x:Math.random()*W,y:0,vx:0,vy:0,alive:true,stretch:1});};
 window.toggleGrid=function(){showGrid=!showGrid;};
@@ -65,7 +64,7 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=
   document.getElementById('r-td').textContent=dist>Rs?td+'x':'0 (frozen)';});
 cv.addEventListener('mouseleave',function(){tip.style.display='none';});
 function draw(){
-  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);ctx.lineCap='round';ctx.lineJoin='round';t+=.016;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);ctx.lineCap='round';ctx.lineJoin='round';if(!paused){t+=.016;}
   var mass=+massSlider.value,spin=+spinSlider.value/100,cx=W/2,cy=H/2;
   var Rs=mass*.3,photonR=Rs*1.5,iscoR=Rs*3;
   /* starfield with lensing */

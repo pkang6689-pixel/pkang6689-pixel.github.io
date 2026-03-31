@@ -38,6 +38,7 @@ canvas{display:block;width:100%}
   <div class="ctrl-group"><label>Temperature</label><input type="range" id="ptemp" min="0" max="100" value="37" oninput="upd()"><span class="val" id="vtemp">37°C</span></div>
   <div class="ctrl-group"><label>pH</label><input type="range" id="pph" min="0" max="14" value="7" step="0.5" oninput="upd()"><span class="val" id="vph">7.0</span></div>
   <button class="toggle-btn" id="btn-energy" onclick="this.classList.toggle('active')">Energy Plot</button>
+  <button class="toggle-btn active" id="btn-pause" onclick="paused=!paused;this.textContent=paused?'\u25b6 Play':'\u23f8 Pause';this.classList.toggle('active',!paused)">⏸ Pause</button>
 </div>
 <div class="readout">
   <div class="datum">Level: <strong id="r-level">Primary</strong></div>
@@ -52,7 +53,7 @@ canvas{display:block;width:100%}
 var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
-var level=0,t=0,selAA=-1;
+var level=0,t=0,selAA=-1,paused=false;
 var amino=['Ala','Gly','Val','Leu','Ile','Pro','Phe','Trp','Met','Ser','Thr','Cys','Tyr','Asp','Glu','Lys','Arg','His','Asn','Gln'];
 var colors=['#ef4444','#f59e0b','#22c55e','#3b82f6','#a855f7','#ec4899','#14b8a6','#f97316','#8b5cf6','#06b6d4','#ef4444','#f59e0b','#22c55e','#3b82f6','#a855f7','#ec4899','#14b8a6','#f97316','#8b5cf6','#06b6d4'];
 var polar=[0,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1];
@@ -144,7 +145,7 @@ function drawEnergyPlot(){
 function draw(){
   ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
   ctx.lineCap='round';ctx.lineJoin='round';
-  var temp=+document.getElementById('ptemp').value,ph=+document.getElementById('pph').value;t+=0.02;
+  var temp=+document.getElementById('ptemp').value,ph=+document.getElementById('pph').value;if(!paused)t+=0.02;
   var jit=(temp>70?(temp-70)*0.3:0)+(ph<4||ph>10?Math.abs(ph-7)*1.5:0);
   ctx.save();if(jit>0)ctx.translate((Math.random()-0.5)*jit,(Math.random()-0.5)*jit);
   if(level===0)drawPrimary();else if(level===1)drawSecondary();else if(level===2)drawTertiary();else drawQuaternary();

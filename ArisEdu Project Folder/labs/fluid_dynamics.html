@@ -42,6 +42,7 @@ canvas{display:block;width:100%}
   <button class="toggle-btn active" id="btn-vel" onclick="this.classList.toggle('active')">Velocity</button>
   <button class="toggle-btn active" id="btn-stream" onclick="this.classList.toggle('active')">Streamlines</button>
   <button class="toggle-btn" id="btn-color" onclick="this.classList.toggle('active')">Speed Color</button>
+  <button class="toggle-btn active" id="btn-pause" onclick="paused=!paused;this.textContent=paused?'\u25b6 Play':'\u23f8 Pause';this.classList.toggle('active',!paused)">⏸ Pause</button>
 </div>
 <p style="text-align:center;color:#64748b;font-size:.72rem;margin-top:.25rem">🖱️ Hover for local velocity & pressure</p>
 <div class="readout">
@@ -58,7 +59,7 @@ canvas{display:block;width:100%}
 var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
-var particles=[];
+var particles=[],paused=false;
 for(var i=0;i<180;i++)particles.push({x:Math.random(),y:Math.random(),trail:[]});
 cv.addEventListener('mousemove',function(e){
   var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)/W,my=(e.clientY-r.top)/H;
@@ -108,7 +109,7 @@ function draw(){
   /* particles */
   particles.forEach(function(p){
     var vel=getVel(p.x,con)*flow*0.005;
-    p.x+=vel;if(p.x>1.05){p.x=-0.05;p.y=Math.random();p.trail=[];}
+    if(!paused){p.x+=vel;if(p.x>1.05){p.x=-0.05;p.y=Math.random();p.trail=[];}}
     var ny=pipeY(p.x,con);var top=pipeTop+ny*H,bot=pipeBot-ny*H;
     var py=top+(bot-top)*p.y;
     p.trail.push({x:p.x*W,y:py});if(p.trail.length>8)p.trail.shift();

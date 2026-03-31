@@ -37,13 +37,14 @@
   <div class="canvas-wrap"><canvas id="cv" height="400"></canvas></div>
   <div class="controls">
     <div class="ctrl-group"><label>Spring Constant k (N/m)</label>
-      <input type="range" id="k" min="5" max="100" value="30" oninput="calc()"><span class="val" id="k-val">30 N/m</span></div>
+      <input type="range" id="k" min="5" max="200" value="30" oninput="calc()"><span class="val" id="k-val">30 N/m</span></div>
     <div class="ctrl-group"><label>Mass (kg)</label>
-      <input type="range" id="mass" min="1" max="10" value="3" oninput="calc()"><span class="val" id="m-val">3 kg</span></div>
+      <input type="range" id="mass" min="1" max="20" value="3" oninput="calc()"><span class="val" id="m-val">3 kg</span></div>
     <div class="ctrl-group"><label>Amplitude (cm)</label>
       <input type="range" id="amp" min="5" max="50" value="25" oninput="calc()"><span class="val" id="a-val">25 cm</span></div>
     <div class="ctrl-group"><label>Damping</label>
       <input type="range" id="damp" min="0" max="10" value="0" oninput="calc()"><span class="val" id="d-val">0</span></div>
+    <button class="toggle-btn active" id="btn-pause" onclick="paused=!paused;this.textContent=paused?'\u25b6 Play':'\u23f8 Pause';this.classList.toggle('active',!paused)">⏸ Pause</button>
   </div>
   <div class="readout">
     <div class="datum">Period: <strong id="period">1.99 s</strong></div>
@@ -56,7 +57,7 @@
 </div>
 <script>
 (function(){
-  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),time=0,trail=[];
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),time=0,trail=[],paused=false;
   function resize(){cv.width=cv.parentElement.clientWidth}
   window.addEventListener('resize',resize);resize();
   window.calc=function(){
@@ -79,7 +80,7 @@
     var m=parseInt(document.getElementById('mass').value);
     var A=parseInt(document.getElementById('amp').value)/100;
     var damp=parseInt(document.getElementById('damp').value)/100;
-    time+=0.016;
+    if(!paused){time+=0.016;}
     var omega=Math.sqrt(k/m);
     var decay=Math.exp(-damp*time);
     var x=A*decay*Math.cos(omega*time);

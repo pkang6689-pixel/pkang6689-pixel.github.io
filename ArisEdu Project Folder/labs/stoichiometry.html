@@ -44,9 +44,9 @@
         <option value="2">CH₄ + 2O₂ → CO₂ + 2H₂O</option>
       </select></div>
     <div class="ctrl-group"><label>Reactant A (mol)</label>
-      <input type="range" id="molA" min="1" max="10" value="4" oninput="calcStoich()"><span class="val" id="molA-val">4 mol</span></div>
+      <input type="range" id="molA" min="1" max="20" value="4" oninput="calcStoich()"><span class="val" id="molA-val">4 mol</span></div>
     <div class="ctrl-group"><label>Reactant B (mol)</label>
-      <input type="range" id="molB" min="1" max="10" value="3" oninput="calcStoich()"><span class="val" id="molB-val">3 mol</span></div>
+      <input type="range" id="molB" min="1" max="20" value="3" oninput="calcStoich()"><span class="val" id="molB-val">3 mol</span></div>
     <button class="action-btn" onclick="calcStoich()">Calculate</button>
   </div>
   <div class="readout">
@@ -126,8 +126,10 @@
       }
       ctx.fillStyle=used?r.colA:'rgba(100,116,139,0.2)';
       // Molecule shape (double circle for diatomics)
+      if(used){ctx.save();ctx.shadowColor=r.colA;ctx.shadowBlur=10;}
       ctx.beginPath();ctx.arc(mx-4,my,7,0,Math.PI*2);ctx.fill();
       ctx.beginPath();ctx.arc(mx+4,my,7,0,Math.PI*2);ctx.fill();
+      if(used){ctx.restore();}
       if(!used){ctx.fillStyle='rgba(148,163,184,0.3)';ctx.font='7px Poppins';ctx.fillText('excess',mx,my+14);}
     }
     // Reactant B section
@@ -150,8 +152,10 @@
     }
     // Arrow with animation
     var arrowX=w*0.55;
+    ctx.save();ctx.shadowColor='#fbbf24';ctx.shadowBlur=12;
     ctx.fillStyle=ap>0?'#fbbf24':'#475569';ctx.font='bold 28px Poppins';ctx.textAlign='center';
     ctx.fillText('→',arrowX,h*0.3);
+    ctx.restore();
     if(ap>0&&ap<1){
       ctx.fillStyle='rgba(251,191,36,'+(0.3*Math.sin(t*5))+')';
       ctx.beginPath();ctx.arc(arrowX,h*0.3-5,20,0,Math.PI*2);ctx.fill();

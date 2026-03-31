@@ -129,6 +129,7 @@
     // Dots (rotate around y-axis) with color based on distance
     var orbColors={0:'168,85,247',1:'59,130,246',2:'34,197,94',3:'251,191,36'};
     var baseCol=orbColors[d.l]||'168,85,247';
+    ctx.save();ctx.shadowColor='rgba('+baseCol+',0.6)';ctx.shadowBlur=12;
     for(var i=0;i<dots.length;i++){
       var dot=dots[i];
       var rx=dot.x*cosT+dot.z*sinT;
@@ -141,6 +142,7 @@
       ctx.fillStyle='rgba('+baseCol+','+a+')';
       ctx.beginPath();ctx.arc(px,py,1.5+depth,0,Math.PI*2);ctx.fill();
     }
+    ctx.restore();
     // Axis lines
     ctx.strokeStyle='rgba(148,163,184,0.15)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
     ctx.beginPath();ctx.moveTo(cx-scale*2.8,cy);ctx.lineTo(cx+scale*2.8,cy);ctx.stroke();

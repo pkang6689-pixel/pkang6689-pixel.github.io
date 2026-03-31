@@ -97,21 +97,25 @@
       // P-wave ring (blue, faster)
       var pR=elapsed*200;
       if(pR<w){
+        ctx.save();ctx.shadowColor='#3b82f6';ctx.shadowBlur=15;
         ctx.strokeStyle='rgba(59,130,246,'+(0.5*Math.max(0,1-pR/(w*0.8)))+')';ctx.lineWidth=3;
         ctx.beginPath();ctx.arc(w/2,epY,pR,0,Math.PI*2);ctx.stroke();
         // Second P ring for thickness
         ctx.strokeStyle='rgba(59,130,246,'+(0.2*Math.max(0,1-pR/(w*0.8)))+')';ctx.lineWidth=1;
         ctx.beginPath();ctx.arc(w/2,epY,pR+5,0,Math.PI*2);ctx.stroke();
+        ctx.restore();
         ctx.fillStyle='#3b82f6';ctx.font='bold 10px Poppins';ctx.textAlign='left';
         if(pR>40&&pR<w*0.7)ctx.fillText('P-wave (compression)',w/2+pR*0.65,epY-12);
       }
       // S-wave ring (red, slower)
       var sR=elapsed*120;
       if(sR>0&&sR<w){
+        ctx.save();ctx.shadowColor='#ef4444';ctx.shadowBlur=15;
         ctx.strokeStyle='rgba(239,68,68,'+(0.5*Math.max(0,1-sR/(w*0.8)))+')';ctx.lineWidth=3;
         ctx.beginPath();ctx.arc(w/2,epY,sR,0,Math.PI*2);ctx.stroke();
         ctx.strokeStyle='rgba(239,68,68,'+(0.2*Math.max(0,1-sR/(w*0.8)))+')';ctx.lineWidth=1;
         ctx.beginPath();ctx.arc(w/2,epY,sR+5,0,Math.PI*2);ctx.stroke();
+        ctx.restore();
         ctx.fillStyle='#ef4444';ctx.font='bold 10px Poppins';
         if(sR>40&&sR<w*0.7)ctx.fillText('S-wave (shear)',w/2+sR*0.65,epY+18);
       }

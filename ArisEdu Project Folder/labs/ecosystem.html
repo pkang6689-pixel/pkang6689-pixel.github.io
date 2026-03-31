@@ -45,6 +45,7 @@
     <div class="ctrl-group"><label>Conversion Eff.</label>
       <input type="range" id="conv" min="1" max="10" value="3" oninput="upd()"><span class="val" id="cv-val">0.3</span></div>
     <button class="action-btn" onclick="resetSim()">Reset</button>
+    <button class="toggle-btn active" id="btn-pause" onclick="paused=!paused;this.textContent=paused?'\u25b6 Play':'\u23f8 Pause';this.classList.toggle('active',!paused)">⏸ Pause</button>
   </div>
   <div class="readout">
     <div class="datum">🐇 Prey: <strong id="preyN">100</strong></div>
@@ -56,7 +57,7 @@
 <script>
 (function(){
   var cv2=document.getElementById('cv'),ctx=cv2.getContext('2d');
-  var prey=100,pred=20,simTime=0,history2=[];
+  var prey=100,pred=20,simTime=0,history2=[],paused=false;
   function resize(){cv2.width=cv2.parentElement.clientWidth}
   window.addEventListener('resize',resize);resize();
   window.upd=function(){
@@ -87,7 +88,7 @@
   function draw(){
     var w=cv2.width,h=cv2.height;ctx.clearRect(0,0,w,h);
     ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
-    step();
+    if(!paused)step();
     // Population graph with improved styling
     var gx=w*0.08,gy=h*0.05,gw=w*0.84,gh=h*0.55;
     // Graph background with rounded rect
@@ -188,6 +189,7 @@
     }
     // Prey as rabbit-like shapes
     var nPrey=Math.min(30,Math.round(prey/5));
+    ctx.save();ctx.shadowColor='#22c55e';ctx.shadowBlur=10;
     for(var p=0;p<nPrey;p++){
       var px2=((p*137+simTime*0.5)%(w-20))+10;
       var py=fieldY+10+(p*31)%(fieldH-20);
@@ -203,8 +205,10 @@
       // Eye
       ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(px2+6,py-3,1,0,Math.PI*2);ctx.fill();
     }
+    ctx.restore();
     // Predators as wolf-like shapes
     var nPred2=Math.min(15,Math.round(pred/3));
+    ctx.save();ctx.shadowColor='#ef4444';ctx.shadowBlur=10;
     for(var q=0;q<nPred2;q++){
       var qx=((q*193+simTime*0.3)%(w-20))+10;
       var qy=fieldY+10+(q*47)%(fieldH-20);
@@ -219,6 +223,7 @@
       // Eye
       ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(qx+8,qy-2,1.2,0,Math.PI*2);ctx.fill();
     }
+    ctx.restore();
     // Lotka-Volterra equations on canvas
     ctx.fillStyle='rgba(148,163,184,0.25)';ctx.font='9px Poppins';ctx.textAlign='right';
     ctx.fillText('dx/dt = \u03B1x \u2212 \u03B2xy',w-15,fieldY+fieldH-18);

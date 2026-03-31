@@ -99,8 +99,10 @@ function draw(){
     if(dist<planetR){resetShip();document.getElementById('r-orb').textContent='Crashed!';return requestAnimationFrame(draw);}
     /* ship */
     ctx.fillStyle='#e0e0e0';ctx.save();ctx.translate(ship.x,ship.y);var heading=Math.atan2(ship.vy,ship.vx);ctx.rotate(heading);
+    ctx.shadowColor='#60a5fa';ctx.shadowBlur=12;
     ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(-5,-4);ctx.lineTo(-3,0);ctx.lineTo(-5,4);ctx.closePath();ctx.fill();
-    if(thr>0&&ship.fuel>0){ctx.fillStyle='rgba(255,150,30,0.7)';ctx.beginPath();ctx.moveTo(-3,0);ctx.lineTo(-8-thr*8,-2);ctx.lineTo(-8-thr*8,2);ctx.closePath();ctx.fill();}
+    ctx.shadowBlur=0;
+    if(thr>0&&ship.fuel>0){ctx.save();ctx.shadowColor='#ff9630';ctx.shadowBlur=14;ctx.fillStyle='rgba(255,150,30,0.7)';ctx.beginPath();ctx.moveTo(-3,0);ctx.lineTo(-8-thr*8,-2);ctx.lineTo(-8-thr*8,2);ctx.closePath();ctx.fill();ctx.restore();}
     ctx.restore();
     var alt=Math.max(0,(dist-planetR)*10).toFixed(0),vel=Math.sqrt(ship.vx*ship.vx+ship.vy*ship.vy),orbSpeed=Math.sqrt(G*planetM/dist);
     var orbType=dist<planetR+5?'Ground':vel>orbSpeed*1.41?'Escape':vel>orbSpeed*.9?'Orbit':'Suborbital';

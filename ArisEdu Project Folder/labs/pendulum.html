@@ -45,6 +45,7 @@ canvas{display:block;width:100%}
   <button class="toggle-btn active" id="btn-energy" onclick="this.classList.toggle('active')">Energy</button>
   <button class="toggle-btn" id="btn-phase" onclick="this.classList.toggle('active')">Phase Plot</button>
   <button class="toggle-btn" id="btn-ghost" onclick="this.classList.toggle('active')">Ghost Bob</button>
+  <button class="toggle-btn active" id="btn-pause" onclick="paused=!paused;this.textContent=paused?'\u25b6 Play':'\u23f8 Pause';this.classList.toggle('active',!paused)">⏸ Pause</button>
 </div>
 <p style="text-align:center;color:#64748b;font-size:.72rem;margin-top:.25rem">🖱️ Drag bob to set angle and release</p>
 <div class="readout">
@@ -63,6 +64,7 @@ var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.ge
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
 var theta,omega,trail=[],phaseTrail=[],dragging=false,cycles=0,lastSign=1;
+var paused=false;
 function init(){theta=+document.getElementById('pth').value*Math.PI/180;omega=0;trail=[];phaseTrail=[];cycles=0;lastSign=theta>0?1:-1;}
 init();
 /* drag bob */
@@ -93,7 +95,7 @@ function draw(){
   var L=+document.getElementById('plen').value/10,g=+document.getElementById('pg').value/10;
   var damp=+document.getElementById('pdamp').value/1000;
   var dt=0.016;
-  if(!dragging){var alpha2=-(g/L)*Math.sin(theta)-damp*omega;omega+=alpha2*dt;theta+=omega*dt;}
+  if(!paused&&!dragging){var alpha2=-(g/L)*Math.sin(theta)-damp*omega;omega+=alpha2*dt;theta+=omega*dt;}
   /* cycle counting */
   var sign=theta>0?1:-1;if(sign!==lastSign&&sign===1)cycles++;lastSign=sign;
   var period=2*Math.PI*Math.sqrt(L/g);

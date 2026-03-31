@@ -133,6 +133,7 @@
       maxArea=Math.max(maxArea,Math.sqrt((b.x-w/2)*(b.x-w/2)+(b.y-h/2)*(b.y-h/2)));
     });
     // Draw oil blobs with iridescent sheen
+    ctx.save();ctx.shadowColor='rgba(120,80,30,0.5)';ctx.shadowBlur=10;
     oilBlobs.forEach(function(b){
       // Dark oil body
       var oilGrad=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r);
@@ -147,6 +148,7 @@
       ctx.fillStyle='rgba(255,255,255,0.04)';
       ctx.beginPath();ctx.arc(b.x-b.r*0.3,b.y-b.r*0.3,b.r*0.3,0,Math.PI*2);ctx.fill();
     });
+    ctx.restore();
     // Oil slick outline glow
     if(oilBlobs.length>0){
       var cx2=0,cy2=0;

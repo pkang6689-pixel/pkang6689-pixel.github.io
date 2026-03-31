@@ -39,6 +39,7 @@ canvas{display:block;width:100%}
   <button class="toggle-btn" id="btn-closed" onclick="setMode(2)">Closed Pipe</button>
   <button class="toggle-btn" id="btn-env" onclick="this.classList.toggle('active')">Envelope</button>
   <button class="toggle-btn" id="btn-super" onclick="this.classList.toggle('active')">Superpose n+1</button>
+  <button class="toggle-btn active" id="btn-pause" onclick="paused=!paused;this.textContent=paused?'\u25b6 Play':'\u23f8 Pause';this.classList.toggle('active',!paused)">⏸ Pause</button>
 </div>
 <div class="readout">
   <div class="datum">Nodes: <strong id="r-nodes">2</strong></div>
@@ -54,7 +55,7 @@ canvas{display:block;width:100%}
 var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,tip=document.getElementById('tip');
 function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;}
 window.addEventListener('resize',resize);resize();
-var mode=0,t=0,pluck={active:false,x:0,amp:0};
+var mode=0,t=0,pluck={active:false,x:0,amp:0},paused=false;
 window.setMode=function(m){mode=m;['string','open','closed'].forEach(function(s,i){document.getElementById('btn-'+s).classList.toggle('active',i===m);});upd();};
 cv.addEventListener('mousemove',function(e){var rr=cv.getBoundingClientRect(),mx=e.clientX-rr.left,my=e.clientY-rr.top;
   var margin=60,L=W-2*margin,cy2=H/2;
@@ -98,7 +99,7 @@ function draw(){
   ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
   ctx.lineCap='round';ctx.lineJoin='round';
   var n=+document.getElementById('pn').value,A=+document.getElementById('pa').value,spd=+document.getElementById('ps').value;
-  t+=spd*0.03;
+  if(!paused)t+=spd*0.03;
   var margin=60,L=W-2*margin,cy=H/2;
   /* boundaries */
   ctx.strokeStyle='#475569';ctx.lineWidth=3;

@@ -120,9 +120,11 @@
     }
     // Inner chimney glow — hot vent opening
     var glowR=18+Math.sin(t*3)*4;
+    ctx.save();ctx.shadowColor='#ff7830';ctx.shadowBlur=20;
     var ventGlow=ctx.createRadialGradient(ventX,ventBase-85,0,ventX,ventBase-85,glowR*2.5);
     ventGlow.addColorStop(0,'rgba(255,120,30,0.5)');ventGlow.addColorStop(0.3,'rgba(239,68,68,0.35)');ventGlow.addColorStop(1,'rgba(239,68,68,0)');
     ctx.fillStyle=ventGlow;ctx.beginPath();ctx.arc(ventX,ventBase-85,glowR*2.5,0,Math.PI*2);ctx.fill();
+    ctx.restore();
     // Temperature haze near vent
     ctx.strokeStyle='rgba(255,120,30,'+(0.06+Math.sin(t*4)*0.03)+')';ctx.lineWidth=1;
     for(var hz=0;hz<3;hz++){
@@ -146,6 +148,7 @@
         });
       }
     }
+    ctx.save();ctx.shadowColor='#ff7830';ctx.shadowBlur=8;
     for(var j=smokeParticles.length-1;j>=0;j--){
       var p=smokeParticles[j];
       p.x+=p.vx;p.y+=p.vy;p.life-=0.007;p.vx+=(Math.random()-0.5)*0.15;
@@ -164,6 +167,7 @@
         ctx.beginPath();ctx.arc(p.x+2,p.y-1,1,0,Math.PI*2);ctx.fill();
       }
     }
+    ctx.restore();
     if(smokeParticles.length>250)smokeParticles.splice(0,60);
     // Tube worms with gradient tips and white tubes
     for(var tw=0;tw<5;tw++){

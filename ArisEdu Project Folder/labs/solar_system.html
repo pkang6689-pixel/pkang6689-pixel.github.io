@@ -52,6 +52,7 @@
     <button class="ctrl-btn active" onclick="setScale('relative',this)">Relative Size</button>
     <button class="ctrl-btn" onclick="setScale('exaggerated',this)">Exaggerated Size</button>
     <button class="ctrl-btn" onclick="toggleOrbits()">Toggle Orbits</button>
+    <button class="ctrl-btn" id="btn-pause" onclick="paused=!paused;this.textContent=paused?'\u25b6 Play':'\u23f8 Pause'">⏸ Pause</button>
   </div>
 
   <div class="planet-info" id="planet-info">
@@ -65,6 +66,7 @@
   var canvas = document.getElementById('solar-canvas');
   var ctx = canvas.getContext('2d');
   var t = 0;
+  var paused = false;
   var scaleMode = 'relative';
   var showOrbits = true;
   var selectedPlanet = null;
@@ -238,7 +240,7 @@
       }
     }
 
-    t += speed * 0.001;
+    if(!paused){t += speed * 0.001;}
     requestAnimationFrame(draw);
   }
 

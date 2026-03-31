@@ -238,6 +238,7 @@
     ctx.moveTo(arrowMid-7,cY-6);ctx.lineTo(arrowMid,cY);ctx.lineTo(arrowMid+7,cY-6);ctx.fill();
     ctx.font='bold 10px Poppins';ctx.fillText('Q_out = '+((1-eff)*1000).toFixed(0)+' J',arrowMid+55,eY+engH*0.38);
     // Animated heat particles along arrow paths
+    ctx.save();ctx.shadowColor='#ef4444';ctx.shadowBlur=10;
     for(var pi=heatParticles.length-1;pi>=0;pi--){
       var p=heatParticles[pi];p.life-=0.008*p.speed;
       if(p.life<=0){heatParticles.splice(pi,1);continue;}
@@ -258,6 +259,7 @@
       }
       ctx.fillStyle=color;ctx.beginPath();ctx.arc(px,py,3*p.life,0,Math.PI*2);ctx.fill();
     }
+    ctx.restore();
     // Efficiency formula
     ctx.fillStyle='rgba(251,191,36,0.4)';ctx.font='bold 10px Poppins';ctx.textAlign='left';
     if(cycle==='carnot')ctx.fillText('η_Carnot = 1 − T_C/T_H = 1 − '+Tc+'/'+Th+' = '+(eff*100).toFixed(1)+'%',15,h-10);

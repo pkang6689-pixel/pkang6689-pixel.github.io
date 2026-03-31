@@ -62,6 +62,7 @@
       <span class="val" id="amp2-val">40</span>
     </div>
     <button class="action-btn btn-toggle" id="wave2-toggle" onclick="toggleWave2()">Show Wave 2</button>
+    <button class="action-btn btn-toggle active" id="btn-pause" onclick="paused=!paused;this.textContent=paused?'\u25b6 Play':'\u23f8 Pause';this.classList.toggle('active',!paused)">⏸ Pause</button>
   </div>
 
   <div class="readout">
@@ -83,6 +84,7 @@
   var showWave2 = false;
   var t = 0;
   var speed = 340;
+  var paused = false;
 
   function resize() { canvas.width = canvas.parentElement.clientWidth; }
   window.addEventListener('resize', resize);
@@ -173,7 +175,7 @@
       ctx.fillText('Superposition', 10, cy3 - Math.max(a1+a2, 40) - 5);
     }
 
-    t += 0.016;
+    if(!paused) t += 0.016;
     requestAnimationFrame(draw);
   }
 
