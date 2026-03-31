@@ -90,7 +90,7 @@ def translate_json_file(file_path: Path) -> Tuple[int, int]:
     skipped_count = 0
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8-sig') as f:
             data = json.load(f)
     except Exception as e:
         logger.error(f"Failed to read {file_path}: {e}")
@@ -121,7 +121,7 @@ def translate_json_file(file_path: Path) -> Tuple[int, int]:
                 skipped_count += 1
 
     try:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, 'w', encoding='utf-8-sig') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         logger.debug(f"Saved {file_path}")
     except Exception as e:
