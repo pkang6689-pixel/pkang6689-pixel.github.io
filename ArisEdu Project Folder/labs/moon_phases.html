@@ -211,7 +211,7 @@
     var dayVal = parseInt(document.getElementById('day').value) / 10;
     var frac = dayVal / 29.5;
 
-    ctx.clearRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);ctx.lineCap='round';ctx.lineJoin='round';
 
     // Star background
     ctx.fillStyle = '#020617';
@@ -285,6 +285,7 @@
     var moonR = Math.min(w * 0.18, 100);
 
     // Moon glow
+    ctx.save();ctx.shadowColor='rgba(226,232,240,0.5)';ctx.shadowBlur=25;
     var glow = ctx.createRadialGradient(w * 0.5, moonViewY, moonR, w * 0.5, moonViewY, moonR * 1.8);
     glow.addColorStop(0, 'rgba(226,232,240,0.08)');
     glow.addColorStop(1, 'rgba(226,232,240,0)');
@@ -292,6 +293,7 @@
     ctx.beginPath(); ctx.arc(w * 0.5, moonViewY, moonR * 1.8, 0, Math.PI * 2); ctx.fill();
 
     drawMoonPhase(ctx, w * 0.5, moonViewY, moonR, frac);
+    ctx.restore();
 
     requestAnimationFrame(draw);
   }

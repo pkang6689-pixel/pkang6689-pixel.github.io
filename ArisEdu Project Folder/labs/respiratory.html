@@ -67,7 +67,7 @@
   };
   function draw(){
     var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
-    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
     var br2=parseInt(document.getElementById('brate').value);
     var tv2=parseInt(document.getElementById('tvol').value);
     time+=0.016;
@@ -127,12 +127,14 @@
 
     // O₂ particles flowing in trachea during inhale
     if(phase==='Inhale'){
+      ctx.save();ctx.shadowColor='#22c55e';ctx.shadowBlur=10;
       ctx.fillStyle='rgba(34,197,94,0.5)';
       for(var op=0;op<6;op++){
         var opY=lungY+5+((time*80+op*15)%60);
         var opX=cx-8+Math.sin(time*3+op)*5;
         ctx.beginPath();ctx.arc(opX,opY,2,0,Math.PI*2);ctx.fill();
       }
+      ctx.restore();
     }else{
       // CO₂ particles flowing out during exhale
       ctx.fillStyle='rgba(148,163,184,0.4)';

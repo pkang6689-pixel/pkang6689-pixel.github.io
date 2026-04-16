@@ -69,7 +69,7 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),mx=
 cv.addEventListener('mouseleave',function(){tip.style.display='none';});
 function draw(){
   ctx.clearRect(0,0,W,H);t+=.016;cx=W/2;cy=H/2;
-  for(var i=0;i<40;i++){ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillRect((i*97)%W,(i*53)%H,1,1);}
+  for(var i=0;i<40;i++){ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillRect((i*97)%W,(i*53)%H,1,1);}ctx.lineCap='round';ctx.lineJoin='round';
   /* planet */
   var grad=ctx.createRadialGradient(cx-10,cy-10,5,cx,cy,planetR);grad.addColorStop(0,'#4a90d0');grad.addColorStop(1,'#1a3a6c');
   ctx.fillStyle=grad;ctx.beginPath();ctx.arc(cx,cy,planetR,0,Math.PI*2);ctx.fill();
@@ -99,8 +99,10 @@ function draw(){
     if(dist<planetR){resetShip();document.getElementById('r-orb').textContent='Crashed!';return requestAnimationFrame(draw);}
     /* ship */
     ctx.fillStyle='#e0e0e0';ctx.save();ctx.translate(ship.x,ship.y);var heading=Math.atan2(ship.vy,ship.vx);ctx.rotate(heading);
+    ctx.shadowColor='#60a5fa';ctx.shadowBlur=12;
     ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(-5,-4);ctx.lineTo(-3,0);ctx.lineTo(-5,4);ctx.closePath();ctx.fill();
-    if(thr>0&&ship.fuel>0){ctx.fillStyle='rgba(255,150,30,0.7)';ctx.beginPath();ctx.moveTo(-3,0);ctx.lineTo(-8-thr*8,-2);ctx.lineTo(-8-thr*8,2);ctx.closePath();ctx.fill();}
+    ctx.shadowBlur=0;
+    if(thr>0&&ship.fuel>0){ctx.save();ctx.shadowColor='#ff9630';ctx.shadowBlur=14;ctx.fillStyle='rgba(255,150,30,0.7)';ctx.beginPath();ctx.moveTo(-3,0);ctx.lineTo(-8-thr*8,-2);ctx.lineTo(-8-thr*8,2);ctx.closePath();ctx.fill();ctx.restore();}
     ctx.restore();
     var alt=Math.max(0,(dist-planetR)*10).toFixed(0),vel=Math.sqrt(ship.vx*ship.vx+ship.vy*ship.vy),orbSpeed=Math.sqrt(G*planetM/dist);
     var orbType=dist<planetR+5?'Ground':vel>orbSpeed*1.41?'Escape':vel>orbSpeed*.9?'Orbit':'Suborbital';

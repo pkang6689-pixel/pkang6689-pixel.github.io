@@ -74,7 +74,7 @@
     document.getElementById('press').textContent=press>1?Math.round(press)+' hPa':press.toExponential(1)+' hPa';
   };
   function draw(){
-    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
     t+=0.016;
     var alt2=parseInt(document.getElementById('alt').value);
     var totalH=h-40;
@@ -172,6 +172,7 @@
     // Aurora in thermosphere with multi-color ribbons
     var auroraY=h-150/altScale*totalH;
     var auroraColors=['rgba(34,197,94,0.2)','rgba(59,130,246,0.15)','rgba(168,85,247,0.1)'];
+    ctx.save();ctx.shadowColor='#22c55e';ctx.shadowBlur=18;
     auroraColors.forEach(function(ac,ai){
       ctx.strokeStyle=ac;ctx.lineWidth=4-ai;
       ctx.beginPath();
@@ -181,6 +182,7 @@
       }
       ctx.stroke();
     });
+    ctx.restore();
     // Aurora vertical curtain effect
     for(var ac2=0;ac2<8;ac2++){
       var acx=w*0.15+ac2*w*0.09;

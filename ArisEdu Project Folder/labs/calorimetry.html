@@ -43,7 +43,7 @@
     <div class="ctrl-group"><label>Mass (g)</label>
       <input type="range" id="mass" min="50" max="500" value="200" oninput="document.getElementById('mass-val').textContent=this.value+'g'"><span class="val" id="mass-val">200g</span></div>
     <div class="ctrl-group"><label>Initial Temp (°C)</label>
-      <input type="range" id="initT" min="5" max="50" value="20" oninput="document.getElementById('initT-val').textContent=this.value+'°C'"><span class="val" id="initT-val">20°C</span></div>
+      <input type="range" id="initT" min="5" max="100" value="20" oninput="document.getElementById('initT-val').textContent=this.value+'°C'"><span class="val" id="initT-val">20°C</span></div>
     <div class="ctrl-group"><label>Heat Source (W)</label>
       <input type="range" id="power" min="50" max="500" value="200" oninput="document.getElementById('power-val').textContent=this.value+'W'"><span class="val" id="power-val">200W</span></div>
     <button class="action-btn" onclick="startHeat()">🔥 Heat</button>
@@ -76,7 +76,7 @@
   }
   function draw(){
     var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
-    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
     var sub=document.getElementById('substance').value;
     var mass=parseInt(document.getElementById('mass').value);
     var power=parseInt(document.getElementById('power').value);
@@ -154,11 +154,13 @@
         ctx.beginPath();ctx.arc(fx,fy,fr,0,Math.PI*2);ctx.fill();
       }
       // Inner flame (blue cone)
+      ctx.save();ctx.shadowColor='#60a5fa';ctx.shadowBlur=20;
       ctx.fillStyle='rgba(96,165,250,0.6)';
       ctx.beginPath();ctx.moveTo(flameX,burnerTop-8);ctx.lineTo(flameX-8,burnerTop+8);ctx.lineTo(flameX+8,burnerTop+8);ctx.closePath();ctx.fill();
       // Inner core (white-blue)
       ctx.fillStyle='rgba(186,230,253,0.5)';
       ctx.beginPath();ctx.moveTo(flameX,burnerTop-2);ctx.lineTo(flameX-4,burnerTop+6);ctx.lineTo(flameX+4,burnerTop+6);ctx.closePath();ctx.fill();
+      ctx.restore();
       // Heat waves rising
       ctx.strokeStyle='rgba(251,191,36,0.1)';ctx.lineWidth=1;
       for(var hw=0;hw<3;hw++){

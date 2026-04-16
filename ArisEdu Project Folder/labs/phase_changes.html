@@ -124,6 +124,7 @@
   function draw() {
     var w = canvas.width, h = canvas.height;
     ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
     var sub = substances[current];
     var phase = getPhase();
 
@@ -159,7 +160,9 @@
         if (p.x > 0.95) { p.x = 0.95; p.vx *= -0.5; }
         if (p.y < 0.05) { p.y = 0.05; p.vy *= -0.5; }
         if (p.y > 0.95) { p.y = 0.95; p.vy *= -0.5; }
+        ctx.save();ctx.shadowColor=sub.color[phase];ctx.shadowBlur=12;
         ctx.beginPath(); ctx.arc(p.x * w, p.y * h, size, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
       }
     }
 

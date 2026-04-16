@@ -55,6 +55,7 @@
       <input type="range" id="temp" min="5" max="50" value="25">
       <span class="val" id="temp-val">25°C</span>
     </div>
+    <button class="toggle-btn active" id="btn-pause" onclick="paused=!paused;this.textContent=paused?'\u25b6 Play':'\u23f8 Pause';this.classList.toggle('active',!paused)">⏸ Pause</button>
   </div>
 
   <div class="readout">
@@ -76,6 +77,7 @@
   var canvas = document.getElementById('photo-canvas');
   var ctx = canvas.getContext('2d');
   var t = 0;
+  var paused = false;
   var bubbles = [];
   var glucoseCount = 0;
 
@@ -110,7 +112,7 @@
     document.getElementById('glucose-out').textContent = (rate * 1).toFixed(2) + ' units/s';
     document.getElementById('rate-out').textContent = (rate * 100).toFixed(0) + '%';
 
-    ctx.clearRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);ctx.lineCap='round';ctx.lineJoin='round';
 
     // Sky background (changes with light)
     var skyBright = light / 100;
@@ -125,8 +127,10 @@
       var sunR = 20 + light * 0.3;
       ctx.fillStyle = 'rgba(251,191,36,' + (0.3 + skyBright * 0.7) + ')';
       ctx.beginPath(); ctx.arc(w * 0.85, h * 0.12, sunR + 15, 0, Math.PI * 2); ctx.fill();
+      ctx.save();ctx.shadowColor='#fbbf24';ctx.shadowBlur=25;
       ctx.fillStyle = '#fbbf24';
       ctx.beginPath(); ctx.arc(w * 0.85, h * 0.12, sunR, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
 
       // Sun rays hitting leaf
       if (rate > 0.05) {
@@ -235,7 +239,7 @@
 
     // Glucose indicator
     if (rate > 0.05) {
-      glucoseCount += rate * 0.02;
+      if(!paused) glucoseCount += rate * 0.02;
       ctx.fillStyle = '#fbbf24'; ctx.font = '11px Poppins';
       ctx.fillText('🍬 Glucose: ' + glucoseCount.toFixed(1), w * 0.55, h * 0.55);
     }
@@ -250,7 +254,7 @@
       ctx.fillText('⚠ Rate too low — adjust conditions', w * 0.3, h * 0.65);
     }
 
-    t += 0.016;
+    if(!paused) t += 0.016;
     requestAnimationFrame(draw);
   }
 

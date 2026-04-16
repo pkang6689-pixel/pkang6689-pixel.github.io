@@ -120,7 +120,7 @@
   };
   window.resetPop=function(){if(autoId){clearInterval(autoId);autoId=null;}initPop()};
   function draw(){
-    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
     t+=0.016;
     // Environment background with gradient
     var env=document.getElementById('env').value;
@@ -152,10 +152,12 @@
         ctx.fillStyle=glow;ctx.beginPath();ctx.arc(o.x,o.y,12,0,Math.PI*2);ctx.fill();
       }
       // Organism body (beetle shape)
+      ctx.save();ctx.shadowColor='#4ade80';ctx.shadowBlur=10;
       ctx.fillStyle='rgb('+gray+','+gray+','+gray+')';
       ctx.beginPath();ctx.ellipse(o.x,o.y,7,5,0,0,Math.PI*2);ctx.fill();
       // Outline
       ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.stroke();
+      ctx.restore();
       // Eyes
       ctx.fillStyle='rgba(255,255,255,0.3)';
       ctx.beginPath();ctx.arc(o.x+3,o.y-2,1.2,0,Math.PI*2);ctx.fill();

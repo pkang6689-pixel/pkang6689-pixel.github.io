@@ -62,7 +62,7 @@
     document.getElementById('oc-val').textContent=document.getElementById('ocean').value;
   };
   function draw(){
-    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
     t+=0.016;
     var fossil2=parseInt(document.getElementById('fossil').value);
     var deforest2=parseInt(document.getElementById('deforest').value);
@@ -269,8 +269,10 @@
       ctx.strokeStyle='rgba('+pColor+','+(cp.life*0.3)+')';ctx.lineWidth=1;
       ctx.beginPath();ctx.moveTo(prevPx,prevPy);ctx.lineTo(px,py);ctx.stroke();
       // Particle with glow
+      ctx.save();ctx.shadowColor='#22d3ee';ctx.shadowBlur=10;
       ctx.fillStyle='rgba('+pColor+','+(cp.life*0.6)+')';
       ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();
+      ctx.restore();
       ctx.fillStyle='rgba('+pColor+','+(cp.life*0.2)+')';
       ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.fill();
     }

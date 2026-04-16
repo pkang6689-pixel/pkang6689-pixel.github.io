@@ -70,7 +70,7 @@
     document.getElementById('hum-val').textContent=document.getElementById('humid').value+'%';
   };
   function draw(){
-    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+    var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
     t+=0.016;
     var tdiff2=parseInt(document.getElementById('tdiff').value);
     var hum=parseInt(document.getElementById('humid').value);
@@ -84,12 +84,14 @@
         raindrops.push({x:Math.random()*w,y:0,vy:4+Math.random()*4,vx:mode==='hurricane'?3:0});
       }
     }
+    ctx.save();ctx.shadowColor='#93c5fd';ctx.shadowBlur=8;
     ctx.strokeStyle='rgba(147,197,253,0.4)';ctx.lineWidth=1;
     for(var ri=raindrops.length-1;ri>=0;ri--){
       var rd=raindrops[ri];rd.y+=rd.vy;rd.x+=rd.vx;
       if(rd.y>h){raindrops.splice(ri,1);continue;}
       ctx.beginPath();ctx.moveTo(rd.x,rd.y);ctx.lineTo(rd.x+rd.vx*0.5,rd.y+5);ctx.stroke();
     }
+    ctx.restore();
     if(raindrops.length>300)raindrops.splice(0,50);
     // Stats
     document.getElementById('precip').textContent=hum>80?'Heavy':hum>50?'Moderate':hum>30?'Light':'None';

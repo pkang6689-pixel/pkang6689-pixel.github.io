@@ -38,12 +38,13 @@ canvas{display:block;width:100%}
   <button class="toggle-btn" onclick="setFn(4,this)">ln(x)</button>
   <button class="toggle-btn" onclick="setFn(5,this)">x³−3x</button>
   <div class="ctrl-group"><label>x position</label>
-    <input type="range" id="px" min="-40" max="40" value="10" oninput="document.getElementById('vx').textContent=(this.value/10).toFixed(1)"><span class="val" id="vx">1.0</span></div>
+    <input type="range" id="px" min="-70" max="70" value="10" oninput="document.getElementById('vx').textContent=(this.value/10).toFixed(1)"><span class="val" id="vx">1.0</span></div>
   <button class="toggle-btn active" id="btn-tan" onclick="this.classList.toggle('active')">Tangent</button>
   <button class="toggle-btn active" id="btn-der" onclick="this.classList.toggle('active')">f'(x)</button>
   <button class="toggle-btn" id="btn-d2" onclick="this.classList.toggle('active')">f''(x)</button>
   <button class="toggle-btn" id="btn-crit" onclick="this.classList.toggle('active')">Critical Pts</button>
   <button class="toggle-btn" id="btn-conc" onclick="this.classList.toggle('active')">Concavity</button>
+  <button class="toggle-btn" onclick="resetView()" style="border-color:#22c55e;color:#22c55e">⟳ Reset View</button>
 </div>
 <div class="readout">
   <div class="datum">f(x): <strong id="r-fx">1.00</strong></div>
@@ -57,7 +58,10 @@ canvas{display:block;width:100%}
 <script>
 (function(){
 var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W,H,cx,cy,sx,sy;
-function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;cx=W/2;cy=H/2;sx=W/14;sy=H/14;}
+var viewX=-7,viewY=-7,viewW=14,viewH=14;
+var panning=false,panStart,panViewStart;
+function updCS(){cx=-viewX/viewW*W;cy=H+viewY/viewH*H;sx=W/viewW;sy=H/viewH;}
+function resize(){cv.width=cv.parentElement.clientWidth;W=cv.width;H=cv.height;updCS();}
 window.addEventListener('resize',resize);resize();
 var fnIdx=0,mouseDown=false;
 var fnNames=['x²','x³','sin(x)','eˣ','ln(x)','x³−3x'];
@@ -74,23 +78,39 @@ var d2fs=[
   function(x){return Math.exp(x);},function(x){return x>0?-2/(x*x):NaN;},function(x){return 6*x;}
 ];
 window.setFn=function(i,el){fnIdx=i;document.querySelectorAll('.toggle-btn').forEach(function(b,idx){if(idx<6)b.classList.toggle('active',idx===i);});};
+function fromS(px,py){return{x:(px-cx)/sx,y:(cy-py)/sy};}
+function niceStep(range){var raw=range/10,mag=Math.pow(10,Math.floor(Math.log10(raw))),norm=raw/mag;return(norm<1.5?1:norm<3?2:norm<7?5:10)*mag;}
+window.resetView=function(){viewX=-7;viewY=-7;viewW=14;viewH=14;updCS();};
+cv.addEventListener('wheel',function(e){e.preventDefault();var r=cv.getBoundingClientRect();var mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);var mp=fromS(mx,my);var factor=e.deltaY>0?1.15:1/1.15;viewX=mp.x-(mp.x-viewX)*factor;viewY=mp.y-(mp.y-viewY)*factor;viewW*=factor;viewH*=factor;updCS();},{passive:false});
 
-/* mouse drag to move x position */
-cv.addEventListener('mousedown',function(){mouseDown=true;});
-cv.addEventListener('mouseup',function(){mouseDown=false;});
-cv.addEventListener('mousemove',function(e){
-  if(!mouseDown)return;
+/* mouse drag to move x position or pan */
+cv.addEventListener('mousedown',function(e){
   var rect=cv.getBoundingClientRect();
-  var mx=(e.clientX-rect.left)*(W/rect.width);
-  var xVal=(mx-cx)/sx;
-  xVal=Math.max(-4,Math.min(4,xVal));
-  document.getElementById('px').value=Math.round(xVal*10);
-  document.getElementById('vx').textContent=xVal.toFixed(1);
+  var mx2=(e.clientX-rect.left)*(W/rect.width),my2=(e.clientY-rect.top)*(H/rect.height);
+  var xp=+document.getElementById('px').value/10,fv=fns[fnIdx](xp);
+  if(!isNaN(fv)){var pt=toS(xp,fv);if(Math.hypot(mx2-pt.x,my2-pt.y)<20){mouseDown=true;return;}}
+  panning=true;panStart={x:e.clientX,y:e.clientY};panViewStart={x:viewX,y:viewY};
+});
+cv.addEventListener('mouseup',function(){mouseDown=false;panning=false;});
+cv.addEventListener('mousemove',function(e){
+  var rect=cv.getBoundingClientRect();
+  if(mouseDown){
+    var mx=(e.clientX-rect.left)*(W/rect.width);
+    var xVal=(mx-cx)/sx;
+    xVal=Math.max(-7,Math.min(7,xVal));
+    document.getElementById('px').value=Math.round(xVal*10);
+    document.getElementById('vx').textContent=xVal.toFixed(1);
+  }else if(panning&&panStart){
+    var dx=(e.clientX-panStart.x)/rect.width*viewW;
+    var dy=(e.clientY-panStart.y)/rect.height*viewH;
+    viewX=panViewStart.x-dx;viewY=panViewStart.y+dy;updCS();
+  }
 });
 
 function toS(mx,my){return{x:cx+mx*sx,y:cy-my*sy};}
 function draw(){
-  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020617';ctx.fillRect(0,0,W,H);ctx.lineCap='round';ctx.lineJoin='round';
+  updCS();
   var f=fns[fnIdx],df=dfs[fnIdx],d2f=d2fs[fnIdx],xp=+document.getElementById('px').value/10;
   var showTan=document.getElementById('btn-tan').classList.contains('active');
   var showDer=document.getElementById('btn-der').classList.contains('active');
@@ -98,49 +118,54 @@ function draw(){
   var showCrit=document.getElementById('btn-crit').classList.contains('active');
   var showConc=document.getElementById('btn-conc').classList.contains('active');
   
-  /* grid */
-  ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
-  for(var g=-7;g<=7;g++){var p=toS(g,0);ctx.beginPath();ctx.moveTo(p.x,0);ctx.lineTo(p.x,H);ctx.stroke();p=toS(0,g);ctx.beginPath();ctx.moveTo(0,p.y);ctx.lineTo(W,p.y);ctx.stroke();}
+  /* adaptive grid */
+  var step=niceStep(viewW);ctx.strokeStyle='#1e293b';ctx.lineWidth=0.5;
+  var gx0=Math.floor(viewX/step)*step;for(var gx=gx0;gx<=viewX+viewW;gx+=step){var p=toS(gx,0);ctx.beginPath();ctx.moveTo(p.x,0);ctx.lineTo(p.x,H);ctx.stroke();}
+  var gy0=Math.floor(viewY/step)*step;for(var gy=gy0;gy<=viewY+viewH;gy+=step){var p=toS(0,gy);ctx.beginPath();ctx.moveTo(0,p.y);ctx.lineTo(W,p.y);ctx.stroke();}
   ctx.strokeStyle='#475569';ctx.lineWidth=1.5;
   ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
   ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
   ctx.fillStyle='#64748b';ctx.font='10px Poppins';ctx.textAlign='center';
-  for(var lb=-6;lb<=6;lb++)if(lb!==0){ctx.fillText(lb.toString(),cx+lb*sx,cy+14);ctx.fillText(lb.toString(),cx-16,cy-lb*sy+4);}
+  for(var gx=gx0;gx<=viewX+viewW;gx+=step){if(Math.abs(gx)<step*0.1)continue;var tp=toS(gx,0);if(tp.x>20&&tp.x<W-20)ctx.fillText(parseFloat(gx.toFixed(6)),tp.x,cy+14);}
+  ctx.textAlign='right';for(var gy=gy0;gy<=viewY+viewH;gy+=step){if(Math.abs(gy)<step*0.1)continue;var tp=toS(0,gy);if(tp.y>10&&tp.y<H-10)ctx.fillText(parseFloat(gy.toFixed(6)),cx-6,tp.y+4);}
+  ctx.textAlign='center';
 
   /* concavity shading */
   if(showConc){
-    for(var cpx=-7;cpx<=7;cpx+=0.05){
+    var cStep=viewW/280;
+    for(var cpx=viewX;cpx<=viewX+viewW;cpx+=cStep){
       var d2v=d2f(cpx);
       if(isNaN(d2v))continue;
       var s0=toS(cpx,0);
       ctx.fillStyle=d2v>0?'rgba(34,197,94,0.04)':'rgba(239,68,68,0.04)';
-      ctx.fillRect(s0.x,0,sx*0.05,H);
+      ctx.fillRect(s0.x,0,sx*cStep,H);
     }
   }
 
   /* f(x) curve */
+  var xMin=viewX-viewW*0.1,xMax=viewX+viewW*1.1,xDx=viewW/500,yClip=Math.max(20,viewH*3);
   ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.shadowColor='#a855f7';ctx.shadowBlur=6;ctx.beginPath();
   var first=true;
-  for(var px2=-7;px2<=7;px2+=0.03){var y=f(px2);if(isNaN(y)||Math.abs(y)>20){first=true;continue;}var s=toS(px2,y);first?(ctx.moveTo(s.x,s.y),first=false):ctx.lineTo(s.x,s.y);}
+  for(var px2=xMin;px2<=xMax;px2+=xDx){var y=f(px2);if(isNaN(y)||Math.abs(y)>yClip){first=true;continue;}var s=toS(px2,y);first?(ctx.moveTo(s.x,s.y),first=false):ctx.lineTo(s.x,s.y);}
   ctx.stroke();ctx.shadowBlur=0;
   
   /* f'(x) curve */
   if(showDer){
     ctx.strokeStyle='#22c55e';ctx.lineWidth=1.8;ctx.setLineDash([4,3]);ctx.beginPath();first=true;
-    for(var px3=-7;px3<=7;px3+=0.03){var y2=df(px3);if(isNaN(y2)||Math.abs(y2)>20){first=true;continue;}var s2=toS(px3,y2);first?(ctx.moveTo(s2.x,s2.y),first=false):ctx.lineTo(s2.x,s2.y);}
+    for(var px3=xMin;px3<=xMax;px3+=xDx){var y2=df(px3);if(isNaN(y2)||Math.abs(y2)>yClip){first=true;continue;}var s2=toS(px3,y2);first?(ctx.moveTo(s2.x,s2.y),first=false):ctx.lineTo(s2.x,s2.y);}
     ctx.stroke();ctx.setLineDash([]);
   }
   
   /* f''(x) curve */
   if(showD2){
     ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;ctx.setLineDash([2,3]);ctx.beginPath();first=true;
-    for(var px4=-7;px4<=7;px4+=0.03){var y3=d2f(px4);if(isNaN(y3)||Math.abs(y3)>20){first=true;continue;}var s3=toS(px4,y3);first?(ctx.moveTo(s3.x,s3.y),first=false):ctx.lineTo(s3.x,s3.y);}
+    for(var px4=xMin;px4<=xMax;px4+=xDx){var y3=d2f(px4);if(isNaN(y3)||Math.abs(y3)>yClip){first=true;continue;}var s3=toS(px4,y3);first?(ctx.moveTo(s3.x,s3.y),first=false):ctx.lineTo(s3.x,s3.y);}
     ctx.stroke();ctx.setLineDash([]);
   }
   
   /* critical points — where f'(x) ≈ 0 */
   if(showCrit){
-    for(var cpx2=-6;cpx2<=6;cpx2+=0.02){
+    for(var cpx2=viewX;cpx2<=viewX+viewW;cpx2+=viewW/500){
       var dv1=df(cpx2),dv2=df(cpx2+0.02);
       if(!isNaN(dv1)&&!isNaN(dv2)&&dv1*dv2<0){
         var cx2=cpx2+0.01;var fy2=f(cx2);var d2v2=d2f(cx2);
@@ -174,7 +199,7 @@ function draw(){
     var pt=toS(xp,fv);
     if(showTan){
       ctx.strokeStyle='#f472b6';ctx.lineWidth=1.8;ctx.beginPath();
-      var t1=toS(xp-4,fv-dfv*4),t2=toS(xp+4,fv+dfv*4);
+      var tR=viewW*0.3;var t1=toS(xp-tR,fv-dfv*tR),t2=toS(xp+tR,fv+dfv*tR);
       ctx.moveTo(t1.x,t1.y);ctx.lineTo(t2.x,t2.y);ctx.stroke();
     }
     /* point with glow */

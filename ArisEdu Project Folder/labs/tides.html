@@ -63,7 +63,7 @@
   };
   function draw(){
     var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
-    ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#020617';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
     var speed=parseInt(document.getElementById('speed').value);
     document.getElementById('sp-val').textContent=speed+'×';
     t+=0.005*speed;
@@ -122,12 +122,14 @@
     ctx.strokeStyle='rgba(209,213,219,0.15)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
     ctx.beginPath();ctx.moveTo(moonX,moonY);ctx.lineTo(cx,cy);ctx.stroke();ctx.setLineDash([]);
     // Tidal bulge on Earth with gradient
+    ctx.save();ctx.shadowColor='#3b82f6';ctx.shadowBlur=15;
     var tidalAngle=moonAngle;
     var bulgeSize=tideMode==='spring'?18:8;
     var bulgeGrad=ctx.createRadialGradient(cx,cy,earthR-5,cx,cy,earthR+bulgeSize+5);
     bulgeGrad.addColorStop(0,'rgba(59,130,246,0.35)');bulgeGrad.addColorStop(1,'rgba(59,130,246,0.05)');
     ctx.fillStyle=bulgeGrad;
     ctx.beginPath();ctx.ellipse(cx,cy,earthR+bulgeSize,earthR-bulgeSize*0.3,tidalAngle,0,Math.PI*2);ctx.fill();
+    ctx.restore();
     ctx.strokeStyle='rgba(96,165,250,0.3)';ctx.lineWidth=1;
     ctx.beginPath();ctx.ellipse(cx,cy,earthR+bulgeSize,earthR-bulgeSize*0.3,tidalAngle,0,Math.PI*2);ctx.stroke();
     // Bulge labels

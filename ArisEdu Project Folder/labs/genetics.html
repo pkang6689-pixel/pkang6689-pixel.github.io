@@ -104,7 +104,7 @@
   };
   function draw(){
     var w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
-    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';
     var trait=document.getElementById('trait').value;
     var td=traitData[trait];
     var p1=document.getElementById('p1').value;
@@ -153,8 +153,10 @@
         }else{
           cellGrad.addColorStop(0,td.recColor+'20');cellGrad.addColorStop(1,td.recColor+'08');
         }
+        ctx.save();ctx.shadowColor='#a855f7';ctx.shadowBlur=12;
         ctx.fillStyle=cellGrad;ctx.fillRect(gx,gy,cellSize,cellSize);
         ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.strokeRect(gx,gy,cellSize,cellSize);
+        ctx.restore();
         // Genotype label
         var label=geno.replace(/A/g,letter).replace(/a/g,letter.toLowerCase());
         ctx.fillStyle=isDom?td.domColor:'#94a3b8';

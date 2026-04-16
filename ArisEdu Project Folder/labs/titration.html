@@ -155,7 +155,7 @@
   function drawBeaker() {
     bCanvas.width = bCanvas.parentElement.clientWidth;
     var w = bCanvas.width, h = bCanvas.height;
-    bCtx.clearRect(0,0,w,h);
+    bCtx.clearRect(0,0,w,h);bCtx.fillStyle='#020617';bCtx.fillRect(0,0,w,h);bCtx.lineCap='round';bCtx.lineJoin='round';
 
     var ph = calcpH(baseAdded);
     var color = phToColor(ph);
@@ -167,10 +167,12 @@
 
     // Liquid fill
     var fillH = bh * 0.8;
+    bCtx.save();bCtx.shadowColor=color;bCtx.shadowBlur=15;
     bCtx.fillStyle = color;
     bCtx.globalAlpha = 0.6;
     bCtx.fillRect(bx+1, by+bh-fillH, bw-2, fillH);
     bCtx.globalAlpha = 1;
+    bCtx.restore();
 
     // Burette above
     bCtx.strokeStyle = '#94a3b8'; bCtx.lineWidth = 1.5;

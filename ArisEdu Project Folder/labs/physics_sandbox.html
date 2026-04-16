@@ -140,6 +140,9 @@
     document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
     document.getElementById('panel-' + tab).classList.add('active');
     btn.classList.add('active');
+    window.dispatchEvent(new Event('resize'));
+    if (tab === 'pendulum') { if (typeof startPendulum === 'function') startPendulum(); }
+    if (tab === 'collision') { if (typeof startCollision === 'function') startCollision(); }
   };
 
   // Auto-select tab from URL hash
@@ -172,7 +175,7 @@
     window.addEventListener('resize', resize);
 
     function drawStatic() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);ctx.lineCap='round';ctx.lineJoin='round';
       // Ground
       ctx.fillStyle = '#334155';
       ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
@@ -212,10 +215,12 @@
 
       // Current ball
       if (ball) {
+        ctx.save();ctx.shadowColor='#fbbf24';ctx.shadowBlur=15;
         ctx.beginPath();
         ctx.arc(ball.sx, ball.sy, 6, 0, Math.PI * 2);
         ctx.fillStyle = '#fbbf24';
         ctx.fill();
+        ctx.restore();
         ctx.beginPath();
         ctx.arc(ball.sx, ball.sy, 10, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(251,191,36,0.2)';
@@ -362,7 +367,7 @@
       document.getElementById('pend-ang-val').textContent = document.getElementById('pend-ang').value + '°';
       document.getElementById('pend-damp-val').textContent = document.getElementById('pend-damp').value;
       initPend();
-      if (!running) { running = true; stepPend(); }
+      if (!running && canvas.width > 0) { running = true; stepPend(); }
       var L = parseFloat(document.getElementById('pend-len').value);
       document.getElementById('pend-period').textContent = (2 * Math.PI * Math.sqrt(L / 9.8)).toFixed(3) + ' s';
     };
@@ -456,11 +461,12 @@
       document.getElementById('c-e-val').textContent = document.getElementById('c-e').value;
       if (animId) cancelAnimationFrame(animId);
       running = false;
-      startCollision();
+      if (canvas.width > 0) startCollision();
     };
 
     window.startCollision = function() {
       if (running) return;
+      if (canvas.width === 0) return;
       resetCollisionState();
       running = true;
 
@@ -499,6 +505,7 @@
           animId = requestAnimationFrame(step);
         } else {
           running = false;
+          setTimeout(function() { if (!running) startCollision(); }, 800);
         }
       }
       step();
