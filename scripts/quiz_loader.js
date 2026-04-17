@@ -523,6 +523,7 @@ class QuizLoader {
 
     const percentage = (correct / totalQuestions) * 100;
     const grade = this.getLetterGrade(percentage);
+    const passed = percentage >= 70;
     
     // Calculate time spent
     const timeSpent = this.startTime ? Math.round((Date.now() - this.startTime) / 1000) : 0;
@@ -530,12 +531,14 @@ class QuizLoader {
     const seconds = timeSpent % 60;
     const timeDisplay = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
     
-    // Award tokens
+    // Award tokens only if passed
     const tokensReward = 300;
-    this.awardTokens(tokensReward);
+    if (passed) {
+      this.awardTokens(tokensReward);
 
-    // Mark lesson as completed
-    this.markLessonComplete();
+      // Mark lesson as completed
+      this.markLessonComplete();
+    }
 
     // Track quiz completion with StudentAnalytics
     if (typeof StudentAnalytics !== 'undefined') {
@@ -558,9 +561,25 @@ class QuizLoader {
 
     // Show arcade intro tour on first-ever lesson completion
     const isFirstCompletion = !localStorage.getItem('arisEdu_arcadeTourShown');
-    if (isFirstCompletion) {
+    if (passed && isFirstCompletion) {
       setTimeout(() => this.showArcadeTour(), 1200);
     }
+
+    const tokenPopupHtml = passed ? `
+        <div class="tokens-reward-popup">
+          <div class="emoji">💎</div>
+          <div class="amount">+${tokensReward}</div>
+          <div class="label">Arcade Tokens Awarded!</div>
+          <div class="time-spent">Time spent: ${timeDisplay}</div>
+        </div>
+    ` : `
+        <div class="tokens-reward-popup" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); border-color: #991b1b; box-shadow: 0 10px 40px rgba(239, 68, 68, 0.4);">
+          <div class="emoji">📚</div>
+          <div class="amount">Not Passed</div>
+          <div class="label">Score 70% or higher to earn tokens!</div>
+          <div class="time-spent">Time spent: ${timeDisplay}</div>
+        </div>
+    `;
 
     let html = `
       <div class="quiz-results">
@@ -585,12 +604,7 @@ class QuizLoader {
           }
           .time-spent { font-size: 1rem; color: #666; margin-top: 0.5rem; }
         </style>
-        <div class="tokens-reward-popup">
-          <div class="emoji">💎</div>
-          <div class="amount">+${tokensReward}</div>
-          <div class="label">Arcade Tokens Awarded!</div>
-          <div class="time-spent">Time spent: ${timeDisplay}</div>
-        </div>
+        ${tokenPopupHtml}
         
         <h2 class="page-title">Quiz Results</h2>
         
