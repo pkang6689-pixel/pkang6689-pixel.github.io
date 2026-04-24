@@ -1017,8 +1017,18 @@
         // Special Themes List (Backgrounds that need transparency)
         const specialBackgrounds = ['aurora', 'sunset', 'coral', 'autumn', 'cyber', 'lavender', 'sunrise', 'blue-green'];
         
-        // Determine effective background
-        const storedBackground = localStorage.getItem('arisEduBackgroundTheme');
+        // Ensure negative z-index background layers render behind content but above body fill.
+        if (getComputedStyle(document.body).position === 'static') {
+            document.body.style.position = 'relative';
+        }
+        if (!document.body.style.zIndex) {
+            document.body.style.zIndex = '0';
+        }
+
+        // Determine effective background (supports legacy storage keys)
+        const storedBackground = localStorage.getItem('arisEduBackgroundTheme')
+            || localStorage.getItem('arisEduBackground')
+            || localStorage.getItem('backgroundTheme');
         let effectiveBackground = (storedBackground && storedBackground !== 'default') ? storedBackground : colorTheme;
         if (effectiveBackground === 'blue-green') effectiveBackground = 'aurora';
         

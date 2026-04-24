@@ -1447,7 +1447,18 @@ function renderSettings(category) {
             const options = wrapper.querySelectorAll('.custom-option');
             
             // Initialization
-            const savedValue = localStorage.getItem(storageKey) || (storageKey.includes('Background') ? 'default' : 'blue-green');
+            const isBackgroundKey = storageKey.includes('Background');
+            const legacyBackgroundValue = isBackgroundKey
+              ? (localStorage.getItem('arisEduBackground') || localStorage.getItem('backgroundTheme'))
+              : null;
+            const savedValue = localStorage.getItem(storageKey)
+              || legacyBackgroundValue
+              || (isBackgroundKey ? 'default' : 'blue-green');
+
+            // Migrate older background keys to the current canonical key.
+            if (isBackgroundKey && legacyBackgroundValue && !localStorage.getItem(storageKey)) {
+              localStorage.setItem(storageKey, legacyBackgroundValue);
+            }
             updateDropdownUI(wrapperId, savedValue);
 
             // Toggle
@@ -1465,6 +1476,10 @@ function renderSettings(category) {
                     e.stopPropagation();
                     const value = this.dataset.value;
                     localStorage.setItem(storageKey, value);
+                    if (isBackgroundKey) {
+                      localStorage.setItem('arisEduBackground', value);
+                      localStorage.setItem('backgroundTheme', value);
+                    }
 
                     // Update UI immediately (self)
                     updateDropdownUI(wrapperId, value);
