@@ -8,21 +8,80 @@
     'pkang6689@gmail.com',
     'angad.singh.b.23@gmail.com',
     'neilmartinbalboa@gmail.com'
-  ];
+  ].map(function (e) { return e.trim().toLowerCase(); });
 
-  function isDev() {
+  function normalizeEmail(e) {
+    return (e == null ? '' : String(e)).trim().toLowerCase();
+  }
+
+  function emailIsDev(email) {
+    var n = normalizeEmail(email);
+    return !!n && DEV_EMAILS.indexOf(n) !== -1;
+  }
+
+  function readStoredUser() {
     try {
-      var u = JSON.parse(localStorage.getItem('user'));
-      return u && u.email && DEV_EMAILS.includes(u.email.toLowerCase());
+      return JSON.parse(localStorage.getItem('user'));
     } catch (e) {
-      return false;
+      return null;
     }
   }
 
-  // Expose globally so chem.html can guard its own buttons
-  window._isDevUser = isDev;
+  function readKnownUsers() {
+    try {
+      var arr = JSON.parse(localStorage.getItem('known_users') || '[]');
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+      return [];
+    }
+  }
 
-  if (!isDev()) return;
+  function isDev() {
+    // 1) Manual override (set localStorage.arisEdu_devOverride = '1' in console
+    //    if you ever need to force-enable on a dev-owned browser).
+    try {
+      if (localStorage.getItem('arisEdu_devOverride') === '1') return true;
+    } catch (e) { /* ignore */ }
+
+    // 2) Currently signed-in user (primary path).
+    var u = readStoredUser();
+    if (u && emailIsDev(u.email)) return true;
+
+    // 3) Fallback: any previously known account on this browser is a dev email.
+    //    Helps when `user` is stale/missing but the dev has signed in here before.
+    var known = readKnownUsers();
+    for (var i = 0; i < known.length; i++) {
+      if (known[i] && emailIsDev(known[i].email)) return true;
+    }
+
+    return false;
+  }
+
+  // Expose globally so chem.html can guard its own buttons,
+  // and for quick debugging from the console.
+  window._isDevUser = isDev;
+  window._devToolsDebug = function () {
+    var u = readStoredUser();
+    return {
+      enabled: isDev(),
+      storedEmail: u && u.email,
+      normalizedStoredEmail: normalizeEmail(u && u.email),
+      devEmails: DEV_EMAILS.slice(),
+      override: (function () {
+        try { return localStorage.getItem('arisEdu_devOverride'); }
+        catch (e) { return null; }
+      })(),
+      knownUserEmails: readKnownUsers().map(function (k) { return k && k.email; })
+    };
+  };
+
+  if (!isDev()) {
+    // Leave a breadcrumb so the dev can diagnose from DevTools console.
+    try {
+      console.info('[dev_tools] Panel hidden. Run _devToolsDebug() to inspect why.');
+    } catch (e) { /* ignore */ }
+    return;
+  }
 
   // ---- Build floating dev panel ----
   var panel = document.createElement('div');
