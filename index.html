@@ -1,933 +1,845 @@
-<!doctype html>
-<html lang="en">
-<head>
+﻿ <!doctype html>
+<html lang="en" class="h-full">
+ <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ArisEdu - For Students, By Students</title>
+  <!-- <script src="/_sdk/element_sdk.js"></script> -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="ArisEdu Project Folder/theme_manager.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="ArisEdu Project Folder/styles/main.css">
   <style>
-    :root {
-      --bg: #f7faf8;
-      --surface: #ffffff;
-      --surface-alt: #eff7f3;
-      --ink: #112422;
-      --ink-soft: #4a6661;
-      --line: #d3e4de;
-      --primary: #0f766e;
-      --secondary: #ea580c;
-      --accent: #0284c7;
-      --hero-glow: radial-gradient(circle at 22% 18%, rgba(14, 116, 110, 0.28), transparent 45%), radial-gradient(circle at 82% 6%, rgba(234, 88, 12, 0.2), transparent 42%), linear-gradient(145deg, #f7faf8, #ecf6f1 50%, #fef6ee);
-      --shadow: 0 22px 48px rgba(17, 36, 34, 0.12);
-      --shadow-soft: 0 12px 30px rgba(17, 36, 34, 0.08);
+    /* === ANIMATIONS === */
+    .atom-orbit {
+      animation: rotate 20s linear infinite;
     }
-
-    body.dark-mode {
-      --bg: #0f1d21;
-      --surface: #15292f;
-      --surface-alt: #19333b;
-      --ink: #e8f3f1;
-      --ink-soft: #9fc1bc;
-      --line: #29505b;
-      --primary: #22c1ae;
-      --secondary: #fb923c;
-      --accent: #38bdf8;
-      --hero-glow: radial-gradient(circle at 20% 15%, rgba(34, 193, 174, 0.2), transparent 42%), radial-gradient(circle at 82% 8%, rgba(251, 146, 60, 0.2), transparent 45%), linear-gradient(155deg, #0f1d21, #122830 60%, #182731);
-      --shadow: 0 20px 44px rgba(0, 0, 0, 0.35);
-      --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.28);
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
-
-    * {
-      box-sizing: border-box;
+    
+    /* === EFFECTS === */
+    .logo-glow {
+      filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.3));
     }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: "Space Grotesk", "Segoe UI", sans-serif;
-      transition: background-color 0.25s ease, color 0.25s ease;
-    }
-
-    .main-container {
-      min-height: 100vh;
-      padding: 5.75rem 1.25rem 3rem;
-      position: relative;
-      overflow: clip;
-    }
-
-    .main-container::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: var(--hero-glow);
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    .home-shell {
-      max-width: 1180px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-      display: grid;
-      gap: 1.4rem;
-    }
-
-    .panel {
-      background: color-mix(in srgb, var(--surface) 90%, transparent);
-      border: 1px solid var(--line);
-      border-radius: 1.5rem;
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(5px);
-    }
-
-    .hero {
-      padding: 2.6rem;
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 2rem;
-      align-items: center;
-    }
-
-    .hero-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.45rem 0.8rem;
-      border-radius: 999px;
-      border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
-      color: var(--primary);
-      background: color-mix(in srgb, var(--primary) 10%, var(--surface));
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-
-    #company-name {
-      margin: 0;
-      font-size: clamp(2.4rem, 5vw, 4.3rem);
-      line-height: 0.94;
-      letter-spacing: -0.045em;
-      font-family: "Fraunces", Georgia, serif;
-      color: var(--ink);
-    }
-
-    #tagline {
-      margin: 1rem 0 1.15rem;
-      color: var(--ink-soft);
-      font-size: clamp(1rem, 2vw, 1.28rem);
-      max-width: 44ch;
-      line-height: 1.55;
-    }
-
-    .hero-cta-row {
+    
+    .logo-section {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-      margin-top: 1rem;
-    }
-
-    .cta {
-      border: none;
-      border-radius: 0.8rem;
-      padding: 0.85rem 1.3rem;
-      font-size: 0.98rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      transition: transform 0.2s ease, filter 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .cta-primary {
-      background: linear-gradient(140deg, var(--primary), var(--accent));
-      color: #ffffff;
-      box-shadow: 0 14px 26px color-mix(in srgb, var(--primary) 32%, transparent);
-    }
-
-    .cta-secondary {
-      background: var(--surface);
-      color: var(--ink);
-      border: 1px solid var(--line);
-    }
-
-    .cta:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.03);
-    }
-
-    .hero-metrics {
-      margin-top: 1.4rem;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(90px, 1fr));
-      gap: 0.75rem;
-    }
-
-    .metric {
-      border-radius: 0.95rem;
-      padding: 0.78rem;
-      border: 1px solid var(--line);
-      background: color-mix(in srgb, var(--surface-alt) 82%, var(--surface));
-      text-align: center;
-    }
-
-    .metric strong {
-      display: block;
-      font-size: 1.15rem;
-      color: var(--primary);
-    }
-
-    .metric span {
-      font-size: 0.78rem;
-      color: var(--ink-soft);
-    }
-
-    .hero-visual {
-      border-radius: 1.2rem;
-      border: 1px solid var(--line);
-      background: linear-gradient(170deg, color-mix(in srgb, var(--surface) 88%, transparent), color-mix(in srgb, var(--surface-alt) 78%, transparent));
-      padding: 1.2rem;
-      display: grid;
-      gap: 0.9rem;
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 55%, transparent);
-    }
-
-    .mini-course {
-      display: flex;
+      flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      gap: 0.8rem;
-      border-radius: 0.8rem;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      padding: 0.72rem;
+      gap: 2rem;
+      margin-bottom: 4rem;
     }
 
-    .mini-course-badge {
-      width: 2.3rem;
-      height: 2.3rem;
-      border-radius: 0.65rem;
-      display: grid;
-      place-items: center;
-      font-size: 1rem;
-      color: #fff;
-      font-weight: 700;
-    }
-
-    .subject-grid {
-      padding: 1.6rem;
-      display: grid;
-      gap: 0.85rem;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .subject-card {
-      border: 1px solid var(--line);
-      border-radius: 1rem;
-      padding: 1.05rem;
-      background: var(--surface);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .subject-card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .subject-card h3 {
-      margin: 0;
-      font-size: 1.05rem;
-      font-family: "Fraunces", Georgia, serif;
-      color: var(--ink);
-    }
-
-    .subject-card p {
-      margin: 0.45rem 0 0;
-      font-size: 0.9rem;
-      color: var(--ink-soft);
-      line-height: 1.48;
-    }
-
-    .journey {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: 1fr 1fr;
-      padding: 1.8rem;
-    }
-
-    .journey-copy h2,
-    .highlights h2 {
-      margin: 0 0 0.7rem;
-      font-size: 1.85rem;
-      font-family: "Fraunces", Georgia, serif;
-      color: var(--ink);
-      letter-spacing: -0.02em;
-    }
-
-    .journey-copy p,
-    .highlights p {
-      margin: 0;
-      color: var(--ink-soft);
-      line-height: 1.62;
-      max-width: 56ch;
-    }
-
-    .timeline {
-      display: grid;
-      gap: 0.8rem;
-      counter-reset: lesson-flow;
-    }
-
-    .timeline-item {
-      border: 1px solid var(--line);
-      border-radius: 0.9rem;
-      padding: 0.78rem 0.9rem;
-      background: var(--surface);
+    .logo-title-wrapper {
       display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      flex: 1;
+    }
+    
+    .content-wrapper {
+      max-width: 100%;
+    }
+    
+    .section-content {
+      display: flex;
+      gap: 3rem;
       align-items: center;
-      gap: 0.75rem;
     }
-
-    .timeline-item::before {
-      counter-increment: lesson-flow;
-      content: counter(lesson-flow);
-      width: 1.8rem;
-      height: 1.8rem;
-      border-radius: 999px;
-      display: grid;
-      place-items: center;
-      font-weight: 700;
-      color: #fff;
-      font-size: 0.86rem;
-      background: linear-gradient(145deg, var(--primary), var(--secondary));
+    
+    .section-text-content {
+      flex: 1;
+      max-width: 56rem;
     }
-
-    .timeline-item span {
-      color: var(--ink-soft);
-      font-size: 0.9rem;
+    
+    .section-illustration {
+      flex-shrink: 0;
+      width: 300px;
     }
-
-    .highlights {
-      padding: 1.8rem;
-    }
-
-    .highlight-grid {
-      margin-top: 1rem;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0.85rem;
-    }
-
-    .highlight {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 0.9rem;
-      padding: 1rem;
-    }
-
-    .highlight h3 {
-      margin: 0 0 0.35rem;
-      font-size: 0.98rem;
-      color: var(--ink);
-    }
-
-    .highlight p {
-      font-size: 0.85rem;
-      color: var(--ink-soft);
-      margin: 0;
-    }
-
-    .final-cta {
-      padding: 2rem;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 1rem;
-      background: linear-gradient(125deg, color-mix(in srgb, var(--primary) 16%, var(--surface)), color-mix(in srgb, var(--secondary) 12%, var(--surface)));
-    }
-
-    .final-cta h2 {
-      margin: 0;
-      font-size: clamp(1.5rem, 3vw, 2.2rem);
-      font-family: "Fraunces", Georgia, serif;
-      color: var(--ink);
-    }
-
-    .final-cta p {
-      margin: 0.55rem 0 0;
-      color: var(--ink-soft);
-    }
-
-    .reveal {
-      opacity: 0;
-      transform: translateY(14px);
-      animation: reveal-in 0.65s ease forwards;
-    }
-
-    .delay-1 { animation-delay: 0.08s; }
-    .delay-2 { animation-delay: 0.16s; }
-    .delay-3 { animation-delay: 0.24s; }
-    .delay-4 { animation-delay: 0.32s; }
-
-    @keyframes reveal-in {
-      to {
-        opacity: 1;
-        transform: translateY(0);
+    
+    @media (max-width: 1024px) {
+      .section-content {
+        flex-direction: column;
+      }
+      
+      .section-illustration {
+        width: 200px;
       }
     }
 
-    /* Welcome modal */
-    .welcome-modal-overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
+    @media (max-width: 768px) {
+      .logo-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .logo-title-wrapper {
+        align-items: center;
+        width: 100%;
+      }
+
+      .company-title {
+        font-size: 2.5rem;
+        line-height: 1.2;
+        text-align: center;
+        margin-bottom: 1rem;
+        word-wrap: break-word;
+      }
+
+      .section-text-content {
+        max-width: 100%;
+      }
+
+      .courses-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+    
+    /* === COMPONENTS === */
+    .logo-symbol {
+      margin-bottom: 1.5rem;
+      width: 280px;
+      height: 280px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(6, 15, 20, 0.52);
-      backdrop-filter: blur(4px);
-      z-index: 1200;
+    }
+    
+    .company-title {
+      font-size: 5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #2563eb 0%, #059669 50%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .tagline {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+      margin-bottom: 4rem;
+    }
+    
+    .section {
+      margin-bottom: 3rem;
+    }
+    
+    .section-title {
+      font-size: 1.875rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #1e293b;
+    }
+    
+    .section-text {
+      font-size: 1.125rem;
+      line-height: 1.75;
+      color: #475569;
+      margin-bottom: 1rem;
+    }
+    
+    .section-list {
+      list-style: disc;
+      list-style-position: inside;
+      font-size: 1.125rem;
+      margin-left: 1rem;
+      color: #475569;
+    }
+    
+    .section-list li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .cta-button {
+      padding: 0.75rem 2rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      color: white;
+      font-size: 1.125rem;
+      transition: opacity 0.3s;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      border: none;
+      cursor: pointer;
+    }
+    
+    .cta-button:hover {
+      opacity: 0.9;
+    }
+    
+    /* === SETTINGS TOGGLE === */
+
+    .settings-menu {
+      width: 13rem;
+      padding: 0.5rem;
+      background: #ffffff;
+      border-radius: 0.5rem;
+      box-shadow: 0 8px 20px rgba(2,6,23,0.12);
+      color: #0f172a;
+      font-size: 0.95rem;
+      visibility: hidden;
       opacity: 0;
-      transition: opacity 0.28s ease;
+      transform: translateY(-6px);
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+      position: absolute;
+      top: 100%;
+      right: 1rem;
     }
 
+    body.dark-mode .settings-menu {
+      background: #0f172a;
+      color: #cbd5e1;
+    }
+    
+    body.dark-mode {
+      background-color: #1e293b;
+    }
+    
+    body.dark-mode .tagline {
+      color: #cbd5e1;
+    }
+    
+    body.dark-mode .section-title {
+      color: #f1f5f9;
+    }
+    
+    body.dark-mode .section-text {
+      color: #94a3b8;
+    }
+    
+    body.dark-mode .section-list {
+      color: #94a3b8;
+    }
+
+    /* === WELCOME MODAL (Login/Signup Style) === */
+    .welcome-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      z-index: 2000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
     .welcome-modal-overlay.show {
       opacity: 1;
+      pointer-events: auto;
     }
 
+    /* Mimic .auth-card from LoginSignup.html */
     .welcome-card {
-      width: min(430px, 92vw);
+      background: white;
       border-radius: 1rem;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      padding: 1.4rem;
-      box-shadow: var(--shadow);
-      transform: scale(0.93);
-      transition: transform 0.28s ease;
-      position: relative;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 400px; /* Match auth-container max-width approx */
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       text-align: center;
+      position: relative;
+    }
+
+    .welcome-x-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1.25rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #94a3b8;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      transition: color 0.2s;
+    }
+    .welcome-x-btn:hover {
+      color: #334155;
+    }
+    body.dark-mode .welcome-x-btn:hover {
+      color: #f1f5f9;
+    }
+    
+    body.dark-mode .welcome-card {
+      background: #1e293b;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
     }
 
     .welcome-modal-overlay.show .welcome-card {
       transform: scale(1);
     }
 
-    .welcome-x-btn {
-      position: absolute;
-      right: 0.8rem;
-      top: 0.6rem;
-      border: none;
-      background: transparent;
-      color: var(--ink-soft);
-      font-size: 1.4rem;
-      cursor: pointer;
+    .welcome-header {
+      text-align: center;
+      margin-bottom: 2rem;
     }
 
     .welcome-title {
-      margin: 0.3rem 0 0.35rem;
-      font-size: 1.65rem;
-      font-family: "Fraunces", Georgia, serif;
-      color: var(--ink);
+      font-size: 2.5rem; /* Match .auth-title */
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
     }
 
     .welcome-subtitle {
-      margin: 0;
-      color: var(--ink-soft);
+      font-size: 1rem; /* Match .auth-subtitle */
+      color: #64748b;
+    }
+
+    body.dark-mode .welcome-subtitle {
+      color: #cbd5e1;
     }
 
     .welcome-divider {
+      text-align: center;
+      margin: 1.5rem 0;
+      color: #94a3b8;
+      font-size: 0.9rem;
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      margin: 1.2rem 0;
-      color: var(--ink-soft);
-      font-size: 0.86rem;
+      gap: 1rem;
     }
-
-    .welcome-divider::before,
-    .welcome-divider::after {
-      content: "";
+    .welcome-divider::before, .welcome-divider::after {
+      content: '';
       flex: 1;
       height: 1px;
-      background: var(--line);
+      background: #e2e8f0;
+    }
+    body.dark-mode .welcome-divider {
+       color: #64748b;
+    }
+    body.dark-mode .welcome-divider::before, 
+    body.dark-mode .welcome-divider::after {
+       background: #334155;
+    }
+
+    .welcome-footer-text {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.95rem;
+      margin-top: 1rem;
+    }
+    body.dark-mode .welcome-footer-text {
+      color: #cbd5e1;
     }
 
     .welcome-close-btn {
-      color: var(--primary);
-      font-weight: 700;
-      text-decoration: none;
+       background: none;
+       border: none;
+       color: #3b82f6; /* Link color */
+       font-weight: 700;
+       cursor: pointer;
+       text-decoration: underline;
+       font-size: inherit;
     }
 
-    /* Tutorial overlay */
+    /* === TUTORIAL OVERLAY === */
     .tutorial-overlay {
       position: fixed;
-      inset: 0;
-      z-index: 1500;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 9999;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.4s ease;
     }
-
     .tutorial-overlay.active {
       opacity: 1;
       pointer-events: auto;
     }
-
     .tutorial-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.62);
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.65);
+      z-index: 9998;
+      transition: opacity 0.4s ease;
     }
-
     .tutorial-spotlight {
       position: fixed;
-      border-radius: 10px;
-      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), inset 0 0 0 2px var(--accent);
-      z-index: 1501;
-      transition: all 0.3s ease;
+      border-radius: 8px;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.7), inset 0 0 0 3px #3b82f6;
+      z-index: 9999;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
     }
-
-    .tutorial-highlight-ring {
-      position: fixed;
-      border: 2px solid var(--accent);
-      border-radius: 12px;
-      z-index: 1502;
-      animation: pulse-ring 1.4s ease-in-out infinite;
-    }
-
-    @keyframes pulse-ring {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.35); }
-      50% { box-shadow: 0 0 0 8px rgba(2, 132, 199, 0); }
-    }
-
     .tutorial-card {
       position: fixed;
-      max-width: 440px;
-      width: min(90vw, 440px);
-      background: var(--surface);
-      color: var(--ink);
-      border: 1px solid var(--line);
+      background: white;
       border-radius: 1rem;
-      padding: 1.35rem;
-      box-shadow: var(--shadow);
-      z-index: 1503;
+      padding: 2rem;
+      /* relative for close button positioning */
+
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      z-index: 10000;
+      max-width: 440px;
+      width: 90%;
+      transform: translateY(12px);
       opacity: 0;
-      transform: translateY(8px);
-      transition: opacity 0.25s ease, transform 0.25s ease;
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
     }
-
     .tutorial-card.visible {
-      opacity: 1;
       transform: translateY(0);
+      opacity: 1;
     }
-
     .tutorial-card.centered {
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%) scale(0.96);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
     }
-
     .tutorial-card.centered.visible {
       transform: translate(-50%, -50%) scale(1);
     }
-
+    body.dark-mode .tutorial-card {
+      background: #1e293b;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
     .tutorial-close {
       position: absolute;
-      top: 0.6rem;
-      right: 0.6rem;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: #f1f5f9;
       border: none;
-      width: 1.8rem;
-      height: 1.8rem;
-      border-radius: 999px;
       cursor: pointer;
-      background: var(--surface-alt);
-      color: var(--ink-soft);
-    }
-
-    .tutorial-icon {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .tutorial-card h2 {
-      margin: 0 0 0.35rem;
-      font-size: 1.3rem;
-      text-align: center;
-    }
-
-    .tutorial-card p {
-      margin: 0;
-      text-align: center;
-      color: var(--ink-soft);
-      line-height: 1.52;
-    }
-
-    .tutorial-flow {
-      margin: 0.9rem 0;
+      font-size: 1.1rem;
+      color: #64748b;
       display: flex;
+      align-items: center;
       justify-content: center;
-      gap: 0.45rem;
+      transition: all 0.2s ease;
+      line-height: 1;
+    }
+    .tutorial-close:hover {
+      background: #e2e8f0;
+      color: #334155;
+    }
+    body.dark-mode .tutorial-close {
+      background: #334155;
+      color: #94a3b8;
+    }
+    body.dark-mode .tutorial-close:hover {
+      background: #475569;
+      color: #f1f5f9;
+    }
+    .tutorial-icon {
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+      text-align: center;
+    }
+    .tutorial-card h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #1e293b;
+      text-align: center;
+    }
+    body.dark-mode .tutorial-card h2 {
+      color: #f1f5f9;
+    }
+    .tutorial-card p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #475569;
+      text-align: center;
+      margin-bottom: 0.25rem;
+    }
+    body.dark-mode .tutorial-card p {
+      color: #94a3b8;
+    }
+    .tutorial-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 1rem 0;
       flex-wrap: wrap;
     }
-
     .tutorial-flow-step {
-      border: 1px solid var(--line);
-      border-radius: 0.55rem;
-      background: var(--surface-alt);
-      padding: 0.45rem 0.5rem;
-      font-size: 0.79rem;
-      display: inline-flex;
+      display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.15rem;
-      color: var(--ink);
+      gap: 0.25rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      background: #f1f5f9;
+      font-size: 0.85rem;
       font-weight: 600;
+      color: #334155;
     }
-
-    .flow-icon {
-      font-size: 1.1rem;
+    body.dark-mode .tutorial-flow-step {
+      background: #334155;
+      color: #e2e8f0;
     }
-
+    .tutorial-flow-step .flow-icon {
+      font-size: 1.4rem;
+    }
     .tutorial-flow-arrow {
-      align-self: center;
-      color: var(--ink-soft);
+      font-size: 1.2rem;
+      color: #94a3b8;
     }
-
     .tutorial-nav {
-      margin-top: 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.5rem;
+      margin-top: 1.5rem;
+      gap: 0.75rem;
     }
-
-    .tutorial-btn {
-      border: none;
-      border-radius: 0.55rem;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.84rem;
-      padding: 0.5rem 0.88rem;
-    }
-
-    .tutorial-btn-primary {
-      color: #fff;
-      background: linear-gradient(130deg, var(--primary), var(--accent));
-    }
-
-    .tutorial-btn-secondary {
-      background: var(--surface-alt);
-      color: var(--ink);
-    }
-
-    .tutorial-btn-skip {
-      background: transparent;
-      color: var(--ink-soft);
-    }
-
     .tutorial-dots {
       display: flex;
-      gap: 0.25rem;
+      gap: 6px;
     }
-
     .tutorial-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 99px;
-      background: color-mix(in srgb, var(--ink-soft) 40%, transparent);
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      transition: all 0.3s ease;
+    }
+    .tutorial-dot.active {
+      background: #3b82f6;
+      width: 24px;
+      border-radius: 4px;
+    }
+    body.dark-mode .tutorial-dot {
+      background: #475569;
+    }
+    body.dark-mode .tutorial-dot.active {
+      background: #60a5fa;
+    }
+    .tutorial-btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
       transition: all 0.2s ease;
     }
-
-    .tutorial-dot.active {
-      width: 20px;
-      background: var(--accent);
+    .tutorial-btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #10b981);
+      color: white;
     }
-
-    @media (max-width: 1024px) {
-      .hero,
-      .journey,
-      .final-cta {
-        grid-template-columns: 1fr;
-      }
-
-      .subject-grid,
-      .highlight-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .final-cta {
-        text-align: left;
-      }
+    .tutorial-btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
     }
-
-    @media (max-width: 720px) {
-      .main-container {
-        padding: 5.6rem 0.8rem 2rem;
-      }
-
-      .hero,
-      .subject-grid,
-      .journey,
-      .highlights,
-      .final-cta {
-        padding: 1.2rem;
-      }
-
-      .subject-grid,
-      .highlight-grid,
-      .hero-metrics {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-cta-row {
-        flex-direction: column;
-      }
-
-      .cta {
-        width: 100%;
-      }
+    .tutorial-btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+    }
+    body.dark-mode .tutorial-btn-secondary {
+      background: #334155;
+      color: #cbd5e1;
+    }
+    .tutorial-btn-secondary:hover {
+      background: #e2e8f0;
+    }
+    body.dark-mode .tutorial-btn-secondary:hover {
+      background: #475569;
+    }
+    .tutorial-btn-skip {
+      background: none;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+    }
+    .tutorial-btn-skip:hover {
+      color: #64748b;
+    }
+    .tutorial-pointer {
+      position: fixed;
+      width: 20px; height: 20px;
+      z-index: 10001;
+      pointer-events: none;
+      animation: tutorial-bounce 1s ease-in-out infinite;
+    }
+    @keyframes tutorial-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .tutorial-highlight-ring {
+      position: fixed;
+      border: 3px solid #3b82f6;
+      border-radius: 10px;
+      z-index: 9999;
+      pointer-events: none;
+      animation: tutorial-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes tutorial-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(59,130,246,0); }
     }
   </style>
   <style>@view-transition { navigation: auto; }</style>
-</head>
-<body>
-  <script src="ArisEdu Project Folder/scripts/taskbar.js"></script>
-
-  <main class="main-container" id="main-content">
-    <div class="home-shell">
-      <section class="panel hero reveal">
-        <div>
-          <span class="hero-kicker">Built with students, not just for students</span>
-          <h1 id="company-name">ArisEdu</h1>
-          <p id="tagline">A clearer path through Math and Science, with interactive lessons that actually keep momentum.</p>
-
-          <div class="hero-cta-row">
-            <a href="ArisEdu Project Folder/Courses.html" class="cta cta-primary" id="course-button">Explore Courses</a>
-            <a href="ArisEdu Project Folder/Login.html" class="cta cta-secondary">Log In / Sign Up</a>
-          </div>
-
-          <div class="hero-metrics">
-            <div class="metric">
-              <strong>20+</strong>
-              <span>Course Tracks</span>
-            </div>
-            <div class="metric">
-              <strong>4-step</strong>
-              <span>Lesson Engine</span>
-            </div>
-            <div class="metric">
-              <strong>Free</strong>
-              <span>For Every Learner</span>
-            </div>
-          </div>
-        </div>
-
-        <aside class="hero-visual" aria-label="Featured learning tracks">
-          <div class="mini-course">
-            <div style="display:flex;align-items:center;gap:0.6rem;">
-              <div class="mini-course-badge" style="background:linear-gradient(135deg,#0284c7,#0369a1);">M</div>
-              <div>
-                <strong>Mathematics</strong>
-                <div style="font-size:0.82rem;color:var(--ink-soft);">Algebra to Precalculus</div>
-              </div>
-            </div>
-            <span style="color:var(--primary);font-weight:700;">Core</span>
-          </div>
-          <div class="mini-course">
-            <div style="display:flex;align-items:center;gap:0.6rem;">
-              <div class="mini-course-badge" style="background:linear-gradient(135deg,#ea580c,#fb923c);">S</div>
-              <div>
-                <strong>Science</strong>
-                <div style="font-size:0.82rem;color:var(--ink-soft);">Physics, Chem, Biology</div>
-              </div>
-            </div>
-            <span style="color:var(--secondary);font-weight:700;">Visual</span>
-          </div>
-          <div class="mini-course">
-            <div style="display:flex;align-items:center;gap:0.6rem;">
-              <div class="mini-course-badge" style="background:linear-gradient(135deg,#0f766e,#14b8a6);">G</div>
-              <div>
-                <strong>Practice Games</strong>
-                <div style="font-size:0.82rem;color:var(--ink-soft);">Earn arcade tokens</div>
-              </div>
-            </div>
-            <span style="color:var(--accent);font-weight:700;">Fun</span>
-          </div>
-        </aside>
-      </section>
-
-      <section class="panel subject-grid reveal delay-1">
-        <article class="subject-card">
-          <h3>Algebra Foundations</h3>
-          <p>Master equations, functions, and graph literacy with interactive checkpoints and quick feedback loops.</p>
-        </article>
-        <article class="subject-card">
-          <h3>Geometry and Trig</h3>
-          <p>Move from proofs to unit-circle confidence with diagrams designed for fast pattern recognition.</p>
-        </article>
-        <article class="subject-card">
-          <h3>Chemistry and Molecular Science</h3>
-          <p>Understand reactions and structure with visual models, not walls of text or memorization pressure.</p>
-        </article>
-        <article class="subject-card">
-          <h3>Physics and Mechanics</h3>
-          <p>Learn motion, forces, and energy through simulation-style explanations and practice sets.</p>
-        </article>
-        <article class="subject-card">
-          <h3>Biology and Life Systems</h3>
-          <p>Connect cellular processes, ecology, and anatomy with clean concept maps and guided drills.</p>
-        </article>
-        <article class="subject-card">
-          <h3>Middle School to AP Pathways</h3>
-          <p>Build continuity across levels so each next course feels like progression, not a full reset.</p>
-        </article>
-      </section>
-
-      <section class="panel journey reveal delay-2">
-        <div class="journey-copy">
-          <h2>One lesson format. Zero confusion.</h2>
-          <p>
-            Every ArisEdu lesson follows the same rhythm, so students spend less energy decoding the platform and more energy learning. It is consistent, predictable, and built to reduce friction from the first click.
-          </p>
-        </div>
-        <div class="timeline" aria-label="Lesson flow">
-          <div class="timeline-item"><strong>Video</strong><span>Start with a concise visual walkthrough of the concept.</span></div>
-          <div class="timeline-item"><strong>Summary</strong><span>Reinforce key ideas with compact written anchors.</span></div>
-          <div class="timeline-item"><strong>Practice</strong><span>Use interactive questions and games to lock in mastery.</span></div>
-          <div class="timeline-item"><strong>Quiz</strong><span>Validate understanding and earn progress rewards.</span></div>
-        </div>
-      </section>
-
-      <section class="panel highlights reveal delay-3">
-        <h2>Designed for momentum</h2>
-        <p>Students stay engaged when progress is visible, goals are clear, and the interface feels alive. ArisEdu blends structure with energy from day one.</p>
-        <div class="highlight-grid">
-          <article class="highlight">
-            <h3>Adaptive Progress Cues</h3>
-            <p>Track completion and quickly see what is next without digging through menus.</p>
-          </article>
-          <article class="highlight">
-            <h3>Arcade Reward Loop</h3>
-            <p>Earn tokens for lesson performance, then use them in educational mini-games.</p>
-          </article>
-          <article class="highlight">
-            <h3>Teacher-Friendly Paths</h3>
-            <p>Support classroom use with predictable lesson sequence and analytics tools.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="panel final-cta reveal delay-4">
-        <div>
-          <h2>First impressions matter. Learning momentum matters more.</h2>
-          <p>Launch into courses now, or sign in to save progress, badges, and streaks.</p>
-        </div>
-        <a href="ArisEdu Project Folder/Login.html" class="cta cta-primary">Start Learning</a>
-      </section>
+  <!-- <script src="/_sdk/data_sdk.js" type="text/javascript"></script> -->
+ </head>
+ <body class="h-full dark-mode">
+<script src="ArisEdu Project Folder/scripts/taskbar.js"></script>
+  <main class="main-container">
+   <div class="logo-section">
+    <div class="logo-title-wrapper">
+     <!-- Company Name -->
+     <h1 id="company-name" class="logo-font company-title">ArisEdu</h1>
+     <!-- Tagline -->
+     <p id="tagline" class="logo-font tagline">Math &amp; Science</p>
     </div>
+    <!-- Logo Symbol -->
+    <div class="logo-symbol logo-glow">
+     <svg width="120" height="120" viewbox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><!-- Atom structure representing science --> <g class="atom-orbit" transform-origin="60 60"><!-- Electron orbits -->
+       <ellipse cx="60" cy="60" rx="45" ry="20" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.6" />
+       <ellipse cx="60" cy="60" rx="45" ry="20" fill="none" stroke="#10b981" stroke-width="2" opacity="0.6" transform="rotate(60 60 60)" />
+       <ellipse cx="60" cy="60" rx="45" ry="20" fill="none" stroke="#8b5cf6" stroke-width="2" opacity="0.6" transform="rotate(120 60 60)" />
+      </g> <!-- Nucleus --> <circle cx="60" cy="60" r="12" fill="#3b82f6" /> <!-- Mathematical symbols integrated --> <text x="60" y="67" font-size="18" fill="white" font-weight="bold" font-family="'Poppins', sans-serif" text-anchor="middle">
+       π
+       
+      </text>
+     </svg>
+    </div>
+   </div><!-- About ArisEdu Section -->
+
+   <div class="content-wrapper">
+    <section class="section">
+     <div class="section-content">
+      <div class="section-text-content">
+       <h2 class="logo-font section-title">About Our Platform</h2>
+       <p class="section-text">ArisEdu is a website dedicated to providing its users with free educational resources in stem subjects. 
+        ArisEdu aims to assist all students in learning, regardless of their background or skill level. </p>
+       <p class="section-text"> Please note that ArisEdu is a project still in development, and we plan on expanding development with more courses and features. </p>
+      </div>
+      <div class="section-illustration">
+       <svg viewbox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="150" cy="150" r="120" fill="#e0f2fe" opacity="0.5" />
+        <circle cx="150" cy="150" r="90" fill="#bfdbfe" opacity="0.5" /> 
+        <circle cx="150" cy="150" r="60" fill="#93c5fd" opacity="0.5" />
+        <path d="M150 90 L180 150 L150 210 L120 150 Z" fill="#3b82f6" opacity="0.7" />   
+       </svg>
+      </div>
+     </div>
+    </section>
+
+    <!-- Mathematics Section -->
+
+    <section class="section">
+     <div class="section-content">
+      <div class="section-text-content">
+       <h2 class="logo-font section-title">Mathematics</h2>
+       <p class="section-text"> We offer most high school level math courses that use interactive tools and visual aids to enhance learning intuitively.</p>
+       <ul class="section-list">
+        <li>Algebra 1 & 2</li>
+        <li>Geometry & Trigonometry</li>
+
+       </ul>
+      </div>
+      <div class="section-illustration">
+       <svg viewbox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <rect x="50" y="60" width="200" height="180" rx="10" fill="#e0f2fe" opacity="0.6" /> 
+        <line x1="70" y1="140" x2="220" y2="140" stroke="#3b82f6" stroke-width="3" /> 
+        <line x1="150" y1="70" x2="150" y2="220" stroke="#3b82f6" stroke-width="3" /> 
+        <path d="M70 220 L220 70" fill="none" stroke="#10b981" stroke-width="4" /> 
+        <circle cx="90" cy="200" r="6" fill="#8b5cf6" /> <circle cx="200" cy="90" r="6" fill="#8b5cf6" /> 
+        </text> <text x="100" y="130" font-size="24" fill="#10b981" font-weight="bold">
+         f(x)
+        </text>
+       </svg>
+      </div>
+     </div>
+    </section>
+
+    <!-- Science Section -->
+
+    <section class="section">
+     <div class="section-content">
+      <div class="section-text-content">
+       <h2 class="logo-font section-title">Science</h2>
+       <p class="section-text"> We offer high school level science courses, 
+        with interactive diagrams, practice questions, and even fun games to elevate the 
+        scientific learning process, aimed at making science a enjoyable
+        and engaging subject for all students.</p>
+       <ul class="section-list">
+    
+        <li>Physics & Mechanics</li>
+        <li>Chemistry & Molecular Science </li>
+        <li>Biology</li>
+       </ul>
+      </div>
+      <div class="section-illustration">
+       <svg viewbox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Flask body (conical) with outline --> <path d="M135 140 L90 240 Q90 250 100 250 L200 250 Q210 250 210 240 L165 140 L165 80 L135 80 Z" fill="#e0f2fe" opacity="0.9" stroke="#3b82f6" stroke-width="3" />
+        <!-- Liquid inside --> <path d="M135 140 L90 240 Q90 250 100 250 L200 250 Q210 250 210 240 L165 140 Z" fill="#10b981" opacity="0.6" /> 
+        <!-- Bubbles --> 
+        <circle cx="140" cy="200" r="8" fill="#ffffff" opacity="0.6" /> 
+        <circle cx="160" cy="190" r="6" fill="#ffffff" opacity="0.6" />
+        <circle cx="130" cy="180" r="5" fill="#ffffff" opacity="0.6" /> 
+        <circle cx="170" cy="210" r="7" fill="#ffffff" opacity="0.6" /> 
+        <circle cx="150" cy="220" r="6" fill="#ffffff" opacity="0.6" />
+        <circle cx="120" cy="230" r="9" fill="#ffffff" opacity="0.6" />
+        <circle cx="180" cy="230" r="9" fill="#ffffff" opacity="0.6" />
+        <circle cx="160" cy="170" r="5" fill="#ffffff" opacity="0.6" />
+        
+    <!-- About Section -->
+    
+       </svg>
+      </div>
+     </div>
+    </section>
+    <section class="section">
+     <div class="section-content">
+      <div class="section-text-content">
+       <h2 class="logo-font section-title">Get Started Today</h2>
+       <p class="section-text" style="margin-bottom: 1.5rem;">Start your journey to mastering math and science today!</p>
+       <a href = "ArisEdu Project Folder/Login.html"><button class="logo-font cta-button"> Log In/Sign Up </button></a>
+
+      </div>
+      <div class="section-illustration">
+      </div>
+     </div>
+    </section>
+   </div>
   </main>
 
+  <!-- Welcome Back Modal (Auth Card Style) -->
   <div id="welcome-modal" class="welcome-modal-overlay">
     <div class="welcome-card">
       <button class="welcome-x-btn" id="welcome-x-btn" aria-label="Close">&times;</button>
-      <h2 class="welcome-title" id="welcome-back-title">Welcome Back</h2>
-      <p class="welcome-subtitle">You are signed in and ready to continue.</p>
-      <div class="welcome-divider">Continue your progress</div>
-      <a href="ArisEdu Project Folder/Courses.html" class="cta cta-primary" id="welcome-close-btn" style="width:100%;">Go to Courses</a>
-      <p style="margin:0.85rem 0 0;font-size:0.86rem;color:var(--ink-soft);">Or explore from the homepage.</p>
+      <div class="welcome-header">
+        <h2 class="welcome-title" id="welcome-back-title">Welcome Back</h2>
+        <p class="welcome-subtitle">You are signed in.</p>
+      </div>
+      <div class="welcome-divider">or</div>
+      <div class="welcome-footer-text">
+        <a href="ArisEdu Project Folder/Courses.html" class="welcome-close-btn" id="welcome-close-btn">Continue to Courses</a>
+      </div>
     </div>
   </div>
 
   <script>
-    (function() {
-      const modal = document.getElementById("welcome-modal");
-      const closeBtn = document.getElementById("welcome-close-btn");
-      const xBtn = document.getElementById("welcome-x-btn");
-      const title = document.getElementById("welcome-back-title");
+  // Welcome Back Modal Logic
+  (function() {
+      const modal = document.getElementById('welcome-modal');
+      const closeBtn = document.getElementById('welcome-close-btn');
+      const xBtn = document.getElementById('welcome-x-btn');
+      const title = document.getElementById('welcome-back-title');
+      
       if (!modal || !closeBtn || !title) return;
 
-      let username = "";
-      const userJson = localStorage.getItem("user");
+      // Check login
+      let username = '';
+      const userJson = localStorage.getItem('user');
       if (userJson) {
-        try {
-          const user = JSON.parse(userJson);
-          username = user?.name || user?.firstName || user?.email || "";
-        } catch (e) {}
+           try {
+              const user = JSON.parse(userJson);
+              username = user.name || user.email;
+           } catch(e){}
       }
-      if (!username) username = localStorage.getItem("arisEduAccountEmail") || "";
+      if (!username) {
+          username = localStorage.getItem('arisEduAccountEmail');
+      }
 
       if (username) {
-        const displayName = username.includes("@") ? username.split("@")[0] : username;
-        title.textContent = "Welcome Back, " + displayName;
-        modal.style.display = "flex";
-        requestAnimationFrame(function() {
-          modal.classList.add("show");
-        });
+          const displayDetails = username.includes('@') ? username.split('@')[0] : username;
+          title.textContent = `Welcome Back, ${displayDetails}`;
+          
+          // Show modal
+          modal.style.display = 'flex';
+          requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                  modal.classList.add('show');
+              });
+          });
       }
 
-      closeBtn.addEventListener("click", function() {
-        modal.classList.remove("show");
+      // Close modal behavior is handled by navigation now, 
+      // but if user lingers or goes back, clicking it should still work visually
+      closeBtn.addEventListener('click', (e) => {
+          // let default navigation happen
+          modal.classList.remove('show');
+          setTimeout(() => {
+              modal.style.display = 'none';
+          }, 300);
       });
 
-      xBtn?.addEventListener("click", function() {
-        modal.classList.remove("show");
-        setTimeout(function() {
-          modal.style.display = "none";
-        }, 260);
-      });
-    })();
+      if (xBtn) {
+          xBtn.addEventListener('click', () => {
+              modal.classList.remove('show');
+              setTimeout(() => {
+                  modal.style.display = 'none';
+              }, 300);
+          });
+      }
+  })();
   </script>
 
   <script>
+
     const defaultConfig = {
-      background_color: "#f7faf8",
-      text_color: "#112422",
-      primary_color: "#0f766e",
-      secondary_color: "#ea580c",
-      accent_color: "#0284c7",
-      font_family: "Space Grotesk",
+      background_color: "#f8fafc",
+      text_color: "#1e293b",
+      primary_color: "#3b82f6",
+      secondary_color: "#10b981",
+      accent_color: "#8b5cf6",
+      font_family: "Poppins",
       font_size: 16,
       company_name: "ArisEdu",
-      tagline: "A clearer path through Math and Science, with interactive lessons that actually keep momentum."
+      tagline: "Math & Science"
     };
 
-    function onConfigChange(config) {
-      const root = document.documentElement;
-      const companyName = document.getElementById("company-name");
-      const tagline = document.getElementById("tagline");
+    <!-- Dark Mode -->
 
-      const primary = config.primary_color || defaultConfig.primary_color;
-      const secondary = config.secondary_color || defaultConfig.secondary_color;
-      const accent = config.accent_color || defaultConfig.accent_color;
-      const text = config.text_color || defaultConfig.text_color;
+    async function onConfigChange(config) {
       const customFont = config.font_family || defaultConfig.font_family;
+      const baseFontStack = `-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
       const baseSize = config.font_size || defaultConfig.font_size;
-
-      root.style.setProperty("--primary", primary);
-      root.style.setProperty("--secondary", secondary);
-      root.style.setProperty("--accent", accent);
-
-      if (!document.body.classList.contains("dark-mode")) {
+      
+      // Apply background color (unless dark mode is active)
+      const isDarkMode = document.body.classList.contains('dark-mode');
+      if (!isDarkMode) {
         document.body.style.backgroundColor = config.background_color || defaultConfig.background_color;
       }
-
-      companyName.style.fontFamily = customFont + ", 'Fraunces', serif";
-      companyName.style.fontSize = (baseSize * 0.27) + "rem";
+      
+      // Apply text color
+      const tagline = document.getElementById('tagline');
+      tagline.style.color = config.text_color || defaultConfig.text_color;
+      
+      // Apply font family
+      const companyName = document.getElementById('company-name');
+      companyName.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      tagline.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      
+      // Apply font sizes
+      companyName.style.fontSize = `${baseSize * 3.75}px`;
+      tagline.style.fontSize = `${baseSize * 1.25}px`;
+      
+      // Update text content
       companyName.textContent = config.company_name || defaultConfig.company_name;
-      companyName.style.color = text;
-
-      tagline.style.fontFamily = customFont + ", 'Space Grotesk', sans-serif";
-      tagline.style.fontSize = (baseSize / 16) + "rem";
-      tagline.style.color = text;
       tagline.textContent = config.tagline || defaultConfig.tagline;
+
+      // Update gradient for company name
+      companyName.style.background = `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 50%, ${accentColor} 100%)`;
+      companyName.style.webkitBackgroundClip = 'text';
+      companyName.style.webkitTextFillColor = 'transparent';
+      companyName.style.backgroundClip = 'text';
     }
 
     const capabilities = {
@@ -1001,265 +913,334 @@
       });
     }
 
+    // Settings Toggle
+    const settingsToggle = document.getElementById('settings-toggle');
+    const darkModeCheckbox = document.getElementById('dark-mode-checkbox');
+
     window.updateBackgroundColor = function() {
-      const isDarkMode = document.body.classList.contains("dark-mode");
+      const isDarkMode = document.body.classList.contains('dark-mode');
       if (isDarkMode) {
-        document.body.style.backgroundColor = "";
+        document.body.style.backgroundColor = '#1e293b';
       } else {
         const config = window.elementSdk?.config || defaultConfig;
         document.body.style.backgroundColor = config.background_color || defaultConfig.background_color;
       }
-    };
+    }
+
   </script>
 
-  <script>
-    (function() {
-      const loginButton = document.getElementById("login-signup-button");
-      if (!loginButton) return;
-
-      let username = "";
-      const userJson = localStorage.getItem("user");
-      if (userJson) {
-        try {
-          const userObj = JSON.parse(userJson);
-          if (userObj && (userObj.name || userObj.email)) {
-            username = userObj.name || userObj.email;
-          }
-        } catch (e) {}
-      }
-      if (!username) username = localStorage.getItem("arisEduAccountEmail") || "";
-
-      if (username) {
-        loginButton.textContent = "👤 " + username;
-        loginButton.href = "#";
-      } else {
-        loginButton.textContent = "🔐 Login/Signup";
-        loginButton.href = "ArisEdu Project Folder/Login.html";
-      }
-    })();
-  </script>
-
-  <script>
-    (function() {
-      const observed = document.querySelectorAll(".reveal");
-      if (!observed.length) return;
-      const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
-            entry.target.style.animationPlayState = "running";
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.15 });
-
-      observed.forEach(function(el) {
-        el.style.animationPlayState = "paused";
-        observer.observe(el);
-      });
-    })();
-  </script>
-
-  <script src="search_data.js"></script>
-  <script src="search_logic.js"></script>
-
-  <div id="tutorial-overlay" class="tutorial-overlay">
-    <div id="tutorial-backdrop" class="tutorial-backdrop"></div>
-    <div id="tutorial-spotlight" class="tutorial-spotlight" style="display:none;"></div>
-    <div id="tutorial-highlight-ring" class="tutorial-highlight-ring" style="display:none;"></div>
-    <div id="tutorial-card" class="tutorial-card"></div>
+<script>
+  // Taskbar username display with emoji
+  (function () {
+    const loginButton = document.getElementById('login-signup-button');
+    if (!loginButton) return;
+    let username = '';
+    const userJson = localStorage.getItem('user');
+    if (userJson) {
+      try {
+        const userObj = JSON.parse(userJson);
+        if (userObj && (userObj.name || userObj.email)) {
+          username = userObj.name || userObj.email;
+        }
+      } catch (e) {}
+    }
+    if (!username) {
+      username = localStorage.getItem('arisEduAccountEmail') || '';
+    }
+    if (username) {
+      loginButton.textContent = `👤 ${username}`;
+      loginButton.href = '#';
+    } else {
+      loginButton.textContent = '🔐 Login/Signup';
+      loginButton.href="ArisEdu Project Folder/Login.html";
+    }
+  })();
+</script>
+<!-- Welcome Modal -->
+  <div id="welcome-modal" class="welcome-modal-overlay">
+    <div class="welcome-card">
+       <div class="welcome-header">
+         <h1 id="welcome-title" class="welcome-title">Welcome Back</h1>
+         <p class="welcome-subtitle">We're glad to see you again</p>
+       </div>
+       <div class="welcome-divider">Continue Learning</div>
+       <button class="cta-button" onclick="window.location.href='ArisEdu Project Folder/Courses.html'">Continue to Courses</button>
+       <div class="welcome-footer-text">
+         <button class="welcome-close-btn" onclick="closeWelcomeModal()">Dismiss</button>
+       </div>
+    </div>
   </div>
 
   <script>
+    // Welcome Modal Logic
     (function() {
-      var isAutoStart = !localStorage.getItem("arisEdu_tutorialCompleted");
+      // Check for user login
+      const userStr = localStorage.getItem('user');
+      // Or 'arisEduAccountEmail' ? LoginSignup uses 'user' object mostly nowadays?
+      // The snippet I saw earlier checked 'user' then 'arisEduAccountEmail'.
+      // Let's implement robust check.
+      let isLoggedIn = false;
+      let displayName = 'User';
 
-      const steps = [
-        {
-          type: "center",
-          icon: "🎓",
-          title: "Welcome to ArisEdu",
-          body: "A free Math and Science platform with a consistent lesson flow and gamified progress.",
-          btnText: "Start Tour"
-        },
-        {
-          type: "highlight",
-          target: "#course-button",
-          icon: "📚",
-          title: "Jump Into Courses",
-          body: "Explore the complete catalog right from this button.",
-          position: "below"
-        },
-        {
-          type: "highlight",
-          target: "#more-menu-btn",
-          icon: "⋯",
-          title: "Discover More Tools",
-          body: "Open the More menu for Arcade, analytics, forums, updates, and AI tools.",
-          position: "auto"
-        },
-        {
-          type: "center",
-          icon: "📖",
-          title: "Lesson Rhythm",
-          body: "Every lesson follows this same structure:",
-          flow: [
-            { icon: "🎬", label: "Video" },
-            { icon: "📝", label: "Summary" },
-            { icon: "🎮", label: "Practice" },
-            { icon: "✅", label: "Quiz" }
-          ],
-          flowCaption: "Keep this flow and progress stays smooth."
-        },
-        {
-          type: "center",
-          icon: "🚀",
-          title: "You Are Set",
-          body: "Sign in to track streaks, badges, and learning milestones.",
-          btnText: "Let’s Go"
-        }
-      ];
-
-      let currentStep = 0;
-      const overlay = document.getElementById("tutorial-overlay");
-      const backdrop = document.getElementById("tutorial-backdrop");
-      const spotlight = document.getElementById("tutorial-spotlight");
-      const ring = document.getElementById("tutorial-highlight-ring");
-      const card = document.getElementById("tutorial-card");
-
-      function buildCard(step, index) {
-        let html = '<button class="tutorial-close" onclick="tutorialFinish()" aria-label="Close">✕</button>';
-        if (step.icon) html += '<div class="tutorial-icon">' + step.icon + '</div>';
-        html += '<h2>' + step.title + '</h2>';
-        html += '<p>' + step.body + '</p>';
-
-        if (step.flow) {
-          html += '<div class="tutorial-flow">';
-          step.flow.forEach(function(f, i) {
-            html += '<div class="tutorial-flow-step"><span class="flow-icon">' + f.icon + '</span>' + f.label + '</div>';
-            if (i < step.flow.length - 1) html += '<span class="tutorial-flow-arrow">→</span>';
-          });
-          html += '</div>';
-          if (step.flowCaption) html += '<p style="font-size:0.82rem;margin-top:0.3rem;">' + step.flowCaption + '</p>';
-        }
-
-        html += '<div class="tutorial-nav">';
-        if (index > 0) {
-          html += '<button class="tutorial-btn tutorial-btn-secondary" onclick="tutorialPrev()">← Back</button>';
-        } else {
-          html += '<button class="tutorial-btn tutorial-btn-skip" onclick="tutorialSkip()">Skip</button>';
-        }
-        html += '<div class="tutorial-dots">';
-        for (var i = 0; i < steps.length; i++) {
-          html += '<div class="tutorial-dot' + (i === index ? ' active' : '') + '"></div>';
-        }
-        html += '</div>';
-        const isLast = index === steps.length - 1;
-        const nextLabel = step.btnText || (isLast ? "Finish" : "Next →");
-        html += '<button class="tutorial-btn tutorial-btn-primary" onclick="' + (isLast ? 'tutorialFinish()' : 'tutorialNext()') + '">' + nextLabel + '</button>';
-        html += '</div>';
-
-        return html;
-      }
-
-      function showStep(index) {
-        currentStep = index;
-        const step = steps[index];
-        card.classList.remove("visible");
-
-        setTimeout(function() {
-          card.innerHTML = buildCard(step, index);
-
-          if (step.type === "highlight" && step.target) {
-            const el = document.querySelector(step.target);
-            if (el) {
-              const rect = el.getBoundingClientRect();
-              const pad = 7;
-
-              backdrop.style.display = "none";
-              spotlight.style.display = "block";
-              spotlight.style.top = (rect.top - pad) + "px";
-              spotlight.style.left = (rect.left - pad) + "px";
-              spotlight.style.width = (rect.width + pad * 2) + "px";
-              spotlight.style.height = (rect.height + pad * 2) + "px";
-
-              ring.style.display = "block";
-              ring.style.top = (rect.top - pad) + "px";
-              ring.style.left = (rect.left - pad) + "px";
-              ring.style.width = (rect.width + pad * 2) + "px";
-              ring.style.height = (rect.height + pad * 2) + "px";
-
-              card.classList.remove("centered");
-              const cardWidth = Math.min(420, window.innerWidth - 24);
-              const cardLeft = Math.max(12, Math.min(rect.left + rect.width / 2 - cardWidth / 2, window.innerWidth - cardWidth - 12));
-              card.style.left = cardLeft + "px";
-              card.style.width = cardWidth + "px";
-
-              const placeBelow = step.position === "below" || (step.position === "auto" && rect.bottom + 230 < window.innerHeight);
-              if (placeBelow) {
-                card.style.top = (rect.bottom + 15) + "px";
-                card.style.bottom = "auto";
-              } else {
-                card.style.bottom = (window.innerHeight - rect.top + 15) + "px";
-                card.style.top = "auto";
-              }
-            } else {
-              backdrop.style.display = "block";
-              spotlight.style.display = "none";
-              ring.style.display = "none";
-              card.classList.add("centered");
-              card.style.left = "50%";
-              card.style.top = "50%";
-              card.style.bottom = "auto";
-              card.style.width = "";
-            }
-          } else {
-            backdrop.style.display = "block";
-            spotlight.style.display = "none";
-            ring.style.display = "none";
-            card.classList.add("centered");
-            card.style.left = "50%";
-            card.style.top = "50%";
-            card.style.bottom = "auto";
-            card.style.width = "";
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          if (user && (user.firstName || user.name || user.email)) {
+            isLoggedIn = true;
+            displayName = user.firstName || user.name || user.email.split('@')[0];
           }
-
-          requestAnimationFrame(function() {
-            card.classList.add("visible");
-          });
-        }, 140);
+        } catch(e) {}
+      }
+      
+      if (!isLoggedIn) {
+        const email = localStorage.getItem('arisEduAccountEmail');
+        if (email) {
+          isLoggedIn = true;
+          displayName = email.split('@')[0];
+        }
       }
 
-      window.tutorialNext = function() {
-        if (currentStep < steps.length - 1) showStep(currentStep + 1);
-      };
-      window.tutorialPrev = function() {
-        if (currentStep > 0) showStep(currentStep - 1);
-      };
-      window.tutorialSkip = function() {
-        tutorialFinish();
-      };
-      window.tutorialFinish = function() {
-        localStorage.setItem("arisEdu_tutorialCompleted", "true");
-        card.classList.remove("visible");
-        overlay.classList.remove("active");
-        setTimeout(function() {
-          overlay.style.display = "none";
-        }, 280);
-      };
+      if (isLoggedIn) {
+        const modal = document.getElementById('welcome-modal');
+        const title = document.getElementById('welcome-title');
+        
+        // Optional: formatting name
+        // Capitalize first letter
+        displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
-      window.startTutorial = function() {
-        overlay.style.display = "";
-        overlay.classList.add("active");
-        showStep(0);
-      };
-
-      if (isAutoStart) {
-        setTimeout(function() {
-          overlay.classList.add("active");
-          showStep(0);
-        }, 650);
+        if (title) title.textContent = `Welcome Back, ${displayName}`;
+        
+        if (modal) {
+          // Show with small delay
+          setTimeout(() => {
+            modal.classList.add('show');
+          }, 100);
+        }
       }
     })();
+
+    function closeWelcomeModal() {
+      const modal = document.getElementById('welcome-modal');
+      if (modal) {
+        modal.classList.remove('show');
+      }
+    }
   </script>
+
+    <script src="search_data.js"></script>
+<script src="search_logic.js"></script>
+
+<!-- Tutorial System -->
+<div id="tutorial-overlay" class="tutorial-overlay">
+  <div id="tutorial-backdrop" class="tutorial-backdrop"></div>
+  <div id="tutorial-spotlight" class="tutorial-spotlight" style="display:none;"></div>
+  <div id="tutorial-highlight-ring" class="tutorial-highlight-ring" style="display:none;"></div>
+  <div id="tutorial-card" class="tutorial-card"></div>
+</div>
+
+<script>
+(function() {
+  // Only show tutorial on first visit
+  var isAutoStart = !localStorage.getItem('arisEdu_tutorialCompleted');
+
+  const steps = [
+    {
+      type: 'center',
+      icon: '🎓',
+      title: 'Welcome to ArisEdu!',
+      body: 'A free platform for learning Math & Science at your own pace — available in multiple languages. Let us give you a quick tour!',
+      btnText: 'Start Tour'
+    },
+    {
+      type: 'highlight',
+      target: '#course-button',
+      icon: '📚',
+      title: 'Explore Courses',
+      body: 'Access our full curriculum including Algebra, Geometry, Biology, Chemistry, Physics, and more.',
+      position: 'below'
+    },
+    {
+      type: 'highlight',
+      target: '#more-menu-btn',
+      icon: '⋯',
+      title: 'More Options',
+      body: 'Tap <b>⋯ More</b> for extra features: Arcade, Teacher Analytics, Forums, Updates, and our AI Assistant.',
+      position: 'auto'
+    },
+    {
+      type: 'center',
+      icon: '📖',
+      title: 'How Lessons Work',
+      body: 'Each lesson follows a simple 4-step flow:',
+      flow: [
+        { icon: '🎬', label: 'Video' },
+        { icon: '📝', label: 'Summary' },
+        { icon: '🎮', label: 'Practice' },
+        { icon: '✅', label: 'Quiz' }
+      ],
+      flowCaption: 'Complete all steps to master each topic!'
+    },
+    {
+      type: 'center',
+      icon: '🕹️',
+      title: 'Arcade Tokens',
+      body: 'Earn tokens by completing lesson quizzes, then spend them in the Arcade!',
+      flow: [
+        { icon: '✅', label: 'Pass Quiz' },
+        { icon: '💎', label: 'Earn Tokens' },
+        { icon: '👾', label: 'Visit Arcade' },
+        { icon: '🎮', label: 'Play Games' }
+      ],
+      flowCaption: 'Complete more lessons to stock up on tokens!'
+    },
+    {
+      type: 'center',
+      icon: '🚀',
+      title: "You're Ready!",
+      body: 'Sign in to track streaks & earn badges. Customize your experience in Settings. Your journey starts now!',
+      btnText: 'Get Started!'
+    }
+  ];
+
+  let currentStep = 0;
+  const overlay = document.getElementById('tutorial-overlay');
+  const backdrop = document.getElementById('tutorial-backdrop');
+  const spotlight = document.getElementById('tutorial-spotlight');
+  const ring = document.getElementById('tutorial-highlight-ring');
+  const card = document.getElementById('tutorial-card');
+
+  function buildCard(step, index) {
+    let html = '<button class="tutorial-close" onclick="tutorialFinish()" aria-label="Close" title="Close">✕</button>';
+    if (step.icon) html += '<div class="tutorial-icon">' + step.icon + '</div>';
+    html += '<h2>' + step.title + '</h2>';
+    html += '<p>' + step.body + '</p>';
+
+    if (step.flow) {
+      html += '<div class="tutorial-flow">';
+      step.flow.forEach(function(f, i) {
+        html += '<div class="tutorial-flow-step"><span class="flow-icon">' + f.icon + '</span>' + f.label + '</div>';
+        if (i < step.flow.length - 1) html += '<span class="tutorial-flow-arrow">→</span>';
+      });
+      html += '</div>';
+      if (step.flowCaption) html += '<p style="font-size:0.85rem;color:#64748b;margin-top:0.25rem;">' + step.flowCaption + '</p>';
+    }
+
+    // Navigation
+    html += '<div class="tutorial-nav">';
+    if (index > 0) {
+      html += '<button class="tutorial-btn tutorial-btn-secondary" onclick="tutorialPrev()">← Back</button>';
+    } else {
+      html += '<button class="tutorial-btn tutorial-btn-skip" onclick="tutorialSkip()">Skip</button>';
+    }
+    html += '<div class="tutorial-dots">';
+    for (var i = 0; i < steps.length; i++) {
+      html += '<div class="tutorial-dot' + (i === index ? ' active' : '') + '"></div>';
+    }
+    html += '</div>';
+    var isLast = index === steps.length - 1;
+    var nextLabel = step.btnText || (isLast ? 'Finish' : 'Next →');
+    html += '<button class="tutorial-btn tutorial-btn-primary" onclick="' + (isLast ? 'tutorialFinish()' : 'tutorialNext()') + '">' + nextLabel + '</button>';
+    html += '</div>';
+
+    return html;
+  }
+
+  function showStep(index) {
+    currentStep = index;
+    var step = steps[index];
+    card.classList.remove('visible');
+
+    setTimeout(function() {
+      card.innerHTML = buildCard(step, index);
+
+      if (step.type === 'highlight' && step.target) {
+        var el = document.querySelector(step.target);
+        if (el) {
+          var rect = el.getBoundingClientRect();
+          var pad = 8;
+
+          // Hide backdrop, use spotlight box-shadow instead
+          backdrop.style.display = 'none';
+          spotlight.style.display = 'block';
+          spotlight.style.top = (rect.top - pad) + 'px';
+          spotlight.style.left = (rect.left - pad) + 'px';
+          spotlight.style.width = (rect.width + pad * 2) + 'px';
+          spotlight.style.height = (rect.height + pad * 2) + 'px';
+
+          ring.style.display = 'block';
+          ring.style.top = (rect.top - pad) + 'px';
+          ring.style.left = (rect.left - pad) + 'px';
+          ring.style.width = (rect.width + pad * 2) + 'px';
+          ring.style.height = (rect.height + pad * 2) + 'px';
+
+          // Position card below or above the element
+          card.classList.remove('centered');
+          card.style.position = 'fixed';
+          var cardWidth = 400;
+          var cardLeft = Math.max(16, Math.min(rect.left + rect.width / 2 - cardWidth / 2, window.innerWidth - cardWidth - 16));
+          card.style.left = cardLeft + 'px';
+          card.style.width = cardWidth + 'px';
+
+          var placeBelow = step.position === 'below' || (step.position === 'auto' && rect.bottom + 240 < window.innerHeight);
+          if (placeBelow) {
+            card.style.top = (rect.bottom + 20) + 'px';
+            card.style.bottom = 'auto';
+          } else {
+            card.style.bottom = (window.innerHeight - rect.top + 20) + 'px';
+            card.style.top = 'auto';
+          }
+        }
+      } else {
+        // Centered card
+        backdrop.style.display = 'block';
+        spotlight.style.display = 'none';
+        ring.style.display = 'none';
+        card.classList.add('centered');
+        card.style.left = '50%';
+        card.style.top = '50%';
+        card.style.bottom = 'auto';
+        card.style.width = '';
+      }
+
+      requestAnimationFrame(function() {
+        card.classList.add('visible');
+      });
+    }, 200);
+  }
+
+  window.tutorialNext = function() {
+    if (currentStep < steps.length - 1) showStep(currentStep + 1);
+  };
+  window.tutorialPrev = function() {
+    if (currentStep > 0) showStep(currentStep - 1);
+  };
+  window.tutorialSkip = function() {
+    tutorialFinish();
+  };
+  window.tutorialFinish = function() {
+    localStorage.setItem('arisEdu_tutorialCompleted', 'true');
+    card.classList.remove('visible');
+    overlay.classList.remove('active');
+    setTimeout(function() {
+      overlay.style.display = 'none';
+    }, 400);
+  };
+
+  // Expose a global function so dev tools can re-launch the tutorial
+  window.startTutorial = function() {
+    overlay.style.display = '';
+    overlay.classList.add('active');
+    showStep(0);
+  };
+
+  // Start tutorial after a brief delay (only on first visit)
+  if (isAutoStart) {
+    setTimeout(function() {
+      overlay.classList.add('active');
+      showStep(0);
+    }, 600);
+  }
+})();
+</script>
 </body>
 </html>
