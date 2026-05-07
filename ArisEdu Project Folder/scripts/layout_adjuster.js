@@ -1,37 +1,41 @@
 
-// Auto-adjust body padding based on Taskbar height (handling wrap)
+// Auto-adjust body padding based on Taskbar height (handling wrap on small screens)
 (function() {
+    let lastHeight = 0;
     function adjustPadding() {
         const taskbar = document.querySelector('.taskbar');
-        if (taskbar) {
-            const height = taskbar.offsetHeight;
-            // Add some buffer
-            document.body.style.paddingTop = (height + 20) + 'px';
-        }
+        if (!taskbar) return;
+        const height = taskbar.offsetHeight;
+        if (height === lastHeight) return; // avoid redundant reflows
+        lastHeight = height;
+        document.body.style.paddingTop = height + 'px';
     }
 
-    // Run on load and resize
+    // Run as early as possible, then again on DOM ready / load / resize
+    adjustPadding();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', adjustPadding);
+    }
     window.addEventListener('load', adjustPadding);
     window.addEventListener('resize', adjustPadding);
-    
-    // Also use ResizeObserver if available for more robust detection
+
+    // Track taskbar size changes (e.g. wrap on small viewports)
     if (window.ResizeObserver) {
-        const ro = new ResizeObserver(entries => {
-            adjustPadding();
-        });
+        const ro = new ResizeObserver(adjustPadding);
         const tb = document.querySelector('.taskbar');
-        if (tb) ro.observe(tb);
-        // Wait for taskbar to exist if not yet
-        else {
-            const observer = new MutationObserver((mutations) => {
-                const tb = document.querySelector('.taskbar');
-                if (tb) {
-                    ro.observe(tb);
+        if (tb) {
+            ro.observe(tb);
+        } else {
+            // Wait for taskbar to be injected by taskbar.js
+            const observer = new MutationObserver(() => {
+                const t = document.querySelector('.taskbar');
+                if (t) {
+                    ro.observe(t);
                     adjustPadding();
                     observer.disconnect();
                 }
             });
-            observer.observe(document.body, { childList: true, subtree: true });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
         }
     }
 })();

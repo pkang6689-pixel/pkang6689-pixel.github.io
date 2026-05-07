@@ -33,12 +33,22 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 path = '/search_logic.js'
             elif path.startswith('/_sdk/'):
                 path = path  # Keep as is - points to root _sdk folder
-            # Map /styles/* to ArisEdu Project Folder/styles/*
+            # Map /styles/* to ArisEdu Project Folder/styles/*, but fall back
+            # to root-level /styles/* if the remapped file doesn't exist.
             elif path.startswith('/styles/'):
-                path = '/ArisEdu Project Folder' + path
-            # Map /scripts/* to ArisEdu Project Folder/scripts/* if it's not already
+                remapped = '/ArisEdu Project Folder' + path
+                root_dir = os.path.dirname(os.path.abspath(__file__))
+                if os.path.isfile(root_dir + remapped.replace('/', os.sep)):
+                    path = remapped
+                # else: leave path as-is so root-level /styles/* is served
+            # Map /scripts/* to ArisEdu Project Folder/scripts/* if it's not already,
+            # with the same fallback to root-level /scripts/*.
             elif path.startswith('/scripts/') and not path.startswith('/ArisEdu Project Folder/scripts/'):
-                path = '/ArisEdu Project Folder' + path
+                remapped = '/ArisEdu Project Folder' + path
+                root_dir = os.path.dirname(os.path.abspath(__file__))
+                if os.path.isfile(root_dir + remapped.replace('/', os.sep)):
+                    path = remapped
+                # else: leave path as-is so root-level /scripts/* is served
             # /content_data/* stays as root-level
             # /translations/* stays as root-level
             # /ArisEdu Project Folder/* stays as is
@@ -62,6 +72,11 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         try:
             # Override parent to add extra safety
             path = self.translate_path(self.path)
+            # If a directory was requested, serve its index.html
+            if os.path.isdir(path):
+                index_path = os.path.join(path, 'index.html')
+                if os.path.isfile(index_path):
+                    path = index_path
             f = None
             try:
                 # Try to open file

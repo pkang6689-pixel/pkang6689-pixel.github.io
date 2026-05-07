@@ -375,9 +375,12 @@ function initializeSearch() {
             if (activeGradient) {
                 document.documentElement.style.setProperty('--rubric-border-gradient', activeGradient);
                 
-                // 1. Taskbar
+                // 1. Taskbar coloring removed; ensure no stale gradient remains.
                 const taskbar = document.querySelector('.taskbar');
-                if (taskbar) taskbar.style.background = activeGradient;
+                if (taskbar) {
+                    taskbar.style.removeProperty('background');
+                    taskbar.style.removeProperty('background-image');
+                }
 
                 // 2. Headings and other elements with explicit gradient class or inline style
                 const elements = document.querySelectorAll('*');
@@ -431,8 +434,7 @@ function initializeSearch() {
                         -webkit-text-fill-color: transparent; 
                     }
 
-                    /* Background Gradients */
-                    .taskbar,
+                    /* Background Gradients (taskbar excluded; backgrounds-only customization) */
                     .side-button,
                     .action-button, 
                     .nav-button,

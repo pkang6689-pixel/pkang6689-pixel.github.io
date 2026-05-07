@@ -51,6 +51,10 @@
         return "ArisEdu Project Folder/scripts/" + filename;
     }
 
+    // Expose so other handlers (e.g. Dev Tools toggle below) can resolve
+    // script paths the same way regardless of which page loaded taskbar.js.
+    window._getScriptPath = window._getScriptPath || getScriptPath;
+
     [
         "ai_assistant.js",
         "tools_panel.js",
@@ -58,6 +62,7 @@
         "ambience_controller.js",
         "layout_adjuster.js",
         "update_notifier.js",
+        "report_problem.js",
         "course-progress-firebase.js"
     ].forEach(name => {
         // Check if script already exists to prevent duplicates
@@ -408,6 +413,7 @@
           '<a class="drawer-item" href="/ArisEdu Project Folder/arcade.html">\uD83D\uDC7E Arcade</a>' +
           '<a class="drawer-item" href="/ArisEdu Project Folder/lab_simulations.html">🔬 Lab Simulations</a>' +
           '<button class="drawer-item" id="drawer-forums-btn">\uD83D\uDCAC Forums</button>' +
+          '<button class="drawer-item" id="drawer-report-btn">\uD83D\uDEA9 Report a Problem</button>' +
         '</nav>' +
         '<div class="drawer-divider"></div>' +
         '<div class="mobile-drawer-section" role="group" aria-label="Tools">' +
@@ -508,6 +514,7 @@
               '<a class="more-item" href="/ArisEdu Project Folder/lab_simulations.html" role="menuitem">🔬 Lab Simulations</a>' +
               '<button class="more-item" id="more-forums-btn"'+getDisp('forums')+' role="menuitem">\uD83D\uDCAC Forums</button>' +
               '<button class="more-item" id="more-update-btn" role="menuitem">\uD83D\uDD14 Updates</button>' +
+              '<button class="more-item" id="more-report-btn" role="menuitem">\uD83D\uDEA9 Report a Problem</button>' +
             '</div>' +
           '</div>' +
 
@@ -577,6 +584,8 @@
       if (moreForumsBtn) moreForumsBtn.addEventListener('click', function(){ window.location.href = '/ArisEdu Project Folder/forums.html'; });
       var moreUpdateBtn = document.getElementById('more-update-btn');
       if (moreUpdateBtn) moreUpdateBtn.addEventListener('click', function(){ if(window.showArisEduUpdate) window.showArisEduUpdate(); });
+      var moreReportBtn = document.getElementById('more-report-btn');
+      if (moreReportBtn) moreReportBtn.addEventListener('click', function(){ closeMoreMenu(); if(window.showReportProblem) window.showReportProblem(); });
       
       // Hide Teacher Analytics button for non-teachers
       (async function() {
@@ -651,6 +660,8 @@
     // Wire up drawer buttons
     var drawerForums = document.getElementById('drawer-forums-btn');
     if (drawerForums) drawerForums.addEventListener('click', function(){ closeDrawer(); window.location.href = '/ArisEdu Project Folder/forums.html'; });
+    var drawerReport = document.getElementById('drawer-report-btn');
+    if (drawerReport) drawerReport.addEventListener('click', function(){ closeDrawer(); if(window.showReportProblem) window.showReportProblem(); });
     var drawerSearch = document.getElementById('drawer-search-btn');
     if (drawerSearch) drawerSearch.addEventListener('click', function(){ closeDrawer(); var sb = document.getElementById('search-button'); if(sb) sb.click(); });
     var drawerAI = document.getElementById('drawer-ai-btn');
@@ -886,10 +897,26 @@
         // Insert wrapper where courses-container was
         coursesContainer.parentNode.insertBefore(flexWrapper, coursesContainer);
         flexWrapper.appendChild(sidebarNode);
-        flexWrapper.appendChild(coursesContainer);
-        // Make courses-container fill remaining space
-        coursesContainer.style.flex = '1';
-        coursesContainer.style.minWidth = '0';
+        // If a practice-exam button wrapper follows the courses-container,
+        // group them into a column so the button centers under the grid only
+        // (not the sidebar+grid combined width).
+        var practiceWrapper = coursesContainer.parentNode.querySelector('.practice-exam-wrapper');
+        if (practiceWrapper) {
+          var column = document.createElement('div');
+          column.className = 'cs-courses-column';
+          column.style.display = 'flex';
+          column.style.flexDirection = 'column';
+          column.style.flex = '1';
+          column.style.minWidth = '0';
+          flexWrapper.appendChild(column);
+          column.appendChild(coursesContainer);
+          column.appendChild(practiceWrapper);
+        } else {
+          flexWrapper.appendChild(coursesContainer);
+          // Make courses-container fill remaining space
+          coursesContainer.style.flex = '1';
+          coursesContainer.style.minWidth = '0';
+        }
       } else {
         // Fallback: prepend sidebar to main-container
         mainContainer.insertBefore(sidebarNode, mainContainer.firstChild);
@@ -1121,7 +1148,12 @@
                  // Force override
                  window._isDevUser = function() { return true; };
                  var script = document.createElement('script');
-                 script.src = './dev_tools.js?v=' + Date.now();
+                 // Resolve dev_tools.js relative to the actual scripts folder
+                 // (works from root pages like index.html, course pages, and lesson pages).
+                 var resolver = window._getScriptPath || function(f) {
+                     return 'ArisEdu Project Folder/scripts/' + f;
+                 };
+                 script.src = resolver('dev_tools.js') + '?v=' + Date.now();
                  document.body.appendChild(script);
              }
         }

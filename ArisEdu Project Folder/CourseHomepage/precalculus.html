@@ -25,8 +25,11 @@
     <div class="logo-title-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
       <h1 id="company-name" class="logo-font page-title" style="font-size: 3rem; margin-bottom: 0;">High School: Precalculus</h1>
     </div>
-    <div class="courses-container">
-      <div style="position: relative; transform: translateY(0); display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1rem; min-height: 60rem;" id="grid-container"></div>
+    <div class="courses-container" style="min-height: auto;">
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem 2rem; padding: 1rem;" id="grid-container"></div>
+    </div>
+    <div class="practice-exam-wrapper" style="display: flex; justify-content: center; padding: 1rem 0 0 0; margin-top: 0;">
+      <button onclick="alert('Practice exam coming soon!')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 3rem; border: none; border-radius: 0.5rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'">Take Practice Exam</button>
     </div>
   </main>
 
@@ -122,23 +125,41 @@
       10: [{num: 1, name: 'Derivative as Slope of Tangent Line'}, {num: 2, name: 'Derivative Rules (power rule basics)'}, {num: 3, name: 'Applications in Optimization'}, {num: 4, name: 'Area Under Curves (intro to integration)'}, {num: 5, name: '⭐ Connecting Precalculus to Calculus'}, {num: 6, name: '⭐ AP-Style Practice Problems'}, {num: 7, name: '⭐ Capstone Project: Modeling with Functions'}, {num: 8, name: '⭐ Comprehensive Review & AP Exam Prep'}],
     };
 
-  function generateUnitSVG(unitNum, lessonCount) {
+          function generateUnitSVG(unitNum, lessonCount) {
+    const lessons = (typeof lessonMappings !== 'undefined' && lessonMappings[unitNum]) ? lessonMappings[unitNum] : [];
+    const totalItems = lessons.length + 1; // +1 for unit test
+    const _barX = 12, _barY = 2, _barW = 86, _barH = 8;
+    const spacing = _barW / totalItems;
     let segments = '';
-    const lessons = lessonMappings[unitNum] || [];
-    const totalSpace = 30;
-    const rectHeight = (totalSpace / lessons.length).toFixed(3);
 
     for (let i = 0; i < lessons.length; i++) {
       const lesson = lessons[i];
-      const yPos = (3 + totalSpace - ((i + 1) * rectHeight)).toFixed(3);
-      segments += '<a href="../CourseFiles/PrecalculusLessons/Unit' + unitNum + '/Lesson ' + unitNum + '.' + lesson.num + '_Video.html" onclick="markLessonStarted(\'' + unitNum + '\', ' + (i+1) + ')">\n' +
-        '    <rect id="u' + unitNum + '-l' + (i+1) + '" stroke="none" x="3" y="' + yPos + '" width="18" height="' + rectHeight + '" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, \'Lesson ' + unitNum + '.' + lesson.num + ': ' + lesson.name.replace(/'/g, "\\'") + '\')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>\n' +
+      const xPos = (_barX + i * spacing).toFixed(3);
+      const segW = spacing.toFixed(3);
+      const href = '../CourseFiles/PrecalculusLessons/Unit' + unitNum + '/Lesson ' + unitNum + '.' + lesson.num + '_Video.html';
+      const tooltip = ('Lesson ' + unitNum + '.' + lesson.num + ': ' + lesson.name).replace(/'/g, "&#39;");
+      segments += '<a href="' + href + '" onclick="markLessonStarted(\'' + unitNum + '\', ' + (i+1) + ')">\n' +
+        '    <rect id="u' + unitNum + '-l' + (i+1) + '" stroke="none" x="' + xPos + '" y="' + _barY + '" width="' + segW + '" height="' + _barH + '" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, \'' + tooltip + '\', ' + unitNum + ', ' + (i+1) + ')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>\n' +
         '</a>\n' +
-        '  <line x1="3" y1="' + yPos + '" x2="21" y2="' + yPos + '" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />\n';
+        '  <line x1="' + xPos + '" y1="' + _barY + '" x2="' + xPos + '" y2="' + (_barY + _barH) + '" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />\n';
     }
 
-    return '<div style="position: relative; display: flex; align-items: flex-start; justify-content: center; height: 100%;"><svg viewBox="0 0 24 38" fill="none" stroke="currentColor" stroke-width="0.4" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; max-height: 45rem; color: inherit;"><rect x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="none" stroke="currentColor" stroke-width="0.5" /><rect id="fill-unit-' + unitNum + '" x="3" y="3" width="18" height="30" rx="1.5" ry="1.5" fill="#9ca3af" fill-opacity="0.15" stroke="none" /><g id="segments-unit-' + unitNum + '">\n' + segments + '</g><text x="12" y="36" text-anchor="middle" fill="currentColor" stroke="none" font-size="1.8" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit ' + unitNum + '</text></svg></div>';
+    // Unit Test segment (last)
+    const testIdx = lessons.length;
+    const testXPos = (_barX + testIdx * spacing).toFixed(3);
+    const testW = spacing.toFixed(3);
+    const testHref = '../CourseFiles/PrecalculusLessons/Unit' + unitNum + '/Unit' + unitNum + '_Test_Practice.html';
+    segments += '<a href="' + testHref + '" onclick="markLessonStarted(\'' + unitNum + '\', ' + (testIdx + 1) + ')">\n' +
+      '    <rect id="u' + unitNum + '-l' + (testIdx + 1) + '" stroke="none" x="' + testXPos + '" y="' + _barY + '" width="' + testW + '" height="' + _barH + '" fill="white" fill-opacity="0" cursor="pointer" pointer-events="auto" onmouseenter="showLessonPopup(event, \'Unit ' + unitNum + ' Test\', ' + unitNum + ', ' + (testIdx + 1) + ')" onmousemove="moveLessonPopup(event)" onmouseleave="hideLessonPopup()"></rect>\n' +
+      '</a>\n' +
+      '  <line x1="' + testXPos + '" y1="' + _barY + '" x2="' + testXPos + '" y2="' + (_barY + _barH) + '" stroke="currentColor" stroke-width="0.08" stroke-opacity="0.3" pointer-events="none" />\n';
+
+    return '<div style="position: relative; width: 100%;"><svg viewBox="0 0 100 12" fill="none" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: auto; color: inherit;"><text x="' + (_barX - 2) + '" y="' + (_barY + _barH / 2 + 1) + '" text-anchor="end" fill="currentColor" stroke="none" font-size="2.6" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" style="pointer-events: none;">Unit ' + unitNum + '</text><rect x="' + _barX + '" y="' + _barY + '" width="' + _barW + '" height="' + _barH + '" rx="1" ry="1" fill="none" stroke="currentColor" stroke-width="0.3" /><rect id="fill-unit-' + unitNum + '" x="' + _barX + '" y="' + _barY + '" width="' + _barW + '" height="' + _barH + '" rx="1" ry="1" fill="#9ca3af" fill-opacity="0.15" stroke="none" /><g id="segments-unit-' + unitNum + '">\n' + segments + '</g></svg></div>';
   }
+
+
+
+
 
   function populateGrid() {
     const container = document.getElementById('grid-container');

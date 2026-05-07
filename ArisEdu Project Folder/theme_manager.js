@@ -1061,8 +1061,9 @@
         // Apply to taskbar if exists
         const taskbar = document.querySelector('.taskbar');
         if (taskbar) {
-             taskbar.style.removeProperty('background'); 
-             taskbar.style.backgroundImage = activeGradient;
+             // Custom taskbar coloring removed; clear any prior gradient so default CSS shows.
+             taskbar.style.removeProperty('background');
+             taskbar.style.removeProperty('background-image');
              
              // Audio Button Injection - REMOVED (Moved to Settings Menu)
              /*

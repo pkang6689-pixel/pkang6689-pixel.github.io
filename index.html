@@ -28,10 +28,17 @@
     .logo-section {
       display: flex;
       flex-direction: row;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       gap: 2rem;
-      margin-bottom: 4rem;
+      margin-bottom: 0; /* divider sits flush below */
+      /* Bleed past .main-container padding to span taskbar -> divider full width */
+      margin-top: -1.5rem;
+      margin-left: -2rem;
+      margin-right: -2rem;
+      padding: 1.5rem 2rem 1rem 2rem;
+      background: rgba(248, 250, 252, 0.92);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
     }
 
     .logo-title-wrapper {
@@ -107,28 +114,48 @@
     /* === COMPONENTS === */
     .logo-symbol {
       margin-bottom: 1.5rem;
-      width: 280px;
-      height: 280px;
+      width: 300px;
+      height: 300px;
       display: flex;
       align-items: center;
       justify-content: center;
+      /* Align the TOP of the atom's outer circle (~37.5px / 2.34rem below the
+         SVG container top) with the top of the ArisEdu title text. */
+      margin-top: -3.34rem;
     }
     
     .company-title {
-      font-size: 5rem;
+      font-size: 8rem; /* scaled from 5rem by 1.6 */
       font-weight: 700;
+      margin-top: -1rem; /* a bit of breathing room from the top */
       margin-bottom: 0.5rem;
+      line-height: 1;
+      width: max-content;
+      display: grid;
+      grid-template-columns: auto 15px auto; /* left-aligned, fixed gap between Aris and Edu */
+      align-items: baseline;
       background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+    .title-half--left { text-align: left; }
+    .title-half--right { text-align: left; }
+    .title-divider { /* empty spacer between Aris and Edu */ }
     
     .tagline {
-      font-size: 1.25rem;
+      font-size: 1.625rem; /* scaled from 1.25rem by 1.30 */
       font-weight: 600;
       letter-spacing: 0.025em;
       margin-bottom: 4rem;
+    }
+
+    .logo-divider {
+      /* Span the full website width by bleeding past .main-container's 2rem side padding */
+      margin: 0 -2rem 3rem -2rem;
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      width: calc(100% + 4rem);
     }
     
     .section {
@@ -219,6 +246,11 @@
     
     body.dark-mode .section-list {
       color: #94a3b8;
+    }
+
+    body.dark-mode .logo-section {
+      background: rgba(15, 23, 42, 0.92);
+      border-bottom-color: rgba(255, 255, 255, 0.08);
     }
 
     /* === WELCOME MODAL (Login/Signup Style) === */
@@ -601,13 +633,13 @@
    <div class="logo-section">
     <div class="logo-title-wrapper">
      <!-- Company Name -->
-     <h1 id="company-name" class="logo-font company-title">ArisEdu</h1>
+     <h1 id="company-name" class="logo-font company-title"><span class="title-half title-half--left">Aris</span><span class="title-divider" aria-hidden="true"></span><span class="title-half title-half--right">Edu</span></h1>
      <!-- Tagline -->
-     <p id="tagline" class="logo-font tagline">Math &amp; Science</p>
+     <p id="tagline" class="logo-font tagline">For Students, By Students</p>
     </div>
     <!-- Logo Symbol -->
     <div class="logo-symbol logo-glow">
-     <svg width="120" height="120" viewbox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><!-- Atom structure representing science --> <g class="atom-orbit" transform-origin="60 60"><!-- Electron orbits -->
+     <svg width="300" height="300" viewbox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><!-- Atom structure representing science --> <g class="atom-orbit" transform-origin="60 60"><!-- Electron orbits -->
        <ellipse cx="60" cy="60" rx="45" ry="20" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.6" />
        <ellipse cx="60" cy="60" rx="45" ry="20" fill="none" stroke="#10b981" stroke-width="2" opacity="0.6" transform="rotate(60 60 60)" />
        <ellipse cx="60" cy="60" rx="45" ry="20" fill="none" stroke="#8b5cf6" stroke-width="2" opacity="0.6" transform="rotate(120 60 60)" />
@@ -618,6 +650,7 @@
      </svg>
     </div>
    </div><!-- About ArisEdu Section -->
+   <hr class="logo-divider" />
 
    <div class="content-wrapper">
     <section class="section">
