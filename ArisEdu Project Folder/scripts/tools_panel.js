@@ -443,25 +443,23 @@
         let lastAns = 0; // last answer for ANS key
 
         function safeEval(raw) {
-            try {
-                let s = raw
-                    .replace(/×/g, '*').replace(/÷/g, '/')
-                    .replace(/\^/g, '**')
-                    .replace(/π/g, 'Math.PI').replace(/e(?![xp])/g, 'Math.E')
-                    .replace(/\bsin\(/g, 'Math.sin(').replace(/\bcos\(/g, 'Math.cos(')
-                    .replace(/\btan\(/g, 'Math.tan(').replace(/\basin\(/g, 'Math.asin(')
-                    .replace(/\bacos\(/g, 'Math.acos(').replace(/\batan\(/g, 'Math.atan(')
-                    .replace(/\bsqrt\(/g, 'Math.sqrt(').replace(/\bcbrt\(/g, 'Math.cbrt(')
-                    .replace(/\babs\(/g, 'Math.abs(').replace(/\blog\(/g, 'Math.log10(')
-                    .replace(/\bln\(/g, 'Math.log(').replace(/\bexp\(/g, 'Math.exp(')
-                    .replace(/\bfloor\(/g, 'Math.floor(').replace(/\bceil\(/g, 'Math.ceil(')
-                    .replace(/\bround\(/g, 'Math.round(')
-                    .replace(/ANS/g, String(lastAns))
-                    .replace(/(\d+)!/g, '(function f(n){return n<=1?1:n*f(n-1)})($1)');
-                const res = new Function('return ' + s)();
-                if (!isFinite(res)) return NaN;
-                return Math.round(res * 1e12) / 1e12;
-            } catch { return NaN; }
+            // Prefer the strict whitelist evaluator from SecurityUtils.
+            if (window.SecurityUtils && typeof window.SecurityUtils.safeMathEval === 'function') {
+                // Translate visual symbols and the factorial sugar before delegating.
+                let pre = String(raw || '')
+                    .replace(/π/g, 'pi')
+                    // Inline factorial: replace N! with the explicit product expansion (small N only).
+                    .replace(/(\d+)!/g, function (_m, n) {
+                        n = parseInt(n, 10);
+                        if (!isFinite(n) || n < 0 || n > 20) return 'NaN';
+                        let r = 1;
+                        for (let i = 2; i <= n; i++) r *= i;
+                        return String(r);
+                    });
+                return window.SecurityUtils.safeMathEval(pre, lastAns);
+            }
+            // Fallback: refuse to evaluate rather than fall back to dynamic code.
+            return NaN;
         }
 
         function render(cursorPos) {

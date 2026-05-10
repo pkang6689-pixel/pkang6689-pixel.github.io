@@ -6,7 +6,6 @@ import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateD
 const firebaseConfig = {
   apiKey: "AIzaSyCOauFIB0fu4BSbHBeBo_8dwR3F1Fct5IM",
   authDomain: "arisedu-1bb22.firebaseapp.com",
-  databaseURL: "https://arisedu-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "arisedu-1bb22",
   storageBucket: "arisedu-1bb22.firebasestorage.app",
   messagingSenderId: "1003231707877",

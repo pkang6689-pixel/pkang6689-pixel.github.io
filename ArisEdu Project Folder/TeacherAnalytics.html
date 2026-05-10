@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.googleapis.com; base-uri 'self'; form-action 'self'; object-src 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Teacher Analytics - ArisEdu</title>
   <script src="https://cdn.tailwindcss.com" async defer></script>
@@ -9,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/main.css">
   <script src="theme_manager.js?v=2.1"></script>
+  <script src="scripts/security_utils.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -921,14 +923,15 @@
         row.onclick = () => showStudentDetail(student);
         
         const initials = (student.displayName || "S").substring(0, 2).toUpperCase();
-        
+        const _esc = (window.SecurityUtils && window.SecurityUtils.escapeHtml) || (s => String(s||'').replace(/[&<>"'`/]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;','/':'&#47;'}[c])));
+
         row.innerHTML = `
           <div class="student-avatar" style="background: linear-gradient(135deg, #${Math.floor(Math.random()*16777215).toString(16)}, #${Math.floor(Math.random()*16777215).toString(16)});">
-            ${initials}
+            ${_esc(initials)}
           </div>
           <div class="student-info">
-            <div class="student-name">${student.displayName || 'Student'}</div>
-            <div class="student-email">${student.email}</div>
+            <div class="student-name">${_esc(student.displayName || 'Student')}</div>
+            <div class="student-email">${_esc(student.email)}</div>
           </div>
           <div class="student-metrics">
             <div class="metric">
@@ -989,7 +992,7 @@
         const lastActiveText = lastLogin ? formatDate(lastLogin) : 'Never';
         
         row.innerHTML = `
-          <td style="font-weight:600;">${student.displayName || 'Student'}</td>
+          <td style="font-weight:600;">${(window.SecurityUtils?window.SecurityUtils.escapeHtml(student.displayName || 'Student'):(student.displayName || 'Student'))}</td>
           <td>${completion}%</td>
           <td>
             <div style="display:flex; align-items:center; gap:0.5rem;">

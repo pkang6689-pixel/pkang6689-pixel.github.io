@@ -24,6 +24,14 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def translate_path(self, path):
         try:
             path = urllib.parse.unquote(path)
+
+            # SECURITY: reject obvious traversal / NUL-byte attempts before any
+            # rewriting. SimpleHTTPRequestHandler also normalizes, but rejecting
+            # early gives clearer logs and prevents accidental rewrites.
+            if '\x00' in path or '..' in path.split('?', 1)[0].split('#', 1)[0].replace('\\', '/').split('/'):
+                self.send_error(400, 'Bad path')
+                # Return a path that cannot resolve to a file so callers send 404.
+                return os.devnull
             
             # Handle absolute path redirects for the dev server
             # Map framework paths to root-level files
@@ -64,6 +72,31 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Pragma', 'no-cache')
             self.send_header('Expires', '0')
             self.send_header('Connection', 'close')
+            # --- Security headers ---
+            self.send_header('X-Content-Type-Options', 'nosniff')
+            self.send_header('X-Frame-Options', 'DENY')
+            self.send_header('Referrer-Policy', 'strict-origin-when-cross-origin')
+            self.send_header('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()')
+            self.send_header('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
+            self.send_header('Cross-Origin-Resource-Policy', 'same-origin')
+            # CSP: allow Firebase/Google services + gstatic CDN; keep 'unsafe-inline'
+            # for now because the codebase has many inline <script> blocks. Tighten
+            # by adding nonces/hashes once those are extracted to files.
+            self.send_header(
+                'Content-Security-Policy',
+                "default-src 'self'; "
+                "script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+                "font-src 'self' https://fonts.gstatic.com data:; "
+                "img-src 'self' data: blob: https:; "
+                "media-src 'self' https: blob:; "
+                "connect-src 'self' https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com; "
+                "frame-src 'self' https://*.firebaseapp.com https://www.google.com; "
+                "frame-ancestors 'none'; "
+                "base-uri 'self'; "
+                "form-action 'self'; "
+                "object-src 'none'"
+            )
             super().end_headers()
         except Exception as e:
             print(f"[end_headers error] {e}", flush=True)

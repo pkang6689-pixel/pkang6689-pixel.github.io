@@ -2,6 +2,7 @@
 <html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.googleapis.com; base-uri 'self'; form-action 'self'; object-src 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - ArisEdu</title>
   <script src="https://cdn.tailwindcss.com" async defer></script>
@@ -503,6 +504,7 @@
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="theme_manager.js"></script>
+  <script src="scripts/security_utils.js"></script>
 </head>
 <body class="dark-mode h-full logo-font">
 <script src="scripts/taskbar.js"></script>
@@ -676,7 +678,8 @@
     }
 
     function validatePassword(password) {
-      return password.length >= 8;
+      // Login page accepts the user's existing password length; strength is enforced at signup.
+      return typeof password === 'string' && password.length >= 1;
     }
 
     // Account View
@@ -762,7 +765,7 @@
       }
 
       if (hasError) {
-        showFormMessage('login-form', 'Enter a valid email and a password of 8+ characters.', 'error');
+        showFormMessage('login-form', 'Enter a valid email and your password.', 'error');
         return;
       }
 
@@ -783,10 +786,12 @@
           
           showFormMessage('login-form', 'Login successful! Redirecting...', 'success');
           
+          // SECURITY: never persist the plaintext password.
           const storedUser = { 
               name: user.displayName || user.email.split('@')[0], 
               email: user.email,
-              password: password
+              uid: user.uid,
+              emailVerified: !!user.emailVerified
           };
           localStorage.setItem('user', JSON.stringify(storedUser));
           

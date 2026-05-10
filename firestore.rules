@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+    function isTeacher() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher';
+    }
+    // Forbid clients from changing privileged fields like role / admin flags
+    function safeUserUpdate() {
+      return !(request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['role', 'admin', 'isAdmin', 'permissions', 'createdAt']));
+    }
+
+    // Per-user profile + progress
+    match /users/{uid} {
+      allow read:   if isOwner(uid) || isTeacher();
+      allow create: if isOwner(uid)
+                    && request.resource.data.role in ['student', 'teacher'];
+      allow update: if isOwner(uid) && safeUserUpdate();
+      allow delete: if false;
+
+      // Subcollections (progress, points, etc.) — owner only
+      match /{sub=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // Classes — readable by signed-in users, writable only by teachers
+    match /classes/{classId} {
+      allow read:  if isSignedIn();
+      allow create, update, delete: if isTeacher();
+
+      match /{sub=**} {
+        allow read:  if isSignedIn();
+        allow write: if isTeacher();
+      }
+    }
+
+    // Forums / discussions — verified users may post; only authors may edit
+    match /forums/{postId} {
+      allow read:   if isSignedIn();
+      allow create: if isVerified()
+                    && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if isSignedIn()
+                            && resource.data.authorId == request.auth.uid;
+
+      match /comments/{commentId} {
+        allow read:   if isSignedIn();
+        allow create: if isVerified()
+                      && request.resource.data.authorId == request.auth.uid;
+        allow update, delete: if isSignedIn()
+                              && resource.data.authorId == request.auth.uid;
+      }
+    }
+
+    // Default deny — anything not explicitly allowed above
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

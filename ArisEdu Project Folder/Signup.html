@@ -2,6 +2,7 @@
 <html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.googleapis.com; base-uri 'self'; form-action 'self'; object-src 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up - ArisEdu</title>
   <script src="https://cdn.tailwindcss.com" async defer></script>
@@ -511,6 +512,7 @@
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="theme_manager.js"></script>
+  <script src="scripts/security_utils.js"></script>
 </head>
 <body class="dark-mode h-full logo-font">
 <script src="scripts/taskbar.js"></script>
@@ -671,11 +673,12 @@
       }
 
       results.forEach(result => {
+        const _esc = (window.SecurityUtils && window.SecurityUtils.escapeHtml) || (s => String(s||'').replace(/[&<>"'`/]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;','/':'&#47;'}[c])));
         const resultItem = document.createElement('div');
         resultItem.className = 'search-result-item';
         resultItem.innerHTML = `
-          <div style="font-weight: 600; color: #1e293b;">${result.title}</div>
-          <div style="font-size: 0.85rem; color: #64748b; margin-top: 0.25rem;">${result.category}</div>
+          <div style="font-weight: 600; color: #1e293b;">${_esc(result.title)}</div>
+          <div style="font-size: 0.85rem; color: #64748b; margin-top: 0.25rem;">${_esc(result.category)}</div>
         `;
         resultItem.addEventListener('click', () => {
           closeSearchModal();
@@ -708,7 +711,14 @@
     }
 
     function validatePassword(password) {
-      return password.length >= 8;
+      // Require >= 12 chars and at least 3 of: lowercase, uppercase, digit, symbol.
+      if (typeof password !== 'string' || password.length < 12) return false;
+      let classes = 0;
+      if (/[a-z]/.test(password)) classes++;
+      if (/[A-Z]/.test(password)) classes++;
+      if (/[0-9]/.test(password)) classes++;
+      if (/[^A-Za-z0-9]/.test(password)) classes++;
+      return classes >= 3;
     }
 
     // Account View
@@ -806,7 +816,7 @@
       }
 
       if (hasError) {
-        showFormMessage('signup-form', 'Check all fields. Password must be 8+ characters.', 'error');
+        showFormMessage('signup-form', 'Check all fields. Password must be 12+ characters and mix upper/lower case, numbers, and symbols.', 'error');
         return;
       }
 
@@ -851,17 +861,25 @@
 
           await setDoc(doc(db, "users", user.uid), userData);
 
-          let successMsg = 'Account created! Logging you in...';
+          // Send a verification email so we can require verified accounts later.
+          try {
+              const { sendEmailVerification } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+              await sendEmailVerification(user);
+          } catch (verifyErr) {
+              console.warn('Could not send verification email:', verifyErr && verifyErr.code);
+          }
+
+          let successMsg = 'Account created! Check your inbox to verify your email.';
           if (role === 'teacher') {
-             successMsg = `Teacher account created! Your Class Code: ${userData.myClassCode}`;
+             successMsg = `Teacher account created! Your Class Code: ${userData.myClassCode}. Check your inbox to verify your email.`;
           }
 
           showFormMessage('signup-form', successMsg, 'success');
-          
-          const storedUser = { 
-              name: name.trim(), 
+
+          // SECURITY: never persist the plaintext password in localStorage.
+          const storedUser = {
+              name: name.trim(),
               email: email.trim(),
-              password: password,
               role: role,
               myClassCode: userData.myClassCode || null,
               joinedClassCode: userData.joinedClassCode || null

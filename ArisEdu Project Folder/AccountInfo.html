@@ -2,10 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.googleapis.com; base-uri 'self'; form-action 'self'; object-src 'none'">
   <title>Account Information</title>
   <script src="https://cdn.tailwindcss.com" async defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
   <script src="theme_manager.js?v=2.1"></script>
+  <script src="scripts/security_utils.js"></script>
   <style>
     body {
       background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
@@ -1025,32 +1027,44 @@ const BADGE_DEFS = {
       if (switchModal && knownUsersList) {
           knownUsersList.innerHTML = '';
           otherUsers.forEach(u => {
+              const _esc = (window.SecurityUtils && window.SecurityUtils.escapeHtml) || (s => String(s||'').replace(/[&<>"'`/]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;','/':'&#47;'}[c])));
               const uName = u.name || u.email;
               const uRole = u.role ? (u.role.charAt(0).toUpperCase() + u.role.slice(1)) : 'Student';
-              const uAvatar = u.avatarEmoji || uName.charAt(0).toUpperCase();
+              const uAvatar = u.avatarEmoji || (uName ? uName.charAt(0).toUpperCase() : '?');
 
               const isDarkSw = document.body.classList.contains('dark-mode');
               const item = document.createElement('div');
               item.style.cssText = `display:flex; align-items:center; gap:1rem; padding:0.8rem; background:${isDarkSw ? '#1e293b' : '#f8fafc'}; border-radius:0.5rem; cursor:pointer; transition:background 0.2s; border:1px solid ${isDarkSw ? '#334155' : '#e2e8f0'};`;
               item.innerHTML = `
                 <div style="width:40px; height:40px; border-radius:50%; background:${isDarkSw ? '#334155' : '#e2e8f0'}; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:bold; color:${isDarkSw ? '#94a3b8' : '#64748b'};">
-                    ${uAvatar}
+                    ${_esc(uAvatar)}
                 </div>
                 <div style="flex:1;">
-                    <div style="font-weight:600; color:${isDarkSw ? '#e2e8f0' : '#334155'};">${uName}</div>
-                    <div style="font-size:0.8rem; color:#94a3b8;"><span data-i18n="${uRole}">${uRole}</span> • ${u.email}</div>
+                    <div style="font-weight:600; color:${isDarkSw ? '#e2e8f0' : '#334155'};">${_esc(uName)}</div>
+                    <div style="font-size:0.8rem; color:#94a3b8;"><span data-i18n="${_esc(uRole)}">${_esc(uRole)}</span> • ${_esc(u.email)}</div>
                 </div>
                 <div style="font-size:1.2rem; color:${isDarkSw ? '#475569' : '#cbd5e1'};">➔</div>
               `;
               
               item.onmouseover = () => item.style.background = isDarkSw ? '#334155' : '#f1f5f9';
               item.onmouseout = () => item.style.background = isDarkSw ? '#1e293b' : '#f8fafc';
-              
+
               item.onclick = () => {
-                  // Switch to this user
-                  localStorage.setItem('user', JSON.stringify(u));
-                  // Reload page to reflect new user
-                  window.location.reload();
+                  // SECURITY: Never overwrite the local user object from a list of
+                  // arbitrary "known users" — that allows account impersonation if any
+                  // XSS or untrusted Firestore data lands in this list. Instead, sign
+                  // the current user out and route to the login page so the target
+                  // account must re-authenticate with Firebase Auth.
+                  try { localStorage.removeItem('user'); } catch (_e) {}
+                  try {
+                      const targetEmail = (u && u.email) ? String(u.email) : '';
+                      if (targetEmail) sessionStorage.setItem('prefill_email', targetEmail);
+                  } catch (_e) {}
+                  import('./firebase-config.js').then(function(mod){
+                      if (mod.auth && mod.signOut) return mod.signOut(mod.auth);
+                  }).catch(function(){}).finally(function(){
+                      window.location.href = 'Login.html';
+                  });
               };
               
               knownUsersList.appendChild(item);

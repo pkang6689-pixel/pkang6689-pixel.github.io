@@ -4,7 +4,6 @@
 const firebaseConfig = {
   apiKey: "AIzaSyCOauFIB0fu4BSbHBeBo_8dwR3F1Fct5IM",
   authDomain: "arisedu-1bb22.firebaseapp.com",
-  databaseURL: "https://arisedu-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "arisedu-1bb22",
   storageBucket: "arisedu-1bb22.firebasestorage.app",
   messagingSenderId: "1003231707877",
@@ -36,11 +35,13 @@ async function initializeFirebase() {
 
     // Set up auth state listener
     firebase.onAuthStateChanged(auth, (user) => {
+      const dbg = (typeof window !== 'undefined' && window.SecurityUtils && window.SecurityUtils.safeLog)
+        ? window.SecurityUtils.safeLog : { info: function(){} };
       if (user) {
-        console.log('[Firebase] User authenticated:', user.email);
+        dbg.info('[Firebase] User authenticated (uid:', user.uid, ')');
         window.currentUser = user;
       } else {
-        console.log('[Firebase] No user authenticated');
+        dbg.info('[Firebase] No user authenticated');
         window.currentUser = null;
       }
     });
