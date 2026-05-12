@@ -90,7 +90,7 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 "font-src 'self' https://fonts.gstatic.com data:; "
                 "img-src 'self' data: blob: https:; "
                 "media-src 'self' https: blob:; "
-                "connect-src 'self' https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.google.com https://recaptcha.google.com https://www.gstatic.com; "
+                "connect-src 'self' https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.google.com https://recaptcha.google.com https://www.gstatic.com https://www.recaptcha.net; "
                 "frame-src 'self' https://*.firebaseapp.com https://www.google.com https://recaptcha.google.com https://www.recaptcha.net; "
                 "frame-ancestors 'none'; "
                 "base-uri 'self'; "
