@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, deleteField, orderBy, query, limit, serverTimestamp, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
 
 
 const firebaseConfig = {
@@ -13,11 +14,33 @@ const firebaseConfig = {
   measurementId: "G-XEEFF1QH75"
 };
 
+// reCAPTCHA Enterprise site key for App Check
+const APP_CHECK_SITE_KEY = "6LeyTOIsAAAAAGj6fVnnrUTied38JFBxlKoFnUKx";
+
+// Enable App Check debug tokens on localhost so local dev still works.
+// In production (GitHub Pages), this branch is skipped and real attestation is used.
+if (typeof self !== "undefined" &&
+    typeof location !== "undefined" &&
+    (location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+}
+
 // Initialize Firebase
-let app, auth, db;
+let app, auth, db, appCheck;
 
 try {
     app = initializeApp(firebaseConfig);
+
+    // Initialize App Check BEFORE other Firebase services start making requests.
+    try {
+        appCheck = initializeAppCheck(app, {
+            provider: new ReCaptchaEnterpriseProvider(APP_CHECK_SITE_KEY),
+            isTokenAutoRefreshEnabled: true
+        });
+    } catch (acErr) {
+        console.error("App Check initialization failed:", acErr);
+    }
+
     auth = getAuth(app);
     db = getFirestore(app);
     console.log("Firebase initialized");

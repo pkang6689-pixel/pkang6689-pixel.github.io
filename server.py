@@ -85,13 +85,13 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header(
                 'Content-Security-Policy',
                 "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+                "script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://www.google.com https://www.recaptcha.net https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
                 "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
                 "font-src 'self' https://fonts.gstatic.com data:; "
                 "img-src 'self' data: blob: https:; "
                 "media-src 'self' https: blob:; "
-                "connect-src 'self' https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com; "
-                "frame-src 'self' https://*.firebaseapp.com https://www.google.com; "
+                "connect-src 'self' https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.google.com https://recaptcha.google.com https://www.gstatic.com; "
+                "frame-src 'self' https://*.firebaseapp.com https://www.google.com https://recaptcha.google.com https://www.recaptcha.net; "
                 "frame-ancestors 'none'; "
                 "base-uri 'self'; "
                 "form-action 'self'; "
