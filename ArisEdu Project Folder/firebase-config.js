@@ -18,11 +18,11 @@ const firebaseConfig = {
 const APP_CHECK_SITE_KEY = "6LftjuUsAAAAAOVl1yf6NaFC7xuFGrAgEOiinIe4";
 
 // Enable App Check debug tokens on localhost so local dev still works.
-// In production (GitHub Pages), this branch is skipped and real attestation is used.
+// Uses the pre-registered debug token so no localStorage dependency.
 if (typeof self !== "undefined" &&
     typeof location !== "undefined" &&
     (location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
-  self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN = "1ce7ac59-1eb4-41de-a2db-4eb657366167";
 }
 
 // Initialize Firebase
