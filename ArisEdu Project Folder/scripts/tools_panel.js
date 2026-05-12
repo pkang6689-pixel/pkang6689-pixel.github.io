@@ -714,19 +714,17 @@
             // parse & plot
             let expr = input.value.trim();
             try {
-                // sanitize: allow math tokens
-                const safe = expr
-                    .replace(/\^/g, '**')
-                    .replace(/\bsin\b/g, 'Math.sin')
-                    .replace(/\bcos\b/g, 'Math.cos')
-                    .replace(/\btan\b/g, 'Math.tan')
-                    .replace(/\babs\b/g, 'Math.abs')
-                    .replace(/\bsqrt\b/g, 'Math.sqrt')
-                    .replace(/\blog\b/g, 'Math.log')
-                    .replace(/\bexp\b/g, 'Math.exp')
-                    .replace(/\bpi\b/g, 'Math.PI')
-                    .replace(/\be\b/g, 'Math.E');
-                const fn = new Function('x', 'return ' + safe);
+                // Whitelist-based evaluation via SecurityUtils.safeMathEval.
+                // Build a single-variable function by evaluating at each x.
+                const fn = (x) => {
+                    if (window.SecurityUtils && typeof window.SecurityUtils.safeMathEval === 'function') {
+                        // Replace bare 'x' token with the numeric value
+                        const exprWithX = expr.replace(/\bx\b/g, String(x));
+                        const result = window.SecurityUtils.safeMathEval(exprWithX, 0);
+                        return result;
+                    }
+                    return NaN;
+                };
 
                 ctx.strokeStyle = '#3b82f6';
                 ctx.lineWidth = 2;
