@@ -83,6 +83,76 @@ function _t(key, fallback) {
     return (t && t[key]) || fallback || key;
 }
 var _tr = function(t) { return (window.arisTranslate ? window.arisTranslate(t) : t); };
+
+// ========== ARCADE GAME LAUNCH — open in iframe panel ==========
+window._launchArcadeGame = function(href, title) {
+    var gameUrl = href + (href.indexOf('?') === -1 ? '?embed=1' : '&embed=1');
+    var gameTitle = title;
+
+    // Save lesson questions for quiz overlay
+    try {
+        var qs = window.lessonFlashcards;
+        if (qs && qs.length > 0) {
+            sessionStorage.setItem('arcadeLessonQuestions', JSON.stringify(qs));
+        }
+    } catch (err) {}
+
+    // Hide the diagram-card (contains flashcard + blockpuzzle)
+    var flashcard = document.getElementById('flashcard-game');
+    var diagramCard = flashcard ? flashcard.closest('.diagram-card') : null;
+    if (diagramCard) diagramCard.style.display = 'none';
+
+    // Build iframe container once, inserted as sibling of diagram-card
+    var container = document.getElementById('arcade-iframe-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'arcade-iframe-container';
+        container.style.cssText = 'display:flex;flex-direction:column;width:100%;position:relative;margin-top:1rem;';
+
+        var closeBtn = document.createElement('button');
+        closeBtn.textContent = '✕ Back';
+        closeBtn.style.cssText = 'position:absolute;top:0.5rem;left:0.5rem;z-index:10;padding:0.3rem 0.75rem;border-radius:0.4rem;border:none;background:rgba(51,65,85,0.85);color:#fff;cursor:pointer;font-size:0.8rem;font-weight:600;backdrop-filter:blur(4px);';
+        closeBtn.onclick = function() { window.closeArcadeIframe(); };
+        container.appendChild(closeBtn);
+
+        var iframe = document.createElement('iframe');
+        iframe.id = 'arcade-iframe';
+        iframe.style.cssText = 'width:100%;height:calc(100vh - 160px);min-height:480px;border:none;border-radius:0.75rem;display:block;';
+        iframe.setAttribute('allowfullscreen', '');
+        container.appendChild(iframe);
+
+        // Insert as sibling of diagram-card (at practice-content-view level)
+        var insertTarget = diagramCard || document.getElementById('practice-content-view');
+        if (insertTarget && insertTarget.parentNode) {
+            insertTarget.parentNode.insertBefore(container, insertTarget.nextSibling);
+        }
+    }
+
+    document.getElementById('arcade-iframe').src = gameUrl;
+    container.style.display = 'flex';
+    container.scrollIntoView({behavior: 'smooth', block: 'start'});
+};
+
+document.addEventListener('click', function(e) {
+    var link = e.target.closest('a[href*="/games/Game"]');
+    if (!link) return;
+    e.preventDefault();
+    window._launchArcadeGame(link.getAttribute('href'), link.textContent.trim());
+});
+
+window.closeArcadeIframe = function() {
+    var container = document.getElementById('arcade-iframe-container');
+    if (container) {
+        container.style.display = 'none';
+        var iframe = document.getElementById('arcade-iframe');
+        if (iframe) iframe.src = '';
+    }
+    // Restore the diagram-card (which holds flashcard + blockpuzzle)
+    var flashcard = document.getElementById('flashcard-game');
+    var diagramCard = flashcard ? flashcard.closest('.diagram-card') : null;
+    if (diagramCard) diagramCard.style.display = '';
+};
+
 window.togglePracticesPanel = function(button) {
     if (!button) return;
     const menu = button.closest('.Practices-menu') || button.closest('.side-buttons'); 

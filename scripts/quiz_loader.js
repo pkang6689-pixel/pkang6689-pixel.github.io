@@ -286,7 +286,7 @@ class QuizLoader {
             id="${inputId}"
             ${isSelected ? 'checked' : ''}
             ${isLocked ? 'disabled' : ''}
-            onchange="quizLoader.selectAnswer('${optionText.replace(/'/g, "\\'")}')"
+            onchange="quizLoader.selectAnswer('${optionText.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')"
           />
           <span class="option-letter">${optionLetters[index]}</span>
           <span class="option-text">${optionText}</span>
@@ -463,6 +463,21 @@ class QuizLoader {
     // Increment attempt count and mark as submitted
     this.attemptCounts[this.currentQuestionIndex]++;
     this.submittedAnswers[this.currentQuestionIndex] = true;
+
+    // Auto-show results when the last question is finalized (correct or out of attempts)
+    const totalQuestions = this.quizData.questions.length;
+    const isLastQuestion = this.currentQuestionIndex === totalQuestions - 1;
+    if (isLastQuestion) {
+      const correctAnswer = this.quizData.questions[this.currentQuestionIndex].answer ||
+                            this.quizData.questions[this.currentQuestionIndex].correct_answer;
+      const isCorrect = this.userAnswers[this.currentQuestionIndex] === correctAnswer;
+      const outOfAttempts = this.attemptCounts[this.currentQuestionIndex] >= 2;
+      if (isCorrect || outOfAttempts) {
+        this.completeQuiz();
+        return;
+      }
+    }
+
     this.renderQuiz();
   }
 
@@ -531,11 +546,7 @@ class QuizLoader {
     const seconds = timeSpent % 60;
     const timeDisplay = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
     
-    // Award tokens only if passed
-    const tokensReward = 300;
     if (passed) {
-      this.awardTokens(tokensReward);
-
       // Mark lesson as completed
       this.markLessonComplete();
     }
@@ -565,46 +576,9 @@ class QuizLoader {
       setTimeout(() => this.showArcadeTour(), 1200);
     }
 
-    const tokenPopupHtml = passed ? `
-        <div class="tokens-reward-popup">
-          <div class="emoji">💎</div>
-          <div class="amount">+${tokensReward}</div>
-          <div class="label">Arcade Tokens Awarded!</div>
-          <div class="time-spent">Time spent: ${timeDisplay}</div>
-        </div>
-    ` : `
-        <div class="tokens-reward-popup" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); border-color: #991b1b; box-shadow: 0 10px 40px rgba(239, 68, 68, 0.4);">
-          <div class="emoji">📚</div>
-          <div class="amount">Not Passed</div>
-          <div class="label">Score 70% or higher to earn tokens!</div>
-          <div class="time-spent">Time spent: ${timeDisplay}</div>
-        </div>
-    `;
-
     let html = `
       <div class="quiz-results">
-        <style>
-          .tokens-reward-popup {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            border: 3px solid #b45309;
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(245, 158, 11, 0.4);
-            animation: popupBounce 0.6s ease-out;
-          }
-          .tokens-reward-popup .emoji { font-size: 3rem; margin-bottom: 0.5rem; }
-          .tokens-reward-popup .amount { font-size: 2.5rem; font-weight: bold; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-          .tokens-reward-popup .label { font-size: 1.2rem; color: rgba(255,255,255,0.95); margin-top: 0.5rem; font-weight: 600; }
-          @keyframes popupBounce {
-            0% { transform: scale(0.8) translateY(-20px); opacity: 0; }
-            60% { transform: scale(1.1); }
-            100% { transform: scale(1) translateY(0); opacity: 1; }
-          }
-          .time-spent { font-size: 1rem; color: #666; margin-top: 0.5rem; }
-        </style>
-        ${tokenPopupHtml}
+        <div class="time-spent-display" style="text-align:center;font-size:0.95rem;color:#64748b;margin-bottom:1rem;">Time spent: ${timeDisplay}</div>
         
         <h2 class="page-title">Quiz Results</h2>
         
@@ -675,17 +649,6 @@ class QuizLoader {
     if (percentage >= 70) return 'C';
     if (percentage >= 60) return 'D';
     return 'F';
-  }
-
-  // Award tokens to user
-  awardTokens(amount) {
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      user.points = (user.points || 0) + amount;
-      localStorage.setItem('user', JSON.stringify(user));
-    } catch (e) {
-      console.error('Error awarding tokens:', e);
-    }
   }
 
   // Determine relevant key for completion

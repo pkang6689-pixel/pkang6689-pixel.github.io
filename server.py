@@ -45,16 +45,18 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             # to root-level /styles/* if the remapped file doesn't exist.
             elif path.startswith('/styles/'):
                 remapped = '/ArisEdu Project Folder' + path
-                root_dir = os.path.dirname(os.path.abspath(__file__))
-                if os.path.isfile(root_dir + remapped.replace('/', os.sep)):
+                root_dir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
+                full_path = os.path.realpath(os.path.join(root_dir, remapped.lstrip('/')))
+                if full_path.startswith(root_dir + os.sep) and os.path.isfile(full_path):
                     path = remapped
                 # else: leave path as-is so root-level /styles/* is served
             # Map /scripts/* to ArisEdu Project Folder/scripts/* if it's not already,
             # with the same fallback to root-level /scripts/*.
             elif path.startswith('/scripts/') and not path.startswith('/ArisEdu Project Folder/scripts/'):
                 remapped = '/ArisEdu Project Folder' + path
-                root_dir = os.path.dirname(os.path.abspath(__file__))
-                if os.path.isfile(root_dir + remapped.replace('/', os.sep)):
+                root_dir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
+                full_path = os.path.realpath(os.path.join(root_dir, remapped.lstrip('/')))
+                if full_path.startswith(root_dir + os.sep) and os.path.isfile(full_path):
                     path = remapped
                 # else: leave path as-is so root-level /scripts/* is served
             # /content_data/* stays as root-level
@@ -74,7 +76,7 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Connection', 'close')
             # --- Security headers ---
             self.send_header('X-Content-Type-Options', 'nosniff')
-            self.send_header('X-Frame-Options', 'DENY')
+            self.send_header('X-Frame-Options', 'SAMEORIGIN')
             self.send_header('Referrer-Policy', 'strict-origin-when-cross-origin')
             self.send_header('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()')
             self.send_header('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
@@ -92,7 +94,7 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 "media-src 'self' https: blob:; "
                 "connect-src 'self' https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.google.com https://recaptcha.google.com https://www.gstatic.com https://www.recaptcha.net; "
                 "frame-src 'self' https://*.firebaseapp.com https://www.google.com https://recaptcha.google.com https://www.recaptcha.net; "
-                "frame-ancestors 'none'; "
+                "frame-ancestors 'self'; "
                 "base-uri 'self'; "
                 "form-action 'self'; "
                 "object-src 'none'"

@@ -65,14 +65,8 @@ def test_translation():
     for i, text in enumerate(test_texts, 1):
         print(f"  {i}. {text}")
 
-    prompt = f"""Translate the following English texts to Spanish.
-Return ONLY a JSON object with each English text as key and Spanish translation as value.
-Example format: {{"key1": "translation1", "key2": "translation2"}}
-
-Texts:
-{json.dumps(test_texts, ensure_ascii=False)}
-
-Return ONLY valid JSON, no explanation."""
+    prompt = f"""Translate to Spanish. JSON only. No explanation.
+{json.dumps(test_texts, ensure_ascii=False)}"""
 
     try:
         print("\nCalling Gemini API...")

@@ -196,48 +196,6 @@
       body.appendChild(btn);
   }
 
-    function getLocalDateStamp() {
-      var now = new Date();
-      var year = now.getFullYear();
-      var month = String(now.getMonth() + 1).padStart(2, '0');
-      var day = String(now.getDate()).padStart(2, '0');
-      return year + '-' + month + '-' + day;
-    }
-  
-  // --- Arcade Tokens ---
-  addSection('Arcade Tokens');
-  
-  var tokenContainer = document.createElement('div');
-  tokenContainer.style.display = 'grid';
-  tokenContainer.style.gridTemplateColumns = '1fr 1fr';
-  tokenContainer.style.gap = '0.5rem';
-  tokenContainer.style.marginTop = '0.4rem';
-  
-  var tokenAmounts = [
-    { label: '+100', amount: 100 },
-    { label: '+500', amount: 500 },
-    { label: '+1000', amount: 1000 },
-    { label: '+5000', amount: 5000 }
-  ];
-  
-  tokenAmounts.forEach(function(t) {
-    var btn = document.createElement('button');
-    btn.className = 'dev-btn';
-    btn.textContent = t.label + ' 💎';
-    btn.style.background = '#f59e0b';
-    btn.style.fontSize = '0.85rem';
-    btn.onclick = function() {
-      try {
-        var user = JSON.parse(localStorage.getItem('user') || '{}');
-        user.points = (user.points || 0) + t.amount;
-        localStorage.setItem('user', JSON.stringify(user));
-        alert('Added ' + t.amount + ' tokens!\nTotal: ' + user.points + ' tokens');
-      } catch(e) { alert('Error adding tokens'); }
-    };
-    tokenContainer.appendChild(btn);
-  });
-  body.appendChild(tokenContainer);
-  
   // --- Progress Controls ---
   addSection('Progress Controls');
   
@@ -819,48 +777,6 @@
         
         processQuestion();
     }, 'green');
-
-      addButton('\uD83E\uDDEA Test Daily Token Grant (+100)', function () {
-        var lessonBaseKey = prefix + qUnit + '_l' + qLesson;
-        var completionKey = lessonBaseKey + '_completed';
-        var rewardDateKey = lessonBaseKey + '_rewarded_date';
-        var today = getLocalDateStamp();
-
-        var pointsBefore = 0;
-        var pointsAfter = 0;
-        var granted = false;
-
-        try {
-          var user = JSON.parse(localStorage.getItem('user') || '{}');
-          pointsBefore = parseInt(user.points || '0', 10) || 0;
-
-          if (localStorage.getItem(rewardDateKey) !== today) {
-            user.points = pointsBefore + 100;
-            pointsAfter = user.points;
-            localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem(completionKey, 'true');
-            localStorage.setItem(rewardDateKey, today);
-            granted = true;
-          } else {
-            pointsAfter = pointsBefore;
-          }
-
-          alert(
-            granted
-            ? ('Token grant SUCCESS for today.\n+100 tokens\nBefore: ' + pointsBefore + '\nAfter: ' + pointsAfter + '\nKey: ' + rewardDateKey)
-            : ('Token grant BLOCKED (already rewarded today).\nCurrent tokens: ' + pointsAfter + '\nKey: ' + rewardDateKey)
-          );
-        } catch (e) {
-          alert('Token grant test failed: ' + (e && e.message ? e.message : e));
-        }
-      }, 'green');
-
-      addButton('\u21BA Reset Daily Token Gate (This Lesson)', function () {
-        var lessonBaseKey = prefix + qUnit + '_l' + qLesson;
-        var rewardDateKey = lessonBaseKey + '_rewarded_date';
-        localStorage.removeItem(rewardDateKey);
-        alert('Removed daily reward key for this lesson.\nNext completion can grant tokens again.');
-      });
   }
 
   // --- Unit Test page ---
@@ -1051,7 +967,7 @@
       var statusColor = d.isChinese ? '#a6e3a1' : '#f9e2af';
       
       var h = '';
-      h += '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#94a3b8;">Language</span><span style="color:#f8fafc;font-weight:bold;">' + d.lang + '</span></div>';
+      h += '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#94a3b8;">Language</span><span style="color:#f8fafc;font-weight:bold;">' + esc(d.lang) + '</span></div>';
       h += '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#94a3b8;">Chinese Active</span><span style="color:' + statusColor + ';font-weight:bold;">' + (d.isChinese ? 'YES' : 'NO') + '</span></div>';
       h += '<div style="background:#1e293b;border-radius:4px;padding:6px 8px;margin:6px 0;">';
       h += r('Translation keys', d.totalKeys, '#a6e3a1');
