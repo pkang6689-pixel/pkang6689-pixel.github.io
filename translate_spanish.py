@@ -83,14 +83,8 @@ def translate_batch(texts: List[str], target_language: str = "Spanish") -> Dict[
         return {}
 
     # Create prompt for batch translation
-    prompt = f"""Translate the following English texts to {target_language}.
-Return ONLY a JSON object with the same keys mapped to Spanish translations.
-Do not add any explanation or additional text.
-
-Texts to translate:
-{json.dumps(texts, ensure_ascii=False)}
-
-Return only valid JSON with the translations."""
+    prompt = f"""Translate to {target_language}. JSON only. No explanation.
+{json.dumps(texts, ensure_ascii=False)}"""
 
     for attempt in range(MAX_RETRIES):
         try:

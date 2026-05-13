@@ -93,9 +93,7 @@ function makeArcadeGameDraggableAndResizable() {
     closeBtn.onmouseover = () => { closeBtn.style.color = '#ef4444'; };
     closeBtn.onmouseout = () => { closeBtn.style.color = 'white'; };
     closeBtn.onclick = () => {
-        // Return to arcade
-        sessionStorage.removeItem('validGameAccess');
-        window.location.href = 'arcade.html';
+        window.history.back();
     };
 
     header.appendChild(titleSpan);

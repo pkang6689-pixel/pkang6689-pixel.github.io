@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AVOIDance - Arcade</title>
+    <script>window.keepSidebarInEmbed = true;</script>
     <script src="../scripts/arcade-core.js"></script>
     <script src="../firebase-utils.js"></script>
     <style>
@@ -24,25 +25,31 @@
             display: flex;
             flex-direction: column;
         }
-        body > .flex { display: flex !important; flex-direction: row !important; overflow: hidden; height: 100vh; gap: 1rem; padding: 1rem; }
-        #game-wrapper { 
-            flex: 1;
+        body > .flex { display: flex !important; flex-direction: row !important; overflow: hidden; height: 100vh; gap: 1rem; padding: 1rem; align-items: stretch; }
+        #game-wrapper {
+            flex: 1 1 auto;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            width: auto;
-            min-width: 0;
-            max-width: 100%;
-            margin: 0;
-            overflow: auto;
-        }
-        #game-wrapper > div:first-child {
-            width: 100%;
-            height: auto;
-            display: flex;
-            flex-direction: column;
             justify-content: center;
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            background: #020617;
+        }
+        #game-canvas-wrap {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            border: 1px solid #374151;
+            background: #1f2937;
+            flex-shrink: 0;
+        }
+        #game-canvas-wrap canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
         }
         #game-sidebar {
             background: rgba(55, 65, 81, 0.98);
@@ -107,57 +114,58 @@
 <script src="../scripts/translation_loader.js" data-base="../translations"></script>
 <div class="flex">
 
-    <div id="game-wrapper" class="relative max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700">
-        <button class="pause-btn" onclick="togglePause()" title="Pause"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
-        <!-- Header -->
-        <div class="flex justify-between items-end mb-4">
-            <div>
-                <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent" data-i18n="AVOIDance">AVOIDance</h1>
-                <p class="text-xs text-gray-400 font-sans" data-i18n="Dodge the red blocks!">Dodge the red blocks!</p>
+    <div id="game-wrapper">
+        <div id="game-canvas-wrap">
+            <canvas id="game" width="400" height="400"></canvas>
+
+            <!-- Game Over -->
+            <div id="game-over" class="absolute inset-0 bg-black/90 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
+                <h2 class="text-3xl text-red-500 font-bold mb-2">GAME OVER</h2>
+                <div class="text-4xl font-bold text-white mb-6" id="final-score">0</div>
+                <button onclick="resetGame()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                    <span data-i18n="PLAY AGAIN">PLAY AGAIN</span>
+                </button>
             </div>
-            <div class="text-right">
-                <div class="text-xs text-gray-400 font-sans" data-i18n="SCORE">SCORE</div>
-                <div id="score" class="text-3xl font-bold text-white">0</div>
+
+            <!-- Start -->
+            <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                <h2 class="text-3xl text-blue-400 font-bold mb-2">AVOIDance</h2>
+                <p class="text-gray-300 mb-6 font-sans">Dodge the red blocks!</p>
+                <p class="text-xs text-gray-400 mb-6 font-sans">Arrow keys or WASD to dodge</p>
+                <button onclick="startGame()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                    <span data-i18n="START">START</span>
+                </button>
             </div>
-            <div class="text-right">
-                <div class="text-xs text-gray-400 font-sans">BEST</div>
-                <div id="best-score" class="text-3xl font-bold text-amber-400">0</div>
+
+            <!-- Pause -->
+            <div id="pause-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-30 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
+                <h2 class="text-4xl text-white font-bold mb-4">PAUSED</h2>
+                <button onclick="togglePause()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
+                    <span data-i18n="RESUME">RESUME</span>
+                </button>
             </div>
-        </div>
-
-        <canvas id="game" class="bg-gray-900 border-2 border-gray-700 mx-auto block" width="400" height="400"></canvas>
-
-        <!-- Game Over -->
-        <div id="game-over" class="absolute inset-0 bg-black/90 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
-            <h2 class="text-3xl text-red-500 font-bold mb-2">GAME OVER</h2>
-            <div class="text-4xl font-bold text-white mb-6" id="final-score">0</div>
-            <button onclick="resetGame()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
-                <span data-i18n="PLAY AGAIN">PLAY AGAIN</span>
-            </button>
-        </div>
-
-        <!-- Start -->
-        <div id="start-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-20 text-center p-6 backdrop-blur-sm" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <h2 class="text-3xl text-blue-400 font-bold mb-2">AVOIDance</h2>
-            <p class="text-gray-300 mb-6 font-sans">Dodge the red blocks!</p>
-            <p class="text-xs text-gray-400 mb-6 font-sans">Arrow keys or WASD to dodge</p>
-            <button onclick="startGame()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
-                <span data-i18n="START">START</span>
-            </button>
-        </div>
-
-        <!-- Pause -->
-        <div id="pause-screen" class="absolute inset-0 bg-black/80 rounded-2xl z-30 text-center p-6 backdrop-blur-sm" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
-            <h2 class="text-4xl text-white font-bold mb-4">PAUSED</h2>
-            <button onclick="togglePause()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition active:scale-95">
-                <span data-i18n="RESUME">RESUME</span>
-            </button>
         </div>
     </div>
 
     <div id="game-sidebar">
-        <div style="width: 100%; text-align: center; color: #9ca3af; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600;">
-            ⭐ TOKEN SESSION
+        <!-- Game info -->
+        <div style="width:100%;margin-bottom:1.5rem;">
+            <h2 style="font-size:1rem;font-weight:700;background:linear-gradient(to right,#60a5fa,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 0.15rem;">AVOIDance</h2>
+            <p style="font-size:0.7rem;color:#9ca3af;margin:0 0 0.9rem;">Dodge the red blocks!</p>
+            <div style="display:flex;gap:0.6rem;margin-bottom:0.75rem;">
+                <div style="flex:1;background:#111827;border-radius:0.5rem;padding:0.5rem 0.6rem;border:1px solid #374151;">
+                    <div style="font-size:0.58rem;color:#6b7280;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Score</div>
+                    <div id="score" style="font-size:1.6rem;font-weight:700;color:#f9fafb;line-height:1.2;">0</div>
+                </div>
+                <div style="flex:1;background:#111827;border-radius:0.5rem;padding:0.5rem 0.6rem;border:1px solid #374151;">
+                    <div style="font-size:0.58rem;color:#6b7280;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Best</div>
+                    <div id="best-score" style="font-size:1.6rem;font-weight:700;color:#fbbf24;line-height:1.2;">0</div>
+                </div>
+            </div>
+            <button onclick="togglePause()" style="width:100%;background:#374151;border:1px solid #4b5563;border-radius:0.5rem;color:#fff;padding:0.45rem;cursor:pointer;font-size:0.78rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:0.4rem;font-family:inherit;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                Pause
+            </button>
         </div>
     </div>
 </div>
@@ -534,6 +542,17 @@ async function startGame() {
 function resetGame() {
     startGame();
 }
+
+function resizeGameCanvas() {
+    var wrapper = document.getElementById('game-wrapper');
+    var wrap = document.getElementById('game-canvas-wrap');
+    if (!wrapper || !wrap) return;
+    var size = Math.min(wrapper.clientWidth, wrapper.clientHeight);
+    if (size > 0) { wrap.style.width = size + 'px'; wrap.style.height = size + 'px'; }
+}
+window.addEventListener('resize', resizeGameCanvas);
+resizeGameCanvas();
 </script>
+<script src="../scripts/arcade_quiz_overlay.js"></script>
 </body>
 </html>

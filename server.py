@@ -74,7 +74,7 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Connection', 'close')
             # --- Security headers ---
             self.send_header('X-Content-Type-Options', 'nosniff')
-            self.send_header('X-Frame-Options', 'DENY')
+            self.send_header('X-Frame-Options', 'SAMEORIGIN')
             self.send_header('Referrer-Policy', 'strict-origin-when-cross-origin')
             self.send_header('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()')
             self.send_header('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
@@ -92,7 +92,7 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 "media-src 'self' https: blob:; "
                 "connect-src 'self' https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.google.com https://recaptcha.google.com https://www.gstatic.com https://www.recaptcha.net; "
                 "frame-src 'self' https://*.firebaseapp.com https://www.google.com https://recaptcha.google.com https://www.recaptcha.net; "
-                "frame-ancestors 'none'; "
+                "frame-ancestors 'self'; "
                 "base-uri 'self'; "
                 "form-action 'self'; "
                 "object-src 'none'"

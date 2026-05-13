@@ -76,78 +76,6 @@
         return `${minutes}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // Show explanation modal for why no tokens were awarded (daily cap hit)
-    function showTokenCapExplanation() {
-        const explanationModal = document.createElement('div');
-        explanationModal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(4px);
-            z-index: 10001;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        `;
-
-        const explanationBox = document.createElement('div');
-        explanationBox.style.cssText = `
-            background: ${document.body.classList.contains('dark-mode') ? '#1e293b' : 'white'};
-            border-radius: 1rem;
-            padding: 2rem;
-            max-width: 480px;
-            width: 100%;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            color: ${document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#0f172a'};
-        `;
-
-        explanationBox.innerHTML = `
-            <div style="text-align: center; margin-bottom: 1.5rem;">
-                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎮</div>
-                <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0 0 0.5rem 0;">Daily Token Limit</h2>
-            </div>
-            <div style="background: ${document.body.classList.contains('dark-mode') ? '#334155' : '#f8fafc'}; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem; line-height: 1.6;">
-                <p style="margin: 0 0 1rem 0; color: ${document.body.classList.contains('dark-mode') ? '#cbd5e1' : '#475569'};">
-                    <strong style="color: ${document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#0f172a'};">You've already earned tokens for this lesson today!</strong>
-                </p>
-                <p style="margin: 0; color: ${document.body.classList.contains('dark-mode') ? '#cbd5e1' : '#475569'};">
-                    Each lesson can award <strong style="color: ${document.body.classList.contains('dark-mode') ? '#22c55e' : '#16a34a'};">100 arcade tokens once per day</strong>. Come back tomorrow to earn tokens from this lesson again.
-                </p>
-            </div>
-            <div style="background: ${document.body.classList.contains('dark-mode') ? '#14532d' : '#dcfce7'}; border-left: 4px solid ${document.body.classList.contains('dark-mode') ? '#22c55e' : '#16a34a'}; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem;">
-                <div style="font-weight: 700; margin-bottom: 0.5rem; color: ${document.body.classList.contains('dark-mode') ? '#22c55e' : '#16a34a'};">💡 Pro Tip</div>
-                <div style="font-size: 0.9rem; color: ${document.body.classList.contains('dark-mode') ? '#cbd5e1' : '#475569'};">
-                    Try different lessons across your courses to keep earning tokens today!
-                </div>
-            </div>
-            <button id="close-token-explanation" style="
-                width: 100%;
-                padding: 0.75rem;
-                background: #3b82f6;
-                color: white;
-                border: none;
-                border-radius: 0.5rem;
-                font-weight: 600;
-                font-size: 1rem;
-                cursor: pointer;
-            ">Got it!</button>
-        `;
-
-        explanationModal.appendChild(explanationBox);
-        document.body.appendChild(explanationModal);
-
-        // Close handlers
-        const closeBtn = explanationBox.querySelector('#close-token-explanation');
-        closeBtn.addEventListener('click', () => explanationModal.remove());
-        explanationModal.addEventListener('click', (e) => {
-            if (e.target === explanationModal) explanationModal.remove();
-        });
-    }
-
     // Create and show the quiz completion screen
     function showQuizCompletionScreen() {
         if (!quizAnalytics.quizStartTime || !quizAnalytics.quizEndTime) {
@@ -242,64 +170,6 @@
             </div>
         `;
         content.appendChild(stats);
-
-        // ARCADE TOKENS SECTION (always shown, prominent)
-        const tokensEarned = (typeof quizAnalytics.tokensAwarded === 'number') ? quizAnalytics.tokensAwarded : 0;
-        const totalTokens = (typeof quizAnalytics.totalTokensAfter === 'number') ? quizAnalytics.totalTokensAfter : null;
-        const earnedTokens = tokensEarned > 0;
-        
-        const arcadeBox = document.createElement('div');
-        arcadeBox.style.cssText = `
-            margin-bottom: 2rem;
-            padding: 2rem;
-            border-radius: 1.25rem;
-            background: ${earnedTokens 
-                ? (document.body.classList.contains('dark-mode') ? 'linear-gradient(135deg, #14532d 0%, #166534 100%)' : 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)')
-                : (document.body.classList.contains('dark-mode') ? '#334155' : '#f1f5f9')
-            };
-            border: 3px solid ${earnedTokens 
-                ? (document.body.classList.contains('dark-mode') ? '#22c55e' : '#16a34a')
-                : (document.body.classList.contains('dark-mode') ? '#475569' : '#cbd5e1')
-            };
-            text-align: center;
-            position: relative;
-        `;
-
-        const tokenDisplayHTML = earnedTokens
-            ? `
-                <div style="font-size: 4rem; margin-bottom: 0.5rem;">🎮</div>
-                <div style="font-size: 2.5rem; font-weight: 900; color: ${document.body.classList.contains('dark-mode') ? '#22c55e' : '#16a34a'}; margin-bottom: 0.5rem; text-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    +${tokensEarned} Arcade Tokens!
-                </div>
-                ${totalTokens !== null ? `<div style="font-size: 1.1rem; opacity: 0.85; color: ${document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#475569'};">Total: ${totalTokens} 💎</div>` : ''}
-            `
-            : `
-                <div style="font-size: 3.5rem; margin-bottom: 0.5rem; opacity: 0.6;">🎮</div>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-                    <div style="font-size: 2rem; font-weight: 900; color: ${document.body.classList.contains('dark-mode') ? '#94a3b8' : '#64748b'};">
-                        +0 Arcade Tokens
-                    </div>
-                    <button id="token-cap-help-btn" style="width: 2rem; height: 2rem; border-radius: 50%; background: ${document.body.classList.contains('dark-mode') ? '#475569' : '#e2e8f0'}; color: ${document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#475569'}; border: 2px solid ${document.body.classList.contains('dark-mode') ? '#64748b' : '#94a3b8'}; font-size: 1.2rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; line-height: 1;">?</button>
-                </div>
-                <div style="font-size: 0.95rem; opacity: 0.75; color: ${document.body.classList.contains('dark-mode') ? '#cbd5e1' : '#64748b'}; margin-bottom: 0.5rem;">Already earned today</div>
-                ${totalTokens !== null ? `<div style="font-size: 1rem; opacity: 0.7; color: ${document.body.classList.contains('dark-mode') ? '#94a3b8' : '#64748b'};">Current balance: ${totalTokens} 💎</div>` : ''}
-            `;
-
-        arcadeBox.innerHTML = tokenDisplayHTML;
-        content.appendChild(arcadeBox);
-
-        // Add help modal for token cap explanation (shown when button clicked)
-        if (!earnedTokens) {
-            setTimeout(() => {
-                const helpBtn = document.getElementById('token-cap-help-btn');
-                if (helpBtn) {
-                    helpBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        showTokenCapExplanation();
-                    });
-                }
-            }, 0);
-        }
 
         // Time per question breakdown
         const timingSection = document.createElement('div');
@@ -462,20 +332,6 @@
         else if (path.indexOf('Geometry') !== -1) prefix = 'geometry';
         else if (path.indexOf('Biology') !== -1) prefix = 'bio';
         return prefix + '_u' + unit + '_l' + lesson + '_completed';
-    }
-
-    function getLocalDateStamp() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    function getLessonDailyRewardStorageKey() {
-        const completionKey = getLessonQuizStorageKey();
-        if (!completionKey) return null;
-        return completionKey.replace(/_completed$/, '_rewarded_date');
     }
 
     window.toggleToPractice = function(event) {
@@ -697,118 +553,6 @@
     };
     } // end if (!window.checkQuizAnswer)
 
-    // Award arcade tokens once per lesson per day
-    function awardLessonTokensIfFirstCompletion() {
-        if (typeof getLessonDailyRewardStorageKey !== 'function' || typeof getLessonQuizStorageKey !== 'function') return;
-
-        const completionKey = getLessonQuizStorageKey();
-        const dailyRewardKey = getLessonDailyRewardStorageKey();
-        if (!completionKey || !dailyRewardKey) return;
-
-        const today = getLocalDateStamp();
-
-        let alreadyRewardedToday = false;
-        try {
-            alreadyRewardedToday = (localStorage.getItem(dailyRewardKey) === today);
-        } catch (e) {
-            alreadyRewardedToday = false;
-        }
-
-        // If this lesson has already rewarded tokens today, do not award again
-        if (alreadyRewardedToday) {
-            quizAnalytics.tokensAwarded = 0;
-            // Still get the current token balance to show in the completion screen
-            try {
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                quizAnalytics.totalTokensAfter = parseInt(user.points || '0', 10) || 0;
-            } catch (e) {
-                quizAnalytics.totalTokensAfter = 0;
-            }
-            return;
-        }
-
-        // Award 100 arcade tokens and mark lesson as completed + rewarded today
-        let user = {};
-        try {
-            user = JSON.parse(localStorage.getItem('user') || '{}');
-        } catch (e) {
-            user = {};
-        }
-
-        const currentPoints = parseInt(user.points || '0', 10) || 0;
-        const reward = 100;
-        user.points = currentPoints + reward;
-
-        try {
-            localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem(completionKey, 'true');
-            
-            // Mirror HS completion to MS lesson (one-way: HS→MS only)
-            mirrorHSToMSCompletion();
-            
-            localStorage.setItem(dailyRewardKey, today);
-            
-            // Track quiz completion for analytics (sync to Firebase for teacher dashboard)
-            if (typeof window.StudentAnalytics !== 'undefined' || typeof analytics !== 'undefined') {
-              try {
-                console.log('📊 Analytics tracking available');
-                const analytics = new (typeof window.StudentAnalytics !== 'undefined' ? window.StudentAnalytics : window.analytics)();
-                const path = decodeURIComponent(window.location.pathname);
-                console.log('📍 Current path:', path);
-                
-                // Extract unit and lesson from URL
-                const lessonMatch = path.match(/Lesson\s*(\w+)\.(\d+)_Quiz/);
-                console.log('🔍 Lesson match:', lessonMatch);
-                
-                if (lessonMatch) {
-                  let unit = lessonMatch[1];
-                  const lesson = lessonMatch[2];
-                  let courseId = 'unknown';
-                  
-                  // Determine course ID
-                  if (path.includes('Algebra1')) courseId = 'algebra_1';
-                  else if (path.includes('Algebra2')) courseId = 'algebra_2';
-                  else if (path.includes('Geometry')) courseId = 'geometry';
-                  else if (path.includes('Physics')) courseId = 'physics';
-                  else if (path.includes('Chemistry')) courseId = 'chemistry';
-                  else if (path.includes('Biology')) courseId = 'biology';
-                  else if (path.includes('ms_alg1')) courseId = 'ms_algebra_1';
-                  else if (path.includes('ms_alg2')) courseId = 'ms_algebra_2';
-                  else if (path.includes('ms_geom')) courseId = 'ms_geometry';
-                  else if (path.includes('ms_phys')) courseId = 'ms_physics';
-                  else if (path.includes('ms_chem')) courseId = 'ms_chemistry';
-                  else if (path.includes('ms_bio')) courseId = 'ms_biology';
-                  
-                  console.log(`📚 Detected: courseId=${courseId}, unit=${unit}, lesson=${lesson}`);
-                  
-                  // Calculate accuracy/score from quiz analytics
-                  const totalQuestions = quizAnalytics.totalQuestions || 1;
-                  const wrongAnswers = Object.values(quizAnalytics.questions || {})
-                    .reduce((sum, q) => sum + (q.wrongAttempts || 0), 0);
-                  const accuracy = Math.round(((totalQuestions - wrongAnswers) / totalQuestions) * 100);
-                  
-                  console.log(`📈 Quiz Stats: ${totalQuestions} questions, ${wrongAnswers} wrong, accuracy=${accuracy}%`);
-                  
-                  // Track the quiz completion
-                  analytics.trackQuizCompletion(courseId, parseInt(unit), parseInt(lesson), accuracy, 100);
-                } else {
-                  console.warn('⚠️ Could not parse lesson info from URL');
-                }
-              } catch (err) {
-                // Silently fail - don't break quiz flow if analytics fails
-                console.warn('Analytics tracking error:', err.message);
-              }
-            } else {
-              console.warn('⚠️ StudentAnalytics not available on window');
-            }
-        } catch (e) {
-            // If storage fails, just skip without breaking quiz flow
-        }
-
-        quizAnalytics.tokensAwarded = reward;
-        quizAnalytics.totalTokensAfter = user.points;
-    }
-
     // Mirror HS lesson completion to MS lesson (one-way: HS→MS only)
     // When an HS student completes a lesson, mark the corresponding MS lesson as complete too
     function mirrorHSToMSCompletion() {
@@ -874,9 +618,6 @@
 
         // Record quiz end time
         quizAnalytics.quizEndTime = Date.now();
-
-        // Award tokens (only on first completion of this lesson)
-        awardLessonTokensIfFirstCompletion();
 
         // Call the per-file markQuizComplete() if it exists (each quiz file defines its own)
         if (typeof window.markQuizComplete === 'function') {
@@ -947,8 +688,6 @@
 
         if (!quizAnalytics.quizStartTime) quizAnalytics.quizStartTime = now;
         quizAnalytics.quizEndTime = now;
-        quizAnalytics.tokensAwarded = 0;
-        quizAnalytics.totalTokensAfter = undefined;
 
         if (!quizAnalytics.totalQuestions || quizAnalytics.totalQuestions <= 0) {
             quizAnalytics.totalQuestions = visibleQuestions.length || 1;

@@ -1,6 +1,9 @@
 
 // Inject AI Assistant and Features Scripts
 (function() {
+    // Skip taskbar entirely when loaded inside an iframe (e.g. practice page game embed)
+    if (window !== window.top) return;
+
     // Translation Helper - expose globally
     window._t = window._t || function(key) {
         if (window.arisTranslate) return window.arisTranslate(key);
@@ -85,6 +88,9 @@
 
 // taskbar.js — Shared taskbar injection + logic for all pages
 (function () {
+    // Skip taskbar entirely when loaded inside an iframe (e.g. practice page game embed)
+    if (window !== window.top) return;
+
     // --- Inject vital styles for taskbar components (e.g. settings menu) ---
     if(!document.getElementById('aris-taskbar-styles')) {
         const style = document.createElement('style');
@@ -340,8 +346,6 @@
       breadcrumbs.push({label: 'Courses', url: null});
     } else if (filename === 'Dashboard.html') {
       breadcrumbs.push({label: 'Dashboard', url: null});
-    } else if (filename === 'arcade.html') {
-      breadcrumbs.push({label: 'Arcade', url: null});
     } else if (filename === 'forums.html') {
       breadcrumbs.push({label: 'Forums', url: null});
     } else if (filename === 'Preferences.html') {
@@ -510,7 +514,6 @@
             '<button class="taskbar-more-btn" id="more-menu-btn" title="More" aria-haspopup="true" aria-expanded="false">\u22EF More</button>' +
             '<div class="taskbar-more-panel" id="more-menu-panel" role="menu" aria-label="More options">' +
               '<a class="more-item" href="/ArisEdu Project Folder/TeacherAnalytics.html" role="menuitem">📊 Teacher Analytics</a>' +
-              '<a class="more-item" href="/ArisEdu Project Folder/arcade.html"'+getDisp('arcade')+' role="menuitem">\uD83D\uDC7E Arcade</a>' +
               '<a class="more-item" href="/ArisEdu Project Folder/lab_simulations.html" role="menuitem">🔬 Lab Simulations</a>' +
               '<button class="more-item" id="more-forums-btn"'+getDisp('forums')+' role="menuitem">\uD83D\uDCAC Forums</button>' +
               '<button class="more-item" id="more-update-btn" role="menuitem">\uD83D\uDD14 Updates</button>' +

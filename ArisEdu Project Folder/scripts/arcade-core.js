@@ -3,6 +3,20 @@
  * Handles: Token drain, pause, game over, sidebar, Firebase
  */
 
+// Embed mode: hide sidebar immediately before DOM renders (prevents flash)
+// Games can set window.keepSidebarInEmbed = true (before this script) to keep sidebar visible
+if (new URLSearchParams(window.location.search).get('embed') === '1') {
+    (function() {
+        var s = document.createElement('style');
+        var sidebarRule = window.keepSidebarInEmbed ? '' : '#game-sidebar{display:none!important}';
+        var flexRule = window.keepSidebarInEmbed
+            ? 'body>.flex{height:100%!important;flex-direction:row!important;padding:0.5rem!important}'
+            : 'body>.flex{height:100%!important;flex-direction:column!important;padding:0.5rem!important}';
+        s.textContent = sidebarRule + 'html,body{height:100%!important;overflow:hidden!important;padding:0!important;margin:0!important}' + flexRule + '#game-wrapper{width:100%!important;max-width:100%!important;height:100%!important;flex:1!important;min-height:0!important}';
+        document.head.appendChild(s);
+    })();
+}
+
 let arcadeState = {
     gamePaused: false,
     gameOver: false,
@@ -20,13 +34,6 @@ let arcadeState = {
 async function initializeArcadeGame(gameTitle, colorClass1, colorClass2) {
     await initializeFirebase();
     
-    // Check access
-    if (sessionStorage.getItem('validGameAccess') !== 'true') {
-        alert('You must access this game from the Arcade page.');
-        window.location.href = '../arcade.html';
-        return false;
-    }
-    
     // Set up title if element exists
     const titleEl = document.querySelector('[role="game-title"]');
     if (titleEl) {
@@ -36,91 +43,7 @@ async function initializeArcadeGame(gameTitle, colorClass1, colorClass2) {
     // Reset game state (ensures pause screen is hidden, game over is hidden, etc)
     resetArcadeGame();
     
-    // Initialize token drain
-    initializeTokenDrain();
-    
     return true;
-}
-
-/**
- * Show out of tokens popup
- */
-function showOutOfTokensPopup() {
-    clearInterval(arcadeState.timerIntervalId);
-    clearInterval(arcadeState.drainIntervalId);
-
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;';
-    
-    const modal = document.createElement('div');
-    modal.style.cssText = 'background:white;border-radius:1rem;padding:2rem;max-width:400px;text-align:center;box-shadow:0 20px 25px rgba(0,0,0,0.3);';
-    
-    modal.innerHTML = `
-        <div style="font-size:3rem;margin-bottom:1rem;">💸</div>
-        <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:1rem;color:#1e293b;">Out of Tokens!</h2>
-        <p style="margin-bottom:1.5rem;color:#64748b;">Your token balance hit zero.</p>
-        <p style="margin-bottom:1.5rem;color:#94a3b8;font-size:0.85rem;">Earn more tokens by completing lessons and quizzes!</p>
-        <button id="back-to-arcade" style="padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;background:#f59e0b;color:#000;cursor:pointer;font-weight:700;font-size:1rem;">Back to Arcade</button>
-    `;
-    
-    overlay.appendChild(modal);
-    document.body.appendChild(overlay);
-    
-    modal.querySelector('#back-to-arcade').onclick = () => {
-        sessionStorage.removeItem('validGameAccess');
-        window.location.href = '../arcade.html';
-    };
-}
-
-/**
- * Initialize token drain system
- */
-function initializeTokenDrain() {
-    const sidebar = document.getElementById('game-sidebar');
-    if (!sidebar) return;
-    
-    let timerDisplay = document.getElementById('game-session-timer');
-    if (!timerDisplay) {
-        timerDisplay = document.createElement('div');
-        timerDisplay.id = 'game-session-timer';
-        sidebar.appendChild(timerDisplay);
-    }
-
-    function updateTimerDisplay() {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const remaining = Math.max(0, user.points || 0);
-        timerDisplay.textContent = remaining + '💎';
-        timerDisplay.className = remaining <= 20 ? 'warning' : '';
-        
-        if (remaining <= 0) {
-            showOutOfTokensPopup();
-        }
-    }
-    
-    function drainTokens() {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const pts = user.points || 0;
-        if (pts > 0 && !arcadeState.gamePaused && !arcadeState.gameOver) {
-            user.points = pts - 1;
-            localStorage.setItem('user', JSON.stringify(user));
-            updateTimerDisplay();
-            if (user.points <= 0) {
-                showOutOfTokensPopup();
-            }
-        }
-    }
-
-    if (arcadeState.timerIntervalId) clearInterval(arcadeState.timerIntervalId);
-    if (arcadeState.drainIntervalId) clearInterval(arcadeState.drainIntervalId);
-    
-    updateTimerDisplay();
-    
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if ((user.points || 0) > 0) {
-        arcadeState.drainIntervalId = setInterval(drainTokens, 1000);
-    } else {
-        showOutOfTokensPopup();
-    }
 }
 
 /**
