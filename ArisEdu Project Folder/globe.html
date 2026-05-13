@@ -158,91 +158,289 @@
     const s   = Math.min(W, H) * 0.105 * isl.size * hsc;
 
     ctx.save();
-    if (hover) ctx.globalAlpha = 0.80;
+    if (hover) ctx.globalAlpha = 0.82;
 
     // Drop shadow
     ctx.save();
-    ctx.shadowColor    = 'rgba(0,0,0,0.20)';
-    ctx.shadowBlur     = 34;
-    ctx.shadowOffsetX  = 12;
-    ctx.shadowOffsetY  = 18;
+    ctx.shadowColor   = 'rgba(0,0,0,0.22)';
+    ctx.shadowBlur    = 42;
+    ctx.shadowOffsetX = 16;
+    ctx.shadowOffsetY = 22;
     buildPath(isl, hsc);
     ctx.fillStyle = isl.shoreLo;
     ctx.fill();
     ctx.restore();
 
     // Beach — radial gradient, light from upper-left
-    const sg = ctx.createRadialGradient(x - s*0.22, y - s*0.30, s*0.08, x, y, s*1.06);
-    sg.addColorStop(0, isl.shoreHi);
-    sg.addColorStop(1, isl.shoreLo);
+    const sg = ctx.createRadialGradient(x - s*0.24, y - s*0.32, s*0.05, x + s*0.08, y + s*0.14, s*1.08);
+    sg.addColorStop(0,    isl.shoreHi);
+    sg.addColorStop(0.72, isl.shoreLo);
+    sg.addColorStop(1,    isl.borderCol);
     buildPath(isl, hsc);
     ctx.fillStyle = sg;
     ctx.fill();
     ctx.strokeStyle = isl.borderCol;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // Interior green — radial gradient
-    const gg = ctx.createRadialGradient(x - s*0.12, y - s*0.18, s*0.06, x, y, s*0.86);
-    gg.addColorStop(0, isl.greenHi);
-    gg.addColorStop(1, isl.greenLo);
-    buildPath(isl, 0.80 * hsc);
-    ctx.fillStyle = gg;
-    ctx.fill();
-    ctx.strokeStyle = isl.borderCol;
-    ctx.lineWidth = 1.8;
+    // Surf foam ring — drawn over beach edge
+    ctx.save();
+    buildPath(isl, hsc * 1.055);
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.lineWidth = s * 0.048;
+    ctx.lineJoin = 'round';
     ctx.stroke();
+    buildPath(isl, hsc * 1.025);
+    ctx.strokeStyle = 'rgba(255,255,255,0.20)';
+    ctx.lineWidth = s * 0.028;
+    ctx.stroke();
+    ctx.restore();
 
-    // Central hill
-    drawHill(isl, s, hsc);
+    // Elevation rings: outer forest → mid highland → bright summit
+    const eg1 = ctx.createRadialGradient(x - s*0.14, y - s*0.20, 0, x, y, s * 0.82);
+    eg1.addColorStop(0, isl.greenHi);
+    eg1.addColorStop(1, isl.greenLo);
+    buildPath(isl, 0.82 * hsc);
+    ctx.fillStyle = eg1; ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.07)'; ctx.lineWidth = 1.8; ctx.stroke();
+
+    const eg2 = ctx.createRadialGradient(x - s*0.14, y - s*0.20, 0, x, y, s * 0.58);
+    eg2.addColorStop(0, isl.hillHi);
+    eg2.addColorStop(1, isl.greenHi);
+    buildPath(isl, 0.58 * hsc);
+    ctx.fillStyle = eg2; ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.06)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    const eg3 = ctx.createRadialGradient(x - s*0.10, y - s*0.14, 0, x, y, s * 0.36);
+    eg3.addColorStop(0, lighten(isl.hillHi, 28));
+    eg3.addColorStop(1, isl.hillHi);
+    buildPath(isl, 0.36 * hsc);
+    ctx.fillStyle = eg3; ctx.fill();
+
+    // Landmark
+    if (isl.id === 'math')    drawMathLandmark(isl, s, hsc);
+    if (isl.id === 'science') drawScienceLandmark(isl, s, hsc);
 
     // Trees
     drawTrees(isl, s, hover, hsc);
 
-    // Specular sheen — soft highlight on upper-left of green
+    // Specular sheen
     ctx.save();
-    buildPath(isl, 0.80 * hsc);
+    buildPath(isl, 0.85 * hsc);
     ctx.clip();
-    const hl = ctx.createRadialGradient(x - s*0.28, y - s*0.40, 0, x - s*0.08, y - s*0.18, s*0.65);
-    hl.addColorStop(0, 'rgba(255,255,255,0.24)');
+    const hl = ctx.createRadialGradient(x - s*0.30, y - s*0.44, 0, x - s*0.08, y - s*0.20, s*0.72);
+    hl.addColorStop(0, 'rgba(255,255,255,0.26)');
     hl.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.fillStyle = hl;
     ctx.fillRect(x - s*1.2, y - s*1.2, s*2.4, s*2.4);
     ctx.restore();
 
-    // Label — serif italic, dark ink
-    const fs = Math.max(11, Math.round(s * 0.165));
+    // Label
+    const fs = Math.max(12, Math.round(s * 0.155));
     ctx.save();
     ctx.font = 'italic bold ' + fs + "px Georgia, 'Times New Roman', serif";
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    ctx.strokeStyle = 'rgba(245,228,150,0.92)';
+    ctx.strokeStyle = 'rgba(245,228,150,0.95)';
     ctx.lineWidth = 3.5;
     ctx.fillStyle = '#1a0e00';
-    ctx.strokeText(isl.name, x, y + s * 0.88);
-    ctx.fillText(isl.name,   x, y + s * 0.88);
+    ctx.strokeText(isl.name, x, y + s * 0.92);
+    ctx.fillText(isl.name,   x, y + s * 0.92);
     ctx.restore();
 
     ctx.restore();
   }
 
-  function drawHill(isl, s, hsc) {
+  function drawMathLandmark(isl, s, hsc) {
     const x = isl.cx * W, y = isl.cy * H;
-    ctx.save();
-    buildPath(isl, 0.76 * hsc);
-    ctx.clip();
-    const hw = s * 0.36, hh = s * 0.25;
-    const hy = y - s * 0.04;
-    const hg = ctx.createRadialGradient(x - hw*0.30, hy - hh*0.52, hh*0.06, x, hy, hw*1.05);
-    hg.addColorStop(0, isl.hillHi);
-    hg.addColorStop(1, isl.hillLo);
+    const lx = x, ly = y - s * 0.05;
+    const tw = s * 0.086, th = s * 0.27;
+
+    // Base stone steps (2 tiers)
+    for (let st = 1; st >= 0; st--) {
+      ctx.beginPath();
+      ctx.rect(lx - tw*(1.5 + st*0.52), ly - s*0.034*(st+1), tw*(3 + st*1.04), s*0.034);
+      ctx.fillStyle = st === 0 ? '#d4c898' : '#c0ae78';
+      ctx.fill();
+      ctx.strokeStyle = '#4a3a20'; ctx.lineWidth = 1; ctx.stroke();
+    }
+
+    // Tower body — trapezoid, stone gradient lit left
+    const tg = ctx.createLinearGradient(lx - tw, ly, lx + tw, ly);
+    tg.addColorStop(0,    '#7a6c4c');
+    tg.addColorStop(0.30, '#d4c898');
+    tg.addColorStop(0.65, '#b8a870');
+    tg.addColorStop(1,    '#6a5c3c');
     ctx.beginPath();
-    ctx.moveTo(x - hw, hy);
-    ctx.bezierCurveTo(x - hw, hy - hh*0.55, x - hw*0.30, hy - hh, x, hy - hh);
-    ctx.bezierCurveTo(x + hw*0.30, hy - hh, x + hw, hy - hh*0.55, x + hw, hy);
+    ctx.moveTo(lx - tw * 1.10, ly - s*0.068);
+    ctx.lineTo(lx - tw,         ly - th);
+    ctx.lineTo(lx + tw,         ly - th);
+    ctx.lineTo(lx + tw * 1.10,  ly - s*0.068);
     ctx.closePath();
-    ctx.fillStyle = hg;
-    ctx.fill();
+    ctx.fillStyle = tg; ctx.fill();
+    ctx.strokeStyle = '#3e2e10'; ctx.lineWidth = 1.8; ctx.stroke();
+
+    // Mortar lines (horizontal)
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(lx - tw * 1.10, ly - s*0.068);
+    ctx.lineTo(lx - tw, ly - th); ctx.lineTo(lx + tw, ly - th);
+    ctx.lineTo(lx + tw * 1.10, ly - s*0.068); ctx.closePath();
+    ctx.clip();
+    ctx.strokeStyle = 'rgba(60,40,10,0.18)'; ctx.lineWidth = 1;
+    for (let mr = 1; mr < 6; mr++) {
+      const my = ly - th * mr / 6;
+      ctx.beginPath(); ctx.moveTo(lx - tw*1.2, my); ctx.lineTo(lx + tw*1.2, my); ctx.stroke();
+    }
+    ctx.restore();
+
+    // Battlement merlons (3)
+    const bw = tw * 0.30, bh = s * 0.034;
+    for (let b = -1; b <= 1; b++) {
+      ctx.beginPath();
+      ctx.rect(lx + b * tw * 0.72 - bw*0.5, ly - th - bh, bw, bh);
+      ctx.fillStyle = '#c8b880'; ctx.fill();
+      ctx.strokeStyle = '#3e2e10'; ctx.lineWidth = 1; ctx.stroke();
+    }
+
+    // Conical roof — gradient warm red
+    const rg = ctx.createLinearGradient(lx - tw*1.3, ly - th, lx + tw*0.6, ly - th - s*0.12);
+    rg.addColorStop(0,   '#8a2808');
+    rg.addColorStop(0.5, '#cc3c10');
+    rg.addColorStop(1,   '#5a1a08');
+    ctx.beginPath();
+    ctx.moveTo(lx,            ly - th - bh - s*0.125);
+    ctx.lineTo(lx + tw*1.32,  ly - th);
+    ctx.lineTo(lx - tw*1.32,  ly - th);
+    ctx.closePath();
+    ctx.fillStyle = rg; ctx.fill();
+    ctx.strokeStyle = '#2a0e04'; ctx.lineWidth = 1.8; ctx.stroke();
+
+    // 3 arched windows
+    for (let w = 0; w < 3; w++) {
+      const wy = ly - th * (0.20 + w * 0.26) + s*0.012;
+      const ww = tw * 0.33;
+      ctx.beginPath();
+      ctx.moveTo(lx - ww, wy + s*0.026);
+      ctx.lineTo(lx - ww, wy);
+      ctx.arc(lx, wy, ww, Math.PI, 0);
+      ctx.lineTo(lx + ww, wy + s*0.026);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(18,35,90,0.68)'; ctx.fill();
+      ctx.strokeStyle = '#3e2e10'; ctx.lineWidth = 0.8; ctx.stroke();
+      // window glint
+      ctx.beginPath();
+      ctx.arc(lx - ww*0.26, wy - s*0.004, ww*0.18, Math.PI, 0);
+      ctx.strokeStyle = 'rgba(180,210,255,0.38)'; ctx.lineWidth = 1.0; ctx.stroke();
+    }
+
+    // Flag
+    const fx = lx, fy = ly - th - bh - s*0.125 - s*0.040;
+    ctx.beginPath();
+    ctx.moveTo(fx, fy); ctx.lineTo(fx, fy - s*0.060);
+    ctx.strokeStyle = '#2a1800'; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(fx,           fy - s*0.060);
+    ctx.lineTo(fx + s*0.042, fy - s*0.042);
+    ctx.lineTo(fx,           fy - s*0.022);
+    ctx.closePath();
+    ctx.fillStyle = '#cc1a1a'; ctx.fill();
+  }
+
+  function drawScienceLandmark(isl, s, hsc) {
+    const x = isl.cx * W, y = isl.cy * H;
+    const lx = x, ly = y - s * 0.02;
+    const dr = s * 0.168;
+
+    // Cylinder base
+    const bg = ctx.createLinearGradient(lx - dr, ly, lx + dr, ly);
+    bg.addColorStop(0,    '#6c7e8e');
+    bg.addColorStop(0.38, '#c4d0dc');
+    bg.addColorStop(1,    '#505e6c');
+    ctx.beginPath();
+    ctx.rect(lx - dr, ly - s*0.068, dr*2, s*0.068);
+    ctx.fillStyle = bg; ctx.fill();
+    ctx.strokeStyle = '#3a4e5e'; ctx.lineWidth = 1.5; ctx.stroke();
+    // panel lines on base
+    ctx.save();
+    ctx.beginPath(); ctx.rect(lx - dr, ly - s*0.068, dr*2, s*0.068); ctx.clip();
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+    for (let p = -2; p <= 2; p++) {
+      ctx.beginPath(); ctx.moveTo(lx + p*dr*0.44, ly - s*0.068); ctx.lineTo(lx + p*dr*0.44, ly); ctx.stroke();
+    }
+    ctx.restore();
+
+    // Ground shadow
+    ctx.beginPath();
+    ctx.ellipse(lx, ly, dr*1.05, dr*0.11, 0, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(0,0,0,0.10)'; ctx.fill();
+
+    // Dome fill
+    const dg = ctx.createRadialGradient(lx - dr*0.38, ly - dr*0.52, dr*0.04, lx + dr*0.12, ly - dr*0.08, dr*1.18);
+    dg.addColorStop(0,    '#eef4ff');
+    dg.addColorStop(0.28, '#c0d4ee');
+    dg.addColorStop(0.68, '#6090c4');
+    dg.addColorStop(1,    '#2a5090');
+    ctx.beginPath();
+    ctx.arc(lx, ly, dr, Math.PI, 0);
+    ctx.fillStyle = dg; ctx.fill();
+    ctx.strokeStyle = '#2a5090'; ctx.lineWidth = 2; ctx.stroke();
+
+    // Aperture slit
+    ctx.save();
+    ctx.beginPath(); ctx.arc(lx, ly, dr * 0.98, Math.PI, 0); ctx.clip();
+    ctx.beginPath();
+    ctx.rect(lx - dr*0.104, ly - dr*1.04, dr*0.208, dr*1.08);
+    ctx.fillStyle = 'rgba(6,12,36,0.82)'; ctx.fill();
+    ctx.restore();
+
+    // Dome rim
+    ctx.beginPath();
+    ctx.moveTo(lx - dr, ly); ctx.lineTo(lx + dr, ly);
+    ctx.strokeStyle = '#2a5090'; ctx.lineWidth = 2; ctx.stroke();
+
+    // Dome sheen
+    ctx.save();
+    ctx.beginPath(); ctx.arc(lx, ly, dr, Math.PI, 0); ctx.clip();
+    const hs = ctx.createRadialGradient(lx - dr*0.34, ly - dr*0.56, 0, lx - dr*0.10, ly - dr*0.24, dr*0.72);
+    hs.addColorStop(0, 'rgba(255,255,255,0.48)');
+    hs.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = hs;
+    ctx.fillRect(lx - dr*1.1, ly - dr*1.1, dr*2.2, dr*1.1);
+    ctx.restore();
+
+    // Telescope tube
+    ctx.save();
+    ctx.translate(lx, ly - dr * 0.30);
+    ctx.rotate(-0.28);
+    const ttg = ctx.createLinearGradient(-dr*0.060, 0, dr*0.060, 0);
+    ttg.addColorStop(0,    '#40688a');
+    ttg.addColorStop(0.45, '#90b8d0');
+    ttg.addColorStop(1,    '#2a4c6c');
+    ctx.beginPath();
+    ctx.rect(-dr*0.060, -dr*0.65, dr*0.120, dr*0.68);
+    ctx.fillStyle = ttg; ctx.fill();
+    ctx.strokeStyle = '#204060'; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, -dr*0.65, dr*0.060, 0, Math.PI*2);
+    ctx.fillStyle = '#a8c4d8'; ctx.fill();
+    ctx.strokeStyle = '#204060'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.restore();
+
+    // Star above dome
+    ctx.save();
+    ctx.translate(lx, ly - dr - s*0.052);
+    const sr = s * 0.026;
+    ctx.fillStyle = '#f0c830'; ctx.strokeStyle = '#b08010'; ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    for (let p = 0; p < 5; p++) {
+      const pa = p * Math.PI*2/5 - Math.PI*0.5;
+      const pb = (p + 0.5) * Math.PI*2/5 - Math.PI*0.5;
+      if (p === 0) ctx.moveTo(Math.cos(pa)*sr, Math.sin(pa)*sr);
+      else         ctx.lineTo(Math.cos(pa)*sr, Math.sin(pa)*sr);
+      ctx.lineTo(Math.cos(pb)*sr*0.42, Math.sin(pb)*sr*0.42);
+    }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.restore();
   }
 
@@ -252,32 +450,64 @@
     const x = isl.cx * W, y = isl.cy * H;
     let seed = isl.id.split('').reduce(function(a, c){ return a*31 + c.charCodeAt(0); }, 7);
     function rng() { seed = (seed * 1664525 + 1013904223) | 0; return (seed >>> 0) / 0xffffffff; }
-    const count = Math.ceil(isl.size * 12) + 5;
+    const count = Math.ceil(isl.size * 14) + 5;
     for (let i = 0; i < count; i++) {
       const ang = rng() * Math.PI * 2;
-      const r   = s * (0.10 + rng() * 0.58);
-      const tx  = x + Math.cos(ang) * r;
-      const ty  = y + Math.sin(ang) * r * 0.72;
-      buildPath(isl, 0.78 * hsc);
+      const rr  = s * (0.12 + rng() * 0.54);
+      const tx  = x + Math.cos(ang) * rr;
+      const ty  = y + Math.sin(ang) * rr * 0.72;
+      buildPath(isl, 0.82 * hsc);
       if (!ctx.isPointInPath(tx, ty)) continue;
-      const ts = s * (0.044 + rng() * 0.028);
-      // trunk
-      ctx.beginPath();
-      ctx.moveTo(tx, ty + ts * 0.3);
-      ctx.lineTo(tx, ty + ts * 2.0);
-      ctx.strokeStyle = '#7a4818';
-      ctx.lineWidth = Math.max(1.2, ts * 0.30);
-      ctx.stroke();
-      // canopy base
-      ctx.beginPath();
-      ctx.arc(tx, ty - ts * 0.30, ts * 1.10, 0, Math.PI * 2);
-      ctx.fillStyle = isl.treeLo;
-      ctx.fill();
-      // canopy highlight — lighter half-arc on upper-left
-      ctx.beginPath();
-      ctx.arc(tx - ts * 0.18, ty - ts * 0.52, ts * 0.62, Math.PI, 0);
-      ctx.fillStyle = isl.treeHi;
-      ctx.fill();
+      const ts = s * (0.034 + rng() * 0.022);
+      if (rr > s * 0.36) {
+        // ── Palm (coastal) ──────────────────────────────────────────────────
+        const lean = (rng() - 0.5) * ts * 1.8;
+        const topX = tx + lean, topY = ty - ts * 1.9;
+        ctx.beginPath();
+        ctx.moveTo(tx, ty + ts * 1.0);
+        ctx.quadraticCurveTo(tx + lean * 0.5, ty + ts * 0.3, topX, topY);
+        ctx.strokeStyle = '#8a5828';
+        ctx.lineWidth = Math.max(1.4, ts * 0.26);
+        ctx.stroke();
+        for (let f = 0; f < 5; f++) {
+          const fa = -Math.PI * 0.68 + f * Math.PI * 0.33;
+          const fl = ts * (1.3 + rng() * 0.44);
+          ctx.beginPath();
+          ctx.moveTo(topX, topY);
+          ctx.quadraticCurveTo(
+            topX + Math.cos(fa) * fl * 0.50,
+            topY + Math.sin(fa) * fl * 0.85,
+            topX + Math.cos(fa) * fl,
+            topY + Math.sin(fa) * fl * 0.85
+          );
+          ctx.strokeStyle = f === 2 ? isl.treeHi : isl.treeLo;
+          ctx.lineWidth = Math.max(1.0, ts * 0.18);
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.arc(topX, topY + ts * 0.16, ts * 0.24, 0, Math.PI * 2);
+        ctx.fillStyle = '#b86020'; ctx.fill();
+      } else {
+        // ── Pine/conifer (inland) ────────────────────────────────────────────
+        ctx.beginPath();
+        ctx.rect(tx - ts*0.072, ty + ts*0.10, ts*0.144, ts*0.52);
+        ctx.fillStyle = '#7a4818'; ctx.fill();
+        for (let l = 0; l < 3; l++) {
+          const base = ty + ts*0.18 - ts*0.52*l;
+          const hw   = ts * (1.36 - l * 0.25);
+          const ht   = ts * (1.06 - l * 0.16);
+          const lg   = ctx.createLinearGradient(tx - hw, base, tx + hw*0.25, base - ht);
+          lg.addColorStop(0,    isl.treeLo);
+          lg.addColorStop(0.42, isl.treeHi);
+          lg.addColorStop(1,    isl.treeLo);
+          ctx.beginPath();
+          ctx.moveTo(tx,      base - ht);
+          ctx.lineTo(tx + hw, base);
+          ctx.lineTo(tx - hw, base);
+          ctx.closePath();
+          ctx.fillStyle = lg; ctx.fill();
+        }
+      }
     }
   }
 

@@ -446,21 +446,34 @@
     var m = filename.match(/^(Lesson\s*\d+\.\d+)/);
     if (m) lessonBase = m[1];
     if (lessonBase) {
-      var usesUnderscore = filename.indexOf('_Video') !== -1 || filename.indexOf('_Summary') !== -1 || filename.indexOf('_Practice') !== -1 || filename.indexOf('_Quiz') !== -1;
+      var usesUnderscore = filename.indexOf('_Video') !== -1 || filename.indexOf('_Summary') !== -1 || filename.indexOf('_Simulation') !== -1 || filename.indexOf('_Practice') !== -1 || filename.indexOf('_Quiz') !== -1;
       var sep = usesUnderscore ? '_' : ' ';
+      // Lessons that have a simulation step (keyed as lessonFolder:lessonId)
+      var tbSimConfig = {
+        'ChemistryLessons:1.1': { label: 'Simulation', icon: '\uD83E\uDDEA' }
+      };
+      var tbLessonId = lessonBase.replace(/Lesson\s*/, '');
+      var tbSimKey = lessonFolder + ':' + tbLessonId;
+      var tbHasSim = !!tbSimConfig[tbSimKey];
+      var tbSimInfo = tbSimConfig[tbSimKey] || {};
       var tbSteps = [
         { key: 'Video',    label: 'Video',    icon: '\u25B6',        suffix: sep + 'Video.html' },
-        { key: 'Summary',  label: 'Summary',  icon: '\uD83D\uDCCB', suffix: sep + 'Summary.html' },
-        { key: 'Practice', label: 'Practice', icon: '\uD83C\uDFAF', suffix: sep + 'Practice.html' },
-        { key: 'Quiz',     label: 'Quiz',     icon: '\u2714',        suffix: sep + 'Quiz.html' }
+        { key: 'Summary',  label: 'Summary',  icon: '\uD83D\uDCCB', suffix: sep + 'Summary.html' }
       ];
-      var tbStepOrder = { Video: 0, Summary: 1, Practice: 2, Quiz: 3 };
+      if (tbHasSim) {
+        tbSteps.push({ key: 'Simulation', label: tbSimInfo.label || 'Simulation', icon: tbSimInfo.icon || '\uD83E\uDDEA', suffix: sep + 'Simulation.html' });
+      }
+      tbSteps.push({ key: 'Practice', label: 'Practice', icon: '\uD83C\uDFAF', suffix: sep + 'Practice.html' });
+      tbSteps.push({ key: 'Quiz',     label: 'Quiz',     icon: '\u2714',        suffix: sep + 'Quiz.html' });
+      var tbStepOrder = {};
+      for (var tbi = 0; tbi < tbSteps.length; tbi++) { tbStepOrder[tbSteps[tbi].key] = tbi; }
       var curType = '';
       if (filename.indexOf('Video') !== -1) curType = 'Video';
       else if (filename.indexOf('Summary') !== -1) curType = 'Summary';
+      else if (filename.indexOf('Simulation') !== -1) curType = 'Simulation';
       else if (filename.indexOf('Practice') !== -1) curType = 'Practice';
       else if (filename.indexOf('Quiz') !== -1) curType = 'Quiz';
-      var curIdx = tbStepOrder[curType] || 0;
+      var curIdx = tbStepOrder[curType] !== undefined ? tbStepOrder[curType] : 0;
 
       lessonNavHtml = '<div class="taskbar-center" role="navigation" aria-label="Lesson steps">' +
         '<div class="tb-progress-bar">';
@@ -694,24 +707,37 @@
     if (!lessonMatch) return; // Skip unit tests and non-lesson pages
 
     var lessonId = lessonMatch[1]; // e.g. "3.1"
-    var baseName = filename.replace(/_Video\.html|_Summary\.html|_Practice\.html|_Quiz\.html/, '');
+    var baseName = filename.replace(/_Video\.html|_Summary\.html|_Simulation\.html|_Practice\.html|_Quiz\.html/, '');
+
+    // Lessons that have a simulation step (keyed as lessonFolder:lessonId)
+    var simulationConfig = {
+      'ChemistryLessons:1.1': { label: 'Simulation', icon: '\uD83E\uDDEA', url: baseName + '_Simulation.html' }
+    };
+    var simKey = lessonFolder + ':' + lessonId;
+    var hasSim = !!simulationConfig[simKey];
+    var simInfo = simulationConfig[simKey] || {};
 
     // Determine current step
     var currentStep = '';
     if (filename.indexOf('_Video') !== -1) currentStep = 'video';
     else if (filename.indexOf('_Summary') !== -1) currentStep = 'summary';
+    else if (filename.indexOf('_Simulation') !== -1) currentStep = 'simulation';
     else if (filename.indexOf('_Practice') !== -1) currentStep = 'practice';
     else if (filename.indexOf('_Quiz') !== -1) currentStep = 'quiz';
     if (!currentStep) return;
 
     var steps = [
       { key: 'video',    label: 'Video',    icon: '\u25B6', suffix: '_Video.html' },
-      { key: 'summary',  label: 'Summary',  icon: '\uD83D\uDCCB', suffix: '_Summary.html' },
-      { key: 'practice', label: 'Practice', icon: '\uD83C\uDFAF', suffix: '_Practice.html' },
-      { key: 'quiz',     label: 'Quiz',     icon: '\u2714', suffix: '_Quiz.html' }
+      { key: 'summary',  label: 'Summary',  icon: '\uD83D\uDCCB', suffix: '_Summary.html' }
     ];
+    if (hasSim) {
+      steps.push({ key: 'simulation', label: simInfo.label || 'Simulation', icon: simInfo.icon || '\uD83E\uDDEA', suffix: '_Simulation.html' });
+    }
+    steps.push({ key: 'practice', label: 'Practice', icon: '\uD83C\uDFAF', suffix: '_Practice.html' });
+    steps.push({ key: 'quiz',     label: 'Quiz',     icon: '\u2714', suffix: '_Quiz.html' });
 
-    var stepOrder = { video: 0, summary: 1, practice: 2, quiz: 3 };
+    var stepOrder = {};
+    for (var si2 = 0; si2 < steps.length; si2++) { stepOrder[steps[si2].key] = si2; }
     var currentIdx = stepOrder[currentStep];
 
     // Build the step bar HTML with ARIA progress indicators

@@ -45,16 +45,18 @@ class CleanupHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             # to root-level /styles/* if the remapped file doesn't exist.
             elif path.startswith('/styles/'):
                 remapped = '/ArisEdu Project Folder' + path
-                root_dir = os.path.dirname(os.path.abspath(__file__))
-                if os.path.isfile(root_dir + remapped.replace('/', os.sep)):
+                root_dir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
+                full_path = os.path.realpath(os.path.join(root_dir, remapped.lstrip('/')))
+                if full_path.startswith(root_dir + os.sep) and os.path.isfile(full_path):
                     path = remapped
                 # else: leave path as-is so root-level /styles/* is served
             # Map /scripts/* to ArisEdu Project Folder/scripts/* if it's not already,
             # with the same fallback to root-level /scripts/*.
             elif path.startswith('/scripts/') and not path.startswith('/ArisEdu Project Folder/scripts/'):
                 remapped = '/ArisEdu Project Folder' + path
-                root_dir = os.path.dirname(os.path.abspath(__file__))
-                if os.path.isfile(root_dir + remapped.replace('/', os.sep)):
+                root_dir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
+                full_path = os.path.realpath(os.path.join(root_dir, remapped.lstrip('/')))
+                if full_path.startswith(root_dir + os.sep) and os.path.isfile(full_path):
                     path = remapped
                 # else: leave path as-is so root-level /scripts/* is served
             # /content_data/* stays as root-level

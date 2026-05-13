@@ -967,7 +967,7 @@
       var statusColor = d.isChinese ? '#a6e3a1' : '#f9e2af';
       
       var h = '';
-      h += '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#94a3b8;">Language</span><span style="color:#f8fafc;font-weight:bold;">' + d.lang + '</span></div>';
+      h += '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#94a3b8;">Language</span><span style="color:#f8fafc;font-weight:bold;">' + esc(d.lang) + '</span></div>';
       h += '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#94a3b8;">Chinese Active</span><span style="color:' + statusColor + ';font-weight:bold;">' + (d.isChinese ? 'YES' : 'NO') + '</span></div>';
       h += '<div style="background:#1e293b;border-radius:4px;padding:6px 8px;margin:6px 0;">';
       h += r('Translation keys', d.totalKeys, '#a6e3a1');

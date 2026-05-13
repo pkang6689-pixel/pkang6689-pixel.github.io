@@ -286,7 +286,7 @@ class QuizLoader {
             id="${inputId}"
             ${isSelected ? 'checked' : ''}
             ${isLocked ? 'disabled' : ''}
-            onchange="quizLoader.selectAnswer('${optionText.replace(/'/g, "\\'")}')"
+            onchange="quizLoader.selectAnswer('${optionText.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')"
           />
           <span class="option-letter">${optionLetters[index]}</span>
           <span class="option-text">${optionText}</span>
