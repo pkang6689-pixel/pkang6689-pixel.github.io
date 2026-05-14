@@ -41,32 +41,94 @@
   const tip    = document.getElementById('tip');
   const tipName    = document.getElementById('tip-name');
   const tipCourses = document.getElementById('tip-courses');
-  let W = 0, H = 0, hoverId = null;
+  let W = 0, H = 0, hoverId = null, hoverSec = null;
+  let zoomAnim = { isl: null, t: 0, dir: 0, raf: 0, ts0: 0 };
+  let secZoom  = { sec: null, t: 0, dir: 0, raf: 0, ts0: 0 }; // second-level zoom into a segment
+  const ZOOM_DUR = 540; // ms
+  const SEC_ZOOM_DUR = 860; // ms — slower section zoom
 
   const ISLANDS = [
     {
       id: 'math', name: 'Isle of Mathematics',
-      courses: ['Algebra','Geometry','Calculus','Statistics','Trigonometry','Pre-Calculus'],
+      courses: ['Algebra I','Algebra II','Geometry','Pre-Calculus','Trigonometry','Statistics','Linear Algebra','Financial Math'],
       cx: 0.27, cy: 0.50, size: 2.9,
       shoreHi: '#f7e888', shoreLo: '#c49018', borderCol: '#7a5c10',
       greenHi: '#b4e052', greenLo: '#3a7010',
       hillHi:  '#78c228', hillLo:  '#265808',
       treeHi:  '#cae860', treeLo:  '#4c9010',
-      pts: [[.10,-1.0],[.55,-.82],[.90,-.40],[1.02,.06],[.78,.42],[.94,.80],[.46,1.0],[.04,1.08],[-.42,.94],[-.74,.58],[-.96,.16],[-.88,-.40],[-.58,-.78],[-.18,-.94]],
+      pts: [[ .08,-1.02],[ .42,-.90],[ .88,-.44],[1.10,-.04],[ .88, .20],[ .58, .30],[ .82, .64],[ .50, .98],[ .10,1.10],[-.36,1.04],[-.72, .68],[-.98, .20],[-1.00,-.32],[-.64,-.76],[-.24,-.96]],
+      sections: [
+        { id:'algebra1',   name:'Algebra I',       col:'#3b82f6', nx: 0.221, ny:-0.465 },
+        { id:'algebra2',   name:'Algebra II',      col:'#2f92d5', nx: 0.501, ny:-0.221 },
+        { id:'geometry',   name:'Geometry',        col:'#22a1b3', nx: 0.579, ny: 0.098 },
+        { id:'precalc',    name:'Pre-Calculus',    col:'#16b192', nx: 0.281, ny: 0.311 },
+        { id:'trig',       name:'Trigonometry',    col:'#22ac92', nx:-0.116, ny: 0.417 },
+        { id:'statistics', name:'Statistics',      col:'#4591b3', nx:-0.504, ny: 0.200 },
+        { id:'linalg',     name:'Linear Algebra',  col:'#6877d5', nx:-0.637, ny:-0.161 },
+        { id:'finmath',    name:'Financial Math',  col:'#8b5cf6', nx:-0.221, ny:-0.366 },
+      ],
     },
     {
       id: 'science', name: 'Sciencia Shores',
-      courses: ['Biology','Chemistry','Physics','Astronomy','Earth Science'],
+      courses: ['Physics','Chemistry','Biology','Earth Science','Integrated Science','Environmental Science','Astronomy','Anatomy & Physiology','Marine Science'],
       cx: 0.73, cy: 0.49, size: 2.7,
       shoreHi: '#ffc870', shoreLo: '#c07018', borderCol: '#885010',
       greenHi: '#52e8b0', greenLo: '#187850',
       hillHi:  '#2ad8a0', hillLo:  '#0d5838',
       treeHi:  '#70f0c0', treeLo:  '#18a870',
-      pts: [[.04,-1.0],[.42,-.88],[.74,-.58],[.96,-.20],[1.08,.22],[.90,.60],[1.02,.90],[.56,1.10],[.08,1.12],[-.40,1.02],[-.80,.72],[-.98,.28],[-.92,-.18],[-.70,-.60],[-.30,-.92]],
+      pts: [[-.08,-1.06],[ .24,-.92],[ .62,-.58],[ .96,-.16],[1.04, .28],[ .84, .60],[1.02, .90],[ .76,1.12],[ .38,1.04],[ .00,1.00],[-.40, .86],[-.78, .52],[-1.02, .10],[-.92,-.38],[-.58,-.78],[-.22,-.96]],
+      sections: [
+        { id:'physics',       name:'Physics',               col:'#fbbf24', nx: 0.236, ny:-0.426 },
+        { id:'chemistry',     name:'Chemistry',             col:'#3b82f6', nx: 0.534, ny:-0.263 },
+        { id:'biology',       name:'Biology',               col:'#22c55e', nx: 0.652, ny: 0.053 },
+        { id:'earth',         name:'Earth Science',         col:'#3b82f6', nx: 0.522, ny: 0.384 },
+        { id:'integrated',    name:'Integrated Science',    col:'#38bdf8', nx: 0.092, ny: 0.429 },
+        { id:'environmental', name:'Environmental Science', col:'#22c55e', nx:-0.284, ny: 0.302 },
+        { id:'astronomy',     name:'Astronomy',             col:'#fbbf24', nx:-0.534, ny: 0.050 },
+        { id:'anatomy',       name:'Anatomy & Physiology',  col:'#22c55e', nx:-0.543, ny:-0.284 },
+        { id:'marine',        name:'Marine Science',        col:'#0ea5e9', nx:-0.212, ny:-0.444 },
+      ],
     },
   ];
 
   const ROUTES = [['math','science']];
+
+  // Decorative features: one medium island + scattered tiny islets
+  // Positions computed to be in clear ocean, drawn AFTER main islands
+  const DECOS = [
+    // ── medium island ─ top-center, above both main islands
+    { type:'mid', id:'midIsle', cx:0.50, cy:0.17, size:0.80,
+      shoreHi:'#f5dfa4', shoreLo:'#c48c2c', borderCol:'#7a5520',
+      greenHi:'#aad83c', greenLo:'#347010', hillHi:'#74bc1c', hillLo:'#1e4c08',
+      treeHi:'#c4e240', treeLo:'#3c8012',
+      pts:[[.20,-.98],[.62,-.72],[.94,-.18],[.90,.42],[.58,.84],[.10,.98],[-.32,.96],[-.76,.60],[-.96,.06],[-.82,-.50],[-.38,-.88]] },
+    // ── science cluster ─ NE corner (clear of science upper-right edge)
+    { type:'tiny', cx:0.92, cy:0.18, r:0.042,
+      shoreHi:'#ffd890', shoreLo:'#c07830', borderCol:'#885018',
+      greenHi:'#52e8b0', greenLo:'#187850',
+      pts:[[.3,-.9],[.9,-.2],[.8,.6],[.1,1],[-.6,.8],[-.9,.1],[-.7,-.6]] },
+    // ── science cluster ─ right side, below mid-point
+    { type:'tiny', cx:0.96, cy:0.60, r:0.036,
+      shoreHi:'#ffc870', shoreLo:'#be7820', borderCol:'#885010',
+      greenHi:'#48e0a8', greenLo:'#147848',
+      pts:[[.4,-.8],[.9,.1],[.6,.8],[-.1,1],[-.8,.5],[-.9,-.3],[-.2,-.9]] },
+    // ── medium island ─ science cluster, below-right of science
+    { type:'mid', id:'sciIsle', cx:0.91, cy:0.82, size:0.72,
+      shoreHi:'#ffe0a0', shoreLo:'#c07828', borderCol:'#885018',
+      greenHi:'#52e8b0', greenLo:'#187850', hillHi:'#2ad8a0', hillLo:'#0d5838',
+      treeHi:'#70f0c0', treeLo:'#18a870',
+      pts:[[.14,-.98],[.58,-.74],[.92,-.20],[.96,.34],[.70,.80],[.18,.98],[-.28,.96],[-.72,.62],[-.96,.08],[-.86,-.46],[-.44,-.86]] },
+    // ── math cluster ─ left side, mid-height
+    { type:'tiny', cx:0.05, cy:0.42, r:0.040,
+      shoreHi:'#f7e888', shoreLo:'#c49018', borderCol:'#7a5c10',
+      greenHi:'#b4e052', greenLo:'#3a7010',
+      pts:[[.2,-1],[.8,-.3],[.9,.4],[.4,.9],[-.2,1],[-.8,.5],[-.8,-.3],[-.3,-.9]] },
+    // ── math cluster ─ lower-left
+    { type:'tiny', cx:0.07, cy:0.76, r:0.032,
+      shoreHi:'#f7e470', shoreLo:'#c08c14', borderCol:'#7a5010',
+      greenHi:'#a8d848', greenLo:'#306010',
+      pts:[[.3,-.9],[.9,-.2],[.8,.6],[.1,1],[-.6,.8],[-.9,.1],[-.7,-.6]] },
+  ];
 
   function buildPath(isl, sc) {
     sc = sc == null ? 1 : sc;
@@ -152,6 +214,75 @@
     ctx.restore();
   }
 
+  function buildTinyPath(x, y, r, pts) {
+    const n = pts.length, ys = 0.72;
+    ctx.beginPath();
+    ctx.moveTo(x + (pts[n-1][0]+pts[0][0])/2*r, y + (pts[n-1][1]+pts[0][1])/2*r*ys);
+    for (let i = 0; i < n; i++) {
+      const c = pts[i], nx = pts[(i+1)%n];
+      ctx.quadraticCurveTo(x+c[0]*r, y+c[1]*r*ys, x+(c[0]+nx[0])/2*r, y+(c[1]+nx[1])/2*r*ys);
+    }
+    ctx.closePath();
+  }
+
+  function drawDecoFeatures() {
+    // ── tiny islets ──────────────────────────────────────────────────────────
+    for (let k = 0; k < DECOS.length; k++) {
+      const d = DECOS[k];
+      if (d.type !== 'tiny') continue;
+      const x = d.cx * W, y = d.cy * H, r = H * d.r;
+      ctx.save(); ctx.shadowColor='rgba(0,0,0,0.15)'; ctx.shadowBlur=10;
+      ctx.shadowOffsetX=5; ctx.shadowOffsetY=7;
+      buildTinyPath(x, y, r, d.pts); ctx.fillStyle=d.shoreLo; ctx.fill();
+      ctx.restore();
+      buildTinyPath(x, y, r, d.pts);
+      const bg = ctx.createRadialGradient(x-r*0.22, y-r*0.28, r*0.04, x+r*0.08, y+r*0.12, r*0.96);
+      bg.addColorStop(0, d.shoreHi); bg.addColorStop(1, d.shoreLo);
+      ctx.fillStyle=bg; ctx.fill(); ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineWidth=1.2; ctx.stroke();
+      buildTinyPath(x, y, r*1.07, d.pts); ctx.strokeStyle='rgba(0,0,0,0.28)'; ctx.lineWidth=r*0.06; ctx.stroke();
+      buildTinyPath(x, y, r*1.035, d.pts); ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.lineWidth=r*0.032; ctx.stroke();
+      buildTinyPath(x, y, r*0.55, d.pts);
+      const gg = ctx.createRadialGradient(x-r*0.10, y-r*0.14, 0, x, y, r*0.55);
+      gg.addColorStop(0, d.greenHi); gg.addColorStop(1, d.greenLo);
+      ctx.fillStyle=gg; ctx.fill();
+    }
+    // ── medium island ─────────────────────────────────────────────────────────
+    for (let k = 0; k < DECOS.length; k++) {
+      const d = DECOS[k];
+      if (d.type !== 'mid') continue;
+      const x = d.cx * W, y = d.cy * H;
+      const s = Math.min(W, H) * 0.105 * d.size;
+      ctx.save(); ctx.shadowColor='rgba(0,0,0,0.20)'; ctx.shadowBlur=26;
+      ctx.shadowOffsetX=12; ctx.shadowOffsetY=16;
+      buildPath(d); ctx.fillStyle=d.shoreLo; ctx.fill();
+      ctx.restore();
+      buildPath(d);
+      const sg = ctx.createRadialGradient(x-s*0.24, y-s*0.32, s*0.05, x+s*0.08, y+s*0.14, s*1.08);
+      sg.addColorStop(0, d.shoreHi); sg.addColorStop(0.72, d.shoreLo); sg.addColorStop(1, d.borderCol);
+      ctx.fillStyle=sg; ctx.fill(); ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineWidth=2; ctx.stroke();
+      buildPath(d, 1.055); ctx.strokeStyle='rgba(0,0,0,0.28)'; ctx.lineWidth=s*0.046; ctx.stroke();
+      buildPath(d, 1.025); ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.lineWidth=s*0.026; ctx.stroke();
+      buildPath(d, 0.82);
+      const eg1 = ctx.createRadialGradient(x-s*0.14, y-s*0.20, 0, x, y, s*0.82);
+      eg1.addColorStop(0, d.greenHi); eg1.addColorStop(1, d.greenLo);
+      ctx.fillStyle=eg1; ctx.fill(); ctx.strokeStyle='rgba(0,0,0,0.07)'; ctx.lineWidth=1.5; ctx.stroke();
+      buildPath(d, 0.55);
+      const eg2 = ctx.createRadialGradient(x-s*0.12, y-s*0.18, 0, x, y, s*0.55);
+      eg2.addColorStop(0, d.hillHi); eg2.addColorStop(1, d.greenHi);
+      ctx.fillStyle=eg2; ctx.fill(); ctx.strokeStyle='rgba(0,0,0,0.06)'; ctx.lineWidth=1.2; ctx.stroke();
+      buildPath(d, 0.34);
+      const eg3 = ctx.createRadialGradient(x-s*0.08, y-s*0.12, 0, x, y, s*0.34);
+      eg3.addColorStop(0, lighten(d.hillHi, 28)); eg3.addColorStop(1, d.hillHi);
+      ctx.fillStyle=eg3; ctx.fill();
+      drawTrees(d, s, false, 1.0);
+      ctx.save(); buildPath(d, 0.85); ctx.clip();
+      const hl = ctx.createRadialGradient(x-s*0.30, y-s*0.44, 0, x-s*0.08, y-s*0.20, s*0.72);
+      hl.addColorStop(0, 'rgba(255,255,255,0.24)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle=hl; ctx.fillRect(x-s*1.2, y-s*1.2, s*2.4, s*2.4);
+      ctx.restore();
+    }
+  }
+
   function drawIsland(isl, hover) {
     const x = isl.cx * W, y = isl.cy * H;
     const hsc = hover ? 1.08 : 1.0;
@@ -179,19 +310,19 @@
     buildPath(isl, hsc);
     ctx.fillStyle = sg;
     ctx.fill();
-    ctx.strokeStyle = isl.borderCol;
+    ctx.strokeStyle = 'rgba(0,0,0,0.80)';
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
     // Surf foam ring — drawn over beach edge
     ctx.save();
     buildPath(isl, hsc * 1.055);
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.30)';
     ctx.lineWidth = s * 0.048;
     ctx.lineJoin = 'round';
     ctx.stroke();
     buildPath(isl, hsc * 1.025);
-    ctx.strokeStyle = 'rgba(255,255,255,0.20)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.14)';
     ctx.lineWidth = s * 0.028;
     ctx.stroke();
     ctx.restore();
@@ -234,6 +365,12 @@
     ctx.fillStyle = hl;
     ctx.fillRect(x - s*1.2, y - s*1.2, s*2.4, s*2.4);
     ctx.restore();
+
+    // Border re-stroke over terrain — makes both sides of outline visible
+    buildPath(isl, hsc);
+    ctx.strokeStyle = 'rgba(0,0,0,0.80)';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
 
     // Label
     const fs = Math.max(12, Math.round(s * 0.155));
@@ -450,63 +587,182 @@
     const x = isl.cx * W, y = isl.cy * H;
     let seed = isl.id.split('').reduce(function(a, c){ return a*31 + c.charCodeAt(0); }, 7);
     function rng() { seed = (seed * 1664525 + 1013904223) | 0; return (seed >>> 0) / 0xffffffff; }
-    const count = Math.ceil(isl.size * 14) + 5;
-    for (let i = 0; i < count; i++) {
+    const minDist = s * 0.38;
+    const placed = [];
+    const attempts = 40;
+    // Reset to identity for hit-testing — isPointInPath uses CSS-pixel coords
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    for (let i = 0; i < attempts && placed.length < 5; i++) {
       const ang = rng() * Math.PI * 2;
-      const rr  = s * (0.12 + rng() * 0.54);
+      const rr  = s * (0.12 + rng() * 0.62);
       const tx  = x + Math.cos(ang) * rr;
       const ty  = y + Math.sin(ang) * rr * 0.72;
-      buildPath(isl, 0.82 * hsc);
+      buildPath(isl, 0.88 * hsc);
       if (!ctx.isPointInPath(tx, ty)) continue;
-      const ts = s * (0.034 + rng() * 0.022);
-      if (rr > s * 0.36) {
-        // ── Palm (coastal) ──────────────────────────────────────────────────
-        const lean = (rng() - 0.5) * ts * 1.8;
-        const topX = tx + lean, topY = ty - ts * 1.9;
+      let tooClose = false;
+      for (let p = 0; p < placed.length; p++) {
+        const dx = tx - placed[p][0], dy = ty - placed[p][1];
+        if (dx*dx + dy*dy < minDist*minDist) { tooClose = true; break; }
+      }
+      if (tooClose) continue;
+      placed.push([tx, ty, rr]);
+    }
+    ctx.restore(); // restore zoom transform for drawing
+    for (let i = 0; i < placed.length; i++) {
+      const tx = placed[i][0], ty = placed[i][1], rr = placed[i][2];
+      const ts = s * (0.13 + rng() * 0.06);
+      if (rr > s * 0.38) {
+        // ── Palm (coastal / outer) ───────────────────────────────────────────
+        const lean = (rng() - 0.5) * ts * 2.2;
+        const topX = tx + lean, topY = ty - ts * 2.4;
+        // ground shadow ellipse
         ctx.beginPath();
-        ctx.moveTo(tx, ty + ts * 1.0);
-        ctx.quadraticCurveTo(tx + lean * 0.5, ty + ts * 0.3, topX, topY);
-        ctx.strokeStyle = '#8a5828';
-        ctx.lineWidth = Math.max(1.4, ts * 0.26);
-        ctx.stroke();
-        for (let f = 0; f < 5; f++) {
-          const fa = -Math.PI * 0.68 + f * Math.PI * 0.33;
-          const fl = ts * (1.3 + rng() * 0.44);
+        ctx.ellipse(tx + ts*0.35, ty + ts*0.15, ts*0.75, ts*0.22, 0.1, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fill();
+        // trunk — tapered filled shape
+        ctx.beginPath();
+        ctx.moveTo(tx - ts*0.15, ty + ts*0.80);
+        ctx.quadraticCurveTo(tx + lean*0.45 - ts*0.09, ty - ts*0.30, topX - ts*0.07, topY);
+        ctx.quadraticCurveTo(tx + lean*0.45 + ts*0.13, ty - ts*0.30, tx + ts*0.15, ty + ts*0.80);
+        ctx.closePath();
+        const trunkGrad = ctx.createLinearGradient(tx - ts*0.15, 0, tx + ts*0.15, 0);
+        trunkGrad.addColorStop(0,    '#5a2a08');
+        trunkGrad.addColorStop(0.28, '#d07830');
+        trunkGrad.addColorStop(0.55, '#f0aa58');
+        trunkGrad.addColorStop(1,    '#7a3c14');
+        ctx.fillStyle = trunkGrad; ctx.fill();
+        ctx.strokeStyle = '#3a1606'; ctx.lineWidth = 1.5; ctx.stroke();
+        // bark rings (bezier arcs)
+        for (let b = 1; b < 6; b++) {
+          const bt = b / 6;
+          const bx = tx + lean * bt * 0.45;
+          const by = ty + ts*0.80 - (ty + ts*0.80 - topY) * bt;
+          const bw = ts*0.13 * (1 - bt*0.45);
           ctx.beginPath();
-          ctx.moveTo(topX, topY);
-          ctx.quadraticCurveTo(
-            topX + Math.cos(fa) * fl * 0.50,
-            topY + Math.sin(fa) * fl * 0.85,
-            topX + Math.cos(fa) * fl,
-            topY + Math.sin(fa) * fl * 0.85
-          );
-          ctx.strokeStyle = f === 2 ? isl.treeHi : isl.treeLo;
-          ctx.lineWidth = Math.max(1.0, ts * 0.18);
-          ctx.stroke();
+          ctx.moveTo(bx - bw, by + ts*0.025);
+          ctx.bezierCurveTo(bx - bw*0.3, by - ts*0.025, bx + bw*0.3, by - ts*0.025, bx + bw, by + ts*0.025);
+          ctx.strokeStyle = '#8a4018'; ctx.lineWidth = 1.6; ctx.stroke();
         }
-        ctx.beginPath();
-        ctx.arc(topX, topY + ts * 0.16, ts * 0.24, 0, Math.PI * 2);
-        ctx.fillStyle = '#b86020'; ctx.fill();
-      } else {
-        // ── Pine/conifer (inland) ────────────────────────────────────────────
-        ctx.beginPath();
-        ctx.rect(tx - ts*0.072, ty + ts*0.10, ts*0.144, ts*0.52);
-        ctx.fillStyle = '#7a4818'; ctx.fill();
-        for (let l = 0; l < 3; l++) {
-          const base = ty + ts*0.18 - ts*0.52*l;
-          const hw   = ts * (1.36 - l * 0.25);
-          const ht   = ts * (1.06 - l * 0.16);
-          const lg   = ctx.createLinearGradient(tx - hw, base, tx + hw*0.25, base - ht);
-          lg.addColorStop(0,    isl.treeLo);
-          lg.addColorStop(0.42, isl.treeHi);
-          lg.addColorStop(1,    isl.treeLo);
+        // fronds — filled leaf shapes, back three drawn first
+        for (let pass = 0; pass < 2; pass++) {
+          for (let f = 0; f < 7; f++) {
+            const isBack = (f === 0 || f === 1 || f === 6);
+            if (pass === 0 && !isBack) continue;
+            if (pass === 1 &&  isBack) continue;
+            const fa = -Math.PI * 0.72 + f * Math.PI * 0.22;
+            const fl = ts * (1.75 + rng() * 0.45);
+            const perpX = -Math.sin(fa) * ts * 0.34;
+            const perpY =  Math.cos(fa) * ts * 0.34;
+            const midX = topX + Math.cos(fa) * fl * 0.50;
+            const midY = topY + Math.sin(fa) * fl * 0.80 * 0.50;
+            const tipX = topX + Math.cos(fa) * fl;
+            const tipY = topY + Math.sin(fa) * fl * 0.80;
+            const isBright = (f >= 1 && f <= 4);
+            // frond body
+            ctx.beginPath();
+            ctx.moveTo(topX, topY);
+            ctx.quadraticCurveTo(midX + perpX, midY + perpY, tipX, tipY);
+            ctx.quadraticCurveTo(midX - perpX, midY - perpY, topX, topY);
+            ctx.closePath();
+            const fg = ctx.createLinearGradient(topX, topY, tipX, tipY);
+            fg.addColorStop(0,    isBright ? isl.treeHi : isl.treeLo);
+            fg.addColorStop(0.50, isBright ? isl.treeHi : isl.treeLo);
+            fg.addColorStop(1,    isl.treeLo);
+            ctx.fillStyle = fg; ctx.fill();
+            ctx.strokeStyle = 'rgba(0,0,0,0.30)'; ctx.lineWidth = 1.3; ctx.stroke();
+            // center rib highlight stripe
+            ctx.beginPath();
+            ctx.moveTo(topX, topY);
+            ctx.lineTo(topX + (tipX - topX)*0.58, topY + (tipY - topY)*0.58);
+            ctx.strokeStyle = 'rgba(255,255,255,0.42)'; ctx.lineWidth = 1.1; ctx.stroke();
+          }
+        }
+        // coconut cluster — radial gradient spheres
+        for (let c = 0; c < 3; c++) {
+          const ca = (c / 3) * Math.PI * 2;
+          const cx2 = topX + Math.cos(ca) * ts*0.19;
+          const cy2 = topY + ts*0.26 + Math.sin(ca) * ts*0.09;
           ctx.beginPath();
-          ctx.moveTo(tx,      base - ht);
+          ctx.arc(cx2, cy2, ts*0.17, 0, Math.PI*2);
+          const cg = ctx.createRadialGradient(cx2 - ts*0.06, cy2 - ts*0.06, ts*0.01, cx2, cy2, ts*0.17);
+          cg.addColorStop(0,   '#ffcc60');
+          cg.addColorStop(0.40,'#d46820');
+          cg.addColorStop(1,   '#6e2408');
+          ctx.fillStyle = cg; ctx.fill();
+          ctx.strokeStyle = '#4a1404'; ctx.lineWidth = 0.9; ctx.stroke();
+        }
+      } else {
+        // ── Pine/conifer (inland / summit) ───────────────────────────────────
+        // ground shadow
+        ctx.beginPath();
+        ctx.ellipse(tx + ts*0.28, ty + ts*0.68, ts*0.58, ts*0.18, -0.15, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(0,0,0,0.16)'; ctx.fill();
+        // trunk with gradient
+        const tg = ctx.createLinearGradient(tx - ts*0.11, 0, tx + ts*0.11, 0);
+        tg.addColorStop(0,    '#4a2208');
+        tg.addColorStop(0.40, '#a05c28');
+        tg.addColorStop(1,    '#5a2c0c');
+        ctx.beginPath();
+        ctx.rect(tx - ts*0.11, ty + ts*0.05, ts*0.22, ts*0.64);
+        ctx.fillStyle = tg; ctx.fill();
+        ctx.strokeStyle = '#2e1204'; ctx.lineWidth = 1.3; ctx.stroke();
+        // tiers (4 layers, bottom to top) — flat two-tone cartoon shading
+        for (let l = 0; l < 4; l++) {
+          const base = ty + ts*0.14 - ts*0.48*l;
+          const hw   = ts * (1.62 - l * 0.28);
+          const ht   = ts * (1.24 - l * 0.20);
+          // lit left half
+          ctx.beginPath();
+          ctx.moveTo(tx, base - ht);
+          ctx.lineTo(tx, base);
+          ctx.lineTo(tx - hw, base);
+          ctx.closePath();
+          ctx.fillStyle = isl.treeHi; ctx.fill();
+          // shadow right half
+          ctx.beginPath();
+          ctx.moveTo(tx, base - ht);
+          ctx.lineTo(tx + hw, base);
+          ctx.lineTo(tx, base);
+          ctx.closePath();
+          ctx.fillStyle = isl.treeLo; ctx.fill();
+          // bold outline
+          ctx.beginPath();
+          ctx.moveTo(tx, base - ht);
           ctx.lineTo(tx + hw, base);
           ctx.lineTo(tx - hw, base);
           ctx.closePath();
-          ctx.fillStyle = lg; ctx.fill();
+          ctx.strokeStyle = 'rgba(0,0,0,0.32)'; ctx.lineWidth = 1.6; ctx.stroke();
+          // white specular streak along upper-left edge
+          ctx.beginPath();
+          ctx.moveTo(tx, base - ht);
+          ctx.lineTo(tx - hw*0.60, base - ht*0.20);
+          ctx.strokeStyle = 'rgba(255,255,255,0.52)'; ctx.lineWidth = 2.0; ctx.stroke();
+          // spiky needle tufts along base of tier
+          const nSpikes = Math.round(hw / (ts * 0.26));
+          for (let k = 0; k <= nSpikes; k++) {
+            const sx = tx - hw + (k / nSpikes) * hw * 2;
+            const sdrop = ts * (0.11 + (k % 2) * 0.08);
+            ctx.beginPath();
+            ctx.moveTo(sx - ts*0.08, base);
+            ctx.lineTo(sx, base + sdrop);
+            ctx.lineTo(sx + ts*0.08, base);
+            ctx.strokeStyle = (sx < tx) ? isl.treeHi : isl.treeLo;
+            ctx.lineWidth = 1.1; ctx.stroke();
+          }
         }
+        // snow cap — white with icy blue tint
+        ctx.beginPath();
+        ctx.moveTo(tx, ty - ts*1.78);
+        ctx.lineTo(tx + ts*0.38, ty - ts*1.22);
+        ctx.lineTo(tx - ts*0.33, ty - ts*1.22);
+        ctx.closePath();
+        const sg = ctx.createLinearGradient(tx - ts*0.33, ty - ts*1.78, tx + ts*0.38, ty - ts*1.22);
+        sg.addColorStop(0,    '#ffffff');
+        sg.addColorStop(0.55, '#e4f2ff');
+        sg.addColorStop(1,    '#a8ccee');
+        ctx.fillStyle = sg; ctx.fill();
+        ctx.strokeStyle = 'rgba(80,120,180,0.45)'; ctx.lineWidth = 1.1; ctx.stroke();
       }
     }
   }
@@ -564,25 +820,390 @@
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     ctx.strokeStyle = 'rgba(245,232,176,0.7)'; ctx.lineWidth = 2.5;
     ctx.fillStyle = '#1a0e00';
-    ctx.strokeText('Charted Lands of ArisEdu', W/2, 24);
-    ctx.fillText('Charted Lands of ArisEdu',   W/2, 24);
+    ctx.strokeText('Great Islands of ArisEdu', W/2, 24);
+    ctx.fillText('Great Islands of ArisEdu',   W/2, 24);
     ctx.restore();
+  }
+
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+  function easeInCubic(t)  { return t * t * t; }
+
+  function tickZoom(ts) {
+    const rawT = Math.min(1, (ts - zoomAnim.ts0) / ZOOM_DUR);
+    zoomAnim.t = zoomAnim.dir > 0 ? easeOutCubic(rawT) : 1 - easeInCubic(rawT);
+    redraw();
+    if (rawT < 1) {
+      zoomAnim.raf = requestAnimationFrame(tickZoom);
+    } else {
+      if (zoomAnim.dir < 0) {
+        zoomAnim.isl = null; zoomAnim.t = 0;
+        secZoom.sec = null; secZoom.t = 0;
+        hoverId = null; hoverSec = null; tip.style.display = 'none';
+      }
+      zoomAnim.dir = 0; zoomAnim.raf = 0;
+    }
+  }
+
+  function getZoomTransform() {
+    if (!zoomAnim.isl || zoomAnim.t <= 0) return null;
+    const et = zoomAnim.t;
+    const ix = zoomAnim.isl.cx * W, iy = zoomAnim.isl.cy * H;
+    const s0 = Math.min(W, H) * 0.105 * zoomAnim.isl.size;
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const Z = Math.max(1.25, (Math.min(W, H) - rem * 2) / (2.2 * s0));
+    let z = 1 + et * (Z - 1);
+    let panX = (W/2 * et + ix * (1 - et)) - z * ix;
+    let panY = (H/2 * et + iy * (1 - et)) - z * iy;
+    // compose second-level section zoom on top
+    if (secZoom.sec && secZoom.t > 0) {
+      const st = secZoom.t;
+      const sec = secZoom.sec;
+      const isl = zoomAnim.isl;
+      const s1 = Math.min(W, H) * 0.105 * isl.size;
+      // section center in canvas (unzoomed) space
+      const scx = isl.cx * W + sec.nx * s1;
+      const scy = isl.cy * H + sec.ny * s1;
+      // section center in screen space under island zoom
+      const scxS = scx * z + panX;
+      const scyS = scy * z + panY;
+      const Z2 = 2.0; // extra zoom factor for section
+      const z2 = 1 + st * (Z2 - 1);
+      // pan so section center stays at screen center
+      panX = panX * z2 + scxS * (1 - z2) + (W/2 - scxS) * st;
+      panY = panY * z2 + scyS * (1 - z2) + (H/2 - scyS) * st;
+      z = z * z2;
+    }
+    return { z, panX, panY };
+  }
+
+  function sectionAtPoint(mx, my) {
+    const isl = zoomAnim.isl;
+    if (!isl || !isl.sections) return null;
+    const zt = getZoomTransform();
+    if (!zt) return null;
+    // invert zoom transform to get canvas coords
+    const cx = (mx - zt.panX) / zt.z;
+    const cy = (my - zt.panY) / zt.z;
+    const x = isl.cx * W, y = isl.cy * H;
+    const s = Math.min(W, H) * 0.105 * isl.size;
+    const secs = isl.sections, n = secs.length;
+    const R = s * 1.40, ys = 0.72;
+    // fast angle-based hit — no path building, O(1)
+    const dx = cx - x, dy = (cy - y) / ys; // undo y-scale
+    if (Math.hypot(dx, dy) > R) return null; // outside island radius
+    const startA = -Math.PI * 0.5;
+    let a = Math.atan2(dy, dx) - startA;
+    if (a < 0) a += Math.PI * 2;
+    return Math.floor(a / (Math.PI * 2 / n)) % n;
+  }
+
+  function startZoom(isl) {
+    if (zoomAnim.raf) cancelAnimationFrame(zoomAnim.raf);
+    secZoom.sec = null; secZoom.t = 0;
+    hoverId = null; hoverSec = null;
+    tip.style.display = 'none';
+    zoomAnim.isl = isl; zoomAnim.dir = 1;
+    zoomAnim.ts0 = performance.now();
+    zoomAnim.raf = requestAnimationFrame(tickZoom);
+  }
+
+  function endZoom() {
+    if (!zoomAnim.isl) return;
+    if (zoomAnim.raf) cancelAnimationFrame(zoomAnim.raf);
+    if (secZoom.raf) cancelAnimationFrame(secZoom.raf);
+    secZoom.sec = null; secZoom.t = 0; secZoom.raf = 0;
+    zoomAnim.dir = -1;
+    zoomAnim.ts0 = performance.now() - ZOOM_DUR * (1 - zoomAnim.t);
+    zoomAnim.raf = requestAnimationFrame(tickZoom);
+  }
+
+  function tickSecZoom(ts) {
+    const rawT = Math.min(1, (ts - secZoom.ts0) / SEC_ZOOM_DUR);
+    secZoom.t = secZoom.dir > 0 ? easeOutCubic(rawT) : 1 - easeInCubic(rawT);
+    redraw();
+    if (rawT < 1) {
+      secZoom.raf = requestAnimationFrame(tickSecZoom);
+    } else {
+      if (secZoom.dir < 0) { secZoom.sec = null; secZoom.t = 0; }
+      secZoom.dir = 0; secZoom.raf = 0;
+    }
+  }
+
+  function startSecZoom(sec) {
+    if (secZoom.raf) cancelAnimationFrame(secZoom.raf);
+    hoverSec = null; tip.style.display = 'none';
+    secZoom.sec = sec; secZoom.dir = 1;
+    secZoom.ts0 = performance.now();
+    secZoom.raf = requestAnimationFrame(tickSecZoom);
+  }
+
+  function endSecZoom() {
+    if (!secZoom.sec) return;
+    if (secZoom.raf) cancelAnimationFrame(secZoom.raf);
+    secZoom.dir = -1;
+    secZoom.ts0 = performance.now() - SEC_ZOOM_DUR * (1 - secZoom.t);
+    secZoom.raf = requestAnimationFrame(tickSecZoom);
+  }
+
+  function drawCourseIcon(id, cx, cy, r, alpha) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = 'rgba(255,255,255,0.92)';
+    ctx.fillStyle   = 'rgba(255,255,255,0.92)';
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.lineWidth = Math.max(1.2, r * 0.17);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (id === 'algebra1') {
+      ctx.font = 'bold ' + Math.max(8,Math.round(r*1.50)) + 'px Georgia,serif';
+      ctx.strokeStyle='rgba(0,0,0,0.60)'; ctx.lineWidth=r*0.24; ctx.strokeText('x',cx,cy);
+      ctx.strokeStyle='rgba(255,255,255,0.92)'; ctx.lineWidth=r*0.08; ctx.strokeText('x',cx,cy);
+      ctx.fillText('x',cx,cy);
+    } else if (id === 'algebra2') {
+      ctx.font = 'bold ' + Math.max(8,Math.round(r*1.25)) + 'px Georgia,serif';
+      ctx.strokeStyle='rgba(0,0,0,0.60)'; ctx.lineWidth=r*0.24; ctx.strokeText('x\u00B2',cx,cy);
+      ctx.strokeStyle='rgba(255,255,255,0.92)'; ctx.lineWidth=r*0.08; ctx.strokeText('x\u00B2',cx,cy);
+      ctx.fillText('x\u00B2',cx,cy);
+    } else if (id === 'geometry') {
+      ctx.beginPath(); ctx.moveTo(cx,cy-r*0.90); ctx.lineTo(cx+r*0.85,cy+r*0.64); ctx.lineTo(cx-r*0.85,cy+r*0.64); ctx.closePath(); ctx.stroke();
+    } else if (id === 'precalc') {
+      ctx.font = 'bold ' + Math.max(10,Math.round(r*1.95)) + 'px Georgia,serif';
+      ctx.strokeStyle='rgba(0,0,0,0.60)'; ctx.lineWidth=r*0.24; ctx.strokeText('\u222B',cx,cy+r*0.12);
+      ctx.strokeStyle='rgba(255,255,255,0.92)'; ctx.lineWidth=r*0.08; ctx.strokeText('\u222B',cx,cy+r*0.12);
+      ctx.fillText('\u222B',cx,cy+r*0.12);
+    } else if (id === 'trig') {
+      ctx.beginPath(); ctx.moveTo(cx-r*0.85,cy+r*0.72); ctx.lineTo(cx+r*0.85,cy+r*0.72); ctx.lineTo(cx,cy-r*0.72); ctx.closePath(); ctx.stroke();
+      ctx.save(); ctx.setLineDash([r*0.20,r*0.14]);
+      ctx.beginPath(); ctx.moveTo(cx,cy-r*0.72); ctx.lineTo(cx,cy+r*0.72); ctx.stroke();
+      ctx.restore();
+    } else if (id === 'statistics') {
+      // bars vertically centered: bottom at cy+r*0.55, tops spread upward symmetrically
+      const bw=r*0.32, hs=[r*0.68,r*1.10,r*0.85], bx0=cx-r*0.56;
+      for (let j=0;j<3;j++){ctx.beginPath();ctx.rect(bx0+j*(bw+r*0.12),cy+r*0.55-hs[j],bw,hs[j]);ctx.stroke();}
+    } else if (id === 'linalg') {
+      for (let ri=0;ri<3;ri++) for (let ci=0;ci<3;ci++) {
+        ctx.beginPath(); ctx.arc(cx-r*0.60+ci*r*0.60, cy-r*0.60+ri*r*0.60, r*0.11, 0, Math.PI*2); ctx.fill();
+      }
+    } else if (id === 'finmath') {
+      ctx.beginPath(); ctx.arc(cx,cy,r*0.85,0,Math.PI*2); ctx.stroke();
+      ctx.font='bold '+Math.max(8,Math.round(r*1.20))+'px Georgia,serif';
+      ctx.strokeStyle='rgba(0,0,0,0.60)'; ctx.lineWidth=r*0.24; ctx.strokeText('$',cx,cy);
+      ctx.strokeStyle='rgba(255,255,255,0.92)'; ctx.lineWidth=r*0.08; ctx.strokeText('$',cx,cy); ctx.fillText('$',cx,cy);
+    } else if (id === 'physics') {
+      // thunderbolt: top-right to mid, jag left, continue down-right
+      ctx.beginPath();
+      ctx.moveTo(cx+r*0.28, cy-r*0.92);
+      ctx.lineTo(cx-r*0.12, cy-r*0.04);
+      ctx.lineTo(cx+r*0.20, cy-r*0.04);
+      ctx.lineTo(cx-r*0.28, cy+r*0.92);
+      ctx.lineTo(cx+r*0.12, cy+r*0.04);
+      ctx.lineTo(cx-r*0.20, cy+r*0.04);
+      ctx.closePath();
+      ctx.globalAlpha = alpha * 0.28; ctx.fill();
+      ctx.globalAlpha = alpha; ctx.stroke();
+    } else if (id === 'chemistry') {
+      const fw=r*0.28;
+      ctx.beginPath(); ctx.moveTo(cx-fw,cy-r); ctx.lineTo(cx-fw,cy-r*0.15); ctx.lineTo(cx-r*0.82,cy+r*0.88); ctx.lineTo(cx+r*0.82,cy+r*0.88); ctx.lineTo(cx+fw,cy-r*0.15); ctx.lineTo(cx+fw,cy-r); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx-fw*1.6,cy-r); ctx.lineTo(cx+fw*1.6,cy-r); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx-r*0.20,cy+r*0.38,r*0.14,0,Math.PI*2); ctx.fill();
+    } else if (id === 'biology') {
+      for (let sg=-1;sg<=1;sg+=2) {
+        ctx.beginPath();
+        for (let k=0;k<=20;k++){const t=k/20;const px=cx+sg*Math.sin(t*Math.PI*3)*r*0.50;const py=cy-r*0.90+t*r*1.80;k===0?ctx.moveTo(px,py):ctx.lineTo(px,py);}
+        ctx.stroke();
+      }
+      for (let k=0;k<=2;k++){const t=(k+0.5)/3;const py=cy-r*0.90+t*r*1.80;const px=Math.sin(t*Math.PI*3)*r*0.50;ctx.globalAlpha=alpha*0.48;ctx.beginPath();ctx.moveTo(cx+px,py);ctx.lineTo(cx-px,py);ctx.stroke();ctx.globalAlpha=alpha;}
+    } else if (id === 'earth') {
+      ctx.beginPath(); ctx.arc(cx,cy,r*0.85,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx-r*0.85,cy); ctx.lineTo(cx+r*0.85,cy); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(cx,cy,r*0.38,r*0.85,0,0,Math.PI*2); ctx.stroke();
+    } else if (id === 'integrated') {
+      ctx.beginPath(); ctx.arc(cx,cy,r*0.18,0,Math.PI*2); ctx.fill();
+      for (let j=0;j<3;j++){ctx.save();ctx.translate(cx,cy);ctx.rotate(j*Math.PI/3);ctx.beginPath();ctx.ellipse(0,0,r*0.90,r*0.34,0,0,Math.PI*2);ctx.stroke();ctx.restore();}
+    } else if (id === 'environmental') {
+      ctx.beginPath(); ctx.moveTo(cx,cy+r*0.92); ctx.bezierCurveTo(cx-r*1.08,cy+r*0.18,cx-r*0.72,cy-r*0.88,cx,cy-r*0.92); ctx.bezierCurveTo(cx+r*0.72,cy-r*0.88,cx+r*1.08,cy+r*0.18,cx,cy+r*0.92); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx,cy+r*0.92); ctx.lineTo(cx,cy-r*0.92); ctx.stroke();
+    } else if (id === 'astronomy') {
+      ctx.beginPath();
+      for (let j=0;j<10;j++){const rad=j%2===0?r*0.90:r*0.38;const a=j*Math.PI/5-Math.PI/2;j===0?ctx.moveTo(cx+Math.cos(a)*rad,cy+Math.sin(a)*rad):ctx.lineTo(cx+Math.cos(a)*rad,cy+Math.sin(a)*rad);}
+      ctx.closePath(); ctx.globalAlpha=alpha*0.42; ctx.fill(); ctx.globalAlpha=alpha; ctx.stroke();
+    } else if (id === 'anatomy') {
+      // head top ≈ cy-0.90r, feet ≈ cy+0.90r → centered
+      ctx.beginPath(); ctx.arc(cx, cy-r*0.62, r*0.28, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, cy-r*0.34); ctx.lineTo(cx, cy+r*0.28); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx-r*0.56, cy-r*0.08); ctx.lineTo(cx+r*0.56, cy-r*0.08); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, cy+r*0.28); ctx.lineTo(cx-r*0.40, cy+r*0.90); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, cy+r*0.28); ctx.lineTo(cx+r*0.40, cy+r*0.90); ctx.stroke();
+    } else if (id === 'marine') {
+      ctx.beginPath(); ctx.ellipse(cx-r*0.08,cy,r*0.66,r*0.38,0,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+r*0.54,cy); ctx.lineTo(cx+r*0.92,cy-r*0.50); ctx.lineTo(cx+r*0.92,cy+r*0.50); ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx-r*0.25,cy-r*0.10,r*0.09,0,Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawIslandSections(isl, s, alpha) {
+    if (alpha <= 0) return;
+    const x = isl.cx * W, y = isl.cy * H;
+    const secs = isl.sections, n = secs.length;
+    const R = s * 1.40, ys = 0.72, startA = -Math.PI * 0.5;
+    // reuse same bnd[] as computeSecBnd (identical RNG seed)
+    const { bnd } = computeSecBnd(isl);
+    ctx.save();
+    buildPath(isl, 1.0);
+    ctx.clip();
+    // which section is currently sec-zoomed (if any)
+    const secZoomIdx = (secZoom.sec && secZoom.t > 0)
+      ? isl.sections.indexOf(secZoom.sec) : -1;
+    // sector fills (curved bezier boundaries + arc rim)
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      const isActive = (secZoomIdx < 0 || i === secZoomIdx);
+      const isHov = (hoverSec === i);
+      const dim = isActive ? 1 : 0.5;
+      const a0 = startA + (i / n) * Math.PI * 2;
+      const a1 = startA + ((i + 1) / n) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.quadraticCurveTo(bnd[i].cpx, bnd[i].cpy, bnd[i].rx, bnd[i].ry);
+      for (let k = 1; k <= 28; k++) {
+        const a = a0 + (a1 - a0) * k / 28;
+        ctx.lineTo(x + Math.cos(a) * R, y + Math.sin(a) * R * ys);
+      }
+      ctx.quadraticCurveTo(bnd[j].cpx, bnd[j].cpy, x, y);
+      ctx.closePath();
+      ctx.globalAlpha = alpha * dim * (isHov ? 0.65 : 0.35);
+      ctx.fillStyle = secs[i].col;
+      ctx.fill();
+      if (isHov && secZoomIdx < 0) {
+        ctx.globalAlpha = alpha * 0.90;
+        ctx.strokeStyle = 'rgba(0,0,0,0.70)';
+        ctx.lineWidth = Math.max(2, s * 0.022);
+        ctx.stroke();
+      }
+    }
+    // curved dividing lines
+    ctx.strokeStyle = 'rgba(0,0,0,0.60)';
+    ctx.lineWidth = Math.max(1.5, s * 0.018);
+    for (let i = 0; i < n; i++) {
+      const isActive = (secZoomIdx < 0 || i === secZoomIdx);
+      ctx.globalAlpha = alpha * (isActive ? 1 : 0.5);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.quadraticCurveTo(bnd[i].cpx, bnd[i].cpy, bnd[i].rx, bnd[i].ry);
+      ctx.stroke();
+    }
+    // course icons at sector centroids
+    const ir = s * 0.115;
+    for (let i = 0; i < n; i++) {
+      const isActive = (secZoomIdx < 0 || i === secZoomIdx);
+      const ix = x + secs[i].nx * s;
+      const iy = y + secs[i].ny * s;
+      drawCourseIcon(secs[i].id, ix, iy, ir, alpha * (isActive ? 1 : 0.5));
+    }
+    ctx.restore();
+  }
+
+  // Returns the bnd[] array for sector boundaries — same seeded RNG as drawIslandSections
+  function computeSecBnd(isl) {
+    let seed = isl.id.split('').reduce(function(a,c){return a*31+c.charCodeAt(0);}, 17);
+    function rng(){seed=(seed*1664525+1013904223)|0;return (seed>>>0)/0xffffffff;}
+    const x = isl.cx * W, y = isl.cy * H;
+    const n = isl.sections.length;
+    const s = Math.min(W, H) * 0.105 * isl.size;
+    const R = s * 1.40, ys = 0.72, startA = -Math.PI * 0.5;
+    const bnd = [];
+    for (let i = 0; i < n; i++) {
+      const a = startA + (i / n) * Math.PI * 2;
+      const rx = x + Math.cos(a) * R, ry = y + Math.sin(a) * R * ys;
+      const mx = (x + rx) * 0.5, my = (y + ry) * 0.5;
+      const perp = (rng() - 0.5) * R * 0.52;
+      bnd.push({ rx, ry, cpx: mx - Math.sin(a) * perp, cpy: my + Math.cos(a) * perp * ys });
+    }
+    return { bnd, x, y, n, R, ys, startA };
   }
 
   function redraw() {
     ctx.clearRect(0, 0, W, H);
+
+    // Ocean drawn at identity — always covers full screen
     drawOcean();
+
+    // ── Compute zoom + pan transform ──
+    const hasZoom = zoomAnim.isl && zoomAnim.t > 0;
+    if (hasZoom) {
+      const et = zoomAnim.t;
+      const ix = zoomAnim.isl.cx * W, iy = zoomAnim.isl.cy * H;
+      const s0 = Math.min(W, H) * 0.105 * zoomAnim.isl.size;
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      const Z = Math.max(1.25, (Math.min(W, H) - rem * 2) / (2.2 * s0));
+      const { z, panX, panY } = getZoomTransform();
+      ctx.setTransform(z, 0, 0, z, panX, panY);
+    }
+
     drawRoutes();
     for (let i = 0; i < ISLANDS.length; i++) {
-      drawIsland(ISLANDS[i], ISLANDS[i].id === hoverId);
+      const thisIsl = ISLANDS[i];
+      drawIsland(thisIsl, !hasZoom && thisIsl.id === hoverId);
     }
+    drawDecoFeatures();
+
+    // Course sections fade in with zoom
+    if (hasZoom) {
+      drawIslandSections(zoomAnim.isl, Math.min(W, H) * 0.105 * zoomAnim.isl.size, zoomAnim.t);
+    }
+
+    if (hasZoom) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+
+    // UI always in screen space (outside zoom transform)
     const cr = Math.min(W, H) * 0.062;
-    drawCompass(W - cr*1.72, cr*1.72, cr);
+    drawCompass(W - cr*2.20, cr*2.20, cr);
     drawBorder();
     drawTitle();
   }
 
+  canvas.addEventListener('click', function(e) {
+    if (secZoom.sec) {
+      endSecZoom(); return;
+    }
+    if (zoomAnim.isl && zoomAnim.t > 0.85) {
+      const si = sectionAtPoint(e.clientX, e.clientY);
+      if (si !== null) { startSecZoom(zoomAnim.isl.sections[si]); return; }
+      endZoom(); return;
+    }
+    if (zoomAnim.isl) {
+      endZoom();
+    } else {
+      const isl = islandAt(e.clientX, e.clientY);
+      if (isl) startZoom(isl);
+    }
+  });
+
+  let hoverRaf = 0;
+
   canvas.addEventListener('mousemove', function(e) {
+    if (zoomAnim.isl && zoomAnim.t > 0.85) {
+      const ex = e.clientX, ey = e.clientY;
+      const si = sectionAtPoint(ex, ey);
+      canvas.style.cursor = (si !== null) ? 'pointer' : 'default';
+      if (si !== null) {
+        const sec = zoomAnim.isl.sections[si];
+        tipName.textContent    = sec.name;
+        tipCourses.textContent = zoomAnim.isl.name;
+        tip.style.left = Math.min(ex + 16, innerWidth  - 228) + 'px';
+        tip.style.top  = Math.min(ey + 16, innerHeight - 130) + 'px';
+        tip.style.display = 'block';
+      } else {
+        tip.style.display = 'none';
+      }
+      if (si !== hoverSec) {
+        hoverSec = si;
+        if (!hoverRaf) hoverRaf = requestAnimationFrame(function(){ hoverRaf=0; redraw(); });
+      }
+      return;
+    }
+    if (zoomAnim.isl) return; // animating — ignore
     const isl = islandAt(e.clientX, e.clientY);
     const nid = isl ? isl.id : null;
     if (nid !== hoverId) {
@@ -592,7 +1213,11 @@
     }
     if (isl) {
       tipName.textContent  = isl.name;
-      tipCourses.innerHTML = isl.courses.join('<br>');
+      tipCourses.textContent = '';
+      isl.courses.forEach(function(c, i) {
+        if (i) tipCourses.appendChild(document.createElement('br'));
+        tipCourses.appendChild(document.createTextNode(c));
+      });
       tip.style.left    = Math.min(e.clientX + 16, innerWidth  - 228) + 'px';
       tip.style.top     = Math.min(e.clientY + 16, innerHeight - 130) + 'px';
       tip.style.display = 'block';
@@ -602,7 +1227,7 @@
   });
 
   canvas.addEventListener('mouseleave', function() {
-    hoverId = null;
+    hoverId = null; hoverSec = null;
     tip.style.display = 'none';
     redraw();
   });
