@@ -45,6 +45,7 @@
   let zoomAnim = { isl: null, t: 0, dir: 0, raf: 0, ts0: 0 };
   let secZoom  = { sec: null, t: 0, dir: 0, raf: 0, ts0: 0 }; // second-level zoom into a segment
   const ZOOM_DUR = 540; // ms
+  const SEC_ZOOM_DUR = 860; // ms — slower section zoom
 
   const ISLANDS = [
     {
@@ -237,9 +238,9 @@
       buildTinyPath(x, y, r, d.pts);
       const bg = ctx.createRadialGradient(x-r*0.22, y-r*0.28, r*0.04, x+r*0.08, y+r*0.12, r*0.96);
       bg.addColorStop(0, d.shoreHi); bg.addColorStop(1, d.shoreLo);
-      ctx.fillStyle=bg; ctx.fill(); ctx.strokeStyle=d.borderCol; ctx.lineWidth=1.2; ctx.stroke();
-      buildTinyPath(x, y, r*1.07, d.pts); ctx.strokeStyle='rgba(255,255,255,0.50)'; ctx.lineWidth=r*0.06; ctx.stroke();
-      buildTinyPath(x, y, r*1.035, d.pts); ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=r*0.032; ctx.stroke();
+      ctx.fillStyle=bg; ctx.fill(); ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineWidth=1.2; ctx.stroke();
+      buildTinyPath(x, y, r*1.07, d.pts); ctx.strokeStyle='rgba(0,0,0,0.28)'; ctx.lineWidth=r*0.06; ctx.stroke();
+      buildTinyPath(x, y, r*1.035, d.pts); ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.lineWidth=r*0.032; ctx.stroke();
       buildTinyPath(x, y, r*0.55, d.pts);
       const gg = ctx.createRadialGradient(x-r*0.10, y-r*0.14, 0, x, y, r*0.55);
       gg.addColorStop(0, d.greenHi); gg.addColorStop(1, d.greenLo);
@@ -258,9 +259,9 @@
       buildPath(d);
       const sg = ctx.createRadialGradient(x-s*0.24, y-s*0.32, s*0.05, x+s*0.08, y+s*0.14, s*1.08);
       sg.addColorStop(0, d.shoreHi); sg.addColorStop(0.72, d.shoreLo); sg.addColorStop(1, d.borderCol);
-      ctx.fillStyle=sg; ctx.fill(); ctx.strokeStyle=d.borderCol; ctx.lineWidth=2; ctx.stroke();
-      buildPath(d, 1.055); ctx.strokeStyle='rgba(255,255,255,0.52)'; ctx.lineWidth=s*0.046; ctx.stroke();
-      buildPath(d, 1.025); ctx.strokeStyle='rgba(255,255,255,0.20)'; ctx.lineWidth=s*0.026; ctx.stroke();
+      ctx.fillStyle=sg; ctx.fill(); ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineWidth=2; ctx.stroke();
+      buildPath(d, 1.055); ctx.strokeStyle='rgba(0,0,0,0.28)'; ctx.lineWidth=s*0.046; ctx.stroke();
+      buildPath(d, 1.025); ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.lineWidth=s*0.026; ctx.stroke();
       buildPath(d, 0.82);
       const eg1 = ctx.createRadialGradient(x-s*0.14, y-s*0.20, 0, x, y, s*0.82);
       eg1.addColorStop(0, d.greenHi); eg1.addColorStop(1, d.greenLo);
@@ -309,19 +310,19 @@
     buildPath(isl, hsc);
     ctx.fillStyle = sg;
     ctx.fill();
-    ctx.strokeStyle = isl.borderCol;
+    ctx.strokeStyle = 'rgba(0,0,0,0.80)';
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
     // Surf foam ring — drawn over beach edge
     ctx.save();
     buildPath(isl, hsc * 1.055);
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.30)';
     ctx.lineWidth = s * 0.048;
     ctx.lineJoin = 'round';
     ctx.stroke();
     buildPath(isl, hsc * 1.025);
-    ctx.strokeStyle = 'rgba(255,255,255,0.20)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.14)';
     ctx.lineWidth = s * 0.028;
     ctx.stroke();
     ctx.restore();
@@ -364,6 +365,12 @@
     ctx.fillStyle = hl;
     ctx.fillRect(x - s*1.2, y - s*1.2, s*2.4, s*2.4);
     ctx.restore();
+
+    // Border re-stroke over terrain — makes both sides of outline visible
+    buildPath(isl, hsc);
+    ctx.strokeStyle = 'rgba(0,0,0,0.80)';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
 
     // Label
     const fs = Math.max(12, Math.round(s * 0.155));
@@ -859,7 +866,7 @@
       // section center in screen space under island zoom
       const scxS = scx * z + panX;
       const scyS = scy * z + panY;
-      const Z2 = 2.8; // extra zoom factor for section
+      const Z2 = 2.0; // extra zoom factor for section
       const z2 = 1 + st * (Z2 - 1);
       // pan so section center stays at screen center
       panX = panX * z2 + scxS * (1 - z2) + (W/2 - scxS) * st;
@@ -911,7 +918,7 @@
   }
 
   function tickSecZoom(ts) {
-    const rawT = Math.min(1, (ts - secZoom.ts0) / ZOOM_DUR);
+    const rawT = Math.min(1, (ts - secZoom.ts0) / SEC_ZOOM_DUR);
     secZoom.t = secZoom.dir > 0 ? easeOutCubic(rawT) : 1 - easeInCubic(rawT);
     redraw();
     if (rawT < 1) {
@@ -934,7 +941,7 @@
     if (!secZoom.sec) return;
     if (secZoom.raf) cancelAnimationFrame(secZoom.raf);
     secZoom.dir = -1;
-    secZoom.ts0 = performance.now() - ZOOM_DUR * (1 - secZoom.t);
+    secZoom.ts0 = performance.now() - SEC_ZOOM_DUR * (1 - secZoom.t);
     secZoom.raf = requestAnimationFrame(tickSecZoom);
   }
 
@@ -1036,28 +1043,23 @@
 
   function drawIslandSections(isl, s, alpha) {
     if (alpha <= 0) return;
-    // seeded RNG — stable organic shapes per island
-    let seed = isl.id.split('').reduce(function(a,c){return a*31+c.charCodeAt(0);}, 17);
-    function rng(){seed=(seed*1664525+1013904223)|0;return (seed>>>0)/0xffffffff;}
     const x = isl.cx * W, y = isl.cy * H;
     const secs = isl.sections, n = secs.length;
     const R = s * 1.40, ys = 0.72, startA = -Math.PI * 0.5;
-    // pre-compute each boundary: rim point + curved control point
-    const bnd = [];
-    for (let i = 0; i < n; i++) {
-      const a = startA + (i / n) * Math.PI * 2;
-      const rx = x + Math.cos(a) * R, ry = y + Math.sin(a) * R * ys;
-      const mx = (x + rx) * 0.5, my = (y + ry) * 0.5;
-      const perp = (rng() - 0.5) * R * 0.52;
-      bnd.push({ rx, ry, cpx: mx - Math.sin(a) * perp, cpy: my + Math.cos(a) * perp * ys });
-    }
+    // reuse same bnd[] as computeSecBnd (identical RNG seed)
+    const { bnd } = computeSecBnd(isl);
     ctx.save();
     buildPath(isl, 1.0);
     ctx.clip();
+    // which section is currently sec-zoomed (if any)
+    const secZoomIdx = (secZoom.sec && secZoom.t > 0)
+      ? isl.sections.indexOf(secZoom.sec) : -1;
     // sector fills (curved bezier boundaries + arc rim)
     for (let i = 0; i < n; i++) {
       const j = (i + 1) % n;
+      const isActive = (secZoomIdx < 0 || i === secZoomIdx);
       const isHov = (hoverSec === i);
+      const dim = isActive ? 1 : 0.5;
       const a0 = startA + (i / n) * Math.PI * 2;
       const a1 = startA + ((i + 1) / n) * Math.PI * 2;
       ctx.beginPath();
@@ -1069,21 +1071,22 @@
       }
       ctx.quadraticCurveTo(bnd[j].cpx, bnd[j].cpy, x, y);
       ctx.closePath();
-      ctx.globalAlpha = alpha * (isHov ? 0.65 : 0.35);
+      ctx.globalAlpha = alpha * dim * (isHov ? 0.65 : 0.35);
       ctx.fillStyle = secs[i].col;
       ctx.fill();
-      if (isHov) {
+      if (isHov && secZoomIdx < 0) {
         ctx.globalAlpha = alpha * 0.90;
-        ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+        ctx.strokeStyle = 'rgba(0,0,0,0.70)';
         ctx.lineWidth = Math.max(2, s * 0.022);
         ctx.stroke();
       }
     }
     // curved dividing lines
-    ctx.globalAlpha = alpha;
-    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.60)';
     ctx.lineWidth = Math.max(1.5, s * 0.018);
     for (let i = 0; i < n; i++) {
+      const isActive = (secZoomIdx < 0 || i === secZoomIdx);
+      ctx.globalAlpha = alpha * (isActive ? 1 : 0.5);
       ctx.beginPath();
       ctx.moveTo(x, y);
       ctx.quadraticCurveTo(bnd[i].cpx, bnd[i].cpy, bnd[i].rx, bnd[i].ry);
@@ -1092,16 +1095,31 @@
     // course icons at sector centroids
     const ir = s * 0.115;
     for (let i = 0; i < n; i++) {
-      const a0 = startA + (i / n) * Math.PI * 2;
-      const a1 = startA + ((i + 1) / n) * Math.PI * 2;
-      const mid = (a0 + a1) / 2;
-      const key = isl.id + ':' + i;
-      let ix, iy;
-      ix = x + secs[i].nx * s;
-      iy = y + secs[i].ny * s;
-      drawCourseIcon(secs[i].id, ix, iy, ir, alpha);
+      const isActive = (secZoomIdx < 0 || i === secZoomIdx);
+      const ix = x + secs[i].nx * s;
+      const iy = y + secs[i].ny * s;
+      drawCourseIcon(secs[i].id, ix, iy, ir, alpha * (isActive ? 1 : 0.5));
     }
     ctx.restore();
+  }
+
+  // Returns the bnd[] array for sector boundaries — same seeded RNG as drawIslandSections
+  function computeSecBnd(isl) {
+    let seed = isl.id.split('').reduce(function(a,c){return a*31+c.charCodeAt(0);}, 17);
+    function rng(){seed=(seed*1664525+1013904223)|0;return (seed>>>0)/0xffffffff;}
+    const x = isl.cx * W, y = isl.cy * H;
+    const n = isl.sections.length;
+    const s = Math.min(W, H) * 0.105 * isl.size;
+    const R = s * 1.40, ys = 0.72, startA = -Math.PI * 0.5;
+    const bnd = [];
+    for (let i = 0; i < n; i++) {
+      const a = startA + (i / n) * Math.PI * 2;
+      const rx = x + Math.cos(a) * R, ry = y + Math.sin(a) * R * ys;
+      const mx = (x + rx) * 0.5, my = (y + ry) * 0.5;
+      const perp = (rng() - 0.5) * R * 0.52;
+      bnd.push({ rx, ry, cpx: mx - Math.sin(a) * perp, cpy: my + Math.cos(a) * perp * ys });
+    }
+    return { bnd, x, y, n, R, ys, startA };
   }
 
   function redraw() {
@@ -1124,7 +1142,8 @@
 
     drawRoutes();
     for (let i = 0; i < ISLANDS.length; i++) {
-      drawIsland(ISLANDS[i], !hasZoom && ISLANDS[i].id === hoverId);
+      const thisIsl = ISLANDS[i];
+      drawIsland(thisIsl, !hasZoom && thisIsl.id === hoverId);
     }
     drawDecoFeatures();
 
@@ -1170,8 +1189,8 @@
       canvas.style.cursor = (si !== null) ? 'pointer' : 'default';
       if (si !== null) {
         const sec = zoomAnim.isl.sections[si];
-        tipName.textContent  = sec.name;
-        tipCourses.innerHTML = zoomAnim.isl.name;
+        tipName.textContent    = sec.name;
+        tipCourses.textContent = zoomAnim.isl.name;
         tip.style.left = Math.min(ex + 16, innerWidth  - 228) + 'px';
         tip.style.top  = Math.min(ey + 16, innerHeight - 130) + 'px';
         tip.style.display = 'block';
@@ -1194,7 +1213,11 @@
     }
     if (isl) {
       tipName.textContent  = isl.name;
-      tipCourses.innerHTML = isl.courses.join('<br>');
+      tipCourses.textContent = '';
+      isl.courses.forEach(function(c, i) {
+        if (i) tipCourses.appendChild(document.createElement('br'));
+        tipCourses.appendChild(document.createTextNode(c));
+      });
       tip.style.left    = Math.min(e.clientX + 16, innerWidth  - 228) + 'px';
       tip.style.top     = Math.min(e.clientY + 16, innerHeight - 130) + 'px';
       tip.style.display = 'block';
