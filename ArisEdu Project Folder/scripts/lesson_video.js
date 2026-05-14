@@ -278,7 +278,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const wrapper = document.createElement('div');
         wrapper.className = 'rubric-box';
         wrapper.innerHTML = html;
-        rubricData.replaceWith(wrapper);
+        rubricData.remove();
+        // Inject rubric into .side-buttons so it appears next to the video controls
+        const sideButtons = document.querySelector('.side-buttons');
+        if (sideButtons) {
+            sideButtons.appendChild(wrapper);
+        } else {
+            document.querySelector('.lesson-layout')?.appendChild(wrapper);
+        }
     }
 
     // MS Mode: auto-select the easiest-rated video

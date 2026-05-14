@@ -85,7 +85,7 @@ function buildModal() {
 
     // Grid
     var grid = document.createElement('div');
-    grid.style.cssText = 'overflow-y:auto;padding:1.25rem;display:grid;grid-template-columns:repeat(3,1fr);gap:0.875rem;';
+    grid.style.cssText = 'overflow-y:auto;padding:1.25rem;display:grid;grid-template-columns:repeat(3,1fr);gap:0.875rem;'
 
     var categoryOrder = ['study', 'modern', 'retro'];
     var categoryLabels = { study: '📚 Primary Tools', modern: '✨ Modern Style', retro: '👾 Retro Style' };
