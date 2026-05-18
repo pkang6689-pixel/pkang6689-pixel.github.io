@@ -21,16 +21,19 @@ async function initializeProgressFirebase() {
     auth = firebaseAuth;
     useFirebase = true;
     
-    // Wait for the initial auth state to resolve before returning,
-    // so currentUser is set before any load/sync calls proceed.
-    await new Promise((resolve) => {
-      onAuthStateChanged(auth, (user) => {
-        currentUser = user;
-        if (user) {
-          console.log('[Course Progress] Firebase user authenticated:', user.email);
-        }
-        resolve(); // no-op on subsequent calls
-      });
+    // authStateReady() waits until Firebase has fully settled the auth state
+    // (including restoring persisted sessions and refreshing expired tokens).
+    // onAuthStateChanged alone fires with null first during token refresh,
+    // causing a false "no user" state.
+    await auth.authStateReady();
+    currentUser = auth.currentUser;
+    if (currentUser) {
+      console.log('[Course Progress] Firebase user authenticated:', currentUser.email);
+    }
+
+    // Keep listening for subsequent sign-in / sign-out
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
     });
     
     console.log('[Course Progress] Firebase initialized successfully');
