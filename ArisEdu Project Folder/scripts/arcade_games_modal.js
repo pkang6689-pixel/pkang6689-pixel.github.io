@@ -68,40 +68,101 @@ function buildModal() {
         'display:flex',
         'flex-direction:column',
         'overflow:hidden',
-        'box-shadow:0 24px 48px rgba(0,0,0,0.5)'
+        'box-shadow:0 24px 48px rgba(0,0,0,0.5)',
+        'transition:max-height 0.2s'
     ].join(';');
 
     // Header
     var header = document.createElement('div');
     header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid #1e293b;flex-shrink:0;';
-    header.innerHTML = '<h2 style="margin:0;font-size:1.25rem;font-weight:700;color:#f1f5f9;">🎮 Arcade Games</h2>';
+    var titleEl = document.createElement('h2');
+    titleEl.style.cssText = 'margin:0;font-size:1.25rem;font-weight:700;color:#f1f5f9;';
+    titleEl.textContent = '🎮 Arcade Games';
+    var backBtn = document.createElement('button');
+    backBtn.innerHTML = '← Back';
+    backBtn.style.cssText = 'display:none;background:#1e293b;border:1px solid #334155;color:#94a3b8;font-size:0.85rem;font-weight:600;cursor:pointer;padding:0.3rem 0.75rem;border-radius:0.375rem;line-height:1.4;';
+    backBtn.onmouseenter = function() { backBtn.style.color = '#f1f5f9'; backBtn.style.borderColor = '#475569'; };
+    backBtn.onmouseleave = function() { backBtn.style.color = '#94a3b8'; backBtn.style.borderColor = '#334155'; };
+    backBtn.onclick = function() {
+        gameView.style.display = 'none';
+        var gIframe = document.getElementById('arcade-modal-iframe');
+        if (gIframe) gIframe.src = '';
+        grid.style.display = '';
+        backBtn.style.display = 'none';
+        titleEl.textContent = '🎮 Arcade Games';
+        box.style.maxHeight = '80vh';
+    };
     var closeBtn = document.createElement('button');
     closeBtn.innerHTML = '✕';
     closeBtn.style.cssText = 'background:none;border:none;color:#94a3b8;font-size:1.25rem;cursor:pointer;padding:0.25rem 0.5rem;border-radius:0.375rem;line-height:1;';
     closeBtn.onmouseenter = function() { closeBtn.style.color = '#f1f5f9'; closeBtn.style.background = '#1e293b'; };
     closeBtn.onmouseleave = function() { closeBtn.style.color = '#94a3b8'; closeBtn.style.background = 'none'; };
     closeBtn.onclick = closeModal;
-    header.appendChild(closeBtn);
+    var headerRight = document.createElement('div');
+    headerRight.style.cssText = 'display:flex;align-items:center;gap:0.5rem;';
+    headerRight.appendChild(backBtn);
+    headerRight.appendChild(closeBtn);
+    header.appendChild(titleEl);
+    header.appendChild(headerRight);
+
+    // In-modal game view (iframe)
+    var gameView = document.createElement('div');
+    gameView.style.cssText = 'display:none;flex:1;flex-direction:column;min-height:0;';
+    var modalIframe = document.createElement('iframe');
+    modalIframe.id = 'arcade-modal-iframe';
+    modalIframe.style.cssText = 'width:100%;height:calc(92vh - 70px);min-height:500px;border:none;display:block;';
+    modalIframe.setAttribute('allowfullscreen', '');
+    gameView.appendChild(modalIframe);
 
     // Grid
     var grid = document.createElement('div');
     grid.style.cssText = 'overflow-y:auto;padding:1.25rem;display:grid;grid-template-columns:repeat(3,1fr);gap:0.875rem;';
 
-    var categoryOrder = ['study', 'modern', 'retro'];
-    var categoryLabels = { study: '📚 Primary Tools', modern: '✨ Modern Style', retro: '👾 Retro Style' };
+    // Inject any lesson-specific custom games defined before this script loads
+    var customGames = (window.CUSTOM_ARCADE_GAMES && window.CUSTOM_ARCADE_GAMES.length)
+        ? window.CUSTOM_ARCADE_GAMES.map(function(g) { return Object.assign({}, g, { category: 'custom' }); })
+        : [];
+    var allGames = customGames.length ? customGames.concat(GAMES) : GAMES;
+
+    var categoryOrder = customGames.length
+        ? ['custom', 'study', 'modern', 'retro']
+        : ['study', 'modern', 'retro'];
+    var categoryLabels = {
+        custom: '🎯 Custom Game — Tailor Made for This Lesson',
+        study:  '📚 Primary Tools',
+        modern: '✨ Modern Style',
+        retro:  '👾 Retro Style'
+    };
     categoryOrder.forEach(function(catKey) {
-        var catGames = GAMES.filter(function(g) { return g.category === catKey; });
+        var catGames = (catKey === 'custom' ? customGames : allGames.filter(function(g) { return g.category === catKey; }));
         if (!catGames.length) return;
         var sectionHead = document.createElement('div');
-        sectionHead.style.cssText = 'grid-column:1/-1;color:#94a3b8;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.5rem 0 0.25rem;border-bottom:1px solid #1e293b;margin-top:0.25rem;';
+        if (catKey === 'custom') {
+            sectionHead.style.cssText = [
+                'grid-column:1/-1',
+                'font-size:0.7rem',
+                'font-weight:700',
+                'text-transform:uppercase',
+                'letter-spacing:0.1em',
+                'padding:0.5rem 0.75rem 0.25rem',
+                'border-radius:0.5rem 0.5rem 0 0',
+                'border-bottom:2px solid #f59e0b',
+                'margin-top:0.25rem',
+                'background:linear-gradient(90deg,rgba(245,158,11,0.13),transparent)',
+                'color:#f59e0b'
+            ].join(';');
+        } else {
+            sectionHead.style.cssText = 'grid-column:1/-1;color:#94a3b8;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.5rem 0 0.25rem;border-bottom:1px solid #1e293b;margin-top:0.25rem;';
+        }
         sectionHead.textContent = categoryLabels[catKey];
         grid.appendChild(sectionHead);
         catGames.forEach(function(g) {
     var card = document.createElement('button');
         card.type = 'button';
+        var isCustom = (catKey === 'custom');
         card.style.cssText = [
-            'background:#1e293b',
-            'border:1px solid #334155',
+            isCustom ? 'background:rgba(245,158,11,0.08)' : 'background:#1e293b',
+            isCustom ? 'border:1px solid rgba(245,158,11,0.45)' : 'border:1px solid #334155',
             'border-radius:0.875rem',
             'padding:1rem 0.875rem',
             'cursor:pointer',
@@ -117,13 +178,13 @@ function buildModal() {
             '<div style="font-size:0.72rem;color:#64748b;line-height:1.4;">' + g.desc + '</div>';
         card.onmouseenter = function() {
             card.style.transform = 'translateY(-3px)';
-            card.style.boxShadow = '0 8px 20px rgba(0,0,0,0.3)';
-            card.style.borderColor = '#475569';
+            card.style.boxShadow = isCustom ? '0 8px 24px rgba(245,158,11,0.25)' : '0 8px 20px rgba(0,0,0,0.3)';
+            card.style.borderColor = isCustom ? 'rgba(245,158,11,0.8)' : '#475569';
         };
         card.onmouseleave = function() {
             card.style.transform = '';
             card.style.boxShadow = '';
-            card.style.borderColor = '#334155';
+            card.style.borderColor = isCustom ? 'rgba(245,158,11,0.45)' : '#334155';
         };
         if (g.inline) {
             // Show existing inline container
@@ -144,13 +205,16 @@ function buildModal() {
                 };
             })(g.inline);
         } else {
-            // Arcade iframe game — call the launcher from practice_games.js directly
+            // Open game inside modal iframe
             (function(game) {
                 card.onclick = function() {
-                    closeModal();
-                    if (typeof window._launchArcadeGame === 'function') {
-                        window._launchArcadeGame(game.href, game.title);
-                    }
+                    var gIframe = document.getElementById('arcade-modal-iframe');
+                    if (gIframe) gIframe.src = game.href + (game.href.indexOf('?') === -1 ? '?embed=1' : '&embed=1');
+                    grid.style.display = 'none';
+                    gameView.style.display = 'flex';
+                    backBtn.style.display = '';
+                    titleEl.textContent = game.title;
+                    box.style.maxHeight = '92vh';
                 };
             })(g);
         }
@@ -159,6 +223,7 @@ function buildModal() {
     }); // end categoryOrder.forEach
 
     box.appendChild(header);
+    box.appendChild(gameView);
     box.appendChild(grid);
     overlay.appendChild(box);
 
@@ -181,7 +246,18 @@ function openModal() {
 
 function closeModal() {
     var overlay = document.getElementById('arcade-games-modal-overlay');
-    if (overlay) overlay.style.display = 'none';
+    if (overlay) {
+        overlay.style.display = 'none';
+        // Reset to grid view for next open
+        var gIframe = document.getElementById('arcade-modal-iframe');
+        if (gIframe && gIframe.src) gIframe.src = '';
+        var gameView = gIframe ? gIframe.parentNode : null;
+        var box = overlay.querySelector(':scope > div');
+        if (gameView) gameView.style.display = 'none';
+        var grid = box ? box.querySelector('[style*="grid-template-columns"]') : null;
+        if (grid) grid.style.display = '';
+        if (box) box.style.maxHeight = '80vh';
+    }
     document.body.style.overflow = '';
 }
 

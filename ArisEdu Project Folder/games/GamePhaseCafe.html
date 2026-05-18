@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase Change Café — Arcade</title>
+    <script src="../scripts/arcade-core.js"></script>
+    <script src="../firebase-utils.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; background: #0f172a; overflow: hidden; }
+        body { font-family: 'Orbitron', monospace; display: flex; flex-direction: column; }
+
+        /* ── Animations ─────────────────────────────────── */
+        @keyframes float-up {
+            0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-60px); }
+        }
+        @keyframes phase-pop {
+            0%   { opacity: 0; transform: scale(0.65); }
+            30%  { opacity: 1; transform: scale(1.08); }
+            70%  { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.9); }
+        }
+        @keyframes score-bump {
+            0%,100% { transform: scale(1); }
+            40%     { transform: scale(1.5); color: #22c55e; }
+        }
+        @keyframes serve-pulse {
+            0%,100% { box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+            50%     { box-shadow: 0 0 22px rgba(34,197,94,0.9); }
+        }
+        @keyframes wrong-shake {
+            0%,100% { transform: translateX(0); }
+            25%     { transform: translateX(-8px); }
+            75%     { transform: translateX(8px); }
+        }
+        @keyframes card-in {
+            0%   { opacity: 0; transform: translateX(30px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes item-pop {
+            0%   { transform: scale(0.7); opacity: 0.3; }
+            70%  { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .score-bump-anim { animation: score-bump 0.45s ease; }
+        .card-in-anim    { animation: card-in 0.3s ease; }
+        .item-pop-anim   { animation: item-pop 0.3s ease; }
+        .wrong-anim      { animation: wrong-shake 0.4s ease; }
+
+        /* ── Action buttons ─────────────────────────────── */
+        .act-btn {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 0.2rem;
+            border-radius: 0.875rem; border: 2px solid transparent;
+            cursor: pointer; font-family: 'Orbitron', monospace;
+            font-weight: 700; padding: 0.65rem 0.5rem;
+            transition: transform 0.12s, box-shadow 0.12s, opacity 0.15s;
+            min-width: 0;
+        }
+        .act-btn:hover:not(:disabled) { transform: translateY(-4px); }
+        .act-btn:active:not(:disabled) { transform: scale(0.93); }
+        .act-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+        .btn-heat { background: rgba(239,68,68,0.14); border-color: #ef4444; color: #fca5a5; }
+        .btn-heat:hover:not(:disabled) { background: rgba(239,68,68,0.28); box-shadow: 0 8px 24px rgba(239,68,68,0.35); }
+        .btn-cool { background: rgba(59,130,246,0.14); border-color: #3b82f6; color: #93c5fd; }
+        .btn-cool:hover:not(:disabled) { background: rgba(59,130,246,0.28); box-shadow: 0 8px 24px rgba(59,130,246,0.35); }
+
+        /* ── Resource card ──────────────────────────────── */
+        .res-card {
+            display: flex; align-items: center; gap: 0.45rem;
+            border-radius: 0.625rem; padding: 0.4rem 0.55rem;
+            cursor: pointer; width: 100%; text-align: left;
+            border: 2px solid rgba(51,65,85,0.5);
+            background: rgba(30,41,59,0.8);
+            transition: all 0.15s;
+        }
+        .res-card:hover { border-color: rgba(100,116,139,0.8); }
+
+        /* ── Customer card ──────────────────────────────── */
+        .cust-card {
+            border-radius: 0.75rem; padding: 0.6rem;
+            border: 2px solid rgba(51,65,85,0.6);
+            background: rgba(30,41,59,0.8);
+            transition: all 0.2s;
+        }
+        .cust-card.match {
+            border-color: #22c55e;
+            background: rgba(34,197,94,0.1);
+            box-shadow: 0 0 18px rgba(34,197,94,0.3);
+        }
+
+        .serve-btn {
+            width: 100%; padding: 0.35rem; border: none;
+            border-radius: 0.4rem; font-family: 'Orbitron', monospace;
+            font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em;
+            cursor: default; transition: all 0.15s;
+            background: rgba(30,41,59,0.5); color: #334155;
+        }
+        .serve-btn.ready {
+            background: #22c55e; color: #fff; cursor: pointer;
+            animation: serve-pulse 1s ease infinite;
+        }
+
+        /* ── Panel header ───────────────────────────────── */
+        .ph {
+            font-size: 0.58rem; font-weight: 700; color: #475569;
+            text-transform: uppercase; letter-spacing: 0.12em;
+            padding-bottom: 0.4rem; margin-bottom: 0.45rem;
+            border-bottom: 1px solid #1e293b;
+            flex-shrink: 0;
+        }
+
+        /* ── Overlay screen ─────────────────────────────── */
+        .overlay {
+            position: fixed; inset: 0; z-index: 200;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(15,23,42,0.92); backdrop-filter: blur(6px);
+        }
+        .overlay-box {
+            background: #0f172a; border: 1px solid #1e293b;
+            border-radius: 1.5rem; padding: 1.75rem;
+            max-width: 440px; width: 92%; text-align: center;
+        }
+
+        /* ── Phase flash bubble ─────────────────────────── */
+        #phase-bubble {
+            position: absolute; pointer-events: none;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 40; text-align: center;
+            background: rgba(15,23,42,0.94);
+            border: 2px solid #334155;
+            border-radius: 0.875rem;
+            padding: 0.6rem 1rem;
+            min-width: 150px;
+            display: none;
+        }
+        #phase-bubble.show {
+            display: block;
+            animation: phase-pop 1.6s ease forwards;
+        }
+
+        /* ── Floating score text ────────────────────────── */
+        .float-txt {
+            position: absolute; left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap; pointer-events: none;
+            z-index: 100; font-size: 0.9rem; font-weight: 700;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            animation: float-up 1.2s ease-out forwards;
+        }
+
+        /* ── Scrollbar ──────────────────────────────────── */
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+    </style>
+</head>
+<body>
+<div id="game-root" style="display:flex;flex-direction:column;height:100vh;overflow:hidden;">
+
+<!-- ══ START SCREEN ═══════════════════════════════════════ -->
+<div id="start-screen" class="overlay">
+    <div class="overlay-box">
+        <div style="font-size:2.75rem;margin-bottom:0.5rem;">☕⚗️</div>
+        <h1 style="color:#f1f5f9;font-size:1.25rem;margin:0 0 0.2rem;">PHASE CHANGE CAFÉ</h1>
+        <p style="color:#64748b;font-size:0.65rem;letter-spacing:0.1em;margin:0 0 1.1rem;">CHEMISTRY · LESSON 1.2 — PHASE CHANGES</p>
+
+        <p style="color:#94a3b8;font-size:0.72rem;line-height:1.75;margin-bottom:1.1rem;">
+            Customers want substances in a specific state.<br>
+            Pick a <span style="color:#f1f5f9;">resource</span> from the shelf,
+            apply <span style="color:#fca5a5;">🔥 HEAT</span> or <span style="color:#93c5fd;">❄️ COOL</span>
+            to change its state, then <span style="color:#86efac;">SERVE</span> the right customer!
+        </p>
+
+        <div style="background:rgba(30,41,59,0.7);border:1px solid #334155;border-radius:0.75rem;padding:0.75rem;margin-bottom:1.1rem;font-size:0.62rem;color:#94a3b8;text-align:left;line-height:1.9;">
+            <span style="color:#f1f5f9;font-weight:700;letter-spacing:0.06em;">PHASE CHANGES:</span><br>
+            🔥 Solid → Liquid = <span style="color:#f97316;">MELTING</span> &nbsp;|&nbsp;
+            🔥 Liquid → Gas = <span style="color:#ef4444;">EVAPORATION</span><br>
+            ❄️ Gas → Liquid = <span style="color:#06b6d4;">CONDENSATION</span> &nbsp;|&nbsp;
+            ❄️ Liquid → Solid = <span style="color:#3b82f6;">FREEZING</span><br>
+            🔥 Solid → Gas = <span style="color:#f59e0b;">SUBLIMATION</span> &nbsp;|&nbsp;
+            ❄️ Gas → Solid = <span style="color:#6d28d9;">DEPOSITION</span>
+        </div>
+
+        <div style="display:flex;justify-content:center;gap:1.5rem;margin-bottom:1.25rem;font-size:0.65rem;color:#64748b;">
+            <div style="text-align:center;"><div style="font-size:1.4rem;margin-bottom:3px;">👥</div>10 customers</div>
+            <div style="text-align:center;"><div style="font-size:1.4rem;margin-bottom:3px;">⏱️</div>Timed orders</div>
+            <div style="text-align:center;"><div style="font-size:1.4rem;margin-bottom:3px;">🔬</div>3 substances</div>
+        </div>
+
+        <button onclick="startGame()"
+            style="width:100%;padding:0.8rem;background:#3b82f6;color:#fff;border:none;border-radius:0.875rem;font-family:Orbitron,monospace;font-size:0.78rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;transition:background 0.2s;"
+            onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
+            OPEN THE CAFÉ ☕
+        </button>
+    </div>
+</div>
+
+<!-- ══ GAME OVER SCREEN ════════════════════════════════════ -->
+<div id="gameover-screen" class="overlay" style="display:none;">
+    <div class="overlay-box">
+        <div id="go-trophy" style="font-size:2.75rem;margin-bottom:0.5rem;">🏆</div>
+        <h2 id="go-title" style="color:#f1f5f9;font-size:1.15rem;margin:0 0 0.3rem;"></h2>
+        <p id="go-sub" style="color:#64748b;font-size:0.65rem;margin:0 0 1.25rem;"></p>
+
+        <div style="display:flex;justify-content:center;gap:1.75rem;margin-bottom:1.25rem;">
+            <div><div id="go-score" style="font-size:2rem;font-weight:700;color:#f59e0b;">0</div>
+                 <div style="font-size:0.58rem;color:#64748b;text-transform:uppercase;">SCORE</div></div>
+            <div><div id="go-served" style="font-size:2rem;font-weight:700;color:#22c55e;">0/10</div>
+                 <div style="font-size:0.58rem;color:#64748b;text-transform:uppercase;">SERVED</div></div>
+            <div><div id="go-streak" style="font-size:2rem;font-weight:700;color:#3b82f6;">0</div>
+                 <div style="font-size:0.58rem;color:#64748b;text-transform:uppercase;">BEST STREAK</div></div>
+        </div>
+
+        <div id="go-phases" style="background:rgba(30,41,59,0.7);border:1px solid #334155;border-radius:0.75rem;padding:0.75rem;margin-bottom:1.25rem;font-size:0.63rem;text-align:left;line-height:1.9;"></div>
+
+        <button onclick="startGame()"
+            style="width:100%;padding:0.8rem;background:#22c55e;color:#fff;border:none;border-radius:0.875rem;font-family:Orbitron,monospace;font-size:0.78rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;transition:background 0.2s;"
+            onmouseover="this.style.background='#16a34a'" onmouseout="this.style.background='#22c55e'">
+            PLAY AGAIN
+        </button>
+    </div>
+</div>
+
+<!-- ══ MAIN GAME UI ════════════════════════════════════════ -->
+<div id="game-ui" style="display:none;flex-direction:column;height:100%;min-height:0;">
+
+    <!-- Header bar -->
+    <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0.55rem 1rem;background:rgba(15,23,42,0.96);border-bottom:1px solid #1e293b;">
+        <div style="display:flex;align-items:center;gap:0.4rem;">
+            <span style="font-size:0.55rem;color:#475569;text-transform:uppercase;letter-spacing:0.1em;">SCORE</span>
+            <span id="score-display" style="font-size:1.1rem;font-weight:700;color:#f59e0b;">0</span>
+        </div>
+        <div style="font-size:0.6rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;">☕ PHASE CHANGE CAFÉ</div>
+        <div style="text-align:right;">
+            <div style="font-size:0.55rem;color:#475569;text-transform:uppercase;letter-spacing:0.08em;">DONE</div>
+            <div id="progress-display" style="font-size:0.85rem;font-weight:700;color:#94a3b8;line-height:1;">0/10</div>
+        </div>
+    </div>
+
+    <!-- 3-panel main area -->
+    <div style="flex:1;display:flex;gap:0.65rem;padding:0.65rem;overflow:hidden;min-height:0;">
+
+        <!-- LEFT: Resource Shelf -->
+        <div style="width:210px;flex-shrink:0;display:flex;flex-direction:column;min-height:0;">
+            <div class="ph">🧪 SHELF</div>
+            <div id="resource-shelf" style="display:flex;flex-direction:column;gap:0.35rem;overflow-y:auto;flex:1;"></div>
+            <div style="margin-top:0.5rem;font-size:0.58rem;color:#334155;line-height:1.5;">
+                Keys 1–3 select<br>H = Heat · C = Cool
+            </div>
+        </div>
+
+        <!-- CENTER: Station -->
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;position:relative;">
+            <div class="ph" style="width:100%;text-align:center;">⚗️ STATION</div>
+
+            <!-- Item display -->
+            <div id="station-display"
+                 style="width:min(560px,92%);min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(30,41,59,0.6);border:2px solid #1e293b;border-radius:1rem;padding:1.25rem;margin-bottom:0.85rem;flex-shrink:0;">
+            </div>
+
+            <!-- Heat / Cool buttons -->
+            <div style="display:flex;gap:0.65rem;margin-bottom:0.65rem;flex-shrink:0;width:min(560px,92%);">
+                <button id="btn-heat" class="act-btn btn-heat" onclick="doHeat()" style="flex:1;">
+                    <span style="font-size:1.75rem;">🔥</span>
+                    <span style="font-size:0.72rem;letter-spacing:0.06em;">HEAT</span>
+                    <span id="heat-label" style="font-size:0.58rem;color:#fca5a5;min-height:0.65rem;"></span>
+                </button>
+                <button id="btn-cool" class="act-btn btn-cool" onclick="doCool()" style="flex:1;">
+                    <span style="font-size:1.75rem;">❄️</span>
+                    <span style="font-size:0.72rem;letter-spacing:0.06em;">COOL</span>
+                    <span id="cool-label" style="font-size:0.58rem;color:#93c5fd;min-height:0.65rem;"></span>
+                </button>
+            </div>
+
+            <!-- Last phase change label -->
+            <div id="last-phase-label" style="font-size:0.62rem;color:#475569;text-align:center;min-height:1rem;flex-shrink:0;"></div>
+
+            <!-- Phase change flash bubble -->
+            <div id="phase-bubble">
+                <div id="phase-bubble-name" style="font-size:0.85rem;font-weight:700;"></div>
+                <div id="phase-bubble-desc" style="font-size:0.58rem;color:#94a3b8;margin-top:2px;"></div>
+            </div>
+
+            <!-- Floating text anchor -->
+            <div id="float-anchor" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
+        </div>
+
+        <!-- RIGHT: Customer Queue -->
+        <div style="width:280px;flex-shrink:0;display:flex;flex-direction:column;min-height:0;margin-left:2rem;">
+            <div class="ph">👥 CUSTOMERS</div>
+            <div id="customer-queue" style="display:flex;flex-direction:column;gap:0.45rem;overflow-y:auto;flex:1;"></div>
+
+        </div>
+
+    </div>
+</div>
+
+</div><!-- #game-root -->
+
+<script>
+// ══ GAME DATA ════════════════════════════════════════════
+
+var RESOURCES = [
+    { id:'water', label:'Water', emoji:'💧', color:'#0ea5e9',
+      chain:['solid','liquid','gas'], start:'liquid',
+      stateData:{
+          solid:  { name:'Ice',   emoji:'🧊', color:'#93c5fd' },
+          liquid: { name:'Water', emoji:'💧', color:'#38bdf8' },
+          gas:    { name:'Steam', emoji:'🌫️', color:'#cbd5e1' }
+      }
+    },
+    { id:'iron', label:'Iron', emoji:'⚙️', color:'#94a3b8',
+      chain:['solid','liquid'], start:'solid',
+      stateData:{
+          solid:  { name:'Iron',        emoji:'⚙️', color:'#94a3b8' },
+          liquid: { name:'Molten Iron', emoji:'🌋', color:'#f97316' }
+      }
+    },
+    { id:'co2', label:'CO₂', emoji:'❄️', color:'#64748b',
+      chain:['solid','gas'], start:'solid', sublimes:true,
+      stateData:{
+          solid: { name:'Dry Ice',  emoji:'🧊', color:'#94a3b8' },
+          gas:   { name:'CO₂ Gas', emoji:'☁️', color:'#cbd5e1' }
+      }
+    }
+];
+
+var PHASE_CHANGE = {
+    'solid→liquid': { name:'MELTING',      sym:'🔥', color:'#f97316', desc:'Solid → Liquid' },
+    'liquid→solid': { name:'FREEZING',     sym:'❄️', color:'#3b82f6', desc:'Liquid → Solid' },
+    'liquid→gas':   { name:'EVAPORATION',  sym:'🔥', color:'#ef4444', desc:'Liquid → Gas'   },
+    'gas→liquid':   { name:'CONDENSATION', sym:'❄️', color:'#06b6d4', desc:'Gas → Liquid'   },
+    'solid→gas':    { name:'SUBLIMATION',  sym:'🔥', color:'#f59e0b', desc:'Solid → Gas'    },
+    'gas→solid':    { name:'DEPOSITION',   sym:'❄️', color:'#6d28d9', desc:'Gas → Solid'    }
+};
+
+var CUSTOMER_EMOJIS = ['🧑‍🔬','👩‍🚀','🧙','🤖','👾','🧝','🧑‍🍳','🦸','🧑‍🎓','🦊'];
+
+// ══ GAME STATE ════════════════════════════════════════════
+var score=0, streak=0, bestStreak=0;
+var customersServed=0, customersMissed=0;
+var TOTAL=10, spawned=0;
+var customers=[], custId=0;
+var stationItem=null;       // { resourceId, state }
+var phasesLog={};           // phase keys performed this game
+var tickInterval=null, spawnTimer=null;
+var gameActive=false;
+
+// ══ HELPERS ══════════════════════════════════════════════
+function getRes(id){ return RESOURCES.find(function(r){ return r.id===id; }); }
+function stateIdx(res,state){ return res.chain.indexOf(state); }
+function canHeat(res,state){ return stateIdx(res,state) < res.chain.length-1; }
+function canCool(res,state){ return stateIdx(res,state) > 0; }
+function heatState(res,state){ var i=stateIdx(res,state); return i<res.chain.length-1 ? res.chain[i+1] : state; }
+function coolState(res,state){ var i=stateIdx(res,state); return i>0 ? res.chain[i-1] : state; }
+function pcKey(from,to){ return from+'→'+to; }
+function getPC(from,to){ return PHASE_CHANGE[pcKey(from,to)] || null; }
+
+function hexRgb(hex){
+    return parseInt(hex.slice(1,3),16)+','+parseInt(hex.slice(3,5),16)+','+parseInt(hex.slice(5,7),16);
+}
+function shuffle(arr){
+    var a=arr.slice();
+    for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}
+    return a;
+}
+function allOrders(){
+    var list=[];
+    RESOURCES.forEach(function(res){
+        res.chain.forEach(function(state){ list.push({resourceId:res.id, targetState:state}); });
+    });
+    return list;
+}
+function patience(spawnIdx){
+    if(spawnIdx<3)  return 19600;
+    if(spawnIdx<6)  return 15400;
+    return 12600;
+}
+
+// ══ GAME LIFECYCLE ════════════════════════════════════════
+function startGame(){
+    score=0; streak=0; bestStreak=0;
+    customersServed=0; customersMissed=0;
+    spawned=0; customers=[]; custId=0;
+    stationItem=null; phasesLog={};
+    gameActive=true;
+
+    document.getElementById('start-screen').style.display='none';
+    document.getElementById('gameover-screen').style.display='none';
+    document.getElementById('game-ui').style.display='flex';
+
+    renderShelf(); renderStation(); renderTransformBtns(); renderCustomers(); renderHeader();
+    document.getElementById('last-phase-label').textContent='';
+
+    // Spawn first customer
+    spawnCustomer();
+
+    clearInterval(tickInterval);
+    tickInterval = setInterval(tick, 100);
+}
+
+function endGame(){
+    gameActive=false;
+    clearInterval(tickInterval);
+    clearTimeout(spawnTimer);
+
+    document.getElementById('game-ui').style.display='none';
+    document.getElementById('gameover-screen').style.display='flex';
+    document.getElementById('go-score').textContent=score;
+    document.getElementById('go-served').textContent=customersServed+'/'+TOTAL;
+    document.getElementById('go-streak').textContent=bestStreak;
+
+    var pct=Math.round(customersServed/TOTAL*100);
+    var trophy=document.getElementById('go-trophy');
+    var title=document.getElementById('go-title');
+    var sub=document.getElementById('go-sub');
+    if(pct>=90){ trophy.textContent='🏆'; title.textContent='MASTER CHEMIST!'; sub.textContent='Perfect café service!'; }
+    else if(pct>=70){ trophy.textContent='⭐'; title.textContent='GREAT JOB!'; sub.textContent='You know your phase changes!'; }
+    else if(pct>=50){ trophy.textContent='👍'; title.textContent='GOOD EFFORT!'; sub.textContent='Review lesson 1.2 and try again!'; }
+    else { trophy.textContent='📚'; title.textContent='KEEP STUDYING!'; sub.textContent='Study phase changes and try again!'; }
+
+    var keys=Object.keys(phasesLog);
+    var phEl=document.getElementById('go-phases');
+    if(keys.length===0){
+        phEl.innerHTML='<span style="color:#475569;">No phase changes performed this run.</span>';
+    } else {
+        phEl.innerHTML='<div style="color:#f1f5f9;font-weight:700;margin-bottom:0.35rem;font-size:0.65rem;letter-spacing:0.08em;">PHASE CHANGES YOU PERFORMED:</div>'+
+            keys.map(function(k){
+                var pc=PHASE_CHANGE[k];
+                if(!pc) return '';
+                return '<div style="color:'+pc.color+';">'+pc.sym+' '+pc.name+
+                       ' <span style="color:#64748b;">('+pc.desc+')</span></div>';
+            }).join('');
+    }
+}
+
+// ══ TICK (100ms) ════════════════════════════════════════
+function tick(){
+    if(!gameActive) return;
+    var remove=[];
+    customers.forEach(function(c){
+        c.patienceLeft=Math.max(0, c.patienceLeft-100);
+        if(c.patienceLeft<=0) remove.push(c.id);
+    });
+    remove.forEach(function(id){
+        customers=customers.filter(function(c){ return c.id!==id; });
+        customersMissed++;
+        if(streak>0){ streak=0; }
+        showFloat('Left without being served 😤','#ef4444');
+        trySpawnNext();
+        checkGameOver();
+    });
+    if(remove.length){ renderCustomers(); renderHeader(); } else { tickCustomers(); }
+}
+
+function trySpawnNext(){
+    if(!gameActive||customers.length>=1||spawned>=TOTAL) return;
+    clearTimeout(spawnTimer);
+    spawnTimer=setTimeout(spawnCustomer, 700);
+}
+function checkGameOver(){
+    if(spawned>=TOTAL && customers.length===0) setTimeout(endGame, 700);
+}
+
+// ══ SPAWN CUSTOMER ════════════════════════════════════════
+function spawnCustomer(){
+    if(!gameActive||spawned>=TOTAL||customers.length>=1) return;
+    var orders=allOrders();
+    var o=orders[Math.floor(Math.random()*orders.length)];
+    var res=getRes(o.resourceId);
+    var sd=res.stateData[o.targetState];
+    customers.push({
+        id: custId++,
+        emoji: CUSTOMER_EMOJIS[spawned % CUSTOMER_EMOJIS.length],
+        order: { resourceId:o.resourceId, targetState:o.targetState,
+                 displayName:sd.name, itemEmoji:sd.emoji, resLabel:res.label },
+        patienceMax: patience(spawned),
+        patienceLeft: patience(spawned)
+    });
+    spawned++;
+    renderCustomers();
+    renderHeader();
+    trySpawnNext();
+}
+
+// ══ STATION ACTIONS ═══════════════════════════════════════
+function selectResource(id){
+    if(!gameActive) return;
+    var res=getRes(id);
+    stationItem={ resourceId:id, state:res.start };
+    document.getElementById('last-phase-label').textContent='';
+    renderShelf();
+    renderStation();
+    renderTransformBtns();
+    renderCustomers();
+}
+
+function doHeat(){
+    if(!stationItem||!gameActive) return;
+    var res=getRes(stationItem.resourceId);
+    if(!canHeat(res,stationItem.state)) return;
+    var from=stationItem.state;
+    stationItem.state=heatState(res,stationItem.state);
+    var pc=getPC(from,stationItem.state);
+    if(pc){ phasesLog[pcKey(from,stationItem.state)]=true; showPhaseFlash(pc); }
+    renderStation();
+    renderTransformBtns();
+    renderCustomers();
+}
+
+function doCool(){
+    if(!stationItem||!gameActive) return;
+    var res=getRes(stationItem.resourceId);
+    if(!canCool(res,stationItem.state)) return;
+    var from=stationItem.state;
+    stationItem.state=coolState(res,stationItem.state);
+    var pc=getPC(from,stationItem.state);
+    if(pc){ phasesLog[pcKey(from,stationItem.state)]=true; showPhaseFlash(pc); }
+    renderStation();
+    renderTransformBtns();
+    renderCustomers();
+}
+
+function tryServe(cid){
+    if(!stationItem||!gameActive) return;
+    var c=customers.find(function(x){ return x.id===cid; });
+    if(!c) return;
+    var match=stationItem.resourceId===c.order.resourceId && stationItem.state===c.order.targetState;
+    if(match){
+        var timeBonus=Math.round(c.patienceLeft/c.patienceMax*80);
+        var pts=100+timeBonus;
+        score+=pts; customersServed++;
+        showFloat('+'+pts+' ✓','#22c55e');
+        customers=customers.filter(function(x){ return x.id!==cid; });
+        stationItem=null;
+        renderShelf(); renderStation(); renderTransformBtns(); renderCustomers(); renderHeader();
+        trySpawnNext();
+        checkGameOver();
+    } else {
+        streak=0;
+        showFloat('Wrong item! ✗','#f59e0b');
+        var card=document.getElementById('cc-'+cid);
+        if(card){ card.style.animation='none'; void card.offsetWidth; card.style.animation='wrong-shake 0.4s ease'; }
+        renderHeader();
+    }
+}
+
+// ══ VISUAL FEEDBACK ═══════════════════════════════════════
+function showFloat(msg, color){
+    var anchor=document.getElementById('float-anchor');
+    if(!anchor) return;
+    var el=document.createElement('div');
+    el.className='float-txt';
+    el.style.color=color;
+    el.style.top=Math.round(20+Math.random()*30)+'%';
+    el.textContent=msg;
+    anchor.appendChild(el);
+    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },1200);
+}
+
+function showPhaseFlash(pc){
+    // Update persistent label
+    var lbl=document.getElementById('last-phase-label');
+    if(lbl) lbl.innerHTML='<span style="color:'+pc.color+';">'+pc.sym+' '+pc.name+'</span> <span style="color:#475569;">('+pc.desc+')</span>';
+
+    // Popup bubble
+    var bubble=document.getElementById('phase-bubble');
+    var bName=document.getElementById('phase-bubble-name');
+    var bDesc=document.getElementById('phase-bubble-desc');
+    if(!bubble||!bName||!bDesc) return;
+    bName.innerHTML='<span style="color:'+pc.color+';">'+pc.sym+' '+pc.name+'</span>';
+    bDesc.textContent=pc.desc;
+    bubble.style.borderColor=pc.color;
+    bubble.classList.remove('show');
+    void bubble.offsetWidth;
+    bubble.classList.add('show');
+    setTimeout(function(){ bubble.classList.remove('show'); bubble.style.display='none'; },1600);
+}
+
+// ══ RENDER ════════════════════════════════════════════════
+function renderShelf(){
+    var el=document.getElementById('resource-shelf');
+    if(!el) return;
+    el.innerHTML='';
+    var selId=stationItem?stationItem.resourceId:null;
+    RESOURCES.forEach(function(res){
+        var isSel=(res.id===selId);
+        var sd=res.stateData[res.start];
+        var btn=document.createElement('button');
+        btn.className='res-card';
+        if(isSel){
+            btn.style.borderColor=res.color;
+            btn.style.background='rgba('+hexRgb(res.color)+',0.18)';
+            btn.style.boxShadow='0 0 12px rgba('+hexRgb(res.color)+',0.3)';
+        }
+        btn.innerHTML=
+            '<span style="font-size:1.9rem;">'+sd.emoji+'</span>'+
+            '<div>'+
+            '<div style="font-size:0.78rem;font-weight:700;color:#f1f5f9;text-transform:uppercase;letter-spacing:0.04em;">'+res.label+'</div>'+
+            '<div style="font-size:0.66rem;color:#64748b;">'+sd.name+'</div>'+
+            '</div>';
+        btn.onclick=function(){ selectResource(res.id); };
+        el.appendChild(btn);
+    });
+}
+
+function renderStation(){
+    var el=document.getElementById('station-display');
+    if(!el) return;
+    if(!stationItem){
+        el.innerHTML='<div style="color:#334155;font-size:0.68rem;line-height:1.7;text-align:center;">← Pick a resource<br>from the shelf</div>';
+        return;
+    }
+    var res=getRes(stationItem.resourceId);
+    var sd=res.stateData[stationItem.state];
+    el.innerHTML=
+        '<div class="item-pop-anim" style="font-size:7rem;line-height:1;margin-bottom:0.75rem;">'+sd.emoji+'</div>'+
+        '<div style="font-size:1.5rem;font-weight:700;color:#f1f5f9;text-transform:uppercase;letter-spacing:0.04em;">'+sd.name+'</div>'+
+        '<div style="font-size:0.9rem;color:#64748b;margin-top:0.35rem;text-transform:capitalize;">'+stationItem.state+' · '+res.label+'</div>';
+}
+
+function renderTransformBtns(){
+    var hBtn=document.getElementById('btn-heat');
+    var cBtn=document.getElementById('btn-cool');
+    var hLbl=document.getElementById('heat-label');
+    var cLbl=document.getElementById('cool-label');
+    if(!hBtn||!cBtn) return;
+
+    if(!stationItem){
+        hBtn.disabled=cBtn.disabled=true;
+        if(hLbl) hLbl.textContent='';
+        if(cLbl) cLbl.textContent='';
+        return;
+    }
+    var res=getRes(stationItem.resourceId);
+    var hOk=canHeat(res,stationItem.state);
+    var cOk=canCool(res,stationItem.state);
+    hBtn.disabled=!hOk; cBtn.disabled=!cOk;
+
+    if(hLbl){
+        if(hOk){ var hs=heatState(res,stationItem.state); var hpc=getPC(stationItem.state,hs); hLbl.textContent=hpc?hpc.name:''; }
+        else hLbl.textContent='';
+    }
+    if(cLbl){
+        if(cOk){ var cs=coolState(res,stationItem.state); var cpc=getPC(stationItem.state,cs); cLbl.textContent=cpc?cpc.name:''; }
+        else cLbl.textContent='';
+    }
+}
+
+function tickCustomers(){
+    customers.forEach(function(c){
+        var card=document.getElementById('cc-'+c.id);
+        if(!card) return;
+        var pct=c.patienceLeft/c.patienceMax*100;
+        var pColor=pct>50?'#22c55e':pct>25?'#f59e0b':'#ef4444';
+        var bar=card.querySelector('.patience-bar-fill');
+        if(bar){ bar.style.width=pct+'%'; bar.style.background=pColor; }
+    });
+}
+
+function renderCustomers(){
+    var el=document.getElementById('customer-queue');
+    if(!el) return;
+    el.innerHTML='';
+
+    if(customers.length===0){
+        var ph=document.createElement('div');
+        ph.style.cssText='color:#334155;font-size:0.63rem;text-align:center;padding:1rem;line-height:1.6;';
+        ph.textContent=spawned>=TOTAL ? 'All customers served! 🎉' : 'Waiting for customers...';
+        el.appendChild(ph);
+        var qt=document.getElementById('queue-tail');
+        if(qt) qt.textContent='';
+        return;
+    }
+
+    customers.forEach(function(c){
+        var match=stationItem && stationItem.resourceId===c.order.resourceId && stationItem.state===c.order.targetState;
+        var pct=c.patienceLeft/c.patienceMax*100;
+        var pColor=pct>50?'#22c55e':pct>25?'#f59e0b':'#ef4444';
+
+        var card=document.createElement('div');
+        card.id='cc-'+c.id;
+        card.className='cust-card card-in-anim'+(match?' match':'');
+
+        var servStyle=match
+            ? 'background:#22c55e;color:#fff;cursor:pointer;animation:serve-pulse 1s ease infinite;'
+            : 'background:rgba(30,41,59,0.5);color:#334155;cursor:default;';
+
+        card.innerHTML=
+            '<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">'+
+            '  <span style="font-size:3rem;">'+c.emoji+'</span>'+
+            '  <div style="flex:1;background:rgba(15,23,42,0.7);border:1px solid #1e293b;border-radius:0.5rem;padding:0.6rem 0.75rem;">'+
+            '    <div style="font-size:0.7rem;color:#475569;margin-bottom:3px;">I WANT:</div>'+
+            '    <div style="font-size:1.15rem;font-weight:700;color:#f1f5f9;">'+c.order.itemEmoji+' '+c.order.displayName+'</div>'+
+            '    <div style="font-size:0.72rem;color:#64748b;margin-top:2px;">'+c.order.resLabel+' · '+c.order.targetState+'</div>'+
+            '  </div>'+
+            '</div>'+
+            '<div style="height:6px;background:#0f172a;border-radius:3px;overflow:hidden;margin-bottom:0.65rem;">'+
+            '  <div class="patience-bar-fill" style="height:100%;width:'+pct+'%;background:'+pColor+';border-radius:3px;transition:width 0.1s;"></div>'+
+            '</div>'+
+            '<button class="serve-btn'+(match?' ready':'')+'\" style="padding:0.55rem;font-size:0.85rem;">'+
+            (match?'✓ SERVE!':'...')+
+            '</button>';
+
+        el.appendChild(card);
+        var sBtn=card.querySelector('.serve-btn');
+        if(sBtn){ (function(cid){ sBtn.onclick=function(){ tryServe(cid); }; })(c.id); }
+    });
+
+    var qt=document.getElementById('queue-tail');
+    if(qt){
+        var remaining=TOTAL-spawned;
+        qt.textContent=remaining>0?'+'+remaining+' waiting in line':'';
+    }
+}
+
+function renderHeader(){
+    var sc=document.getElementById('score-display');
+    if(sc){ sc.textContent=score; sc.classList.remove('score-bump-anim'); void sc.offsetWidth; sc.classList.add('score-bump-anim'); }
+    var pg=document.getElementById('progress-display');
+    if(pg) pg.textContent=(customersServed+customersMissed)+'/'+TOTAL;
+}
+
+// ══ KEYBOARD SHORTCUTS ════════════════════════════════════
+document.addEventListener('keydown', function(e){
+    if(!gameActive) return;
+    var k=e.key.toLowerCase();
+    if(k==='h') doHeat();
+    if(k==='c') doCool();
+    var n=parseInt(e.key);
+    if(n>=1&&n<=3) selectResource(RESOURCES[n-1].id);
+});
+</script>
+</body>
+</html>

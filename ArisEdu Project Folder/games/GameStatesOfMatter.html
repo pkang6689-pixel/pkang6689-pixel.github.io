@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matter Masher — States of Matter</title>
+    <script src="../scripts/arcade-core.js"></script>
+    <script src="../firebase-utils.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; background: #0f172a; }
+        body { font-family: 'Orbitron', monospace; display: flex; flex-direction: column; }
+
+        /* Particle canvas */
+        #particle-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+
+        /* Card animation */
+        @keyframes card-pop {
+            0%   { transform: scale(0.6) translateY(20px); opacity: 0; }
+            70%  { transform: scale(1.06) translateY(-4px); }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20%     { transform: translateX(-10px); }
+            40%     { transform: translateX(10px); }
+            60%     { transform: translateX(-10px); }
+            80%     { transform: translateX(10px); }
+        }
+        @keyframes timer-drain {
+            from { width: 100%; }
+            to   { width: 0%; }
+        }
+        @keyframes feedback-fade {
+            0%   { opacity: 1; transform: translateY(0) scale(1); }
+            80%  { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-30px) scale(1.1); }
+        }
+        @keyframes score-pop {
+            0%   { transform: scale(1); color: #f1f5f9; }
+            30%  { transform: scale(1.4); color: #22c55e; }
+            100% { transform: scale(1); color: #f1f5f9; }
+        }
+
+        .card-animate { animation: card-pop 0.35s ease-out forwards; }
+        .card-shake   { animation: shake 0.4s ease; }
+
+        .choice-btn {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.12s, box-shadow 0.12s, background 0.15s;
+            cursor: pointer;
+            user-select: none;
+        }
+        .choice-btn:hover:not(:disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+        }
+        .choice-btn:active:not(:disabled) { transform: scale(0.94); }
+        .choice-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; }
+
+        .choice-btn.correct {
+            background: #16a34a !important;
+            border-color: #22c55e !important;
+            box-shadow: 0 0 36px rgba(34,197,94,0.55) !important;
+        }
+        .choice-btn.wrong {
+            background: #b91c1c !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 36px rgba(239,68,68,0.55) !important;
+        }
+
+        /* Timer bar */
+        #timer-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #f59e0b, #ef4444);
+            background-size: 300% 100%;
+            background-position: 0% 50%;
+            transition: background-position 0.1s;
+        }
+        #timer-bar-fill.running {
+            animation: timer-drain linear forwards;
+        }
+
+        /* Heart icons */
+        .heart { font-size: 1.3rem; transition: transform 0.2s, opacity 0.3s; }
+        .heart.lost { opacity: 0.18; transform: scale(0.75); }
+
+        /* Score animation */
+        .score-pop { animation: score-pop 0.45s ease; }
+
+        /* Floating feedback text */
+        #floating-feedback {
+            pointer-events: none;
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+            z-index: 50;
+            display: none;
+        }
+        #floating-feedback.show {
+            display: block;
+            animation: feedback-fade 0.85s ease forwards;
+        }
+
+        /* Screens */
+        .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 30; background: rgba(15,23,42,0.92); backdrop-filter: blur(6px); }
+
+        /* State color themes */
+        .state-solid  { --state-color: #3b82f6; --state-bg: rgba(59,130,246,0.12); }
+        .state-liquid { --state-color: #06b6d4; --state-bg: rgba(6,182,212,0.12); }
+        .state-gas    { --state-color: #8b5cf6; --state-bg: rgba(139,92,246,0.12); }
+
+        .btn-solid  { border: 2px solid #3b82f6; background: rgba(59,130,246,0.18); color: #93c5fd; }
+        .btn-solid:hover:not(:disabled)  { background: rgba(59,130,246,0.35); color: #fff; }
+        .btn-liquid { border: 2px solid #06b6d4; background: rgba(6,182,212,0.18); color: #67e8f9; }
+        .btn-liquid:hover:not(:disabled) { background: rgba(6,182,212,0.35); color: #fff; }
+        .btn-gas    { border: 2px solid #8b5cf6; background: rgba(139,92,246,0.18); color: #c4b5fd; }
+        .btn-gas:hover:not(:disabled)    { background: rgba(139,92,246,0.35); color: #fff; }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            #substance-emoji { font-size: 3.5rem !important; }
+            #substance-name  { font-size: 1.4rem !important; }
+            .choice-btn      { font-size: 0.75rem !important; padding: 0.75rem 0.5rem !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white overflow-hidden">
+<div id="game-root" class="relative w-full h-screen flex flex-col overflow-hidden">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- ── START SCREEN ─────────────────────────────────── -->
+    <div id="start-screen" class="screen">
+        <div class="text-center max-w-md mx-4 p-8 rounded-2xl border border-slate-700" style="background:rgba(15,23,42,0.97);">
+            <div class="text-6xl mb-4">⚗️</div>
+            <h1 class="text-2xl font-bold mb-1" style="color:#f1f5f9;">MATTER MASHER</h1>
+            <p class="text-sm mb-6" style="color:#94a3b8; letter-spacing:0.08em;">STATES OF MATTER — LESSON 1.1</p>
+            <p class="text-slate-400 mb-6 text-xs leading-relaxed">
+                Substances will appear on screen. Classify each one as<br>
+                <span style="color:#93c5fd;">SOLID</span>, <span style="color:#67e8f9;">LIQUID</span>, or <span style="color:#c4b5fd;">GAS</span> before the timer runs out!
+            </p>
+            <div class="flex justify-center gap-6 mb-8 text-xs text-slate-400">
+                <div class="text-center">
+                    <div class="text-2xl mb-1">⏱️</div>
+                    <div>3 sec<br>per round</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl mb-1">❤️</div>
+                    <div>3 lives</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl mb-1">🔄</div>
+                    <div>15 rounds</div>
+                </div>
+            </div>
+            <button id="start-btn" onclick="startGame()"
+                class="w-full py-3 rounded-xl font-bold text-sm tracking-widest"
+                style="background:#3b82f6; color:#fff; border:none; cursor:pointer; transition:background 0.2s;"
+                onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
+                START GAME
+            </button>
+        </div>
+    </div>
+
+    <!-- ── GAME OVER SCREEN ──────────────────────────────── -->
+    <div id="gameover-screen" class="screen" style="display:none;">
+        <div class="text-center max-w-md mx-4 p-8 rounded-2xl border border-slate-700" style="background:rgba(15,23,42,0.97);">
+            <div id="go-trophy" class="text-6xl mb-4">🏆</div>
+            <h2 id="go-title" class="text-2xl font-bold mb-2" style="color:#f1f5f9;">GAME OVER</h2>
+            <p id="go-subtitle" class="text-sm mb-6" style="color:#94a3b8;"></p>
+            <div class="flex justify-center gap-8 mb-8">
+                <div class="text-center">
+                    <div class="text-3xl font-bold mb-1" id="go-score" style="color:#f59e0b;">0</div>
+                    <div class="text-xs text-slate-400">SCORE</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold mb-1" id="go-correct" style="color:#22c55e;">0/15</div>
+                    <div class="text-xs text-slate-400">CORRECT</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold mb-1" id="go-accuracy" style="color:#3b82f6;">0%</div>
+                    <div class="text-xs text-slate-400">ACCURACY</div>
+                </div>
+            </div>
+            <div id="go-grade" class="mb-6 py-3 rounded-xl text-sm font-bold" style="background:rgba(255,255,255,0.05);"></div>
+            <button onclick="startGame()"
+                class="w-full py-3 rounded-xl font-bold text-sm tracking-widest mb-3"
+                style="background:#22c55e; color:#fff; border:none; cursor:pointer; transition:background 0.2s;"
+                onmouseover="this.style.background='#16a34a'" onmouseout="this.style.background='#22c55e'">
+                PLAY AGAIN
+            </button>
+        </div>
+    </div>
+
+    <!-- ── MAIN GAME UI ──────────────────────────────────── -->
+    <div id="game-ui" style="display:none; flex-direction:column; height:100%;" class="flex relative z-10">
+
+        <!-- Header bar -->
+        <div class="flex-shrink-0 flex items-center justify-between px-4 py-3"
+             style="background:rgba(15,23,42,0.9); border-bottom:1px solid #1e293b;">
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-bold tracking-widest" style="color:#64748b;">ROUND</span>
+                <span id="round-display" class="font-bold" style="color:#f1f5f9; font-size:1rem;">1/15</span>
+            </div>
+            <div class="flex gap-1" id="lives-display">
+                <span class="heart" id="h1">❤️</span>
+                <span class="heart" id="h2">❤️</span>
+                <span class="heart" id="h3">❤️</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-bold tracking-widest" style="color:#64748b;">SCORE</span>
+                <span id="score-display" class="font-bold" style="color:#f59e0b; font-size:1rem;">0</span>
+            </div>
+        </div>
+
+        <!-- Timer bar -->
+        <div class="flex-shrink-0" style="height:6px; background:#1e293b;">
+            <div id="timer-bar-fill" style="width:100%;"></div>
+        </div>
+
+        <!-- Central game area -->
+        <div class="flex-1 flex flex-col items-center justify-center relative px-4 py-6" style="gap:2rem;">
+
+            <!-- Floating feedback -->
+            <div id="floating-feedback"></div>
+
+            <!-- Substance card -->
+            <div id="substance-card" class="relative flex flex-col items-center justify-center rounded-2xl p-8"
+                 style="background:rgba(30,41,59,0.85); border:2px solid #334155; width:min(340px,90vw); min-height:160px; backdrop-filter:blur(8px);">
+                <div id="substance-emoji" style="font-size:4.5rem; line-height:1; margin-bottom:0.75rem;">❄️</div>
+                <div id="substance-name" class="font-bold text-center"
+                     style="font-size:1.7rem; color:#f1f5f9; letter-spacing:0.04em; text-transform:uppercase;"></div>
+                <div id="substance-hint" class="mt-2 text-xs text-center" style="color:#64748b; min-height:1.2em;"></div>
+            </div>
+
+            <!-- State hint label (shows after answer) -->
+            <div id="answer-reveal" class="text-sm font-bold" style="display:none; color:#94a3b8; min-height:1.5rem; text-align:center;"></div>
+
+            <!-- Choice buttons -->
+            <div class="flex gap-3" style="width:min(420px,94vw);">
+                <button class="choice-btn btn-solid flex-1 rounded-xl py-4 px-2 text-xs font-bold tracking-widest"
+                        id="btn-solid" onclick="handleAnswer('Solid')">
+                    <div class="text-2xl mb-1">🪨</div>
+                    SOLID
+                </button>
+                <button class="choice-btn btn-liquid flex-1 rounded-xl py-4 px-2 text-xs font-bold tracking-widest"
+                        id="btn-liquid" onclick="handleAnswer('Liquid')">
+                    <div class="text-2xl mb-1">💧</div>
+                    LIQUID
+                </button>
+                <button class="choice-btn btn-gas flex-1 rounded-xl py-4 px-2 text-xs font-bold tracking-widest"
+                        id="btn-gas" onclick="handleAnswer('Gas')">
+                    <div class="text-2xl mb-1">💨</div>
+                    GAS
+                </button>
+            </div>
+
+            <!-- Progress dots -->
+            <div id="progress-dots" class="flex gap-1.5 flex-wrap justify-center" style="max-width:320px;"></div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ─── Game Data ───────────────────────────────────────────
+var SUBSTANCES = [
+    { name: 'Ice',           emoji: '🧊', state: 'Solid',  hint: 'Frozen water' },
+    { name: 'Water',         emoji: '💧', state: 'Liquid', hint: 'H₂O at room temp' },
+    { name: 'Oxygen',        emoji: '💨', state: 'Gas',    hint: 'We breathe it' },
+    { name: 'Copper',        emoji: '🔶', state: 'Solid',  hint: 'A shiny metal' },
+    { name: 'Steam',         emoji: '🌫️', state: 'Gas',    hint: 'Water above 100°C' },
+    { name: 'Milk',          emoji: '🥛', state: 'Liquid', hint: 'Pours in a glass' },
+    { name: 'Carbon Dioxide',emoji: '☁️', state: 'Gas',    hint: 'We exhale this' },
+    { name: 'Mercury',       emoji: '⚗️', state: 'Liquid', hint: 'Metallic, room temp' },
+    { name: 'Wood',          emoji: '🪵', state: 'Solid',  hint: 'Rigid, fixed shape' },
+    { name: 'Helium',        emoji: '🎈', state: 'Gas',    hint: 'Lifts balloons' },
+    { name: 'Honey',         emoji: '🍯', state: 'Liquid', hint: 'Flows slowly' },
+    { name: 'Salt',          emoji: '🧂', state: 'Solid',  hint: 'Crystalline grains' },
+    { name: 'Gasoline',      emoji: '⛽', state: 'Liquid', hint: 'Fuel that pours' },
+    { name: 'Neon',          emoji: '✨', state: 'Gas',    hint: 'Used in signs' },
+    { name: 'Iron',          emoji: '⚙️', state: 'Solid',  hint: 'Hard metal' },
+    { name: 'Vinegar',       emoji: '🫙', state: 'Liquid', hint: 'Acidic, pourable' },
+    { name: 'Nitrogen',      emoji: '💫', state: 'Gas',    hint: 'Most of the air' },
+    { name: 'Sand',          emoji: '🏖️', state: 'Solid',  hint: 'Each grain fixed' },
+    { name: 'Orange Juice',  emoji: '🍊', state: 'Liquid', hint: 'Takes container shape' },
+    { name: 'Air',           emoji: '🌬️', state: 'Gas',    hint: 'Fills any space' }
+];
+
+var TIMER_DURATION = 3000; // ms per round
+var TOTAL_ROUNDS   = 15;
+var MAX_LIVES      = 3;
+
+// ─── State ───────────────────────────────────────────────
+var score        = 0;
+var lives        = MAX_LIVES;
+var round        = 0;
+var correctCount = 0;
+var canAnswer    = false;
+var timerAnim    = null;
+var timerStart   = 0;
+var currentState = null;
+var roundSubstances = [];
+var progressResults = []; // 'correct' | 'wrong' | 'timeout' | 'pending'
+
+// ─── Particle Canvas ─────────────────────────────────────
+var canvas  = document.getElementById('particle-canvas');
+var ctx     = canvas.getContext('2d');
+var particles = [];
+var particleMode = 'gas'; // 'solid' | 'liquid' | 'gas'
+var animFrame;
+
+function resizeCanvas() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function makeParticle(mode) {
+    var w = canvas.width, h = canvas.height;
+    if (mode === 'solid') {
+        // Grid-ish vibrating dots
+        return {
+            x:  Math.random() * w,
+            y:  Math.random() * h,
+            ox: 0, oy: 0, // offset from home
+            r:  3 + Math.random() * 2,
+            hx: 0, hy: 0,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5,
+            color: 'rgba(59,130,246,',
+            alpha: 0.25 + Math.random() * 0.3,
+            mode: 'solid'
+        };
+    } else if (mode === 'liquid') {
+        return {
+            x: Math.random() * w,
+            y: Math.random() * h,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: 0.3 + Math.random() * 0.5,
+            r: 4 + Math.random() * 3,
+            color: 'rgba(6,182,212,',
+            alpha: 0.2 + Math.random() * 0.3,
+            mode: 'liquid'
+        };
+    } else {
+        // Gas — fast random movement
+        return {
+            x: Math.random() * w,
+            y: Math.random() * h,
+            vx: (Math.random() - 0.5) * 2.5,
+            vy: (Math.random() - 0.5) * 2.5,
+            r: 2 + Math.random() * 3,
+            color: 'rgba(139,92,246,',
+            alpha: 0.15 + Math.random() * 0.25,
+            mode: 'gas'
+        };
+    }
+}
+
+function initParticles(mode) {
+    particleMode = mode;
+    var count = mode === 'solid' ? 60 : mode === 'liquid' ? 55 : 70;
+    particles = [];
+    for (var i = 0; i < count; i++) particles.push(makeParticle(mode));
+}
+
+function animateParticles() {
+    animFrame = requestAnimationFrame(animateParticles);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var w = canvas.width, h = canvas.height;
+
+    particles.forEach(function(p) {
+        if (p.mode === 'solid') {
+            // Small vibration around home
+            p.x += p.vx;
+            p.y += p.vy;
+            // Bounce back toward home slowly
+            if (Math.abs(p.x - p.hx) > 8) p.vx *= -1;
+            if (Math.abs(p.y - p.hy) > 8) p.vy *= -1;
+            // Store home on first run
+            if (p.hx === 0) { p.hx = p.x; p.hy = p.y; }
+        } else if (p.mode === 'liquid') {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.y > h + p.r)  p.y = -p.r;
+            if (p.x < -p.r)     p.x = w + p.r;
+            if (p.x > w + p.r)  p.x = -p.r;
+            // Gentle horizontal drift
+            p.vx += (Math.random() - 0.5) * 0.04;
+            if (Math.abs(p.vx) > 1.2) p.vx *= 0.9;
+        } else {
+            p.x += p.vx;
+            p.y += p.vy;
+            // Wrap
+            if (p.x < -p.r)    p.x = w + p.r;
+            if (p.x > w + p.r) p.x = -p.r;
+            if (p.y < -p.r)    p.y = h + p.r;
+            if (p.y > h + p.r) p.y = -p.r;
+            // Slight random nudge
+            p.vx += (Math.random() - 0.5) * 0.08;
+            p.vy += (Math.random() - 0.5) * 0.08;
+            if (Math.abs(p.vx) > 2.8) p.vx *= 0.9;
+            if (Math.abs(p.vy) > 2.8) p.vy *= 0.9;
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + p.alpha + ')';
+        ctx.fill();
+    });
+}
+
+// ─── Progress dots ───────────────────────────────────────
+function renderDots() {
+    var el = document.getElementById('progress-dots');
+    el.innerHTML = '';
+    for (var i = 0; i < TOTAL_ROUNDS; i++) {
+        var d = document.createElement('div');
+        d.style.cssText = 'width:10px;height:10px;border-radius:50%;transition:background 0.25s;';
+        var r = progressResults[i];
+        if      (r === 'correct') d.style.background = '#22c55e';
+        else if (r === 'wrong')   d.style.background = '#ef4444';
+        else if (r === 'timeout') d.style.background = '#f59e0b';
+        else if (i === round)     d.style.background = '#3b82f6';
+        else                      d.style.background = '#1e293b';
+        el.appendChild(d);
+    }
+}
+
+// ─── Lives display ───────────────────────────────────────
+function renderLives() {
+    for (var i = 1; i <= MAX_LIVES; i++) {
+        var h = document.getElementById('h' + i);
+        if (i <= lives) h.classList.remove('lost');
+        else            h.classList.add('lost');
+    }
+}
+
+// ─── Timer ───────────────────────────────────────────────
+function startTimer() {
+    var bar = document.getElementById('timer-bar-fill');
+    bar.style.animation = 'none';
+    bar.style.width = '100%';
+    // Force reflow
+    void bar.offsetWidth;
+    bar.classList.add('running');
+    bar.style.animation = 'timer-drain ' + (TIMER_DURATION / 1000) + 's linear forwards';
+    timerStart = Date.now();
+    timerAnim = setTimeout(onTimerExpire, TIMER_DURATION);
+}
+
+function stopTimer() {
+    clearTimeout(timerAnim);
+    var bar = document.getElementById('timer-bar-fill');
+    bar.style.animation = 'none';
+    var elapsed = Date.now() - timerStart;
+    var pct = Math.max(0, 1 - elapsed / TIMER_DURATION);
+    bar.style.width = (pct * 100) + '%';
+}
+
+function onTimerExpire() {
+    if (!canAnswer) return;
+    canAnswer = false;
+    disableButtons();
+    progressResults[round] = 'timeout';
+    lives--;
+    renderLives();
+    showFeedback('⏰ Too slow! It was ' + currentState, '#f59e0b');
+    revealAnswer();
+    renderDots();
+    setTimeout(nextRound, 1400);
+}
+
+// ─── Shuffle ─────────────────────────────────────────────
+function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+}
+
+// ─── Start Game ──────────────────────────────────────────
+function startGame() {
+    score = 0; lives = MAX_LIVES; round = 0; correctCount = 0;
+    progressResults = Array(TOTAL_ROUNDS).fill('pending');
+    roundSubstances = shuffle(SUBSTANCES).slice(0, TOTAL_ROUNDS);
+
+    document.getElementById('start-screen').style.display    = 'none';
+    document.getElementById('gameover-screen').style.display = 'none';
+    document.getElementById('game-ui').style.display         = 'flex';
+
+    updateScoreDisplay();
+    renderLives();
+    renderDots();
+    initParticles('gas');
+    animateParticles();
+    showRound();
+}
+
+// ─── Show Round ──────────────────────────────────────────
+function showRound() {
+    if (round >= TOTAL_ROUNDS || lives <= 0) { endGame(); return; }
+
+    var sub = roundSubstances[round];
+    currentState = sub.state;
+
+    // Update UI
+    document.getElementById('round-display').textContent = (round + 1) + '/' + TOTAL_ROUNDS;
+    document.getElementById('substance-name').textContent  = sub.name;
+    document.getElementById('substance-emoji').textContent = sub.emoji;
+    document.getElementById('substance-hint').textContent  = '';
+    document.getElementById('answer-reveal').style.display = 'none';
+
+    // Card pop animation
+    var card = document.getElementById('substance-card');
+    card.classList.remove('card-animate', 'card-shake');
+    void card.offsetWidth;
+    card.classList.add('card-animate');
+
+    // Particle mode
+    var modes = { Solid: 'solid', Liquid: 'liquid', Gas: 'gas' };
+    // Actually show neutral (all gas) while unanswered — don't hint
+    initParticles('gas');
+
+    enableButtons();
+    canAnswer = true;
+    startTimer();
+    renderDots();
+}
+
+// ─── Handle Answer ───────────────────────────────────────
+function handleAnswer(chosen) {
+    if (!canAnswer) return;
+    canAnswer = false;
+    stopTimer();
+    disableButtons();
+
+    var elapsed = Date.now() - timerStart;
+    var timeBonus = Math.round(Math.max(0, 1 - elapsed / TIMER_DURATION) * 50);
+
+    var btn = document.getElementById('btn-' + chosen.toLowerCase());
+    if (chosen === currentState) {
+        var pts = 100 + timeBonus;
+        score += pts;
+        correctCount++;
+        progressResults[round] = 'correct';
+        btn.classList.add('correct');
+        showFeedback('✓ ' + (timeBonus > 30 ? 'Fast! ' : '') + '+' + pts, '#22c55e');
+        // Switch particles to the correct state's animation
+        var modes = { Solid: 'solid', Liquid: 'liquid', Gas: 'gas' };
+        initParticles(modes[currentState]);
+    } else {
+        lives--;
+        progressResults[round] = 'wrong';
+        btn.classList.add('wrong');
+        var correct = document.getElementById('btn-' + currentState.toLowerCase());
+        if (correct) correct.classList.add('correct');
+        showFeedback('✗ It was ' + currentState + '!', '#ef4444');
+        var card = document.getElementById('substance-card');
+        card.classList.add('card-shake');
+        renderLives();
+    }
+
+    updateScoreDisplay();
+    revealAnswer();
+    renderDots();
+
+    var delay = chosen === currentState ? 900 : 1300;
+    setTimeout(nextRound, delay);
+}
+
+function nextRound() {
+    round++;
+    document.getElementById('btn-solid').classList.remove('correct','wrong');
+    document.getElementById('btn-liquid').classList.remove('correct','wrong');
+    document.getElementById('btn-gas').classList.remove('correct','wrong');
+    showRound();
+}
+
+// ─── Helpers ─────────────────────────────────────────────
+function disableButtons() {
+    ['btn-solid','btn-liquid','btn-gas'].forEach(function(id) {
+        document.getElementById(id).disabled = true;
+    });
+}
+function enableButtons() {
+    ['btn-solid','btn-liquid','btn-gas'].forEach(function(id) {
+        document.getElementById(id).disabled = false;
+    });
+}
+
+function revealAnswer() {
+    var sub = roundSubstances[round];
+    var el = document.getElementById('answer-reveal');
+    el.textContent = sub.hint ? '💡 ' + sub.hint : '';
+    el.style.display = 'block';
+}
+
+function showFeedback(msg, color) {
+    var el = document.getElementById('floating-feedback');
+    el.textContent = msg;
+    el.style.color  = color;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+}
+
+function updateScoreDisplay() {
+    var el = document.getElementById('score-display');
+    el.textContent = score;
+    el.classList.remove('score-pop');
+    void el.offsetWidth;
+    el.classList.add('score-pop');
+}
+
+// ─── End Game ────────────────────────────────────────────
+function endGame() {
+    cancelAnimationFrame(animFrame);
+    canAnswer = false;
+    stopTimer();
+
+    document.getElementById('game-ui').style.display         = 'none';
+    document.getElementById('gameover-screen').style.display = 'flex';
+
+    document.getElementById('go-score').textContent   = score;
+    document.getElementById('go-correct').textContent = correctCount + '/' + TOTAL_ROUNDS;
+    var acc = Math.round(correctCount / TOTAL_ROUNDS * 100);
+    document.getElementById('go-accuracy').textContent = acc + '%';
+
+    var gradeEl  = document.getElementById('go-grade');
+    var titleEl  = document.getElementById('go-title');
+    var subtitleEl = document.getElementById('go-subtitle');
+    var trophyEl = document.getElementById('go-trophy');
+
+    if (acc >= 90) {
+        trophyEl.textContent = '🏆'; titleEl.textContent = 'MASTER CHEMIST!';
+        subtitleEl.textContent = 'You know your states of matter!';
+        gradeEl.textContent = 'Grade: A+ — Outstanding! 🎉';
+        gradeEl.style.color = '#22c55e';
+    } else if (acc >= 75) {
+        trophyEl.textContent = '⭐'; titleEl.textContent = 'GREAT JOB!';
+        subtitleEl.textContent = 'Solid understanding!';
+        gradeEl.textContent = 'Grade: B — Well done! Keep it up.';
+        gradeEl.style.color = '#3b82f6';
+    } else if (acc >= 60) {
+        trophyEl.textContent = '👍'; titleEl.textContent = 'GOOD EFFORT!';
+        subtitleEl.textContent = 'Review your states of matter.';
+        gradeEl.textContent = 'Grade: C — Almost there. Try again!';
+        gradeEl.style.color = '#f59e0b';
+    } else if (lives <= 0) {
+        trophyEl.textContent = '💔'; titleEl.textContent = 'OUT OF LIVES';
+        subtitleEl.textContent = 'Study the lesson and try again!';
+        gradeEl.textContent = 'Grade: D — Keep studying. You got this!';
+        gradeEl.style.color = '#ef4444';
+    } else {
+        trophyEl.textContent = '📚'; titleEl.textContent = 'KEEP STUDYING!';
+        subtitleEl.textContent = 'Review Lesson 1.1 and try again.';
+        gradeEl.textContent = 'Grade: F — Don\'t give up! Study and retry.';
+        gradeEl.style.color = '#ef4444';
+    }
+}
+
+// ─── Keyboard support ────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+    if (!canAnswer) return;
+    if (e.key === '1' || e.key.toLowerCase() === 's') handleAnswer('Solid');
+    if (e.key === '2' || e.key.toLowerCase() === 'l') handleAnswer('Liquid');
+    if (e.key === '3' || e.key.toLowerCase() === 'g') handleAnswer('Gas');
+});
+</script>
+</body>
+</html>
