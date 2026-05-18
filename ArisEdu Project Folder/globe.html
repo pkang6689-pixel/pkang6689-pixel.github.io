@@ -25,6 +25,19 @@
     }
     #tip-name { font-size: 15px; font-weight: bold; color: #fff5cc; margin-bottom: 6px; }
     #tip-courses { font-size: 11px; color: #d4b870; line-height: 1.85; }
+    #progress-btns {
+      position: fixed; bottom: 18px; right: 18px;
+      display: flex; gap: 8px; z-index: 20;
+    }
+    #progress-btns button {
+      padding: 7px 13px; border: none; border-radius: 6px;
+      font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px;
+      cursor: pointer; font-weight: 600; box-shadow: 2px 2px 6px rgba(0,0,0,.4);
+    }
+    #btn-import { background: #2d6a2d; color: #d4f5d4; }
+    #btn-import:hover { background: #3a8a3a; }
+    #btn-clear  { background: #5a2222; color: #f5d4d4; }
+    #btn-clear:hover  { background: #7a3030; }
   </style>
 </head>
 <body>
@@ -33,6 +46,10 @@
   <div id="tip-name"></div>
   <div id="tip-courses"></div>
 </div>
+<div id="progress-btns">
+  <button id="btn-import" title="Import progress from your completed lessons">&#x21A9; Import Progress</button>
+  <button id="btn-clear"  title="Dev tool: wipe all territory progress">&#x1F5D1; Clear Progress</button>
+</div>
 <script>
 /* GLOBE v3 — single script, no duplicate */
 (() => {
@@ -40,12 +57,79 @@
   const ctx    = canvas.getContext('2d');
   const tip    = document.getElementById('tip');
   const tipName    = document.getElementById('tip-name');
+
+  // ── Progress buttons ────────────────────────────────────────────────
+  // Maps localStorage prefix → globe section id
+  const PREFIX_TO_SEC = {
+    alg1:'algebra1', alg2:'algebra2', geometry:'geometry', bio:'biology',
+    chem:'chemistry', physics:'physics',
+    precalc:'precalc', trig:'trig', stats:'statistics', linalg:'linalg',
+    finmath:'finmath', earthsci:'earth', intsci:'integrated',
+    envsci:'environmental', astro:'astronomy', anat:'anatomy', marine:'marine',
+  };
+  function importFromObj(obj, existing) {
+    let added = 0;
+    const re = /^([a-z0-9_]+)_u(\d+)_l(\d+)_completed$/;
+    for (const [k, v] of Object.entries(obj)) {
+      if (v !== true && v !== 'true') continue;
+      const m = k.match(re);
+      if (!m) continue;
+      const secId = PREFIX_TO_SEC[m[1]];
+      if (!secId) continue;
+      const globeKey = secId + '_' + (parseInt(m[2]) - 1) + '_' + (parseInt(m[3]) - 1);
+      if (!existing.has(globeKey)) { existing.add(globeKey); added++; }
+    }
+    return added;
+  }
+  document.getElementById('btn-import').addEventListener('click', async function() {
+    const existing = new Set(JSON.parse(localStorage.getItem('aris_completed') || '[]'));
+    // 1. Scan localStorage
+    const lsObj = {};
+    for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); lsObj[k] = localStorage.getItem(k); }
+    let added = importFromObj(lsObj, existing);
+    // 2. Try Firebase (if user is logged in)
+    let fbAdded = 0;
+    try {
+      const { db, auth } = await import('/ArisEdu Project Folder/firebase-config.js');
+      const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+      const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+      // Wait up to 4s for auth state to resolve (Firebase restores session async)
+      const user = await new Promise((resolve) => {
+        const t = setTimeout(() => resolve(null), 4000);
+        const unsub = onAuthStateChanged(auth, (u) => { clearTimeout(t); unsub(); resolve(u); });
+      });
+      if (user) {
+        const snap = await getDoc(doc(db, 'userProgress', user.uid));
+        if (snap.exists()) fbAdded = importFromObj(snap.data(), existing);
+      }
+    } catch(e) { /* Firebase unavailable or not logged in */ }
+    added += fbAdded;
+    localStorage.setItem('aris_completed', JSON.stringify([...existing]));
+    const msg = added > 0
+      ? 'Imported ' + added + ' new lesson(s)' + (fbAdded > 0 ? ' (' + fbAdded + ' from account)' : '') + '. Reloading…'
+      : 'No new lessons found. Make sure you are logged in or have completed lessons on this device.';
+    alert(msg);
+    if (added > 0) location.reload();
+  });
+
+  document.getElementById('btn-clear').addEventListener('click', function() {
+    if (!confirm('Clear all territory progress? This cannot be undone.')) return;
+    localStorage.removeItem('aris_completed');
+    location.reload();
+  });
   const tipCourses = document.getElementById('tip-courses');
-  let W = 0, H = 0, hoverId = null, hoverSec = null;
+  let W = 0, H = 0, hoverId = null, hoverSec = null, hoverUnit = -1;
   let zoomAnim = { isl: null, t: 0, dir: 0, raf: 0, ts0: 0 };
-  let secZoom  = { sec: null, t: 0, dir: 0, raf: 0, ts0: 0 }; // second-level zoom into a segment
-  const ZOOM_DUR = 540; // ms
-  const SEC_ZOOM_DUR = 860; // ms — slower section zoom
+  let secZoom  = { sec: null, prevSec: null, t: 0, dir: 0, raf: 0, ts0: 0 };
+  let unitZoom = { sec: null, unitIdx: -1, prevUnitIdx: -1, t: 0, dir: 0, raf: 0, ts0: 0 };
+  const ZOOM_DUR = 540;
+  const SEC_ZOOM_DUR = 860;
+  const UNIT_ZOOM_DUR = 700;
+  let _unitBlobsCache = { sec: null, W: 0, H: 0, data: null };
+  let lesZoom  = { sec: null, unitIdx: -1, t: 0, dir: 0, raf: 0, ts0: 0 };
+  const LES_ZOOM_DUR = 700;
+  let hoverLesson = -1;
+  let _lessonBlobsCache = { sec: null, unitIdx: -1, W: 0, H: 0, data: null };
 
   const ISLANDS = [
     {
@@ -58,14 +142,14 @@
       treeHi:  '#cae860', treeLo:  '#4c9010',
       pts: [[ .08,-1.02],[ .42,-.90],[ .88,-.44],[1.10,-.04],[ .88, .20],[ .58, .30],[ .82, .64],[ .50, .98],[ .10,1.10],[-.36,1.04],[-.72, .68],[-.98, .20],[-1.00,-.32],[-.64,-.76],[-.24,-.96]],
       sections: [
-        { id:'algebra1',   name:'Algebra I',       col:'#3b82f6', nx: 0.221, ny:-0.465 },
-        { id:'algebra2',   name:'Algebra II',      col:'#2f92d5', nx: 0.501, ny:-0.221 },
-        { id:'geometry',   name:'Geometry',        col:'#22a1b3', nx: 0.579, ny: 0.098 },
-        { id:'precalc',    name:'Pre-Calculus',    col:'#16b192', nx: 0.281, ny: 0.311 },
-        { id:'trig',       name:'Trigonometry',    col:'#22ac92', nx:-0.116, ny: 0.417 },
-        { id:'statistics', name:'Statistics',      col:'#4591b3', nx:-0.504, ny: 0.200 },
-        { id:'linalg',     name:'Linear Algebra',  col:'#6877d5', nx:-0.637, ny:-0.161 },
-        { id:'finmath',    name:'Financial Math',  col:'#8b5cf6', nx:-0.221, ny:-0.366 },
+        { id:'algebra1',   name:'Algebra I',       col:'#3b82f6', nx: 0.221, ny:-0.465, units:12, lessons:[7,9,7,8,10,6,8,4,4,4,3,4] },
+        { id:'algebra2',   name:'Algebra II',      col:'#2f92d5', nx: 0.501, ny:-0.221, units: 9, lessons:[9,7,7,6,7,5,7,6,4] },
+        { id:'geometry',   name:'Geometry',        col:'#22a1b3', nx: 0.579, ny: 0.098, units:13, lessons:[7,9,7,8,6,7,8,8,7,9,6,9,7] },
+        { id:'precalc',    name:'Pre-Calculus',    col:'#16b192', nx: 0.281, ny: 0.311, units:10, lessons:[10,9,9,8,9,9,8,7,8,8] },
+        { id:'trig',       name:'Trigonometry',    col:'#22ac92', nx:-0.116, ny: 0.417, units:10, lessons:[7,7,6,7,7,7,7,7,7,6] },
+        { id:'statistics', name:'Statistics',      col:'#4591b3', nx:-0.504, ny: 0.200, units:10, lessons:[7,8,7,8,8,7,7,7,7,6] },
+        { id:'linalg',     name:'Linear Algebra',  col:'#6877d5', nx:-0.637, ny:-0.161, units:10, lessons:[8,8,8,8,8,8,8,8,8,8] },
+        { id:'finmath',    name:'Financial Math',  col:'#8b5cf6', nx:-0.221, ny:-0.366, units:10, lessons:[8,8,8,8,8,8,8,8,8,7] },
       ],
     },
     {
@@ -78,20 +162,92 @@
       treeHi:  '#70f0c0', treeLo:  '#18a870',
       pts: [[-.08,-1.06],[ .24,-.92],[ .62,-.58],[ .96,-.16],[1.04, .28],[ .84, .60],[1.02, .90],[ .76,1.12],[ .38,1.04],[ .00,1.00],[-.40, .86],[-.78, .52],[-1.02, .10],[-.92,-.38],[-.58,-.78],[-.22,-.96]],
       sections: [
-        { id:'physics',       name:'Physics',               col:'#fbbf24', nx: 0.236, ny:-0.426 },
-        { id:'chemistry',     name:'Chemistry',             col:'#3b82f6', nx: 0.534, ny:-0.263 },
-        { id:'biology',       name:'Biology',               col:'#22c55e', nx: 0.652, ny: 0.053 },
-        { id:'earth',         name:'Earth Science',         col:'#3b82f6', nx: 0.522, ny: 0.384 },
-        { id:'integrated',    name:'Integrated Science',    col:'#38bdf8', nx: 0.092, ny: 0.429 },
-        { id:'environmental', name:'Environmental Science', col:'#22c55e', nx:-0.284, ny: 0.302 },
-        { id:'astronomy',     name:'Astronomy',             col:'#fbbf24', nx:-0.534, ny: 0.050 },
-        { id:'anatomy',       name:'Anatomy & Physiology',  col:'#22c55e', nx:-0.543, ny:-0.284 },
-        { id:'marine',        name:'Marine Science',        col:'#0ea5e9', nx:-0.212, ny:-0.444 },
+        { id:'physics',       name:'Physics',               col:'#fbbf24', nx: 0.236, ny:-0.426, units:11, lessons:[6,6,8,6,6,6,8,6,6,9,6] },
+        { id:'chemistry',     name:'Chemistry',             col:'#3b82f6', nx: 0.534, ny:-0.263, units:13, lessons:[5,8,8,5,8,9,7,8,9,8,10,6,5] },
+        { id:'biology',       name:'Biology',               col:'#22c55e', nx: 0.652, ny: 0.053, units:12, lessons:[7,7,5,5,5,6,7,6,5,6,9,5] },
+        { id:'earth',         name:'Earth Science',         col:'#3b82f6', nx: 0.522, ny: 0.384, units: 7, lessons:[5,5,5,5,5,6,5] },
+        { id:'integrated',    name:'Integrated Science',    col:'#38bdf8', nx: 0.092, ny: 0.429, units:10, lessons:[9,9,9,9,8,8,7,7,7,6] },
+        { id:'environmental', name:'Environmental Science', col:'#22c55e', nx:-0.284, ny: 0.302, units:10, lessons:[7,8,7,7,6,7,7,6,6,6] },
+        { id:'astronomy',     name:'Astronomy',             col:'#fbbf24', nx:-0.534, ny: 0.050, units:10, lessons:[7,7,8,7,8,7,7,7,7,6] },
+        { id:'anatomy',       name:'Anatomy & Physiology',  col:'#22c55e', nx:-0.543, ny:-0.284, units:10, lessons:[7,8,8,8,7,8,8,7,8,7] },
+        { id:'marine',        name:'Marine Science',        col:'#0ea5e9', nx:-0.212, ny:-0.444, units:10, lessons:[7,7,7,6,7,6,7,6,6,6] },
       ],
     },
   ];
 
   const ROUTES = [['math','science']];
+
+  const COURSE_FOLDER = {
+    algebra1:    { folder:'Algebra1Lessons',            pre:'Lesson' },
+    algebra2:    { folder:'Algebra2Lessons',            pre:'Lesson' },
+    geometry:    { folder:'GeometryLessons',            pre:'Lesson' },
+    biology:     { folder:'BiologyLessons',             pre:'Lesson' },
+    precalc:     { folder:'PrecalculusLessons',         pre:'Lesson ' },
+    trig:        { folder:'TrigonometryLessons',        pre:'Lesson ' },
+    statistics:  { folder:'StatisticsLessons',          pre:'Lesson ' },
+    linalg:      { folder:'LinearAlgebraLessons',       pre:'Lesson ' },
+    finmath:     { folder:'FinancialMathLessons',       pre:'Lesson ' },
+    physics:     { folder:'PhysicsLessons',             pre:'Lesson ' },
+    chemistry:   { folder:'ChemistryLessons',           pre:'Lesson ' },
+    earth:       { folder:'EarthScienceLessons',        pre:'Lesson ' },
+    integrated:  { folder:'IntegratedScienceLessons',   pre:'Lesson ' },
+    environmental:{ folder:'EnvironmentalScienceLessons',pre:'Lesson ' },
+    astronomy:   { folder:'AstronomyLessons',           pre:'Lesson ' },
+    anatomy:     { folder:'AnatomyLessons',             pre:'Lesson ' },
+    marine:      { folder:'MarineScienceLessons',       pre:'Lesson ' },
+  };
+
+  // ── Lesson names (loaded async from lesson_names.txt) ────────────────
+  // LESSON_NAMES[secId][unitIdx][lesIdx] = 'Lesson Name'
+  const LESSON_NAMES = {};
+  // Reverse map: folder name → section id
+  const FOLDER_TO_SEC = {};
+  // Built after COURSE_FOLDER is defined (same scope, runs immediately)
+  (function buildFolderMap() {
+    for (const [id, cf] of Object.entries(COURSE_FOLDER)) FOLDER_TO_SEC[cf.folder] = id;
+  })();
+  fetch('/lesson_names.txt').then(r => r.text()).then(txt => {
+    for (const line of txt.split('\n')) {
+      const parts = line.split(' | ');
+      if (parts.length < 4) continue;
+      const secId = FOLDER_TO_SEC[parts[0].trim()];
+      if (!secId) continue;
+      const unitIdx = parseInt(parts[1].trim().replace('Unit','')) - 1;
+      const lesStr  = parts[2].trim(); // e.g. "Lesson 2.1"
+      const dotIdx  = lesStr.lastIndexOf('.');
+      const lesIdx  = dotIdx >= 0 ? parseInt(lesStr.slice(dotIdx + 1)) - 1 : 0;
+      const name    = parts[3].trim();
+      if (!name) continue;
+      if (!LESSON_NAMES[secId]) LESSON_NAMES[secId] = {};
+      if (!LESSON_NAMES[secId][unitIdx]) LESSON_NAMES[secId][unitIdx] = {};
+      LESSON_NAMES[secId][unitIdx][lesIdx] = name;
+    }
+  }).catch(() => {});
+
+  // ── Territory (claimed lessons) ────────────────────────────────────────────
+  // Key format: "secId_unitIdx_lesIdx" (0-based unit and lesson indices)
+  const COMPLETED = new Set(JSON.parse(localStorage.getItem('aris_completed') || '[]'));
+  function lesKey(secId, unitIdx, lesIdx) { return secId + '_' + unitIdx + '_' + lesIdx; }
+  function isLessonDone(secId, unitIdx, lesIdx) { return COMPLETED.has(lesKey(secId, unitIdx, lesIdx)); }
+  const GREY_FILL    = '#5a6070';
+  const GREY_FILL_HI = '#6e7484';
+  const CLAIM_COL    = '#22c55e';
+  const CLAIM_COL_HI = '#4ade80';
+
+  // Pre-compute unit/section completion fractions once at load (keyed by "secId_unitIdx")
+  const COMP_UNIT = {}, COMP_SEC = {};
+  for (const isl of ISLANDS) {
+    for (const sec of isl.sections) {
+      let secDone = 0, secTotal = 0;
+      for (let u = 0; u < sec.lessons.length; u++) {
+        let d = 0;
+        for (let l = 0; l < sec.lessons[u]; l++) { if (COMPLETED.has(lesKey(sec.id, u, l))) d++; }
+        COMP_UNIT[sec.id + '_' + u] = sec.lessons[u] > 0 ? d / sec.lessons[u] : 0;
+        secDone += d; secTotal += sec.lessons[u];
+      }
+      COMP_SEC[sec.id] = secTotal > 0 ? secDone / secTotal : 0;
+    }
+  }
 
   // Decorative features: one medium island + scattered tiny islets
   // Positions computed to be in clear ocean, drawn AFTER main islands
@@ -837,8 +993,10 @@
     } else {
       if (zoomAnim.dir < 0) {
         zoomAnim.isl = null; zoomAnim.t = 0;
-        secZoom.sec = null; secZoom.t = 0;
-        hoverId = null; hoverSec = null; tip.style.display = 'none';
+        secZoom.sec = null; secZoom.t = 0; secZoom.prevSec = null;
+        unitZoom.sec = null; unitZoom.unitIdx = -1; unitZoom.t = 0; unitZoom.prevUnitIdx = -1;
+        lesZoom.sec = null; lesZoom.unitIdx = -1; lesZoom.t = 0; if (lesZoom.raf) { cancelAnimationFrame(lesZoom.raf); lesZoom.raf = 0; }
+        hoverId = null; hoverSec = null; hoverUnit = -1; tip.style.display = 'none';
       }
       zoomAnim.dir = 0; zoomAnim.raf = 0;
     }
@@ -857,21 +1015,69 @@
     // compose second-level section zoom on top
     if (secZoom.sec && secZoom.t > 0) {
       const st = secZoom.t;
-      const sec = secZoom.sec;
       const isl = zoomAnim.isl;
       const s1 = Math.min(W, H) * 0.105 * isl.size;
-      // section center in canvas (unzoomed) space
-      const scx = isl.cx * W + sec.nx * s1;
-      const scy = isl.cy * H + sec.ny * s1;
-      // section center in screen space under island zoom
-      const scxS = scx * z + panX;
-      const scyS = scy * z + panY;
-      const Z2 = 2.0; // extra zoom factor for section
-      const z2 = 1 + st * (Z2 - 1);
-      // pan so section center stays at screen center
-      panX = panX * z2 + scxS * (1 - z2) + (W/2 - scxS) * st;
-      panY = panY * z2 + scyS * (1 - z2) + (H/2 - scyS) * st;
-      z = z * z2;
+      const Z2 = 2.0;
+      if (secZoom.prevSec) {
+        // cross-section pan: keep z constant at z*Z2, interpolate pan between two sections
+        const ps = secZoom.prevSec, ns = secZoom.sec;
+        const pscxS = (isl.cx * W + ps.nx * s1) * z + panX;
+        const pscyS = (isl.cy * H + ps.ny * s1) * z + panY;
+        const nscxS = (isl.cx * W + ns.nx * s1) * z + panX;
+        const nscyS = (isl.cy * H + ns.ny * s1) * z + panY;
+        const focxS = pscxS + (nscxS - pscxS) * st;
+        const focyS = pscyS + (nscyS - pscyS) * st;
+        panX = panX * Z2 + focxS * (1 - Z2) + (W / 2 - focxS);
+        panY = panY * Z2 + focyS * (1 - Z2) + (H / 2 - focyS);
+        z = z * Z2;
+      } else {
+        // normal sec zoom: animate from island view (t=0) to section view (t=1)
+        const sec = secZoom.sec;
+        const scx = isl.cx * W + sec.nx * s1;
+        const scy = isl.cy * H + sec.ny * s1;
+        const scxS = scx * z + panX;
+        const scyS = scy * z + panY;
+        const z2 = 1 + st * (Z2 - 1);
+        panX = panX * z2 + scxS * (1 - z2) + (W / 2 - scxS) * st;
+        panY = panY * z2 + scyS * (1 - z2) + (H / 2 - scyS) * st;
+        z = z * z2;
+      }
+    }
+    // compose third-level unit zoom on top
+    if (unitZoom.sec && unitZoom.unitIdx >= 0 && unitZoom.t > 0) {
+      const ut = unitZoom.t;
+      const isl = zoomAnim.isl;
+      const Z3 = 1.8;
+      if (unitZoom.prevUnitIdx >= 0) {
+        const pp = getUnitPos(isl, unitZoom.sec, unitZoom.prevUnitIdx);
+        const np = getUnitPos(isl, unitZoom.sec, unitZoom.unitIdx);
+        const pucxS = pp.x * z + panX, pucyS = pp.y * z + panY;
+        const nucxS = np.x * z + panX, nucyS = np.y * z + panY;
+        const focxS = pucxS + (nucxS - pucxS) * ut;
+        const focyS = pucyS + (nucyS - pucyS) * ut;
+        panX = panX * Z3 + focxS * (1 - Z3) + (W / 2 - focxS);
+        panY = panY * Z3 + focyS * (1 - Z3) + (H / 2 - focyS);
+        z = z * Z3;
+      } else {
+        const pos = getUnitPos(isl, unitZoom.sec, unitZoom.unitIdx);
+        const ucxS = pos.x * z + panX, ucyS = pos.y * z + panY;
+        const z3 = 1 + ut * (Z3 - 1);
+        panX = panX * z3 + ucxS * (1 - z3) + (W / 2 - ucxS) * ut;
+        panY = panY * z3 + ucyS * (1 - z3) + (H / 2 - ucyS) * ut;
+        z = z * z3;
+      }
+    }
+    // compose 4th-level lesson zoom: zoom into the active unit's centroid
+    if (lesZoom.sec && lesZoom.unitIdx >= 0 && lesZoom.t > 0) {
+      const lt = lesZoom.t;
+      const isl = zoomAnim.isl;
+      const Z4 = 1.4;
+      const pos = getUnitCenter(isl, lesZoom.sec, lesZoom.unitIdx);
+      const ucxS = pos.x * z + panX, ucyS = pos.y * z + panY;
+      const z4 = 1 + lt * (Z4 - 1);
+      panX = panX * z4 + ucxS * (1 - z4) + (W / 2 - ucxS) * lt;
+      panY = panY * z4 + ucyS * (1 - z4) + (H / 2 - ucyS) * lt;
+      z = z * z4;
     }
     return { z, panX, panY };
   }
@@ -899,8 +1105,12 @@
 
   function startZoom(isl) {
     if (zoomAnim.raf) cancelAnimationFrame(zoomAnim.raf);
+    if (unitZoom.raf) cancelAnimationFrame(unitZoom.raf);
+    if (lesZoom.raf) cancelAnimationFrame(lesZoom.raf);
     secZoom.sec = null; secZoom.t = 0;
-    hoverId = null; hoverSec = null;
+    unitZoom.sec = null; unitZoom.unitIdx = -1; unitZoom.t = 0; unitZoom.prevUnitIdx = -1; unitZoom.raf = 0;
+    lesZoom.sec = null; lesZoom.unitIdx = -1; lesZoom.t = 0; lesZoom.raf = 0;
+    hoverId = null; hoverSec = null; hoverUnit = -1;
     tip.style.display = 'none';
     zoomAnim.isl = isl; zoomAnim.dir = 1;
     zoomAnim.ts0 = performance.now();
@@ -911,7 +1121,11 @@
     if (!zoomAnim.isl) return;
     if (zoomAnim.raf) cancelAnimationFrame(zoomAnim.raf);
     if (secZoom.raf) cancelAnimationFrame(secZoom.raf);
-    secZoom.sec = null; secZoom.t = 0; secZoom.raf = 0;
+    if (unitZoom.raf) cancelAnimationFrame(unitZoom.raf);
+    if (lesZoom.raf) cancelAnimationFrame(lesZoom.raf);
+    secZoom.sec = null; secZoom.t = 0; secZoom.prevSec = null; secZoom.raf = 0;
+    unitZoom.sec = null; unitZoom.unitIdx = -1; unitZoom.t = 0; unitZoom.prevUnitIdx = -1; unitZoom.raf = 0;
+    lesZoom.sec = null; lesZoom.unitIdx = -1; lesZoom.t = 0; lesZoom.raf = 0;
     zoomAnim.dir = -1;
     zoomAnim.ts0 = performance.now() - ZOOM_DUR * (1 - zoomAnim.t);
     zoomAnim.raf = requestAnimationFrame(tickZoom);
@@ -924,7 +1138,13 @@
     if (rawT < 1) {
       secZoom.raf = requestAnimationFrame(tickSecZoom);
     } else {
-      if (secZoom.dir < 0) { secZoom.sec = null; secZoom.t = 0; }
+      if (secZoom.dir < 0) {
+        secZoom.sec = null; secZoom.t = 0;
+        unitZoom.sec = null; unitZoom.unitIdx = -1; unitZoom.t = 0; unitZoom.prevUnitIdx = -1;
+        if (unitZoom.raf) { cancelAnimationFrame(unitZoom.raf); unitZoom.raf = 0; }
+        lesZoom.sec = null; lesZoom.unitIdx = -1; lesZoom.t = 0; if (lesZoom.raf) { cancelAnimationFrame(lesZoom.raf); lesZoom.raf = 0; }
+      }
+      secZoom.prevSec = null; // clear cross-section origin once settled
       secZoom.dir = 0; secZoom.raf = 0;
     }
   }
@@ -932,7 +1152,10 @@
   function startSecZoom(sec) {
     if (secZoom.raf) cancelAnimationFrame(secZoom.raf);
     hoverSec = null; tip.style.display = 'none';
-    secZoom.sec = sec; secZoom.dir = 1;
+    // if already fully in a sec zoom, do a cross-section pan (no zoom-out)
+    const isCross = secZoom.sec && secZoom.t > 0.7;
+    secZoom.prevSec = isCross ? secZoom.sec : null;
+    secZoom.sec = sec; secZoom.dir = 1; secZoom.t = 0;
     secZoom.ts0 = performance.now();
     secZoom.raf = requestAnimationFrame(tickSecZoom);
   }
@@ -940,9 +1163,542 @@
   function endSecZoom() {
     if (!secZoom.sec) return;
     if (secZoom.raf) cancelAnimationFrame(secZoom.raf);
+    if (unitZoom.raf) cancelAnimationFrame(unitZoom.raf);
+    if (lesZoom.raf) cancelAnimationFrame(lesZoom.raf);
+    unitZoom.sec = null; unitZoom.unitIdx = -1; unitZoom.t = 0; unitZoom.prevUnitIdx = -1; unitZoom.raf = 0;
+    lesZoom.sec = null; lesZoom.unitIdx = -1; lesZoom.t = 0; lesZoom.raf = 0;
+    secZoom.prevSec = null;
     secZoom.dir = -1;
     secZoom.ts0 = performance.now() - SEC_ZOOM_DUR * (1 - secZoom.t);
     secZoom.raf = requestAnimationFrame(tickSecZoom);
+  }
+
+  function tickUnitZoom(ts) {
+    const rawT = Math.min(1, (ts - unitZoom.ts0) / UNIT_ZOOM_DUR);
+    unitZoom.t = unitZoom.dir > 0 ? easeOutCubic(rawT) : 1 - easeInCubic(rawT);
+    redraw();
+    if (rawT < 1) {
+      unitZoom.raf = requestAnimationFrame(tickUnitZoom);
+    } else {
+      if (unitZoom.dir < 0) { unitZoom.sec = null; unitZoom.unitIdx = -1; unitZoom.t = 0; }
+      unitZoom.prevUnitIdx = -1;
+      unitZoom.dir = 0; unitZoom.raf = 0;
+    }
+  }
+
+  function startUnitZoom(unitIdx) {
+    if (unitZoom.raf) cancelAnimationFrame(unitZoom.raf);
+    if (lesZoom.raf) cancelAnimationFrame(lesZoom.raf);
+    lesZoom.sec = null; lesZoom.unitIdx = -1; lesZoom.t = 0; lesZoom.raf = 0;
+    hoverUnit = -1; tip.style.display = 'none';
+    const isCross = unitZoom.sec === secZoom.sec && unitZoom.unitIdx >= 0 && unitZoom.t > 0.7;
+    unitZoom.prevUnitIdx = isCross ? unitZoom.unitIdx : -1;
+    unitZoom.sec = secZoom.sec; unitZoom.unitIdx = unitIdx;
+    unitZoom.dir = 1; unitZoom.t = 0;
+    unitZoom.ts0 = performance.now();
+    unitZoom.raf = requestAnimationFrame(tickUnitZoom);
+  }
+
+  function endUnitZoom() {
+    if (!unitZoom.sec || unitZoom.unitIdx < 0) return;
+    if (unitZoom.raf) cancelAnimationFrame(unitZoom.raf);
+    if (lesZoom.raf) cancelAnimationFrame(lesZoom.raf);
+    lesZoom.sec = null; lesZoom.unitIdx = -1; lesZoom.t = 0; lesZoom.raf = 0;
+    unitZoom.prevUnitIdx = -1;
+    unitZoom.dir = -1;
+    unitZoom.ts0 = performance.now() - UNIT_ZOOM_DUR * (1 - unitZoom.t);
+    unitZoom.raf = requestAnimationFrame(tickUnitZoom);
+  }
+
+  function tickLesZoom(ts) {
+    const rawT = Math.min(1, (ts - lesZoom.ts0) / LES_ZOOM_DUR);
+    lesZoom.t = lesZoom.dir > 0 ? easeOutCubic(rawT) : 1 - easeInCubic(rawT);
+    redraw();
+    if (rawT < 1) {
+      lesZoom.raf = requestAnimationFrame(tickLesZoom);
+    } else {
+      if (lesZoom.dir < 0) { lesZoom.sec = null; lesZoom.unitIdx = -1; lesZoom.t = 0; }
+      lesZoom.dir = 0; lesZoom.raf = 0;
+    }
+  }
+
+  function startLesZoom(sec, unitIdx) {
+    if (lesZoom.raf) cancelAnimationFrame(lesZoom.raf);
+    hoverLesson = -1; tip.style.display = 'none';
+    lesZoom.sec = sec; lesZoom.unitIdx = unitIdx;
+    lesZoom.dir = 1; lesZoom.t = 0;
+    lesZoom.ts0 = performance.now();
+    lesZoom.raf = requestAnimationFrame(tickLesZoom);
+  }
+
+  function endLesZoom() {
+    if (!lesZoom.sec) return;
+    if (lesZoom.raf) cancelAnimationFrame(lesZoom.raf);
+    lesZoom.dir = -1;
+    lesZoom.ts0 = performance.now() - LES_ZOOM_DUR * (1 - lesZoom.t);
+    lesZoom.raf = requestAnimationFrame(tickLesZoom);
+  }
+
+  // Sample island bezier path into a flat polygon for Sutherland-Hodgman clipping
+  // Sutherland-Hodgman: clip polygon keeping the left side of directed line A→B
+  function clipPolyHalf(poly, ax, ay, bx, by) {
+    if (!poly.length) return poly;
+    const out = [], dx = bx - ax, dy = by - ay;
+    for (let i = 0; i < poly.length; i++) {
+      const p = poly[i], q = poly[(i + 1) % poly.length];
+      const dp = dx * (p.y - ay) - dy * (p.x - ax);
+      const dq = dx * (q.y - ay) - dy * (q.x - ax);
+      if (dp >= 0) out.push(p);
+      if ((dp >= 0) !== (dq >= 0)) {
+        const t = dp / (dp - dq);
+        out.push({ x: p.x + t * (q.x - p.x), y: p.y + t * (q.y - p.y) });
+      }
+    }
+    return out;
+  }
+
+  // Voronoi partition: N cells that tile the section area with matching edges
+  function computeUnitBlobs(isl, sec) {
+    if (_unitBlobsCache.sec === sec && _unitBlobsCache.W === W && _unitBlobsCache.H === H) {
+      return _unitBlobsCache.data;
+    }
+    const secIdx = isl.sections.indexOf(sec);
+    const n = isl.sections.length, N = sec.units;
+    const x = isl.cx * W, y = isl.cy * H;
+    const s = Math.min(W, H) * 0.105 * isl.size;
+    const ys = 0.72, startA = -Math.PI * 0.5;
+    const a0 = startA + (secIdx / n) * Math.PI * 2;
+    const a1 = startA + ((secIdx + 1) / n) * Math.PI * 2;
+    const angSpan = a1 - a0;
+    let seed = sec.id.split('').reduce(function(a, c){ return a*31 + c.charCodeAt(0); }, 37);
+    function rng(){ seed = (seed*1664525+1013904223)|0; return (seed>>>0)/0xffffffff; }
+    const { bnd } = computeSecBnd(isl);
+    const jj = (secIdx + 1) % n;
+    const R = s * 1.40;
+    const polyRes = 14, arcSteps = 32;
+    // Use identity transform for all isPointInPath checks in this function
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // Build sectionPoly with outer arc clamped to the island boundary (binary search)
+    let sectionPoly = [{ x, y }];
+    for (let k = 1; k <= polyRes; k++) {
+      const t = k / polyRes;
+      sectionPoly.push({
+        x: (1-t)*(1-t)*x + 2*(1-t)*t*bnd[secIdx].cpx + t*t*bnd[secIdx].rx,
+        y: (1-t)*(1-t)*y + 2*(1-t)*t*bnd[secIdx].cpy + t*t*bnd[secIdx].ry
+      });
+    }
+    const arcRadii = [];
+    for (let k = 1; k <= arcSteps; k++) {
+      const aa = a0 + angSpan * k / arcSteps;
+      const dx = Math.cos(aa), dy = Math.sin(aa) * ys;
+      // Binary search for island boundary radius in this direction
+      let lo = 0, hi = R;
+      buildPath(isl, 1.0);
+      if (!ctx.isPointInPath(x + dx * hi, y + dy * hi)) {
+        for (let it = 0; it < 12; it++) {
+          const mid = (lo + hi) / 2;
+          buildPath(isl, 1.0);
+          if (ctx.isPointInPath(x + dx * mid, y + dy * mid)) lo = mid; else hi = mid;
+        }
+        arcRadii.push(lo * 0.98);
+        sectionPoly.push({ x: x + dx * lo * 0.98, y: y + dy * lo * 0.98 });
+      } else {
+        arcRadii.push(R);
+        sectionPoly.push({ x: x + dx * R, y: y + dy * R });
+      }
+    }
+    for (let k = polyRes - 1; k >= 0; k--) {
+      const t = k / polyRes;
+      sectionPoly.push({
+        x: (1-t)*(1-t)*x + 2*(1-t)*t*bnd[jj].cpx + t*t*bnd[jj].rx,
+        y: (1-t)*(1-t)*y + 2*(1-t)*t*bnd[jj].cpy + t*t*bnd[jj].ry
+      });
+    }
+    // Ray-casting PIP against the (island-bounded) section polygon
+    function inSection(px, py) {
+      let inside = false;
+      for (let i = 0, j = sectionPoly.length - 1; i < sectionPoly.length; j = i++) {
+        const xi = sectionPoly[i].x, yi = sectionPoly[i].y;
+        const xj = sectionPoly[j].x, yj = sectionPoly[j].y;
+        if (((yi > py) !== (yj > py)) && (px < (xj-xi)*(py-yi)/(yj-yi)+xi)) inside = !inside;
+      }
+      return inside;
+    }
+    // Bounding box of island-clamped sectionPoly for uniform rejection sampling
+    let bboxMinX = Infinity, bboxMaxX = -Infinity, bboxMinY = Infinity, bboxMaxY = -Infinity;
+    for (let k = 0; k < sectionPoly.length; k++) {
+      if (sectionPoly[k].x < bboxMinX) bboxMinX = sectionPoly[k].x;
+      if (sectionPoly[k].x > bboxMaxX) bboxMaxX = sectionPoly[k].x;
+      if (sectionPoly[k].y < bboxMinY) bboxMinY = sectionPoly[k].y;
+      if (sectionPoly[k].y > bboxMaxY) bboxMaxY = sectionPoly[k].y;
+    }
+    const avgIslR = arcRadii.reduce(function(a, b){ return a + b; }, 0) / arcRadii.length;
+    const minDist = avgIslR * 0.38 / Math.sqrt(N);
+    const edgeMargin = s * 0.11; // L/R/top clearance
+    const edgeMarginBot = s * 0.21; // bottom clearance (lesson count line below unit number)
+    // Uniform rejection sampling: seeds anywhere inside island-bounded sectionPoly
+    const seeds = [];
+    for (let i = 0; i < N; i++) {
+      let sx, sy, placed = false;
+      for (let attempt = 0; attempt < 400 && !placed; attempt++) {
+        const cx2 = bboxMinX + rng() * (bboxMaxX - bboxMinX);
+        const cy2 = bboxMinY + rng() * (bboxMaxY - bboxMinY);
+        if (!inSection(cx2, cy2)) continue;
+        buildPath(isl, 1.0);
+        if (!ctx.isPointInPath(cx2, cy2)) continue;
+        // Require clearance so the two-line label fits
+        if (!ctx.isPointInPath(cx2 + edgeMargin, cy2) || !ctx.isPointInPath(cx2 - edgeMargin, cy2) ||
+            !ctx.isPointInPath(cx2, cy2 - edgeMargin) || !ctx.isPointInPath(cx2, cy2 + edgeMarginBot)) continue;
+        let ok = true;
+        for (let j = 0; j < seeds.length; j++) {
+          if (Math.hypot(cx2 - seeds[j].x, cy2 - seeds[j].y) < minDist) { ok = false; break; }
+        }
+        if (ok) { sx = cx2; sy = cy2; placed = true; }
+      }
+      if (!placed) {
+        // Fallback without edge-margin constraint
+        for (let attempt2 = 0; attempt2 < 200 && !placed; attempt2++) {
+          const cx2 = bboxMinX + rng() * (bboxMaxX - bboxMinX);
+          const cy2 = bboxMinY + rng() * (bboxMaxY - bboxMinY);
+          if (!inSection(cx2, cy2)) continue;
+          buildPath(isl, 1.0);
+          if (!ctx.isPointInPath(cx2, cy2)) continue;
+          let ok = true;
+          for (let j = 0; j < seeds.length; j++) {
+            if (Math.hypot(cx2 - seeds[j].x, cy2 - seeds[j].y) < minDist * 0.5) { ok = false; break; }
+          }
+          if (ok) { sx = cx2; sy = cy2; placed = true; }
+        }
+      }
+      if (!placed) {
+        const fa = a0 + ((i + 0.5) / N) * angSpan;
+        for (let ri = 0; ri < 16; ri++) {
+          const fr = avgIslR * (0.90 - ri * 0.06);
+          const fx = x + Math.cos(fa) * fr, fy = y + Math.sin(fa) * fr * ys;
+          buildPath(isl, 1.0);
+          if (inSection(fx, fy) && ctx.isPointInPath(fx, fy)) { sx = fx; sy = fy; break; }
+        }
+        if (sx == null) { sx = x + Math.cos(a0 + angSpan * 0.5) * avgIslR * 0.40; sy = y + Math.sin(a0 + angSpan * 0.5) * avgIslR * 0.40 * ys; }
+      }
+      seeds.push({ x: sx, y: sy });
+    }
+    ctx.restore();
+    // Sort: unit 1 nearest the outer edge, unit N nearest the center
+    seeds.sort(function(a, b) {
+      return Math.hypot(b.x - x, b.y - y) - Math.hypot(a.x - x, a.y - y);
+    });
+    // Each cell = sectionPoly clipped by perpendicular bisectors; label at centroid
+    // Label validated against island boundary — centroid may fall in bezier-wing outside island
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    const cells = [];
+    for (let i = 0; i < N; i++) {
+      let cell = sectionPoly.slice();
+      for (let j = 0; j < N; j++) {
+        if (j === i || !cell.length) continue;
+        const mx = (seeds[i].x + seeds[j].x) / 2;
+        const my = (seeds[i].y + seeds[j].y) / 2;
+        const dx = seeds[j].x - seeds[i].x;
+        const dy = seeds[j].y - seeds[i].y;
+        cell = clipPolyHalf(cell, mx, my, mx - dy, my + dx);
+      }
+      let lx = 0, ly = 0;
+      for (let k = 0; k < cell.length; k++) { lx += cell[k].x; ly += cell[k].y; }
+      let label;
+      if (cell.length) {
+        const clx = lx / cell.length, cly = ly / cell.length;
+        // Check label has clearance from island edge.
+        // Bottom needs extra margin for the lesson count line below the unit number.
+        const tr = s * 0.11, trBot = s * 0.21;
+        buildPath(isl, 1.0);
+        const hasRoom = ctx.isPointInPath(clx + tr, cly) && ctx.isPointInPath(clx - tr, cly) &&
+                        ctx.isPointInPath(clx, cly - tr) && ctx.isPointInPath(clx, cly + trBot);
+        if (hasRoom) {
+          label = { x: clx, y: cly };
+        } else {
+          // Slide toward seed until text fits inside island
+          label = { x: seeds[i].x, y: seeds[i].y };
+          for (let t = 0.15; t <= 0.95; t += 0.10) {
+            const tx = clx + t * (seeds[i].x - clx);
+            const ty = cly + t * (seeds[i].y - cly);
+            buildPath(isl, 1.0);
+            if (ctx.isPointInPath(tx + tr, ty) && ctx.isPointInPath(tx - tr, ty) &&
+                ctx.isPointInPath(tx, ty - tr) && ctx.isPointInPath(tx, ty + trBot)) {
+              label = { x: tx, y: ty }; break;
+            }
+          }
+        }
+      } else {
+        label = { x: seeds[i].x, y: seeds[i].y };
+      }
+      cells.push({ seed: seeds[i], poly: cell, label });
+    }
+    ctx.restore();
+    const data = { cells, seeds, sectionPoly, x, y, N, s };
+    _unitBlobsCache = { sec, W, H, data };
+    return data;
+  }
+
+  function getUnitPos(isl, sec, idx) {
+    const { cells } = computeUnitBlobs(isl, sec);
+    return { x: cells[idx].seed.x, y: cells[idx].seed.y };
+  }
+
+  function getUnitCenter(isl, sec, idx) {
+    const { cells } = computeUnitBlobs(isl, sec);
+    return { x: cells[idx].label.x, y: cells[idx].label.y };
+  }
+
+  function computeLessonBlobs(isl, sec, unitIdx) {
+    if (_lessonBlobsCache.sec === sec && _lessonBlobsCache.unitIdx === unitIdx &&
+        _lessonBlobsCache.W === W && _lessonBlobsCache.H === H) {
+      return _lessonBlobsCache.data;
+    }
+    const { cells: uCells, s } = computeUnitBlobs(isl, sec);
+    const unitPoly = uCells[unitIdx].poly;
+    const N = (sec.lessons && sec.lessons[unitIdx]) || 1;
+    if (!unitPoly.length) {
+      const data = { cells: [], seeds: [], unitPoly: [], N: 0, s };
+      _lessonBlobsCache = { sec, unitIdx, W, H, data }; return data;
+    }
+    let mnX = Infinity, mxX = -Infinity, mnY = Infinity, mxY = -Infinity;
+    for (let k = 0; k < unitPoly.length; k++) {
+      if (unitPoly[k].x < mnX) mnX = unitPoly[k].x;
+      if (unitPoly[k].x > mxX) mxX = unitPoly[k].x;
+      if (unitPoly[k].y < mnY) mnY = unitPoly[k].y;
+      if (unitPoly[k].y > mxY) mxY = unitPoly[k].y;
+    }
+    function inPoly(px, py) {
+      let inside = false;
+      for (let i = 0, j = unitPoly.length - 1; i < unitPoly.length; j = i++) {
+        const xi = unitPoly[i].x, yi = unitPoly[i].y, xj = unitPoly[j].x, yj = unitPoly[j].y;
+        if (((yi > py) !== (yj > py)) && (px < (xj-xi)*(py-yi)/(yj-yi)+xi)) inside = !inside;
+      }
+      return inside;
+    }
+    let seed = sec.id.split('').reduce(function(a,c){return a*31+c.charCodeAt(0);}, 59 + unitIdx * 7);
+    function rng(){seed=(seed*1664525+1013904223)|0;return(seed>>>0)/0xffffffff;}
+    const polyArea = (mxX - mnX) * (mxY - mnY);
+    const minDist = Math.sqrt(polyArea / N) * 0.28;
+    const seeds = [];
+    for (let i = 0; i < N; i++) {
+      let sx, sy, placed = false;
+      for (let attempt = 0; attempt < 300 && !placed; attempt++) {
+        const cx2 = mnX + rng() * (mxX - mnX), cy2 = mnY + rng() * (mxY - mnY);
+        if (!inPoly(cx2, cy2)) continue;
+        let ok = true;
+        for (let j = 0; j < seeds.length; j++) {
+          if (Math.hypot(cx2 - seeds[j].x, cy2 - seeds[j].y) < minDist) { ok = false; break; }
+        }
+        if (ok) { sx = cx2; sy = cy2; placed = true; }
+      }
+      if (!placed) {
+        for (let attempt = 0; attempt < 200 && !placed; attempt++) {
+          const cx2 = mnX + rng() * (mxX - mnX), cy2 = mnY + rng() * (mxY - mnY);
+          if (inPoly(cx2, cy2)) { sx = cx2; sy = cy2; placed = true; }
+        }
+      }
+      if (!placed) { sx = (mnX + mxX) * 0.5; sy = (mnY + mxY) * 0.5; }
+      seeds.push({ x: sx, y: sy });
+    }
+    const cells = [];
+    for (let i = 0; i < N; i++) {
+      let cell = unitPoly.slice();
+      for (let j = 0; j < N; j++) {
+        if (j === i || !cell.length) continue;
+        const mx = (seeds[i].x + seeds[j].x) / 2, my = (seeds[i].y + seeds[j].y) / 2;
+        const dx = seeds[j].x - seeds[i].x, dy = seeds[j].y - seeds[i].y;
+        cell = clipPolyHalf(cell, mx, my, mx - dy, my + dx);
+      }
+      let lx = 0, ly = 0;
+      for (let k = 0; k < cell.length; k++) { lx += cell[k].x; ly += cell[k].y; }
+      const label = cell.length ? { x: lx / cell.length, y: ly / cell.length } : { x: seeds[i].x, y: seeds[i].y };
+      cells.push({ seed: seeds[i], poly: cell, label });
+    }
+    const data = { cells, seeds, unitPoly, N, s };
+    _lessonBlobsCache = { sec, unitIdx, W, H, data };
+    return data;
+  }
+
+  function getLessonPos(isl, sec, unitIdx, lesIdx) {
+    const { cells } = computeLessonBlobs(isl, sec, unitIdx);
+    return { x: cells[lesIdx].seed.x, y: cells[lesIdx].seed.y };
+  }
+
+  function lessonAt(mx, my) {
+    if (!lesZoom.sec || lesZoom.unitIdx < 0 || !zoomAnim.isl || lesZoom.t < 0.3) return -1;
+    const sec = lesZoom.sec, unitIdx = lesZoom.unitIdx;
+    const zt = getZoomTransform(); if (!zt) return -1;
+    const px = (mx - zt.panX) / zt.z, py = (my - zt.panY) / zt.z;
+    const { cells, unitPoly, N } = computeLessonBlobs(zoomAnim.isl, sec, unitIdx);
+    let inUnit = false;
+    for (let i = 0, j = unitPoly.length - 1; i < unitPoly.length; j = i++) {
+      const xi = unitPoly[i].x, yi = unitPoly[i].y, xj = unitPoly[j].x, yj = unitPoly[j].y;
+      if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) inUnit = !inUnit;
+    }
+    if (!inUnit) return -1;
+    for (let i = 0; i < N; i++) {
+      const poly = cells[i].poly; if (!poly.length) continue;
+      let inside = false;
+      for (let j = 0, k = poly.length - 1; j < poly.length; k = j++) {
+        const xi = poly[j].x, yi = poly[j].y, xj = poly[k].x, yj = poly[k].y;
+        if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) inside = !inside;
+      }
+      if (inside) return i;
+    }
+    return -1;
+  }
+
+  function unitAt(mx, my) {
+    if (!secZoom.sec || !zoomAnim.isl || secZoom.t < 0.5) return -1;
+    const sec = secZoom.sec, isl = zoomAnim.isl;
+    if (!sec.units) return -1;
+    const zt = getZoomTransform(); if (!zt) return -1;
+    const px = (mx - zt.panX) / zt.z, py = (my - zt.panY) / zt.z;
+    const { cells, sectionPoly, N, x, y, s } = computeUnitBlobs(isl, sec);
+    if (Math.hypot(px - x, py - y) > s * 1.50) return -1;
+    // Reject if outside island-bounded sectionPoly (no canvas state needed)
+    let inSec = false;
+    for (let i = 0, j = sectionPoly.length - 1; i < sectionPoly.length; j = i++) {
+      const xi = sectionPoly[i].x, yi = sectionPoly[i].y;
+      const xj = sectionPoly[j].x, yj = sectionPoly[j].y;
+      if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) inSec = !inSec;
+    }
+    if (!inSec) return -1;
+    // Point-in-polygon on each Voronoi cell for accurate hitbox
+    for (let i = 0; i < N; i++) {
+      const poly = cells[i].poly;
+      if (!poly.length) continue;
+      let inside = false;
+      for (let j = 0, k = poly.length - 1; j < poly.length; k = j++) {
+        const xi = poly[j].x, yi = poly[j].y, xj = poly[k].x, yj = poly[k].y;
+        if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) inside = !inside;
+      }
+      if (inside) return i;
+    }
+    return -1;
+  }
+
+  function drawSectionUnits(isl, sec, alpha) {
+    if (alpha <= 0 || !sec.units) return;
+    const { cells, N, s } = computeUnitBlobs(isl, sec);
+    const activeIdx = (unitZoom.sec === sec && unitZoom.unitIdx >= 0 && unitZoom.t > 0) ? unitZoom.unitIdx : -1;
+    const ir = s * 0.090;
+    const secIdx = isl.sections.indexOf(sec);
+    const n = isl.sections.length;
+    const ys = 0.72, startA = -Math.PI * 0.5;
+    const a0 = startA + (secIdx / n) * Math.PI * 2;
+    const a1 = startA + ((secIdx + 1) / n) * Math.PI * 2;
+    const angSpan = a1 - a0;
+    const cx = isl.cx * W, cy = isl.cy * H;
+    ctx.save();
+    // clip 1: smooth island bezier boundary
+    buildPath(isl, 1.0);
+    ctx.clip();
+    // clip 2: exact curved section boundary matching drawIslandSections
+    const { bnd: bndC } = computeSecBnd(isl);
+    const jC = (secIdx + 1) % n;
+    const RC = s * 1.40;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.quadraticCurveTo(bndC[secIdx].cpx, bndC[secIdx].cpy, bndC[secIdx].rx, bndC[secIdx].ry);
+    for (let k = 1; k <= 28; k++) {
+      const aa = a0 + angSpan * k / 28;
+      ctx.lineTo(cx + Math.cos(aa) * RC, cy + Math.sin(aa) * RC * ys);
+    }
+    ctx.quadraticCurveTo(bndC[jC].cpx, bndC[jC].cpy, cx, cy);
+    ctx.closePath();
+    ctx.clip();
+    for (let i = 0; i < N; i++) {
+      const cell = cells[i];
+      if (!cell.poly.length) continue;
+      const isActive = (activeIdx < 0 || i === activeIdx);
+      const isHov = (hoverUnit === i && activeIdx < 0);
+      ctx.beginPath();
+      ctx.moveTo(cell.poly[0].x, cell.poly[0].y);
+      for (let k = 1; k < cell.poly.length; k++) ctx.lineTo(cell.poly[k].x, cell.poly[k].y);
+      ctx.closePath();
+      ctx.globalAlpha = alpha * (isHov ? 0.82 : 0.62);
+      ctx.fillStyle = GREY_FILL;
+      ctx.fill();
+      const _uf = COMP_UNIT[sec.id + '_' + i] || 0;
+      if (_uf > 0) { ctx.globalAlpha = alpha * _uf * 0.68; ctx.fillStyle = CLAIM_COL; ctx.fill(); }
+      if (!isActive) {
+        ctx.globalAlpha = alpha * 0.65 * (activeIdx >= 0 ? unitZoom.t : 0);
+        ctx.fillStyle = 'rgba(0,0,0,1)';
+        ctx.fill();
+      }
+      ctx.globalAlpha = alpha * (isActive ? 0.85 : 0.35);
+      ctx.strokeStyle = isHov ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.65)';
+      ctx.lineWidth = Math.max(1.5, s * 0.018);
+      ctx.stroke();
+      ctx.globalAlpha = alpha * (isActive ? 0.95 : 0.30);
+      const isLesZooming = lesZoom.sec === sec && lesZoom.unitIdx === i && lesZoom.t > 0;
+      const lesAnyActive = lesZoom.sec === sec && lesZoom.t > 0;
+      // fade out non-active unit labels as lesson zoom opens
+      const lesOtherFade = (lesAnyActive && !isLesZooming) ? Math.max(0, 1 - lesZoom.t * 2) : 1;
+      const labelAlpha = isLesZooming ? Math.max(0, 1 - lesZoom.t * 2) : lesOtherFade;
+      if (labelAlpha > 0.02) {
+        ctx.globalAlpha = alpha * (isActive ? 0.95 : 0.30) * labelAlpha;
+        const lessonCount = sec.lessons ? sec.lessons[i] : null;
+        const labelY = cell.label.y;
+        ctx.font = 'bold ' + Math.round(ir) + 'px Arial,sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.strokeStyle = 'rgba(0,0,0,0.72)';
+        ctx.lineWidth = ir * 0.28;
+        ctx.strokeText(i + 1, cell.label.x, labelY);
+        ctx.fillStyle = 'white';
+        ctx.fillText(i + 1, cell.label.x, labelY);
+      }
+      if (isLesZooming) {
+        drawUnitLessons(isl, sec, i, alpha * lesZoom.t);
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawUnitLessons(isl, sec, unitIdx, alpha) {
+    if (alpha <= 0) return;
+    const { cells, unitPoly, N, s } = computeLessonBlobs(isl, sec, unitIdx);
+    if (!N || !unitPoly.length) return;
+    // font proportional to average lesson-cell size, not island size
+    let mnXu = Infinity, mxXu = -Infinity, mnYu = Infinity, mxYu = -Infinity;
+    for (const p of unitPoly) { mnXu=Math.min(mnXu,p.x); mxXu=Math.max(mxXu,p.x); mnYu=Math.min(mnYu,p.y); mxYu=Math.max(mxYu,p.y); }
+    const cellSpan = Math.sqrt((mxXu-mnXu) * (mxYu-mnYu) / N);
+    const ir = Math.round(Math.max(3, cellSpan * 0.36));
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(unitPoly[0].x, unitPoly[0].y);
+    for (let k = 1; k < unitPoly.length; k++) ctx.lineTo(unitPoly[k].x, unitPoly[k].y);
+    ctx.closePath();
+    ctx.clip();
+    for (let i = 0; i < N; i++) {
+      const cell = cells[i];
+      if (!cell.poly.length) continue;
+      const isHov = (hoverLesson === i);
+      ctx.beginPath();
+      ctx.moveTo(cell.poly[0].x, cell.poly[0].y);
+      for (let k = 1; k < cell.poly.length; k++) ctx.lineTo(cell.poly[k].x, cell.poly[k].y);
+      ctx.closePath();
+      const done = isLessonDone(sec.id, unitIdx, i);
+      ctx.globalAlpha = alpha * (isHov ? 0.88 : 0.68);
+      ctx.fillStyle = done ? (isHov ? CLAIM_COL_HI : CLAIM_COL) : (isHov ? GREY_FILL_HI : GREY_FILL);
+      ctx.fill();
+      ctx.globalAlpha = alpha * 0.90;
+      ctx.strokeStyle = isHov ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.65)';
+      ctx.lineWidth = Math.max(0.8, s * 0.010);
+      ctx.stroke();
+      ctx.globalAlpha = alpha * 0.95;
+      ctx.font = 'bold ' + Math.round(ir) + 'px Arial,sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.strokeStyle = 'rgba(0,0,0,0.72)';
+      ctx.lineWidth = ir * 0.28;
+      ctx.strokeText(i + 1, cell.label.x, cell.label.y);
+      ctx.fillStyle = 'white';
+      ctx.fillText(i + 1, cell.label.x, cell.label.y);
+    }
+    ctx.restore();
   }
 
   function drawCourseIcon(id, cx, cy, r, alpha) {
@@ -1059,7 +1815,6 @@
       const j = (i + 1) % n;
       const isActive = (secZoomIdx < 0 || i === secZoomIdx);
       const isHov = (hoverSec === i);
-      const dim = isActive ? 1 : 0.5;
       const a0 = startA + (i / n) * Math.PI * 2;
       const a1 = startA + ((i + 1) / n) * Math.PI * 2;
       ctx.beginPath();
@@ -1071,9 +1826,17 @@
       }
       ctx.quadraticCurveTo(bnd[j].cpx, bnd[j].cpy, x, y);
       ctx.closePath();
-      ctx.globalAlpha = alpha * dim * (isHov ? 0.65 : 0.35);
-      ctx.fillStyle = secs[i].col;
+      ctx.globalAlpha = alpha * (isHov ? 0.65 : 0.35);
+      ctx.fillStyle = GREY_FILL;
       ctx.fill();
+      const _sf = COMP_SEC[secs[i].id] || 0;
+      if (_sf > 0) { ctx.globalAlpha = alpha * _sf * 0.50; ctx.fillStyle = CLAIM_COL; ctx.fill(); }
+      // dark overlay on inactive sectors — dims terrain+trees, fades in with sec zoom
+      if (!isActive) {
+        ctx.globalAlpha = alpha * 0.65 * secZoom.t;
+        ctx.fillStyle = 'rgba(0,0,0,1)';
+        ctx.fill();
+      }
       if (isHov && secZoomIdx < 0) {
         ctx.globalAlpha = alpha * 0.90;
         ctx.strokeStyle = 'rgba(0,0,0,0.70)';
@@ -1098,7 +1861,14 @@
       const isActive = (secZoomIdx < 0 || i === secZoomIdx);
       const ix = x + secs[i].nx * s;
       const iy = y + secs[i].ny * s;
-      drawCourseIcon(secs[i].id, ix, iy, ir, alpha * (isActive ? 1 : 0.5));
+      const iconAlpha = (secZoomIdx >= 0 && i === secZoomIdx)
+        ? alpha * (1 - secZoom.t)
+        : alpha * (isActive ? 1 : 0.5);
+      if (iconAlpha > 0.01) drawCourseIcon(secs[i].id, ix, iy, ir, iconAlpha);
+    }
+    // draw unit badges for the sec-zoomed section
+    if (secZoomIdx >= 0 && secZoom.t > 0) {
+      drawSectionUnits(isl, secs[secZoomIdx], secZoom.t);
     }
     ctx.restore();
   }
@@ -1164,9 +1934,35 @@
   }
 
   canvas.addEventListener('click', function(e) {
-    if (secZoom.sec) {
+    // 3rd level: unit-zoomed
+    if (unitZoom.sec && unitZoom.t > 0.7) {
+      // lesson cell click → navigate to lesson page
+      if (lesZoom.sec && lesZoom.t > 0.3) {
+        const li = lessonAt(e.clientX, e.clientY);
+        if (li >= 0) {
+          const cf = COURSE_FOLDER[lesZoom.sec.id];
+          if (cf) {
+            const u = lesZoom.unitIdx + 1, l = li + 1;
+            const file = encodeURIComponent(cf.pre + u + '.' + l + '_Video.html');
+            window.location.href = 'CourseFiles/' + cf.folder + '/Unit' + u + '/' + file;
+            return;
+          }
+        }
+      }
+      const ui = unitAt(e.clientX, e.clientY);
+      if (ui >= 0 && ui !== unitZoom.unitIdx) { const s3 = secZoom.sec; startUnitZoom(ui); startLesZoom(s3, ui); return; }
+      endUnitZoom(); return;
+    }
+    // 2nd level: sec-zoomed
+    if (secZoom.sec && secZoom.t > 0.7) {
+      const ui = unitAt(e.clientX, e.clientY);
+      if (ui >= 0) { const s2 = secZoom.sec; startUnitZoom(ui); startLesZoom(s2, ui); return; }
+      const si = sectionAtPoint(e.clientX, e.clientY);
+      const newSec = (si !== null) ? zoomAnim.isl.sections[si] : null;
+      if (newSec && newSec !== secZoom.sec) { startSecZoom(newSec); return; }
       endSecZoom(); return;
     }
+    if (secZoom.sec) { endSecZoom(); return; }
     if (zoomAnim.isl && zoomAnim.t > 0.85) {
       const si = sectionAtPoint(e.clientX, e.clientY);
       if (si !== null) { startSecZoom(zoomAnim.isl.sections[si]); return; }
@@ -1185,6 +1981,45 @@
   canvas.addEventListener('mousemove', function(e) {
     if (zoomAnim.isl && zoomAnim.t > 0.85) {
       const ex = e.clientX, ey = e.clientY;
+      // unit hover (highest priority when sec-zoomed)
+      if (secZoom.sec && secZoom.t > 0.5) {
+        // lesson hover (inside active unit, when lesson view is open)
+        if (lesZoom.sec === secZoom.sec && lesZoom.unitIdx >= 0 && lesZoom.t > 0.3) {
+          const li = lessonAt(ex, ey);
+          if (li !== hoverLesson) {
+            hoverLesson = li;
+            if (!hoverRaf) hoverRaf = requestAnimationFrame(function(){ hoverRaf=0; redraw(); });
+          }
+          if (li >= 0) {
+            canvas.style.cursor = 'pointer';
+            const _u = lesZoom.unitIdx, _l = li;
+            const _lesName = LESSON_NAMES[lesZoom.sec.id]?.[_u]?.[_l];
+            tipName.textContent = _lesName || ('Lesson ' + (_u + 1) + '.' + (_l + 1));
+            tipCourses.textContent = secZoom.sec.name + ' · Unit ' + (_u + 1);
+            tip.style.left = Math.min(ex + 16, innerWidth  - 228) + 'px';
+            tip.style.top  = Math.min(ey + 16, innerHeight - 130) + 'px';
+            tip.style.display = 'block';
+            return;
+          }
+          tip.style.display = 'none';
+        }
+        const ui = unitAt(ex, ey);
+        if (ui !== hoverUnit) {
+          hoverUnit = ui;
+          if (!hoverRaf) hoverRaf = requestAnimationFrame(function(){ hoverRaf=0; redraw(); });
+        }
+        if (ui >= 0) {
+          canvas.style.cursor = 'pointer';
+          tipName.textContent    = 'Unit ' + (ui + 1);
+          tipCourses.textContent = secZoom.sec.name;
+          tip.style.left = Math.min(ex + 16, innerWidth  - 228) + 'px';
+          tip.style.top  = Math.min(ey + 16, innerHeight - 130) + 'px';
+          tip.style.display = 'block';
+          return;
+        }
+        tip.style.display = 'none';
+      }
+      // section hover
       const si = sectionAtPoint(ex, ey);
       canvas.style.cursor = (si !== null) ? 'pointer' : 'default';
       if (si !== null) {
@@ -1227,7 +2062,7 @@
   });
 
   canvas.addEventListener('mouseleave', function() {
-    hoverId = null; hoverSec = null;
+    hoverId = null; hoverSec = null; hoverUnit = -1;
     tip.style.display = 'none';
     redraw();
   });

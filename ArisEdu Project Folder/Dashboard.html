@@ -1,912 +1,1824 @@
 <!doctype html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://www.google.com https://www.recaptcha.net https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' https: blob: data:; connect-src 'self' https://*.googleapis.com https://www.google.com https://recaptcha.google.com https://www.gstatic.com https://www.recaptcha.net; frame-src 'self' https://www.google.com https://recaptcha.google.com https://www.recaptcha.net; base-uri 'self'; form-action 'self'; object-src 'none'">
+
   <title>Dashboard - ArisEdu</title>
+
   <script src="https://cdn.tailwindcss.com" async defer></script>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="styles/main.css">
+
   <script src="theme_manager.js?v=2.1"></script>
+
   <script src="scripts/security_utils.js"></script>
+
   <style>
+
     body {
+
       background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #8b5cf6 100%);
+
       transition: background 0.3s;
+
       font-family: 'Poppins', sans-serif;
+
     }
+
     body.dark-mode {
+
       background: #0f172a;
+
     }
+
+
 
     .dashboard-layout {
+
       width: 90vw;
+
       max-width: 1200px;
+
       margin: 100px auto 40px;
+
       display: grid;
+
       grid-template-columns: 2fr 1fr;
+
       gap: 2rem;
+
     }
+
     @media (max-width: 900px) {
+
         .dashboard-layout {
+
             grid-template-columns: 1fr;
+
         }
+
     }
+
+
 
     /* Cards */
+
     .dash-card {
+
       background: rgba(255, 255, 255, 0.95);
+
       backdrop-filter: blur(10px);
+
       border-radius: 1.5rem;
+
       padding: 2rem;
+
       box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+
       transition: transform 0.2s, box-shadow 0.2s;
+
     }
+
     body.dark-mode .dash-card {
+
       background: rgba(30, 41, 59, 0.95);
+
       color: #e2e8f0;
+
       box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+
     }
+
     .dash-card:hover {
+
         transform: translateY(-2px);
+
     }
+
+
 
     .dash-title {
+
         font-size: 1.5rem;
+
         font-weight: 700;
+
         margin-bottom: 1.5rem;
+
         display: flex;
+
         align-items: center;
+
         gap: 0.5rem;
+
         color: #334155;
+
     }
+
     body.dark-mode .dash-title {
+
         color: #e2e8f0;
+
     }
+
+
 
     /* Welcome Header */
+
     .welcome-header {
+
       grid-column: 1 / -1;
+
       background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+
       color: white;
+
       border-radius: 1.5rem;
+
       padding: 3rem;
+
       position: relative;
+
       overflow: hidden;
+
     }
+
     .welcome-header h1 {
+
         font-size: 2.5rem;
+
         font-weight: 700;
+
         margin-bottom: 0.5rem;
+
     }
+
     .welcome-header p {
+
         font-size: 1.1rem;
+
         opacity: 0.9;
+
     }
+
+
 
     /* Course List */
+
     .course-item {
+
         display: flex;
+
         align-items: center;
+
         justify-content: space-between;
+
         padding: 1rem;
+
         background: rgba(0,0,0,0.03);
+
         border-radius: 1rem;
+
         margin-bottom: 1rem;
+
         cursor: pointer;
+
         transition: background 0.2s;
+
         text-decoration: none;
+
         color: inherit;
+
     }
+
     body.dark-mode .course-item {
+
         background: rgba(255,255,255,0.05);
+
     }
+
     .course-item:hover {
+
         background: rgba(0,0,0,0.06);
+
     }
+
     body.dark-mode .course-item:hover {
+
         background: rgba(255,255,255,0.1);
+
     }
+
+
 
     .course-icon {
+
         width: 48px;
+
         height: 48px;
+
         border-radius: 12px;
+
         display: flex;
+
         align-items: center;
+
         justify-content: center;
+
         font-size: 1.5rem;
+
         margin-right: 1rem;
+
         background: #e0e7ff;
+
         color: #4338ca;
+
     }
+
+
 
     .course-info {
+
         flex: 1;
+
     }
+
     .course-name {
+
         font-weight: 600;
+
         margin-bottom: 0.25rem;
+
         display: block;
+
     }
+
     .course-progress-bg {
+
         width: 100%;
+
         height: 6px;
+
         background: #e2e8f0;
+
         border-radius: 99px;
+
         overflow: hidden;
+
     }
+
     body.dark-mode .course-progress-bg {
+
         background: #475569;
+
     }
+
     .course-progress-fill {
+
         height: 100%;
+
         background: #10b981;
+
         border-radius: 99px;
+
     }
+
+
 
     /* Continue Learning */
+
     .continue-btn {
+
         display: inline-flex;
+
         align-items: center;
+
         gap: 0.5rem;
+
         background: white;
+
         color: #6366f1;
+
         padding: 0.75rem 1.5rem;
+
         border-radius: 0.5rem;
+
         font-weight: 600;
+
         margin-top: 1.5rem;
+
         text-decoration: none;
+
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
         transition: transform 0.2s;
+
     }
+
     .continue-btn:hover {
+
         transform: translateY(-2px);
+
     }
+
+
 
     /* Stats Grid */
+
     .stats-grid {
+
         display: grid;
+
         grid-template-columns: 1fr 1fr;
+
         gap: 1rem;
-    }
-    .stat-box {
-        background: rgba(0,0,0,0.03);
-        border-radius: 1rem;
-        padding: 1.5rem;
-        text-align: center;
-    }
-    body.dark-mode .stat-box {
-        background: rgba(255,255,255,0.05);
-    }
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #3b82f6;
-    }
-    .stat-label {
-        font-size: 0.9rem;
-        opacity: 0.7;
+
     }
 
+    .stat-box {
+
+        background: rgba(0,0,0,0.03);
+
+        border-radius: 1rem;
+
+        padding: 1.5rem;
+
+        text-align: center;
+
+    }
+
+    body.dark-mode .stat-box {
+
+        background: rgba(255,255,255,0.05);
+
+    }
+
+    .stat-value {
+
+        font-size: 2rem;
+
+        font-weight: 700;
+
+        color: #3b82f6;
+
+    }
+
+    .stat-label {
+
+        font-size: 0.9rem;
+
+        opacity: 0.7;
+
+    }
+
+
+
   </style>
+
 </head>
+
 <body class="dark-mode">
+
+
 
     <!-- Taskbar will be injected here -->
 
+
+
     <div class="dashboard-layout">
+
         <div class="welcome-header">
+
             <h1 id="welcome-msg">Welcome back!</h1>
+
             <p>You're making great progress. Ready to continue learning?</p>
+
             <a href="#" id="continue-learning-btn" class="continue-btn" style="display:none;">
-                <span>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¶ Resume Lesson</span>
+
+                <span>▶ Resume Lesson</span>
+
             </a>
+
             
+
             <div id="school-info-widget" style="margin-top: 1rem; display:none;">
+
                  <!-- Injected -->
+
             </div>
+
         </div>
 
+
+
         <div class="dash-card">
+
             <div class="dash-title">
-                <span>ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€¦Ã‚Â¡</span> My Courses
+
+                <span>📚</span> My Courses
+
             </div>
+
             <div id="course-list">
+
                 <!-- Injected via JS -->
+
                 <p style="opacity:0.6; text-align:center;">Loading courses...</p>
+
             </div>
+
         </div>
 
+
+
         <div class="dash-card">
+
              <div class="dash-title">
-                <span>ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒâ€šÃ‚Â¥</span> Your Stats
+
+                <span>🔥</span> Your Stats
+
             </div>
+
             <div class="stats-grid">
+
                 <div class="stat-box">
+
                     <div class="stat-value" id="total-lessons">0</div>
+
                     <div class="stat-label">Lessons Completed</div>
+
                 </div>
+
                 <div class="stat-box">
+
                     <div class="stat-value" id="current-streak">0</div>
+
                     <div class="stat-label">Day Streak</div>
+
                 </div>
+
                 <div class="stat-box">
+
                     <div class="stat-value" id="earned-badges">0</div>
+
                     <div class="stat-label">Badges Earned</div>
+
                 </div>
+
                  <div class="stat-box">
+
                     <div class="stat-value" id="quiz-avg">--%</div>
+
                     <div class="stat-label">Quiz Average</div>
+
                 </div>
+
             </div>
+
             
+
             <div style="margin-top: 2rem;">
+
                  <div class="dash-title">
-                    <span>ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã‚Â </span> Recent Badges
+
+                    <span>🏆</span> Recent Badges
+
                 </div>
+
                 <div id="badge-display" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+
                     <!-- Badges -->
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
 
+
+
 <script src="scripts/taskbar.js"></script>
+
 <script type="module">
+
 import { 
+
     auth, 
+
     db, 
+
     onAuthStateChanged,
+
     doc,
+
     getDoc,
+
     setDoc,
+
     updateDoc,
+
     collection,
+
     query,
+
     where,
+
     getDocs
+
 } from "./firebase-config.js";
 
+
+
 const BADGE_DEFS = {
-    'night_owl': { title: 'Night Owl', desc: t => `Studied after 10 PM on ${t} days`, icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â¦ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â°', thresholds: [1, 5, 15, 30, 50] },
-    'early_bird': { title: 'Early Bird', desc: t => `Studied before 7 AM on ${t} days`, icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã¢â‚¬â„¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦', thresholds: [1, 5, 15, 30, 50] },
-    'quiz_master': { title: 'Quiz Master', desc: t => `Completed ${t} quizzes`, icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§Ãƒâ€šÃ‚Â ', thresholds: [1, 5, 15, 30, 50] },
-    'algebra': { title: 'Algebra Wizard', desc: t => `Completed ${t}% of Algebra`, icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â', thresholds: [10, 30, 50, 80, 100] },
-    'geometry': { title: 'Geometry Expert', desc: t => `Completed ${t}% of Geometry`, icon: 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â³', thresholds: [10, 30, 50, 80, 100] },
-    'physics': { title: 'Physics Pro', desc: t => `Completed ${t}% of Physics`, icon: 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¡ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂºÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â', thresholds: [10, 30, 50, 80, 100] },
-    'chemistry': { title: 'Chem Whiz', desc: t => `Completed ${t}% of Chemistry`, icon: 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¡ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â', thresholds: [10, 30, 50, 80, 100] },
-    'biology': { title: 'Biology Guru', desc: t => `Completed ${t}% of Biology`, icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§Ãƒâ€šÃ‚Â¬', thresholds: [10, 30, 50, 80, 100] },
-    'streak': { title: 'Streak Master', desc: t => `Reached a ${t}-day streak`, icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒâ€šÃ‚Â¥', thresholds: [3, 7, 14, 30, 60] }
+
+    'night_owl': { title: 'Night Owl', desc: t => `Studied after 10 PM on ${t} days`, icon: '🦉', thresholds: [1, 5, 15, 30, 50] },
+
+    'early_bird': { title: 'Early Bird', desc: t => `Studied before 7 AM on ${t} days`, icon: '🌅', thresholds: [1, 5, 15, 30, 50] },
+
+    'quiz_master': { title: 'Quiz Master', desc: t => `Completed ${t} quizzes`, icon: '🧠', thresholds: [1, 5, 15, 30, 50] },
+
+    'algebra': { title: 'Algebra Wizard', desc: t => `Completed ${t}% of Algebra`, icon: '📐', thresholds: [10, 30, 50, 80, 100] },
+
+    'geometry': { title: 'Geometry Expert', desc: t => `Completed ${t}% of Geometry`, icon: '△', thresholds: [10, 30, 50, 80, 100] },
+
+    'physics': { title: 'Physics Pro', desc: t => `Completed ${t}% of Physics`, icon: '⚛️', thresholds: [10, 30, 50, 80, 100] },
+
+    'chemistry': { title: 'Chem Whiz', desc: t => `Completed ${t}% of Chemistry`, icon: '⚗️', thresholds: [10, 30, 50, 80, 100] },
+
+    'biology': { title: 'Biology Guru', desc: t => `Completed ${t}% of Biology`, icon: '🧬', thresholds: [10, 30, 50, 80, 100] },
+
+    'streak': { title: 'Streak Master', desc: t => `Reached a ${t}-day streak`, icon: '🔥', thresholds: [3, 7, 14, 30, 60] }
+
 };
+
+
 
 const TIERS = [
-    { id: 'bronze', name: 'Bronze', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â¥ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â°' },
-    { id: 'silver', name: 'Silver', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â¥Ãƒâ€¹Ã¢â‚¬Â ' },
-    { id: 'gold', name: 'Gold', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â¥ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡' },
-    { id: 'diamond', name: 'Diamond', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢Ãƒâ€¦Ã‚Â½' },
-    { id: 'amethyst', name: 'Amethyst', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒâ€šÃ‚Â®' }
+
+    { id: 'bronze', name: 'Bronze', icon: '🥉' },
+
+    { id: 'silver', name: 'Silver', icon: '🥈' },
+
+    { id: 'gold', name: 'Gold', icon: '🥇' },
+
+    { id: 'diamond', name: 'Diamond', icon: '💎' },
+
+    { id: 'amethyst', name: 'Amethyst', icon: '🔮' }
+
 ];
 
+
+
 const BADGE_INFO = {
-    'polyglot': { title: 'Polyglot', desc: 'Changed language settings', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â' },
-    '2048_tile': { title: '2048 Master', desc: 'Reached the 2048 tile!', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€šÃ‚Â®' }
+
+    'polyglot': { title: 'Polyglot', desc: 'Changed language settings', icon: '🌐' },
+
+    '2048_tile': { title: '2048 Master', desc: 'Reached the 2048 tile!', icon: '🎮' }
+
 };
 
+
+
 for (const [id, def] of Object.entries(BADGE_DEFS)) {
+
     def.thresholds.forEach((thresh, i) => {
+
         const tier = TIERS[i];
+
         BADGE_INFO[`${id}_${tier.id}`] = {
+
             title: `${def.title} (${tier.name})`,
+
             desc: def.desc(thresh),
+
             icon: def.icon + ' ' + tier.icon
+
         };
+
     });
+
 }
 
+
+
 document.addEventListener('DOMContentLoaded', () => {
+
     // Check if we have auth state
+
     onAuthStateChanged(auth, async (user) => {
+
         if (user) {
+
             // User is signed in.
+
             const uid = user.uid;
+
             console.log("User is signed in with UID:", uid);
 
+
+
             // --- DATA ISOLATION: Check if this device has stale data from another user ---
+
             const lastUid = localStorage.getItem('arisEdu_lastUid');
+
             if (lastUid && lastUid !== uid) {
+
                  console.log("New user detected on this device. Clearing local progress to prevent leaks.");
+
                  localStorage.removeItem('arisEdu_visitedPages');
+
                  localStorage.removeItem('arisEdu_badges');
+
                  localStorage.removeItem('user'); 
+
                  // Also clear dynamic progress flags
+
                  Object.keys(localStorage).forEach(k => {
+
                      if(k.includes('_u') && k.includes('_l')) localStorage.removeItem(k);
+
                  });
+
             }
+
             localStorage.setItem('arisEdu_lastUid', uid);
 
+
+
             // Fetch user document from Firestore (Using 'users' collection)
+
             try {
+
                 const userDocRef = doc(db, "users", uid);
+
                 const userDocSnap = await getDoc(userDocRef);
 
+
+
                 if (userDocSnap.exists()) {
+
                     let userData = userDocSnap.data();
+
                     console.log("User Data:", userData);
 
+
+
                     // --- STREAK CALCULATION ---
+
                     const now = new Date();
+
                     // normalize dates to midnight
+
                     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
                     
+
                     let lastLoginDate = userData.lastLoginDate ? new Date(userData.lastLoginDate) : null;
+
                     // If no explicit date field, fallback to lastLogin timestamp
+
                     if (!lastLoginDate && userData.lastLogin) {
+
                         const d = new Date(userData.lastLogin);
+
                         lastLoginDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
                     }
+
                     // Handle very first login or missing data
+
                     if (!lastLoginDate) lastLoginDate = today; 
 
+
+
                     let currentStreak = userData.streakCount || 1;
+
                     
+
                     // improved diff calculation using time values
+
                     const oneDay = 1000 * 60 * 60 * 24;
+
                     const diffTime = today.getTime() - lastLoginDate.getTime();
+
                     const diffDays = Math.floor(diffTime / oneDay);
 
+
+
                     let needsStreakUpdate = false;
+
                     
+
                     if (diffDays === 1) {
+
                         // Consecutive day
+
                         currentStreak++;
+
                         needsStreakUpdate = true;
+
                     } else if (diffDays > 1) {
+
                         // Broken streak
+
                         currentStreak = 1; // Reset to 1 for today
+
                         needsStreakUpdate = true;
+
                     } 
+
                     // if diffDays === 0, same day, do nothing
 
+
+
                     // Update Welcome Message
+
                     const displayName = userData.displayName || userData.name || (user.email ? user.email.split('@')[0] : 'User');
+
                     document.getElementById('welcome-msg').textContent = `Welcome back, ${displayName}!`;
 
+
+
                     // Update School Widget
+
                     const schoolWidget = document.getElementById('school-info-widget');
+
                     
+
                     // --- ROLE CHECK ---
+
                     let userRole = userData.role || 'student';
+
+
 
                     const userClass = userData.classInfo || null;
 
+
+
                     if(userRole === 'teacher') {
+
                         // TEACHER DASHBOARD
+
                         const classCode = userClass?.code || "No Class Code";
+
                         const className = userClass?.name || "No Class Assigned";
+
                         const isNoClass = classCode === "No Class Code";
 
+
+
                         // Create Teacher Dashboard Section
+
                         const teacherSection = document.createElement('div');
+
                         teacherSection.className = 'dash-card'; // Reuse card style
+
                         teacherSection.style.gridColumn = '1 / -1'; // Full width
+
                         
+
                         let classActionHtml = '';
+
                         if (isNoClass) {
+
                             classActionHtml = `
+
                                 <div style="display:flex; gap:0.5rem; align-items:center;">
+
                                     <input type="text" id="create-class-name" placeholder="Enter Class Name (e.g. Algebra Period 1)" 
+
                                            style="border:1px solid #ccc; padding:0.5rem; border-radius:0.5rem; flex:1; max-width:250px;">
+
                                     <button id="create-class-btn" style="background:#6366f1; color:white; padding:0.5rem 1rem; border-radius:0.5rem; border:none; cursor:pointer;">Create Class</button>
+
                                 </div>
+
                             `;
+
                         } else {
+
                             classActionHtml = `
+
                                 <div style="background:rgba(99, 102, 241, 0.1); padding:1rem; border-radius:1rem; border:1px solid rgba(99, 102, 241, 0.2); display:flex; flex-direction:column; justify-content:center;">
+
                                     <div style="font-size:0.9rem; opacity:0.8; margin-bottom:0.5rem;">Class Code</div>
+
                                     <div style="font-size:1.5rem; font-weight:700; font-family:monospace; letter-spacing:2px;">${classCode}</div>
+
                                 </div>
+
                             `;
+
                         }
+
+
 
                         teacherSection.innerHTML = `
+
                             <div class="dash-title" style="color:#6366f1;">
-                                <span>ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“Ãƒâ€šÃ‚Â©ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â«</span> Teacher Dashboard
+
+                                <span>👩‍🏫</span> Teacher Dashboard
+
                             </div>
+
                             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:1rem; align-items:start;">
+
                                 <div style="background:rgba(99, 102, 241, 0.1); padding:1rem; border-radius:1rem; border:1px solid rgba(99, 102, 241, 0.2);">
+
                                     <div style="font-size:0.9rem; opacity:0.8; margin-bottom:0.5rem;">Your Class</div>
+
                                     <div style="font-size:1.25rem; font-weight:700;">${className}</div>
+
                                 </div>
+
                                 ${classActionHtml}
+
                                 <div style="background:rgba(99, 102, 241, 0.1); padding:1rem; border-radius:1rem; border:1px solid rgba(99, 102, 241, 0.2); display:flex; align-items:center; justify-content:center; cursor:pointer;" id="view-analytics-btn">
-                                    <span style="font-weight:600; color:#6366f1;">View Student Analytics ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¾Ãƒâ€¦Ã¢â‚¬Å“</span>
+
+                                    <span style="font-weight:600; color:#6366f1;">View Student Analytics ➜</span>
+
                                 </div>
+
                             </div>
+
                         `;
+
                         // Insert after welcome header
+
                         const welcomeHeader = document.querySelector('.welcome-header');
+
                         // Prevent duplicates
+
                         if(!document.querySelector('.teacher-dashboard-section')) {
+
                              teacherSection.classList.add('teacher-dashboard-section');
+
                              welcomeHeader.parentNode.insertBefore(teacherSection, welcomeHeader.nextSibling);
 
+
+
                              // Bind Create Class Button
+
                              const createBtn = teacherSection.querySelector('#create-class-btn');
+
                              if(createBtn) {
+
                                  createBtn.onclick = async () => {
+
                                      // ... existing logic ...
+
                                      const nameInput = teacherSection.querySelector('#create-class-name');
+
                                      if(!nameInput.value.trim()) return alert("Please enter a class name.");
+
                                      
+
                                      createBtn.textContent = "Creating...";
+
                                      const newCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
                                      const newClassInfo = { name: nameInput.value.trim(), code: newCode };
+
                                      
+
                                      try {
+
                                          await updateDoc(userDocRef, { classInfo: newClassInfo });
+
                                          alert(`Class Created! Code: ${newCode}`);
+
                                          location.reload();
+
                                      } catch(e) { console.error(e); alert("Error creating class."); }
+
                                  }
+
                              }
+
+
 
                              // Bind Analytics Button
+
                              const analyticsBtn = teacherSection.querySelector('#view-analytics-btn');
+
                              if(analyticsBtn) {
+
                                  analyticsBtn.onclick = () => {
+
                                      // Redirect to comprehensive teacher analytics page
+
                                      window.location.href = '/ArisEdu Project Folder/TeacherAnalytics.html';
+
                                  };
+
                              }
+
                         }
+
+
 
                         schoolWidget.style.display = 'none'; // Hide old widget
+
                     } else {
+
                         // Student - Check if they've joined a class via classCode
+
                         const studentClassCode = userData.classCode;
+
                         
+
                         if (studentClassCode) {
+
                             // Student has joined a class
+
                             schoolWidget.innerHTML = `
+
                                  <div style="background: rgba(255,255,255,0.2); backdrop-filter:blur(8px); padding: 1rem; border-radius: 1rem; margin-top:1rem; display:inline-block; border: 1px solid rgba(255,255,255,0.3);">
+
                                     <div style="display:flex; align-items:center; gap:0.5rem;">
-                                        <span style="font-size:1.25rem;">ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ</span>
+
+                                        <span style="font-size:1.25rem;">🎓</span>
+
                                         <div>
+
                                             <div style="font-size:0.85rem; opacity:0.9;">Joined Class</div>
+
                                             <div style="font-weight:700; font-family:monospace; letter-spacing:1px;">${studentClassCode}</div>
+
                                         </div>
+
                                     </div>
+
                                 </div>
+
                             `;
+
                             schoolWidget.style.display = 'block';
+
                         } else {
+
                             schoolWidget.innerHTML = `
+
                                  <div style="background: rgba(255,255,255,0.2); backdrop-filter:blur(8px); padding: 1rem; border-radius: 1rem; margin-top:1rem; display:inline-block; border: 1px solid rgba(255,255,255,0.3);">
+
                                     <div style="display:flex; flex-direction:column; gap:0.5rem;">
+
                                         <div style="display:flex; align-items:center; gap:0.5rem;">
-                                            <span style="font-size:1.25rem;">ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹</span>
+
+                                            <span style="font-size:1.25rem;">👋</span>
+
                                             <div style="font-weight:600;">Join a Class</div>
+
                                         </div>
+
                                         <div style="display:flex; gap:0.5rem;">
+
                                             <input type="text" id="join-class-input" placeholder="Enter Class Code" 
+
                                                 style="padding:0.4rem; border-radius:0.4rem; border:1px solid #ccc; width:120px; font-size:0.9rem;">
+
                                             <button id="join-class-btn" style="background:#10b981; color:white; border:none; padding:0.4rem 0.8rem; border-radius:0.4rem; cursor:pointer; font-weight:600;">Join</button>
+
                                         </div>
+
                                     </div>
+
                                 </div>
+
                             `;
+
                             schoolWidget.style.display = 'block';
+
+
 
                             // Bind Join Button
+
                             setTimeout(() => {
+
                                 const joinBtn = document.getElementById('join-class-btn');
+
                                 if(joinBtn) {
+
                                     joinBtn.onclick = async () => {
+
                                         const codeInput = document.getElementById('join-class-input');
+
                                         const code = codeInput.value.trim().toUpperCase();
+
                                         if(!code) return alert("Please enter a code.");
+
                                         
+
                                         joinBtn.textContent = "...";
+
                                         
+
                                         try {
+
                                             // For students: set classCode to match the teacher's class code
+
                                             // This allows the teacher's dashboard to find this student in loadStudents()
+
                                             // The filter checks: if student.classCode === teacher.classInfo.code
+
                                             
+
                                             await updateDoc(userDocRef, { classCode: code });
-                                            console.log('ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ [Dashboard] Student joined class with code: ' + code);
+
+                                            console.log('✅ [Dashboard] Student joined class with code: ' + code);
+
                                             alert("Joined Class: " + code);
+
                                             location.reload();
+
                                         } catch(e) { console.error(e); alert("Error joining class: " + e.message); }
+
                                     };
+
                                 }
+
                             }, 500);
+
                         }
+
                     }
+
+
 
                     // --- SYNC ENGINE: LocalStorage <-> Firestore ---
+
                     // We merge local progress with cloud progress to ensure nothing is lost.
+
                     
+
                     // 1. Get Local Data
+
                     const localVisited = JSON.parse(localStorage.getItem('arisEdu_visitedPages') || '[]');
+
                     const localBadges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
+
+
 
                     // 2. Get Cloud Data
+
                     const cloudVisited = userData.visitedPages || [];
+
                     const cloudBadges = userData.badges || [];
+
                     const cloudProgressFlags = userData.progressFlags || {};
 
+
+
                     // 1b. Harvest legacy/scattered flags from localStorage (Real-time catch)
+
                     const localProgressFlags = {};
+
                     Object.keys(localStorage).forEach(key => {
+
                         if(key.includes('_u') && key.includes('_l')) {
+
                             localProgressFlags[key] = localStorage.getItem(key);
+
                         }
+
                     });
 
+
+
                     // 3. Merge (Union of unique items)
+
                     const mergedVisited = [...new Set([...localVisited, ...cloudVisited])];
+
                     const mergedBadges = [...new Set([...localBadges, ...cloudBadges])];
+
                     // Merge flags: cloud wins if conflict, but local fills gaps
+
                     const mergedFlags = { ...localProgressFlags, ...cloudProgressFlags };
 
+
+
                     // 4. Update UI variables
+
                     let finalVisited = mergedVisited;
+
                     let finalBadges = mergedBadges;
+
                     let finalFlags = mergedFlags;
 
+
+
                     // 5. Push updates if needed (Sync)
+
                     // Check if local has new flags not in cloud
+
                     const localKeyCount = Object.keys(localProgressFlags).length;
+
                     const cloudKeyCount = Object.keys(cloudProgressFlags).length;
+
                     
+
                     const needsSync = 
+
                         mergedVisited.length > cloudVisited.length || 
+
                         mergedBadges.length > cloudBadges.length ||
+
                         Object.keys(mergedFlags).length > cloudKeyCount;
 
+
+
                     if (needsSync || needsStreakUpdate) {
+
                         try {
+
                             const updatePayload = {
+
                                 visitedPages: mergedVisited,
+
                                 badges: mergedBadges,
+
                                 progressFlags: mergedFlags,
+
                                 lastSync: new Date().toISOString()
+
                             };
+
                             
+
                             if (needsStreakUpdate) {
+
                                 updatePayload.streakCount = currentStreak;
+
                                 updatePayload.lastLoginDate = today.toISOString(); // Store date object as string
+
                                 updatePayload.lastLogin = new Date().toISOString();
+
                             }
 
+
+
                             await updateDoc(userDocRef, updatePayload);
+
                             console.log("Synced local progress to cloud.");
+
                         } catch (e) {
+
                             console.error("Sync error:", e);
+
                         }
+
                     }
+
                     
+
                     // 6. Update LocalStorage (to keep other pages in sync with cloud data)
+
                     if (mergedVisited.length > localVisited.length) {
+
                         localStorage.setItem('arisEdu_visitedPages', JSON.stringify(mergedVisited));
+
                     }
+
                     if (mergedBadges.length > localBadges.length) {
+
                         localStorage.setItem('arisEdu_badges', JSON.stringify(mergedBadges));
+
                     }
+
+
 
                     // --- RENDER DASHBOARD WITH SYNCED DATA ---
+
                     renderDashboard(finalVisited, finalBadges, finalFlags, currentStreak);
+
                     
+
                 } else {
+
                     console.log("No such document! Creating one now...");
+
                     
+
                     // Grab local data to hydrate the new document
+
                     const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+
                     const localVisited = JSON.parse(localStorage.getItem('arisEdu_visitedPages') || '[]');
+
                     const localBadges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
+
                     
+
                     const newUserData = {
+
                         uid: uid,
+
                         email: user.email,
+
                         displayName: localUser.name || user.displayName || user.email.split('@')[0],
+
                         role: localUser.role || 'student',
+
                         createdAt: new Date().toISOString(),
+
                         lastLogin: new Date().toISOString(),
+
                         lastLoginDate: new Date().toISOString(), // Initialize logic date
+
                         streakCount: 1, // Start streak
+
                         visitedPages: localVisited,
+
                         badges: localBadges
+
                     };
 
+
+
                     // Save to Firestore
+
                     await setDoc(userDocRef, newUserData);
+
                     console.log("Created new user document in Firestore");
+
                     
+
                     // Render directly without reload
+
                     renderDashboard(localVisited, localBadges, {}, 1);
+
                 }
+
+
 
             } catch (error) {
+
                 console.error("Error getting document:", error);
+
                 
+
                 // Fallback to LocalStorage if Firestore fails
+
                 const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+
                 const displayName = localUser.name || localUser.displayName || (user.email ? user.email.split('@')[0] : 'User');
+
                 document.getElementById('welcome-msg').textContent = `Welcome back, ${displayName}!`;
 
+
+
                 // ... (Existing offline widget logic) ...
+
                 const schoolWidget = document.getElementById('school-info-widget');
+
                 // Reuse existing display logic or just hide it if complex
+
                 
+
                 const visited = JSON.parse(localStorage.getItem('arisEdu_visitedPages') || '[]');
+
                 const badges = JSON.parse(localStorage.getItem('arisEdu_badges') || '[]');
+
                 // Cannot calculate real streak offline easily without stored date, default to 1 or cached value
+
                 const cachedStreak = parseInt(localStorage.getItem('arisEdu_streak') || '0') || 0;
+
                 
+
                 renderDashboard(visited, badges, {}, cachedStreak);
+
             }
 
+
+
         } else {
+
             // User is signed out
+
             console.log("User is signed out");
+
             document.getElementById('welcome-msg').textContent = "Welcome! Please log in.";
+
             document.getElementById('school-info-widget').style.display = 'none';
+
         }
+
     });
+
 });
 
+
+
 // Extracted Render Function
+
 function renderDashboard(visited, badges, flags = {}, streak = 0) {
+
     // Stats
+
     // Merge flagged progress into count
+
     // A flag like "chem_u9_l6_started" counts as a lesson
+
     const flaggedCount = Object.keys(flags).length;
+
     
+
     // We want unique count. This is tricky because "visited" has URLs and "flags" has keys.
+
     // Let's just sum them but be aware of possible overlap. 
+
     // Actually, "visited" tracks page loads, "flags" tracks quiz completion/start.
+
     // Let's treat them as distinct for now or just display the larger number for "Lessons Completed" estimate.
+
     
+
     // A simple heuristic:
+
     const visitedCount = visited.filter(u => u.includes('Lesson') || u.includes('Success')).length;
+
     const totalCount = Math.max(visitedCount, flaggedCount);
+
     
+
     document.getElementById('total-lessons').textContent = totalCount;
+
     document.getElementById('earned-badges').textContent = badges.length;
+
     
+
     // Streak Logic (passed from caller)
+
     document.getElementById('current-streak').textContent = streak;
 
+
+
     // Continue Learning
+
     if(visited.length > 0) {
+
         const lastPage = visited.slice().reverse().find(p => !p.includes('Dashboard') && !p.includes('index') && !p.includes('Login'));
+
         
+
         if (lastPage) {
+
             const btn = document.getElementById('continue-learning-btn');
+
             btn.href = lastPage;
+
             let name = lastPage.split('/').pop().replace('.html','').replace(/_/g, ' ');
-            btn.innerHTML = `<span>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¶ Resume ${name}</span>`;
+
+            btn.innerHTML = `<span>▶ Resume ${name}</span>`;
+
             btn.style.display = 'inline-flex';
+
         }
+
     }
 
-    // Courses List ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â organized by category
+
+
+    // Courses List � organized by category
+
     // NOTE: prefix values MUST match the coursePrefix used by each course page's localStorage keys
+
     const courseSections = [
+
         {
+
             label: 'High School',
+
             courses: [
-                { id: 'algebra1', name: 'Algebra 1', prefix: 'alg1', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â', path: 'CourseHomepage/algebra1.html' },
-                { id: 'algebra2', name: 'Algebra 2', prefix: 'alg2', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€¹Ã¢â‚¬Â ', path: 'CourseHomepage/algebra2.html' },
-                { id: 'geometry', name: 'Geometry', prefix: 'geometry', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂºÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“', path: 'CourseHomepage/geometry.html' },
-                { id: 'bio', name: 'Biology', prefix: 'bio', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§Ãƒâ€šÃ‚Â¬', path: 'CourseHomepage/bio.html' },
-                { id: 'chem', name: 'Chemistry', prefix: 'chem', icon: 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¡ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â', path: 'CourseHomepage/chem.html' },
-                { id: 'physics', name: 'Physics', prefix: 'physics', icon: 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¡ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂºÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â', path: 'CourseHomepage/physics.html' }
+
+                { id: 'algebra1', name: 'Algebra 1', prefix: 'alg1', icon: '📐', path: 'CourseHomepage/algebra1.html' },
+
+                { id: 'algebra2', name: 'Algebra 2', prefix: 'alg2', icon: '📈', path: 'CourseHomepage/algebra2.html' },
+
+                { id: 'geometry', name: 'Geometry', prefix: 'geometry', icon: '🛑', path: 'CourseHomepage/geometry.html' },
+
+                { id: 'bio', name: 'Biology', prefix: 'bio', icon: '🧬', path: 'CourseHomepage/bio.html' },
+
+                { id: 'chem', name: 'Chemistry', prefix: 'chem', icon: '⚗️', path: 'CourseHomepage/chem.html' },
+
+                { id: 'physics', name: 'Physics', prefix: 'physics', icon: '⚛️', path: 'CourseHomepage/physics.html' }
+
             ]
+
         },
+
         {
+
             label: 'Middle School',
+
             courses: [
-                { id: 'ms_algebra1', name: 'MS: Pre-Algebra', prefix: 'alg1', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â', path: 'CourseHomepage/ms_algebra1.html' },
-                { id: 'ms_algebra2', name: 'MS: Algebra', prefix: 'alg2', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€¹Ã¢â‚¬Â ', path: 'CourseHomepage/ms_algebra2.html' },
-                { id: 'ms_geometry', name: 'MS: Geometry', prefix: 'ms_geom', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â', path: 'CourseHomepage/ms_geometry.html' },
-                { id: 'ms_physics', name: 'MS: Physical Science', prefix: 'ms_phys', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢Ãƒâ€šÃ‚Â¡', path: 'CourseHomepage/ms_physics.html' },
-                { id: 'ms_chem', name: 'MS: Chemistry Foundations', prefix: 'chem', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§Ãƒâ€šÃ‚Âª', path: 'CourseHomepage/ms_chem.html' },
-                { id: 'ms_bio', name: 'MS: Life Science', prefix: 'bio', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¿', path: 'CourseHomepage/ms_bio.html' }
+
+                { id: 'ms_algebra1', name: 'MS: Pre-Algebra', prefix: 'alg1', icon: '📐', path: 'CourseHomepage/ms_algebra1.html' },
+
+                { id: 'ms_algebra2', name: 'MS: Algebra', prefix: 'alg2', icon: '📈', path: 'CourseHomepage/ms_algebra2.html' },
+
+                { id: 'ms_geometry', name: 'MS: Geometry', prefix: 'ms_geom', icon: '📏', path: 'CourseHomepage/ms_geometry.html' },
+
+                { id: 'ms_physics', name: 'MS: Physical Science', prefix: 'ms_phys', icon: '💡', path: 'CourseHomepage/ms_physics.html' },
+
+                { id: 'ms_chem', name: 'MS: Chemistry Foundations', prefix: 'chem', icon: '🧪', path: 'CourseHomepage/ms_chem.html' },
+
+                { id: 'ms_bio', name: 'MS: Life Science', prefix: 'bio', icon: '🌿', path: 'CourseHomepage/ms_bio.html' }
+
             ]
+
         },
+
         {
+
             label: 'AP (Advanced Placement)',
+
             courses: [
-                { id: 'ap_calculus', name: 'AP Calculus', prefix: 'ap_calc_ab', icon: 'ÃƒÆ’Ã‚Â¢Ãƒâ€¹Ã¢â‚¬Â Ãƒâ€šÃ‚Â«', path: 'CourseHomepage/ap_calculus.html' },
-                { id: 'ap_statistics', name: 'AP Statistics', prefix: 'ap_stats', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€¦Ã‚Â ', path: 'CourseHomepage/ap_statistics.html' },
-                { id: 'ap_biology', name: 'AP Biology', prefix: 'ap_bio', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§Ãƒâ€šÃ‚Â¬', path: 'CourseHomepage/ap_biology.html' },
-                { id: 'ap_chemistry', name: 'AP Chemistry', prefix: 'ap_chem', icon: 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¡ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â', path: 'CourseHomepage/ap_chemistry.html' },
-                { id: 'ap_physics2', name: 'AP Physics 2', prefix: 'ap_phys2', icon: 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¡ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂºÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â', path: 'CourseHomepage/ap_physics2.html' },
-                { id: 'ap_physics_mechanics', name: 'AP Physics C: Mechanics', prefix: 'ap_phys_mech', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒâ€šÃ‚Â§', path: 'CourseHomepage/ap_physics_mechanics.html' },
-                { id: 'ap_environmental_science', name: 'AP Environmental Science', prefix: 'ap_env_sci', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â', path: 'CourseHomepage/ap_environmental_science.html' },
-                { id: 'ap_hug', name: 'AP Human Geography', prefix: 'ap_hug', icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â', path: 'CourseHomepage/ap_hug.html' }
+
+                { id: 'ap_calculus', name: 'AP Calculus', prefix: 'ap_calc_ab', icon: '∫', path: 'CourseHomepage/ap_calculus.html' },
+
+                { id: 'ap_statistics', name: 'AP Statistics', prefix: 'ap_stats', icon: '📊', path: 'CourseHomepage/ap_statistics.html' },
+
+                { id: 'ap_biology', name: 'AP Biology', prefix: 'ap_bio', icon: '🧬', path: 'CourseHomepage/ap_biology.html' },
+
+                { id: 'ap_chemistry', name: 'AP Chemistry', prefix: 'ap_chem', icon: '⚗️', path: 'CourseHomepage/ap_chemistry.html' },
+
+                { id: 'ap_physics2', name: 'AP Physics 2', prefix: 'ap_phys2', icon: '⚛️', path: 'CourseHomepage/ap_physics2.html' },
+
+                { id: 'ap_physics_mechanics', name: 'AP Physics C: Mechanics', prefix: 'ap_phys_mech', icon: '🔧', path: 'CourseHomepage/ap_physics_mechanics.html' },
+
+                { id: 'ap_environmental_science', name: 'AP Environmental Science', prefix: 'ap_env_sci', icon: '🌍', path: 'CourseHomepage/ap_environmental_science.html' },
+
+                { id: 'ap_hug', name: 'AP Human Geography', prefix: 'ap_hug', icon: '🌐', path: 'CourseHomepage/ap_hug.html' }
+
             ]
+
         }
+
     ];
 
+
+
     const courseList = document.getElementById('course-list');
+
     courseList.innerHTML = '';
 
+
+
     courseSections.forEach(section => {
+
         // Section header
+
         const header = document.createElement('div');
+
         header.style.cssText = 'font-weight:700; font-size:0.95rem; margin: 1.25rem 0 0.5rem; opacity:0.65; text-transform:uppercase; letter-spacing:0.05em;';
+
         header.textContent = section.label;
+
         courseList.appendChild(header);
 
+
+
         section.courses.forEach(c => {
+
             // 1. Count from visited URLs
+
             let count = visited.filter(url => url.toLowerCase().includes(c.id)).length;
+
             
+
             // 2. Count from Flags (e.g. 'chem_u*_l*')
+
             const flagCount = Object.keys(flags).filter(k => k.toLowerCase().startsWith(c.prefix || 'xxx')).length;
+
             
+
             // Take the max to be safe
+
             count = Math.max(count, flagCount);
 
+
+
             // Cap at 100% just for visual (assuming ~20 lessons per course)
+
             const percent = Math.min(100, Math.round((count / 20) * 100));
 
+
+
             const item = document.createElement('a');
+
             item.href = `/ArisEdu Project Folder/${c.path}`;
+
             item.className = 'course-item';
+
             item.innerHTML = `
+
                 <div class="course-icon">${c.icon}</div>
+
                 <div class="course-info">
+
                     <span class="course-name">${c.name}</span>
+
                     <div class="course-progress-bg">
+
                         <div class="course-progress-fill" style="width: ${percent}%"></div>
+
                     </div>
+
                     <div style="font-size:0.75rem; opacity:0.7; margin-top:4px;">${percent}% Complete</div>
+
                 </div>
-                <div style="opacity:0.5;">ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¾Ãƒâ€¦Ã¢â‚¬Å“</div>
+
+                <div style="opacity:0.5;">➜</div>
+
             `;
+
             courseList.appendChild(item);
+
         });
+
     });
+
+
 
     // Badges Display
+
     const badgeContainer = document.getElementById('badge-display');
+
     badgeContainer.innerHTML = ''; // User might reload
+
     
+
     // Filter out lower tiers to avoid duplicates (show only highest earned for each type)
+
     const processedFamilies = new Set();
+
     const uniqueBadges = [];
+
     const reversedBadges = badges.slice().reverse();
+
     
+
     // TIERS array is available in scope (defined at top of module)
+
     for (const badgeId of reversedBadges) {
+
         // Check if tiered
+
         let isTiered = false;
+
         let familyId = badgeId;
+
         
+
         for (const tier of TIERS) {
+
             if (badgeId.endsWith('_' + tier.id)) {
+
                 // It's a tiered badge. Extract family (e.g. 'algebra')
+
                 familyId = badgeId.substring(0, badgeId.length - tier.id.length - 1);
+
                 isTiered = true;
+
                 break;
+
             }
+
         }
+
         
+
         if (isTiered) {
+
             if (!processedFamilies.has(familyId)) {
+
                 uniqueBadges.push(badgeId);
+
                 processedFamilies.add(familyId);
+
             }
+
         } else {
+
             uniqueBadges.push(badgeId);
+
         }
+
     }
+
+
 
     // Show recent 10 unique badges
+
     const badgeList = uniqueBadges.slice(0, 10); 
+
     
+
     const isDarkBadge = document.body.classList.contains('dark-mode');
+
     badgeList.forEach(b => {
-        const info = BADGE_INFO[b] || { icon: 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦', title: b.replace(/_/g, ' '), desc: 'Award' };
+
+        const info = BADGE_INFO[b] || { icon: '🏅', title: b.replace(/_/g, ' '), desc: 'Award' };
+
         
+
         const badgeEl = document.createElement('div');
+
         // Simple inline styling for badge card
+
         badgeEl.style.cssText = `
+
             display: flex; 
+
             align-items: center; 
+
             gap: 0.75rem; 
+
             background: ${isDarkBadge ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'}; 
+
             padding: 0.75rem 1rem; 
+
             border-radius: 1rem; 
+
             border: 1px solid ${isDarkBadge ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'};
+
             min-width: 140px;
+
         `;
+
         badgeEl.innerHTML = `
+
             <span style="font-size:1.8rem;">${info.icon}</span>
+
             <div>
+
                 <div style="font-weight:700; font-size:0.85rem; line-height:1.2;">${info.title}</div>
+
             </div>
+
         `;
+
         badgeContainer.appendChild(badgeEl);
+
     });
 
+
+
     if(badges.length === 0) {
+
         badgeContainer.innerHTML = '<span style="opacity:0.6; font-size:0.9rem;">No badges yet. Start checking out lessons!</span>';
+
     }
 
+
+
     // --- DEBUG / MIGRATION TOOL (Temporary) ---
+
     const existingFixBtn = document.getElementById('fix-progress-btn');
+
     if(!existingFixBtn) {
+
         const fixBtn = document.createElement('button');
+
         fixBtn.id = 'fix-progress-btn';
-        fixBtn.innerText = "ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾ Sync/Fix Progress";
+
+        fixBtn.innerText = "🔄 Sync/Fix Progress";
+
         fixBtn.style.position = "fixed";
+
         fixBtn.style.bottom = "20px";
+
         fixBtn.style.right = "20px";
+
         fixBtn.style.background = "#3b82f6";
+
         fixBtn.style.color = "white";
+
         fixBtn.style.padding = "10px 15px";
+
         fixBtn.style.borderRadius = "8px";
+
         fixBtn.style.border = "none";
+
         fixBtn.style.cursor = "pointer";
+
         fixBtn.style.boxShadow = "0 4px 6px rgba(0,0,0,0.2)";
+
         fixBtn.style.zIndex = "9999";
+
         
+
         fixBtn.onclick = async () => {
+
             fixBtn.innerText = "Syncing...";
+
             
+
             // 1. Force gather all possible history from localStorage
+
             const allKeys = Object.keys(localStorage);
+
             console.log("Found LocalStorage Keys:", allKeys); // Debugging
+
             
+
             const localFlags = {};
+
             allKeys.forEach(key => {
+
                 // Broaden the search to catch any variation
+
                 if(key.includes('_u') && key.includes('_l')) {
+
                     localFlags[key] = localStorage.getItem(key);
+
                 }
+
             });
+
             console.log("Harvested Flags:", localFlags); // Debugging
+
+
 
             let recoveredPages = [...visited];
 
+
+
             // 3. Force update Firestore with current LocalStorage state
+
             try {
+
                 const user = auth.currentUser;
+
                 if(user) {
+
                     await updateDoc(doc(db, "users", user.uid), {
+
                         visitedPages: recoveredPages,
+
                         badges: badges,
+
                         progressFlags: localFlags, // Save the flags explicitly
+
                         forceSyncTimestamp: new Date().toISOString()
+
                     });
+
                     
+
                     // Force render with new flags immediately to verify UI
+
                     renderDashboard(recoveredPages, badges, localFlags);
+
                     
+
                     alert(`Sync Complete! Found ${Object.keys(localFlags).length} legacy progress items.`);
+
                     fixBtn.innerText = "Done!";
+
                     setTimeout(() => window.location.reload(), 1000);
+
                 } else {
+
                     alert("You must be logged in to sync.");
+
                 }
+
             } catch(e) {
+
                 console.error(e);
+
                 alert("Sync failed: " + e.message);
+
             }
+
         };
+
         document.body.appendChild(fixBtn);
+
     }
+
 }
+
 // End of Render Function
+
 </script>
+
 <script src="../search_data.js"></script>
+
 <script src="../search_logic.js"></script>
+
 </body>
+
 </html>
+
