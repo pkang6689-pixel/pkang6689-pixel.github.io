@@ -21,12 +21,16 @@ async function initializeProgressFirebase() {
     auth = firebaseAuth;
     useFirebase = true;
     
-    // Listen for auth state changes
-    onAuthStateChanged(auth, (user) => {
-      currentUser = user;
-      if (user) {
-        console.log('[Course Progress] Firebase user authenticated:', user.email);
-      }
+    // Wait for the initial auth state to resolve before returning,
+    // so currentUser is set before any load/sync calls proceed.
+    await new Promise((resolve) => {
+      onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        if (user) {
+          console.log('[Course Progress] Firebase user authenticated:', user.email);
+        }
+        resolve(); // no-op on subsequent calls
+      });
     });
     
     console.log('[Course Progress] Firebase initialized successfully');
@@ -327,11 +331,10 @@ async function clearProgressByPrefix(prefix) {
   return keysToRemove.length;
 }
 
-// Initialize Firebase on script load
+// Initialize Firebase on script load, then sync (auth state already resolved)
 initializeProgressFirebase().then(success => {
   if (success) {
-    // Sync Firebase data to localStorage on page load
-    setTimeout(syncFirebaseToLocalStorage, 500);
+    syncFirebaseToLocalStorage();
   }
 });
 

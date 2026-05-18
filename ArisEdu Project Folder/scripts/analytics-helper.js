@@ -172,7 +172,16 @@ class StudentAnalytics {
       // Try Firebase SDK first (preferred - uses real auth)
       const firebaseSDK = await getFirebaseSDK();
       
-      if (firebaseSDK && firebaseSDK.db) {
+      // Only sync when an authenticated Firebase user exists — session IDs are not valid Firestore paths
+      const authenticatedUser = firebaseSDK && firebaseSDK.auth && firebaseSDK.auth.currentUser;
+      if (!authenticatedUser) {
+        return; // silently skip; no authenticated user to sync to
+      }
+
+      // Use the real Firebase UID for the write
+      this.userId = authenticatedUser.uid;
+
+      if (firebaseSDK.db) {
         await this.syncToFirebaseSDK(firebaseSDK.db, analyticsData);
       } else {
         console.warn('⚠️ Firebase SDK not available, analytics sync skipped');
