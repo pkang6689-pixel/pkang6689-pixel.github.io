@@ -14,11 +14,10 @@ const firebaseConfig = {
   measurementId: "G-XEEFF1QH75"
 };
 
-// reCAPTCHA v3 site key for App Check (free tier, no billing required)
+// reCAPTCHA v3 site key for App Check
 const APP_CHECK_SITE_KEY = "6LftjuUsAAAAAOVl1yf6NaFC7xuFGrAgEOiinIe4";
 
-// Enable App Check debug tokens on localhost so local dev still works.
-// Uses the pre-registered debug token so no localStorage dependency.
+// Use debug token on localhost so local dev works without reCAPTCHA
 if (typeof self !== "undefined" &&
     typeof location !== "undefined" &&
     (location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
@@ -31,14 +30,14 @@ let app, auth, db, appCheck;
 try {
     app = initializeApp(firebaseConfig);
 
-    // Initialize App Check BEFORE other Firebase services start making requests.
+    // Initialize App Check — errors are non-fatal; Firestore rules still enforce auth.
     try {
         appCheck = initializeAppCheck(app, {
             provider: new ReCaptchaV3Provider(APP_CHECK_SITE_KEY),
-            isTokenAutoRefreshEnabled: true
+            isTokenAutoRefreshEnabled: false
         });
     } catch (acErr) {
-        console.error("App Check initialization failed:", acErr);
+        // App Check unavailable (e.g. reCAPTCHA blocked) — continue without it
     }
 
     auth = getAuth(app);
