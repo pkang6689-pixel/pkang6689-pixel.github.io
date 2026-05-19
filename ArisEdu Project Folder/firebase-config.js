@@ -34,7 +34,7 @@ try {
     try {
         appCheck = initializeAppCheck(app, {
             provider: new ReCaptchaV3Provider(APP_CHECK_SITE_KEY),
-            isTokenAutoRefreshEnabled: false
+            isTokenAutoRefreshEnabled: true
         });
     } catch (acErr) {
         // App Check unavailable (e.g. reCAPTCHA blocked) — continue without it
