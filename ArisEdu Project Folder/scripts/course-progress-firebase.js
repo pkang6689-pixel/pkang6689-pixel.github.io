@@ -337,7 +337,12 @@ async function clearProgressByPrefix(prefix) {
 // Initialize Firebase on script load, then sync (auth state already resolved)
 initializeProgressFirebase().then(success => {
   if (success) {
-    syncFirebaseToLocalStorage();
+    syncFirebaseToLocalStorage().then(() => {
+      // Re-apply progress colors now that Firebase data is in localStorage
+      if (typeof window.applyProgressColors === 'function') {
+        window.applyProgressColors();
+      }
+    });
   }
 });
 
