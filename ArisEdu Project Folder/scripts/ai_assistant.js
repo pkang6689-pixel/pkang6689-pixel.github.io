@@ -5,48 +5,42 @@
         return key;
     }
 
-    // --- AI Assistant Logic (WebLLM - In-Browser AI) ---
-    const SYSTEM_PROMPT = `
-    You are an AI tutor for ArisEdu. Your goal is to guide students through their lessons using the Socratic method.
-    DO NOT give direct answers to problems. Instead, ask guiding questions to help the student find the answer themselves.
-    Be encouraging, patient, and concise. Explain concepts simply.
-    If the student asks for the answer, firmly but politely refuse and offer a hint instead.
-    Context: The student is currently on the page "${document.title}".
-    `;
+    // --- AI Assistant Logic (Gemini via Cloud Function) ---
+    const SYSTEM_PROMPT = `You are Aris, an AI tutor for ArisEdu. You use the Socratic method exclusively.
 
-    // Dynamic import for WebLLM
-    let webllm;
-    let engine;
-    
+CORE RULES:
+1. NEVER give direct answers to questions about course content, problems, or exercises.
+2. ALWAYS respond with a guiding question or a small hint that leads the student to think.
+3. Keep every response under 80 words — concise and focused.
+4. Be warm, encouraging, and patient at all times.
+
+HOW TO RESPOND IN EACH SITUATION:
+- Student asks "What is X?" → Ask what they already know about X, then build from there.
+- Student asks "How do I solve this?" → Ask what the first step or key concept might be.
+- Student gives a WRONG answer → Don't say "wrong". Ask "What makes you think that?" or point to the flaw with a question.
+- Student gives a CORRECT answer → Confirm briefly, then ask a follow-up to deepen understanding.
+- Student says "I don't know" → Give one small hint, then ask a simpler leading question.
+- Student says "just tell me the answer" → Firmly but kindly refuse. Give a hint instead.
+- Student seems frustrated → Acknowledge it, reassure them, then break the problem into a smaller first step.
+
+NEVER: lecture, give long explanations, list multiple concepts at once, or solve the problem for the student.
+
+Context: The student is currently studying "${document.title}".`;
+
+    const FUNCTION_URL = "https://callaitutor-vc6l2zw6va-df.a.run.app";
+
     const AI_Markup = `
     <div id="ai-chat-overlay" style="display: none; position: fixed; bottom: 80px; right: 20px; width: 380px; height: 550px; background: white; border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 9999; flex-direction: column; overflow: hidden; font-family: 'Poppins', sans-serif;">
         <div id="ai-drag-handle" style="background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%); padding: 1rem; color: white; display: flex; justify-content: space-between; align-items: center; cursor: grab; user-select: none;">
             <div style="font-weight: bold; display: flex; align-items: center; gap: 0.5rem;">
-                <span>🤖</span> Aris AI Tutor (Local)
+                <span>🤖</span> Aris AI Tutor
             </div>
-            <div style="display:flex; gap:0.5rem;">
-                <button id="ai-minimize" style="background: none; border: none; color: white; cursor: pointer;">✕</button>
-            </div>
+            <button id="ai-minimize" style="background: none; border: none; color: white; cursor: pointer;">✕</button>
         </div>
-        
-        <!-- Model Loading Screen -->
-        <div id="ai-loading-screen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; text-align:center; height:100%; gap:1rem; background:#f8fafc;">
-            <div style="font-size:3rem;">🧠</div>
-            <h3 style="margin:0; color:#334155;">${_t('Initialize AI Tutor')}</h3>
-            <p style="font-size:0.9rem; color:#64748b;">${_t('This runs entirely in your browser. No API key required.')}<br>First load may take a minute (~2GB download).</p>
-            <div id="ai-progress-container" style="width:100%; display:none;">
-                <div style="width:100%; background:#e2e8f0; border-radius:1rem; height:8px; overflow:hidden;">
-                    <div id="ai-progress-bar" style="width:0%; height:100%; background:#3b82f6; transition:width 0.2s;"></div>
-                </div>
-                <p id="ai-progress-text" style="font-size:0.8rem; color:#64748b; margin-top:0.5rem;">${_t('Initializing...')}...</p>
-            </div>
-            <button id="ai-start-engine" style="background:#3b82f6; color:white; padding:0.8rem 1.5rem; border-radius:0.5rem; border:none; font-weight:600; cursor:pointer; box-shadow:0 2px 4px rgba(59,130,246,0.3);">${_t('Start AI Engine')}</button>
-        </div>
-
-        <div id="ai-chat-interface" style="display:none; flex: 1; flex-direction: column; height: 100%;">
+        <div id="ai-chat-interface" style="display: flex; flex: 1; flex-direction: column; height: 100%;">
             <div id="ai-messages" style="flex: 1; padding: 1rem; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 0.8rem;">
                 <div class="ai-message" style="background: #e2e8f0; color: #334155; padding: 0.8rem; border-radius: 0.8rem 0.8rem 0.8rem 0; align-self: flex-start; max-width: 85%;">
-                    ${_t("Hello! I'm running locally on your device. I'm ready to help you learn!")}
+                    ${_t("Hello! I'm Aris AI Tutor. Ask me anything about what you're learning!")}
                 </div>
             </div>
             <div style="padding: 1rem; border-top: 1px solid #e2e8f0; background: white; display: flex; gap: 0.5rem;">
@@ -61,12 +55,10 @@
     const style = document.createElement('style');
     style.textContent = `
         body.dark-mode #ai-chat-overlay { background: #1e293b; border: 1px solid #334155; }
-        body.dark-mode #ai-messages, body.dark-mode #ai-loading-screen { background: #0f172a; }
+        body.dark-mode #ai-messages { background: #0f172a; }
         body.dark-mode .ai-message { background: #334155 !important; color: #e2e8f0 !important; }
         body.dark-mode .user-message { background: #3b82f6 !important; color: white !important; }
         body.dark-mode #ai-input { background: #1e293b; color: white; border-color: #334155; }
-        body.dark-mode #ai-loading-screen h3 { color: #e2e8f0 !important; }
-        body.dark-mode #ai-loading-screen p { color: #94a3b8 !important; }
     `;
     document.head.appendChild(style);
 
@@ -102,9 +94,8 @@
 
         if (!document.getElementById('ai-chat-overlay')) {
             document.body.insertAdjacentHTML('beforeend', AI_Markup);
-            
+
             document.getElementById('ai-minimize').addEventListener('click', toggleAI);
-            document.getElementById('ai-start-engine').addEventListener('click', startEngine);
             document.getElementById('ai-send').addEventListener('click', handleUserMessage);
             document.getElementById('ai-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') handleUserMessage();
@@ -182,86 +173,41 @@
         }
     }
 
-    async function startEngine() {
-        const btn = document.getElementById('ai-start-engine');
-        const progressContainer = document.getElementById('ai-progress-container');
-        const progressBar = document.getElementById('ai-progress-bar');
-        const progressText = document.getElementById('ai-progress-text');
-
-        btn.style.display = 'none';
-        progressContainer.style.display = 'block';
-
-        try {
-            // Import WebLLM only when needed
-            if (!webllm) {
-                // Use explicit module script tag or dynamic import
-                webllm = await import('https://esm.run/@mlc-ai/web-llm');
-            }
-
-            // Callback for progress updates
-            const initProgressCallback = (report) => {
-                const percentage = Math.round(report.progress * 100);
-                progressBar.style.width = percentage + '%';
-                progressText.textContent = report.text;
-            };
-
-            // Using Llama-3-8B-Instruct-q4f32_1-MLC-1k as a balanced choice
-            // Or use Phi-3-mini-4k-instruct-q4f16_1-MLC for faster load (approx 2.3GB)
-            const selectedModel = "Phi-3-mini-4k-instruct-q4f16_1-MLC";
-            
-            engine = await webllm.CreateMLCEngine(
-                selectedModel,
-                { initProgressCallback: initProgressCallback }
-            );
-
-            // Engine Ready!
-            document.getElementById('ai-loading-screen').style.display = 'none';
-            document.getElementById('ai-chat-interface').style.display = 'flex';
-            document.getElementById('ai-input').focus();
-
-        } catch (error) {
-            console.error(error);
-            progressText.textContent = "Error loading engine: " + error.message;
-            progressText.style.color = '#ef4444';
-            btn.style.display = 'block';
-            btn.textContent = 'Retry';
-        }
-    }
-
     async function handleUserMessage() {
         const input = document.getElementById('ai-input');
         const message = input.value.trim();
         if (!message) return;
 
-        if (!engine) {
-            addMessage("Please start the AI engine first.", 'ai');
-            return;
-        }
-
         addMessage(message, 'user');
         conversationHistory.push({ role: "user", content: message });
         input.value = '';
 
-        const typingId = addMessage('Thinking...', 'ai', true);
+        const sendBtn = document.getElementById('ai-send');
+        sendBtn.disabled = true;
+        const typingId = addMessage(_t('Thinking...'), 'ai', true);
 
         try {
-            const completion = await engine.chat.completions.create({
-                messages: conversationHistory,
-                temperature: 0.7,
-                max_tokens: 256, // Keep responses short for speed
+            const response = await fetch(FUNCTION_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ messages: conversationHistory }),
             });
 
-            const responseText = completion.choices[0].message.content;
-            
             const typingEl = document.getElementById(typingId);
             if (typingEl) typingEl.remove();
-            
-            addMessage(responseText, 'ai');
-            conversationHistory.push({ role: "assistant", content: responseText });
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                throw new Error(err.error || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            addMessage(data.content, 'ai');
+            conversationHistory.push({ role: "assistant", content: data.content });
 
             // Manage context window
             if (conversationHistory.length > 10) {
-                 conversationHistory = [
+                conversationHistory = [
                     conversationHistory[0],
                     ...conversationHistory.slice(conversationHistory.length - 9)
                 ];
@@ -271,6 +217,9 @@
             const typingEl = document.getElementById(typingId);
             if (typingEl) typingEl.remove();
             addMessage(`Error: ${error.message}`, 'ai');
+        } finally {
+            sendBtn.disabled = false;
+            document.getElementById('ai-input').focus();
         }
     }
 
