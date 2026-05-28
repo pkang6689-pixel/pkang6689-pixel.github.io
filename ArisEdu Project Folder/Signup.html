@@ -908,8 +908,23 @@
       } catch (error) {
           console.error("Signup Error:", error);
           let msg = 'Error creating account.';
-          if (error.code === 'auth/email-already-in-use') msg = 'An account with this email already exists.';
-          if (error.code === 'auth/weak-password') msg = 'Password is too weak.';
+          switch (error.code) {
+            case 'auth/email-already-in-use':
+              msg = 'An account with this email already exists.'; break;
+            case 'auth/weak-password':
+              msg = 'Password must be at least 6 characters.'; break;
+            case 'auth/invalid-email':
+              msg = 'Invalid email address.'; break;
+            case 'auth/operation-not-allowed':
+              msg = 'Email/password sign-up is not enabled. Contact support.'; break;
+            case 'auth/app-not-authorized':
+            case 'auth/requests-from-referer-not-allowed':
+              msg = 'This site is not authorized for sign-up. Contact support.'; break;
+            case 'auth/network-request-failed':
+              msg = 'Network error. Check your connection and try again.'; break;
+            default:
+              msg = `Error creating account (${error.code || error.message || 'unknown'}).`;
+          }
           
           showFormMessage('signup-form', msg, 'error');
           submitButton.disabled = false;
