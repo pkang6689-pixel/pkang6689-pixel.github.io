@@ -1077,6 +1077,623 @@
     </div>
   </main>
 
+  <!-- === LAB INTERACTIVE WORKSPACE (LABXCHANGE STYLE) === -->
+  <style>
+    @keyframes workspaceSlideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .workspace-animate {
+      animation: workspaceSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    #workspace-panel-content input[type="checkbox"]:checked + label,
+    #workspace-panel-content input[type="checkbox"]:checked + div label {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+    /* Simple scrollbar styling */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+
+  <div id="lab-workspace" class="hidden fixed inset-0 z-50 flex flex-col bg-slate-900 text-slate-100 font-sans" style="font-family: 'Poppins', sans-serif;">
+    <!-- Header -->
+    <header class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950">
+      <div class="flex items-center gap-3">
+        <button onclick="closeLabWorkspace()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
+          ← Back to Labs
+        </button>
+        <div class="h-6 w-px bg-slate-800"></div>
+        <div>
+          <span id="workspace-category" class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Category</span>
+          <h2 id="workspace-title" class="text-sm font-bold text-white leading-tight">Simulation Lab</h2>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a id="workspace-fullscreen-link" href="#" target="_blank" class="text-xs text-slate-400 hover:text-white hover:underline transition">Open Fullscreen ↗</a>
+      </div>
+    </header>
+
+    <!-- Workspace Split View -->
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+      <!-- Left Panel: Guided sections -->
+      <aside class="w-full md:w-[410px] border-r border-slate-800 bg-slate-900 flex flex-col flex-shrink-0">
+        <!-- Navigation Tabs -->
+        <nav class="flex border-b border-slate-800 bg-slate-950 text-[10px] overflow-x-auto select-none font-bold custom-scrollbar">
+          <button onclick="switchWorkspaceSection('overview')" id="tab-overview" class="flex-1 min-w-[70px] py-3 text-center border-b-2 border-emerald-500 text-emerald-400 hover:text-emerald-300 transition">
+            📝 Theory
+          </button>
+          <button onclick="switchWorkspaceSection('materials')" id="tab-materials" class="flex-1 min-w-[70px] py-3 text-center border-b-2 border-transparent text-slate-400 hover:text-white transition">
+            🧪 Materials
+          </button>
+          <button onclick="switchWorkspaceSection('protocol')" id="tab-protocol" class="flex-1 min-w-[70px] py-3 text-center border-b-2 border-transparent text-slate-400 hover:text-white transition">
+            🔬 Protocol
+          </button>
+          <button onclick="switchWorkspaceSection('assessment')" id="tab-assessment" class="flex-1 min-w-[70px] py-3 text-center border-b-2 border-transparent text-slate-400 hover:text-white transition">
+            🧠 Quiz
+          </button>
+          <button onclick="switchWorkspaceSection('notebook')" id="tab-notebook" class="flex-1 min-w-[70px] py-3 text-center border-b-2 border-transparent text-slate-400 hover:text-white transition">
+            ✍️ Notebook
+          </button>
+        </nav>
+
+        <!-- Section Body -->
+        <div id="workspace-panel-content" class="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar workspace-animate">
+          <!-- Dynamically inserted -->
+        </div>
+
+        <!-- Navigation Footer -->
+        <footer class="p-3 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+          <button id="btn-prev-section" onclick="navigateSection(-1)" class="px-3 py-1.5 text-[11px] font-semibold rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:pointer-events-none text-slate-300 transition">
+            Previous
+          </button>
+          <div id="workspace-progression" class="text-[11px] text-slate-500 font-medium">1 / 5</div>
+          <button id="btn-next-section" onclick="navigateSection(1)" class="px-3 py-1.5 text-[11px] font-semibold rounded bg-blue-600 hover:bg-blue-500 text-white transition">
+            Next Section
+          </button>
+        </footer>
+      </aside>
+
+      <!-- Right Panel: Actual Simulation (Iframe) -->
+      <main class="flex-1 bg-slate-950 flex flex-col relative">
+        <iframe id="workspace-iframe" class="w-full h-full border-none bg-slate-950" src="about:blank"></iframe>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const CUSTOM_LAB_GUIDES = {
+      "chemistry_lab.html": {
+        category: "Chemistry",
+        title: "Chemical Reactions",
+        theory: `
+          <h3 class="text-sm font-bold text-white mb-2">The Chemistry of Reactions</h3>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Chemical reactions happen when atomic bonds are broken and formed. Atoms rearrange themselves to produce entirely new substances with distinct physical and chemical traits.
+          </p>
+          <div class="p-3 bg-slate-800 rounded-lg border border-slate-700 space-y-2">
+            <h4 class="text-xs font-bold text-emerald-400">🔑 Key Concepts</h4>
+            <ul class="list-disc list-inside text-[11px] text-slate-300 space-y-1">
+              <li><strong>Reactants:</strong> The initial substances you combine.</li>
+              <li><strong>Products:</strong> The newly formed resulting chemicals.</li>
+              <li><strong>Observations:</strong> Gas generation, color shifts, and precipitation prove a chemical change occurred.</li>
+            </ul>
+          </div>
+        `,
+        materials: [
+          "HCl (Hydrochloric Acid) - Strong acid",
+          "NaOH (Sodium Hydroxide) - Strong base",
+          "NaHCO3 (Baking Soda) - Carbonate powder",
+          "CH3COOH (Vinegar) - Weak acid",
+          "AgNO3 (Silver Nitrate) - Solution salt",
+          "NaCl (Table Salt) - Halide salt",
+          "CuSO4 (Copper Sulfate) - Transition metal salt",
+          "Fe (Iron Nail) - Pure metal structure",
+          "Phenolphthalein - pH indicator"
+        ],
+        protocol: [
+          "Select 'HCl (Hydrochloric Acid)' on the reagent shelf and click 'Add to Beaker'.",
+          "Next, select 'Phenolphthalein' (pH indicator) and add it. Notice it stays colorless in acid.",
+          "Select 'NaOH (Sodium Hydroxide)' on the shelf and click 'Add to Beaker'. Watch the pH level change and the solution turn bright pink!",
+          "Click 'Reset' to clear the beaker.",
+          "Select 'CuSO4 (Copper Sulfate)' and insert it, then add 'Fe' (Iron Nail). Observe the copper placing itself on the iron as a brown displacement deposit."
+        ],
+        assessment: {
+          question: "What is the primary indicator of a chemical reaction when baking soda (carbonates) interacts with hydrochloric acid?",
+          options: [
+            "No visual change occurs whatsoever",
+            "Vigorous fizzing and bubble formation (release of CO2 gas)",
+            "The beaker turns into a solid block of metallic copper"
+          ],
+          correctIndex: 1,
+          explanation: "Acids react with carbonates or bicarbonates to produce carbon dioxide gas (CO₂), which presents as strong effervescence (bubbling/fizzing)."
+        }
+      },
+      "projectile": {
+        category: "Physics",
+        title: "Projectile Motion",
+        theory: `
+          <h3 class="text-sm font-bold text-white mb-2">Kinematics & Gravity</h3>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            A projectile is any object launched into space upon which the only acting force is gravity. Under constant gravity, its horizontal speed remains steady while its vertical velocity changes, creating a parabolic arc.
+          </p>
+          <div class="p-3 bg-slate-800 rounded-lg border border-slate-700 space-y-2">
+            <h4 class="text-xs font-bold text-purple-400">🔑 Key Aspects</h4>
+            <div class="text-[11px] text-slate-300 space-y-1">
+              <p>• Horizontal Range: Peak range is achieved at exactly 45 degrees without air resistance.</p>
+              <p>• Peak Height: Height increases with larger, steeper launch angles.</p>
+            </div>
+          </div>
+        `,
+        materials: [
+          "Projectile Launcher with adjustable barrel angle",
+          "Launch trigger mechanism",
+          "Velocity speed controls",
+          "Reference ground grid and landing target"
+        ],
+        protocol: [
+          "Set the launch angle to 45 degrees.",
+          "Set the launch speed to high and click the trigger to fire. Notice the landing spot.",
+          "Change the angle to 60 degrees. Fire again and observe if it goes higher but lands closer.",
+          "Now switch the angle to 30 degrees. Fire and compare its range with the 60-degree trial (Complementary mechanics!).",
+          "Observe how the horizontal velocity components differ between trials."
+        ],
+        assessment: {
+          question: "Which angle results in the maximum horizontal displacement (range) for a projectile on flat ground?",
+          options: [
+            "15° launch angle",
+            "45° launch angle",
+            "75° launch angle"
+          ],
+          correctIndex: 1,
+          explanation: "A launch angle of 45 degrees perfectly balances horizontal velocity propagation with vertical flight time, yielding maximum horizontal displacement."
+        }
+      },
+      "biology_lab.html": {
+        category: "Biology",
+        title: "Cell Explorer Microscope",
+        theory: `
+          <h3 class="text-sm font-bold text-white mb-2">Cellular Architectures</h3>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Cells are categorized into Eukaryotes (complex cells with a nucleus like animal & plant units) and Prokaryotes (simple single-cell units without a nucleus like bacteria). Microscope observation lets us identify their component organelles.
+          </p>
+          <div class="p-3 bg-slate-800 rounded-lg border border-slate-700 space-y-2">
+            <h4 class="text-xs font-bold text-emerald-400">🔑 Key Structures</h4>
+            <ul class="list-disc list-inside text-[11px] text-slate-300 space-y-1">
+              <li><strong>Cell Wall:</strong> Provides boundary safety for plants & bacteria (absent in animals).</li>
+              <li><strong>Nucleus:</strong> Contains DNA, acts as the cell control center.</li>
+              <li><strong>Chloroplasts:</strong> Power factories in plant cells that run photosynthesis.</li>
+            </ul>
+          </div>
+        `,
+        materials: [
+          "Virtual Microscope focal lens controls",
+          "Animal cell sample slide",
+          "Plant cell sample slide",
+          "Bacterial cell sample slide"
+        ],
+        protocol: [
+          "Load the Animal Cell slide and focus the camera. Point out the nucleus and outer cell membrane.",
+          "Switch slides and load the Plant Cell slide. Adjust focus.",
+          "Look for the thick rigid Cell Wall framing the plant cell and the small green Chloroplast dots inside.",
+          "Load the Bacteria slide, focus, and observe the thin hair-like flagellum and lack of a central nucleus.",
+          "Discuss how organelle diversity accommodates separate ecological lifestyles."
+        ],
+        assessment: {
+          question: "Which slide sample exhibits green chloroplast organelles that capture sunlight?",
+          options: [
+            "Plant Cell slide",
+            "Animal Cell slide",
+            "Bacteria slide"
+          ],
+          correctIndex: 0,
+          explanation: "Plant cells utilize green chlorophyll-filled Chloroplast organelles to conduct photosynthesis, extracting chemical energy from solar radiation."
+        }
+      },
+      "plates": {
+        category: "Earth Science",
+        title: "Tectonic Plates",
+        theory: `
+          <h3 class="text-sm font-bold text-white mb-2">Crust Boundaries & Activity</h3>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Earth's rigid outer shell is cracked into puzzle pieces called tectonic plates. Floated along convective current pathways in the mantle, plates diverge, converge, or scrape against one another to shape planet topography.
+          </p>
+          <div class="p-3 bg-slate-800 rounded-lg border border-slate-700 space-y-2">
+            <h4 class="text-xs font-bold text-blue-400">🔑 Crust Margins</h4>
+            <ul class="list-disc list-inside text-[11px] text-slate-300 space-y-1">
+              <li><strong>Convergent:</strong> Plates crash (forms mountain ranges & volcanoes).</li>
+              <li><strong>Divergent:</strong> Plates split (forms mid-ocean crust ridges).</li>
+              <li><strong>Transform:</strong> Plates grind (creates strike-slip fault lines).</li>
+            </ul>
+          </div>
+        `,
+        materials: [
+          "Tectonic motion driver controls",
+          "Oceanic crust layers",
+          "Continental crust plates",
+          "Mantle convection speed simulation"
+        ],
+        protocol: [
+          "Slide plate arrows apart to establish a Divergent Boundary. Watch how molten magma wells up to fill the rift.",
+          "Configure a Convergent interface where Continental meets Oceanic crust.",
+          "Notice how the dense oceanic plate subducts underneath the lighter continental plate, creating volcanoes.",
+          "Initialize plate slip paths (Transform Boundary) to witness sliding friction stress.",
+          "Notice the earthquake focal points that emerge near fault fractures."
+        ],
+        assessment: {
+          question: "Which boundary margin is directly responsible for pulling crust apart and building mid-ocean rifts?",
+          options: [
+            "Transform Boundary",
+            "Convergent Boundary",
+            "Divergent Boundary"
+          ],
+          correctIndex: 2,
+          explanation: "Divergent boundaries pull plates apart, allowing magma to overflow and create fresh seafloor along spreading rifts."
+        }
+      },
+      "unit_circle.html": {
+        category: "Mathematics",
+        title: "The Unit Circle",
+        theory: `
+          <h3 class="text-sm font-bold text-white mb-2">Trig Functions Visualized</h3>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            The unit circle is centered at (0,0) with a radius of 1. The coordinates of any point on the circle at angle theta are exactly (cos theta, sin theta). This links geometry perfectly with algebraic sine and cosine properties.
+          </p>
+          <div class="p-3 bg-slate-800 rounded-lg border border-slate-700 space-y-2">
+            <h4 class="text-xs font-bold text-purple-400">🔑 Functions</h4>
+            <div class="text-[11px] text-slate-300 space-y-1">
+              <p>• Cosine (x-axis projection): cos(θ)</p>
+              <p>• Sine (y-axis projection): sin(θ)</p>
+              <p>• Tangent (slope coefficient): sin(θ) / cos(θ)</p>
+            </div>
+          </div>
+        `,
+        materials: [
+          "Coordinate grid overlay with unit radius",
+          "Rotatable angle arm",
+          "Sine and Cosine length projectors",
+          "Quadrant sign indicators (+ / -)"
+        ],
+        protocol: [
+          "Sweep the coordinate arm to 0 radians (0 degrees). Observe coordinate positions (1, 0).",
+          "Drag the angle arm to 30 degrees and check the sine and cosine lengths.",
+          "Move the angle arm to exactly 90 degrees. Note how cosine goes to 0 and sine reaches peak 1.",
+          "Drag into Quadrant 2 (e.g., 135 degrees). Notice how the x-value (cosine) flips to negative, while y (sine) remains positive.",
+          "Sweep through Quadrant 3 and observe both sine and cosine showing negative values."
+        ],
+        assessment: {
+          question: "At an angle of 180 degrees (straight-left on grid), what are the sine and cosine values, respectively?",
+          options: [
+            "cos = 0, sin = 1",
+            "cos = -1, sin = 0",
+            "cos = 1, sin = -1"
+          ],
+          correctIndex: 1,
+          explanation: "At 180 degrees, the point rests on the far-left coordinate axis: x = cos(180°) = -1 and y = sin(180°) = 0."
+        }
+      }
+    };
+
+    function getLabGuide(url, title, category) {
+      let normUrl = url.toLowerCase();
+      let guideKey = null;
+      if (normUrl.includes("chemistry_lab.html")) guideKey = "chemistry_lab.html";
+      else if (normUrl.includes("projectile") || normUrl.includes("physics_sandbox.html#projectile")) guideKey = "projectile";
+      else if (normUrl.includes("biology_lab.html")) guideKey = "biology_lab.html";
+      else if (normUrl.includes("plates") || normUrl.includes("earth_science_lab.html#plates")) guideKey = "plates";
+      else if (normUrl.includes("unit_circle.html")) guideKey = "unit_circle.html";
+
+      if (guideKey && CUSTOM_LAB_GUIDES[guideKey]) {
+        return CUSTOM_LAB_GUIDES[guideKey];
+      }
+
+      // High-quality dynamic fallback for all remaining simulations
+      return {
+        category: category,
+        title: title,
+        theory: `
+          <h3 class="text-sm font-bold text-white mb-2">Core Scientific Principle</h3>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Welcome to the <strong>${title}</strong> interactive workspace. This module belongs to the study of <strong>${category}</strong>.
+          </p>
+          <div class="p-3 bg-slate-800/80 rounded-lg border border-slate-700 space-y-2">
+            <h4 class="text-xs font-bold text-emerald-400">🔥 Educational Goals</h4>
+            <ul class="list-disc list-inside text-[11px] text-slate-300 space-y-1">
+              <li>Observe physical, mathematical, or organic limits and behaviors.</li>
+              <li>Develop scientific intuition through visual triggers.</li>
+              <li>Identify correlations between custom input variables and reactions.</li>
+            </ul>
+          </div>
+        `,
+        materials: [
+          `Interactive ${title} simulator interface`,
+          "Real-time visual monitoring dashboard",
+          "Parameter manipulation slider panel",
+          "Reset, pause, and starting toggles"
+        ],
+        protocol: [
+          `Open the ${title} simulation dashboard in the right-side viewport.`,
+          "Inspect the initial state and familiarize yourself with default constants.",
+          "Alter variables slowly and observe how each change translates to reaction spikes, waves, or cycles.",
+          "Document your observed values and experimental hypothesis in the 'Notebook' section.",
+          "Click the reset buttons to clear visual layouts and initiate fresh trials."
+        ],
+        assessment: {
+          question: `What primary training benefit does the interactive ${title} virtual sandbox deliver?`,
+          options: [
+            "It maps algebraic and scientific constants onto visual reactions to cultivate concrete intuition",
+            "It acts as a static document overlay with zero interactive responsive triggers",
+            "It runs pre-recorded video files that cannot be edited or reset"
+          ],
+          correctIndex: 0,
+          explanation: "Modern interactive simulation environments respond dynamically to student input, demonstrating the exact physical equations that drive the system."
+        }
+      };
+    }
+
+    const WORKSPACE_SECTIONS = ['overview', 'materials', 'protocol', 'assessment', 'notebook'];
+    let currentSectionIndex = 0;
+    let currentWorkingGuide = null;
+    let currentLabUrl = "";
+    let notesSaveTimeout = null;
+
+    function switchWorkspaceSection(sectionKey) {
+      currentSectionIndex = WORKSPACE_SECTIONS.indexOf(sectionKey);
+      updateActiveWorkspaceSection();
+    }
+
+    function navigateSection(direction) {
+      let newIndex = currentSectionIndex + direction;
+      if (newIndex >= 0 && newIndex < WORKSPACE_SECTIONS.length) {
+        currentSectionIndex = newIndex;
+        updateActiveWorkspaceSection();
+      }
+    }
+
+    function updateActiveWorkspaceSection() {
+      const sectionKey = WORKSPACE_SECTIONS[currentSectionIndex];
+      
+      WORKSPACE_SECTIONS.forEach(sec => {
+        const tabEl = document.getElementById(`tab-${sec}`);
+        if (tabEl) {
+          if (sec === sectionKey) {
+            tabEl.classList.remove("border-transparent", "text-slate-400", "hover:text-white");
+            tabEl.classList.add("border-emerald-500", "text-emerald-400");
+          } else {
+            tabEl.classList.add("border-transparent", "text-slate-400", "hover:text-white");
+            tabEl.classList.remove("border-emerald-500", "text-emerald-400");
+          }
+        }
+      });
+
+      const contentEl = document.getElementById("workspace-panel-content");
+      if (!contentEl || !currentWorkingGuide) return;
+
+      // Trigger standard transition animation
+      contentEl.classList.remove("workspace-animate");
+      void contentEl.offsetWidth; // force reflow
+      contentEl.classList.add("workspace-animate");
+
+      if (sectionKey === 'overview') {
+        contentEl.innerHTML = currentWorkingGuide.theory;
+      } else if (sectionKey === 'materials') {
+        let materialsHtml = "<h3 class='text-sm font-bold text-white mb-3'>🔬 Essential Materials</h3><ul class='space-y-2'>";
+        currentWorkingGuide.materials.forEach((item, index) => {
+          materialsHtml += `
+            <li class="flex items-start gap-2.5 text-xs text-slate-300 leading-relaxed">
+              <input type="checkbox" id="mat-${index}" class="mt-0.5 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-slate-900" />
+              <label for="mat-${index}" class="cursor-pointer select-none">${item}</label>
+            </li>
+          `;
+        });
+        materialsHtml += "</ul>";
+        contentEl.innerHTML = materialsHtml;
+      } else if (sectionKey === 'protocol') {
+        let protocolHtml = "<h3 class='text-sm font-bold text-white mb-3'>🧪 Experimental Protocol</h3><ol class='space-y-3'>";
+        currentWorkingGuide.protocol.forEach((step, index) => {
+          protocolHtml += `
+            <li class="flex items-start gap-3 text-xs text-slate-300 leading-relaxed p-2.5 bg-slate-800/40 rounded-lg border border-slate-800/80">
+              <input type="checkbox" id="step-${index}" class="mt-0.5 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-slate-900" />
+              <div class="flex-1">
+                <label for="step-${index}" class="cursor-pointer select-none block text-slate-300">
+                  <span class="text-emerald-400 font-bold mr-1">Step ${index + 1}:</span>${step}
+                </label>
+              </div>
+            </li>
+          `;
+        });
+        protocolHtml += "</ol>";
+        contentEl.innerHTML = protocolHtml;
+      } else if (sectionKey === 'assessment') {
+        let assessmentHtml = `
+          <h3 class='text-sm font-bold text-white mb-3'>🧠 Understanding Check</h3>
+          <p class='text-xs text-slate-300 leading-snug mb-4 font-semibold'>${currentWorkingGuide.assessment.question}</p>
+          <div class="space-y-2.5">
+        `;
+        currentWorkingGuide.assessment.options.forEach((opt, index) => {
+          assessmentHtml += `
+            <button onclick="submitAssessmentAnswer(${index})" class="w-full text-left p-3 rounded-lg border border-slate-800 bg-slate-950/40 hover:bg-slate-800/60 text-xs text-slate-200 transition select-none flex items-start gap-2.5">
+              <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-800 text-[10px] font-bold text-slate-400 flex-shrink-0">${String.fromCharCode(65 + index)}</span>
+              <span class="pt-0.5 flex-1">${opt}</span>
+            </button>
+          `;
+        });
+        assessmentHtml += `
+          </div>
+          <div id="assessment-feedback" class="hidden mt-4 p-3 rounded-lg text-xs leading-relaxed border"></div>
+        `;
+        contentEl.innerHTML = assessmentHtml;
+      } else if (sectionKey === 'notebook') {
+        const storageKey = `lab_notes_${currentLabUrl}`;
+        const existingNotes = localStorage.getItem(storageKey) || "";
+
+        let notebookHtml = `
+          <h3 class='text-sm font-bold text-white mb-2'>✍️ Digital Lab Journal</h3>
+          <p class='text-[11px] text-slate-400 leading-normal mb-3'>
+            Draft observations, experimental findings, or parameters. Your entries are saved automatically!
+          </p>
+          <textarea id="lab-notebook-textarea" oninput="saveCurrentNotebookNotes(this.value)" placeholder="Begin drafting your lab notes here..." class="w-full h-80 px-3 py-2.5 text-xs text-slate-200 bg-slate-950/70 rounded-lg border border-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono resize-none leading-relaxed">${existingNotes}</textarea>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 mt-1">
+            <span id="notebook-save-status">Saved locally</span>
+            <button onclick="clearNotebookNotes()" class="text-rose-400 hover:text-rose-300 transition text-[10px]">Clear Notes</button>
+          </div>
+        `;
+        contentEl.innerHTML = notebookHtml;
+      }
+
+      const progEl = document.getElementById("workspace-progression");
+      if (progEl) {
+        progEl.textContent = `${currentSectionIndex + 1} / ${WORKSPACE_SECTIONS.length}`;
+      }
+
+      const prevBtn = document.getElementById("btn-prev-section");
+      if (prevBtn) {
+        prevBtn.disabled = currentSectionIndex === 0;
+      }
+
+      const nextBtn = document.getElementById("btn-next-section");
+      if (nextBtn) {
+        if (currentSectionIndex === WORKSPACE_SECTIONS.length - 1) {
+          nextBtn.textContent = "Finish Lab";
+          nextBtn.onclick = () => {
+            if (confirm("Great job! Ready to wrap up this lab simulation and return to the main workspace?")) {
+              closeLabWorkspace();
+            }
+          };
+        } else {
+          nextBtn.textContent = "Next Section";
+          nextBtn.onclick = () => navigateSection(1);
+        }
+      }
+    }
+
+    function submitAssessmentAnswer(index) {
+      const field = document.getElementById("assessment-feedback");
+      if (!currentWorkingGuide || !field) return;
+
+      field.className = "mt-4 p-3 rounded-lg text-xs leading-relaxed border";
+
+      if (index === currentWorkingGuide.assessment.correctIndex) {
+        field.innerHTML = `
+          <div class="font-bold text-emerald-400 mb-1">✓ Correct! Excellent analysis.</div>
+          <div class="text-slate-300">${currentWorkingGuide.assessment.explanation}</div>
+        `;
+        field.classList.add("bg-emerald-950/70", "border-emerald-800/80", "text-emerald-300");
+      } else {
+        field.innerHTML = `
+          <div class="font-bold text-rose-400 mb-1">✗ Keep learning! Try again.</div>
+          <div class="text-slate-300">Reflect on the scientific theory in the first tab and select another possibility.</div>
+        `;
+        field.classList.add("bg-rose-950/70", "border-rose-800/80", "text-rose-300");
+      }
+      field.classList.remove("hidden");
+    }
+
+    function saveCurrentNotebookNotes(val) {
+      const statusEl = document.getElementById("notebook-save-status");
+      if (statusEl) {
+        statusEl.textContent = "Writing...";
+        statusEl.classList.add("text-emerald-400");
+      }
+      localStorage.setItem(`lab_notes_${currentLabUrl}`, val);
+      
+      if (notesSaveTimeout) clearTimeout(notesSaveTimeout);
+      notesSaveTimeout = setTimeout(() => {
+        if (statusEl) {
+          statusEl.textContent = "Saved locally";
+          statusEl.classList.remove("text-emerald-400");
+        }
+      }, 700);
+    }
+
+    function clearNotebookNotes() {
+      if (confirm("Are you sure you want to clear your lab journal entries for this module?")) {
+        const textarea = document.getElementById("lab-notebook-textarea");
+        if (textarea) textarea.value = "";
+        localStorage.removeItem(`lab_notes_${currentLabUrl}`);
+        const statusEl = document.getElementById("notebook-save-status");
+        if (statusEl) statusEl.textContent = "Cleared";
+      }
+    }
+
+    function openLabWorkspace(url, title, category) {
+      currentLabUrl = url;
+      currentWorkingGuide = getLabGuide(url, title, category);
+      
+      const catEl = document.getElementById("workspace-category");
+      if (catEl) {
+        catEl.textContent = currentWorkingGuide.category;
+        catEl.className = "text-[10px] font-bold uppercase tracking-wider ";
+        
+        const cat = currentWorkingGuide.category.toLowerCase();
+        if (cat.includes("chemistry")) catEl.classList.add("text-amber-500");
+        else if (cat.includes("physics")) catEl.classList.add("text-orange-400");
+        else if (cat.includes("biology") || cat.includes("marine")) catEl.classList.add("text-emerald-400");
+        else if (cat.includes("earth")) catEl.classList.add("text-blue-400");
+        else if (cat.includes("math")) catEl.classList.add("text-purple-400");
+        else catEl.classList.add("text-emerald-400");
+      }
+
+      document.getElementById("workspace-title").textContent = currentWorkingGuide.title;
+      document.getElementById("workspace-fullscreen-link").href = url;
+      document.getElementById("workspace-iframe").src = url;
+      
+      currentSectionIndex = 0;
+      updateActiveWorkspaceSection();
+      
+      const workspaceEl = document.getElementById("lab-workspace");
+      if (workspaceEl) {
+        workspaceEl.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
+    }
+
+    function closeLabWorkspace() {
+      const workspaceEl = document.getElementById("lab-workspace");
+      if (workspaceEl) {
+        workspaceEl.classList.add("hidden");
+        document.body.style.overflow = "";
+      }
+      document.getElementById("workspace-iframe").src = "about:blank";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const labBoxes = document.querySelectorAll(".lab-box");
+      labBoxes.forEach(box => {
+        const link = box.querySelector("a");
+        if (link) {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const href = link.getAttribute("href");
+            const title = box.querySelector(".lab-title").textContent;
+            
+            const sectionEl = box.closest(".labs-section");
+            let categoryText = "Science";
+            if (sectionEl) {
+              const headerText = sectionEl.querySelector(".labs-section-title").textContent;
+              // Clean emoji characters out
+              categoryText = headerText.replace(/[^\w\s\-\&]/gu, '').trim();
+            }
+            
+            openLabWorkspace(href, title, categoryText);
+          });
+        }
+      });
+    });
+  </script>
+
   <script src="scripts/translation_loader.js" data-base="translations"></script>
   <script src="../search_data.js"></script>
   <script src="../search_logic.js"></script>

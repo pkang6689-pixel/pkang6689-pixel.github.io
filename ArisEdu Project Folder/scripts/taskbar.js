@@ -66,7 +66,8 @@
         "layout_adjuster.js",
         "update_notifier.js",
         "report_problem.js",
-        "course-progress-firebase.js"
+        "course-progress-firebase.js",
+        "lab_helper.js"
     ].forEach(name => {
         // Check if script already exists to prevent duplicates
         // Note: querySelector logic is imperfect for relative paths, check src content
